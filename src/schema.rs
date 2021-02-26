@@ -281,7 +281,7 @@ table! {
         secondname -> Varchar,
         nickname -> Varchar,
         orgname -> Varchar,
-        shortorgname -> Varchar,
+        shortname -> Varchar,
         inn -> Nullable<Varchar>,
         phone -> Nullable<Varchar>,
         id_name_cad -> Int4,
