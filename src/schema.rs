@@ -38,7 +38,7 @@ table! {
     component_modification_list (id) {
         id -> Int4,
         id_component -> Int4,
-        modification_name -> Nullable<Varchar>,
+        modification_name -> Varchar,
         created_at -> Timestamp,
         id_name_cad -> Int4,
         comment -> Varchar,
@@ -54,7 +54,7 @@ table! {
         id -> Int4,
         name -> Varchar,
         id_user -> Int4,
-        comment -> Nullable<Varchar>,
+        comment -> Varchar,
         id_component_parent -> Int4,
         id_actual_status -> Int4,
         id_component_type -> Int4,
@@ -97,7 +97,7 @@ table! {
         id_component -> Int4,
         id_user_from -> Int4,
         id_user_to -> Int4,
-        comment -> Nullable<Varchar>,
+        comment -> Varchar,
         id_discussion_parent -> Int4,
     }
 }
@@ -191,7 +191,7 @@ table! {
 table! {
     region_ref (id) {
         id -> Int4,
-        region -> Nullable<Varchar>,
+        region -> Varchar,
     }
 }
 
@@ -282,13 +282,13 @@ table! {
         nickname -> Varchar,
         orgname -> Varchar,
         shortname -> Varchar,
-        inn -> Nullable<Varchar>,
-        phone -> Nullable<Varchar>,
+        inn -> Varchar,
+        phone -> Varchar,
         id_name_cad -> Int4,
-        comment -> Nullable<Varchar>,
-        address -> Nullable<Varchar>,
-        time_zone -> Nullable<Varchar>,
-        position -> Nullable<Varchar>,
+        comment -> Varchar,
+        address -> Varchar,
+        time_zone -> Varchar,
+        position -> Varchar,
         site_url -> Varchar,
         id_file_info_icon -> Int4,
         id_region -> Int4,
@@ -302,9 +302,9 @@ table! {
         id_user -> Int4,
         id_region -> Int4,
         id_representation_type -> Int4,
-        name -> Nullable<Varchar>,
-        address -> Nullable<Varchar>,
-        phone -> Nullable<Varchar>,
+        name -> Varchar,
+        address -> Varchar,
+        phone -> Varchar,
     }
 }
 

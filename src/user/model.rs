@@ -14,6 +14,7 @@ pub struct User {
     pub psw_hash: Vec<u8>,
     #[graphql(skip)]
     pub psw_salt: String,
+    pub id_type_org: i32,
     pub firstname: String,
     pub lastname: String,
     pub secondname: String,
@@ -22,11 +23,14 @@ pub struct User {
     pub shortname: String,
     pub inn: String,
     pub phone: String,
+    pub id_name_cad: i32,
     pub comment: String,
     pub address: String,
     pub time_zone: String,
     pub position: String,
     pub site_url: String,
+    pub id_file_info_icon: i32,
+    pub id_region: i32,
     pub created_at: NaiveDateTime,
 }
 
@@ -38,6 +42,7 @@ pub struct InsertableUser {
     pub email_verified: i32,
     pub psw_hash: Vec<u8>,
     pub psw_salt: String,
+    pub id_type_org: i32,
     pub firstname: String,
     pub lastname: String,
     pub secondname: String,
@@ -46,11 +51,14 @@ pub struct InsertableUser {
     pub shortname: String,
     pub inn: String,
     pub phone: String,
+    pub id_name_cad: i32,
     pub comment: String,
     pub address: String,
     pub time_zone: String,
     pub position: String,
     pub site_url: String,
+    pub id_file_info_icon: i32,
+    pub id_region: i32,
     pub created_at: NaiveDateTime,
 }
 
@@ -95,6 +103,7 @@ impl From<UserData> for InsertableUser {
             email_verified: 0,
             psw_hash,
             psw_salt,
+            id_type_org: 0,
             firstname: "A".to_owned(),
             lastname: "A".to_owned(),
             secondname: "A".to_owned(),
@@ -103,11 +112,14 @@ impl From<UserData> for InsertableUser {
             shortname: "A".to_owned(),
             inn: "A".to_owned(),
             phone: "A".to_owned(),
+            id_name_cad: 0,
             comment: "A".to_owned(),
             address: "A".to_owned(),
             time_zone: "A".to_owned(),
             position: "A".to_owned(),
             site_url: "A".to_owned(),
+            id_file_info_icon: 0,
+            id_region: 0,
             created_at: chrono::Local::now().naive_local(),
         }
     }
