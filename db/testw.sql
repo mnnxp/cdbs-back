@@ -1,19 +1,19 @@
 /* + */
 /* профиль */
-CREATE TABLE client_ref (
+CREATE TABLE user_ref (
   id INTEGER PRIMARY KEY, /* id профиля */
   uuid UUID NOT NULL,
   email VARCHAR(100) NOT NULL, /*email профиля, на один адрес может быть несколько профилей (закос под reddit) */
   email_verified INTEGER NOT NULL DEFAULT '0', /* подтверждение email */
-  psw_hash BYTEA NOT NULL,
-  psw_salt VARCHAR(255) NOT NULL, /*пароль профиля */
+  psw_hash BYTEA NOT NULL, /* хеш пароля профиля */
+  psw_salt VARCHAR(255) NOT NULL, /* соль для пароля профиля */
   id_type_org INTEGER NOT NULL DEFAULT '0', /* тип профиля (физ. лицо, юр. лицо, ип) */
   firstname VARCHAR(100) NOT NULL, /*Имя */
   lastname VARCHAR(100) NOT NULL, /*Фамилия */
   secondname VARCHAR(100) NOT NULL, /*Отчество */
   nickname VARCHAR(100) NOT NULL UNIQUE, /* ник профиля (может использоваться для авторизации) */
   orgname VARCHAR(255) NOT NULL, /* наименование организации (для юр.лиц) */
-  shortorgname VARCHAR(255) NOT NULL, /* сокращённое наименование организации (для юр.лиц) */
+  shortname VARCHAR(255) NOT NULL, /* сокращённое наименование организации (для юр.лиц) */
   inn VARCHAR(30) UNIQUE, /*инн профиля */
   phone VARCHAR(100), /*номер телефона */
   id_name_cad INTEGER NOT NULL DEFAULT '0', /* САПР «по умолчанию» (для быстрой загрузки данных) */
@@ -24,29 +24,29 @@ CREATE TABLE client_ref (
   site_url VARCHAR(255) NOT NULL, /* URL адрес сайта профиля */
   id_file_info_icon INTEGER NOT NULL DEFAULT '0', /* картинка пользователя */
   id_region INTEGER NOT NULL DEFAULT '0', /* регион */
-  created_at TIMESTAMP NOT NULL DEFAULT NOW()
+  created_at TIMESTAMP NOT NULL DEFAULT NOW() /* дата создания профиля */
 );
 
 /* токен сессии клиента */
-CREATE TABLE client_tokens_ref (
+CREATE TABLE user_tokens_ref (
   id INTEGER NOT NULL, /* id токена */
-  id_client INTEGER NOT NULL, /* идентификатор пользователя */
+  id_user INTEGER NOT NULL, /* идентификатор пользователя */
   token VARCHAR(512) NOT NULL, /* токен пользователя */
   date_start TIMESTAMP NOT NULL DEFAULT NOW(), /* дата создания токена */
   date_end TIMESTAMP NOT NULL DEFAULT NOW(), /* дата окончания действия токена */
-  CONSTRAINT client_tokens_ref_pk PRIMARY KEY (id)
+  CONSTRAINT user_tokens_ref_pk PRIMARY KEY (id)
 );
 
 /* локальное представительство профиля */
-CREATE TABLE client_represet_ref (
+CREATE TABLE user_represet_ref (
   id INTEGER NOT NULL, /* id представительства */
-  id_client INTEGER NOT NULL, /* id профиля (чьё представительства) */
+  id_user INTEGER NOT NULL, /* id профиля (чьё представительства) */
   id_region INTEGER NOT NULL DEFAULT '0', /* регион представительства */
   id_representation_type INTEGER NOT NULL DEFAULT '0', /* тип представительства */
   name VARCHAR(255), /* наименование представительства */
   address VARCHAR(512), /* почтовый адрес представительства */
   phone VARCHAR(100), /* телефон представительства */
-  CONSTRAINT client_represet_ref_pk PRIMARY KEY (id)
+  CONSTRAINT user_represet_ref_pk PRIMARY KEY (id)
 );
 
 /* тип представительства профиля */
@@ -84,22 +84,22 @@ CREATE TABLE name_cad_ref (
 
 /* + */
 /* связь каталогов с профилем */
-CREATE TABLE spec_to_client (
+CREATE TABLE spec_to_user (
   id INTEGER NOT NULL, /* id связи */
   id_spec INTEGER NOT NULL, /* связанный с профилем каталог (категория) */
-  id_client INTEGER NOT NULL, /* связанный с каталогом (категорией) профиль */
-  CONSTRAINT spec_to_client_pk PRIMARY KEY (id)
+  id_user INTEGER NOT NULL, /* связанный с каталогом (категорией) профиль */
+  CONSTRAINT spec_to_user_pk PRIMARY KEY (id)
 );
 
 /* + */
 /* запись изменений данных профиля */
-CREATE TABLE client_history_list (
+CREATE TABLE user_history_list (
   id INTEGER NOT NULL, /* id события */
-  id_client INTEGER NOT NULL, /* идентификатор профиля к которому относится изменение */
+  id_user INTEGER NOT NULL, /* идентификатор профиля к которому относится изменение */
   datechange TIMESTAMP NOT NULL DEFAULT NOW(), /* дата изменения */
   id_type_of_change INTEGER NOT NULL, /* id изменения (тип изменения) */
   commentchange VARCHAR(2000) NOT NULL, /*  комментарий с вносимыми изменениями */
-  CONSTRAINT client_history_list_pk PRIMARY KEY (id)
+  CONSTRAINT user_history_list_pk PRIMARY KEY (id)
 );
 
 /* + */
@@ -115,7 +115,7 @@ CREATE TABLE type_of_change_ref (
 CREATE TABLE file_ref (
   id INTEGER NOT NULL, /* id файла */
   id_file INTEGER NOT NULL, /* идентификатор объекта/файла */
-  id_client_create INTEGER NOT NULL, /* идентификатор профиля загрузившего файл */
+  id_user_create INTEGER NOT NULL, /* идентификатор профиля загрузившего файл */
   created_at TIMESTAMP NOT NULL DEFAULT NOW(), /* дата создания/загрузки */
   filename VARCHAR(100) NOT NULL, /* наименование файла */
   id_ext INTEGER NOT NULL, /* расширение файла (используется для определения CAD) */
@@ -138,7 +138,7 @@ CREATE TABLE extension_ref (
 CREATE TABLE component_ref (
   id INTEGER NOT NULL, /* id компонента */
   name VARCHAR(225) NOT NULL UNIQUE, /* наименование компонента */
-  id_client INTEGER NOT NULL, /* идентификатор профиля загрузившего компонент */
+  id_user INTEGER NOT NULL, /* идентификатор профиля загрузившего компонент */
   comment VARCHAR(2000), /* краткое описание компонента */
   id_component_parent INTEGER NOT NULL DEFAULT '0', /* родительский компонент */
   id_actual_status INTEGER NOT NULL, /* номер статуса, к примеру: «актуальный», «архивный», «снято с производства» */
@@ -152,15 +152,15 @@ CREATE TABLE component_ref (
 );
 
 /* доступ к компоненту отдельного пользователя */
-CREATE TABLE component_access_to_client (
+CREATE TABLE component_access_to_user (
   id INTEGER NOT NULL, /* id доступа */
   id_component INTEGER NOT NULL, /* идентификатор компонента */
-  id_client INTEGER NOT NULL, /* идентификатор профиля с доступом */
+  id_user INTEGER NOT NULL, /* идентификатор профиля с доступом */
   id_type_access INTEGER NOT NULL, /* тип доступа профиля к компоненту */
   is_actual INTEGER NOT NULL DEFAULT '0', /* флаг актуальности доступа */
   is_delete INTEGER NOT NULL DEFAULT '0', /* флаг удаления доступа */
   created_at TIMESTAMP NOT NULL DEFAULT NOW(), /* дата создания доступа */
-  CONSTRAINT component_access_to_client_pk PRIMARY KEY (id)
+  CONSTRAINT component_access_to_user_pk PRIMARY KEY (id)
 );
 
 /* статус компонента */
@@ -225,8 +225,8 @@ CREATE TABLE discussion_ref (
   id INTEGER NOT NULL, /* id комментария */
   created_at TIMESTAMP NOT NULL DEFAULT NOW(), /* дата создания/редактирования */
   id_component INTEGER NOT NULL, /* идентификатор компонента */
-  id_client_from INTEGER NOT NULL, /* идентификатор профиля отправителя */
-  id_client_to INTEGER NOT NULL, /* идентификатор профиля адресата */
+  id_user_from INTEGER NOT NULL, /* идентификатор профиля отправителя */
+  id_user_to INTEGER NOT NULL, /* идентификатор профиля адресата */
   comment VARCHAR(2000), /* сообщение/комментарий */
   id_discussion_parent INTEGER NOT NULL, /* id родительского комментария */
   CONSTRAINT discussion_ref_pk PRIMARY KEY (id)
@@ -284,7 +284,7 @@ CREATE TABLE param_to_component (
 CREATE TABLE component_fav_ref (
   id INTEGER NOT NULL, /* id подписки (начала отслеживания) */
   id_component INTEGER NOT NULL, /* идентификатор компонента для отслеживания */
-  id_client INTEGER NOT NULL, /* идентификатор профиля */
+  id_user INTEGER NOT NULL, /* идентификатор профиля */
   created_at TIMESTAMP NOT NULL DEFAULT NOW(), /* дата создания/редактирования */
   is_active INTEGER NOT NULL DEFAULT '1', /*  флаг актуальности отслеживания */
   CONSTRAINT component_fav_ref_pk PRIMARY KEY (id)
@@ -300,12 +300,12 @@ CREATE TABLE region_ref (
 
 /* +add+ */
 /* список поставщиков компонента (list shippers) */
-CREATE TABLE component_to_client (
+CREATE TABLE component_to_user (
   id INTEGER NOT NULL, /* id записи профиля в поставщики компонента */
   id_component INTEGER NOT NULL, /* идентификатор компонента */
-  id_client INTEGER NOT NULL, /* идентификатор профиля поставщика */
+  id_user INTEGER NOT NULL, /* идентификатор профиля поставщика */
   comment VARCHAR(255) NOT NULL, /* комментарий к поставщику */
-  CONSTRAINT component_to_client_pk PRIMARY KEY (id)
+  CONSTRAINT component_to_user_pk PRIMARY KEY (id)
 );
 
 /* +add+ */
@@ -343,28 +343,28 @@ CREATE TABLE param_to_modification (
   CONSTRAINT param_to_modification_pk PRIMARY KEY (id)
 );
 
-ALTER TABLE client_ref ADD CONSTRAINT client_ref_fk0 FOREIGN KEY (id_type_org) REFERENCES type_org_ref(id);
-ALTER TABLE client_ref ADD CONSTRAINT client_ref_fk1 FOREIGN KEY (id_name_cad) REFERENCES name_cad_ref(id);
-ALTER TABLE client_ref ADD CONSTRAINT client_ref_fk2 FOREIGN KEY (id_file_info_icon) REFERENCES file_ref(id);
-ALTER TABLE client_ref ADD CONSTRAINT client_ref_fk3 FOREIGN KEY (id_region) REFERENCES region_ref(id);
+ALTER TABLE user_ref ADD CONSTRAINT user_ref_fk0 FOREIGN KEY (id_type_org) REFERENCES type_org_ref(id);
+ALTER TABLE user_ref ADD CONSTRAINT user_ref_fk1 FOREIGN KEY (id_name_cad) REFERENCES name_cad_ref(id);
+ALTER TABLE user_ref ADD CONSTRAINT user_ref_fk2 FOREIGN KEY (id_file_info_icon) REFERENCES file_ref(id);
+ALTER TABLE user_ref ADD CONSTRAINT user_ref_fk3 FOREIGN KEY (id_region) REFERENCES region_ref(id);
 
-ALTER TABLE client_tokens_ref ADD CONSTRAINT client_tokens_ref_fk0 FOREIGN KEY (id_client) REFERENCES client_ref(id);
+ALTER TABLE user_tokens_ref ADD CONSTRAINT user_tokens_ref_fk0 FOREIGN KEY (id_user) REFERENCES user_ref(id);
 
 ALTER TABLE spec_ref ADD CONSTRAINT spec_ref_fk0 FOREIGN KEY (id_spec_parent) REFERENCES spec_ref(id);
 
-ALTER TABLE spec_to_client ADD CONSTRAINT spec_to_client_fk0 FOREIGN KEY (id_spec) REFERENCES spec_ref(id);
-ALTER TABLE spec_to_client ADD CONSTRAINT spec_to_client_fk1 FOREIGN KEY (id_client) REFERENCES client_ref(id);
+ALTER TABLE spec_to_user ADD CONSTRAINT spec_to_user_fk0 FOREIGN KEY (id_spec) REFERENCES spec_ref(id);
+ALTER TABLE spec_to_user ADD CONSTRAINT spec_to_user_fk1 FOREIGN KEY (id_user) REFERENCES user_ref(id);
 
-ALTER TABLE client_history_list ADD CONSTRAINT client_history_list_fk0 FOREIGN KEY (id_client) REFERENCES client_ref(id);
-ALTER TABLE client_history_list ADD CONSTRAINT client_history_list_fk1 FOREIGN KEY (id_type_of_change) REFERENCES type_of_change_ref(id);
+ALTER TABLE user_history_list ADD CONSTRAINT user_history_list_fk0 FOREIGN KEY (id_user) REFERENCES user_ref(id);
+ALTER TABLE user_history_list ADD CONSTRAINT user_history_list_fk1 FOREIGN KEY (id_type_of_change) REFERENCES type_of_change_ref(id);
 
 ALTER TABLE file_ref ADD CONSTRAINT file_ref_fk0 FOREIGN KEY (id_file) REFERENCES file_ref(id);
-ALTER TABLE file_ref ADD CONSTRAINT file_ref_fk1 FOREIGN KEY (id_client_create) REFERENCES client_ref(id);
+ALTER TABLE file_ref ADD CONSTRAINT file_ref_fk1 FOREIGN KEY (id_user_create) REFERENCES user_ref(id);
 ALTER TABLE file_ref ADD CONSTRAINT file_ref_fk2 FOREIGN KEY (id_ext) REFERENCES extension_ref(id);
 
 ALTER TABLE extension_ref ADD CONSTRAINT extension_ref_fk0 FOREIGN KEY (id_name_cad) REFERENCES name_cad_ref(id);
 
-ALTER TABLE component_ref ADD CONSTRAINT component_ref_fk0 FOREIGN KEY (id_client) REFERENCES client_ref(id);
+ALTER TABLE component_ref ADD CONSTRAINT component_ref_fk0 FOREIGN KEY (id_user) REFERENCES user_ref(id);
 ALTER TABLE component_ref ADD CONSTRAINT component_ref_fk1 FOREIGN KEY (id_component_parent) REFERENCES component_ref(id);
 ALTER TABLE component_ref ADD CONSTRAINT component_ref_fk2 FOREIGN KEY (id_actual_status) REFERENCES actual_status_ref(id);
 ALTER TABLE component_ref ADD CONSTRAINT component_ref_fk3 FOREIGN KEY (id_component_type) REFERENCES component_type_ref(id);
@@ -380,15 +380,15 @@ ALTER TABLE component_to_keyword ADD CONSTRAINT component_to_keyword_fk0 FOREIGN
 ALTER TABLE component_to_keyword ADD CONSTRAINT component_to_keyword_fk1 FOREIGN KEY (id_component_keyword) REFERENCES component_keyword_ref(id);
 
 ALTER TABLE discussion_ref ADD CONSTRAINT discussion_ref_fk0 FOREIGN KEY (id_component) REFERENCES component_ref(id);
-ALTER TABLE discussion_ref ADD CONSTRAINT discussion_ref_fk1 FOREIGN KEY (id_client_from) REFERENCES client_ref(id);
-ALTER TABLE discussion_ref ADD CONSTRAINT discussion_ref_fk2 FOREIGN KEY (id_client_to) REFERENCES client_ref(id);
+ALTER TABLE discussion_ref ADD CONSTRAINT discussion_ref_fk1 FOREIGN KEY (id_user_from) REFERENCES user_ref(id);
+ALTER TABLE discussion_ref ADD CONSTRAINT discussion_ref_fk2 FOREIGN KEY (id_user_to) REFERENCES user_ref(id);
 ALTER TABLE discussion_ref ADD CONSTRAINT discussion_ref_fk3 FOREIGN KEY (id_discussion_parent) REFERENCES discussion_ref(id);
 
 ALTER TABLE param_to_component ADD CONSTRAINT param_to_component_fk0 FOREIGN KEY (id_component) REFERENCES component_ref(id);
 ALTER TABLE param_to_component ADD CONSTRAINT param_to_component_fk1 FOREIGN KEY (id_param) REFERENCES param_ref(id);
 
 ALTER TABLE component_fav_ref ADD CONSTRAINT component_fav_ref_fk0 FOREIGN KEY (id_component) REFERENCES component_ref(id);
-ALTER TABLE component_fav_ref ADD CONSTRAINT component_fav_ref_fk1 FOREIGN KEY (id_client) REFERENCES client_ref(id);
+ALTER TABLE component_fav_ref ADD CONSTRAINT component_fav_ref_fk1 FOREIGN KEY (id_user) REFERENCES user_ref(id);
 
 ALTER TABLE spec_translate_list ADD CONSTRAINT spec_translate_list_fk0 FOREIGN KEY (id_spec) REFERENCES spec_ref(id);
 ALTER TABLE spec_translate_list ADD CONSTRAINT spec_translate_list_fk1 FOREIGN KEY (id_lang) REFERENCES language_ref(id);
@@ -396,16 +396,16 @@ ALTER TABLE spec_translate_list ADD CONSTRAINT spec_translate_list_fk1 FOREIGN K
 ALTER TABLE param_translate_list ADD CONSTRAINT param_translate_list_fk0 FOREIGN KEY (id_param) REFERENCES param_ref(id);
 ALTER TABLE param_translate_list ADD CONSTRAINT param_translate_list_fk1 FOREIGN KEY (id_lang) REFERENCES language_ref(id);
 
-ALTER TABLE client_represet_ref ADD CONSTRAINT client_represet_ref_fk0 FOREIGN KEY (id_client) REFERENCES client_ref(id);
-ALTER TABLE client_represet_ref ADD CONSTRAINT client_represet_ref_fk1 FOREIGN KEY (id_representation_type) REFERENCES representation_type_ref(id);
-ALTER TABLE client_represet_ref ADD CONSTRAINT client_represet_ref_fk2 FOREIGN KEY (id_region) REFERENCES region_ref(id);
+ALTER TABLE user_represet_ref ADD CONSTRAINT user_represet_ref_fk0 FOREIGN KEY (id_user) REFERENCES user_ref(id);
+ALTER TABLE user_represet_ref ADD CONSTRAINT user_represet_ref_fk1 FOREIGN KEY (id_representation_type) REFERENCES representation_type_ref(id);
+ALTER TABLE user_represet_ref ADD CONSTRAINT user_represet_ref_fk2 FOREIGN KEY (id_region) REFERENCES region_ref(id);
 
-ALTER TABLE component_access_to_client ADD CONSTRAINT component_access_to_client_fk0 FOREIGN KEY (id_component) REFERENCES component_ref(id);
-ALTER TABLE component_access_to_client ADD CONSTRAINT component_access_to_client_fk1 FOREIGN KEY (id_client) REFERENCES client_ref(id);
-ALTER TABLE component_access_to_client ADD CONSTRAINT component_access_to_client_fk2 FOREIGN KEY (id_type_access) REFERENCES type_access_ref(id);
+ALTER TABLE component_access_to_user ADD CONSTRAINT component_access_to_user_fk0 FOREIGN KEY (id_component) REFERENCES component_ref(id);
+ALTER TABLE component_access_to_user ADD CONSTRAINT component_access_to_user_fk1 FOREIGN KEY (id_user) REFERENCES user_ref(id);
+ALTER TABLE component_access_to_user ADD CONSTRAINT component_access_to_user_fk2 FOREIGN KEY (id_type_access) REFERENCES type_access_ref(id);
 
-ALTER TABLE component_to_client ADD CONSTRAINT component_to_client_fk0 FOREIGN KEY (id_component) REFERENCES component_ref(id);
-ALTER TABLE component_to_client ADD CONSTRAINT component_to_client_fk1 FOREIGN KEY (id_client) REFERENCES client_ref(id);
+ALTER TABLE component_to_user ADD CONSTRAINT component_to_user_fk0 FOREIGN KEY (id_component) REFERENCES component_ref(id);
+ALTER TABLE component_to_user ADD CONSTRAINT component_to_user_fk1 FOREIGN KEY (id_user) REFERENCES user_ref(id);
 
 ALTER TABLE component_modification_list ADD CONSTRAINT component_modification_list_fk0 FOREIGN KEY (id_component) REFERENCES component_ref(id);
 ALTER TABLE component_modification_list ADD CONSTRAINT component_modification_list_fk1 FOREIGN KEY (id_name_cad) REFERENCES name_cad_ref(id);
@@ -418,44 +418,44 @@ ALTER TABLE file_to_modification ADD CONSTRAINT file_to_modification_fk1 FOREIGN
 ALTER TABLE param_to_modification ADD CONSTRAINT param_to_modification_fk0 FOREIGN KEY (id_modification) REFERENCES component_modification_list(id);
 ALTER TABLE param_to_modification ADD CONSTRAINT param_to_modification_fk1 FOREIGN KEY (id_param) REFERENCES param_ref(id);
 
-COMMENT ON TABLE client_ref IS 'профиль';
-COMMENT ON COLUMN client_ref.id IS 'id профиля';
-COMMENT ON COLUMN client_ref.email IS 'email профиля, на один адрес может быть несколько профилей (закос под reddit)';
-COMMENT ON COLUMN client_ref.email_verified IS 'подтверждение email';
-COMMENT ON COLUMN client_ref.psw IS 'пароль профиля';
-COMMENT ON COLUMN client_ref.id_type_org  IS 'тип профиля (физ. лицо, юр. лицо, ип)';
-COMMENT ON COLUMN client_ref.firstname IS 'Имя';
-COMMENT ON COLUMN client_ref.lastname IS 'Фамилия';
-COMMENT ON COLUMN client_ref.secondname IS 'Отчество';
-COMMENT ON COLUMN client_ref.nickname IS 'ник профиля (может использоваться для авторизации)';
-COMMENT ON COLUMN client_ref.orgname IS 'наименование организации (для юр.лиц)';
-COMMENT ON COLUMN client_ref.shortorgname IS 'сокращённое наименование организации (для юр.лиц)';
-COMMENT ON COLUMN client_ref.inn IS 'инн профиля';
-COMMENT ON COLUMN client_ref.phone IS 'номер телефона';
-COMMENT ON COLUMN client_ref.id_name_cad IS 'САПР «по умолчанию» (для быстрой загрузки данных)';
-COMMENT ON COLUMN client_ref.comment IS 'информация для связи, подпись';
-COMMENT ON COLUMN client_ref.address IS 'почтовый адрес';
-COMMENT ON COLUMN client_ref.time_zone IS 'часовой пояс профиля';
-COMMENT ON COLUMN client_ref.position IS 'роль/должность';
-COMMENT ON COLUMN client_ref.site_url IS 'URL адрес сайта профиля';
-COMMENT ON COLUMN client_ref.id_file_info_icon IS 'картинка пользователя';
-COMMENT ON COLUMN client_ref.id_region IS 'регион пользователя';
+COMMENT ON TABLE user_ref IS 'профиль';
+COMMENT ON COLUMN user_ref.id IS 'id профиля';
+COMMENT ON COLUMN user_ref.email IS 'email профиля, на один адрес может быть несколько профилей (закос под reddit)';
+COMMENT ON COLUMN user_ref.email_verified IS 'подтверждение email';
+COMMENT ON COLUMN user_ref.psw IS 'пароль профиля';
+COMMENT ON COLUMN user_ref.id_type_org  IS 'тип профиля (физ. лицо, юр. лицо, ип)';
+COMMENT ON COLUMN user_ref.firstname IS 'Имя';
+COMMENT ON COLUMN user_ref.lastname IS 'Фамилия';
+COMMENT ON COLUMN user_ref.secondname IS 'Отчество';
+COMMENT ON COLUMN user_ref.nickname IS 'ник профиля (может использоваться для авторизации)';
+COMMENT ON COLUMN user_ref.orgname IS 'наименование организации (для юр.лиц)';
+COMMENT ON COLUMN user_ref.shortname IS 'сокращённое наименование организации (для юр.лиц)';
+COMMENT ON COLUMN user_ref.inn IS 'инн профиля';
+COMMENT ON COLUMN user_ref.phone IS 'номер телефона';
+COMMENT ON COLUMN user_ref.id_name_cad IS 'САПР «по умолчанию» (для быстрой загрузки данных)';
+COMMENT ON COLUMN user_ref.comment IS 'информация для связи, подпись';
+COMMENT ON COLUMN user_ref.address IS 'почтовый адрес';
+COMMENT ON COLUMN user_ref.time_zone IS 'часовой пояс профиля';
+COMMENT ON COLUMN user_ref.position IS 'роль/должность';
+COMMENT ON COLUMN user_ref.site_url IS 'URL адрес сайта профиля';
+COMMENT ON COLUMN user_ref.id_file_info_icon IS 'картинка пользователя';
+COMMENT ON COLUMN user_ref.id_region IS 'регион пользователя';
 
-COMMENT ON TABLE client_tokens_ref IS 'токен сессии клиента';
-COMMENT ON COLUMN client_tokens_ref.id IS 'id токена';
-COMMENT ON COLUMN client_tokens_ref.id_client IS 'идентификатор пользователя';
-COMMENT ON COLUMN client_tokens_ref.token IS 'токен пользователя';
-COMMENT ON COLUMN client_tokens_ref.date_start IS 'дата создания токена';
-COMMENT ON COLUMN client_tokens_ref.date_end IS 'дата окончания действия токена';
+COMMENT ON TABLE user_tokens_ref IS 'токен сессии клиента';
+COMMENT ON COLUMN user_tokens_ref.id IS 'id токена';
+COMMENT ON COLUMN user_tokens_ref.id_user IS 'идентификатор пользователя';
+COMMENT ON COLUMN user_tokens_ref.token IS 'токен пользователя';
+COMMENT ON COLUMN user_tokens_ref.date_start IS 'дата создания токена';
+COMMENT ON COLUMN user_tokens_ref.date_end IS 'дата окончания действия токена';
 
-COMMENT ON TABLE client_represet_ref IS 'локальное представительство профиля';
-COMMENT ON COLUMN client_represet_ref.id IS 'id представительства';
-COMMENT ON COLUMN client_represet_ref.id_client IS 'id профиля (чьё представительства)';
-COMMENT ON COLUMN client_represet_ref.id_region IS 'регион представительства';
-COMMENT ON COLUMN client_represet_ref.id_representation_type IS 'тип представительства';
-COMMENT ON COLUMN client_represet_ref.name IS 'наименование представительства';
-COMMENT ON COLUMN client_represet_ref.address IS 'почтовый адрес представительства';
-COMMENT ON COLUMN client_represet_ref.phone IS 'телефон представительства';
+COMMENT ON TABLE user_represet_ref IS 'локальное представительство профиля';
+COMMENT ON COLUMN user_represet_ref.id IS 'id представительства';
+COMMENT ON COLUMN user_represet_ref.id_user IS 'id профиля (чьё представительства)';
+COMMENT ON COLUMN user_represet_ref.id_region IS 'регион представительства';
+COMMENT ON COLUMN user_represet_ref.id_representation_type IS 'тип представительства';
+COMMENT ON COLUMN user_represet_ref.name IS 'наименование представительства';
+COMMENT ON COLUMN user_represet_ref.address IS 'почтовый адрес представительства';
+COMMENT ON COLUMN user_represet_ref.phone IS 'телефон представительства';
 
 COMMENT ON TABLE representation_type_ref IS 'тип представительства профиля';
 COMMENT ON COLUMN representation_type_ref.id IS 'id типа представительства';
@@ -475,17 +475,17 @@ COMMENT ON TABLE name_cad_ref IS 'перечень CAD (и других прог
 COMMENT ON COLUMN name_cad_ref.id IS 'id наименования софта';
 COMMENT ON COLUMN name_cad_ref._name_cad IS 'наименование CAD (название программы)';
 
-COMMENT ON TABLE spec_to_client IS 'связь каталогов с профилем';
-COMMENT ON COLUMN spec_to_client.id IS 'id связи';
-COMMENT ON COLUMN spec_to_client.id_spec IS 'связанный с профилем каталог (категория)';
-COMMENT ON COLUMN spec_to_client.id_client IS 'связанный с каталогом (категорией) профиль';
+COMMENT ON TABLE spec_to_user IS 'связь каталогов с профилем';
+COMMENT ON COLUMN spec_to_user.id IS 'id связи';
+COMMENT ON COLUMN spec_to_user.id_spec IS 'связанный с профилем каталог (категория)';
+COMMENT ON COLUMN spec_to_user.id_user IS 'связанный с каталогом (категорией) профиль';
 
-COMMENT ON TABLE client_history_list IS 'запись изменений данных профиля';
-COMMENT ON COLUMN client_history_list.id IS 'id события';
-COMMENT ON COLUMN client_history_list.id_client IS 'идентификатор профиля к которому относится изменение';
-COMMENT ON COLUMN client_history_list.datechange IS 'дата изменения ';
-COMMENT ON COLUMN client_history_list.id_type_of_change IS 'id изменения (тип изменения)';
-COMMENT ON COLUMN client_history_list.commentchange IS 'комментарий с вносимыми изменениями';
+COMMENT ON TABLE user_history_list IS 'запись изменений данных профиля';
+COMMENT ON COLUMN user_history_list.id IS 'id события';
+COMMENT ON COLUMN user_history_list.id_user IS 'идентификатор профиля к которому относится изменение';
+COMMENT ON COLUMN user_history_list.datechange IS 'дата изменения ';
+COMMENT ON COLUMN user_history_list.id_type_of_change IS 'id изменения (тип изменения)';
+COMMENT ON COLUMN user_history_list.commentchange IS 'комментарий с вносимыми изменениями';
 
 COMMENT ON TABLE type_of_change_ref IS 'перечень типов изменений';
 COMMENT ON COLUMN type_of_change_ref.id IS 'id типа изменения';
@@ -494,7 +494,7 @@ COMMENT ON COLUMN type_of_change_ref._type_of_change IS 'наименовани�
 COMMENT ON TABLE file_ref IS 'информация о файле (изображении)';
 COMMENT ON COLUMN file_ref.id IS 'id файла';
 COMMENT ON COLUMN file_ref.id_file IS 'идентификатор объекта/файла';
-COMMENT ON COLUMN file_ref.id_client_create IS 'идентификатор профиля загрузившего файл';
+COMMENT ON COLUMN file_ref.id_user_create IS 'идентификатор профиля загрузившего файл';
 COMMENT ON COLUMN file_ref.created_at IS 'дата создания/загрузки';
 COMMENT ON COLUMN file_ref.filename IS 'наименование файла';
 COMMENT ON COLUMN file_ref.id_ext IS 'расширение файла (используется для определения CAD)';
@@ -509,7 +509,7 @@ COMMENT ON COLUMN extension_ref.id_name_cad IS 'соответствующая �
 COMMENT ON TABLE component_ref IS 'компонент';
 COMMENT ON COLUMN component_ref.id IS 'id компонента';
 COMMENT ON COLUMN component_ref.name IS 'наименование компонента';
-COMMENT ON COLUMN component_ref.id_client IS 'идентификатор профиля загрузившего компонент';
+COMMENT ON COLUMN component_ref.id_user IS 'идентификатор профиля загрузившего компонент';
 COMMENT ON COLUMN component_ref.comment IS 'краткое описание компонента';
 COMMENT ON COLUMN component_ref.id_name_cad IS 'соответствующая программа (CAD)';
 COMMENT ON COLUMN component_ref.id_component_parent IS 'родительский компонент';
@@ -521,14 +521,14 @@ COMMENT ON COLUMN component_ref.commentchange IS 'комментарий с вн
 COMMENT ON COLUMN component_ref.is_standard IS 'компонент соответствует стандарту';
 COMMENT ON COLUMN component_ref.created_at IS 'дата создания/загрузки';
 
-COMMENT ON TABLE component_access_to_client IS 'доступ к компоненту отдельного пользователя';
-COMMENT ON COLUMN component_access_to_client.id IS 'id доступа';
-COMMENT ON COLUMN component_access_to_client.id_component IS 'идентификатор компонента';
-COMMENT ON COLUMN component_access_to_client.id_client IS 'идентификатор профиля с доступом';
-COMMENT ON COLUMN component_access_to_client.id_type_access IS 'тип доступа профиля к компоненту';
-COMMENT ON COLUMN component_access_to_client.is_actual IS 'флаг актуальности доступа';
-COMMENT ON COLUMN component_access_to_client.is_delete IS 'флаг удаления доступа';
-COMMENT ON COLUMN component_access_to_client.created_at IS 'дата создания доступа';
+COMMENT ON TABLE component_access_to_user IS 'доступ к компоненту отдельного пользователя';
+COMMENT ON COLUMN component_access_to_user.id IS 'id доступа';
+COMMENT ON COLUMN component_access_to_user.id_component IS 'идентификатор компонента';
+COMMENT ON COLUMN component_access_to_user.id_user IS 'идентификатор профиля с доступом';
+COMMENT ON COLUMN component_access_to_user.id_type_access IS 'тип доступа профиля к компоненту';
+COMMENT ON COLUMN component_access_to_user.is_actual IS 'флаг актуальности доступа';
+COMMENT ON COLUMN component_access_to_user.is_delete IS 'флаг удаления доступа';
+COMMENT ON COLUMN component_access_to_user.created_at IS 'дата создания доступа';
 
 COMMENT ON TABLE actual_status_ref IS 'статус компонента';
 COMMENT ON COLUMN actual_status_ref.id IS 'id статуса';
@@ -565,8 +565,8 @@ COMMENT ON TABLE discussion_ref IS 'обсуждение компонента';
 COMMENT ON COLUMN discussion_ref.id IS 'id комментария';
 COMMENT ON COLUMN discussion_ref.created_at IS 'дата создания/редактирования';
 COMMENT ON COLUMN discussion_ref.id_component IS 'идентификатор компонента';
-COMMENT ON COLUMN discussion_ref.id_client_from IS 'идентификатор профиля отправителя';
-COMMENT ON COLUMN discussion_ref.id_client_to IS 'идентификатор профиля адресата';
+COMMENT ON COLUMN discussion_ref.id_user_from IS 'идентификатор профиля отправителя';
+COMMENT ON COLUMN discussion_ref.id_user_to IS 'идентификатор профиля адресата';
 COMMENT ON COLUMN discussion_ref.comment IS 'сообщение/комментарий';
 COMMENT ON COLUMN discussion_ref.id_discussion_parent IS 'id родительского комментария';
 
@@ -600,7 +600,7 @@ COMMENT ON COLUMN param_to_component.value IS 'параметр компонен
 COMMENT ON TABLE component_fav_ref IS 'отслеживание компонента';
 COMMENT ON COLUMN component_fav_ref.id IS 'id подписки (начала отслеживания)';
 COMMENT ON COLUMN component_fav_ref.id_component IS 'идентификатор компонента для отслеживания';
-COMMENT ON COLUMN component_fav_ref.id_client IS 'идентификатор профиля';
+COMMENT ON COLUMN component_fav_ref.id_user IS 'идентификатор профиля';
 COMMENT ON COLUMN component_fav_ref.created_at IS 'дата создания/редактирования';
 COMMENT ON COLUMN component_fav_ref.is_active IS 'флаг актуальности отслеживания';
 
@@ -608,11 +608,11 @@ COMMENT ON TABLE region_ref IS 'регион'
 COMMENT ON COLUMN region_ref.id IS 'id наименования региона'
 COMMENT ON COLUMN region_ref.region IS 'наименование региона'
 
-COMMENT ON TABLE component_to_client IS 'список поставщиков компонента'
-COMMENT ON COLUMN component_to_client.id IS 'id записи профиля в поставщики компонента'
-COMMENT ON COLUMN component_to_client.id_component IS 'идентификатор компонента'
-COMMENT ON COLUMN component_to_client.id_client IS 'идентификатор профиля поставщика'
-COMMENT ON COLUMN component_to_client.comment IS 'комментарий к поставщику'
+COMMENT ON TABLE component_to_user IS 'список поставщиков компонента'
+COMMENT ON COLUMN component_to_user.id IS 'id записи профиля в поставщики компонента'
+COMMENT ON COLUMN component_to_user.id_component IS 'идентификатор компонента'
+COMMENT ON COLUMN component_to_user.id_user IS 'идентификатор профиля поставщика'
+COMMENT ON COLUMN component_to_user.comment IS 'комментарий к поставщику'
 
 COMMENT ON TABLE component_modification_list IS 'список модификаций компонента'
 COMMENT ON COLUMN component_modification_list.id IS 'id компонента'

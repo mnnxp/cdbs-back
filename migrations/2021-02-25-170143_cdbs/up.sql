@@ -13,7 +13,7 @@ CREATE TABLE user_ref (
   secondname VARCHAR(100) NOT NULL, /*Отчество */
   nickname VARCHAR(100) NOT NULL UNIQUE, /* ник профиля (может использоваться для авторизации) */
   orgname VARCHAR(255) NOT NULL, /* наименование организации (для юр.лиц) */
-  shortorgname VARCHAR(255) NOT NULL, /* сокращённое наименование организации (для юр.лиц) */
+  shortname VARCHAR(255) NOT NULL, /* сокращённое наименование организации (для юр.лиц) */
   inn VARCHAR(30) UNIQUE, /*инн профиля */
   phone VARCHAR(100), /*номер телефона */
   id_name_cad INTEGER NOT NULL DEFAULT '0', /* САПР «по умолчанию» (для быстрой загрузки данных) */
