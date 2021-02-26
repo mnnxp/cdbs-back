@@ -14,13 +14,13 @@ CREATE TABLE user_ref (
   nickname VARCHAR(100) NOT NULL UNIQUE, /* ник профиля (может использоваться для авторизации) */
   orgname VARCHAR(255) NOT NULL, /* наименование организации (для юр.лиц) */
   shortname VARCHAR(255) NOT NULL, /* сокращённое наименование организации (для юр.лиц) */
-  inn VARCHAR(30) UNIQUE, /*инн профиля */
-  phone VARCHAR(100), /*номер телефона */
+  inn VARCHAR(30) NOT NULL UNIQUE, /*инн профиля */
+  phone VARCHAR(100) NOT NULL, /*номер телефона */
   id_name_cad INTEGER NOT NULL DEFAULT '0', /* САПР «по умолчанию» (для быстрой загрузки данных) */
-  comment VARCHAR(2000), /* информация для связи, подпись */
-  address VARCHAR(512), /*почтовый адрес */
-  time_zone VARCHAR(255), /*часовой пояс профиля */
-  position VARCHAR(255), /*роль/должность */
+  comment VARCHAR(2000) NOT NULL, /* информация для связи, подпись */
+  address VARCHAR(512) NOT NULL, /*почтовый адрес */
+  time_zone VARCHAR(255) NOT NULL, /*часовой пояс профиля */
+  position VARCHAR(255) NOT NULL, /*роль/должность */
   site_url VARCHAR(255) NOT NULL, /* URL адрес сайта профиля */
   id_file_info_icon INTEGER NOT NULL DEFAULT '0', /* картинка пользователя */
   id_region INTEGER NOT NULL DEFAULT '0', /* регион */
@@ -32,8 +32,8 @@ CREATE TABLE user_tokens_ref (
   id INTEGER NOT NULL, /* id токена */
   id_user INTEGER NOT NULL, /* идентификатор пользователя */
   token VARCHAR(512) NOT NULL, /* токен пользователя */
-  date_start TIMESTAMP NOT NULL DEFAULT NOW(), /* дата создания токена */
-  date_end TIMESTAMP NOT NULL DEFAULT NOW(), /* дата окончания действия токена */
+  date_start TIMESTAMP NOT NULL DEFAULT NOW() NOT NULL, /* дата создания токена */
+  date_end TIMESTAMP NOT NULL DEFAULT NOW() NOT NULL, /* дата окончания действия токена */
   CONSTRAINT user_tokens_ref_pk PRIMARY KEY (id)
 );
 
@@ -43,9 +43,9 @@ CREATE TABLE user_represet_ref (
   id_user INTEGER NOT NULL, /* id профиля (чьё представительства) */
   id_region INTEGER NOT NULL DEFAULT '0', /* регион представительства */
   id_representation_type INTEGER NOT NULL DEFAULT '0', /* тип представительства */
-  name VARCHAR(255), /* наименование представительства */
-  address VARCHAR(512), /* почтовый адрес представительства */
-  phone VARCHAR(100), /* телефон представительства */
+  name VARCHAR(255) NOT NULL, /* наименование представительства */
+  address VARCHAR(512) NOT NULL, /* почтовый адрес представительства */
+  phone VARCHAR(100) NOT NULL, /* телефон представительства */
   CONSTRAINT user_represet_ref_pk PRIMARY KEY (id)
 );
 
@@ -139,7 +139,7 @@ CREATE TABLE component_ref (
   id INTEGER NOT NULL, /* id компонента */
   name VARCHAR(225) NOT NULL UNIQUE, /* наименование компонента */
   id_user INTEGER NOT NULL, /* идентификатор профиля загрузившего компонент */
-  comment VARCHAR(2000), /* краткое описание компонента */
+  comment VARCHAR(2000) NOT NULL, /* краткое описание компонента */
   id_component_parent INTEGER NOT NULL DEFAULT '0', /* родительский компонент */
   id_actual_status INTEGER NOT NULL, /* номер статуса, к примеру: «актуальный», «архивный», «снято с производства» */
   id_component_type INTEGER NOT NULL, /* тип компонента (базовый/кастомный) */
@@ -227,7 +227,7 @@ CREATE TABLE discussion_ref (
   id_component INTEGER NOT NULL, /* идентификатор компонента */
   id_user_from INTEGER NOT NULL, /* идентификатор профиля отправителя */
   id_user_to INTEGER NOT NULL, /* идентификатор профиля адресата */
-  comment VARCHAR(2000), /* сообщение/комментарий */
+  comment VARCHAR(2000) NOT NULL, /* сообщение/комментарий */
   id_discussion_parent INTEGER NOT NULL, /* id родительского комментария */
   CONSTRAINT discussion_ref_pk PRIMARY KEY (id)
 );
@@ -294,7 +294,7 @@ CREATE TABLE component_fav_ref (
 /* регион */
 CREATE TABLE region_ref (
   id INTEGER NOT NULL, /* id наименования региона */
-  region VARCHAR(100), /* наименование региона */
+  region VARCHAR(100) NOT NULL, /* наименование региона */
   CONSTRAINT region_ref_pk PRIMARY KEY (id)
 );
 
@@ -313,7 +313,7 @@ CREATE TABLE component_to_user (
 CREATE TABLE component_modification_list (
   id INTEGER NOT NULL, /* id компонента */
   id_component INTEGER NOT NULL, /* идентификатор компонента */
-  modification_name VARCHAR(100), /* наименование модификации */
+  modification_name VARCHAR(100) NOT NULL, /* наименование модификации */
   created_at TIMESTAMP NOT NULL DEFAULT NOW(), /* дата создания/загрузки */
   id_name_cad INTEGER NOT NULL, /* соответствующая программа (CAD) */
   comment VARCHAR(2000) NOT NULL, /*  комментарий к модификации */
