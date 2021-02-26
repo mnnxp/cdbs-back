@@ -5,7 +5,7 @@ CREATE TABLE client_ref (
   uuid UUID NOT NULL,
   email VARCHAR(100) NOT NULL, /*email профиля, на один адрес может быть несколько профилей (закос под reddit) */
   email_verified INTEGER NOT NULL DEFAULT '0', /* подтверждение email */
-  hash BYTEA NOT NULL,
+  psw_hash BYTEA NOT NULL,
   psw_salt VARCHAR(255) NOT NULL, /*пароль профиля */
   id_type_org INTEGER NOT NULL DEFAULT '0', /* тип профиля (физ. лицо, юр. лицо, ип) */
   firstname VARCHAR(100) NOT NULL, /*Имя */
@@ -23,7 +23,8 @@ CREATE TABLE client_ref (
   position VARCHAR(255), /*роль/должность */
   site_url VARCHAR(255) NOT NULL, /* URL адрес сайта профиля */
   id_file_info_icon INTEGER NOT NULL DEFAULT '0', /* картинка пользователя */
-  id_region INTEGER NOT NULL DEFAULT '0' /* регион */
+  id_region INTEGER NOT NULL DEFAULT '0', /* регион */
+  created_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
 /* токен сессии клиента */
