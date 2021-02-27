@@ -36,7 +36,7 @@ pub async fn register(
 
 #[derive(Debug, Deserialize)]
 pub(super) struct LoginQuery {
-    pub email: String,
+    pub nickname: String,
     pub password: String,
 }
 
@@ -45,7 +45,7 @@ pub(super) async fn login(
     id: Identity,
     pool: web::Data<Pool>,
 ) -> Result<HttpResponse, ServiceError> {
-    user::login(&auth_data.email, &auth_data.password, pool).and_then(|res| {
+    user::login(&auth_data.nickname, &auth_data.password, pool).and_then(|res| {
         let user_string =
             serde_json::to_string(&res).map_err(|_| ServiceError::InternalServerError)?;
         debug!("user_string={}", user_string);

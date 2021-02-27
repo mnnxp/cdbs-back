@@ -75,7 +75,7 @@ pub struct UserData {
 #[derive(Debug, Serialize, Deserialize, Clone, juniper::GraphQLObject)]
 pub struct SlimUser {
     pub uuid: Uuid,
-    pub email: String,
+    pub nickname: String,
 }
 
 #[derive(Shrinkwrap, Clone, Default)]
@@ -119,7 +119,7 @@ impl From<UserData> for InsertableUser {
             id_name_cad: 1,
             comment: "A".to_owned(),
             address: "A".to_owned(),
-            time_zone: "A".to_owned(),
+            time_zone: "UTC+3".to_owned(),
             position: "A".to_owned(),
             site_url: "A".to_owned(),
             id_file_info_icon: 1,
@@ -128,17 +128,18 @@ impl From<UserData> for InsertableUser {
         }
     }
 }
+
 impl From<User> for SlimUser {
     fn from(user: User) -> Self {
         let User {
             uuid,
-            email,
+            nickname,
             ..
         } = user;
 
         Self {
             uuid,
-            email,
+            nickname,
         }
     }
 }
