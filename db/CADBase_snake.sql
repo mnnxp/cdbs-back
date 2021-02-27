@@ -7,7 +7,7 @@ CREATE TABLE user_ref (
   email_verified INTEGER NOT NULL DEFAULT '1', /* подтверждение email */
   psw_hash BYTEA NOT NULL, /* хеш пароля профиля */
   psw_salt VARCHAR(255) NOT NULL, /* соль для пароля профиля */
-  id_type_org INTEGER NOT NULL DEFAULT '1', /* тип профиля (физ. лицо, юр. лицо, ип) */
+  id_type_user INTEGER NOT NULL DEFAULT '1', /* тип профиля (физ. лицо, юр. лицо, ип) */
   firstname VARCHAR(100) NOT NULL, /*Имя */
   lastname VARCHAR(100) NOT NULL, /*Фамилия */
   secondname VARCHAR(100) NOT NULL, /*Отчество */
@@ -58,11 +58,11 @@ CREATE TABLE representation_type_ref (
 
 /* + */
 /* тип профиля */
-CREATE TABLE type_org_ref (
+CREATE TABLE type_user_ref (
   id SERIAL, /* id типа профиля*/
   typeorg VARCHAR(100) NOT NULL UNIQUE, /* полное наименование (прим. юридическое лицо) */
   typeorgshort VARCHAR(10) NOT NULL UNIQUE, /* сокращенное наименование (прим. юр. лицо) */
-  CONSTRAINT type_org_ref_pk PRIMARY KEY (id)
+  CONSTRAINT type_user_ref_pk PRIMARY KEY (id)
 );
 
 /* + */

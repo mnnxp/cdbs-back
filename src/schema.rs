@@ -250,7 +250,7 @@ table! {
 }
 
 table! {
-    type_org_ref (id) {
+    type_user_ref (id) {
         id -> Int4,
         typeorg -> Varchar,
         typeorgshort -> Varchar,
@@ -275,7 +275,7 @@ table! {
         email_verified -> Int4,
         psw_hash -> Bytea,
         psw_salt -> Varchar,
-        id_type_org -> Int4,
+        id_type_user -> Int4,
         firstname -> Varchar,
         lastname -> Varchar,
         secondname -> Varchar,
@@ -357,7 +357,7 @@ joinable!(user_history_list -> type_of_change_ref (id_type_of_change));
 joinable!(user_history_list -> user_ref (id_user));
 joinable!(user_ref -> name_cad_ref (id_name_cad));
 joinable!(user_ref -> region_ref (id_region));
-joinable!(user_ref -> type_org_ref (id_type_org));
+joinable!(user_ref -> type_user_ref (id_type_user));
 joinable!(user_represet_ref -> region_ref (id_region));
 joinable!(user_represet_ref -> representation_type_ref (id_representation_type));
 joinable!(user_represet_ref -> user_ref (id_user));
@@ -392,7 +392,7 @@ allow_tables_to_appear_in_same_query!(
     spec_translate_list,
     type_access_ref,
     type_of_change_ref,
-    type_org_ref,
+    type_user_ref,
     user_history_list,
     user_ref,
     user_represet_ref,

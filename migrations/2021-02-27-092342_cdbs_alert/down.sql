@@ -2,7 +2,7 @@ DROP TABLE user_ref;
 DROP TABLE user_tokens_ref;
 DROP TABLE user_represet_ref;
 DROP TABLE representation_type_ref;
-DROP TABLE type_org_ref;
+DROP TABLE type_user_ref;
 DROP TABLE spec_ref;
 DROP TABLE name_cad_ref;
 DROP TABLE spec_to_user;

@@ -7,7 +7,7 @@ CREATE TABLE user_ref (
   email_verified INTEGER NOT NULL DEFAULT '1', /* подтверждение email */
   psw_hash BYTEA NOT NULL, /* хеш пароля профиля */
   psw_salt VARCHAR(255) NOT NULL, /* соль для пароля профиля */
-  id_type_org INTEGER NOT NULL DEFAULT '1', /* тип профиля (физ. лицо, юр. лицо, ип) */
+  id_type_user INTEGER NOT NULL DEFAULT '1', /* тип профиля (физ. лицо, юр. лицо, ип) */
   firstname VARCHAR(100) NOT NULL, /*Имя */
   lastname VARCHAR(100) NOT NULL, /*Фамилия */
   secondname VARCHAR(100) NOT NULL, /*Отчество */
@@ -58,11 +58,11 @@ CREATE TABLE representation_type_ref (
 
 /* + */
 /* тип профиля */
-CREATE TABLE type_org_ref (
+CREATE TABLE type_user_ref (
   id SERIAL, /* id типа профиля*/
   typeorg VARCHAR(100) NOT NULL UNIQUE, /* полное наименование (прим. юридическое лицо) */
   typeorgshort VARCHAR(10) NOT NULL UNIQUE, /* сокращенное наименование (прим. юр. лицо) */
-  CONSTRAINT type_org_ref_pk PRIMARY KEY (id)
+  CONSTRAINT type_user_ref_pk PRIMARY KEY (id)
 );
 
 /* + */
@@ -344,7 +344,7 @@ CREATE TABLE param_to_modification (
   CONSTRAINT param_to_modification_pk PRIMARY KEY (id)
 );
 
-ALTER TABLE user_ref ADD CONSTRAINT user_ref_fk0 FOREIGN KEY (id_type_org) REFERENCES type_org_ref(id);
+ALTER TABLE user_ref ADD CONSTRAINT user_ref_fk0 FOREIGN KEY (id_type_user) REFERENCES type_user_ref(id);
 ALTER TABLE user_ref ADD CONSTRAINT user_ref_fk1 FOREIGN KEY (id_name_cad) REFERENCES name_cad_ref(id);
 ALTER TABLE user_ref ADD CONSTRAINT user_ref_fk2 FOREIGN KEY (id_file_info_icon) REFERENCES file_ref(id);
 ALTER TABLE user_ref ADD CONSTRAINT user_ref_fk3 FOREIGN KEY (id_region) REFERENCES region_ref(id);
@@ -424,7 +424,7 @@ COMMENT ON COLUMN user_ref.id IS 'id профиля';
 COMMENT ON COLUMN user_ref.email IS 'email профиля, на один адрес может быть несколько профилей (закос под reddit)';
 COMMENT ON COLUMN user_ref.email_verified IS 'подтверждение email';
 COMMENT ON COLUMN user_ref.psw IS 'пароль профиля';
-COMMENT ON COLUMN user_ref.id_type_org  IS 'тип профиля (физ. лицо, юр. лицо, ип)';
+COMMENT ON COLUMN user_ref.id_type_user  IS 'тип профиля (физ. лицо, юр. лицо, ип)';
 COMMENT ON COLUMN user_ref.firstname IS 'Имя';
 COMMENT ON COLUMN user_ref.lastname IS 'Фамилия';
 COMMENT ON COLUMN user_ref.secondname IS 'Отчество';
@@ -462,10 +462,10 @@ COMMENT ON TABLE representation_type_ref IS 'тип представительс
 COMMENT ON COLUMN representation_type_ref.id IS 'id типа представительства';
 COMMENT ON COLUMN representation_type_ref._representation_type IS 'наименование типа представительств';
 
-COMMENT ON TABLE type_org_ref IS 'тип профиля';
-COMMENT ON COLUMN type_org_ref.id IS 'id типа профиля';
-COMMENT ON COLUMN type_org_ref.typeorg IS 'полное наименование (прим. "юридическое лицо")';
-COMMENT ON COLUMN type_org_ref.typeorgshort IS 'сокращенное наименование (прим. "юр. лицо")';
+COMMENT ON TABLE type_user_ref IS 'тип профиля';
+COMMENT ON COLUMN type_user_ref.id IS 'id типа профиля';
+COMMENT ON COLUMN type_user_ref.typeorg IS 'полное наименование (прим. "юридическое лицо")';
+COMMENT ON COLUMN type_user_ref.typeorgshort IS 'сокращенное наименование (прим. "юр. лицо")';
 
 COMMENT ON TABLE spec_ref IS 'категории (каталога)';
 COMMENT ON COLUMN spec_ref.id IS 'id категории каталога';

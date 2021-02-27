@@ -3,7 +3,7 @@ COMMENT ON COLUMN user_ref.id IS 'id профиля';
 COMMENT ON COLUMN user_ref.email IS 'email профиля, на один адрес может быть несколько профилей (закос под reddit)';
 COMMENT ON COLUMN user_ref.email_verified IS 'подтверждение email';
 COMMENT ON COLUMN user_ref.psw IS 'пароль профиля';
-COMMENT ON COLUMN user_ref.id_type_org  IS 'тип профиля (физ. лицо, юр. лицо, ип)';
+COMMENT ON COLUMN user_ref.id_type_user  IS 'тип профиля (физ. лицо, юр. лицо, ип)';
 COMMENT ON COLUMN user_ref.firstname IS 'Имя';
 COMMENT ON COLUMN user_ref.lastname IS 'Фамилия';
 COMMENT ON COLUMN user_ref.secondname IS 'Отчество';
@@ -41,10 +41,10 @@ COMMENT ON TABLE representation_type_ref IS 'тип представительс
 COMMENT ON COLUMN representation_type_ref.id IS 'id типа представительства';
 COMMENT ON COLUMN representation_type_ref._representation_type IS 'наименование типа представительств';
 
-COMMENT ON TABLE type_org_ref IS 'тип профиля';
-COMMENT ON COLUMN type_org_ref.id IS 'id типа профиля';
-COMMENT ON COLUMN type_org_ref.typeorg IS 'полное наименование (прим. "юридическое лицо")';
-COMMENT ON COLUMN type_org_ref.typeorgshort IS 'сокращенное наименование (прим. "юр. лицо")';
+COMMENT ON TABLE type_user_ref IS 'тип профиля';
+COMMENT ON COLUMN type_user_ref.id IS 'id типа профиля';
+COMMENT ON COLUMN type_user_ref.typeorg IS 'полное наименование (прим. "юридическое лицо")';
+COMMENT ON COLUMN type_user_ref.typeorgshort IS 'сокращенное наименование (прим. "юр. лицо")';
 
 COMMENT ON TABLE spec_ref IS 'категории (каталога)';
 COMMENT ON COLUMN spec_ref.id IS 'id категории каталога';

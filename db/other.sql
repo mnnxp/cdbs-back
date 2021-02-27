@@ -1,6 +1,6 @@
 -- TABLE: user_ref:
 -- uuid (UUID), email (VARCHAR(100)), email_verified (INTEGER),
--- psw_hash (BYTEA), psw_salt (VARCHAR(255)), id_type_org (INTEGER),
+-- psw_hash (BYTEA), psw_salt (VARCHAR(255)), id_type_user (INTEGER),
 -- firstname (VARCHAR(100)), lastname (VARCHAR(100)), secondname (VARCHAR(100)),
 -- nickname (VARCHAR(100)), orgname (VARCHAR(255)), shortname (VARCHAR(255)),
 -- inn (VARCHAR(30)), phone (VARCHAR(100)), id_name_cad (INTEGER),
@@ -8,7 +8,7 @@
 -- position (VARCHAR(255)), site_url (VARCHAR(255)), id_file_info_icon (INTEGER),
 -- id_region (INTEGER), created_at (TIMESTAMP),
 INSERT INTO user_ref (uuid, email, email_verified, psw_hash, psw_salt,
-  id_type_org, firstname, lastname, secondname, nickname, orgname, shortname,
+  id_type_user, firstname, lastname, secondname, nickname, orgname, shortname,
   inn, phone, id_name_cad, comment, address, time_zone, position, site_url,
   id_file_info_icon, id_region, created_at) VALUES
     ('31ecc6f8-0c09-4a59-a2d5-34b5b833e59b', 'email@email.ru', 0, E'\\000',
@@ -34,7 +34,7 @@ insert or update on table "user_ref" violates foreign key constraint "user_ref_f
   spec_ref
   type_access_ref
   type_of_change_ref
-  type_org_ref
+  type_user_ref
   user_ref
   user_represet_ref
   user_tokens_ref
