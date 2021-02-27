@@ -118,10 +118,10 @@ CREATE TABLE file_ref (
   hash BYTEA NOT NULL, /* хеш значение объекта/файла */
   id_user_create INTEGER NOT NULL, /* идентификатор профиля загрузившего файл */
   created_at TIMESTAMP NOT NULL DEFAULT NOW(), /* дата создания/загрузки */
-  filename VARCHAR(100) NOT NULL, /* наименование файла */
+  filename VARCHAR(225) NOT NULL, /* наименование файла */
   id_ext INTEGER NOT NULL, /* расширение файла (используется для определения CAD) */
   filesize FLOAT NOT NULL, /* размер файла */
-  path VARCHAR(100) NOT NULL, /* путь к файлу */
+  path_file VARCHAR(225) NOT NULL, /* путь к файлу */
   CONSTRAINT file_ref_pk PRIMARY KEY (id)
 );
 

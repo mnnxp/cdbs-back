@@ -80,7 +80,7 @@ COMMENT ON COLUMN file_ref.created_at IS 'дата создания/загруз
 COMMENT ON COLUMN file_ref.filename IS 'наименование файла';
 COMMENT ON COLUMN file_ref.id_ext IS 'расширение файла (используется для определения CAD)';
 COMMENT ON COLUMN file_ref.filesize IS 'размер файла';
-COMMENT ON COLUMN file_ref.path IS 'путь к файлу';
+COMMENT ON COLUMN file_ref.path_file IS 'путь к файлу';
 
 COMMENT ON TABLE extension_ref IS 'таблица соответствия CAD и расширений файлов';
 COMMENT ON COLUMN extension_ref.id IS 'id соответствия';

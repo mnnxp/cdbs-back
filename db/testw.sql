@@ -118,10 +118,10 @@ CREATE TABLE file_ref (
   hash BYTEA NOT NULL, /* хеш значение объекта/файла */
   id_user_create INTEGER NOT NULL, /* идентификатор профиля загрузившего файл */
   created_at TIMESTAMP NOT NULL DEFAULT NOW(), /* дата создания/загрузки */
-  filename VARCHAR(100) NOT NULL, /* наименование файла */
+  filename VARCHAR(225) NOT NULL, /* наименование файла */
   id_ext INTEGER NOT NULL, /* расширение файла (используется для определения CAD) */
   filesize FLOAT NOT NULL, /* размер файла */
-  path VARCHAR(100) NOT NULL, /* путь к файлу */
+  path_file VARCHAR(225) NOT NULL, /* путь к файлу */
   CONSTRAINT file_ref_pk PRIMARY KEY (id)
 );
 
@@ -501,7 +501,7 @@ COMMENT ON COLUMN file_ref.created_at IS 'дата создания/загруз
 COMMENT ON COLUMN file_ref.filename IS 'наименование файла';
 COMMENT ON COLUMN file_ref.id_ext IS 'расширение файла (используется для определения CAD)';
 COMMENT ON COLUMN file_ref.filesize IS 'размер файла';
-COMMENT ON COLUMN file_ref.path IS 'путь к файлу';
+COMMENT ON COLUMN file_ref.path_file IS 'путь к файлу';
 
 COMMENT ON TABLE extension_ref IS 'таблица соответствия CAD и расширений файлов';
 COMMENT ON COLUMN extension_ref.id IS 'id соответствия';
