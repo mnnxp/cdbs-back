@@ -517,10 +517,10 @@ INSERT INTO user_ref (uuid, email, email_verified, psw_hash, psw_salt,
       '12345678910', '+7999123456', 0, 'comment for this user', 'Moscow',
       'UTC+3', 'engineer', 'https://cadbase.ru', 0, 0, now());
 
--- TABLE: file_ref: id (serial), if_file (integer), hash (bytea), id_user_create (integer),
+-- TABLE: file_ref: id (serial), id_file (integer), hash (bytea), id_user_create (integer),
 --           created_at (Timestamp), filename (varying(225)), id_ext (integer),
 --           filesize (double precision), path_file (varying(225)),
-INSERT INTO file_ref (if_file, hash, id_user_create, created_at, filename, id_ext, filesize , path_file) VALUES
+INSERT INTO file_ref (id_file, hash, id_user_create, created_at, filename, id_ext, filesize , path_file) VALUES
     (0, E'\\000', 0, now(), 0, 0, 0, 0);
 
 
