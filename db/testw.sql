@@ -130,7 +130,7 @@ CREATE TABLE file_ref (
 CREATE TABLE extension_ref (
   id SERIAL, /* id соответствия */
   extension VARCHAR(10) NOT NULL, /* расширение файла, одно расширение может быть у нескольких программ */
-  id_name_cad INTEGER NOT NULL UNIQUE, /* соответствующая программа (CAD) */
+  id_name_cad INTEGER NOT NULL, /* соответствующая программа (CAD) */
   CONSTRAINT extension_ref_pk PRIMARY KEY (id)
 );
 
