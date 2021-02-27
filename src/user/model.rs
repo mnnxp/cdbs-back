@@ -90,6 +90,10 @@ impl From<SlimUser> for LoggedUser {
 impl From<UserData> for InsertableUser {
     fn from(user_data: UserData) -> Self {
         let UserData {
+            firstname,
+            lastname,
+            secondname,
+            nickname,
             email,
             password,
             ..
@@ -103,23 +107,23 @@ impl From<UserData> for InsertableUser {
             email_verified: 0,
             psw_hash,
             psw_salt,
-            id_type_org: 0,
-            firstname: "A".to_owned(),
-            lastname: "A".to_owned(),
-            secondname: "A".to_owned(),
-            nickname: "A".to_owned(),
+            id_type_org: 1,
+            firstname,
+            lastname,
+            secondname,
+            nickname,
             orgname: "A".to_owned(),
             shortname: "A".to_owned(),
-            inn: "A".to_owned(),
+            inn: "0".to_owned(),
             phone: "A".to_owned(),
-            id_name_cad: 0,
+            id_name_cad: 1,
             comment: "A".to_owned(),
             address: "A".to_owned(),
             time_zone: "A".to_owned(),
             position: "A".to_owned(),
             site_url: "A".to_owned(),
-            id_file_info_icon: 0,
-            id_region: 0,
+            id_file_info_icon: 1,
+            id_region: 1,
             created_at: chrono::Local::now().naive_local(),
         }
     }
