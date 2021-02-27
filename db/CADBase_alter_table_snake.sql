@@ -13,8 +13,9 @@ ALTER TABLE spec_to_user ADD CONSTRAINT spec_to_user_fk1 FOREIGN KEY (id_user) R
 ALTER TABLE user_history_list ADD CONSTRAINT user_history_list_fk0 FOREIGN KEY (id_user) REFERENCES user_ref(id);
 ALTER TABLE user_history_list ADD CONSTRAINT user_history_list_fk1 FOREIGN KEY (id_type_of_change) REFERENCES type_of_change_ref(id);
 
-ALTER TABLE file_ref ADD CONSTRAINT file_ref_fk0 FOREIGN KEY (id_user_create) REFERENCES user_ref(id);
-ALTER TABLE file_ref ADD CONSTRAINT file_ref_fk1 FOREIGN KEY (id_ext) REFERENCES extension_ref(id);
+ALTER TABLE file_ref ADD CONSTRAINT file_ref_fk0 FOREIGN KEY (id_file) REFERENCES file_ref(id);
+ALTER TABLE file_ref ADD CONSTRAINT file_ref_fk1 FOREIGN KEY (id_user_create) REFERENCES user_ref(id);
+ALTER TABLE file_ref ADD CONSTRAINT file_ref_fk2 FOREIGN KEY (id_ext) REFERENCES extension_ref(id);
 
 ALTER TABLE extension_ref ADD CONSTRAINT extension_ref_fk0 FOREIGN KEY (id_name_cad) REFERENCES name_cad_ref(id);
 

@@ -115,6 +115,7 @@ CREATE TABLE type_of_change_ref (
 CREATE TABLE file_ref (
   id SERIAL, /* id файла */
   id_file INTEGER NOT NULL, /* идентификатор объекта/файла */
+  hash BYTEA NOT NULL, /* хеш значение объекта/файла */
   id_user_create INTEGER NOT NULL, /* идентификатор профиля загрузившего файл */
   created_at TIMESTAMP NOT NULL DEFAULT NOW(), /* дата создания/загрузки */
   filename VARCHAR(100) NOT NULL, /* наименование файла */
@@ -493,6 +494,7 @@ COMMENT ON COLUMN type_of_change_ref._type_of_change IS 'наименовани�
 
 COMMENT ON TABLE file_ref IS 'информация о файле (изображении)';
 COMMENT ON COLUMN file_ref.id IS 'id файла';
+COMMENT ON COLUMN file_ref.id_file IS 'идентификатор объекта/файла';
 COMMENT ON COLUMN file_ref.hash IS 'хеш значение объекта/файла';
 COMMENT ON COLUMN file_ref.id_user_create IS 'идентификатор профиля загрузившего файл';
 COMMENT ON COLUMN file_ref.created_at IS 'дата создания/загрузки';

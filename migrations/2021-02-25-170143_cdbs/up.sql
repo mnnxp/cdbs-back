@@ -114,6 +114,7 @@ CREATE TABLE type_of_change_ref (
 /* информация о файле (изображении) */
 CREATE TABLE file_ref (
   id SERIAL, /* id файла */
+  id_file INTEGER NOT NULL, /* идентификатор объекта/файла */
   hash BYTEA NOT NULL, /* хеш значение объекта/файла */
   id_user_create INTEGER NOT NULL, /* идентификатор профиля загрузившего файл */
   created_at TIMESTAMP NOT NULL DEFAULT NOW(), /* дата создания/загрузки */
@@ -343,6 +344,187 @@ CREATE TABLE param_to_modification (
   CONSTRAINT param_to_modification_pk PRIMARY KEY (id)
 );
 
+-- TABLE: type_org_ref: id (serial), typeorg (varying(100)), typeorgshort (varying(10))
+INSERT INTO type_org_ref (typeorg, typeorgshort) VALUES
+    ('Физическое лицо', 'Физ.лицо'),
+    ('Индивидуальный предприниматель', 'ИП'),
+    ('Акционерные общества', 'АО'),
+    ('Публичные акционерные общества', 'ПАО'),
+    ('Непубличные акционерные общества', 'НАО'),
+    ('Общества с ограниченной ответственностью', 'ООО'),
+    ('Хозяйственные партнерства', 'Х.парт-ва'),
+    ('Производственные кооперативы (артели)', 'Артель'),
+    ('Сельскохозяйственные производственные кооперативы', 'Сельхоз'),
+    ('Кооперативные хозяйства (коопхозы)', 'Коопхоз'),
+    ('Прочие юридические лица, являющиеся коммерческими организациями', 'Прочие');
+
+-- TABLE: name_cad_ref: id (serial), name_cad (varying(225))
+INSERT INTO name_cad_ref (name_cad) VALUES
+    ('AutoCAD'),
+    ('BricsCAD'),
+    ('CATIA V4'),
+    ('CATIA V5'),
+    ('COLLADA'),
+    ('Creo'),
+    ('DesignSpark Mechanical'),
+    ('DraftSight'),
+    ('DXF - 2D'),
+    ('DXF - 3D'),
+    ('EMF'),
+    ('FUSION 360'),
+    ('GstarCAD'),
+    ('HiCAD'),
+    ('HOOPS'),
+    ('IGES'),
+    ('Inventor'),
+    ('Inventor LT'),
+    ('IRONCAD'),
+    ('KOMPAS-3D'),
+    ('Mechanical Desktop'),
+    ('NX'),
+    ('OBJ'),
+    ('OFF'),
+    ('Panda3D'),
+    ('Parasolid 11.1'),
+    ('Pro/Engineer Neutral'),
+    ('Revit'),
+    ('SketchUp'),
+    ('Solid Edge'),
+    ('SOLIDWORKS'),
+    ('SpaceClaim'),
+    ('STEP AP203'),
+    ('STEP AP214'),
+    ('STEP AP242'),
+    ('STL'),
+    ('T-FLEX'),
+    ('Tekla'),
+    ('TENADO CAD 3D'),
+    ('Three.js'),
+    ('TopSolid'),
+    ('TurboCAD'),
+    ('Universal 3D'),
+    ('VDA-FS'),
+    ('VRML'),
+    ('VTK'),
+    ('VX CAD/CAM'),
+    ('WMF'),
+    ('ZW3D');
+
+    -- TABLE: region_ref: id (serial), region (varying(100))
+    INSERT INTO region_ref (region) VALUES
+      ('Республика Адыгея (Адыгея)'),
+      ('Республика Башкортостан'),
+      ('Республика Бурятия'),
+      ('Республика Алтай'),
+      ('Республика Дагестан'),
+      ('Республика Ингушетия'),
+      ('Кабардино-Балкарская Республика'),
+      ('Республика Калмыкия'),
+      ('Карачаево-Черкесская Республика'),
+      ('Республика Карелия'),
+      ('Республика Коми'),
+      ('Республика Марий Эл'),
+      ('Республика Мордовия'),
+      ('Республика Саха (Якутия)'),
+      ('Республика Северная Осетия - Алания'),
+      ('Республика Татарстан (Татарстан)'),
+      ('Республика Тыва'),
+      ('Удмуртская Республика'),
+      ('Республика Хакасия'),
+      ('Чеченская Республика'),
+      ('Чувашская Республика - Чувашия'),
+      ('Алтайский край'),
+      ('Краснодарский край'),
+      ('Красноярский край'),
+      ('Приморский край'),
+      ('Ставропольский край'),
+      ('Хабаровский край'),
+      ('Амурская область'),
+      ('Архангельская область'),
+      ('Астраханская область'),
+      ('Белгородская область'),
+      ('Брянская область'),
+      ('Владимирская область'),
+      ('Волгоградская область'),
+      ('Вологодская область'),
+      ('Воронежская область'),
+      ('Ивановская область'),
+      ('Иркутская область'),
+      ('Калининградская область'),
+      ('Калужская область'),
+      ('Камчатский край'),
+      ('Кемеровская область - Кузбасс'),
+      ('Кировская область'),
+      ('Костромская область'),
+      ('Курганская область'),
+      ('Курская область'),
+      ('Ленинградская область'),
+      ('Липецкая область'),
+      ('Магаданская область'),
+      ('Московская область'),
+      ('Мурманская область'),
+      ('Нижегородская область'),
+      ('Новгородская область'),
+      ('Новосибирская область'),
+      ('Омская область'),
+      ('Оренбургская область'),
+      ('Орловская область'),
+      ('Пензенская область'),
+      ('Пермский край'),
+      ('Псковская область'),
+      ('Ростовская область'),
+      ('Рязанская область'),
+      ('Самарская область'),
+      ('Саратовская область'),
+      ('Сахалинская область'),
+      ('Свердловская область'),
+      ('Смоленская область'),
+      ('Тамбовская область'),
+      ('Тверская область'),
+      ('Томская область'),
+      ('Тульская область'),
+      ('Тюменская область'),
+      ('Ульяновская область'),
+      ('Челябинская область'),
+      ('Забайкальский край'),
+      ('Ярославская область'),
+      ('г. Москва'),
+      ('Санкт-Петербург'),
+      ('Еврейская автономная область'),
+      ('Ненецкий автономный округ'),
+      ('Ханты-Мансийский автономный округ - Югра'),
+      ('Чукотский автономный округ'),
+      ('Ямало-Ненецкий автономный округ'),
+      ('Республика Крым'),
+      ('Севастополь'),
+      ('Иные территории, включая город и космодром Байконур');
+
+-- TABLE: user_ref:
+-- uuid (UUID), email (VARCHAR(100)), email_verified (INTEGER),
+-- psw_hash (BYTEA), psw_salt (VARCHAR(255)), id_type_org (INTEGER),
+-- firstname (VARCHAR(100)), lastname (VARCHAR(100)), secondname (VARCHAR(100)),
+-- nickname (VARCHAR(100)), orgname (VARCHAR(255)), shortname (VARCHAR(255)),
+-- inn (VARCHAR(30)), phone (VARCHAR(100)), id_name_cad (INTEGER),
+-- comment (VARCHAR(2000)), address (VARCHAR(512)), time_zone (VARCHAR(255)),
+-- position (VARCHAR(255)), site_url (VARCHAR(255)), id_file_info_icon (INTEGER),
+-- id_region (INTEGER), created_at (TIMESTAMP),
+INSERT INTO user_ref (uuid, email, email_verified, psw_hash, psw_salt,
+  id_type_org, firstname, lastname, secondname, nickname, orgname, shortname,
+  inn, phone, id_name_cad, comment, address, time_zone, position, site_url,
+  id_file_info_icon, id_region, created_at) VALUES
+    ('31ecc6f8-0c09-4a59-a2d5-34b5b833e59b', 'email@email.ru', 0, E'\\000',
+      '000', 0, 'Johm', 'Ivanov', 'Rucovich', 'nicknameeee', 'romashka', 'rom-ka',
+      '12345678910', '+7999123456', 0, 'comment for this user', 'Moscow',
+      'UTC+3', 'engineer', 'https://cadbase.ru', 0, 0, now());
+
+-- TABLE: file_ref: id (serial), if_file (integer), hash (bytea), id_user_create (integer),
+--           created_at (Timestamp), filename (varying(100)), id_ext (integer),
+--           filesize (double precision), path (varying(100)),
+INSERT INTO file_ref (if_file, hash, id_user_create, created_at, filename, id_ext, filesize , path) VALUES
+    (0, E'\\000', 0, now(), 0, 0, 0, 0);
+
+
+
 ALTER TABLE user_ref ADD CONSTRAINT user_ref_fk0 FOREIGN KEY (id_type_org) REFERENCES type_org_ref(id);
 ALTER TABLE user_ref ADD CONSTRAINT user_ref_fk1 FOREIGN KEY (id_name_cad) REFERENCES name_cad_ref(id);
 ALTER TABLE user_ref ADD CONSTRAINT user_ref_fk2 FOREIGN KEY (id_file_info_icon) REFERENCES file_ref(id);
@@ -358,8 +540,9 @@ ALTER TABLE spec_to_user ADD CONSTRAINT spec_to_user_fk1 FOREIGN KEY (id_user) R
 ALTER TABLE user_history_list ADD CONSTRAINT user_history_list_fk0 FOREIGN KEY (id_user) REFERENCES user_ref(id);
 ALTER TABLE user_history_list ADD CONSTRAINT user_history_list_fk1 FOREIGN KEY (id_type_of_change) REFERENCES type_of_change_ref(id);
 
-ALTER TABLE file_ref ADD CONSTRAINT file_ref_fk0 FOREIGN KEY (id_user_create) REFERENCES user_ref(id);
-ALTER TABLE file_ref ADD CONSTRAINT file_ref_fk1 FOREIGN KEY (id_ext) REFERENCES extension_ref(id);
+ALTER TABLE file_ref ADD CONSTRAINT file_ref_fk0 FOREIGN KEY (id_file) REFERENCES file_ref(id);
+ALTER TABLE file_ref ADD CONSTRAINT file_ref_fk1 FOREIGN KEY (id_user_create) REFERENCES user_ref(id);
+ALTER TABLE file_ref ADD CONSTRAINT file_ref_fk2 FOREIGN KEY (id_ext) REFERENCES extension_ref(id);
 
 ALTER TABLE extension_ref ADD CONSTRAINT extension_ref_fk0 FOREIGN KEY (id_name_cad) REFERENCES name_cad_ref(id);
 
