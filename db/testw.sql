@@ -60,8 +60,8 @@ CREATE TABLE representation_type_ref (
 /* тип профиля */
 CREATE TABLE type_user_ref (
   id SERIAL, /* id типа профиля*/
-  typeorg VARCHAR(100) NOT NULL UNIQUE, /* полное наименование (прим. юридическое лицо) */
-  typeorgshort VARCHAR(10) NOT NULL UNIQUE, /* сокращенное наименование (прим. юр. лицо) */
+  typeuser VARCHAR(100) NOT NULL UNIQUE, /* полное наименование (прим. юридическое лицо) */
+  typeusershort VARCHAR(10) NOT NULL UNIQUE, /* сокращенное наименование (прим. юр. лицо) */
   CONSTRAINT type_user_ref_pk PRIMARY KEY (id)
 );
 
@@ -464,8 +464,8 @@ COMMENT ON COLUMN representation_type_ref._representation_type IS 'наимен�
 
 COMMENT ON TABLE type_user_ref IS 'тип профиля';
 COMMENT ON COLUMN type_user_ref.id IS 'id типа профиля';
-COMMENT ON COLUMN type_user_ref.typeorg IS 'полное наименование (прим. "юридическое лицо")';
-COMMENT ON COLUMN type_user_ref.typeorgshort IS 'сокращенное наименование (прим. "юр. лицо")';
+COMMENT ON COLUMN type_user_ref.typeuser IS 'полное наименование (прим. "юридическое лицо")';
+COMMENT ON COLUMN type_user_ref.typeusershort IS 'сокращенное наименование (прим. "юр. лицо")';
 
 COMMENT ON TABLE spec_ref IS 'категории (каталога)';
 COMMENT ON COLUMN spec_ref.id IS 'id категории каталога';

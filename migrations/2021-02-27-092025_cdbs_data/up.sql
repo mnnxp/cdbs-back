@@ -264,8 +264,8 @@ INSERT INTO type_of_change_ref (type_of_change) VALUES
   ('Изменение данных профиля');
 
 
--- TABLE: type_user_ref: id (serial), typeorg (varying(100)), typeorgshort (varying(10))
-INSERT INTO type_user_ref (typeorg, typeorgshort) VALUES
+-- TABLE: type_user_ref: id (serial), typeuser (varying(100)), typeusershort (varying(10))
+INSERT INTO type_user_ref (typeuser, typeusershort) VALUES
   ('Физическое лицо', 'Физ.лицо'),
   ('Индивидуальный предприниматель', 'ИП'),
   ('Акционерные общества', 'АО'),

@@ -60,8 +60,8 @@ CREATE TABLE representation_type_ref (
 /* тип профиля */
 CREATE TABLE type_user_ref (
   id SERIAL, /* id типа профиля*/
-  typeorg VARCHAR(100) NOT NULL UNIQUE, /* полное наименование (прим. юридическое лицо) */
-  typeorgshort VARCHAR(10) NOT NULL UNIQUE, /* сокращенное наименование (прим. юр. лицо) */
+  typeuser VARCHAR(100) NOT NULL UNIQUE, /* полное наименование (прим. юридическое лицо) */
+  typeusershort VARCHAR(10) NOT NULL UNIQUE, /* сокращенное наименование (прим. юр. лицо) */
   CONSTRAINT type_user_ref_pk PRIMARY KEY (id)
 );
 

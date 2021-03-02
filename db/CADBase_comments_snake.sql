@@ -43,8 +43,8 @@ COMMENT ON COLUMN representation_type_ref._representation_type IS 'наимен�
 
 COMMENT ON TABLE type_user_ref IS 'тип профиля';
 COMMENT ON COLUMN type_user_ref.id IS 'id типа профиля';
-COMMENT ON COLUMN type_user_ref.typeorg IS 'полное наименование (прим. "юридическое лицо")';
-COMMENT ON COLUMN type_user_ref.typeorgshort IS 'сокращенное наименование (прим. "юр. лицо")';
+COMMENT ON COLUMN type_user_ref.typeuser IS 'полное наименование (прим. "юридическое лицо")';
+COMMENT ON COLUMN type_user_ref.typeusershort IS 'сокращенное наименование (прим. "юр. лицо")';
 
 COMMENT ON TABLE spec_ref IS 'категории (каталога)';
 COMMENT ON COLUMN spec_ref.id IS 'id категории каталога';

@@ -42,7 +42,7 @@ impl QueryRoot {
         let limit: i32 = limit.unwrap_or(100);
         let offset: i32 = offset.unwrap_or(0);
 
-        //crate::user::has_role(&context.user, "user")?;
+        //crate::user::has_role(&context.user, 'user')?;
 
         user::list::find_all_users(&context, limit, offset)
     }
