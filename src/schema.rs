@@ -114,12 +114,13 @@ table! {
     file_ref (id) {
         id -> Int4,
         id_file -> Int4,
+        hash -> Bytea,
         id_user_create -> Int4,
         created_at -> Timestamp,
         filename -> Varchar,
         id_ext -> Int4,
         filesize -> Float8,
-        path -> Varchar,
+        path_file -> Varchar,
     }
 }
 
@@ -252,8 +253,8 @@ table! {
 table! {
     type_user_ref (id) {
         id -> Int4,
-        typeorg -> Varchar,
-        typeorgshort -> Varchar,
+        typeuser -> Varchar,
+        typeusershort -> Varchar,
     }
 }
 
