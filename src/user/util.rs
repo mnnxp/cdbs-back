@@ -1,6 +1,8 @@
-use super::model::{LoggedUser, User};
-use crate::errors::ServiceError;
+// use crate::user::model::{LoggedUser, SlimUser, User};
+use crate::user::model::{User};
+// use crate::errors::ServiceError;
 use argon2rs::argon2i_simple;
+// use uuid::Uuid;
 
 pub fn make_salt() -> String {
     use rand::Rng;
@@ -19,15 +21,22 @@ pub fn make_salt() -> String {
     password
 }
 
-pub fn make_hash(password: &str, psw_salt: &str) -> [u8; argon2rs::defaults::LENGTH] {
+pub fn make_hash_salt(password: &str, psw_salt: &str) -> [u8; argon2rs::defaults::LENGTH] {
     argon2i_simple(password, psw_salt)
 }
 
 pub fn verify(user: &User, password: &str) -> bool {
     let User { psw_hash, psw_salt, .. } = user;
 
-    make_hash(password, psw_salt) == psw_hash.as_ref()
+    make_hash_salt(password, psw_salt) == psw_hash.as_ref()
 }
+
+// pub fn has_uuid(logged_user: &LoggedUser) -> Result<Uuid, ServiceError> {
+//     match logged_user.0 {
+//         None => Err(ServiceError::Unauthorized),
+//         Some(user) => Ok(user.uuid),
+//     }
+//}
 
 // pub fn has_role(user: &LoggedUser, role: &str) -> Result<bool, ServiceError> {
 //     match user.0 {

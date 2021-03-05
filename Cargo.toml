@@ -42,3 +42,8 @@ shrinkwraprs = "0.2"
 structopt = "0.3"
 
 regex = "1"
+
+ring = "0.16.20"
+
+digest = "0.9.0"
+blake2 = "0.9"

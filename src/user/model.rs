@@ -1,5 +1,5 @@
 use crate::schema::*;
-use crate::user::util::{make_hash, make_salt};
+use crate::user::util::{make_hash_salt, make_salt};
 use chrono::*;
 use shrinkwraprs::Shrinkwrap;
 use uuid::Uuid;
@@ -100,7 +100,7 @@ impl From<UserData> for InsertableUser {
         } = user_data;
 
         let psw_salt = make_salt();
-        let psw_hash = make_hash(&password, &psw_salt).to_vec();
+        let psw_hash = make_hash_salt(&password, &psw_salt).to_vec();
         Self {
             uuid: Uuid::new_v4(),
             email,
