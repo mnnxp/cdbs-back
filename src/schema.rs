@@ -114,7 +114,6 @@ table! {
     file_ref (id) {
         id -> Int4,
         id_file -> Int4,
-        hash -> Bytea,
         id_user_create -> Int4,
         created_at -> Timestamp,
         filename -> Varchar,

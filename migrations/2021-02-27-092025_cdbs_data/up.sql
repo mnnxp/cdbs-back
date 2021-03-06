@@ -89,8 +89,9 @@ INSERT INTO extension_ref (extension, id_name_cad) VALUES
 -- TABLE: file_ref: id (serial), id_file (integer), hash (bytea), id_user_create (integer),
 --           created_at (Timestamp), filename (varying(225)), id_ext (integer),
 --           filesize (double precision), path_file (varying(225)),
-INSERT INTO file_ref (id_file, hash, id_user_create, created_at, filename, id_ext, filesize , path_file) VALUES
-    (1, E'\\000', 1, now(), 'filename', 1, 0, 'path file');
+INSERT INTO file_ref (id_file, id_user_create, created_at, filename, id_ext, filesize , path_file) VALUES
+    -- (1, E'\\000', 1, now(), 'filename', 1, 0, 'path file');
+    (1, 1, now(), 'filename', 1, 0, 'path/file/file.txt');
 
 -- TABLE: language_ref: id (SERIAL), lang (VARCHAR(100)), langshort (VARCHAR(10))
 INSERT INTO language_ref (lang, langshort) VALUES

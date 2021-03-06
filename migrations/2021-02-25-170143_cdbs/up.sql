@@ -115,7 +115,7 @@ CREATE TABLE type_of_change_ref (
 CREATE TABLE file_ref (
   id SERIAL, /* id файла */
   id_file INTEGER NOT NULL, /* идентификатор объекта/файла */
-  hash BYTEA NOT NULL, /* хеш значение объекта/файла */
+  -- hash BYTEA NOT NULL, /* хеш значение объекта/файла */
   id_user_create INTEGER NOT NULL, /* идентификатор профиля загрузившего файл */
   created_at TIMESTAMP NOT NULL DEFAULT NOW(), /* дата создания/загрузки */
   filename VARCHAR(225) NOT NULL, /* наименование файла */
