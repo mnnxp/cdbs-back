@@ -12,6 +12,8 @@ mod graphql;
 mod jwt;
 mod schema;
 mod user;
+mod file;
+mod component;
 
 use actix_identity::{CookieIdentityPolicy, IdentityService};
 use actix_web::{App, HttpServer, web};

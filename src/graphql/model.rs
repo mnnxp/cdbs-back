@@ -5,6 +5,10 @@ use crate::jwt::model::{DecodedToken, Token};
 use crate::user::model::{LoggedUser, SlimUser, User, UserData};
 use crate::user::service as user;
 use crate::user::service::token::ClaimsResponse;
+use crate::file::model::{File, DataFile};
+use crate::file::service as file;
+use crate::component::model::{Component, DataComponent};
+use crate::component::service as component;
 use diesel::PgConnection;
 use juniper::Context as JuniperContext;
 use std::sync::Arc;
@@ -53,6 +57,28 @@ impl QueryRoot {
 
     pub fn decode_token(context: &Context) -> ServiceResult<&ClaimsResponse> {
         user::token::decode(&context)
+    }
+
+    pub fn files(
+        context: &Context,
+        limit: Option<i32>,
+        offset: Option<i32>,
+    ) -> ServiceResult<Vec<File>> {
+        let limit: i32 = limit.unwrap_or(100);
+        let offset: i32 = offset.unwrap_or(0);
+
+        file::list::find_all_files(&context, limit, offset)
+    }
+
+    pub fn components(
+        context: &Context,
+        limit: Option<i32>,
+        offset: Option<i32>,
+    ) -> ServiceResult<Vec<Component>> {
+        let limit: i32 = limit.unwrap_or(100);
+        let offset: i32 = offset.unwrap_or(0);
+
+        component::list::find_all_components(&context, limit, offset)
     }
 }
 
