@@ -4,3 +4,4 @@ use crate::user::model::{SlimUser, User};
 use crate::user::util::verify;
 use actix_web::web;
 use diesel::prelude::*;
+

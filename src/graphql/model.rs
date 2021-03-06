@@ -5,7 +5,7 @@ use crate::jwt::model::{DecodedToken, Token};
 use crate::user::model::{LoggedUser, SlimUser, User, UserData};
 use crate::user::service as user;
 use crate::user::service::token::ClaimsResponse;
-use crate::file::model::{File, DataFile};
+use crate::file::model::{SlimFile, File, FileData};
 use crate::file::service as file;
 use crate::component::model::{Component, DataComponent};
 use crate::component::service as component;
@@ -86,11 +86,18 @@ pub(crate) struct Mutation;
 
 #[juniper::object(Context = Context)]
 impl Mutation {
-    pub fn register(context: &Context, data: UserData) -> ServiceResult<SlimUser> {
+    pub fn register_user(context: &Context, data: UserData) -> ServiceResult<SlimUser> {
         use crate::user::service::register::create_user;
         let conn: &PgConnection = &context.db;
 
         Ok(create_user(data, conn)?)
+    }
+
+    pub fn register_file(context: &Context, data: FileData) -> ServiceResult<SlimFile> {
+        use crate::file::service::register::create_file;
+        let conn: &PgConnection = &context.db;
+
+        Ok(create_file(data, conn)?)
     }
 }
 
