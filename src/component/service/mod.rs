@@ -1,6 +1,6 @@
 pub(crate) mod list;
+pub(crate) mod register;
+pub(crate) mod delete;
 
-mod metadata;
-
-pub(crate) mod add_component;
-pub(crate) mod delete_component;
+pub(crate) use register::register;
+// pub(crate) use delete::delete;

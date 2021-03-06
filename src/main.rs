@@ -73,6 +73,7 @@ async fn main() -> std::io::Result<()> {
             // Sets routes via secondary files
             .configure(user::route)
             .configure(file::route)
+            .configure(component::route)
             .configure(graphql::route)
     })
     // Running at `format!("{}:{}",port,"0.0.0.0")`

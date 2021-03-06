@@ -7,7 +7,7 @@ use crate::user::service as user;
 use crate::user::service::token::ClaimsResponse;
 use crate::file::model::{SlimFile, File, FileData};
 use crate::file::service as file;
-use crate::component::model::{Component, DataComponent};
+use crate::component::model::{SlimComponent, Component, ComponentData};
 use crate::component::service as component;
 use diesel::PgConnection;
 use juniper::Context as JuniperContext;
@@ -98,6 +98,13 @@ impl Mutation {
         let conn: &PgConnection = &context.db;
 
         Ok(create_file(data, conn)?)
+    }
+
+    pub fn register_component(context: &Context, data: ComponentData) -> ServiceResult<SlimComponent> {
+        use crate::component::service::register::create_component;
+        let conn: &PgConnection = &context.db;
+
+        Ok(create_component(data, conn)?)
     }
 }
 
