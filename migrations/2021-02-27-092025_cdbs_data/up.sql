@@ -11,7 +11,13 @@ INSERT INTO component_fav_ref (id_component, id_user, created_at, is_active) VAL
 
 -- TABLE: component_keyword_ref: keyword (VARCHAR(10))
 INSERT INTO component_keyword_ref (keyword) VALUES
-    ('keyword');
+    ('tools'),
+    ('bolt'),
+    ('screw'),
+    ('automotive'),
+    ('autodesk'),
+    ('fusion'),
+    ('tech');
 
 -- TABLE: component_ref: id SERIAL, name VARCHAR(225), id_user INTEGER,
 -- comment VARCHAR(2000), id_component_parent INTEGER, id_actual_status INTEGER,
@@ -20,14 +26,71 @@ INSERT INTO component_keyword_ref (keyword) VALUES
 INSERT INTO component_ref (name, id_user, comment, id_component_parent,
   id_actual_status, id_component_type, is_delete, id_type_access,
   commentchange, is_standard, created_at) VALUES
-  ('Reduced shank bolts and screws with coarse thread - Head style C - Type H',
+  ('Reduced shank bolts and screws with coarse thread',
     1, 'Continuously improve the product quality and applicability...',
     1, 1, 1, 1, 1, 'no', 1, now());
+
+  -- TABLE: spec_to_component: id (SERIAL), id_spec (INTEGER),
+  -- id_component (INTEGER)
+  INSERT INTO spec_to_component (id_spec, id_component) VALUES
+    (1, 1);
+
+  -- TABLE: component_to_keyword: id (SERIAL), id_component (INTEGER),
+  -- id_component_keyword (INTEGER)
+  INSERT INTO component_to_keyword (id_component, id_component_keyword) VALUES
+    (1, 1),
+    (1, 2),
+    (1, 3);
+
+-- TABLE: param_to_component: id SERIAL, id_component INTEGER,
+-- id_param INTEGER, value VARCHAR(255)
+INSERT INTO param_to_component (id_component, id_param, value) VALUES
+  (1, 9, '1'),
+  (1, 10, '0.5'),
+  (1, 11, '1.25'),
+  (1, 12, '2.51');
 
 -- TABLE: component_type_ref: id (SERIAL), component_type (VARCHAR(225))
 INSERT INTO component_type_ref (component_type) VALUES
   ('базовый'),
   ('собственный');
+
+-- TABLE: file_to_component: id (SERIAL), id_component (INTEGER),
+-- id_file (INTEGER)
+INSERT INTO file_to_component (id_component, id_file) VALUES
+  (1, 1);
+
+-- TABLE: file_to_modification: id (SERIAL), id_modification (INTEGER),
+-- id_file (INTEGER)
+INSERT INTO file_to_modification (id_modification, id_file) VALUES
+  (1, 1);
+
+-- TABLE: component_modification_list: id SERIAL, id_component INTEGER,
+-- modification_name VARCHAR(100), created_at TIMESTAMP, id_name_cad INTEGER,
+-- comment VARCHAR(2000), id_modification_parent INTEGER, commentchange VARCHAR(2000),
+-- id_actual_status INTEGER, is_delete INTEGER)
+INSERT INTO component_modification_list (id_component, modification_name,
+  created_at, id_name_cad, comment, id_modification_parent, commentchange,
+  id_actual_status, is_delete) VALUES
+  (1, 'Head style C - Type H', now(), 1, 'main modification', 1, 'comment change',
+    1, 0);
+
+-- TABLE: param_to_modification: id SERIAL, id_modification INTEGER,
+-- id_param INTEGER, value VARCHAR(255)
+INSERT INTO param_to_modification (id_modification, id_param, value) VALUES
+  (1, 1, '1'),
+  (1, 2, '1'),
+  (1, 3, 'SMS8'),
+  (1, 4, 'SMS8 Self-Drilling and Tapping Screw, #8 Screw, 1/2" Screw'),
+  (1, 5, 'SMS8'),
+  (1, 6, 'Steel'),
+  (1, 7, 'Electrogalvanized'),
+  (1, 8, '187197');
+
+-- TABLE: component_to_user: id (SERIAL), id_component (INTEGER),
+-- id_user (INTEGER), comment (VARCHAR(255)),
+INSERT INTO component_to_user (id_component, id_user, comment) VALUES
+  (1, 1, 'Комментарий поставщика');
 
 -- TABLE: discussion_ref: id (SERIAL), created_at (TIMESTAMP),
 -- id_component (INTEGER), id_user_from (INTEGER), id_user_to (INTEGER),
@@ -98,6 +161,16 @@ INSERT INTO language_ref (lang, langshort) VALUES
     ('Russian', 'RU'),
     ('English', 'EN');
 
+-- TABLE: spec_translate_list: id (serial), id_spec (INTEGER), id_lang (INTEGER),
+-- spec (VARCHAR(225))
+INSERT INTO spec_translate_list (id_spec, id_lang, spec) VALUES
+  (1, 1, 'Root');
+
+-- TABLE: param_translate_list: id (serial), id_param (INTEGER), id_lang (INTEGER),
+-- param (VARCHAR(225))
+INSERT INTO param_translate_list (id_param, id_lang, param) VALUES
+  (1, 1, 'Индекс');
+
 -- TABLE: name_cad_ref: id (serial), name_cad (varying(225))
 INSERT INTO name_cad_ref (name_cad) VALUES
     ('AutoCAD'),
@@ -152,6 +225,14 @@ INSERT INTO name_cad_ref (name_cad) VALUES
 
 -- TABLE: param_ref: id (serial), paramname (VARCHAR(100))
 INSERT INTO param_ref (paramname) VALUES
+    ('Index'),
+    ('Selector'),
+    ('Part Number'),
+    ('Description'),
+    ('E-Shop link'),
+    ('Material'),
+    ('Finish'),
+    ('Article Number'),
     ('Nominal Ø'),
     ('Pitch (mm)'),
     ('Length (mm)'),
@@ -252,18 +333,22 @@ INSERT INTO representation_type_ref (representation_type) VALUES
 
 -- TABLE: spec_ref: id (serial), spec (VARCHAR(100)), id_spec_parent (INTEGER)
 INSERT INTO spec_ref (spec, id_spec_parent) VALUES
-    ('main', 1);
+    ('main', 1),
+    ('Components', 1),
+    ('Construction', 2),
+    ('Tools', 2);
+
+-- TABLE: component_access_to_user: id SERIAL, id_component INTEGER, id_user INTEGER,
+-- id_type_access INTEGER, is_actual INTEGER, is_delete INTEGER, created_at TIMESTAMP
+INSERT INTO component_access_to_user (id_component, id_user, id_type_access,
+is_actual, is_delete, created_at) VALUES
+  (1, 1, 1, 1, 0, now());
 
 -- TABLE: type_access_ref: id (serial), type_access (VARCHAR(100))
 INSERT INTO type_access_ref (type_access) VALUES
   ('Полный'),
   ('Частичный'),
   ('Закрыт');
-
--- TABLE: type_of_change_ref: id (serial), type_of_change (VARCHAR(100))
-INSERT INTO type_of_change_ref (type_of_change) VALUES
-  ('Изменение данных профиля');
-
 
 -- TABLE: type_user_ref: id (serial), typeuser (varying(100)), typeusershort (varying(10))
 INSERT INTO type_user_ref (typeuser, typeusershort) VALUES
@@ -309,3 +394,21 @@ INSERT INTO user_represet_ref (id_user, id_region, id_representation_type,
 -- date_start (TIMESTAMP), date_end (TIMESTAMP)
 INSERT INTO user_tokens_ref (id_user, token, date_start, date_end) VALUES
   (1, 'GNLw1GKzykA926Rhdcpy1c6lugZXTd5y', now(), now());
+
+-- TABLE: user_history_list: id (serial), id_user (INTEGER), datechange (TIMESTAMP),
+-- id_type_of_change (INTEGER), commentchange (VARCHAR(2000))
+INSERT INTO user_history_list (id_user, datechange, id_type_of_change, commentchange) VALUES
+  (1, now(), 1, 'Комментарий к изменению');
+
+-- TABLE: type_of_change_ref: id (serial), type_of_change (VARCHAR(100))
+INSERT INTO type_of_change_ref (type_of_change) VALUES
+  ('Изменение типа профиля');
+
+-- TABLE: spec_to_user: id (serial), id_spec (INTEGER), id_user (INTEGER),
+INSERT INTO spec_to_user (id_spec, id_user) VALUES
+  (2, 1),
+  (3, 1);
+
+-- TABLE: spec_ref: id (serial), spec (VARCHAR(100)), id_spec_parent (INTEGER),
+INSERT INTO spec_ref (spec, id_spec_parent) VALUES
+  ('Root_catalog', 1);
