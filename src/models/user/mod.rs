@@ -3,7 +3,7 @@ pub mod model;
 pub(crate) mod service;
 pub mod util;
 
-use crate::user::handler::{login, logout, me, register};
+use crate::models::user::handler::{login, logout, me, register};
 use actix_web::web;
 
 pub fn route(cfg: &mut web::ServiceConfig) {

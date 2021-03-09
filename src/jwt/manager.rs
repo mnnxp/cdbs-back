@@ -1,6 +1,6 @@
 use crate::errors::ServiceError;
 use crate::jwt::model::Claims;
-use crate::user::model::SlimUser;
+use crate::models::user::model::SlimUser;
 use jsonwebtoken::{decode, encode, Algorithm, Header, Validation};
 
 pub fn create_token(

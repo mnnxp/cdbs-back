@@ -2,13 +2,13 @@ use crate::cli_args::Opt;
 use crate::database::PooledConnection;
 use crate::errors::ServiceResult;
 use crate::jwt::model::{DecodedToken, Token};
-use crate::user::model::{LoggedUser, SlimUser, User, UserData};
-use crate::user::service as user;
-use crate::user::service::token::ClaimsResponse;
-use crate::file::model::{SlimFile, File, FileData};
-use crate::file::service as file;
-use crate::component::model::{SlimComponent, Component, ComponentData};
-use crate::component::service as component;
+use crate::models::user::model::{LoggedUser, SlimUser, User, UserData};
+use crate::models::user::service as user;
+use crate::models::user::service::token::ClaimsResponse;
+use crate::models::file::model::{SlimFile, File, FileData};
+use crate::models::file::service as file;
+use crate::models::component::model::{SlimComponent, Component, ComponentData};
+use crate::models::component::service as component;
 use diesel::PgConnection;
 use juniper::Context as JuniperContext;
 use std::sync::Arc;
@@ -87,21 +87,21 @@ pub(crate) struct Mutation;
 #[juniper::object(Context = Context)]
 impl Mutation {
     pub fn register_user(context: &Context, data: UserData) -> ServiceResult<SlimUser> {
-        use crate::user::service::register::create_user;
+        use crate::models::user::service::register::create_user;
         let conn: &PgConnection = &context.db;
 
         Ok(create_user(data, conn)?)
     }
 
     pub fn register_file(context: &Context, data: FileData) -> ServiceResult<SlimFile> {
-        use crate::file::service::register::create_file;
+        use crate::models::file::service::register::create_file;
         let conn: &PgConnection = &context.db;
 
         Ok(create_file(data, conn)?)
     }
 
     pub fn register_component(context: &Context, data: ComponentData) -> ServiceResult<SlimComponent> {
-        use crate::component::service::register::create_component;
+        use crate::models::component::service::register::create_component;
         let conn: &PgConnection = &context.db;
 
         Ok(create_component(data, conn)?)

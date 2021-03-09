@@ -2,7 +2,7 @@ use crate::cli_args::Opt;
 use crate::database::{db_connection, Pool};
 use crate::graphql::model::{Context, Schema};
 use crate::jwt::model::DecodedToken;
-use crate::user::model::LoggedUser;
+use crate::models::user::model::LoggedUser;
 use actix_web::{error, web, Error, HttpResponse};
 use juniper::http::playground::playground_source;
 use juniper::http::GraphQLRequest;

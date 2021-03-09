@@ -1,5 +1,5 @@
 // use crate::user::model::{LoggedUser, SlimUser, User};
-use crate::user::model::{User};
+use crate::models::user::model::{User};
 // use crate::errors::ServiceError;
 use argon2rs::argon2i_simple;
 // use uuid::Uuid;

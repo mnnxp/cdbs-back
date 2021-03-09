@@ -1,4 +1,4 @@
-use crate::user::model::SlimUser;
+use crate::models::user::model::SlimUser;
 use anyhow::Result;
 use chrono::{Duration, Local};
 use std::convert::TryFrom;

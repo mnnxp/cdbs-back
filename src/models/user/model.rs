@@ -1,5 +1,5 @@
 use crate::schema::*;
-use crate::user::util::{make_hash_salt, make_salt};
+use crate::models::user::util::{make_hash_salt, make_salt};
 use chrono::*;
 use shrinkwraprs::Shrinkwrap;
 use uuid::Uuid;

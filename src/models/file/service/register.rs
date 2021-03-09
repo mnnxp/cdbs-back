@@ -1,7 +1,7 @@
 use crate::database::{db_connection, Pool};
 use crate::errors::ServiceResult;
 // use crate::user::model::{InsertableUser, SlimUser, User, UserData};
-use crate::file::model::{InsertableFile, SlimFile, File, FileData};
+use crate::models::file::model::{InsertableFile, SlimFile, File, FileData};
 use actix_web::web;
 use diesel::prelude::*;
 

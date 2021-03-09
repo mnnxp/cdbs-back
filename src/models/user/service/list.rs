@@ -1,20 +1,19 @@
 use crate::database::PooledConnection;
 use crate::errors::ServiceResult;
 use crate::graphql::model::Context;
-use crate::file::model::File;
+use crate::models::user::model::User;
 use diesel::prelude::*;
-use crate::schema::file_ref::dsl::file_ref;
 
-pub(crate) fn find_all_files(
+pub(crate) fn find_all_users(
     context: &Context,
     limit: i32,
     offset: i32,
-) -> ServiceResult<Vec<File>> {
+) -> ServiceResult<Vec<User>> {
     use crate::schema::user_ref::dsl::*;
     let conn: &PooledConnection = &context.db;
 
-    Ok(file_ref
+    Ok(user_ref
         .limit(limit as i64)
         .offset(offset as i64)
-        .load::<File>(conn)?)
+        .load::<User>(conn)?)
 }

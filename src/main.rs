@@ -11,9 +11,7 @@ mod errors;
 mod graphql;
 mod jwt;
 mod schema;
-mod user;
-mod file;
-mod component;
+mod models;
 
 use actix_identity::{CookieIdentityPolicy, IdentityService};
 use actix_web::{App, HttpServer, web};
@@ -71,9 +69,9 @@ async fn main() -> std::io::Result<()> {
                     .secure(secure_cookie),
             ))
             // Sets routes via secondary files
-            .configure(user::route)
-            .configure(file::route)
-            .configure(component::route)
+            .configure(models::user::route)
+            .configure(models::file::route)
+            .configure(models::component::route)
             .configure(graphql::route)
     })
     // Running at `format!("{}:{}",port,"0.0.0.0")`
