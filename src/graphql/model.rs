@@ -9,6 +9,12 @@ use crate::models::file::model::{SlimFile, File, FileData};
 use crate::models::file::service as file;
 use crate::models::component::model::{SlimComponent, Component, ComponentData};
 use crate::models::component::service as component;
+use crate::models::component_modification::model::{
+    SlimComponentModification,
+    ComponentModification,
+    ComponentModificationData
+};
+use crate::models::component_modification::service as component_modification;
 use diesel::PgConnection;
 use juniper::Context as JuniperContext;
 use std::sync::Arc;
@@ -79,6 +85,17 @@ impl QueryRoot {
         let offset: i32 = offset.unwrap_or(0);
 
         component::list::find_all_components(&context, limit, offset)
+    }
+
+    pub fn component_modification(
+        context: &Context,
+        limit: Option<i32>,
+        offset: Option<i32>,
+    ) -> ServiceResult<Vec<ComponentModification>> {
+        let limit: i32 = limit.unwrap_or(100);
+        let offset: i32 = offset.unwrap_or(0);
+
+        component_modification::list::find_all_component_modification(&context, limit, offset)
     }
 }
 
