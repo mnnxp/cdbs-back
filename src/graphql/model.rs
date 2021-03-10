@@ -2,17 +2,27 @@ use crate::cli_args::Opt;
 use crate::database::PooledConnection;
 use crate::errors::ServiceResult;
 use crate::jwt::model::{DecodedToken, Token};
-use crate::models::user::model::{LoggedUser, SlimUser, User, UserData};
+use crate::models::user::model::{LoggedUser, User, UserData, SlimUser};
 use crate::models::user::service as user;
 use crate::models::user::service::token::ClaimsResponse;
+use crate::models::user_represet::model::{
+    UserRepreset,
+    UserRepresetData,
+    SlimUserRepreset
+};
+use crate::models::user_represet::service as user_represet;
 use crate::models::file::model::{SlimFile, File, FileData};
 use crate::models::file::service as file;
-use crate::models::component::model::{SlimComponent, Component, ComponentData};
+use crate::models::component::model::{
+    Component,
+    ComponentData,
+    SlimComponent
+};
 use crate::models::component::service as component;
 use crate::models::component_modification::model::{
-    SlimComponentModification,
     ComponentModification,
-    ComponentModificationData
+    ComponentModificationData,
+    SlimComponentModification
 };
 use crate::models::component_modification::service as component_modification;
 use diesel::PgConnection;
@@ -55,6 +65,19 @@ impl QueryRoot {
         //crate::user::has_role(&context.user, 'user')?;
 
         user::list::find_all_users(&context, limit, offset)
+    }
+
+    pub fn user_represet(
+        context: &Context,
+        id_serch: Option<i32>,
+        limit: Option<i32>,
+        offset: Option<i32>,
+    ) -> ServiceResult<Vec<UserRepreset>> {
+        let id_serch: i32 = id_serch.unwrap_or(0);
+        let limit: i32 = limit.unwrap_or(100);
+        let offset: i32 = offset.unwrap_or(0);
+
+        user_represet::list::show(&context, id_serch, limit, offset)
     }
 
     pub fn generate_token(context: &Context) -> ServiceResult<Token> {

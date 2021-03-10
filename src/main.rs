@@ -70,6 +70,7 @@ async fn main() -> std::io::Result<()> {
             ))
             // Sets routes via secondary files
             .configure(models::user::route)
+            .configure(models::user_represet::route)
             .configure(models::file::route)
             .configure(models::component::route)
             .configure(models::component_modification::route)
