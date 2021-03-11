@@ -8,6 +8,7 @@ CREATE TABLE user_ref (
   psw_hash BYTEA NOT NULL, /* хеш пароля профиля */
   psw_salt VARCHAR(255) NOT NULL, /* соль для пароля профиля */
   id_type_user INTEGER NOT NULL DEFAULT '1', /* тип профиля (физ. лицо, юр. лицо, ип) */
+  is_supplier INTEGER NOT NULL DEFAULT '0',  /* роль пользователя: поставщик/заказчик */
   firstname VARCHAR(100) NOT NULL, /*Имя */
   lastname VARCHAR(100) NOT NULL, /*Фамилия */
   secondname VARCHAR(100) NOT NULL, /*Отчество */

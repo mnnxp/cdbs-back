@@ -374,11 +374,11 @@ INSERT INTO type_user_ref (typeuser, typeusershort) VALUES
 -- position (VARCHAR(255)), site_url (VARCHAR(255)), uuid_file_info_icon (INTEGER),
 -- id_region (INTEGER), created_at (TIMESTAMP),
 INSERT INTO user_ref (uuid, email, email_verified, psw_hash, psw_salt,
-  id_type_user, firstname, lastname, secondname, nickname, orgname, shortname,
+  id_type_user, is_supplier, firstname, lastname, secondname, nickname, orgname, shortname,
   inn, phone, id_name_cad, comment, address, time_zone, position, site_url,
   uuid_file_info_icon, id_region, created_at) VALUES
     ('31ecc6f8-0c09-4a59-a2d5-34b5b833e59b', 'email@email.ru', 1, E'\\000',
-      '000', 1, 'Johm', 'Ivanov', 'Rucovich', 'nicknameeee', 'romashka', 'rom-ka',
+      '000', 1, 0, 'Johm', 'Ivanov', 'Rucovich', 'nicknameeee', 'romashka', 'rom-ka',
       '12345678910', '+79991234567', 1, 'comment for this user', 'Moscow',
       'UTC+3', 'engineer', 'https://cadbase.ru', 'bc1c2151-86d0-4656-9c9d-d016dd584297', 1, now());
 
