@@ -6,8 +6,8 @@ INSERT INTO actual_status_ref (actualstatus) VALUES
 
 -- TABLE: component_fav_ref: id (SERIAL), id_component (INTEGER),
 -- id_user (INTEGER), created_at (TIMESTAMP), is_active (INTEGER),
-INSERT INTO component_fav_ref (id_component, id_user, created_at, is_active) VALUES
-    (1, 1, now(), 1);
+INSERT INTO component_fav_ref (uuid_component, uuid_user, created_at, is_active) VALUES
+    ('a5953fd9-7393-4f1e-a899-06b5e159dbf1', '31ecc6f8-0c09-4a59-a2d5-34b5b833e59b', now(), 1);
 
 -- TABLE: component_keyword_ref: keyword (VARCHAR(10))
 INSERT INTO component_keyword_ref (keyword) VALUES
@@ -23,32 +23,32 @@ INSERT INTO component_keyword_ref (keyword) VALUES
 -- comment VARCHAR(2000), id_component_parent INTEGER, id_actual_status INTEGER,
 -- id_component_type INTEGER, is_delete INTEGER, id_type_access INTEGER,
 -- commentchange VARCHAR(2000), is_standard INTEGER, created_at TIMESTAMP
-INSERT INTO component_ref (name, id_user, comment, id_component_parent,
+INSERT INTO component_ref (uuid, name, uuid_user, comment, uuid_component_parent,
   id_actual_status, id_component_type, is_delete, id_type_access,
   commentchange, is_standard, created_at) VALUES
-  ('Reduced shank bolts and screws with coarse thread',
-    1, 'Continuously improve the product quality and applicability...',
-    1, 1, 1, 1, 1, 'no', 1, now());
+  ('a5953fd9-7393-4f1e-a899-06b5e159dbf1', 'Reduced shank bolts and screws with coarse thread',
+    '31ecc6f8-0c09-4a59-a2d5-34b5b833e59b', 'Continuously improve the product quality and applicability...',
+    'a5953fd9-7393-4f1e-a899-06b5e159dbf1', 1, 1, 1, 1, 'no', 1, now());
 
   -- TABLE: spec_to_component: id (SERIAL), id_spec (INTEGER),
   -- id_component (INTEGER)
-  INSERT INTO spec_to_component (id_spec, id_component) VALUES
-    (1, 1);
+  INSERT INTO spec_to_component (id_spec, uuid_component) VALUES
+    (1, 'a5953fd9-7393-4f1e-a899-06b5e159dbf1');
 
   -- TABLE: component_to_keyword: id (SERIAL), id_component (INTEGER),
   -- id_component_keyword (INTEGER)
-  INSERT INTO component_to_keyword (id_component, id_component_keyword) VALUES
-    (1, 1),
-    (1, 2),
-    (1, 3);
+  INSERT INTO component_to_keyword (uuid_component, id_component_keyword) VALUES
+    ('a5953fd9-7393-4f1e-a899-06b5e159dbf1', 1),
+    ('a5953fd9-7393-4f1e-a899-06b5e159dbf1', 2),
+    ('a5953fd9-7393-4f1e-a899-06b5e159dbf1', 3);
 
 -- TABLE: param_to_component: id SERIAL, id_component INTEGER,
 -- id_param INTEGER, value VARCHAR(255)
-INSERT INTO param_to_component (id_component, id_param, value) VALUES
-  (1, 9, '1'),
-  (1, 10, '0.5'),
-  (1, 11, '1.25'),
-  (1, 12, '2.51');
+INSERT INTO param_to_component (uuid_component, id_param, value) VALUES
+  ('a5953fd9-7393-4f1e-a899-06b5e159dbf1', 9, '1'),
+  ('a5953fd9-7393-4f1e-a899-06b5e159dbf1', 10, '0.5'),
+  ('a5953fd9-7393-4f1e-a899-06b5e159dbf1', 11, '1.25'),
+  ('a5953fd9-7393-4f1e-a899-06b5e159dbf1', 12, '2.51');
 
 -- TABLE: component_type_ref: id (SERIAL), component_type (VARCHAR(225))
 INSERT INTO component_type_ref (component_type) VALUES
@@ -56,48 +56,49 @@ INSERT INTO component_type_ref (component_type) VALUES
   ('собственный');
 
 -- TABLE: file_to_component: id (SERIAL), id_component (INTEGER),
--- id_file (INTEGER)
-INSERT INTO file_to_component (id_component, id_file) VALUES
-  (1, 1);
+-- uuid_file (INTEGER)
+INSERT INTO file_to_component (uuid_component, uuid_file) VALUES
+  ('a5953fd9-7393-4f1e-a899-06b5e159dbf1', 'bc1c2151-86d0-4656-9c9d-d016dd584297');
 
 -- TABLE: file_to_modification: id (SERIAL), id_modification (INTEGER),
--- id_file (INTEGER)
-INSERT INTO file_to_modification (id_modification, id_file) VALUES
-  (1, 1);
+-- uuid_file (INTEGER)
+INSERT INTO file_to_modification (uuid_modification, uuid_file) VALUES
+  ('aba22d59-4f6c-44a4-9a37-2d38f0e577a8', 'bc1c2151-86d0-4656-9c9d-d016dd584297');
 
 -- TABLE: component_modification_list: id SERIAL, id_component INTEGER,
 -- modification_name VARCHAR(100), created_at TIMESTAMP, id_name_cad INTEGER,
 -- comment VARCHAR(2000), id_modification_parent INTEGER, commentchange VARCHAR(2000),
 -- id_actual_status INTEGER, is_delete INTEGER)
-INSERT INTO component_modification_list (id_component, modification_name,
-  created_at, id_name_cad, comment, id_modification_parent, commentchange,
+INSERT INTO component_modification_list (uuid, uuid_component, modification_name,
+  created_at, id_name_cad, comment, uuid_modification_parent, commentchange,
   id_actual_status, is_delete) VALUES
-  (1, 'Head style C - Type H', now(), 1, 'main modification', 1, 'comment change',
-    1, 0);
+  ('aba22d59-4f6c-44a4-9a37-2d38f0e577a8', 'a5953fd9-7393-4f1e-a899-06b5e159dbf1',
+    'Head style C - Type H', now(), 1, 'main modification', 'aba22d59-4f6c-44a4-9a37-2d38f0e577a8', 'comment change', 1, 0);
 
 -- TABLE: param_to_modification: id SERIAL, id_modification INTEGER,
 -- id_param INTEGER, value VARCHAR(255)
-INSERT INTO param_to_modification (id_modification, id_param, value) VALUES
-  (1, 1, '1'),
-  (1, 2, '1'),
-  (1, 3, 'SMS8'),
-  (1, 4, 'SMS8 Self-Drilling and Tapping Screw, #8 Screw, 1/2" Screw'),
-  (1, 5, 'SMS8'),
-  (1, 6, 'Steel'),
-  (1, 7, 'Electrogalvanized'),
-  (1, 8, '187197');
+INSERT INTO param_to_modification (uuid_modification, id_param, value) VALUES
+  ('aba22d59-4f6c-44a4-9a37-2d38f0e577a8', 1, '1'),
+  ('aba22d59-4f6c-44a4-9a37-2d38f0e577a8', 2, '1'),
+  ('aba22d59-4f6c-44a4-9a37-2d38f0e577a8', 3, 'SMS8'),
+  ('aba22d59-4f6c-44a4-9a37-2d38f0e577a8', 4, 'SMS8 Self-Drilling and Tapping Screw, #8 Screw, 1/2" Screw'),
+  ('aba22d59-4f6c-44a4-9a37-2d38f0e577a8', 5, 'SMS8'),
+  ('aba22d59-4f6c-44a4-9a37-2d38f0e577a8', 6, 'Steel'),
+  ('aba22d59-4f6c-44a4-9a37-2d38f0e577a8', 7, 'Electrogalvanized'),
+  ('aba22d59-4f6c-44a4-9a37-2d38f0e577a8', 8, '187197');
 
 -- TABLE: component_to_user: id (SERIAL), id_component (INTEGER),
 -- id_user (INTEGER), comment (VARCHAR(255)),
-INSERT INTO component_to_user (id_component, id_user, comment) VALUES
-  (1, 1, 'Комментарий поставщика');
+INSERT INTO component_to_user (uuid_component, uuid_user, comment) VALUES
+  ('a5953fd9-7393-4f1e-a899-06b5e159dbf1', '31ecc6f8-0c09-4a59-a2d5-34b5b833e59b', 'Комментарий поставщика');
 
 -- TABLE: discussion_ref: id (SERIAL), created_at (TIMESTAMP),
 -- id_component (INTEGER), id_user_from (INTEGER), id_user_to (INTEGER),
 -- comment (VARCHAR(2000)), id_discussion_parent (INTEGER)
-INSERT INTO discussion_ref (created_at, id_component, id_user_from,
-  id_user_to, comment, id_discussion_parent) VALUES
-  (now(), 1, 1, 1, 'this comment', 1);
+INSERT INTO discussion_ref (created_at, uuid_component, uuid_user_from,
+  uuid_user_to, comment, id_discussion_parent) VALUES
+  (now(), 'a5953fd9-7393-4f1e-a899-06b5e159dbf1', '31ecc6f8-0c09-4a59-a2d5-34b5b833e59b',
+  '31ecc6f8-0c09-4a59-a2d5-34b5b833e59b', 'this comment', 1);
 
 -- TABLE: extension_ref: id (SERIAL), extension (VARCHAR(10)), id_name_cad (INTEGER)
 INSERT INTO extension_ref (extension, id_name_cad) VALUES
@@ -149,12 +150,11 @@ INSERT INTO extension_ref (extension, id_name_cad) VALUES
     ('.wm', 1),
     ('.wm2d', 1);
 
--- TABLE: file_ref: id (serial), id_file (integer), hash (bytea), id_user_create (integer),
+-- TABLE: : id (serial), uuid_file (integer), hash (bytea), id_user_create (integer),
 --           created_at (Timestamp), filename (varying(225)), id_ext (integer),
 --           filesize (double precision), path_file (varying(225)),
-INSERT INTO file_ref (id_file, id_user_create, created_at, filename, id_ext, filesize , path_file) VALUES
-    -- (1, E'\\000', 1, now(), 'filename', 1, 0, 'path file');
-    (1, 1, now(), 'filename', 1, 0, 'path/file/file.txt');
+INSERT INTO file_ref (uuid, uuid_file, hash, uuid_user_create, created_at, filename, id_ext, filesize , path_file) VALUES
+    ('bc1c2151-86d0-4656-9c9d-d016dd584297', 'bc1c2151-86d0-4656-9c9d-d016dd584297', E'\\000', '31ecc6f8-0c09-4a59-a2d5-34b5b833e59b', now(), 'filename', 1, 0, 'path/file/file.txt');
 
 -- TABLE: language_ref: id (SERIAL), lang (VARCHAR(100)), langshort (VARCHAR(10))
 INSERT INTO language_ref (lang, langshort) VALUES
@@ -340,9 +340,9 @@ INSERT INTO spec_ref (spec, id_spec_parent) VALUES
 
 -- TABLE: component_access_to_user: id SERIAL, id_component INTEGER, id_user INTEGER,
 -- id_type_access INTEGER, is_actual INTEGER, is_delete INTEGER, created_at TIMESTAMP
-INSERT INTO component_access_to_user (id_component, id_user, id_type_access,
+INSERT INTO component_access_to_user (uuid_component, uuid_user, id_type_access,
 is_actual, is_delete, created_at) VALUES
-  (1, 1, 1, 1, 0, now());
+  ('a5953fd9-7393-4f1e-a899-06b5e159dbf1', '31ecc6f8-0c09-4a59-a2d5-34b5b833e59b', 1, 1, 0, now());
 
 -- TABLE: type_access_ref: id (serial), type_access (VARCHAR(100))
 INSERT INTO type_access_ref (type_access) VALUES
@@ -371,43 +371,43 @@ INSERT INTO type_user_ref (typeuser, typeusershort) VALUES
 -- nickname (VARCHAR(100)), orgname (VARCHAR(255)), shortname (VARCHAR(255)),
 -- inn (VARCHAR(30)), phone (VARCHAR(100)), id_name_cad (INTEGER),
 -- comment (VARCHAR(2000)), address (VARCHAR(512)), time_zone (VARCHAR(255)),
--- position (VARCHAR(255)), site_url (VARCHAR(255)), id_file_info_icon (INTEGER),
+-- position (VARCHAR(255)), site_url (VARCHAR(255)), uuid_file_info_icon (INTEGER),
 -- id_region (INTEGER), created_at (TIMESTAMP),
 INSERT INTO user_ref (uuid, email, email_verified, psw_hash, psw_salt,
   id_type_user, firstname, lastname, secondname, nickname, orgname, shortname,
   inn, phone, id_name_cad, comment, address, time_zone, position, site_url,
-  id_file_info_icon, id_region, created_at) VALUES
+  uuid_file_info_icon, id_region, created_at) VALUES
     ('31ecc6f8-0c09-4a59-a2d5-34b5b833e59b', 'email@email.ru', 1, E'\\000',
       '000', 1, 'Johm', 'Ivanov', 'Rucovich', 'nicknameeee', 'romashka', 'rom-ka',
       '12345678910', '+79991234567', 1, 'comment for this user', 'Moscow',
-      'UTC+3', 'engineer', 'https://cadbase.ru', 1, 1, now());
+      'UTC+3', 'engineer', 'https://cadbase.ru', 'bc1c2151-86d0-4656-9c9d-d016dd584297', 1, now());
 
 
 -- TABLE: user_represet_ref: id (serial), id_user (INTEGER),
 -- id_region (INTEGER),   id_representation_type (INTEGER),
 -- name (VARCHAR(255)),   address (VARCHAR(512)),   phone (VARCHAR(100))
-INSERT INTO user_represet_ref (id_user, id_region, id_representation_type,
+INSERT INTO user_represet_ref (uuid, uuid_user, id_region, id_representation_type,
   name, address, phone) VALUES
-  (1, 1, 1, 'Местный офис', 'г. Москва', '+79991234567');
+  ('22a08149-b63a-4f65-a1cd-4a28f85567ec', '31ecc6f8-0c09-4a59-a2d5-34b5b833e59b', 1, 1, 'Местный офис', 'г. Москва', '+79991234567');
 
 -- TABLE: user_tokens_ref: id (serial), id_user (INTEGER), token (VARCHAR(512)),
 -- date_start (TIMESTAMP), date_end (TIMESTAMP)
-INSERT INTO user_tokens_ref (id_user, token, date_start, date_end) VALUES
-  (1, 'GNLw1GKzykA926Rhdcpy1c6lugZXTd5y', now(), now());
+INSERT INTO user_tokens_ref (uuid_user, token, date_start, date_end) VALUES
+  ('31ecc6f8-0c09-4a59-a2d5-34b5b833e59b', 'GNLw1GKzykA926Rhdcpy1c6lugZXTd5y', now(), now());
 
 -- TABLE: user_history_list: id (serial), id_user (INTEGER), datechange (TIMESTAMP),
 -- id_type_of_change (INTEGER), commentchange (VARCHAR(2000))
-INSERT INTO user_history_list (id_user, datechange, id_type_of_change, commentchange) VALUES
-  (1, now(), 1, 'Комментарий к изменению');
+INSERT INTO user_history_list (uuid_user, datechange, id_type_of_change, commentchange) VALUES
+  ('31ecc6f8-0c09-4a59-a2d5-34b5b833e59b', now(), 1, 'Комментарий к изменению');
 
 -- TABLE: type_of_change_ref: id (serial), type_of_change (VARCHAR(100))
 INSERT INTO type_of_change_ref (type_of_change) VALUES
   ('Изменение типа профиля');
 
 -- TABLE: spec_to_user: id (serial), id_spec (INTEGER), id_user (INTEGER),
-INSERT INTO spec_to_user (id_spec, id_user) VALUES
-  (2, 1),
-  (3, 1);
+INSERT INTO spec_to_user (id_spec, uuid_user) VALUES
+  (2, '31ecc6f8-0c09-4a59-a2d5-34b5b833e59b'),
+  (3, '31ecc6f8-0c09-4a59-a2d5-34b5b833e59b');
 
 -- TABLE: spec_ref: id (serial), spec (VARCHAR(100)), id_spec_parent (INTEGER),
 INSERT INTO spec_ref (spec, id_spec_parent) VALUES

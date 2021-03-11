@@ -4,7 +4,7 @@ CREATE TABLE user_ref (
   id SERIAL PRIMARY KEY, /* id профиля */
   uuid UUID NOT NULL UNIQUE,
   email VARCHAR(100) NOT NULL, /*email профиля, на один адрес может быть несколько профилей (закос под reddit) */
-  email_verified INTEGER NOT NULL DEFAULT '1', /* подтверждение email */
+  email_verified INTEGER NOT NULL DEFAULT '0', /* подтверждение email */
   psw_hash BYTEA NOT NULL, /* хеш пароля профиля */
   psw_salt VARCHAR(255) NOT NULL, /* соль для пароля профиля */
   id_type_user INTEGER NOT NULL DEFAULT '1', /* тип профиля (физ. лицо, юр. лицо, ип) */
@@ -22,15 +22,15 @@ CREATE TABLE user_ref (
   time_zone VARCHAR(255) NOT NULL, /*часовой пояс профиля */
   position VARCHAR(255) NOT NULL, /*роль/должность */
   site_url VARCHAR(255) NOT NULL, /* URL адрес сайта профиля */
-  id_file_info_icon INTEGER NOT NULL DEFAULT '1', /* картинка пользователя */
-  id_region INTEGER NOT NULL DEFAULT '1', /* регион */
+  uuid_file_info_icon UUID NOT NULL, /* картинка пользователя */
+  id_region INTEGER NOT NULL, /* регион */
   created_at TIMESTAMP NOT NULL DEFAULT NOW() /* дата создания профиля */
 );
 
 /* токен сессии клиента */
 CREATE TABLE user_tokens_ref (
   id SERIAL, /* id токена */
-  id_user INTEGER NOT NULL, /* идентификатор пользователя */
+  uuid_user UUID NOT NULL, /* идентификатор пользователя */
   token VARCHAR(512) NOT NULL, /* токен пользователя */
   date_start TIMESTAMP NOT NULL DEFAULT NOW() NOT NULL, /* дата создания токена */
   date_end TIMESTAMP NOT NULL DEFAULT NOW() NOT NULL, /* дата окончания действия токена */
@@ -40,13 +40,14 @@ CREATE TABLE user_tokens_ref (
 /* локальное представительство профиля */
 CREATE TABLE user_represet_ref (
   id SERIAL, /* id представительства */
-  id_user INTEGER NOT NULL, /* id профиля (чьё представительства) */
+  uuid UUID NOT NULL UNIQUE,
+  uuid_user UUID NOT NULL, /* id профиля (чьё представительства) */
   id_region INTEGER NOT NULL DEFAULT '1', /* регион представительства */
   id_representation_type INTEGER NOT NULL DEFAULT '1', /* тип представительства */
   name VARCHAR(255) NOT NULL, /* наименование представительства */
   address VARCHAR(512) NOT NULL, /* почтовый адрес представительства */
   phone VARCHAR(100) NOT NULL, /* телефон представительства */
-  CONSTRAINT user_represet_ref_pk PRIMARY KEY (id)
+  CONSTRAINT user_represet_ref_pk PRIMARY KEY (uuid)
 );
 
 /* тип представительства профиля */
@@ -87,7 +88,7 @@ CREATE TABLE name_cad_ref (
 CREATE TABLE spec_to_user (
   id SERIAL, /* id связи */
   id_spec INTEGER NOT NULL, /* связанный с профилем каталог (категория) */
-  id_user INTEGER NOT NULL, /* связанный с каталогом (категорией) профиль */
+  uuid_user UUID NOT NULL, /* связанный с каталогом (категорией) профиль */
   CONSTRAINT spec_to_user_pk PRIMARY KEY (id)
 );
 
@@ -95,7 +96,7 @@ CREATE TABLE spec_to_user (
 /* запись изменений данных профиля */
 CREATE TABLE user_history_list (
   id SERIAL, /* id события */
-  id_user INTEGER NOT NULL, /* идентификатор профиля к которому относится изменение */
+  uuid_user UUID NOT NULL, /* идентификатор профиля к которому относится изменение */
   datechange TIMESTAMP NOT NULL DEFAULT NOW(), /* дата изменения */
   id_type_of_change INTEGER NOT NULL, /* id изменения (тип изменения) */
   commentchange VARCHAR(2000) NOT NULL, /*  комментарий с вносимыми изменениями */
@@ -114,15 +115,16 @@ CREATE TABLE type_of_change_ref (
 /* информация о файле (изображении) */
 CREATE TABLE file_ref (
   id SERIAL, /* id файла */
-  id_file INTEGER NOT NULL, /* идентификатор объекта/файла */
-  -- hash BYTEA NOT NULL, /* хеш значение объекта/файла */
-  id_user_create INTEGER NOT NULL, /* идентификатор профиля загрузившего файл */
+  uuid UUID NOT NULL UNIQUE, /* идентификатор объекта/файла */
+  uuid_file UUID NOT NULL, /* идентификатор объекта/файла родителя */
+  hash BYTEA NOT NULL, /* хеш значение объекта/файла */
+  uuid_user_create UUID NOT NULL, /* идентификатор профиля загрузившего файл */
   created_at TIMESTAMP NOT NULL DEFAULT NOW(), /* дата создания/загрузки */
   filename VARCHAR(225) NOT NULL, /* наименование файла */
   id_ext INTEGER NOT NULL, /* расширение файла (используется для определения CAD) */
   filesize FLOAT NOT NULL, /* размер файла */
   path_file VARCHAR(225) NOT NULL, /* путь к файлу */
-  CONSTRAINT file_ref_pk PRIMARY KEY (id)
+  CONSTRAINT file_ref_pk PRIMARY KEY (uuid)
 );
 
 /* + */
@@ -138,28 +140,29 @@ CREATE TABLE extension_ref (
 /* компонент */
 CREATE TABLE component_ref (
   id SERIAL, /* id компонента */
+  uuid UUID NOT NULL UNIQUE,
   name VARCHAR(225) NOT NULL UNIQUE, /* наименование компонента */
-  id_user INTEGER NOT NULL, /* идентификатор профиля загрузившего компонент */
+  uuid_user UUID NOT NULL, /* идентификатор профиля загрузившего компонент */
   comment VARCHAR(2000) NOT NULL, /* краткое описание компонента */
-  id_component_parent INTEGER NOT NULL DEFAULT '1', /* родительский компонент */
+  uuid_component_parent UUID NOT NULL, /* родительский компонент */
   id_actual_status INTEGER NOT NULL, /* номер статуса, к примеру: «актуальный», «архивный», «снято с производства» */
   id_component_type INTEGER NOT NULL, /* тип компонента (базовый/кастомный) */
-  is_delete INTEGER NOT NULL DEFAULT '1', /* флаг удаления компонента */
+  is_delete INTEGER NOT NULL DEFAULT '0', /* флаг удаления компонента */
   id_type_access INTEGER NOT NULL, /* тип доступности компонента */
   commentchange VARCHAR(2000) NOT NULL, /*  комментарий с вносимыми изменениями */
-  is_standard INTEGER NOT NULL DEFAULT '1', /* компонент соответствует стандарту */
+  is_standard INTEGER NOT NULL DEFAULT '0', /* компонент соответствует стандарту */
   created_at TIMESTAMP NOT NULL DEFAULT NOW(), /* дата создания/загрузки */
-  CONSTRAINT component_ref_pk PRIMARY KEY (id)
+  CONSTRAINT component_ref_pk PRIMARY KEY (uuid)
 );
 
 /* доступ к компоненту отдельного пользователя */
 CREATE TABLE component_access_to_user (
   id SERIAL, /* id доступа */
-  id_component INTEGER NOT NULL, /* идентификатор компонента */
-  id_user INTEGER NOT NULL, /* идентификатор профиля с доступом */
+  uuid_component UUID NOT NULL, /* идентификатор компонента */
+  uuid_user UUID NOT NULL, /* идентификатор профиля с доступом */
   id_type_access INTEGER NOT NULL, /* тип доступа профиля к компоненту */
   is_actual INTEGER NOT NULL DEFAULT '1', /* флаг актуальности доступа */
-  is_delete INTEGER NOT NULL DEFAULT '1', /* флаг удаления доступа */
+  is_delete INTEGER NOT NULL DEFAULT '0', /* флаг удаления доступа */
   created_at TIMESTAMP NOT NULL DEFAULT NOW(), /* дата создания доступа */
   CONSTRAINT component_access_to_user_pk PRIMARY KEY (id)
 );
@@ -176,7 +179,7 @@ CREATE TABLE actual_status_ref (
 CREATE TABLE spec_to_component (
   id SERIAL, /* id связи компонента с каталогом */
   id_spec INTEGER NOT NULL, /* идентификатор позиции в каталоге */
-  id_component INTEGER NOT NULL, /* идентификатор компонента */
+  uuid_component UUID NOT NULL, /* идентификатор компонента */
   CONSTRAINT spec_to_component_pk PRIMARY KEY (id)
 );
 
@@ -184,8 +187,8 @@ CREATE TABLE spec_to_component (
 /* объект/файл компонента */
 CREATE TABLE file_to_component (
   id SERIAL, /* id файла компонента */
-  id_file INTEGER NOT NULL, /* идентификатор объекта/файла */
-  id_component INTEGER NOT NULL, /* идентификатор компонента */
+  uuid_file UUID NOT NULL, /* идентификатор объекта/файла */
+  uuid_component UUID NOT NULL, /* идентификатор компонента */
   CONSTRAINT file_to_component_pk PRIMARY KEY (id)
 );
 
@@ -208,7 +211,7 @@ CREATE TABLE component_keyword_ref (
 /* ключевые слова связанные с компонентом (тегирование) */
 CREATE TABLE component_to_keyword (
   id SERIAL, /* id связи тега и компонента */
-  id_component INTEGER NOT NULL, /* идентификатор компонента */
+  uuid_component UUID NOT NULL, /* идентификатор компонента */
   id_component_keyword INTEGER NOT NULL, /* идентификатор ключевого слова (тега) */
   CONSTRAINT component_to_keyword_pk PRIMARY KEY (id)
 );
@@ -225,9 +228,9 @@ CREATE TABLE type_access_ref (
 CREATE TABLE discussion_ref (
   id SERIAL, /* id комментария */
   created_at TIMESTAMP NOT NULL DEFAULT NOW(), /* дата создания/редактирования */
-  id_component INTEGER NOT NULL, /* идентификатор компонента */
-  id_user_from INTEGER NOT NULL, /* идентификатор профиля отправителя */
-  id_user_to INTEGER NOT NULL, /* идентификатор профиля адресата */
+  uuid_component UUID NOT NULL, /* идентификатор компонента */
+  uuid_user_from UUID NOT NULL, /* идентификатор профиля отправителя */
+  uuid_user_to UUID NOT NULL, /* идентификатор профиля адресата */
   comment VARCHAR(2000) NOT NULL, /* сообщение/комментарий */
   id_discussion_parent INTEGER NOT NULL, /* id родительского комментария */
   CONSTRAINT discussion_ref_pk PRIMARY KEY (id)
@@ -274,7 +277,7 @@ CREATE TABLE spec_translate_list (
 /* параметр компонента */
 CREATE TABLE param_to_component (
   id SERIAL, /* id параметра компонента */
-  id_component INTEGER NOT NULL, /* идентификатор компонента */
+  uuid_component UUID NOT NULL, /* идентификатор компонента */
   id_param INTEGER NOT NULL, /* идентификатор параметра */
   value VARCHAR(100) NOT NULL, /* параметр компонента */
   CONSTRAINT param_to_component_pk PRIMARY KEY (id)
@@ -284,8 +287,8 @@ CREATE TABLE param_to_component (
 /* отслеживание компонента */
 CREATE TABLE component_fav_ref (
   id SERIAL, /* id подписки (начала отслеживания) */
-  id_component INTEGER NOT NULL, /* идентификатор компонента для отслеживания */
-  id_user INTEGER NOT NULL, /* идентификатор профиля */
+  uuid_component UUID NOT NULL, /* идентификатор компонента для отслеживания */
+  uuid_user UUID NOT NULL, /* идентификатор профиля */
   created_at TIMESTAMP NOT NULL DEFAULT NOW(), /* дата создания/редактирования */
   is_active INTEGER NOT NULL DEFAULT '1', /*  флаг актуальности отслеживания */
   CONSTRAINT component_fav_ref_pk PRIMARY KEY (id)
@@ -303,8 +306,8 @@ CREATE TABLE region_ref (
 /* список поставщиков компонента (list shippers) */
 CREATE TABLE component_to_user (
   id SERIAL, /* id записи профиля в поставщики компонента */
-  id_component INTEGER NOT NULL, /* идентификатор компонента */
-  id_user INTEGER NOT NULL, /* идентификатор профиля поставщика */
+  uuid_component UUID NOT NULL, /* идентификатор компонента */
+  uuid_user UUID NOT NULL, /* идентификатор профиля поставщика */
   comment VARCHAR(255) NOT NULL, /* комментарий к поставщику */
   CONSTRAINT component_to_user_pk PRIMARY KEY (id)
 );
@@ -313,24 +316,25 @@ CREATE TABLE component_to_user (
 /* Список модификаций компонента */
 CREATE TABLE component_modification_list (
   id SERIAL, /* id компонента */
-  id_component INTEGER NOT NULL, /* идентификатор компонента */
+  uuid UUID NOT NULL UNIQUE,
+  uuid_component UUID NOT NULL, /* идентификатор компонента */
   modification_name VARCHAR(100) NOT NULL, /* наименование модификации */
   created_at TIMESTAMP NOT NULL DEFAULT NOW(), /* дата создания/загрузки */
   id_name_cad INTEGER NOT NULL, /* соответствующая программа (CAD) */
   comment VARCHAR(2000) NOT NULL, /*  комментарий к модификации */
-  id_modification_parent INTEGER NOT NULL DEFAULT '1', /* родительская модификация */
+  uuid_modification_parent UUID NOT NULL, /* родительская модификация */
   commentchange VARCHAR(2000) NOT NULL, /*  комментарий с вносимыми изменениями */
   id_actual_status INTEGER NOT NULL, /* номер статуса, к примеру: «актуальный», «архивный», «снято с производства» */
-  is_delete INTEGER NOT NULL DEFAULT '1', /* флаг удаления компонента */
-  CONSTRAINT component_modification_list_pk PRIMARY KEY (id)
+  is_delete INTEGER NOT NULL DEFAULT '0', /* флаг удаления компонента */
+  CONSTRAINT component_modification_list_pk PRIMARY KEY (uuid)
 );
 
 /* +add+ */
 /* объект/файл модификации */
 CREATE TABLE file_to_modification (
   id SERIAL, /* id файла модификации */
-  id_modification INTEGER NOT NULL, /* идентификатор модификации */
-  id_file INTEGER NOT NULL, /* идентификатор объекта/файла */
+  uuid_modification UUID NOT NULL, /* идентификатор модификации */
+  uuid_file UUID NOT NULL, /* идентификатор объекта/файла */
   CONSTRAINT file_to_modification_pk PRIMARY KEY (id)
 );
 
@@ -338,7 +342,7 @@ CREATE TABLE file_to_modification (
 /* параметр модификации */
 CREATE TABLE param_to_modification (
   id SERIAL, /* id параметра модификации */
-  id_modification INTEGER NOT NULL, /* идентификатор модификации */
+  uuid_modification UUID NOT NULL, /* идентификатор модификации */
   id_param INTEGER NOT NULL, /* идентификатор параметра */
   value VARCHAR(255) NOT NULL, /* параметр компонента */
   CONSTRAINT param_to_modification_pk PRIMARY KEY (id)
