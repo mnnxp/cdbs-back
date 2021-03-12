@@ -28,6 +28,7 @@ use crate::models::component_modification::service as component_modification;
 use diesel::PgConnection;
 use juniper::Context as JuniperContext;
 use std::sync::Arc;
+use uuid::Uuid;
 
 #[derive(Clone)]
 pub(crate) struct Context {
@@ -69,15 +70,16 @@ impl QueryRoot {
 
     pub fn user_represet(
         context: &Context,
-        id_serch: Option<i32>,
+        uuid_serch: Option<Uuid>,
         limit: Option<i32>,
         offset: Option<i32>,
     ) -> ServiceResult<Vec<UserRepreset>> {
-        let id_serch: i32 = id_serch.unwrap_or(0);
+        let uuid_serch: Uuid = uuid_serch
+            .unwrap_or("00000000-0000-0000-0000-000000000000".parse()?);
         let limit: i32 = limit.unwrap_or(100);
         let offset: i32 = offset.unwrap_or(0);
 
-        user_represet::list::show(&context, id_serch, limit, offset)
+        user_represet::list::show(&context, uuid_serch, limit, offset)
     }
 
     pub fn generate_token(context: &Context) -> ServiceResult<Token> {

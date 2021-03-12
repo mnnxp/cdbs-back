@@ -1,16 +1,18 @@
 // use crate::user::model::{LoggedUser, User};
 use crate::schema::*;
 use chrono::*;
-// use uuid::Uuid;
+use uuid::Uuid;
 // use num::ToPrimitive;
 
 #[derive(Debug, Serialize, Deserialize, Queryable, juniper::GraphQLObject)]
 pub struct Component {
+    #[graphql(skip)]
     pub id: i32,
+    pub uuid: Uuid,
     pub name: String,
-    pub id_user: i32,
+    pub uuid_user: Uuid,
     pub comment: String,
-    pub id_component_parent: i32,
+    pub uuid_component_parent: Uuid,
     pub id_actual_status: i32,
     pub id_component_type: i32,
     pub is_delete: i32,
@@ -23,10 +25,11 @@ pub struct Component {
 #[derive(Debug, Insertable)]
 #[table_name = "component_ref"]
 pub struct InsertableComponent {
+    pub uuid: Uuid,
     pub name: String,
-    pub id_user: i32,
+    pub uuid_user: Uuid,
     pub comment: String,
-    pub id_component_parent: i32,
+    pub uuid_component_parent: Uuid,
     pub id_actual_status: i32,
     pub id_component_type: i32,
     pub is_delete: i32,
@@ -38,12 +41,15 @@ pub struct InsertableComponent {
 
 #[derive(Debug, Deserialize, juniper::GraphQLInputObject)]
 pub struct ComponentData {
+    pub uuid: Uuid,
+    pub uuid_component_parent: Uuid,
     pub name: String,
     pub comment: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, juniper::GraphQLObject)]
 pub struct SlimComponent {
+    pub uuid: Uuid,
     pub name: String,
     pub comment: String,
     pub id_actual_status: i32,
@@ -55,11 +61,12 @@ impl From<ComponentData> for InsertableComponent {
         let ComponentData {
             name,
             comment,
+            uuid_component_parent,
             ..
         } = data_component;
 
-        let id_user = 1;
-        let id_component_parent = 1;
+        let uuid_user = "31ecc6f8-0c09-4a59-a2d5-34b5b833e59b".parse().unwrap();
+        // let uuid_component_parent =  "a5953fd9-7393-4f1e-a899-06b5e159dbf1".parse().unwrap();
         let id_actual_status = 1;
         let id_component_type = 1;
         let is_delete = 0;
@@ -68,10 +75,11 @@ impl From<ComponentData> for InsertableComponent {
         let is_standard = 0;
 
         Self {
+            uuid: Uuid::new_v4(),
             name,
-            id_user,
+            uuid_user,
             comment,
-            id_component_parent,
+            uuid_component_parent,
             id_actual_status,
             id_component_type,
             is_delete,
@@ -86,6 +94,7 @@ impl From<ComponentData> for InsertableComponent {
 impl From<Component> for SlimComponent {
     fn from(component: Component) -> Self {
         let Component {
+            uuid,
             name,
             comment,
             id_actual_status,
@@ -94,6 +103,7 @@ impl From<Component> for SlimComponent {
         } = component;
 
         Self {
+            uuid,
             name,
             comment,
             id_actual_status,

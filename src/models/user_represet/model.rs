@@ -5,8 +5,10 @@ use uuid::Uuid;
 
 #[derive(Debug, Serialize, Deserialize, Queryable, juniper::GraphQLObject)]
 pub struct UserRepreset {
+    #[graphql(skip)]
     pub id: i32,
-    pub id_user: i32,
+    pub uuid: Uuid,
+    pub uuid_user: Uuid,
     pub id_region: i32,
     pub id_representation_type: i32,
     pub name: String,
@@ -17,7 +19,8 @@ pub struct UserRepreset {
 #[derive(Debug, Insertable)]
 #[table_name = "user_represet_ref"]
 pub struct InsertableUserRepreset {
-    pub id_user: i32,
+    pub uuid: Uuid,
+    pub uuid_user: Uuid,
     pub id_region: i32,
     pub id_representation_type: i32,
     pub name: String,
@@ -27,6 +30,8 @@ pub struct InsertableUserRepreset {
 
 #[derive(Debug, Deserialize, juniper::GraphQLInputObject)]
 pub struct UserRepresetData {
+    pub uuid: Uuid,
+    pub uuid_user: Uuid,
     pub id_region: i32,
     pub id_representation_type: i32,
     pub name: String,
@@ -36,7 +41,8 @@ pub struct UserRepresetData {
 
 #[derive(Debug, Serialize, Deserialize, Clone, juniper::GraphQLObject)]
 pub struct SlimUserRepreset {
-    pub id_representation_type: i32,
+    pub uuid: Uuid,
+    pub uuid_user: Uuid,
     pub name: String,
     pub address: String,
     pub phone: String,
@@ -53,10 +59,11 @@ impl From<UserRepresetData> for InsertableUserRepreset {
             ..
         } = user_represet_data;
 
-        let id_user = 1;
+        let uuid_user = "31ecc6f8-0c09-4a59-a2d5-34b5b833e59b".parse().unwrap();
 
         Self {
-            id_user,
+            uuid: Uuid::new_v4(),
+            uuid_user,
             id_region,
             id_representation_type,
             name,
@@ -69,7 +76,8 @@ impl From<UserRepresetData> for InsertableUserRepreset {
 impl From<UserRepreset> for SlimUserRepreset {
     fn from(user_represet: UserRepreset) -> Self {
         let UserRepreset {
-            id_representation_type,
+            uuid,
+            uuid_user,
             name,
             address,
             phone,
@@ -77,7 +85,8 @@ impl From<UserRepreset> for SlimUserRepreset {
         } = user_represet;
 
         Self {
-            id_representation_type,
+            uuid,
+            uuid_user,
             name,
             address,
             phone,

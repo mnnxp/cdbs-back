@@ -6,6 +6,7 @@ use uuid::Uuid;
 
 #[derive(Debug, Serialize, Deserialize, Queryable, juniper::GraphQLObject)]
 pub struct User {
+    #[graphql(skip)]
     pub id: i32,
     pub uuid: Uuid,
     pub email: String,
@@ -15,6 +16,7 @@ pub struct User {
     #[graphql(skip)]
     pub psw_salt: String,
     pub id_type_user: i32,
+    pub is_supplier: i32,
     pub firstname: String,
     pub lastname: String,
     pub secondname: String,
@@ -29,7 +31,7 @@ pub struct User {
     pub time_zone: String,
     pub position: String,
     pub site_url: String,
-    pub id_file_info_icon: i32,
+    pub uuid_file_info_icon: Uuid,
     pub id_region: i32,
     pub created_at: NaiveDateTime,
 }
@@ -43,6 +45,7 @@ pub struct InsertableUser {
     pub psw_hash: Vec<u8>,
     pub psw_salt: String,
     pub id_type_user: i32,
+    pub is_supplier: i32,
     pub firstname: String,
     pub lastname: String,
     pub secondname: String,
@@ -57,7 +60,7 @@ pub struct InsertableUser {
     pub time_zone: String,
     pub position: String,
     pub site_url: String,
-    pub id_file_info_icon: i32,
+    pub uuid_file_info_icon: Uuid,
     pub id_region: i32,
     pub created_at: NaiveDateTime,
 }
@@ -75,6 +78,7 @@ pub struct UserData {
 #[derive(Debug, Serialize, Deserialize, Clone, juniper::GraphQLObject)]
 pub struct SlimUser {
     pub uuid: Uuid,
+    // pub is_supplier: i32,
     pub nickname: String,
 }
 
@@ -101,6 +105,8 @@ impl From<UserData> for InsertableUser {
 
         let psw_salt = make_salt();
         let psw_hash = make_hash_salt(&password, &psw_salt).to_vec();
+        let uuid_file_info_icon = "bc1c2151-86d0-4656-9c9d-d016dd584297".parse().unwrap();
+
         Self {
             uuid: Uuid::new_v4(),
             email,
@@ -108,6 +114,7 @@ impl From<UserData> for InsertableUser {
             psw_hash,
             psw_salt,
             id_type_user: 1,
+            is_supplier: 0,
             firstname,
             lastname,
             secondname,
@@ -122,7 +129,7 @@ impl From<UserData> for InsertableUser {
             time_zone: "UTC+3".to_owned(),
             position: "A".to_owned(),
             site_url: "A".to_owned(),
-            id_file_info_icon: 1,
+            uuid_file_info_icon,
             id_region: 1,
             created_at: chrono::Local::now().naive_local(),
         }
@@ -133,12 +140,14 @@ impl From<User> for SlimUser {
     fn from(user: User) -> Self {
         let User {
             uuid,
+            // is_supplier,
             nickname,
             ..
         } = user;
 
         Self {
             uuid,
+            // is_supplier,
             nickname,
         }
     }

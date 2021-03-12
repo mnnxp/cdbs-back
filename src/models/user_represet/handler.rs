@@ -1,6 +1,7 @@
 use crate::database::{Pool, PooledConnection};
 use crate::errors::{ServiceResult, ServiceError};
-use crate::models::user::model::{LoggedUser, SlimUser};
+use crate::models::user::model::{LoggedUser, SlimUser, UserData};
+use crate::models::user::service as user;
 use crate::models::user_represet::model::{
     UserRepreset,
     SlimUserRepreset,
@@ -14,6 +15,7 @@ use actix_web::{web, Error, FromRequest, HttpRequest, HttpResponse};
 use diesel::prelude::*;
 use crate::schema::user_represet_ref::dsl::user_represet_ref;
 use std::any::Any;
+use uuid::Uuid;
 
 pub async fn register(
     user_represet_data: web::Json<UserRepresetData>,
@@ -23,7 +25,11 @@ pub async fn register(
         .map(|res| HttpResponse::Ok().json(&res))
 }
 
-pub fn delete(id: Identity) -> HttpResponse {
-    id.forget();
-    HttpResponse::Ok().finish()
+pub fn delete(
+    logged_user: LoggedUser,
+    uuid_represets_delete: &str,
+    pool: web::Data<Pool>,
+) -> Result<HttpResponse, ServiceError> {
+    user_represet::delete(logged_user, uuid_represets_delete, pool)
+        .map(|res| HttpResponse::Ok().json(&res))
 }
