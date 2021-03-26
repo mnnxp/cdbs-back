@@ -51,6 +51,7 @@ pub struct SlimUserRepreset {
 impl From<UserRepresetData> for InsertableUserRepreset {
     fn from(user_represet_data: UserRepresetData) -> Self {
         let UserRepresetData {
+            uuid_user,
             id_region,
             id_representation_type,
             name,
@@ -59,7 +60,7 @@ impl From<UserRepresetData> for InsertableUserRepreset {
             ..
         } = user_represet_data;
 
-        let uuid_user = "31ecc6f8-0c09-4a59-a2d5-34b5b833e59b".parse().unwrap();
+        // let uuid_user = "31ecc6f8-0c09-4a59-a2d5-34b5b833e59b".parse().unwrap();
 
         Self {
             uuid: Uuid::new_v4(),

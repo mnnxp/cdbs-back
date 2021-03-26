@@ -377,8 +377,10 @@ INSERT INTO user_ref (uuid, email, email_verified, psw_hash, psw_salt,
   id_type_user, is_supplier, firstname, lastname, secondname, nickname, orgname, shortname,
   inn, phone, id_name_cad, comment, address, time_zone, position, site_url,
   uuid_file_info_icon, id_region, created_at) VALUES
-    ('31ecc6f8-0c09-4a59-a2d5-34b5b833e59b', 'email@email.ru', 1, E'\\000',
-      '000', 1, 0, 'Johm', 'Ivanov', 'Rucovich', 'nicknameeee', 'romashka', 'rom-ka',
+    ('31ecc6f8-0c09-4a59-a2d5-34b5b833e59b', 'email@email.ru', 1,
+      E'\\xc3747b782c0b5c13cb1257a951d5120cd6a958f3516ba5d40c1db1c1eae99b15',
+      '8%8lDv&TB!295%cNWDmghT5lNDSxTUxUgRY6xNw^hACP!DDDK8IKNLP)0Hr(C7m55BQDr&L%V0F^~3O&J~QPQDfJ$&uDjwUwPShyK0B4yDhXcBe^cPoV@%^gax^%z)92',
+      1, 0, 'Johm', 'Ivanov', 'Rucovich', 'nicknameeee', 'romashka', 'rom-ka',
       '12345678910', '+79991234567', 1, 'comment for this user', 'Moscow',
       'UTC+3', 'engineer', 'https://cadbase.ru', 'bc1c2151-86d0-4656-9c9d-d016dd584297', 1, now());
 

@@ -64,7 +64,7 @@ impl From<ComponentModificationData> for InsertableComponentModification {
             ..
         } = data_modification;
 
-        let uuid_component = "a5953fd9-7393-4f1e-a899-06b5e159dbf1".parse().unwrap();;
+        let uuid_component = "a5953fd9-7393-4f1e-a899-06b5e159dbf1".parse().unwrap();
         let id_name_cad = 1;
         // let uuid_modification_parent = "1".parse().unwrap();;
         let commentchange = "Not change".to_owned();

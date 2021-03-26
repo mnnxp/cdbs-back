@@ -4,7 +4,6 @@ use chrono::*;
 use shrinkwraprs::Shrinkwrap;
 use uuid::Uuid;
 use crate::models::file::util::hex_to_bytes;
-use regex::internal::Input;
 
 #[derive(Debug, Serialize, Deserialize, Queryable, juniper::GraphQLObject)]
 pub struct File {
