@@ -41,10 +41,16 @@ pub struct InsertableComponent {
 
 #[derive(Debug, Deserialize, juniper::GraphQLInputObject)]
 pub struct ComponentData {
-    pub uuid: Uuid,
-    pub uuid_component_parent: Uuid,
     pub name: String,
+    pub uuid_user: Uuid,
     pub comment: String,
+    pub uuid_component_parent: Uuid,
+    pub id_actual_status: i32,
+    pub id_component_type: i32,
+    pub is_delete: i32,
+    pub id_type_access: i32,
+    pub commentchange: String,
+    pub is_standard: i32,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, juniper::GraphQLObject)]
@@ -60,19 +66,26 @@ impl From<ComponentData> for InsertableComponent {
     fn from(data_component: ComponentData) -> Self {
         let ComponentData {
             name,
+            uuid_user,
             comment,
             uuid_component_parent,
+            id_actual_status,
+            id_component_type,
+            is_delete,
+            id_type_access,
+            commentchange,
+            is_standard,
             ..
         } = data_component;
 
-        let uuid_user = "31ecc6f8-0c09-4a59-a2d5-34b5b833e59b".parse().unwrap();
+        // let uuid_user = "31ecc6f8-0c09-4a59-a2d5-34b5b833e59b".parse().unwrap();
         // let uuid_component_parent =  "a5953fd9-7393-4f1e-a899-06b5e159dbf1".parse().unwrap();
-        let id_actual_status = 1;
-        let id_component_type = 1;
-        let is_delete = 0;
-        let id_type_access = 1;
-        let commentchange = "Not change".to_owned();
-        let is_standard = 0;
+        // let id_actual_status = 1;
+        // let id_component_type = 1;
+        // let is_delete = 0;
+        // let id_type_access = 1;
+        // let commentchange = "Not change".to_owned();
+        // let is_standard = 0;
 
         Self {
             uuid: Uuid::new_v4(),

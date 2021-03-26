@@ -73,6 +73,20 @@ pub struct UserData {
     pub nickname: String,
     pub email: String,
     pub password: String,
+    pub id_type_user: i32,
+    pub is_supplier: i32,
+    pub orgname: String,
+    pub shortname: String,
+    pub inn: String,
+    pub phone: String,
+    pub id_name_cad: i32,
+    pub comment: String,
+    pub address: String,
+    pub time_zone: i32,
+    pub position: String,
+    pub site_url: String,
+    pub uuid_file_info_icon: Uuid,
+    pub id_region: i32,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, juniper::GraphQLObject)]
@@ -100,12 +114,25 @@ impl From<UserData> for InsertableUser {
             nickname,
             email,
             password,
+            id_type_user,
+            is_supplier,
+            orgname,
+            shortname,
+            inn,
+            phone,
+            id_name_cad,
+            comment,
+            address,
+            time_zone,
+            position,
+            site_url,
+            uuid_file_info_icon,
+            id_region,
             ..
         } = user_data;
 
         let psw_salt = make_salt();
         let psw_hash = make_hash_salt(&password, &psw_salt).to_vec();
-        let uuid_file_info_icon = "bc1c2151-86d0-4656-9c9d-d016dd584297".parse().unwrap();
 
         Self {
             uuid: Uuid::new_v4(),
@@ -113,24 +140,24 @@ impl From<UserData> for InsertableUser {
             email_verified: 0,
             psw_hash,
             psw_salt,
-            id_type_user: 1,
-            is_supplier: 0,
+            id_type_user,
+            is_supplier,
             firstname,
             lastname,
             secondname,
             nickname,
-            orgname: "A".to_owned(),
-            shortname: "A".to_owned(),
-            inn: "0".to_owned(),
-            phone: "A".to_owned(),
-            id_name_cad: 1,
-            comment: "A".to_owned(),
-            address: "A".to_owned(),
-            time_zone: "UTC+3".to_owned(),
-            position: "A".to_owned(),
-            site_url: "A".to_owned(),
+            orgname,
+            shortname,
+            inn,
+            phone,
+            id_name_cad,
+            comment,
+            address,
+            time_zone,
+            position,
+            site_url,
             uuid_file_info_icon,
-            id_region: 1,
+            id_region,
             created_at: chrono::Local::now().naive_local(),
         }
     }
@@ -140,14 +167,14 @@ impl From<User> for SlimUser {
     fn from(user: User) -> Self {
         let User {
             uuid,
-            // is_supplier,
+            is_supplier,
             nickname,
             ..
         } = user;
 
         Self {
             uuid,
-            // is_supplier,
+            is_supplier,
             nickname,
         }
     }
