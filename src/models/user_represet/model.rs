@@ -30,7 +30,6 @@ pub struct InsertableUserRepreset {
 
 #[derive(Debug, Deserialize, juniper::GraphQLInputObject)]
 pub struct UserRepresetData {
-    pub uuid: Uuid,
     pub uuid_user: Uuid,
     pub id_region: i32,
     pub id_representation_type: i32,

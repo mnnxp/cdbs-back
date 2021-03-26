@@ -9,14 +9,15 @@ use uuid::Uuid;
 
 pub(crate) fn show(
     context: &Context,
-    uuid_serch: Uuid,
+    uuid_user_search: Uuid,
     limit: i32,
     offset: i32,
 ) -> ServiceResult<Vec<UserRepreset>> {
-    let uuid_serch = Some(uuid_serch);
-    match uuid_serch {
-        Some(uuid_serch) if uuid_serch == Uuid::nil() => find_all_user_represets(context, limit, offset),
-        Some(uuid_serch) if uuid_serch > Uuid::nil() => find_uuid_user_represets(context, uuid_serch, limit, offset),
+    // debug!("fn show uuid_user_search = {}", &uuid_user_search);
+    let uuid_user_search = Some(uuid_user_search);
+    match uuid_user_search {
+        Some(uuid_user_search) if uuid_user_search == Uuid::nil() => find_all_user_represets(context, limit, offset),
+        Some(uuid_user_search) if uuid_user_search > Uuid::nil() => find_uuid_user_represets(context, uuid_user_search, limit, offset),
         _ => ServiceResult::Err(ServiceError::BadRequest("What?".to_string()))
     }
 }
@@ -37,7 +38,7 @@ fn find_all_user_represets(
 
 fn find_uuid_user_represets(
     context: &Context,
-    uuid_serch: Uuid,
+    uuid_user_search: Uuid,
     limit: i32,
     offset: i32,
 ) -> ServiceResult<Vec<UserRepreset>> {
@@ -45,7 +46,7 @@ fn find_uuid_user_represets(
     let conn: &PooledConnection = &context.db;
 
     Ok(user_represet_ref
-        .filter(uuid_user.eq(uuid_serch))
+        .filter(uuid_user.eq(uuid_user_search))
         .limit(limit as i64)
         .offset(offset as i64)
         .load::<UserRepreset>(conn)?)

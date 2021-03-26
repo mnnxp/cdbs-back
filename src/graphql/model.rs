@@ -70,16 +70,19 @@ impl QueryRoot {
 
     pub fn user_represet(
         context: &Context,
-        uuid_serch: Option<Uuid>,
+        uuid_user_search: Option<String>,
         limit: Option<i32>,
         offset: Option<i32>,
     ) -> ServiceResult<Vec<UserRepreset>> {
-        let uuid_serch: Uuid = uuid_serch
-            .unwrap_or("00000000-0000-0000-0000-000000000000".parse()?);
+        let uuid_user_search = match uuid_user_search {
+            None => Uuid::nil(),
+            Some(uuid_user_search) => Uuid::parse_str(&uuid_user_search)?,
+        };
+
         let limit: i32 = limit.unwrap_or(100);
         let offset: i32 = offset.unwrap_or(0);
 
-        user_represet::list::show(&context, uuid_serch, limit, offset)
+        user_represet::list::show(&context, uuid_user_search, limit, offset)
     }
 
     pub fn generate_token(context: &Context) -> ServiceResult<Token> {

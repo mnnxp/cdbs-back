@@ -19,7 +19,6 @@ use uuid::Uuid;
 
 #[derive(Debug, Deserialize)]
 pub struct RegisterRepresetQuery {
-    pub uuid: String,
     pub id_region: i32,
     pub id_representation_type: i32,
     pub name: String,
@@ -42,7 +41,6 @@ pub async fn register(
         id_representation_type: (new_user_represet_data.id_representation_type),
         id_region: (new_user_represet_data.id_region),
         uuid_user: (user_uuid),
-        uuid: (Uuid::parse_str(&new_user_represet_data.uuid)?),
     };
 
     // debug!("user_represet_data = {}", &user_represet_data.uuid);

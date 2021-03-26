@@ -32,8 +32,8 @@ fn delete_user_represet(
 ) -> ServiceResult<SlimUserRepreset> {
     use crate::schema::user_represet_ref::dsl::*;
 
-    debug!("fn user_uuid = {}", &user_uuid);
-    debug!("fn uuid_represet_delete = {}", &uuid_represet_delete);
+    // debug!("fn user_uuid = {}", &user_uuid);
+    // debug!("fn uuid_represet_delete = {}", &uuid_represet_delete);
 
     let delete_user_represet: UserRepreset = user_represet_ref
         .filter(uuid_user.eq(user_uuid))
@@ -42,7 +42,7 @@ fn delete_user_represet(
 
     diesel::delete(user_represet_ref.filter(uuid.eq(delete_user_represet.uuid))).execute(conn)?;
 
-    debug!("fn delete_user_represet ={:?}", &delete_user_represet);
+    // debug!("fn delete_user_represet ={:?}", &delete_user_represet);
 
     Ok(delete_user_represet.into())
 }
