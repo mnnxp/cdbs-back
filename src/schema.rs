@@ -292,7 +292,7 @@ table! {
         id_name_cad -> Int4,
         comment -> Varchar,
         address -> Varchar,
-        time_zone -> Varchar,
+        time_zone -> Int4,
         position -> Varchar,
         site_url -> Varchar,
         uuid_file_info_icon -> Uuid,

@@ -19,7 +19,7 @@ CREATE TABLE user_ref (
   id_name_cad INTEGER NOT NULL DEFAULT '1', /* САПР «по умолчанию» (для быстрой загрузки данных) */
   comment VARCHAR(2000) NOT NULL, /* информация для связи, подпись */
   address VARCHAR(512) NOT NULL, /*почтовый адрес */
-  time_zone VARCHAR(255) NOT NULL, /*часовой пояс профиля */
+  time_zone INTEGER NOT NULL, /*часовой пояс профиля */
   position VARCHAR(255) NOT NULL, /*роль/должность */
   site_url VARCHAR(255) NOT NULL, /* URL адрес сайта профиля */
   id_file_info_icon INTEGER NOT NULL DEFAULT '1', /* картинка пользователя */

@@ -370,7 +370,7 @@ INSERT INTO type_user_ref (typeuser, typeusershort) VALUES
 -- firstname (VARCHAR(100)), lastname (VARCHAR(100)), secondname (VARCHAR(100)),
 -- nickname (VARCHAR(100)), orgname (VARCHAR(255)), shortname (VARCHAR(255)),
 -- inn (VARCHAR(30)), phone (VARCHAR(100)), id_name_cad (INTEGER),
--- comment (VARCHAR(2000)), address (VARCHAR(512)), time_zone (VARCHAR(255)),
+-- comment (VARCHAR(2000)), address (VARCHAR(512)), time_zone (INTEGER),
 -- position (VARCHAR(255)), site_url (VARCHAR(255)), uuid_file_info_icon (INTEGER),
 -- id_region (INTEGER), created_at (TIMESTAMP),
 INSERT INTO user_ref (uuid, email, email_verified, psw_hash, psw_salt,
@@ -380,9 +380,9 @@ INSERT INTO user_ref (uuid, email, email_verified, psw_hash, psw_salt,
     ('31ecc6f8-0c09-4a59-a2d5-34b5b833e59b', 'email@email.ru', 1,
       E'\\xc3747b782c0b5c13cb1257a951d5120cd6a958f3516ba5d40c1db1c1eae99b15',
       '8%8lDv&TB!295%cNWDmghT5lNDSxTUxUgRY6xNw^hACP!DDDK8IKNLP)0Hr(C7m55BQDr&L%V0F^~3O&J~QPQDfJ$&uDjwUwPShyK0B4yDhXcBe^cPoV@%^gax^%z)92',
-      1, 0, 'Johm', 'Ivanov', 'Rucovich', 'nicknameeee', 'romashka', 'rom-ka',
+      1, 1, 'Johm', 'Ivanov', 'Rucovich', 'nicknameeee', 'romashka', 'rom-ka',
       '12345678910', '+79991234567', 1, 'comment for this user', 'Moscow',
-      'UTC+3', 'engineer', 'https://cadbase.ru', 'bc1c2151-86d0-4656-9c9d-d016dd584297', 1, now());
+      3, 'manufacturer', 'https://cadbase.ru', 'bc1c2151-86d0-4656-9c9d-d016dd584297', 1, now());
 
 
 -- TABLE: user_represet_ref: id (serial), id_user (INTEGER),

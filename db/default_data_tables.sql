@@ -159,7 +159,7 @@ INSERT INTO name_cad_ref (name_cad) VALUES
 -- firstname (VARCHAR(100)), lastname (VARCHAR(100)), secondname (VARCHAR(100)),
 -- nickname (VARCHAR(100)), orgname (VARCHAR(255)), shortname (VARCHAR(255)),
 -- inn (VARCHAR(30)), phone (VARCHAR(100)), id_name_cad (INTEGER),
--- comment (VARCHAR(2000)), address (VARCHAR(512)), time_zone (VARCHAR(255)),
+-- comment (VARCHAR(2000)), address (VARCHAR(512)), time_zone (INTEGER),
 -- position (VARCHAR(255)), site_url (VARCHAR(255)), id_file_info_icon (INTEGER),
 -- id_region (INTEGER), created_at (TIMESTAMP),
 INSERT INTO user_ref (uuid, email, email_verified, psw_hash, psw_salt,
@@ -169,7 +169,7 @@ INSERT INTO user_ref (uuid, email, email_verified, psw_hash, psw_salt,
     ('31ecc6f8-0c09-4a59-a2d5-34b5b833e59b', 'email@email.ru', 0, E'\\000',
       '000', 0, 'Johm', 'Ivanov', 'Rucovich', 'nicknameeee', 'romashka', 'rom-ka',
       '12345678910', '+7999123456', 0, 'comment for this user', 'Moscow',
-      'UTC+3', 'engineer', 'https://cadbase.ru', 0, 0, now());
+      3, 'engineer', 'https://cadbase.ru', 0, 0, now());
 
 -- TABLE: file_ref: id (serial), hash (bytea), id_user_create (integer),
 --           created_at (Timestamp), filename (varying(225)), id_ext (integer),
