@@ -3,14 +3,14 @@ use crate::errors::ServiceError;
 use crate::models::user::model::{LoggedUser, SlimUser, UserData};
 use crate::models::user::service as user;
 use crate::models::component_modification::model::{
-    InsertableComponentModification,
-    SlimComponentModification,
-    ComponentModification,
+    // InsertableComponentModification,
+    // SlimComponentModification,
+    // ComponentModification,
     ComponentModificationData
 };
 use crate::models::component_modification::service as modification_list;
-use actix_identity::{Identity, RequestIdentity};
-use actix_web::dev::Payload;
+// use actix_identity::{Identity, RequestIdentity};
+// use actix_web::dev::Payload;
 use actix_web::{web, Error, FromRequest, HttpRequest, HttpResponse};
 
 pub async fn register(

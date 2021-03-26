@@ -10,7 +10,7 @@ pub(crate) fn find_all_files(
     limit: i32,
     offset: i32,
 ) -> ServiceResult<Vec<File>> {
-    use crate::schema::user_ref::dsl::*;
+    // use crate::schema::user_ref::dsl::*;
     let conn: &PooledConnection = &context.db;
 
     Ok(file_ref
