@@ -13,7 +13,7 @@ pub struct DecodedToken {
 pub struct Claims {
     // issuer
     pub iss: String,
-    // subject
+    // subject - uuid user
     pub sub: String,
     // issued at
     pub iat: i64,
@@ -21,6 +21,8 @@ pub struct Claims {
     pub exp: i64,
     // user nickname
     pub nickname: String,
+    // user is supplier
+    pub is_supplier: i32,
 }
 
 // struct to get converted to token and back
@@ -28,6 +30,7 @@ impl Claims {
     pub(crate) fn new(slim_user: &SlimUser, issuer: String, auth_duration_in_hour: u16) -> Self {
         let SlimUser {
             uuid,
+            is_supplier,
             nickname,
             ..
         } = slim_user;
@@ -38,6 +41,7 @@ impl Claims {
         Claims {
             iss: issuer,
             sub: uuid.to_string(),
+            is_supplier: is_supplier.clone(),
             nickname: nickname.clone(),
             iat: iat.timestamp(),
             exp: exp.timestamp(),
@@ -55,12 +59,13 @@ impl TryFrom<Claims> for SlimUser {
 
     fn try_from(claims: Claims) -> Result<Self> {
         let Claims {
-            nickname, sub, ..
+            is_supplier, nickname, sub, ..
         }: Claims = claims;
 
         Ok(SlimUser {
             uuid: Uuid::parse_str(&sub)?,
             nickname,
+            is_supplier,
         })
     }
 }

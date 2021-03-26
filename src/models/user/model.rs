@@ -78,7 +78,7 @@ pub struct UserData {
 #[derive(Debug, Serialize, Deserialize, Clone, juniper::GraphQLObject)]
 pub struct SlimUser {
     pub uuid: Uuid,
-    // pub is_supplier: i32,
+    pub is_supplier: i32,
     pub nickname: String,
 }
 
