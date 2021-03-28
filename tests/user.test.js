@@ -4,19 +4,38 @@ const request = require('supertest');
 const HttpStatus = require('http-status-codes');
 
 const apiPort = process.env.PORT || 3000;
-const url = `http://localhost:${apiPort}`;
+const url = `http://0.0.0.0:${apiPort}`;
 
-jest.setTimeout(500);
+jest.setTimeout(800);
 
-const name = 'my name';
-const email = 'email1@nowhere.com';
-const email2 = 'email2@nowhere.com';
-const password = 'password';
+const firstname = "testfirstname";
+const lastname = "testlastname";
+const secondname = "testsecondname";
+const nickname = "baromi";
+const nickname2 = "simaco";
+const email = "email@baromi.com";
+const password = "password";
+const id_type_user = 2;
+const id_type_user1 = 1;
+const is_supplier0 = 0;
+const is_supplier = 1;
+const orgname = "Inver SAS";
+const shortname = "ISAS";
+const inn = "778855443322";
+const phone = "+499885522441";
+const id_name_cad = 2;
+const comment = "This is fake.";
+const address = "UK, Central str.";
+const time_zone = 6;
+const position = "superposition";
+const site_url = "dot.com.net";
+const uuid_file_info_icon = "bc1c2151-86d0-4656-9c9d-d016dd584297";
+const id_region = 51;
 
 async function cleanupDb() {
-  return global.knex.raw('DELETE FROM users WHERE email in (?,?)', [
-    email,
-    email2,
+  return global.knex.raw('DELETE FROM user_ref WHERE nickname in (?,?)', [
+    nickname,
+    nickname2,
   ]);
 }
 describe('user/', () => {
@@ -57,14 +76,19 @@ describe('user/', () => {
   it('/user/register - OK', (done) => {
     agent
       .post('/user/register')
-      .send({ name, email, password })
+      .send({
+        firstname, lastname, secondname, nickname,
+        email, password, id_type_user, is_supplier, orgname, shortname,
+        inn, phone, id_name_cad, comment, address, time_zone, position,
+        site_url, uuid_file_info_icon, id_region
+      })
       .expect(HttpStatus.OK)
       .then(({ body }) => {
         debug('/user/register body=%o', body);
-        expect(body).toContainAllKeys(['user_uuid', 'email', 'role']);
-        expect(body.email).toBe(email);
-        expect(body.role).toBe('user');
-        expect(body.user_uuid).not.toBeNull();
+        expect(body).toContainAllKeys(['uuid', 'is_supplier', 'nickname']);
+        expect(body.uuid).not.toBeNull();
+        expect(body.is_supplier).toBe(1);
+        expect(body.nickname).toBe(nickname);
         done();
       });
   });
@@ -72,7 +96,12 @@ describe('user/', () => {
   it('/user/register - Bad Request', (done) => {
     agent
       .post('/user/register')
-      .send({ name, email, password })
+      .send({
+        firstname, lastname, secondname, nickname,
+        email, password, id_type_user, is_supplier, orgname, shortname,
+        inn, phone, id_name_cad, comment, address, time_zone, position,
+        site_url, uuid_file_info_icon, id_region
+       })
       .expect(HttpStatus.BAD_REQUEST)
       .then(({ body, error, text, headers }) => {
         debug(
@@ -83,9 +112,9 @@ describe('user/', () => {
           headers
         );
         expect(error.text).toBe(
-          '\"Key (email)=(email1@nowhere.com) already exists.\"'
+          '\"Key (nickname)=(baromi) already exists.\"'
         );
-        expect(body).toBe('Key (email)=(email1@nowhere.com) already exists.');
+        expect(body).toBe('Key (nickname)=(baromi) already exists.');
         done();
       });
   });
@@ -95,34 +124,76 @@ describe('user/', () => {
       .post('/graphql')
       .send({
         query: `mutation  {
-            register( data: { name: "Test Name", email: "${email2}", password: "${password}" }) {
-                email
-                role
-                userUuid
+            registerUser( data: {
+                firstname: "testfirstname",
+                lastname: "testlastname",
+                secondname: "testsecondname",
+                nickname: "${nickname2}",
+                email: "testemail@testemail.ru",
+                password: "password",
+                idTypeUser: 1,
+                isSupplier: 1,
+                orgname: "testorgname",
+                shortname: "testshortname",
+                inn: "testinn",
+                phone: "testphone",
+                idNameCad: 5,
+                comment: "testcomment",
+                address: "testaddress",
+                timeZone: 3,
+                position: "testaddress",
+                siteUrl: "testsiteUrl",
+                uuidFileInfoIcon: "bc1c2151-86d0-4656-9c9d-d016dd584297",
+                idRegion: 13
+            }) {
+                uuid
+                isSupplier
+                nickname
             }
         }`,
       })
       .expect(HttpStatus.OK);
     debug('/graphql users=%o', body);
     const {
-      data: { register },
+      data: { registerUser },
     } = body;
-    expect(register).toContainAllKeys(['email', 'role', 'userUuid']);
-    expect(register.email).toBe(email2);
-    expect(register.role).toBe('user');
-    expect(register.userUuid).toBeNonEmptyString();
+    expect(registerUser).toContainAllKeys(['uuid', 'isSupplier', 'nickname']);
+    expect(registerUser.uuid).toBeNonEmptyString();
+    expect(registerUser.isSupplier).toBe(1);
+    expect(registerUser.nickname).toBe(nickname2);
     done();
   });
 
-  it('/graphql:M register - Key (email)=(email2@nowhere.com) already exists.', async (done) => {
+  it('/graphql:M register - Key (nickname)=(simaco) already exists.', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .send({
         query: `mutation  {
-            register( data: { name: "Test Name", email: "${email2}", password: "${password}" }) {
-                email
-                role
-                userUuid
+            registerUser( data: {
+                firstname: "testfirstname",
+                lastname: "testlastname",
+                secondname: "testsecondname",
+                nickname: "${nickname2}",
+                email: "testemail@testemail.ru",
+                password: "password",
+                idTypeUser: 1,
+                isSupplier: 1,
+                orgname: "testorgname",
+                shortname: "testshortname",
+                inn: "testinn",
+                phone: "testphone",
+                idNameCad: 5,
+                comment: "testcomment",
+                address: "testaddress",
+                timeZone: 3,
+                position: "testaddress",
+                siteUrl: "testsiteUrl",
+                uuidFileInfoIcon: "bc1c2151-86d0-4656-9c9d-d016dd584297",
+                idRegion: 13
+            }) {
+                uuid
+                isSupplier
+                nickname
             }
         }`,
       })
@@ -131,7 +202,7 @@ describe('user/', () => {
     const { errors, data } = body;
     expect(data).toBeNull();
     expect(errors[0].message).toBe(
-      'Key (email)=(email2@nowhere.com) already exists.'
+      'Key (nickname)=(simaco) already exists.'
     );
     done();
   });
@@ -148,10 +219,10 @@ describe('user/', () => {
       });
   });
 
-  it('/user/login - UNAUTHORIZED with invalid email', (done) => {
+  it('/user/login - UNAUTHORIZED with invalid nickname', (done) => {
     agent
       .post('/user/login')
-      .send({ email: 'invalid@gmail.com', password })
+      .send({ nickname: 'invalidnickname', password })
       .expect(HttpStatus.UNAUTHORIZED)
       .then(({ body, text, error, headers }) => {
         debug(
@@ -170,7 +241,7 @@ describe('user/', () => {
   it('/user/login - UNAUTHORIZED with invalid password', (done) => {
     agent
       .post('/user/login')
-      .send({ email, password: 'invalid password' })
+      .send({ nickname, password: 'invalid password' })
       .expect(HttpStatus.UNAUTHORIZED)
       .then(({ body, text, error, headers }) => {
         debug(
@@ -189,15 +260,15 @@ describe('user/', () => {
   it('/user/login - OK to login first time', (done) => {
     agent
       .post('/user/login')
-      .send({ email, password })
+      .send({ nickname, password })
       .expect(HttpStatus.OK)
       .then(({ body, headers }) => {
         debug('/user/login headers=%o', headers);
         expect(headers['set-cookie'][0]).toBeNonEmptyString();
-        expect(body).toContainAllKeys(['email', 'role', 'user_uuid']);
-        expect(body.email).toBe(email);
-        expect(body.role).toBe('user');
-        expect(body.user_uuid).toBeNonEmptyString();
+        expect(body).toContainAllKeys(['nickname', 'is_supplier', 'uuid']);
+        expect(body.nickname).toBe(nickname);
+        expect(body.is_supplier).toBe(1);
+        expect(body.uuid).toBeNonEmptyString();
         done();
       });
   });
@@ -205,14 +276,14 @@ describe('user/', () => {
   it('/user/login - OK to login second time', (done) => {
     agent
       .post('/user/login')
-      .send({ email, password })
+      .send({ nickname, password })
       .expect(HttpStatus.OK)
       .then(({ body, headers }) => {
         expect(headers['set-cookie'][0]).toBeNonEmptyString();
-        expect(body).toContainAllKeys(['email', 'role', 'user_uuid']);
-        expect(body.email).toBe(email);
-        expect(body.role).toBe('user');
-        expect(body.user_uuid).toBeNonEmptyString();
+        expect(body).toContainAllKeys(['nickname', 'is_supplier', 'uuid']);
+        expect(body.nickname).toBe(nickname);
+        expect(body.is_supplier).toBe(1);
+        expect(body.uuid).toBeNonEmptyString();
         done();
       });
   });
@@ -223,9 +294,27 @@ describe('user/', () => {
       .send({
         query: `query ListUsers {
             users {
-                name
-                userUuid
+                uuid
                 email
+                emailVerified
+                idTypeUser
+                isSupplier
+                firstname
+                lastname
+                secondname
+                nickname
+                orgname
+                shortname
+                inn
+                phone
+                idNameCad
+                comment
+                address
+                timeZone
+                position
+                siteUrl
+                uuidFileInfoIcon
+                idRegion
                 createdAt
             }
         }`,
@@ -242,11 +331,11 @@ describe('user/', () => {
       .send({
         query: `query decodeTokenQuery {
           decodeToken {
-              email
-              iss
-              iat
-              exp
-              sub
+        		iss
+        		iat
+        		exp
+        		sub
+        		nickname
           }
       }`,
       })
@@ -284,18 +373,18 @@ describe('user/', () => {
       .send({
         query: `query decodeTokenQuery {
           decodeToken {
-              email
-              iss
-              iat
-              exp
-              sub
+        		iss
+        		iat
+        		exp
+        		sub
+        		nickname
           }
       }`,
       })
       .expect(HttpStatus.OK);
     debug('/graphql body=%o', response3.body);
-    expect(response3.body.data.decodeToken.email).toBe(email);
-    expect(response3.body.data.decodeToken.iss).toBe('localhost');
+    expect(response3.body.data.decodeToken.nickname).toBe(nickname);
+    expect(response3.body.data.decodeToken.iss).toBe('0.0.0.0');
 
     done();
   });
@@ -307,10 +396,10 @@ describe('user/', () => {
       .then(({ body, headers }) => {
         debug('/user/me body=%o', body);
         debug('/user/me headers=%o', headers);
-        expect(body).toContainAllKeys(['email', 'role', 'user_uuid']);
-        expect(body.email).toBe(email);
-        expect(body.role).toBe('user');
-        expect(body.user_uuid).toBeNonEmptyString();
+        expect(body).toContainAllKeys(['uuid', 'is_supplier', 'nickname']);
+        expect(body.uuid).not.toBeNull();
+        expect(body.is_supplier).toBe(1);
+        expect(body.nickname).toBe(nickname);
         done();
       });
   });
@@ -323,21 +412,21 @@ describe('user/', () => {
     agent.get('/user/me').expect(HttpStatus.UNAUTHORIZED, done);
   });
 
-  it('/graphql:Q users - You need to have role user, but have role bad_role', async (done) => {
-    await global.knex.raw('UPDATE users SET role=? WHERE email=?', [
-      'bad_role',
-      email,
+  it('/graphql:Q users - You need to have is_supplier 1, but have is_supplier 0', async (done) => {
+    await global.knex.raw('UPDATE user_ref SET is_supplier=? WHERE nickname=?', [
+      0,
+      nickname,
     ]);
     {
       const { body, headers } = await agent
         .post('/user/login')
-        .send({ email, password })
+        .send({ nickname, password })
         .expect(HttpStatus.OK);
       expect(headers['set-cookie'][0]).toBeNonEmptyString();
-      expect(body).toContainAllKeys(['email', 'role', 'user_uuid']);
-      expect(body.email).toBe(email);
-      expect(body.role).toBe('bad_role');
-      expect(body.user_uuid).toBeNonEmptyString();
+      expect(body).toContainAllKeys(['nickname', 'is_supplier', 'uuid']);
+      expect(body.nickname).toBe(nickname);
+      expect(body.is_supplier).toBe(0);
+      expect(body.uuid).toBeNonEmptyString();
     }
     {
       const response1 = await agent
@@ -345,9 +434,9 @@ describe('user/', () => {
         .send({
           query: `query ListUsers {
             users {
-                name
-                userUuid
+                uuid
                 email
+                nickname
                 createdAt
             }
         }`,
@@ -355,7 +444,7 @@ describe('user/', () => {
         .expect(HttpStatus.OK);
       debug('/graphql body=%o', response1.body);
       expect(response1.body.errors[0].message).toBe(
-        'Unauthorized'
+        'You are not supplier.'
       );
     }
     done();
