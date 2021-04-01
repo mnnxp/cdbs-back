@@ -41,7 +41,7 @@ impl Claims {
         Claims {
             iss: issuer,
             sub: uuid.to_string(),
-            is_supplier: is_supplier.clone(),
+            is_supplier: *is_supplier,
             nickname: nickname.clone(),
             iat: iat.timestamp(),
             exp: exp.timestamp(),

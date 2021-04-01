@@ -1,6 +1,6 @@
 use crate::database::{db_connection, Pool};
 use crate::errors::ServiceResult;
-use crate::models::component::model::{InsertableComponent, SlimComponent, Component, ComponentData};
+// use crate::models::component::model::{InsertableComponent, SlimComponent, Component, ComponentData};
 use crate::models::component_modification::model::{
     InsertableComponentModification,
     SlimComponentModification,

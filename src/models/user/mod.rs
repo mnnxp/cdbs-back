@@ -16,4 +16,5 @@ pub fn route(cfg: &mut web::ServiceConfig) {
     );
 }
 
-//pub use util::has_role;
+pub use util::has_supplier;
+pub use util::verify_uuid_user;

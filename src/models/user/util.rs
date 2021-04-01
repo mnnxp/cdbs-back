@@ -1,8 +1,11 @@
-// use crate::user::model::{LoggedUser, SlimUser, User};
-use crate::models::user::model::{User};
-// use crate::errors::ServiceError;
+use super::model::{
+    LoggedUser,
+    // SlimUser, 
+    User
+};
+use crate::errors::ServiceError;
 use argon2rs::argon2i_simple;
-// use uuid::Uuid;
+use uuid::Uuid;
 
 pub fn make_salt() -> String {
     use rand::Rng;
@@ -31,16 +34,18 @@ pub fn verify(user: &User, password: &str) -> bool {
     make_hash_salt(password, psw_salt) == psw_hash.as_ref()
 }
 
-// pub fn has_uuid(logged_user: &LoggedUser) -> Result<Uuid, ServiceError> {
-//     match logged_user.0 {
-//         None => Err(ServiceError::Unauthorized),
-//         Some(user) => Ok(user.uuid),
-//     }
-//}
+pub fn verify_uuid_user(user: &LoggedUser, uuid_user: Uuid) -> Result<bool, ServiceError> {
+    match user.0 {
+        None => Err(ServiceError::Unauthorized),
+        Some(ref user) if user.uuid == uuid_user => Ok(true),
+        _ => Err(ServiceError::BadRequest("Uuid not correct.".to_string())),
+        // Some(ref user) => Err(ServiceError::BadRequest(format!("Uuid not correct. UUID1: {}, UUID2: {};", user.uuid, uuid_user))),
+    }
+}
 
-// pub fn has_role(user: &LoggedUser, role: &str) -> Result<bool, ServiceError> {
-//     match user.0 {
-//         Some(ref user) if user.role == role => Ok(true),
-//         _ => Err(ServiceError::Unauthorized),
-//     }
-// }
+pub fn has_supplier(user: &LoggedUser, need_supplier: i32) -> Result<bool, ServiceError> {
+    match user.0 {
+        Some(ref user) if user.is_supplier == need_supplier => Ok(true),
+        _ => Err(ServiceError::BadRequest("You are not supplier.".to_string())),
+    }
+}

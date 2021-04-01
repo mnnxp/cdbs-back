@@ -20,9 +20,9 @@ use crate::models::component::model::{
 };
 use crate::models::component::service as component;
 use crate::models::component_modification::model::{
-    ComponentModification,
-    ComponentModificationData,
-    SlimComponentModification
+    ComponentModification
+    // ComponentModificationData,
+    // SlimComponentModification
 };
 use crate::models::component_modification::service as component_modification;
 use diesel::PgConnection;
@@ -63,7 +63,7 @@ impl QueryRoot {
         let limit: i32 = limit.unwrap_or(100);
         let offset: i32 = offset.unwrap_or(0);
 
-        //crate::user::has_role(&context.user, 'user')?;
+        crate::models::user::has_supplier(&context.user, 1)?;
 
         user::list::find_all_users(&context, limit, offset)
     }
@@ -136,6 +136,18 @@ impl Mutation {
         let conn: &PgConnection = &context.db;
 
         Ok(create_user(data, conn)?)
+    }
+
+    pub fn register_user_represet(
+        context: &Context, data: UserRepresetData
+    ) -> ServiceResult<SlimUserRepreset> {
+        use crate::models::user_represet::service::register::create_user_represet;
+        let conn: &PgConnection = &context.db;
+
+        crate::models::user::has_supplier(&context.user, 1)?;
+        crate::models::user::verify_uuid_user(&context.user, data.uuid_user)?;
+
+        Ok(create_user_represet(data, conn)?)
     }
 
     pub fn register_file(context: &Context, data: FileData) -> ServiceResult<SlimFile> {

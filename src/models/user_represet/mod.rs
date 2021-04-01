@@ -13,5 +13,3 @@ pub fn route(cfg: &mut web::ServiceConfig) {
             .service(web::resource("/delete").route(web::post().to(delete))),
     );
 }
-
-//pub use util::has_role;

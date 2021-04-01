@@ -64,55 +64,37 @@ pub async fn register(
     let uuid_file_info_icon = Uuid::parse_str(&new_user_data.uuid_file_info_icon)
         .unwrap_or(Uuid::parse_str("bc1c2151-86d0-4656-9c9d-d016dd584297")?);
 
-    let user_data = match new_user_data.is_supplier {
-        1 if new_user_data.id_type_user != 1 => {
-            UserData {
-                id_region: (new_user_data.id_region),
-                uuid_file_info_icon: (uuid_file_info_icon),
-                site_url: (new_user_data.site_url.to_owned()),
-                position: (new_user_data.position.to_owned()),
-                time_zone: (new_user_data.time_zone),
-                address: (new_user_data.address.to_owned()),
-                comment: (new_user_data.comment.to_owned()),
-                id_name_cad: (new_user_data.id_name_cad),
-                phone: (new_user_data.phone.to_owned()),
-                inn: (new_user_data.inn.to_owned()),
-                shortname: (new_user_data.shortname.to_owned()),
-                orgname: (new_user_data.orgname.to_owned()),
-                is_supplier: 1,
-                id_type_user: (new_user_data.id_type_user),
-                password: (new_user_data.password.to_owned()),
-                email: (new_user_data.email.to_owned()),
-                nickname: (new_user_data.nickname.to_owned()),
-                secondname: (new_user_data.secondname.to_owned()),
-                lastname: (new_user_data.lastname.to_owned()),
-                firstname: (new_user_data.firstname.to_owned()),
-            }
-        },
-        _ => {
-            UserData {
-                id_region: (new_user_data.id_region),
-                uuid_file_info_icon: (uuid_file_info_icon),
-                site_url: ("none".to_owned()),
-                position: ("engineer".to_owned()),
-                time_zone: 3,
-                address: (new_user_data.address.to_owned()),
-                comment: (new_user_data.comment.to_owned()),
-                id_name_cad: (new_user_data.id_name_cad),
-                phone: (new_user_data.phone.to_owned()),
-                inn: ("none".to_owned()),
-                shortname: ("none".to_owned()),
-                orgname: ("none".to_owned()),
-                is_supplier: 0,
-                id_type_user: (new_user_data.id_type_user),
-                password: (new_user_data.password.to_owned()),
-                email: (new_user_data.email.to_owned()),
-                nickname: (new_user_data.nickname.to_owned()),
-                secondname: (new_user_data.secondname.to_owned()),
-                lastname: (new_user_data.lastname.to_owned()),
-                firstname: (new_user_data.firstname.to_owned()),
-            }
-        },
+    let mut orgname = String::new();
+    let mut shortname = String::new();
+    let mut is_supplier = 0;
+
+    if new_user_data.0.is_supplier == 1 {
+        orgname = new_user_data.orgname.to_owned();
+        shortname = new_user_data.shortname.to_owned();
+        is_supplier = 1;
+    }
+
+    let user_data = UserData {
+        id_region: (new_user_data.id_region),
+        uuid_file_info_icon: (uuid_file_info_icon),
+        site_url: (new_user_data.site_url.to_owned()),
+        position: (new_user_data.position.to_owned()),
+        time_zone: (new_user_data.time_zone),
+        address: (new_user_data.address.to_owned()),
+        comment: (new_user_data.comment.to_owned()),
+        id_name_cad: (new_user_data.id_name_cad),
+        phone: (new_user_data.phone.to_owned()),
+        inn: (new_user_data.inn.to_owned()),
+        shortname: (shortname),
+        orgname: (orgname),
+        is_supplier: (is_supplier),
+        id_type_user: (new_user_data.id_type_user),
+        password: (new_user_data.password.to_owned()),
+        email: (new_user_data.email.to_owned()),
+        nickname: (new_user_data.nickname.to_owned()),
+        secondname: (new_user_data.secondname.to_owned()),
+        lastname: (new_user_data.lastname.to_owned()),
+        firstname: (new_user_data.firstname.to_owned()),
     };
 
     user::register(user_data, pool).map(|res| HttpResponse::Ok().json(&res))

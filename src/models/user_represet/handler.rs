@@ -1,6 +1,13 @@
-use crate::database::{Pool, PooledConnection};
+use crate::database::{
+    Pool
+    // PooledConnection
+};
 use crate::errors::{ServiceResult, ServiceError};
-use crate::models::user::model::{LoggedUser, SlimUser, UserData};
+use crate::models::user::model::{
+    LoggedUser
+    // SlimUser,
+    // UserData
+};
 // use crate::models::user::service as user;
 use crate::models::user_represet::model::{
     // UserRepreset,
@@ -11,7 +18,13 @@ use crate::models::user_represet::service as user_represet;
 // use crate::graphql::model::Context;
 // use actix_identity::{Identity, RequestIdentity};
 // use actix_web::dev::Payload;
-use actix_web::{web, Error, FromRequest, HttpRequest, HttpResponse};
+use actix_web::{
+    web,
+    // Error,
+    // FromRequest,
+    // HttpRequest,
+    HttpResponse
+};
 // use diesel::prelude::*;
 // use crate::schema::user_represet_ref::dsl::user_represet_ref;
 // use std::any::Any;
@@ -31,6 +44,9 @@ pub async fn register(
     logged_user: LoggedUser,
     pool: web::Data<Pool>,
 ) -> Result<HttpResponse, ServiceError> {
+    crate::models::user::has_supplier(&logged_user, 1)?;
+    // crate::models::user::verify_uuid_user(&logged_user, data.uuid_user)?;
+
     let user_uuid = logged_user.0.as_ref().unwrap().uuid;
 
     // debug!("user_uuid = {}", &user_uuid);
@@ -62,7 +78,8 @@ pub async fn delete(
     // let user_uuid = Uuid::nil();
 
     // debug!("represet_delete_data before parsing={}", &represet_delete_data.uuid_represet);
-    let uuid_represet_delete =  Uuid::parse_str(&represet_delete_data.uuid_represet).unwrap_or(Uuid::nil());
+    let uuid_represet_delete =  Uuid::parse_str(&represet_delete_data.uuid_represet)
+        .unwrap_or_else(|_| Uuid::nil());
     // debug!("uuid_represet_delete after parsing={}", &uuid_represet_delete);
 
     // user_represet::delete(user_uuid, uuid_represet_delete, pool)

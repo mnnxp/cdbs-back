@@ -9,7 +9,10 @@ pub fn register(user_represet_data: UserRepresetData, pool: web::Data<Pool>) -> 
     create_user_represet(user_represet_data, conn)
 }
 
-pub fn create_user_represet(user_represet_data: UserRepresetData, conn: &PgConnection) -> ServiceResult<SlimUserRepreset> {
+pub fn create_user_represet(
+    user_represet_data: UserRepresetData,
+    conn: &PgConnection
+) -> ServiceResult<SlimUserRepreset> {
     use crate::schema::user_represet_ref::dsl::user_represet_ref;
 
     let user_represet: InsertableUserRepreset = user_represet_data.into();
