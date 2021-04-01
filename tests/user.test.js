@@ -4,7 +4,8 @@ const request = require('supertest');
 const HttpStatus = require('http-status-codes');
 
 const apiPort = process.env.PORT || 3000;
-const url = `http://0.0.0.0:${apiPort}`;
+const apiDomain = process.env.DOMAIN || "0.0.0.0";
+const url = `http://${apiDomain}:${apiPort}`;
 
 jest.setTimeout(800);
 
