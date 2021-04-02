@@ -1,8 +1,8 @@
 /* + */
 /* профиль */
 CREATE TABLE user_ref (
-  id SERIAL PRIMARY KEY, /* id профиля */
-  uuid UUID NOT NULL UNIQUE,
+  id SERIAL, /* id профиля */
+  uuid UUID NOT NULL UNIQUE PRIMARY KEY,
   email VARCHAR(100) NOT NULL, /*email профиля, на один адрес может быть несколько профилей (закос под reddit) */
   email_verified INTEGER NOT NULL DEFAULT '0', /* подтверждение email */
   psw_hash BYTEA NOT NULL, /* хеш пароля профиля */
@@ -48,6 +48,7 @@ CREATE TABLE user_represet_ref (
   name VARCHAR(255) NOT NULL, /* наименование представительства */
   address VARCHAR(512) NOT NULL, /* почтовый адрес представительства */
   phone VARCHAR(100) NOT NULL, /* телефон представительства */
+  -- UNIQUE (uuid_user, name),
   CONSTRAINT user_represet_ref_pk PRIMARY KEY (uuid)
 );
 
@@ -142,7 +143,7 @@ CREATE TABLE extension_ref (
 CREATE TABLE component_ref (
   id SERIAL, /* id компонента */
   uuid UUID NOT NULL UNIQUE,
-  name VARCHAR(225) NOT NULL UNIQUE, /* наименование компонента */
+  name VARCHAR(225) NOT NULL, /* наименование компонента */
   uuid_user UUID NOT NULL, /* идентификатор профиля загрузившего компонент */
   comment VARCHAR(2000) NOT NULL, /* краткое описание компонента */
   uuid_component_parent UUID NOT NULL, /* родительский компонент */
@@ -153,6 +154,7 @@ CREATE TABLE component_ref (
   commentchange VARCHAR(2000) NOT NULL, /*  комментарий с вносимыми изменениями */
   is_standard INTEGER NOT NULL DEFAULT '0', /* компонент соответствует стандарту */
   created_at TIMESTAMP NOT NULL DEFAULT NOW(), /* дата создания/загрузки */
+  UNIQUE (name, uuid_user),
   CONSTRAINT component_ref_pk PRIMARY KEY (uuid)
 );
 
@@ -327,6 +329,7 @@ CREATE TABLE component_modification_list (
   commentchange VARCHAR(2000) NOT NULL, /*  комментарий с вносимыми изменениями */
   id_actual_status INTEGER NOT NULL, /* номер статуса, к примеру: «актуальный», «архивный», «снято с производства» */
   is_delete INTEGER NOT NULL DEFAULT '0', /* флаг удаления компонента */
+  UNIQUE (uuid_component, modification_name, uuid_modification_parent),
   CONSTRAINT component_modification_list_pk PRIMARY KEY (uuid)
 );
 

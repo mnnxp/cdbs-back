@@ -28,7 +28,10 @@ INSERT INTO component_ref (uuid, name, uuid_user, comment, uuid_component_parent
   commentchange, is_standard, created_at) VALUES
   ('a5953fd9-7393-4f1e-a899-06b5e159dbf1', 'Reduced shank bolts and screws with coarse thread',
     '31ecc6f8-0c09-4a59-a2d5-34b5b833e59b', 'Continuously improve the product quality and applicability...',
-    'a5953fd9-7393-4f1e-a899-06b5e159dbf1', 1, 1, 1, 1, 'no', 1, now());
+    'a5953fd9-7393-4f1e-a899-06b5e159dbf1', 1, 1, 0, 1, 'no', 1, now()),
+  ('e925833e-f8d3-4ecb-bd67-5aa450f9f0ad', 'Knobs 123 Inch',
+    '68b8281a-d19c-4d4b-88eb-6fd4a2afde1b', 'Plastic...',
+    'a5953fd9-7393-4f1e-a899-06b5e159dbf1', 1, 1, 0, 1, 'Not change', 0, now());
 
   -- TABLE: spec_to_component: id (SERIAL), id_spec (INTEGER),
   -- id_component (INTEGER)
@@ -154,7 +157,9 @@ INSERT INTO extension_ref (extension, id_name_cad) VALUES
 --           created_at (Timestamp), filename (varying(225)), id_ext (integer),
 --           filesize (double precision), path_file (varying(225)),
 INSERT INTO file_ref (uuid, uuid_file, hash, uuid_user_create, created_at, filename, id_ext, filesize , path_file) VALUES
-    ('bc1c2151-86d0-4656-9c9d-d016dd584297', 'bc1c2151-86d0-4656-9c9d-d016dd584297', E'\\000', '31ecc6f8-0c09-4a59-a2d5-34b5b833e59b', now(), 'filename', 1, 0, 'path/file/file.txt');
+    ('bc1c2151-86d0-4656-9c9d-d016dd584297', 'bc1c2151-86d0-4656-9c9d-d016dd584297', E'\\000', '31ecc6f8-0c09-4a59-a2d5-34b5b833e59b', now(), 'filename', 1, 0, 'path/file/file.txt'),
+    ('3706d1a1-80ae-4367-be39-af7091373811', 'bc1c2151-86d0-4656-9c9d-d016dd584297', E'\\xe3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855',
+      '68b8281a-d19c-4d4b-88eb-6fd4a2afde1b', now(), 'file_child_two.pdd', 1, 136.7, '/sholder/file/f1c5a362-55f9-4edb-ad90-a2ea64d586df');
 
 -- TABLE: language_ref: id (SERIAL), lang (VARCHAR(100)), langshort (VARCHAR(10))
 INSERT INTO language_ref (lang, langshort) VALUES
@@ -380,17 +385,40 @@ INSERT INTO user_ref (uuid, email, email_verified, psw_hash, psw_salt,
     ('31ecc6f8-0c09-4a59-a2d5-34b5b833e59b', 'email@email.ru', 1,
       E'\\xc3747b782c0b5c13cb1257a951d5120cd6a958f3516ba5d40c1db1c1eae99b15',
       '8%8lDv&TB!295%cNWDmghT5lNDSxTUxUgRY6xNw^hACP!DDDK8IKNLP)0Hr(C7m55BQDr&L%V0F^~3O&J~QPQDfJ$&uDjwUwPShyK0B4yDhXcBe^cPoV@%^gax^%z)92',
-      1, 1, 'Johm', 'Ivanov', 'Rucovich', 'nicknameeee', 'romashka', 'rom-ka',
-      '12345678910', '+79991234567', 1, 'comment for this user', 'Moscow',
-      3, 'manufacturer', 'https://cadbase.ru', 'bc1c2151-86d0-4656-9c9d-d016dd584297', 1, now());
-
+      2, 1, 'Johm', 'Ivanov', 'Rucovich', 'nicknameeee', 'romashka', 'rom-ka', '12345678910', '+79991234567',
+      1, 'comment for this user', 'Moscow',
+      3, 'manufacturer', 'https://cadbase.ru',
+      'bc1c2151-86d0-4656-9c9d-d016dd584297', 1, now()),
+    ('68b8281a-d19c-4d4b-88eb-6fd4a2afde1b', 'bname@somain.com', 0,
+      E'\\x085f06287c840b5c23578912d5e0cc2e4baf53865e9170a05ed084c1292ab7f4',
+      'pKFpenRqOFyutR#OAkxb%!bi%mV5q(GPKgHmwQ*bWrcuJHC3k8raBNzUnw7r%^oFKzBf%McZlVBI#O@U1@JApg@rVHEuzlybCWx&BXjrI(41x)8kR9rjURVG9lqr0EIM',
+      1, 0, 'Vans', 'Bpero', 'Nado', 'albane', 'none', 'none', 'none', 'none',
+      4, 'none', 'noneadress',
+      2, 'engineer', 'none',
+      'bc1c2151-86d0-4656-9c9d-d016dd584297', 1, now()),
+    ('e97ea679-4560-4a9b-ad8b-80d2d1912602', 'testemail@testemail.ru', 0,
+      E'\\xc0a6617d8971cac49489078028b6ea4bd6f7929f6e542a1de5cc4c2a0f6fdfce',
+      'a13%A1r9kCmDHieCl(^Yt$~traAIlnTM(0#vHvjE&tZ@9Cm2OJKCKENu6&a2pTrd*Z%qQyiYXX@fG2j7XeBLx4FYY9tkSK*B^yV)0s$sQ!y)qBL#!RDxcxZLPEKD5@lg',
+      3, 0, 'testfirstname', 'testlastname', 'testsecondname', 'testingname', 'testorgname', 'testshortname', 'testinn', '+1234567890',
+      5, 'testcomment', 'testaddress',
+      2, 'testposition', 'testsiteUrl',
+      'bc1c2151-86d0-4656-9c9d-d016dd584297', 13, now()),
+    ('c3f5f69c-bb54-45d9-bfa7-1d28cc1afa5a', 'bname@somain.com', 0,
+      E'\\xfdeba1b9304208da90c90ddb6fe0ee49787b085636b26f156d6240869bdb3665',
+      'ThmlF#HCNEX6%##AFGH(%0Tdo0w$5kh(WA9%@KwHe3mrVlhMIj~NxeiiJyh~Ty1t(J3F#lGDWFFJRZnV1&WFMA%Rl5~8qvfW)5WjL&qm%jSuFx1Uslth^a$64YkJjN)q',
+      1, 0, 'Vans', 'Bpero', 'Nado', 'testusertext', 'none', 'none', 'none', 'none',
+      4, 'none', 'noneadress', 
+      6, 'noneposition', 'none',
+      'bc1c2151-86d0-4656-9c9d-d016dd584297', 1, now());
 
 -- TABLE: user_represet_ref: id (serial), id_user (INTEGER),
 -- id_region (INTEGER),   id_representation_type (INTEGER),
 -- name (VARCHAR(255)),   address (VARCHAR(512)),   phone (VARCHAR(100))
 INSERT INTO user_represet_ref (uuid, uuid_user, id_region, id_representation_type,
   name, address, phone) VALUES
-  ('22a08149-b63a-4f65-a1cd-4a28f85567ec', '31ecc6f8-0c09-4a59-a2d5-34b5b833e59b', 1, 1, 'Местный офис', 'г. Москва', '+79991234567');
+  ('22a08149-b63a-4f65-a1cd-4a28f85567ec', '31ecc6f8-0c09-4a59-a2d5-34b5b833e59b', 1, 1, 'Местный офис', 'г. Москва', '+79991234567'),
+  ('297e44b3-d36c-4ab5-be16-e2a955aabf13', '31ecc6f8-0c09-4a59-a2d5-34b5b833e59b', 2, 1, 'additional office', 'Batkov District, Minsk', '+375548418789'),
+  ('96df6359-a31e-40ad-aa06-9355abc2cc58', '31ecc6f8-0c09-4a59-a2d5-34b5b833e59b', 3, 1, 'additional office', 'None str, Kiev', '+380874487556');
 
 -- TABLE: user_tokens_ref: id (serial), id_user (INTEGER), token (VARCHAR(512)),
 -- date_start (TIMESTAMP), date_end (TIMESTAMP)
