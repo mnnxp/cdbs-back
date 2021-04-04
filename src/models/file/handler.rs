@@ -26,7 +26,7 @@ use uuid::Uuid;
 
 #[derive(Debug, Deserialize)]
 pub struct RegisterFileDataQuery {
-    pub uuid_file: String,
+    pub uuid_file_parent: String,
     pub hash: String,
     pub filename: String,
     pub id_ext: i32,
@@ -49,7 +49,7 @@ pub async fn register(
         filename: (new_user_data.filename.to_owned()),
         uuid_user_create: (user_uuid),
         hash: (new_user_data.hash.to_owned()),
-        uuid_file: (Uuid::parse_str(&new_user_data.uuid_file)?),
+        uuid_file_parent: (Uuid::parse_str(&new_user_data.uuid_file_parent)?),
     };
 
     file::register(file_data, pool).map(|res| HttpResponse::Ok().json(&res))

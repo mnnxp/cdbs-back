@@ -59,13 +59,13 @@ INSERT INTO component_type_ref (component_type) VALUES
   ('собственный');
 
 -- TABLE: file_to_component: id (SERIAL), id_component (INTEGER),
--- uuid_file (INTEGER)
-INSERT INTO file_to_component (uuid_component, uuid_file) VALUES
+-- uuid_file_parent (INTEGER)
+INSERT INTO file_to_component (uuid_component, uuid_file_parent) VALUES
   ('a5953fd9-7393-4f1e-a899-06b5e159dbf1', 'bc1c2151-86d0-4656-9c9d-d016dd584297');
 
 -- TABLE: file_to_modification: id (SERIAL), id_modification (INTEGER),
--- uuid_file (INTEGER)
-INSERT INTO file_to_modification (uuid_modification, uuid_file) VALUES
+-- uuid_file_parent (INTEGER)
+INSERT INTO file_to_modification (uuid_modification, uuid_file_parent) VALUES
   ('aba22d59-4f6c-44a4-9a37-2d38f0e577a8', 'bc1c2151-86d0-4656-9c9d-d016dd584297');
 
 -- TABLE: component_modification_list: id SERIAL, id_component INTEGER,
@@ -153,10 +153,10 @@ INSERT INTO extension_ref (extension, id_name_cad) VALUES
     ('.wm', 1),
     ('.wm2d', 1);
 
--- TABLE: : id (serial), uuid_file (integer), hash (bytea), id_user_create (integer),
+-- TABLE: : id (serial), uuid_file_parent (integer), hash (bytea), id_user_create (integer),
 --           created_at (Timestamp), filename (varying(225)), id_ext (integer),
 --           filesize (double precision), path_file (varying(225)),
-INSERT INTO file_ref (uuid, uuid_file, hash, uuid_user_create, created_at, filename, id_ext, filesize , path_file) VALUES
+INSERT INTO file_ref (uuid, uuid_file_parent, hash, uuid_user_create, created_at, filename, id_ext, filesize , path_file) VALUES
     ('bc1c2151-86d0-4656-9c9d-d016dd584297', 'bc1c2151-86d0-4656-9c9d-d016dd584297', E'\\000', '31ecc6f8-0c09-4a59-a2d5-34b5b833e59b', now(), 'filename', 1, 0, 'path/file/file.txt'),
     ('3706d1a1-80ae-4367-be39-af7091373811', 'bc1c2151-86d0-4656-9c9d-d016dd584297', E'\\xe3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855',
       '68b8281a-d19c-4d4b-88eb-6fd4a2afde1b', now(), 'file_child_two.pdd', 1, 136.7, '/sholder/file/f1c5a362-55f9-4edb-ad90-a2ea64d586df');

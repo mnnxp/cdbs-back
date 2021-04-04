@@ -10,7 +10,7 @@ pub struct File {
     #[graphql(skip)]
     pub id: i32,
     pub uuid: Uuid,
-    pub uuid_file: Uuid,
+    pub uuid_file_parent: Uuid,
     #[graphql(skip)]
     pub hash: Vec<u8>,
     pub uuid_user_create: Uuid,
@@ -25,7 +25,7 @@ pub struct File {
 #[table_name = "file_ref"]
 pub struct InsertableFile {
     pub uuid: Uuid,
-    pub uuid_file: Uuid,
+    pub uuid_file_parent: Uuid,
     pub hash: Vec<u8>,
     pub uuid_user_create: Uuid,
     pub created_at: NaiveDateTime,
@@ -37,7 +37,7 @@ pub struct InsertableFile {
 
 #[derive(Debug, Deserialize, juniper::GraphQLInputObject)]
 pub struct FileData {
-    pub uuid_file: Uuid,
+    pub uuid_file_parent: Uuid,
     pub hash: String,
     pub uuid_user_create: Uuid,
     pub filename: String,
@@ -57,7 +57,7 @@ pub struct SlimFile {
 impl From<FileData> for InsertableFile {
     fn from(date_file: FileData) -> Self {
         let FileData {
-            uuid_file,
+            uuid_file_parent,
             hash,
             uuid_user_create,
             filename,
@@ -76,7 +76,7 @@ impl From<FileData> for InsertableFile {
 
         Self {
             uuid: Uuid::new_v4(),
-            uuid_file,
+            uuid_file_parent,
             hash,
             uuid_user_create,
             created_at: chrono::Local::now().naive_local(),

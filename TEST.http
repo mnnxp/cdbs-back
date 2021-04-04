@@ -69,7 +69,7 @@ POST http://0.0.0.0:3000/file/add HTTP/1.1
 Content-Type: application/json
 
 {
-  	"uuid_file": "bc1c2151-86d0-4656-9c9d-d016dd584297",
+  	"uuid_file_parent": "bc1c2151-86d0-4656-9c9d-d016dd584297",
   	"hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
   	"filename": "file_child_two.pdd",
   	"id_ext": 1,
@@ -241,7 +241,7 @@ X-REQUEST-TYPE: GraphQL
 query filesQuery {
   files {
     uuid
-    uuidFile
+    uuidFileParent 
     uuidUserCreate
     filename
     idExt
