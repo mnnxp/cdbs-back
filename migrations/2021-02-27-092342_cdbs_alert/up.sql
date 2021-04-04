@@ -29,7 +29,7 @@ ALTER TABLE component_ref ADD CONSTRAINT component_ref_fk4 FOREIGN KEY (id_type_
 ALTER TABLE spec_to_component ADD CONSTRAINT spec_to_component_fk0 FOREIGN KEY (id_spec) REFERENCES spec_ref(id);
 ALTER TABLE spec_to_component ADD CONSTRAINT spec_to_component_fk1 FOREIGN KEY (uuid_component) REFERENCES component_ref(uuid);
 
-ALTER TABLE file_to_component ADD CONSTRAINT file_to_component_fk0 FOREIGN KEY (uuid_file_parent) REFERENCES file_ref(uuid);
+ALTER TABLE file_to_component ADD CONSTRAINT file_to_component_fk0 FOREIGN KEY (uuid_file) REFERENCES file_ref(uuid);
 ALTER TABLE file_to_component ADD CONSTRAINT file_to_component_fk1 FOREIGN KEY (uuid_component) REFERENCES component_ref(uuid);
 
 ALTER TABLE component_to_keyword ADD CONSTRAINT component_to_keyword_fk0 FOREIGN KEY (uuid_component) REFERENCES component_ref(uuid);
@@ -69,7 +69,7 @@ ALTER TABLE component_modification_list ADD CONSTRAINT component_modification_li
 ALTER TABLE component_modification_list ADD CONSTRAINT component_modification_list_fk3 FOREIGN KEY (id_actual_status) REFERENCES actual_status_ref(id);
 
 ALTER TABLE file_to_modification ADD CONSTRAINT file_to_modification_fk0 FOREIGN KEY (uuid_modification) REFERENCES component_modification_list(uuid);
-ALTER TABLE file_to_modification ADD CONSTRAINT file_to_modification_fk1 FOREIGN KEY (uuid_file_parent) REFERENCES file_ref(uuid);
+ALTER TABLE file_to_modification ADD CONSTRAINT file_to_modification_fk1 FOREIGN KEY (uuid_file) REFERENCES file_ref(uuid);
 
 ALTER TABLE param_to_modification ADD CONSTRAINT param_to_modification_fk0 FOREIGN KEY (uuid_modification) REFERENCES component_modification_list(uuid);
 ALTER TABLE param_to_modification ADD CONSTRAINT param_to_modification_fk1 FOREIGN KEY (id_param) REFERENCES param_ref(id);

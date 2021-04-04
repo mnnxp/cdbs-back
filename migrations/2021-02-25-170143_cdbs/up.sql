@@ -190,7 +190,7 @@ CREATE TABLE spec_to_component (
 /* объект/файл компонента */
 CREATE TABLE file_to_component (
   id SERIAL, /* id файла компонента */
-  uuid_file_parent UUID NOT NULL, /* идентификатор объекта/файла */
+  uuid_file UUID NOT NULL, /* идентификатор объекта/файла */
   uuid_component UUID NOT NULL, /* идентификатор компонента */
   CONSTRAINT file_to_component_pk PRIMARY KEY (id)
 );
@@ -338,7 +338,7 @@ CREATE TABLE component_modification_list (
 CREATE TABLE file_to_modification (
   id SERIAL, /* id файла модификации */
   uuid_modification UUID NOT NULL, /* идентификатор модификации */
-  uuid_file_parent UUID NOT NULL, /* идентификатор объекта/файла */
+  uuid_file UUID NOT NULL, /* идентификатор объекта/файла */
   CONSTRAINT file_to_modification_pk PRIMARY KEY (id)
 );
 

@@ -130,7 +130,7 @@ table! {
 table! {
     file_to_component (id) {
         id -> Int4,
-        uuid_file_parent -> Uuid,
+        uuid_file -> Uuid,
         uuid_component -> Uuid,
     }
 }
@@ -139,7 +139,7 @@ table! {
     file_to_modification (id) {
         id -> Int4,
         uuid_modification -> Uuid,
-        uuid_file_parent -> Uuid,
+        uuid_file -> Uuid,
     }
 }
 
@@ -344,9 +344,9 @@ joinable!(discussion_ref -> component_ref (uuid_component));
 joinable!(extension_ref -> name_cad_ref (id_name_cad));
 joinable!(file_ref -> extension_ref (id_ext));
 joinable!(file_to_component -> component_ref (uuid_component));
-joinable!(file_to_component -> file_ref (uuid_file_parent));
+joinable!(file_to_component -> file_ref (uuid_file));
 joinable!(file_to_modification -> component_modification_list (uuid_modification));
-joinable!(file_to_modification -> file_ref (uuid_file_parent));
+joinable!(file_to_modification -> file_ref (uuid_file));
 joinable!(param_to_component -> component_ref (uuid_component));
 joinable!(param_to_component -> param_ref (id_param));
 joinable!(param_to_modification -> component_modification_list (uuid_modification));

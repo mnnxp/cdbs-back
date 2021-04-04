@@ -59,13 +59,13 @@ INSERT INTO component_type_ref (component_type) VALUES
   ('собственный');
 
 -- TABLE: file_to_component: id (SERIAL), id_component (INTEGER),
--- uuid_file_parent (INTEGER)
-INSERT INTO file_to_component (uuid_component, uuid_file_parent) VALUES
+-- uuid_file (INTEGER)
+INSERT INTO file_to_component (uuid_component, uuid_file) VALUES
   ('a5953fd9-7393-4f1e-a899-06b5e159dbf1', 'bc1c2151-86d0-4656-9c9d-d016dd584297');
 
 -- TABLE: file_to_modification: id (SERIAL), id_modification (INTEGER),
--- uuid_file_parent (INTEGER)
-INSERT INTO file_to_modification (uuid_modification, uuid_file_parent) VALUES
+-- uuid_file (INTEGER)
+INSERT INTO file_to_modification (uuid_modification, uuid_file) VALUES
   ('aba22d59-4f6c-44a4-9a37-2d38f0e577a8', 'bc1c2151-86d0-4656-9c9d-d016dd584297');
 
 -- TABLE: component_modification_list: id SERIAL, id_component INTEGER,
@@ -407,7 +407,7 @@ INSERT INTO user_ref (uuid, email, email_verified, psw_hash, psw_salt,
       E'\\xfdeba1b9304208da90c90ddb6fe0ee49787b085636b26f156d6240869bdb3665',
       'ThmlF#HCNEX6%##AFGH(%0Tdo0w$5kh(WA9%@KwHe3mrVlhMIj~NxeiiJyh~Ty1t(J3F#lGDWFFJRZnV1&WFMA%Rl5~8qvfW)5WjL&qm%jSuFx1Uslth^a$64YkJjN)q',
       1, 0, 'Vans', 'Bpero', 'Nado', 'testusertext', 'none', 'none', 'none', 'none',
-      4, 'none', 'noneadress', 
+      4, 'none', 'noneadress',
       6, 'noneposition', 'none',
       'bc1c2151-86d0-4656-9c9d-d016dd584297', 1, now());
 
