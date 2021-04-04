@@ -1,6 +1,6 @@
 use super::model::{
     LoggedUser,
-    // SlimUser, 
+    // SlimUser,
     User
 };
 use crate::errors::ServiceError;

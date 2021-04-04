@@ -59,6 +59,7 @@ pub struct SlimComponent {
     pub name: String,
     pub comment: String,
     pub id_actual_status: i32,
+    pub is_standard: i32,
     pub created_at: NaiveDateTime,
 }
 
@@ -111,6 +112,7 @@ impl From<Component> for SlimComponent {
             name,
             comment,
             id_actual_status,
+            is_standard,
             created_at,
             ..
         } = component;
@@ -120,6 +122,7 @@ impl From<Component> for SlimComponent {
             name,
             comment,
             id_actual_status,
+            is_standard,
             created_at,
         }
     }

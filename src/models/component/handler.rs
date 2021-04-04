@@ -17,7 +17,7 @@ use crate::models::component::service as component;
 // use actix_web::dev::Payload;
 use actix_web::{
     web,
-    // Error, 
+    // Error,
     // FromRequest,
     // HttpRequest,
     HttpResponse
@@ -42,6 +42,10 @@ pub async fn register(
     pool: web::Data<Pool>,
 ) -> Result<HttpResponse, ServiceError> {
     let user_uuid = logged_user.0.as_ref().unwrap().uuid;
+
+    if new_component_data.is_standard != 0 {
+        crate::models::user::has_supplier(&logged_user, 1)?;
+    }
 
     let component_data = ComponentData {
         is_standard: (new_component_data.is_standard),

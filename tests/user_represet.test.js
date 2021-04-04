@@ -1,4 +1,4 @@
-const debug = require('debug')('cdbs-back:user.test.js');
+const debug = require('debug')('cdbs-back:user_represet.test.js');
 const request = require('supertest');
 
 const HttpStatus = require('http-status-codes');
@@ -7,7 +7,7 @@ const apiPort = process.env.PORT || 3000;
 const apiDomain = process.env.DOMAIN || "0.0.0.0";
 const url = `http://${apiDomain}:${apiPort}`;
 
-jest.setTimeout(800);
+jest.setTimeout(1300);
 
 const nickname = "nicknameeee";
 const nickname2 = "albane";
@@ -197,7 +197,7 @@ describe('represet/', () => {
     agent.get('/user/logout').expect(HttpStatus.OK, done);
   });
 
-  it('/user/login - OK is supplier', (done) => {
+  it('/user/login - OK is not supplier', (done) => {
     agent
       .post('/user/login')
       .send({ nickname: nickname2, password: password2 })

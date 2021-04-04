@@ -20,9 +20,9 @@ use crate::models::component::model::{
 };
 use crate::models::component::service as component;
 use crate::models::component_modification::model::{
-    ComponentModification
-    // ComponentModificationData,
-    // SlimComponentModification
+    ComponentModification,
+    ComponentModificationData,
+    SlimComponentModification
 };
 use crate::models::component_modification::service as component_modification;
 use diesel::PgConnection;
@@ -106,24 +106,36 @@ impl QueryRoot {
 
     pub fn components(
         context: &Context,
+        uuid_component_search: Option<String>,
         limit: Option<i32>,
         offset: Option<i32>,
     ) -> ServiceResult<Vec<Component>> {
+        let uuid_component_search = match uuid_component_search {
+            None => Uuid::nil(),
+            Some(uuid_component_search) => Uuid::parse_str(&uuid_component_search)?,
+        };
+
         let limit: i32 = limit.unwrap_or(100);
         let offset: i32 = offset.unwrap_or(0);
 
-        component::list::find_all_components(&context, limit, offset)
+        component::list::show(&context, uuid_component_search, limit, offset)
     }
 
     pub fn component_modification(
         context: &Context,
+        uuid_component_search: Option<String>,
         limit: Option<i32>,
         offset: Option<i32>,
     ) -> ServiceResult<Vec<ComponentModification>> {
+        let uuid_component_search = match uuid_component_search {
+            None => Uuid::nil(),
+            Some(uuid_component_search) => Uuid::parse_str(&uuid_component_search)?,
+        };
+
         let limit: i32 = limit.unwrap_or(100);
         let offset: i32 = offset.unwrap_or(0);
 
-        component_modification::list::find_all_component_modification(&context, limit, offset)
+        component_modification::list::show(&context, uuid_component_search, limit, offset)
     }
 }
 
@@ -154,6 +166,8 @@ impl Mutation {
         use crate::models::file::service::register::create_file;
         let conn: &PgConnection = &context.db;
 
+        crate::models::user::verify_uuid_user(&context.user, data.uuid_user_create)?;
+
         Ok(create_file(data, conn)?)
     }
 
@@ -161,7 +175,23 @@ impl Mutation {
         use crate::models::component::service::register::create_component;
         let conn: &PgConnection = &context.db;
 
+        crate::models::user::verify_uuid_user(&context.user, data.uuid_user)?;
+
+        if data.is_standard != 0 {
+            crate::models::user::has_supplier(&context.user, 1)?;
+        }
+
         Ok(create_component(data, conn)?)
+    }
+
+    pub fn register_component_modification(context: &Context, data: ComponentModificationData) -> ServiceResult<SlimComponentModification> {
+        use crate::models::component_modification::service::register::create_component_modification;
+        let conn: &PgConnection = &context.db;
+
+        let uuid_user = context.user.as_ref().clone().unwrap().uuid;
+        let component_parent_uuid = data.uuid_component;
+
+        Ok(create_component_modification(data, uuid_user, component_parent_uuid, conn)?)
     }
 }
 

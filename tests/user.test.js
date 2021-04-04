@@ -7,7 +7,7 @@ const apiPort = process.env.PORT || 3000;
 const apiDomain = process.env.DOMAIN || "0.0.0.0";
 const url = `http://${apiDomain}:${apiPort}`;
 
-jest.setTimeout(800);
+jest.setTimeout(1300);
 
 const firstname = "testfirstname";
 const lastname = "testlastname";

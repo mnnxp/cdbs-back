@@ -40,7 +40,7 @@ pub async fn register(
     logged_user: LoggedUser,
     pool: web::Data<Pool>,
 ) -> Result<HttpResponse, ServiceError> {
-    let _user_uuid = logged_user.0.as_ref().unwrap().uuid;
+    let user_uuid = logged_user.0.as_ref().unwrap().uuid;
 
     let component_modification_data = ComponentModificationData {
         id_actual_status: (new_component_modification_data.id_actual_status.to_owned()),
@@ -51,6 +51,8 @@ pub async fn register(
         uuid_component: (Uuid::parse_str(&new_component_modification_data.uuid_component)?),
     };
 
-    modification_list::register(component_modification_data, _user_uuid, pool)
+    let component_parent_uuid = component_modification_data.uuid_component;
+
+    modification_list::register(component_modification_data, user_uuid, component_parent_uuid, pool)
         .map(|res| HttpResponse::Ok().json(&res))
 }
