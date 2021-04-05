@@ -190,6 +190,8 @@ describe('represet/', () => {
       .expect(HttpStatus.OK);
     debug('/graphql filter userRepreset=%o', response1.body.data.userRepreset);
     expect(response1.body.data.userRepreset).toBeNonEmptyArray();
+    expect(response1.body.data.userRepreset[0].uuidUser).toBe(uuid_user);
+    expect(response1.body.data.userRepreset.pop().uuidUser).toBe(uuid_user);
     done();
   });
 

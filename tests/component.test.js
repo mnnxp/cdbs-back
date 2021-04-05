@@ -251,6 +251,8 @@ describe('component/', () => {
       .expect(HttpStatus.OK);
     debug('/graphql filter components=%o', response1.body.data.components);
     expect(response1.body.data.components).toBeNonEmptyArray();
+    expect(response1.body.data.components[0].uuid).toBe(uuid_component_parent);
+    expect(response1.body.data.components.pop().uuid).toBe(uuid_component_parent);
     done();
   });
 

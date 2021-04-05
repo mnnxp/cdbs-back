@@ -242,6 +242,8 @@ describe('modification/', () => {
       .expect(HttpStatus.OK);
     debug('/graphql filter componentModification=%o', response1.body.data.componentModification);
     expect(response1.body.data.componentModification).toBeNonEmptyArray();
+    expect(response1.body.data.componentModification[0].uuidComponent).toBe(uuid_component);
+    expect(response1.body.data.componentModification.pop().uuidComponent).toBe(uuid_component);
     done();
   });
 

@@ -138,8 +138,8 @@ table! {
 table! {
     file_to_modification (id) {
         id -> Int4,
-        uuid_modification -> Uuid,
         uuid_file -> Uuid,
+        uuid_modification -> Uuid,
     }
 }
 

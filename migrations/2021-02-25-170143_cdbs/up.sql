@@ -337,8 +337,8 @@ CREATE TABLE component_modification_list (
 /* объект/файл модификации */
 CREATE TABLE file_to_modification (
   id SERIAL, /* id файла модификации */
-  uuid_modification UUID NOT NULL, /* идентификатор модификации */
   uuid_file UUID NOT NULL, /* идентификатор объекта/файла */
+  uuid_modification UUID NOT NULL, /* идентификатор модификации */
   CONSTRAINT file_to_modification_pk PRIMARY KEY (id)
 );
 
