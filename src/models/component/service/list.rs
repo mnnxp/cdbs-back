@@ -12,11 +12,9 @@ pub(crate) fn show(
     limit: i32,
     offset: i32,
 ) -> ServiceResult<Vec<Component>> {
-    // debug!("fn show uuid_component_search = {}", &uuid_component_search);
-    let uuid_component_search = Some(uuid_component_search);
     match uuid_component_search {
-        Some(uuid_component_search) if uuid_component_search == Uuid::nil() => find_all_components(context, limit, offset),
-        Some(uuid_component_search) if uuid_component_search > Uuid::nil() => find_uuid_component(context, uuid_component_search, limit, offset),
+        uuid_component_search if uuid_component_search == Uuid::nil() => find_all_components(context, limit, offset),
+        uuid_component_search if uuid_component_search > Uuid::nil() => find_uuid_component(context, uuid_component_search, limit, offset),
         _ => ServiceResult::Err(ServiceError::BadRequest("What?".to_string()))
     }
 }

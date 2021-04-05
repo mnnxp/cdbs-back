@@ -13,11 +13,9 @@ pub(crate) fn show(
     limit: i32,
     offset: i32,
 ) -> ServiceResult<Vec<UserRepreset>> {
-    // debug!("fn show uuid_user_search = {}", &uuid_user_search);
-    let uuid_user_search = Some(uuid_user_search);
     match uuid_user_search {
-        Some(uuid_user_search) if uuid_user_search == Uuid::nil() => find_all_user_represets(context, limit, offset),
-        Some(uuid_user_search) if uuid_user_search > Uuid::nil() => find_uuid_user_represets(context, uuid_user_search, limit, offset),
+        uuid_user_search if uuid_user_search == Uuid::nil() => find_all_user_represets(context, limit, offset),
+        uuid_user_search if uuid_user_search > Uuid::nil() => find_uuid_user_represets(context, uuid_user_search, limit, offset),
         _ => ServiceResult::Err(ServiceError::BadRequest("What?".to_string()))
     }
 }
