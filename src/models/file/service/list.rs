@@ -1,20 +1,135 @@
 use crate::database::PooledConnection;
-use crate::errors::ServiceResult;
+use crate::errors::{
+    ServiceError,
+    ServiceResult
+};
 use crate::graphql::model::Context;
 use crate::models::file::model::File;
 use diesel::prelude::*;
-use crate::schema::file_ref::dsl::file_ref;
 
-pub(crate) fn find_all_files(
+use uuid::Uuid;
+
+pub(crate) fn show(
+    context: &Context,
+    uuid_user_create_search: Uuid,
+    uuid_component_search: Uuid,
+    uuid_component_modification_search: Uuid,
+    limit: i32,
+    offset: i32,
+) -> ServiceResult<Vec<File>> {
+    let mut variant_selection: u8 = 0;
+    if uuid_user_create_search > Uuid::nil() {
+        variant_selection += 1;
+    }
+    if uuid_component_search > Uuid::nil() {
+        variant_selection += 10;
+    }
+    if uuid_component_modification_search > Uuid::nil() {
+        variant_selection += 100;
+    }
+
+    match variant_selection {
+        0 => find_all_files(context, limit, offset),
+        1 => find_uuid_user_create_file(context, uuid_user_create_search, limit, offset),
+        10 => find_uuid_component_file(context, uuid_component_search, limit, offset),
+        // 11
+        100 => find_uuid_component_modification_file(
+            context, uuid_component_modification_search, limit, offset
+        ),
+        // 101
+        // 110
+        // 111
+        _ => ServiceResult::Err(ServiceError::BadRequest("What?".to_string()))
+    }
+}
+
+fn find_all_files(
     context: &Context,
     limit: i32,
     offset: i32,
 ) -> ServiceResult<Vec<File>> {
-    // use crate::schema::user_ref::dsl::*;
+    use crate::schema::file_ref::dsl::file_ref;
     let conn: &PooledConnection = &context.db;
 
     Ok(file_ref
         .limit(limit as i64)
         .offset(offset as i64)
         .load::<File>(conn)?)
+}
+
+fn find_uuid_user_create_file(
+    context: &Context,
+    uuid_user_create_search: Uuid,
+    limit: i32,
+    offset: i32,
+) -> ServiceResult<Vec<File>> {
+    use crate::schema::file_ref::dsl::*;
+    let conn: &PooledConnection = &context.db;
+
+    Ok(file_ref
+        .filter(uuid_user_create.eq(uuid_user_create_search))
+        .limit(limit as i64)
+        .offset(offset as i64)
+        .load::<File>(conn)?)
+}
+
+fn find_uuid_component_file(
+    context: &Context,
+    uuid_component_search: Uuid,
+    limit: i32,
+    offset: i32,
+) -> ServiceResult<Vec<File>> {
+    use crate::schema::file_ref::dsl::*;
+    use crate::schema::file_to_component::dsl::*;
+    let conn: &PooledConnection = &context.db;
+
+    let uuid_for_select_file: Vec<Uuid> = file_to_component
+        .filter(uuid_component.eq(uuid_component_search))
+        .select(uuid_file)
+        .limit(limit as i64)
+        .offset(offset as i64)
+        .load(conn)?;
+    // debug!("fn find_uuid_component_file = {:?}", &uuid_for_select_file);
+
+    match uuid_for_select_file {
+        uuid_for_select_file if uuid_for_select_file.is_empty()
+            => ServiceResult::Err(ServiceError::BadRequest("File not found.".to_string())),
+        uuid_for_select_file => {
+                // debug!("uuid_for_select_file = {:?}", &uuid_for_select_file);
+                Ok(file_ref
+                .filter(uuid.eq_any(uuid_for_select_file))
+                .limit(limit as i64)
+                .offset(offset as i64)
+                .load::<File>(conn)?)
+            }
+    }
+}
+
+fn find_uuid_component_modification_file(
+    context: &Context,
+    uuid_component_modification_search: Uuid,
+    limit: i32,
+    offset: i32,
+) -> ServiceResult<Vec<File>> {
+    use crate::schema::file_ref::dsl::*;
+    use crate::schema::file_to_modification::dsl::*;
+    let conn: &PooledConnection = &context.db;
+
+    let uuid_for_select_file: Vec<Uuid> = file_to_modification
+        .filter(uuid_modification.eq(uuid_component_modification_search))
+        .select(uuid_file)
+        .limit(limit as i64)
+        .offset(offset as i64)
+        .load(conn)?;
+
+    match uuid_for_select_file {
+        uuid_for_select_file if uuid_for_select_file.is_empty()
+            => ServiceResult::Err(ServiceError::BadRequest("File not found.".to_string())),
+        uuid_for_select_file
+            => Ok(file_ref
+                .filter(uuid.eq_any(uuid_for_select_file))
+                .limit(limit as i64)
+                .offset(offset as i64)
+                .load::<File>(conn)?)
+    }
 }

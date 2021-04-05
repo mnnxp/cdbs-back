@@ -95,13 +95,30 @@ impl QueryRoot {
 
     pub fn files(
         context: &Context,
+        uuid_user_create_search: Option<String>,
+        uuid_component_search: Option<String>,
+        uuid_component_modification_search: Option<String>,
         limit: Option<i32>,
         offset: Option<i32>,
     ) -> ServiceResult<Vec<File>> {
+        let uuid_user_create_search = match uuid_user_create_search {
+            None => Uuid::nil(),
+            Some(uuid_user_create_search) => Uuid::parse_str(&uuid_user_create_search)?,
+        };
+        let uuid_component_search = match uuid_component_search {
+            None => Uuid::nil(),
+            Some(uuid_component_search) => Uuid::parse_str(&uuid_component_search)?,
+        };
+        let uuid_component_modification_search = match uuid_component_modification_search {
+            None => Uuid::nil(),
+            Some(uuid_component_modification_search) => Uuid::parse_str(&uuid_component_modification_search)?,
+        };
+
         let limit: i32 = limit.unwrap_or(100);
         let offset: i32 = offset.unwrap_or(0);
 
-        file::list::find_all_files(&context, limit, offset)
+        file::list::show(&context, uuid_user_create_search, uuid_component_search,
+            uuid_component_modification_search, limit, offset)
     }
 
     pub fn components(
