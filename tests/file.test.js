@@ -25,7 +25,8 @@ const hash = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855";
 const hash2 = "ac42cb776fd8096feb871a3ae1bcb6ddfc992358210f9d4d79d072102458d4e8";
 const filename = "file_one.cad";
 const filename2 = "file_two.cad";
-const id_ext = 1;
+const id_ext = 2;
+const value_ext = ".cdw";
 const filesize = 52.3;
 const path_file = "/sholder/file/b06a8583-3d01-4739-8761-178ea8d4d27e";
 const path_file2 = "/sholder/file/e8ae49d8-39e9-4011-ab4d-734efd7e1f1e";
@@ -175,6 +176,7 @@ describe('represet/', () => {
                 uuidUserCreate
                 filename
                 idExt
+                valueExt
                 createdAt
                 filesize
                 pathFile
@@ -184,6 +186,7 @@ describe('represet/', () => {
       .expect(HttpStatus.OK);
     debug('/graphql all files=%o', response1.body.data.files);
     expect(response1.body.data.files).toBeNonEmptyArray();
+    // expect(response1.body.data.files.pop().valueExt).toBe(value_ext);
     done();
   });
 

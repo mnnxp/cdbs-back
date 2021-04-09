@@ -4,7 +4,7 @@ use crate::errors::{
     ServiceResult
 };
 use crate::graphql::model::Context;
-use crate::models::file::model::File;
+use crate::models::file::model::ShowFile;
 use diesel::prelude::*;
 
 use uuid::Uuid;
@@ -16,7 +16,7 @@ pub(crate) fn show(
     uuid_component_modification_search: Uuid,
     limit: i32,
     offset: i32,
-) -> ServiceResult<Vec<File>> {
+) -> ServiceResult<Vec<ShowFile>> {
     let mut variant_selection: u8 = 0;
     if uuid_user_create_search > Uuid::nil() {
         variant_selection += 1;
@@ -47,14 +47,20 @@ fn find_all_files(
     context: &Context,
     limit: i32,
     offset: i32,
-) -> ServiceResult<Vec<File>> {
-    use crate::schema::file_ref::dsl::file_ref;
+) -> ServiceResult<Vec<ShowFile>> {
+    use crate::schema::file_ref::dsl::*;
+    use crate::schema::extension_ref::dsl::*;
     let conn: &PooledConnection = &context.db;
 
     Ok(file_ref
+        .inner_join(extension_ref)
+        .select((
+            uuid, uuid_file_parent, uuid_user_create, created_at, filename,
+            id_ext, extension, filesize, path_file
+        ))
         .limit(limit as i64)
         .offset(offset as i64)
-        .load::<File>(conn)?)
+        .load::<ShowFile>(conn)?)
 }
 
 fn find_uuid_user_create_file(
@@ -62,15 +68,21 @@ fn find_uuid_user_create_file(
     uuid_user_create_search: Uuid,
     limit: i32,
     offset: i32,
-) -> ServiceResult<Vec<File>> {
+) -> ServiceResult<Vec<ShowFile>> {
     use crate::schema::file_ref::dsl::*;
+    use crate::schema::extension_ref::dsl::*;
     let conn: &PooledConnection = &context.db;
 
     Ok(file_ref
+        .inner_join(extension_ref)
+        .select((
+            uuid, uuid_file_parent, uuid_user_create, created_at, filename,
+            id_ext, extension, filesize, path_file
+        ))
         .filter(uuid_user_create.eq(uuid_user_create_search))
         .limit(limit as i64)
         .offset(offset as i64)
-        .load::<File>(conn)?)
+        .load::<ShowFile>(conn)?)
 }
 
 fn find_uuid_component_file(
@@ -78,9 +90,10 @@ fn find_uuid_component_file(
     uuid_component_search: Uuid,
     limit: i32,
     offset: i32,
-) -> ServiceResult<Vec<File>> {
+) -> ServiceResult<Vec<ShowFile>> {
     use crate::schema::file_ref::dsl::*;
     use crate::schema::file_to_component::dsl::*;
+    use crate::schema::extension_ref::dsl::*;
     let conn: &PooledConnection = &context.db;
 
     let uuid_for_select_file: Vec<Uuid> = file_to_component
@@ -97,10 +110,15 @@ fn find_uuid_component_file(
         uuid_for_select_file => {
                 // debug!("uuid_for_select_file = {:?}", &uuid_for_select_file);
                 Ok(file_ref
+                .inner_join(extension_ref)
+                .select((
+                    uuid, uuid_file_parent, uuid_user_create, created_at, filename,
+                    id_ext, extension, filesize, path_file
+                ))
                 .filter(uuid.eq_any(uuid_for_select_file))
                 .limit(limit as i64)
                 .offset(offset as i64)
-                .load::<File>(conn)?)
+                .load::<ShowFile>(conn)?)
             }
     }
 }
@@ -110,9 +128,10 @@ fn find_uuid_component_modification_file(
     uuid_component_modification_search: Uuid,
     limit: i32,
     offset: i32,
-) -> ServiceResult<Vec<File>> {
+) -> ServiceResult<Vec<ShowFile>> {
     use crate::schema::file_ref::dsl::*;
     use crate::schema::file_to_modification::dsl::*;
+    use crate::schema::extension_ref::dsl::*;
     let conn: &PooledConnection = &context.db;
 
     let uuid_for_select_file: Vec<Uuid> = file_to_modification
@@ -127,9 +146,14 @@ fn find_uuid_component_modification_file(
             => ServiceResult::Err(ServiceError::BadRequest("File not found.".to_string())),
         uuid_for_select_file
             => Ok(file_ref
+                .inner_join(extension_ref)
+                .select((
+                    uuid, uuid_file_parent, uuid_user_create, created_at, filename,
+                    id_ext, extension, filesize, path_file
+                ))
                 .filter(uuid.eq_any(uuid_for_select_file))
                 .limit(limit as i64)
                 .offset(offset as i64)
-                .load::<File>(conn)?)
+                .load::<ShowFile>(conn)?)
     }
 }

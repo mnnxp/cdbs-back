@@ -25,6 +25,7 @@ const comment3 = "Sensor Technology, Networking and Control Technique for Automa
 const uuid_component_parent = "a5953fd9-7393-4f1e-a899-06b5e159dbf1";
 const uuid_component_parent2 = "e925833e-f8d3-4ecb-bd67-5aa450f9f0ad";
 const id_actual_status = 1;
+const value_actual_status = "актуальный";
 const id_component_type = 1;
 const is_delete = 0;
 const id_type_access = 1;
@@ -212,9 +213,12 @@ describe('component/', () => {
                 comment
                 uuidComponentParent
                 idActualStatus
+                valueActualStatus
                 idComponentType
+                valueComponentType
                 isDelete
                 idTypeAccess
+                valueTypeAccess
                 commentchange
                 isStandard
                 createdAt
@@ -224,6 +228,7 @@ describe('component/', () => {
       .expect(HttpStatus.OK);
     debug('/graphql all components=%o', response1.body.data.components);
     expect(response1.body.data.components).toBeNonEmptyArray();
+    // expect(response1.body.data.components.pop().valueActualStatus).toBe(value_actual_status);
     done();
   });
 

@@ -4,16 +4,13 @@ use chrono::*;
 use shrinkwraprs::Shrinkwrap;
 use uuid::Uuid;
 
-#[derive(Debug, Serialize, Deserialize, Queryable, juniper::GraphQLObject)]
+#[derive(Debug, Queryable)]
 pub struct User {
-    #[graphql(skip)]
     pub id: i32,
     pub uuid: Uuid,
     pub email: String,
     pub email_verified: i32,
-    #[graphql(skip)]
     pub psw_hash: Vec<u8>,
-    #[graphql(skip)]
     pub psw_salt: String,
     pub id_type_user: i32,
     pub is_supplier: i32,
@@ -33,6 +30,35 @@ pub struct User {
     pub site_url: String,
     pub uuid_file_info_icon: Uuid,
     pub id_region: i32,
+    pub created_at: NaiveDateTime,
+}
+
+#[derive(Debug, Serialize, Deserialize, Queryable, juniper::GraphQLObject)]
+pub struct ShowUser {
+    pub uuid: Uuid,
+    pub email: String,
+    pub email_verified: i32,
+    pub id_type_user: i32,
+    pub value_type_user: String,
+    pub is_supplier: i32,
+    pub firstname: String,
+    pub lastname: String,
+    pub secondname: String,
+    pub nickname: String,
+    pub orgname: String,
+    pub shortname: String,
+    pub inn: String,
+    pub phone: String,
+    pub id_name_cad: i32,
+    pub value_name_cad: String,
+    pub comment: String,
+    pub address: String,
+    pub time_zone: i32,
+    pub position: String,
+    pub site_url: String,
+    pub uuid_file_info_icon: Uuid,
+    pub id_region: i32,
+    pub value_region: String,
     pub created_at: NaiveDateTime,
 }
 

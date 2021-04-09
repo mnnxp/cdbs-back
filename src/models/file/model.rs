@@ -5,18 +5,29 @@ use chrono::*;
 use uuid::Uuid;
 use crate::models::file::util::hex_to_bytes;
 
-#[derive(Debug, Serialize, Deserialize, Queryable, juniper::GraphQLObject)]
+#[derive(Debug, Queryable)]
 pub struct File {
-    #[graphql(skip)]
     pub id: i32,
     pub uuid: Uuid,
     pub uuid_file_parent: Uuid,
-    #[graphql(skip)]
     pub hash: Vec<u8>,
     pub uuid_user_create: Uuid,
     pub created_at: NaiveDateTime,
     pub filename: String,
     pub id_ext: i32,
+    pub filesize: f64,
+    pub path_file: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, Queryable, juniper::GraphQLObject)]
+pub struct ShowFile {
+    pub uuid: Uuid,
+    pub uuid_file_parent: Uuid,
+    pub uuid_user_create: Uuid,
+    pub created_at: NaiveDateTime,
+    pub filename: String,
+    pub id_ext: i32,
+    pub value_ext: String,
     pub filesize: f64,
     pub path_file: String,
 }

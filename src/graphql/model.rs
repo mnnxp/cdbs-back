@@ -2,25 +2,34 @@ use crate::cli_args::Opt;
 use crate::database::PooledConnection;
 use crate::errors::ServiceResult;
 use crate::jwt::model::{DecodedToken, Token};
-use crate::models::user::model::{LoggedUser, User, UserData, SlimUser};
+use crate::models::user::model::{
+    LoggedUser,
+    ShowUser,
+    UserData,
+    SlimUser
+};
 use crate::models::user::service as user;
 use crate::models::user::service::token::ClaimsResponse;
 use crate::models::user_represet::model::{
-    UserRepreset,
+    ShowUserRepreset,
     UserRepresetData,
     SlimUserRepreset
 };
 use crate::models::user_represet::service as user_represet;
-use crate::models::file::model::{SlimFile, File, FileData};
+use crate::models::file::model::{
+    ShowFile,
+    FileData,
+    SlimFile
+};
 use crate::models::file::service as file;
 use crate::models::component::model::{
-    Component,
+    ShowComponent,
     ComponentData,
     SlimComponent
 };
 use crate::models::component::service as component;
 use crate::models::component_modification::model::{
-    ComponentModification,
+    ShowComponentModification,
     ComponentModificationData,
     SlimComponentModification
 };
@@ -59,7 +68,7 @@ impl QueryRoot {
         context: &Context,
         limit: Option<i32>,
         offset: Option<i32>,
-    ) -> ServiceResult<Vec<User>> {
+    ) -> ServiceResult<Vec<ShowUser>> {
         let limit: i32 = limit.unwrap_or(100);
         let offset: i32 = offset.unwrap_or(0);
 
@@ -73,7 +82,7 @@ impl QueryRoot {
         uuid_user_search: Option<String>,
         limit: Option<i32>,
         offset: Option<i32>,
-    ) -> ServiceResult<Vec<UserRepreset>> {
+    ) -> ServiceResult<Vec<ShowUserRepreset>> {
         let uuid_user_search = match uuid_user_search {
             None => Uuid::nil(),
             Some(uuid_user_search) => Uuid::parse_str(&uuid_user_search)?,
@@ -100,7 +109,7 @@ impl QueryRoot {
         uuid_component_modification_search: Option<String>,
         limit: Option<i32>,
         offset: Option<i32>,
-    ) -> ServiceResult<Vec<File>> {
+    ) -> ServiceResult<Vec<ShowFile>> {
         let uuid_user_create_search = match uuid_user_create_search {
             None => Uuid::nil(),
             Some(uuid_user_create_search) => Uuid::parse_str(&uuid_user_create_search)?,
@@ -126,7 +135,7 @@ impl QueryRoot {
         uuid_component_search: Option<String>,
         limit: Option<i32>,
         offset: Option<i32>,
-    ) -> ServiceResult<Vec<Component>> {
+    ) -> ServiceResult<Vec<ShowComponent>> {
         let uuid_component_search = match uuid_component_search {
             None => Uuid::nil(),
             Some(uuid_component_search) => Uuid::parse_str(&uuid_component_search)?,
@@ -143,7 +152,7 @@ impl QueryRoot {
         uuid_component_search: Option<String>,
         limit: Option<i32>,
         offset: Option<i32>,
-    ) -> ServiceResult<Vec<ComponentModification>> {
+    ) -> ServiceResult<Vec<ShowComponentModification>> {
         let uuid_component_search = match uuid_component_search {
             None => Uuid::nil(),
             Some(uuid_component_search) => Uuid::parse_str(&uuid_component_search)?,

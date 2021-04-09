@@ -4,9 +4,8 @@ use chrono::*;
 use uuid::Uuid;
 // use num::ToPrimitive;
 
-#[derive(Debug, Serialize, Deserialize, Queryable, juniper::GraphQLObject)]
+#[derive(Debug, Queryable)]
 pub struct Component {
-    #[graphql(skip)]
     pub id: i32,
     pub uuid: Uuid,
     pub name: String,
@@ -17,6 +16,25 @@ pub struct Component {
     pub id_component_type: i32,
     pub is_delete: i32,
     pub id_type_access: i32,
+    pub commentchange: String,
+    pub is_standard: i32,
+    pub created_at: NaiveDateTime,
+}
+
+#[derive(Debug, Serialize, Deserialize, Queryable, juniper::GraphQLObject)]
+pub struct ShowComponent {
+    pub uuid: Uuid,
+    pub name: String,
+    pub uuid_user: Uuid,
+    pub comment: String,
+    pub uuid_component_parent: Uuid,
+    pub id_actual_status: i32,
+    pub value_actual_status: String,
+    pub id_component_type: i32,
+    pub value_component_type: String,
+    pub is_delete: i32,
+    pub id_type_access: i32,
+    pub value_type_access: String,
     pub commentchange: String,
     pub is_standard: i32,
     pub created_at: NaiveDateTime,

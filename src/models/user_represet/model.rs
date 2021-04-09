@@ -3,14 +3,26 @@ use crate::schema::*;
 // use shrinkwraprs::Shrinkwrap;
 use uuid::Uuid;
 
-#[derive(Debug, Serialize, Deserialize, Queryable, juniper::GraphQLObject)]
+#[derive(Debug, Queryable)]
 pub struct UserRepreset {
-    #[graphql(skip)]
     pub id: i32,
     pub uuid: Uuid,
     pub uuid_user: Uuid,
     pub id_region: i32,
     pub id_representation_type: i32,
+    pub name: String,
+    pub address: String,
+    pub phone: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, Queryable, juniper::GraphQLObject)]
+pub struct ShowUserRepreset {
+    pub uuid: Uuid,
+    pub uuid_user: Uuid,
+    pub id_region: i32,
+    pub value_region: String,
+    pub id_representation_type: i32,
+    pub value_representation_type: String,
     pub name: String,
     pub address: String,
     pub phone: String,
