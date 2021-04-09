@@ -5,12 +5,12 @@ use crate::models::component::model::{InsertableComponent, SlimComponent, Compon
 use actix_web::web;
 use diesel::prelude::*;
 
-pub fn register(component_data: ComponentData, pool: web::Data<Pool>) -> ServiceResult<SlimComponent> {
+pub(crate) fn register(component_data: ComponentData, pool: web::Data<Pool>) -> ServiceResult<SlimComponent> {
     let conn = &db_connection(&pool)?;
     create_component(component_data, conn)
 }
 
-pub fn create_component(component_data: ComponentData, conn: &PgConnection) -> ServiceResult<SlimComponent> {
+pub(crate) fn create_component(component_data: ComponentData, conn: &PgConnection) -> ServiceResult<SlimComponent> {
     use crate::schema::component_ref::dsl::component_ref;
 
     let component: InsertableComponent = component_data.into();

@@ -4,12 +4,12 @@ use crate::models::user::model::{InsertableUser, SlimUser, User, UserData};
 use actix_web::web;
 use diesel::prelude::*;
 
-pub fn register(user_data: UserData, pool: web::Data<Pool>) -> ServiceResult<SlimUser> {
+pub(crate) fn register(user_data: UserData, pool: web::Data<Pool>) -> ServiceResult<SlimUser> {
     let conn = &db_connection(&pool)?;
     create_user(user_data, conn)
 }
 
-pub fn create_user(user_data: UserData, conn: &PgConnection) -> ServiceResult<SlimUser> {
+pub(crate) fn create_user(user_data: UserData, conn: &PgConnection) -> ServiceResult<SlimUser> {
     use crate::schema::user_ref::dsl::user_ref;
 
     let user: InsertableUser = user_data.into();

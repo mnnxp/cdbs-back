@@ -14,7 +14,7 @@ use diesel::prelude::*;
 use uuid::Uuid;
 
 
-pub fn register(
+pub(crate) fn register(
     new_modification_data: ComponentModificationData,
     user_uuid: Uuid,
     component_parent_uuid: Uuid,
@@ -24,7 +24,7 @@ pub fn register(
     create_component_modification(new_modification_data, user_uuid, component_parent_uuid, conn)
 }
 
-pub fn create_component_modification(
+pub(crate) fn create_component_modification(
     new_modification_data: ComponentModificationData,
     user_uuid: Uuid,
     component_parent_uuid: Uuid,
@@ -35,15 +35,15 @@ pub fn create_component_modification(
     use crate::schema::component_modification_list::dsl::*;
     use diesel::dsl::count;
 
-    let test_count: i64 = component_ref
+    let flag_found_component: i64 = component_ref
         .filter(uuid_user.eq(user_uuid))
         .filter(uuid_component.eq(component_parent_uuid))
         .select(count(uuid_component))
         .first(conn).unwrap();
 
-    debug!("fn create_component_modification START SEARCH ={:?}", test_count);
+    // debug!("fn create_component_modification START SEARCH ={:?}", flag_found_component);
 
-    match test_count {
+    match flag_found_component {
         0 => Err(ServiceError::BadRequest("This component not yours.".to_string())),
         1 => {
             let new_modification_data: InsertableComponentModification = new_modification_data.into();
