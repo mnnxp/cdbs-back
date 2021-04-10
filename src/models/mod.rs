@@ -3,3 +3,4 @@ pub(crate) mod user_represet;
 pub(crate) mod file;
 pub(crate) mod component;
 pub(crate) mod component_modification;
+pub(crate) mod param;

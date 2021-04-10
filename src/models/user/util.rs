@@ -34,6 +34,13 @@ pub fn verify(user: &User, password: &str) -> bool {
     make_hash_salt(password, psw_salt) == psw_hash.as_ref()
 }
 
+pub fn hash_authorized(user: &LoggedUser) -> Result<bool, ServiceError> {
+    match user.0 {
+        None => Err(ServiceError::Unauthorized),
+        Some(_) => Ok(true),
+    }
+}
+
 pub fn verify_uuid_user(user: &LoggedUser, uuid_user: Uuid) -> Result<bool, ServiceError> {
     match user.0 {
         None => Err(ServiceError::Unauthorized),

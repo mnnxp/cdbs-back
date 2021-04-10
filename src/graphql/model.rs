@@ -34,6 +34,11 @@ use crate::models::component_modification::model::{
     SlimComponentModification
 };
 use crate::models::component_modification::service as component_modification;
+use crate::models::param::model::{
+    Param,
+    ParamData
+};
+use crate::models::param::service as param;
 use diesel::PgConnection;
 use juniper::Context as JuniperContext;
 use std::sync::Arc;
@@ -163,6 +168,19 @@ impl QueryRoot {
 
         component_modification::list::show(&context, uuid_component_search, limit, offset)
     }
+
+    pub fn param(
+        context: &Context,
+        id_param_search: Option<i32>,
+        limit: Option<i32>,
+        offset: Option<i32>,
+    ) -> ServiceResult<Vec<Param>> {
+        let id_param_search: i32 = id_param_search.unwrap_or(0);
+        let limit: i32 = limit.unwrap_or(100);
+        let offset: i32 = offset.unwrap_or(0);
+
+        param::list::show(&context, id_param_search, limit, offset)
+    }
 }
 
 pub(crate) struct Mutation;
@@ -218,6 +236,15 @@ impl Mutation {
         let component_parent_uuid = data.uuid_component;
 
         Ok(create_component_modification(data, uuid_user, component_parent_uuid, conn)?)
+    }
+
+    pub fn register_param(context: &Context, data: ParamData) -> ServiceResult<Param> {
+        use crate::models::param::service::register::create_param;
+        let conn: &PgConnection = &context.db;
+
+        crate::models::user::hash_authorized(&context.user)?;
+
+        Ok(create_param(data, conn)?)
     }
 }
 
