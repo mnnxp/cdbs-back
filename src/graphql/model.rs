@@ -36,7 +36,9 @@ use crate::models::component_modification::model::{
 use crate::models::component_modification::service as component_modification;
 use crate::models::param::model::{
     Param,
-    ParamData
+    ParamData,
+    ParamToModel,
+    ParamToModelData
 };
 use crate::models::param::service as param;
 use diesel::PgConnection;
@@ -181,6 +183,42 @@ impl QueryRoot {
 
         param::list::show(&context, id_param_search, limit, offset)
     }
+
+    pub fn param_component(
+        context: &Context,
+        id_param_search: Option<i32>,
+        uuid_component_search: Option<String>,
+        limit: Option<i32>,
+        offset: Option<i32>,
+    ) -> ServiceResult<Vec<ParamToModel>> {
+        let id_param_search: i32 = id_param_search.unwrap_or(0);
+        let uuid_component_search = match uuid_component_search {
+            None => Uuid::nil(),
+            Some(uuid_component_search) => Uuid::parse_str(&uuid_component_search)?,
+        };
+        let limit: i32 = limit.unwrap_or(100);
+        let offset: i32 = offset.unwrap_or(0);
+
+        param::list_component::show_component(&context, id_param_search, uuid_component_search, limit, offset)
+    }
+
+    pub fn param_modification(
+        context: &Context,
+        id_param_search: Option<i32>,
+        uuid_modification_search: Option<String>,
+        limit: Option<i32>,
+        offset: Option<i32>,
+    ) -> ServiceResult<Vec<ParamToModel>> {
+        let id_param_search: i32 = id_param_search.unwrap_or(0);
+        let uuid_modification_search = match uuid_modification_search {
+            None => Uuid::nil(),
+            Some(uuid_modification_search) => Uuid::parse_str(&uuid_modification_search)?,
+        };
+        let limit: i32 = limit.unwrap_or(100);
+        let offset: i32 = offset.unwrap_or(0);
+
+        param::list_modification::show_modification(&context, id_param_search, uuid_modification_search, limit, offset)
+    }
 }
 
 pub(crate) struct Mutation;
@@ -245,6 +283,24 @@ impl Mutation {
         crate::models::user::hash_authorized(&context.user)?;
 
         Ok(create_param(data, conn)?)
+    }
+
+    pub fn register_param_component(context: &Context, data: ParamToModelData) -> ServiceResult<ParamToModel> {
+        use crate::models::param::service::add_to_component::create_param_component;
+        let conn: &PgConnection = &context.db;
+
+        crate::models::user::hash_authorized(&context.user)?;
+
+        Ok(create_param_component(data, conn)?)
+    }
+
+    pub fn register_param_modification(context: &Context, data: ParamToModelData) -> ServiceResult<ParamToModel> {
+        use crate::models::param::service::add_to_modification::create_param_modification;
+        let conn: &PgConnection = &context.db;
+
+        crate::models::user::hash_authorized(&context.user)?;
+
+        Ok(create_param_modification(data, conn)?)
     }
 }
 

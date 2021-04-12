@@ -16,13 +16,21 @@ pub struct InsertableParam {
     pub paramname: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, juniper::GraphQLInputObject)]
+#[derive(Debug, Serialize, Deserialize, Queryable, juniper::GraphQLInputObject)]
 pub struct ParamData {
     pub paramname: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, Queryable, juniper::GraphQLObject)]
 pub struct ParamToModel {
+    pub id: i32,
+    pub uuid: Uuid,
+    pub id_param: i32,
+    pub value: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, Queryable, juniper::GraphQLInputObject)]
+pub struct ParamToModelData {
     pub uuid: Uuid,
     pub id_param: i32,
     pub value: String,
@@ -78,9 +86,9 @@ impl From<ParamData> for InsertableParam {
     }
 }
 
-impl From<ParamToModel> for InsertableParamToComponent {
-    fn from(data_param_to_model: ParamToModel) -> Self {
-        let ParamToModel {
+impl From<ParamToModelData> for InsertableParamToComponent {
+    fn from(data_param_to_model: ParamToModelData) -> Self {
+        let ParamToModelData {
             uuid,
             id_param,
             value,
@@ -97,9 +105,9 @@ impl From<ParamToModel> for InsertableParamToComponent {
     }
 }
 
-impl From<ParamToModel> for InsertableParamToModification {
-    fn from(data_param_to_model: ParamToModel) -> Self {
-        let ParamToModel {
+impl From<ParamToModelData> for InsertableParamToModification {
+    fn from(data_param_to_model: ParamToModelData) -> Self {
+        let ParamToModelData {
             uuid,
             id_param,
             value,
