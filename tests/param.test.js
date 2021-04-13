@@ -134,7 +134,7 @@ describe('represet/', () => {
       .post('/graphql')
       .send({
         query: `query ListParam {
-            param {
+            param (idParamSearch: []) {
                 id
                 paramname
             }
@@ -162,6 +162,25 @@ describe('represet/', () => {
     expect(response1.body.data.param).toBeNonEmptyArray();
     expect(response1.body.data.param[0].id).toBe(paramname_index);
     expect(response1.body.data.param[0].paramname).toBe(paramname);
+    done();
+  });
+
+  it('/graphql:Q List param of vector idParamSearch - OK', async (done) => {
+    const response1 = await agent
+      .post('/graphql')
+      .send({
+        query: `query ListUserParam {
+            param (idParamSearch: [1, ${paramname_index}]) {
+                id
+                paramname
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK);
+    debug('/graphql filter param=%o', response1.body.data.param);
+    expect(response1.body.data.param).toBeNonEmptyArray();
+    expect(response1.body.data.param[1].id).toBe(paramname_index);
+    expect(response1.body.data.param[1].paramname).toBe(paramname);
     done();
   });
 

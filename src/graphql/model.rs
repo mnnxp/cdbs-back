@@ -173,11 +173,11 @@ impl QueryRoot {
 
     pub fn param(
         context: &Context,
-        id_param_search: Option<i32>,
+        id_param_search: Vec<i32>,
         limit: Option<i32>,
         offset: Option<i32>,
     ) -> ServiceResult<Vec<Param>> {
-        let id_param_search: i32 = id_param_search.unwrap_or(0);
+        let id_param_search: Vec<i32> = id_param_search;
         let limit: i32 = limit.unwrap_or(100);
         let offset: i32 = offset.unwrap_or(0);
 
