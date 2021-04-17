@@ -26,7 +26,7 @@ async function cleanupDb() {
     param_test_value2,
   ]);
 }
-describe('represet/', () => {
+describe('represets/', () => {
   beforeAll(async () => {
     return cleanupDb();
   });
@@ -49,9 +49,9 @@ describe('represet/', () => {
 
   const agent = request.agent(url);
 
-  it('/user/login - OK is supplier', (done) => {
+  it('/users/login - OK is supplier', (done) => {
     agent
-      .post('/user/login')
+      .post('/users/login')
       .send({ nickname, password })
       .expect(HttpStatus.OK)
       .then(({ body, headers }) => {
@@ -64,9 +64,9 @@ describe('represet/', () => {
       });
   });
 
-  it('/param/modification - OK', (done) => {
+  it('/params/modification - OK', (done) => {
     agent
-      .post('/param/modification')
+      .post('/params/modification')
       .send({
         uuid: uuid_modification,
         id_param: paramname_index,
@@ -74,7 +74,7 @@ describe('represet/', () => {
       })
       .expect(HttpStatus.OK)
       .then(({ body }) => {
-        debug('/param/modification body=%o', body);
+        debug('/params/modification body=%o', body);
         expect(body).toContainAllKeys([
           "id", "uuid", "id_param", "value"
         ]);
@@ -225,13 +225,13 @@ describe('represet/', () => {
     done();
   });
 
-  it('/user/logout - OK', (done) => {
-    agent.get('/user/logout').expect(HttpStatus.OK, done);
+  it('/users/logout - OK', (done) => {
+    agent.get('/users/logout').expect(HttpStatus.OK, done);
   });
 
-  it('/param/modification - Unauthorized', (done) => {
+  it('/params/modification - Unauthorized', (done) => {
     agent
-      .post('/param/modification')
+      .post('/params/modification')
       .send({
         uuid: uuid_modification,
         id_param: paramname_index,
@@ -239,7 +239,7 @@ describe('represet/', () => {
       })
       .expect(HttpStatus.UNAUTHORIZED)
       .then(({ body }) => {
-        debug('/param/modification body=%o', body);
+        debug('/params/modification body=%o', body);
         expect(body).toBe("Unauthorized");
         done();
       });

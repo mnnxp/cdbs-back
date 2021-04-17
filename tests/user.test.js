@@ -39,7 +39,7 @@ async function cleanupDb() {
     nickname2,
   ]);
 }
-describe('user/', () => {
+describe('users/', () => {
   beforeAll(async () => {
     return cleanupDb();
   });
@@ -62,21 +62,21 @@ describe('user/', () => {
 
   const agent = request.agent(url);
 
-  it('/user/me - UNAUTHORIZED before register', (done) => {
+  it('/users/me - UNAUTHORIZED before register', (done) => {
     agent
-      .get('/user/me')
+      .get('/users/me')
       .expect(HttpStatus.UNAUTHORIZED)
       .then(({ body, text }) => {
-        debug('/user/me body=%o text=%s', body, text);
+        debug('/users/me body=%o text=%s', body, text);
         expect(body).toBe('Unauthorized');
         expect(text).toBe('"Unauthorized"');
         done();
       });
   });
 
-  it('/user/register - OK', (done) => {
+  it('/users/register - OK', (done) => {
     agent
-      .post('/user/register')
+      .post('/users/register')
       .send({
         firstname, lastname, secondname, nickname,
         email, password, id_type_user, is_supplier, orgname, shortname,
@@ -85,7 +85,7 @@ describe('user/', () => {
       })
       .expect(HttpStatus.OK)
       .then(({ body }) => {
-        debug('/user/register body=%o', body);
+        debug('/users/register body=%o', body);
         expect(body).toContainAllKeys(['uuid', 'is_supplier', 'nickname']);
         expect(body.uuid).not.toBeNull();
         expect(body.is_supplier).toBe(1);
@@ -94,9 +94,9 @@ describe('user/', () => {
       });
   });
 
-  it('/user/register - Bad Request', (done) => {
+  it('/users/register - Bad Request', (done) => {
     agent
-      .post('/user/register')
+      .post('/users/register')
       .send({
         firstname, lastname, secondname, nickname,
         email, password, id_type_user, is_supplier, orgname, shortname,
@@ -106,7 +106,7 @@ describe('user/', () => {
       .expect(HttpStatus.BAD_REQUEST)
       .then(({ body, error, text, headers }) => {
         debug(
-          '/user/register body=%o text=%o error=%o headers=%o ',
+          '/users/register body=%o text=%o error=%o headers=%o ',
           body,
           text,
           error,
@@ -208,26 +208,26 @@ describe('user/', () => {
     done();
   });
 
-  it('/user/me - UNAUTHORIZED before login', (done) => {
+  it('/users/me - UNAUTHORIZED before login', (done) => {
     agent
-      .get('/user/me')
+      .get('/users/me')
       .expect(HttpStatus.UNAUTHORIZED)
       .then(({ body, text }) => {
-        debug('/user/me body=%o text=%s', body, text);
+        debug('/users/me body=%o text=%s', body, text);
         expect(text).toBe('"Unauthorized"');
         expect(body).toBe('Unauthorized');
         done();
       });
   });
 
-  it('/user/login - UNAUTHORIZED with invalid nickname', (done) => {
+  it('/users/login - UNAUTHORIZED with invalid nickname', (done) => {
     agent
-      .post('/user/login')
+      .post('/users/login')
       .send({ nickname: 'invalidnickname', password })
       .expect(HttpStatus.UNAUTHORIZED)
       .then(({ body, text, error, headers }) => {
         debug(
-          '/user/login body=%o text=%o error=%o headers=%o ',
+          '/users/login body=%o text=%o error=%o headers=%o ',
           body,
           text,
           error,
@@ -239,14 +239,14 @@ describe('user/', () => {
       });
   });
 
-  it('/user/login - UNAUTHORIZED with invalid password', (done) => {
+  it('/users/login - UNAUTHORIZED with invalid password', (done) => {
     agent
-      .post('/user/login')
+      .post('/users/login')
       .send({ nickname, password: 'invalid password' })
       .expect(HttpStatus.UNAUTHORIZED)
       .then(({ body, text, error, headers }) => {
         debug(
-          '/user/login body=%o text=%o error=%o headers=%o ',
+          '/users/login body=%o text=%o error=%o headers=%o ',
           body,
           text,
           error,
@@ -258,13 +258,13 @@ describe('user/', () => {
       });
   });
 
-  it('/user/login - OK to login first time', (done) => {
+  it('/users/login - OK to login first time', (done) => {
     agent
-      .post('/user/login')
+      .post('/users/login')
       .send({ nickname, password })
       .expect(HttpStatus.OK)
       .then(({ body, headers }) => {
-        debug('/user/login headers=%o', headers);
+        debug('/users/login headers=%o', headers);
         expect(headers['set-cookie'][0]).toBeNonEmptyString();
         expect(body).toContainAllKeys(['nickname', 'is_supplier', 'uuid']);
         expect(body.nickname).toBe(nickname);
@@ -274,9 +274,9 @@ describe('user/', () => {
       });
   });
 
-  it('/user/login - OK to login second time', (done) => {
+  it('/users/login - OK to login second time', (done) => {
     agent
-      .post('/user/login')
+      .post('/users/login')
       .send({ nickname, password })
       .expect(HttpStatus.OK)
       .then(({ body, headers }) => {
@@ -390,13 +390,13 @@ describe('user/', () => {
     done();
   });
 
-  it('/user/me - OK', (done) => {
+  it('/users/me - OK', (done) => {
     agent
-      .get('/user/me')
+      .get('/users/me')
       .expect(HttpStatus.OK)
       .then(({ body, headers }) => {
-        debug('/user/me body=%o', body);
-        debug('/user/me headers=%o', headers);
+        debug('/users/me body=%o', body);
+        debug('/users/me headers=%o', headers);
         expect(body).toContainAllKeys(['uuid', 'is_supplier', 'nickname']);
         expect(body.uuid).not.toBeNull();
         expect(body.is_supplier).toBe(1);
@@ -405,12 +405,12 @@ describe('user/', () => {
       });
   });
 
-  it('/user/logout - OK', (done) => {
-    agent.get('/user/logout').expect(HttpStatus.OK, done);
+  it('/users/logout - OK', (done) => {
+    agent.get('/users/logout').expect(HttpStatus.OK, done);
   });
 
-  it('/user/me - UNAUTHORIZED', (done) => {
-    agent.get('/user/me').expect(HttpStatus.UNAUTHORIZED, done);
+  it('/users/me - UNAUTHORIZED', (done) => {
+    agent.get('/users/me').expect(HttpStatus.UNAUTHORIZED, done);
   });
 
   it('/graphql:Q users - You need to have is_supplier 1, but have is_supplier 0', async (done) => {
@@ -420,7 +420,7 @@ describe('user/', () => {
     ]);
     {
       const { body, headers } = await agent
-        .post('/user/login')
+        .post('/users/login')
         .send({ nickname, password })
         .expect(HttpStatus.OK);
       expect(headers['set-cookie'][0]).toBeNonEmptyString();

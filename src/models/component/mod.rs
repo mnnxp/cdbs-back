@@ -8,7 +8,7 @@ use actix_web::web;
 
 pub fn route(cfg: &mut web::ServiceConfig) {
     cfg.service(
-        web::scope("/component")
+        web::scope("/components")
             .service(web::resource("/add").route(web::post().to(register))),
     );
 }

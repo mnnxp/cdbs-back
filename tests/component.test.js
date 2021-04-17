@@ -39,7 +39,7 @@ async function cleanupDb() {
     name2
   ]);
 }
-describe('component/', () => {
+describe('components/', () => {
   beforeAll(async () => {
     return cleanupDb();
   });
@@ -62,9 +62,9 @@ describe('component/', () => {
 
   const agent = request.agent(url);
 
-  it('/user/login - OK is supplier', (done) => {
+  it('/users/login - OK is supplier', (done) => {
     agent
-      .post('/user/login')
+      .post('/users/login')
       .send({ nickname, password })
       .expect(HttpStatus.OK)
       .then(({ body, headers }) => {
@@ -77,16 +77,16 @@ describe('component/', () => {
       });
   });
 
-  it('/component/add - OK', (done) => {
+  it('/components/add - OK', (done) => {
     agent
-      .post('/component/add')
+      .post('/components/add')
       .send({
         name, comment, uuid_component_parent, id_actual_status,
         id_component_type, id_type_access, is_standard
       })
       .expect(HttpStatus.OK)
       .then(({ body }) => {
-        debug('/component/add body=%o', body);
+        debug('/components/add body=%o', body);
         expect(body).toContainAllKeys(
           ["uuid", "name", "comment", "id_actual_status", "is_standard", "created_at"]
         );
@@ -99,9 +99,9 @@ describe('component/', () => {
       });
   });
 
-  it('/component/add - Bad Request', (done) => {
+  it('/components/add - Bad Request', (done) => {
     agent
-      .post('/component/add')
+      .post('/components/add')
       .send({
         name, comment, uuid_component_parent, id_actual_status,
         id_component_type, id_type_access, is_standard
@@ -109,7 +109,7 @@ describe('component/', () => {
       .expect(HttpStatus.BAD_REQUEST)
       .then(({ body, error, text, headers }) => {
         debug(
-          '/component/add body=%o text=%o error=%o headers=%o ',
+          '/components/add body=%o text=%o error=%o headers=%o ',
           body,
           text,
           error,
@@ -261,13 +261,13 @@ describe('component/', () => {
     done();
   });
 
-  it('/user/logout - OK', (done) => {
-    agent.get('/user/logout').expect(HttpStatus.OK, done);
+  it('/users/logout - OK', (done) => {
+    agent.get('/users/logout').expect(HttpStatus.OK, done);
   });
 
-  it('/user/login - OK is not supplier', (done) => {
+  it('/users/login - OK is not supplier', (done) => {
     agent
-      .post('/user/login')
+      .post('/users/login')
       .send({ nickname: nickname2, password: password2 })
       .expect(HttpStatus.OK)
       .then(({ body, headers }) => {
@@ -322,16 +322,16 @@ describe('component/', () => {
     done();
   });
 
-  it('/component/add - not supplier.', (done) => {
+  it('/components/add - not supplier.', (done) => {
     agent
-      .post('/component/add')
+      .post('/components/add')
       .send({
         name: name2,  comment,  uuid_component_parent,  id_actual_status,
         id_component_type,  id_type_access,  is_standard: is_standard1
       })
       .expect(HttpStatus.BAD_REQUEST)
       .then(({ body }) => {
-        debug('/component/add body=%o', body);
+        debug('/components/add body=%o', body);
         expect(body).toBe("You are not supplier.");
         done();
       });

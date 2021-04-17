@@ -8,7 +8,7 @@ use actix_web::web;
 
 pub fn route(cfg: &mut web::ServiceConfig) {
     cfg.service(
-        web::scope("/represet")
+        web::scope("/represets")
             .service(web::resource("/register").route(web::post().to(register)))
             .service(web::resource("/delete").route(web::post().to(delete))),
     );

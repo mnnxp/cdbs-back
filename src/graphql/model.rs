@@ -2,44 +2,23 @@ use crate::cli_args::Opt;
 use crate::database::PooledConnection;
 use crate::errors::ServiceResult;
 use crate::jwt::model::{DecodedToken, Token};
-use crate::models::user::model::{
-    LoggedUser,
-    ShowUser,
-    UserData,
-    SlimUser
-};
+use crate::models::user::model::{LoggedUser, ShowUser, UserData, SlimUser};
 use crate::models::user::service as user;
 use crate::models::user::service::token::ClaimsResponse;
 use crate::models::user_represet::model::{
-    ShowUserRepreset,
-    UserRepresetData,
-    SlimUserRepreset
+    ShowUserRepreset, UserRepresetData, SlimUserRepreset
 };
 use crate::models::user_represet::service as user_represet;
-use crate::models::file::model::{
-    ShowFile,
-    FileData,
-    SlimFile
-};
+// use crate::models::file::model::{ShowFile, FileData, SlimFile};
+use crate::models::file::model::ShowFile;
 use crate::models::file::service as file;
-use crate::models::component::model::{
-    ShowComponent,
-    ComponentData,
-    SlimComponent
-};
+use crate::models::component::model::{ShowComponent, ComponentData, SlimComponent};
 use crate::models::component::service as component;
 use crate::models::component_modification::model::{
-    ShowComponentModification,
-    ComponentModificationData,
-    SlimComponentModification
+    ShowComponentModification, ComponentModificationData, SlimComponentModification
 };
 use crate::models::component_modification::service as component_modification;
-use crate::models::param::model::{
-    Param,
-    ParamData,
-    ParamToModel,
-    ParamToModelData
-};
+use crate::models::param::model::{Param, ParamData, ParamToModel, ParamToModelData};
 use crate::models::param::service as param;
 use diesel::PgConnection;
 use juniper::Context as JuniperContext;
@@ -244,14 +223,15 @@ impl Mutation {
         Ok(create_user_represet(data, conn)?)
     }
 
-    pub fn register_file(context: &Context, data: FileData) -> ServiceResult<SlimFile> {
-        use crate::models::file::service::register::create_file;
-        let conn: &PgConnection = &context.db;
-
-        crate::models::user::verify_uuid_user(&context.user, data.uuid_user_create)?;
-
-        Ok(create_file(data, conn)?)
-    }
+    // pub fn register_file(context: &Context, data: FileData) -> ServiceResult<SlimFile> {
+    //     use crate::models::file::service::register::create_file;
+    //     let conn: &PgConnection = &context.db;
+    //
+    //     // crate::models::user::verify_uuid_user(&context.user, data.uuid_user_create)?;
+    //     crate::models::user::hash_authorized(&context.user)?;
+    //
+    //     Ok(create_file(data, conn)?)
+    // }
 
     pub fn register_component(context: &Context, data: ComponentData) -> ServiceResult<SlimComponent> {
         use crate::models::component::service::register::create_component;

@@ -12,7 +12,7 @@ use actix_web::web;
 
 pub fn route(cfg: &mut web::ServiceConfig) {
     cfg.service(
-        web::scope("/param")
+        web::scope("/params")
             .service(web::resource("/add").route(web::post().to(register)))
             .service(web::resource("/component")
                 .route(web::post().to(add_to_component)))

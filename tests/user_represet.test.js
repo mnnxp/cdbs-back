@@ -50,9 +50,9 @@ describe('represet/', () => {
 
   const agent = request.agent(url);
 
-  it('/user/login - OK is supplier', (done) => {
+  it('/users/login - OK is supplier', (done) => {
     agent
-      .post('/user/login')
+      .post('/users/login')
       .send({ nickname, password })
       .expect(HttpStatus.OK)
       .then(({ body, headers }) => {
@@ -65,15 +65,15 @@ describe('represet/', () => {
       });
   });
 
-  it('/represet/register - OK', (done) => {
+  it('/represets/register - OK', (done) => {
     agent
-      .post('/represet/register')
+      .post('/represets/register')
       .send({
         id_region, id_representation_type, name, address, phone
       })
       .expect(HttpStatus.OK)
       .then(({ body }) => {
-        debug('/represet/register body=%o', body);
+        debug('/represets/register body=%o', body);
         expect(body).toContainAllKeys(
           ['uuid', 'uuid_user', 'name', 'address', 'phone']
         );
@@ -195,13 +195,13 @@ describe('represet/', () => {
     done();
   });
 
-  it('/user/logout - OK', (done) => {
-    agent.get('/user/logout').expect(HttpStatus.OK, done);
+  it('/users/logout - OK', (done) => {
+    agent.get('/users/logout').expect(HttpStatus.OK, done);
   });
 
-  it('/user/login - OK is not supplier', (done) => {
+  it('/users/login - OK is not supplier', (done) => {
     agent
-      .post('/user/login')
+      .post('/users/login')
       .send({ nickname: nickname2, password: password2 })
       .expect(HttpStatus.OK)
       .then(({ body, headers }) => {
@@ -214,15 +214,15 @@ describe('represet/', () => {
       });
   });
 
-  it('/represet/register - not supplier.', (done) => {
+  it('/represets/register - not supplier.', (done) => {
     agent
-      .post('/represet/register')
+      .post('/represets/register')
       .send({
         id_region, id_representation_type, name, address, phone
       })
       .expect(HttpStatus.BAD_REQUEST)
       .then(({ body }) => {
-        debug('/represet/register body=%o', body);
+        debug('/represets/register body=%o', body);
         expect(body).toBe("You are not supplier.");
         done();
       });

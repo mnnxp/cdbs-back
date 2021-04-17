@@ -26,7 +26,7 @@ async function cleanupDb() {
     param_test_name2,
   ]);
 }
-describe('represet/', () => {
+describe('params/', () => {
   beforeAll(async () => {
     return cleanupDb();
   });
@@ -49,9 +49,9 @@ describe('represet/', () => {
 
   const agent = request.agent(url);
 
-  it('/user/login - OK is supplier', (done) => {
+  it('/users/login - OK is supplier', (done) => {
     agent
-      .post('/user/login')
+      .post('/users/login')
       .send({ nickname, password })
       .expect(HttpStatus.OK)
       .then(({ body, headers }) => {
@@ -64,15 +64,15 @@ describe('represet/', () => {
       });
   });
 
-  it('/param/add - OK', (done) => {
+  it('/params/add - OK', (done) => {
     agent
-      .post('/param/add')
+      .post('/params/add')
       .send({
         paramname: param_test_name
       })
       .expect(HttpStatus.OK)
       .then(({ body }) => {
-        debug('/param/add body=%o', body);
+        debug('/params/add body=%o', body);
         expect(body).toContainAllKeys([
           "id", "paramname"
         ]);
@@ -184,19 +184,19 @@ describe('represet/', () => {
     done();
   });
 
-  it('/user/logout - OK', (done) => {
-    agent.get('/user/logout').expect(HttpStatus.OK, done);
+  it('/users/logout - OK', (done) => {
+    agent.get('/users/logout').expect(HttpStatus.OK, done);
   });
 
-  it('/param/add - Unauthorized', (done) => {
+  it('/params/add - Unauthorized', (done) => {
     agent
-      .post('/param/add')
+      .post('/params/add')
       .send({
         paramname: param_test_name
       })
       .expect(HttpStatus.UNAUTHORIZED)
       .then(({ body }) => {
-        debug('/param/add body=%o', body);
+        debug('/params/add body=%o', body);
         expect(body).toBe("Unauthorized");
         done();
       });

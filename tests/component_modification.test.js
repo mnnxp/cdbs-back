@@ -33,7 +33,7 @@ async function cleanupDb() {
     modification_name3
   ]);
 }
-describe('modification/', () => {
+describe('modifications/', () => {
   beforeAll(async () => {
     return cleanupDb();
   });
@@ -56,9 +56,9 @@ describe('modification/', () => {
 
   const agent = request.agent(url);
 
-  it('/user/login - OK is supplier', (done) => {
+  it('/users/login - OK is supplier', (done) => {
     agent
-      .post('/user/login')
+      .post('/users/login')
       .send({ nickname, password })
       .expect(HttpStatus.OK)
       .then(({ body, headers }) => {
@@ -71,16 +71,16 @@ describe('modification/', () => {
       });
   });
 
-  it('/modification/add - OK', (done) => {
+  it('/modifications/add - OK', (done) => {
     agent
-      .post('/modification/add')
+      .post('/modifications/add')
       .send({
         uuid_component, modification_name, id_name_cad, comment,
         uuid_modification_parent, id_actual_status
       })
       .expect(HttpStatus.OK)
       .then(({ body }) => {
-        debug('/modification/add body=%o', body);
+        debug('/modifications/add body=%o', body);
         expect(body).toContainAllKeys(
           ["uuid", "uuid_component", "modification_name", "id_name_cad",
           "comment", "uuid_modification_parent", "id_actual_status", "created_at"]
@@ -94,9 +94,9 @@ describe('modification/', () => {
       });
   });
 
-  it('/modification/add - Bad Request', (done) => {
+  it('/modifications/add - Bad Request', (done) => {
     agent
-      .post('/modification/add')
+      .post('/modifications/add')
       .send({
         uuid_component, modification_name, id_name_cad, comment,
         uuid_modification_parent, id_actual_status
@@ -104,7 +104,7 @@ describe('modification/', () => {
       .expect(HttpStatus.BAD_REQUEST)
       .then(({ body, error, text, headers }) => {
         debug(
-          '/modification/add body=%o text=%o error=%o headers=%o ',
+          '/modifications/add body=%o text=%o error=%o headers=%o ',
           body,
           text,
           error,
@@ -247,13 +247,13 @@ describe('modification/', () => {
     done();
   });
 
-  it('/user/logout - OK', (done) => {
-    agent.get('/user/logout').expect(HttpStatus.OK, done);
+  it('/users/logout - OK', (done) => {
+    agent.get('/users/logout').expect(HttpStatus.OK, done);
   });
 
-  it('/user/login - OK is not supplier', (done) => {
+  it('/users/login - OK is not supplier', (done) => {
     agent
-      .post('/user/login')
+      .post('/users/login')
       .send({ nickname: nickname2, password: password2 })
       .expect(HttpStatus.OK)
       .then(({ body, headers }) => {
@@ -309,16 +309,16 @@ describe('modification/', () => {
     done();
   });
 
-  it('/modification/add - modification not yours component', (done) => {
+  it('/modifications/add - modification not yours component', (done) => {
     agent
-      .post('/modification/add')
+      .post('/modifications/add')
       .send({
         uuid_component, modification_name, id_name_cad, comment,
         uuid_modification_parent, id_actual_status
       })
       .expect(HttpStatus.BAD_REQUEST)
       .then(({ body }) => {
-        debug('/modification/add body=%o', body);
+        debug('/modifications/add body=%o', body);
         expect(body).toBe("This component not yours.");
         done();
       });

@@ -8,7 +8,7 @@ use actix_web::web;
 
 pub fn route(cfg: &mut web::ServiceConfig) {
     cfg.service(
-        web::scope("/user")
+        web::scope("/users")
             .service(web::resource("/register").route(web::post().to(register)))
             .service(web::resource("/login").route(web::post().to(login)))
             .service(web::resource("/logout").route(web::get().to(logout)))
