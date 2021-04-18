@@ -43,6 +43,7 @@ pub(crate) async fn write_file(
     uuid_file_parent: Uuid,
     conn: &PgConnection
 ) -> ServiceResult<Vec<SlimFile>> {
+
     // iterate over multipart stream
     fs::create_dir_all(UPLOAD_PATH).unwrap();
 
@@ -71,9 +72,9 @@ pub(crate) async fn write_file(
                 f = web::block(move || f.write_all(&data).map(|_| f)).await.unwrap();
             }
 
-            let file_metadata = file::metadata(&out_filepath);
+            let file_metadata = file::metadata(&out_filepath, &filename, conn);
 
-            debug!("Hash TEST FILE {:?}", &file_metadata.hash);
+            // debug!("Hash TEST FILE {:?}", &file_metadata.hash);
             // debug!("uuid_file_parent before: {:#?}", uuid_file_parent);
 
             let file_metadata = FileData {
@@ -88,13 +89,14 @@ pub(crate) async fn write_file(
 
             // debug!("uuid_file_parent after: {:#?}", uuid_file_parent);
 
+            // add data in response for user
             let value_slim_file_data = write_metadata(file_metadata, conn)?;
 
             slim_file_data.push(value_slim_file_data)
         }
+    // debug!("Slim_file_data Vec: {:#?}", &slim_file_data);
 
-    debug!("Slim_file_data Vec: {:#?}", &slim_file_data);
-
+    // if response is empty - this error
     if slim_file_data.is_empty() {
         ServiceResult::Err(ServiceError::BadRequest("Data not found. You okay?".to_string()))?
     }

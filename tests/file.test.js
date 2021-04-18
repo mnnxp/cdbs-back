@@ -23,16 +23,18 @@ const uuid_file_parent = "bc1c2151-86d0-4656-9c9d-d016dd584297";
 const uuid_file_parent2 = "3706d1a1-80ae-4367-be39-af7091373811";
 const hash = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855";
 const hash2 = "ac42cb776fd8096feb871a3ae1bcb6ddfc992358210f9d4d79d072102458d4e8";
-const filename = "file_one.cad";
+const filename = "file_one.3dm";
 const filename_test = "Empty_File";
-const filename2 = "file_two.cad";
+const filename2 = "file_two.3dm";
 const id_ext = 2;
 const value_ext = ".cdw";
 const filesize = 52;
 const filesize_test = 16;
 const path_file = "/sholder/file/b06a8583-3d01-4739-8761-178ea8d4d27e";
 const path_file2 = "/sholder/file/e8ae49d8-39e9-4011-ab4d-734efd7e1f1e";
-const pathFile_test = "/home/mnnxp/Downloads/Empty_File"
+const path_file_test = '/home/mnnxp/Downloads/Empty_File';
+const name_file_test = 'testfile';
+const data_file_test = 'tests file data\n';
 
 async function cleanupDb() {
   return global.knex.raw('DELETE FROM file_ref WHERE filename in (?,?,?)', [
@@ -79,30 +81,23 @@ describe('files', () => {
       });
   });
 
-  // it('/files - OK', (done) => {
-  //   agent
-  //     .post('/file/add')
-  //     .send({
-  //       uuid_file_parent,
-  //       hash,
-  //       filename,
-  //       id_ext,
-  //       filesize,
-  //       path_file
-  //     })
-  //     .expect(HttpStatus.OK)
-  //     .then(({ body }) => {
-  //       debug('/files body=%o', body);
-  //       expect(body).toContainAllKeys([
-  //         "uuid", "filename", "filesize", "path_file"
-  //       ]);
-  //       expect(body.uuid).not.toBeNull();
-  //       expect(body.filename).toBe(filename);
-  //       expect(body.filesize).toBe(filesize);
-  //       expect(body.path_file).toBe(path_file);
-  //       done();
-  //     });
-  // });
+  it('/files - OK', (done) => {
+    agent
+      .post('/file')
+      .attach(name_file_test, path_file_test)
+      .expect(HttpStatus.OK)
+      .then(({ body }) => {
+        debug('/files body=%o', body);
+        expect(body).toContainAllKeys([
+          "uuid", "filename", "filesize", "path_file"
+        ]);
+        expect(body.uuid).not.toBeNull();
+        expect(body.filename).toBe(filename);
+        expect(body.filesize).toBe(filesize);
+        expect(body.path_file).toBe(path_file);
+        done();
+      });
+  });
 
   // it('/files - OK', (done) => {
   //   agent
@@ -113,7 +108,7 @@ describe('files', () => {
   //     // .field("userId", "5d921d306e96d70a28989127")
   //     .attach(
   //       "productImage",
-  //       pathFile_test
+  //       data_file_test
   //     )
   //     .expect(HttpStatus.OK)
   //     .then(({ body }) => {
@@ -132,7 +127,7 @@ describe('files', () => {
   it('/files - Not correct', (done) => {
     agent
       .post('/files')
-      .set("Content-Type", "multipart/form-data")
+      // .set("Content-Type", "multipart/form-data")
       // .field("name", "Tomato")
       // .field("userId", "5d921d306e96d70a28989127")
       // .attach(
@@ -383,7 +378,7 @@ describe('files', () => {
 
   // it('/files - not supplier.', (done) => {
   //   agent
-  //     .post('/file/add')
+  //     .post('/file')
   //     .send({
   //       uuid_file_parent, hash, filename, id_ext, filesize, path_file
   //     })
