@@ -119,7 +119,8 @@ CREATE TABLE file_ref (
   id_user_create INTEGER NOT NULL, /* идентификатор профиля загрузившего файл */
   created_at TIMESTAMP NOT NULL DEFAULT NOW(), /* дата создания/загрузки */
   filename VARCHAR(225) NOT NULL, /* наименование файла */
-  id_ext INTEGER NOT NULL, /* расширение файла (используется для определения CAD) */
+  -- id_mimetype INTEGER NOT NULL, /* тип файла */
+  id_ext INTEGER NOT NULL, /* расширение файла (используется для определения программы/CAD) */
   filesize FLOAT NOT NULL, /* размер файла */
   path_file VARCHAR(225) NOT NULL, /* путь к файлу */
   CONSTRAINT file_ref_pk PRIMARY KEY (id)
