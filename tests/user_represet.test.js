@@ -27,7 +27,7 @@ async function cleanupDb() {
     name,
   ]);
 }
-describe('represet/', () => {
+describe('represets', () => {
   beforeAll(async () => {
     return cleanupDb();
   });
@@ -65,15 +65,15 @@ describe('represet/', () => {
       });
   });
 
-  it('/represets/register - OK', (done) => {
+  it('/represets - OK', (done) => {
     agent
-      .post('/represets/register')
+      .post('/represets')
       .send({
         id_region, id_representation_type, name, address, phone
       })
       .expect(HttpStatus.OK)
       .then(({ body }) => {
-        debug('/represets/register body=%o', body);
+        debug('/represets body=%o', body);
         expect(body).toContainAllKeys(
           ['uuid', 'uuid_user', 'name', 'address', 'phone']
         );
@@ -214,15 +214,15 @@ describe('represet/', () => {
       });
   });
 
-  it('/represets/register - not supplier.', (done) => {
+  it('/represets - not supplier.', (done) => {
     agent
-      .post('/represets/register')
+      .post('/represets')
       .send({
         id_region, id_representation_type, name, address, phone
       })
       .expect(HttpStatus.BAD_REQUEST)
       .then(({ body }) => {
-        debug('/represets/register body=%o', body);
+        debug('/represets body=%o', body);
         expect(body).toBe("You are not supplier.");
         done();
       });

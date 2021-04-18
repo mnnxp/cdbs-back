@@ -9,6 +9,6 @@ use actix_web::web;
 pub fn route(cfg: &mut web::ServiceConfig) {
     cfg.service(
         web::scope("/files")
-            .service(web::resource("/add").route(web::post().to(register)))
+            .service(web::resource("").route(web::post().to(register)))
     );
 }

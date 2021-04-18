@@ -26,7 +26,7 @@ async function cleanupDb() {
     param_test_name2,
   ]);
 }
-describe('params/', () => {
+describe('params', () => {
   beforeAll(async () => {
     return cleanupDb();
   });
@@ -64,15 +64,15 @@ describe('params/', () => {
       });
   });
 
-  it('/params/add - OK', (done) => {
+  it('/params - OK', (done) => {
     agent
-      .post('/params/add')
+      .post('/params')
       .send({
         paramname: param_test_name
       })
       .expect(HttpStatus.OK)
       .then(({ body }) => {
-        debug('/params/add body=%o', body);
+        debug('/params body=%o', body);
         expect(body).toContainAllKeys([
           "id", "paramname"
         ]);
@@ -188,15 +188,15 @@ describe('params/', () => {
     agent.get('/users/logout').expect(HttpStatus.OK, done);
   });
 
-  it('/params/add - Unauthorized', (done) => {
+  it('/params - Unauthorized', (done) => {
     agent
-      .post('/params/add')
+      .post('/params')
       .send({
         paramname: param_test_name
       })
       .expect(HttpStatus.UNAUTHORIZED)
       .then(({ body }) => {
-        debug('/params/add body=%o', body);
+        debug('/params body=%o', body);
         expect(body).toBe("Unauthorized");
         done();
       });

@@ -26,7 +26,7 @@ async function cleanupDb() {
     param_test_value2,
   ]);
 }
-describe('params/', () => {
+describe('params', () => {
   beforeAll(async () => {
     return cleanupDb();
   });
@@ -64,9 +64,9 @@ describe('params/', () => {
       });
   });
 
-  it('/params/component - OK', (done) => {
+  it('/components/params - OK', (done) => {
     agent
-      .post('/params/component')
+      .post('/components/params')
       .send({
         uuid: uuid_component,
         id_param: paramname_index,
@@ -74,7 +74,7 @@ describe('params/', () => {
       })
       .expect(HttpStatus.OK)
       .then(({ body }) => {
-        debug('/params/component body=%o', body);
+        debug('/components/params body=%o', body);
         expect(body).toContainAllKeys([
           "id", "uuid", "id_param", "value"
         ]);
@@ -229,9 +229,9 @@ describe('params/', () => {
     agent.get('/users/logout').expect(HttpStatus.OK, done);
   });
 
-  it('/params/component - Unauthorized', (done) => {
+  it('/components/params - Unauthorized', (done) => {
     agent
-      .post('/params/component')
+      .post('/components/params')
       .send({
         uuid: uuid_component,
         id_param: paramname_index,
@@ -239,7 +239,7 @@ describe('params/', () => {
       })
       .expect(HttpStatus.UNAUTHORIZED)
       .then(({ body }) => {
-        debug('/params/component body=%o', body);
+        debug('/components/params body=%o', body);
         expect(body).toBe("Unauthorized");
         done();
       });

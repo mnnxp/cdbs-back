@@ -41,7 +41,7 @@ async function cleanupDb() {
     filename_test
   ]);
 }
-describe('file/', () => {
+describe('files', () => {
   beforeAll(async () => {
     return cleanupDb();
   });
@@ -79,7 +79,7 @@ describe('file/', () => {
       });
   });
 
-  // it('/files/add - OK', (done) => {
+  // it('/files - OK', (done) => {
   //   agent
   //     .post('/file/add')
   //     .send({
@@ -92,7 +92,7 @@ describe('file/', () => {
   //     })
   //     .expect(HttpStatus.OK)
   //     .then(({ body }) => {
-  //       debug('/files/add body=%o', body);
+  //       debug('/files body=%o', body);
   //       expect(body).toContainAllKeys([
   //         "uuid", "filename", "filesize", "path_file"
   //       ]);
@@ -104,9 +104,9 @@ describe('file/', () => {
   //     });
   // });
 
-  // it('/files/add - OK', (done) => {
+  // it('/files - OK', (done) => {
   //   agent
-  //     .post('/files/add')
+  //     .post('/files')
   //     .set("Content-Disposition", 'form-data; name=""; filename="Empty_File"'')
   //     .set("Content-Type", "multipart/form-data")
   //     // .field("name", "Tomato")
@@ -117,7 +117,7 @@ describe('file/', () => {
   //     )
   //     .expect(HttpStatus.OK)
   //     .then(({ body }) => {
-  //       debug('/files/add body=%o', body);
+  //       debug('/files body=%o', body);
   //       expect(body).toContainAllKeys([
   //         "uuid", "filename", "filesize", "path_file"
   //       ]);
@@ -129,9 +129,9 @@ describe('file/', () => {
   //     });
   // });
 
-  it('/files/add - Not correct', (done) => {
+  it('/files - Not correct', (done) => {
     agent
-      .post('/files/add')
+      .post('/files')
       .set("Content-Type", "multipart/form-data")
       // .field("name", "Tomato")
       // .field("userId", "5d921d306e96d70a28989127")
@@ -141,7 +141,7 @@ describe('file/', () => {
       // )
       .expect(HttpStatus.BAD_REQUEST)
       .then(({ body }) => {
-        debug('/files/add body=%o', body);
+        debug('/files body=%o', body);
         expect(body).toBe("Data not found. You okay?");
         done();
       });
@@ -381,7 +381,7 @@ describe('file/', () => {
   //     });
   // });
 
-  // it('/files/add - not supplier.', (done) => {
+  // it('/files - not supplier.', (done) => {
   //   agent
   //     .post('/file/add')
   //     .send({
@@ -389,7 +389,7 @@ describe('file/', () => {
   //     })
   //     .expect(HttpStatus.BAD_REQUEST)
   //     .then(({ body }) => {
-  //       debug('/files/add body=%o', body);
+  //       debug('/files body=%o', body);
   //       expect(body).toBe("You are not supplier.");
   //       done();
   //     });

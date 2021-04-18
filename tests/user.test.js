@@ -39,7 +39,7 @@ async function cleanupDb() {
     nickname2,
   ]);
 }
-describe('users/', () => {
+describe('users', () => {
   beforeAll(async () => {
     return cleanupDb();
   });
@@ -74,9 +74,9 @@ describe('users/', () => {
       });
   });
 
-  it('/users/register - OK', (done) => {
+  it('/users - OK', (done) => {
     agent
-      .post('/users/register')
+      .post('/users')
       .send({
         firstname, lastname, secondname, nickname,
         email, password, id_type_user, is_supplier, orgname, shortname,
@@ -85,7 +85,7 @@ describe('users/', () => {
       })
       .expect(HttpStatus.OK)
       .then(({ body }) => {
-        debug('/users/register body=%o', body);
+        debug('/users body=%o', body);
         expect(body).toContainAllKeys(['uuid', 'is_supplier', 'nickname']);
         expect(body.uuid).not.toBeNull();
         expect(body.is_supplier).toBe(1);
@@ -94,9 +94,9 @@ describe('users/', () => {
       });
   });
 
-  it('/users/register - Bad Request', (done) => {
+  it('/users - Bad Request', (done) => {
     agent
-      .post('/users/register')
+      .post('/users')
       .send({
         firstname, lastname, secondname, nickname,
         email, password, id_type_user, is_supplier, orgname, shortname,
@@ -106,7 +106,7 @@ describe('users/', () => {
       .expect(HttpStatus.BAD_REQUEST)
       .then(({ body, error, text, headers }) => {
         debug(
-          '/users/register body=%o text=%o error=%o headers=%o ',
+          '/users body=%o text=%o error=%o headers=%o ',
           body,
           text,
           error,

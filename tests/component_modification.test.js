@@ -33,7 +33,7 @@ async function cleanupDb() {
     modification_name3
   ]);
 }
-describe('modifications/', () => {
+describe('modifications', () => {
   beforeAll(async () => {
     return cleanupDb();
   });
@@ -71,16 +71,16 @@ describe('modifications/', () => {
       });
   });
 
-  it('/modifications/add - OK', (done) => {
+  it('/modifications - OK', (done) => {
     agent
-      .post('/modifications/add')
+      .post('/modifications')
       .send({
         uuid_component, modification_name, id_name_cad, comment,
         uuid_modification_parent, id_actual_status
       })
       .expect(HttpStatus.OK)
       .then(({ body }) => {
-        debug('/modifications/add body=%o', body);
+        debug('/modifications body=%o', body);
         expect(body).toContainAllKeys(
           ["uuid", "uuid_component", "modification_name", "id_name_cad",
           "comment", "uuid_modification_parent", "id_actual_status", "created_at"]
@@ -94,9 +94,9 @@ describe('modifications/', () => {
       });
   });
 
-  it('/modifications/add - Bad Request', (done) => {
+  it('/modifications - Bad Request', (done) => {
     agent
-      .post('/modifications/add')
+      .post('/modifications')
       .send({
         uuid_component, modification_name, id_name_cad, comment,
         uuid_modification_parent, id_actual_status
@@ -104,7 +104,7 @@ describe('modifications/', () => {
       .expect(HttpStatus.BAD_REQUEST)
       .then(({ body, error, text, headers }) => {
         debug(
-          '/modifications/add body=%o text=%o error=%o headers=%o ',
+          '/modifications body=%o text=%o error=%o headers=%o ',
           body,
           text,
           error,
@@ -309,16 +309,16 @@ describe('modifications/', () => {
     done();
   });
 
-  it('/modifications/add - modification not yours component', (done) => {
+  it('/modifications - modification not yours component', (done) => {
     agent
-      .post('/modifications/add')
+      .post('/modifications')
       .send({
         uuid_component, modification_name, id_name_cad, comment,
         uuid_modification_parent, id_actual_status
       })
       .expect(HttpStatus.BAD_REQUEST)
       .then(({ body }) => {
-        debug('/modifications/add body=%o', body);
+        debug('/modifications body=%o', body);
         expect(body).toBe("This component not yours.");
         done();
       });

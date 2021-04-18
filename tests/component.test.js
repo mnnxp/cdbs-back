@@ -39,7 +39,7 @@ async function cleanupDb() {
     name2
   ]);
 }
-describe('components/', () => {
+describe('components', () => {
   beforeAll(async () => {
     return cleanupDb();
   });
@@ -77,16 +77,16 @@ describe('components/', () => {
       });
   });
 
-  it('/components/add - OK', (done) => {
+  it('/components - OK', (done) => {
     agent
-      .post('/components/add')
+      .post('/components')
       .send({
         name, comment, uuid_component_parent, id_actual_status,
         id_component_type, id_type_access, is_standard
       })
       .expect(HttpStatus.OK)
       .then(({ body }) => {
-        debug('/components/add body=%o', body);
+        debug('/components body=%o', body);
         expect(body).toContainAllKeys(
           ["uuid", "name", "comment", "id_actual_status", "is_standard", "created_at"]
         );
@@ -99,9 +99,9 @@ describe('components/', () => {
       });
   });
 
-  it('/components/add - Bad Request', (done) => {
+  it('/components - Bad Request', (done) => {
     agent
-      .post('/components/add')
+      .post('/components')
       .send({
         name, comment, uuid_component_parent, id_actual_status,
         id_component_type, id_type_access, is_standard
@@ -109,7 +109,7 @@ describe('components/', () => {
       .expect(HttpStatus.BAD_REQUEST)
       .then(({ body, error, text, headers }) => {
         debug(
-          '/components/add body=%o text=%o error=%o headers=%o ',
+          '/components body=%o text=%o error=%o headers=%o ',
           body,
           text,
           error,
@@ -322,16 +322,16 @@ describe('components/', () => {
     done();
   });
 
-  it('/components/add - not supplier.', (done) => {
+  it('/components - not supplier.', (done) => {
     agent
-      .post('/components/add')
+      .post('/components')
       .send({
         name: name2,  comment,  uuid_component_parent,  id_actual_status,
         id_component_type,  id_type_access,  is_standard: is_standard1
       })
       .expect(HttpStatus.BAD_REQUEST)
       .then(({ body }) => {
-        debug('/components/add body=%o', body);
+        debug('/components body=%o', body);
         expect(body).toBe("You are not supplier.");
         done();
       });
