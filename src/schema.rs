@@ -122,7 +122,7 @@ table! {
         created_at -> Timestamp,
         filename -> Varchar,
         id_ext -> Int4,
-        filesize -> Float8,
+        filesize -> Int4,
         path_file -> Varchar,
     }
 }

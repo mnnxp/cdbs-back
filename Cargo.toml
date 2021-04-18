@@ -46,6 +46,7 @@ structopt = "0.3"
 regex = "1"
 
 ring = "0.16.20"
+sha2 = "0.9.3"
 
 digest = "0.9.0"
 blake2 = "0.9"

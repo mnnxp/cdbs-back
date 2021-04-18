@@ -73,6 +73,7 @@ pub(crate) async fn write_file(
 
             let file_metadata = file::metadata(&out_filepath);
 
+            debug!("Hash TEST FILE {:?}", &file_metadata.hash);
             // debug!("uuid_file_parent before: {:#?}", uuid_file_parent);
 
             let file_metadata = FileData {

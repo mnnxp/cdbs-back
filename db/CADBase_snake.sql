@@ -121,7 +121,7 @@ CREATE TABLE file_ref (
   filename VARCHAR(225) NOT NULL, /* наименование файла */
   -- id_mimetype INTEGER NOT NULL, /* тип файла */
   id_ext INTEGER NOT NULL, /* расширение файла (используется для определения программы/CAD) */
-  filesize FLOAT NOT NULL, /* размер файла */
+  filesize INTEGER NOT NULL, /* размер файла */
   path_file VARCHAR(225) NOT NULL, /* путь к файлу */
   CONSTRAINT file_ref_pk PRIMARY KEY (id)
 );

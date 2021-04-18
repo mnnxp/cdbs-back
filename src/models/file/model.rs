@@ -3,7 +3,7 @@ use crate::schema::*;
 use chrono::*;
 // use shrinkwraprs::Shrinkwrap;
 use uuid::Uuid;
-use crate::models::file::util::hex_to_bytes;
+// use crate::models::file::util::hex_to_bytes;
 
 #[derive(Debug, Queryable)]
 pub struct File {
@@ -15,7 +15,7 @@ pub struct File {
     pub created_at: NaiveDateTime,
     pub filename: String,
     pub id_ext: i32,
-    pub filesize: f64,
+    pub filesize: i32,
     pub path_file: String,
 }
 
@@ -28,7 +28,7 @@ pub struct ShowFile {
     pub filename: String,
     pub id_ext: i32,
     pub value_ext: String,
-    pub filesize: f64,
+    pub filesize: i32,
     pub path_file: String,
 }
 
@@ -42,18 +42,18 @@ pub struct InsertableFile {
     pub created_at: NaiveDateTime,
     pub filename: String,
     pub id_ext: i32,
-    pub filesize: f64,
+    pub filesize: i32,
     pub path_file: String,
 }
 
-#[derive(Debug, Deserialize, juniper::GraphQLInputObject)]
+#[derive(Debug, Deserialize)]
 pub struct FileData {
     pub uuid_file_parent: Uuid,
-    pub hash: String,
+    pub hash:  Vec<u8>,
     pub uuid_user_create: Uuid,
     pub filename: String,
     pub id_ext: i32,
-    pub filesize: f64,
+    pub filesize: i32,
     pub path_file: String,
 }
 
@@ -61,7 +61,7 @@ pub struct FileData {
 pub struct SlimFile {
     pub uuid: Uuid,
     pub filename: String,
-    pub filesize: f64,
+    pub filesize: i32,
     pub path_file: String,
 }
 
@@ -82,8 +82,8 @@ impl From<FileData> for InsertableFile {
         // let hash = Vec::from("76738cf561df624bff0de7151eec68c1d40a56c76a8f6859e09c799a251468ac");
         // let filesize = 156.5; // get_file_size(&path_file);
         // let uuid_user_create= "31ecc6f8-0c09-4a59-a2d5-34b5b833e59b".parse().unwrap();
-        let default_hash = Vec::from("0".as_bytes());
-        let hash = hex_to_bytes(hash.as_str()).unwrap_or(default_hash);
+        // let default_hash = Vec::from("0".as_bytes());
+        // let hash = hex_to_bytes(hash.as_str()).unwrap_or(default_hash);
 
         Self {
             uuid: Uuid::new_v4(),
