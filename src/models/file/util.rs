@@ -1,25 +1,26 @@
-// pub(crate) fn hex_to_bytes(s: &str) -> Option<Vec<u8>> {
-//     if s.len() % 2 == 0 {
-//         (0..s.len())
-//             .step_by(2)
-//             .map(|i| s.get(i..i + 2)
-//                       .and_then(|sub| u8::from_str_radix(sub, 16).ok()))
-//             .collect()
-//     } else {
-//         None
-//     }
-// }
+use std::fs;
+use regex::Regex;
+use diesel::prelude::*;
+// use crate::errors::ServiceResult;
 
+pub(crate) fn calculate_blake3(path: &str) -> Vec<u8> {
+    let file = fs::read(path).unwrap();
+    // let hash = blake3::hash(&file);
+    // debug!("Hash value: {:#?}", hash);
 
-// let caps = Regex::new(r"\.\w*$").unwrap().captures(&filename).unwrap();
-// let value_ext_str = caps.get(1).map_or("", |m| m.as_str()).to_owned();
+    blake3::hash(&file).as_bytes().to_vec()
+}
 
-// debug!("value_ext_str: {:?}", &value_ext_str);
+pub(crate) fn find_id_ext(filename: &str, conn: &PgConnection) -> i32 {
+    use crate::schema::extension_ref::dsl::*;
+    // debug!("Filename_str {:?}", filename);
 
-// let conn = &db_connection(&pool)?;
-// use crate::schema::extension_ref::dsl::*;
+    let ext_str = Regex::new(r"\w*$").unwrap().find(filename).unwrap().as_str();
+    // debug!("Ext_str {:?}", ext_str);
 
-// let id_ext = extension_ref
-//     .filter(extension.eq(value_ext_str))
-//     .select(id)
-//     .first(conn).unwrap_or(1); // this to fix after
+    // find id extension or set not found id = 1
+    extension_ref
+        .filter(extension.eq(ext_str))
+        .select(id)
+        .first::<i32>(conn).unwrap_or(1)
+}

@@ -3,7 +3,6 @@ use std::io::Write;
 use crate::database::{db_connection, Pool};
 use crate::errors::{ServiceError, ServiceResult};
 use crate::models::file::model::{InsertableFile, SlimFile, File, FileData};
-// use crate::models::file::service::metadata::ParseFileData;
 use crate::models::file::service as file;
 
 use diesel::prelude::*;
