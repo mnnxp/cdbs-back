@@ -1,21 +1,10 @@
 use crate::database::Pool;
 use crate::errors::ServiceError;
 use crate::models::user::model::LoggedUser;
-use crate::models::component::model::ComponentData;
+use crate::models::component::model::{ComponentData, ComponentDataQuery};
 use crate::models::component::service as component;
 use actix_web::{web, HttpResponse};
 use uuid::Uuid;
-
-#[derive(Debug, Deserialize)]
-pub struct ComponentDataQuery {
-    pub name: String,
-    pub comment: String,
-    pub uuid_component_parent: String,
-    pub id_actual_status: i32,
-    pub id_component_type: i32,
-    pub id_type_access: i32,
-    pub is_standard: i32,
-}
 
 pub async fn register(
     new_component_data: web::Json<ComponentDataQuery>,

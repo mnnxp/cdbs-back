@@ -12,7 +12,9 @@ use crate::models::user_represet::service as user_represet;
 // use crate::models::file::model::{ShowFile, FileData, SlimFile};
 use crate::models::file::model::ShowFile;
 use crate::models::file::service as file;
-use crate::models::component::model::{ShowComponent, ComponentData, SlimComponent};
+use crate::models::component::model::{
+    ShowComponent, ComponentData, ComponentDataQuery, SlimComponent
+};
 use crate::models::component::service as component;
 use crate::models::component_modification::model::{
     ShowComponentModification, ComponentModificationData, SlimComponentModification
@@ -233,17 +235,35 @@ impl Mutation {
     //     Ok(create_file(data, conn)?)
     // }
 
-    pub fn register_component(context: &Context, data: ComponentData) -> ServiceResult<SlimComponent> {
+    pub fn register_component(context: &Context, data: ComponentDataQuery) -> ServiceResult<SlimComponent> {
         use crate::models::component::service::register::create_component;
         let conn: &PgConnection = &context.db;
 
-        crate::models::user::verify_uuid_user(&context.user, data.uuid_user)?;
+        // crate::models::user::verify_uuid_user(&context.user, data.uuid_user)?;
+        crate::models::user::hash_authorized(&context.user)?;
 
         if data.is_standard != 0 {
             crate::models::user::has_supplier(&context.user, 1)?;
         }
 
-        Ok(create_component(data, conn)?)
+        let user_uuid = context.user.0.as_ref().unwrap().uuid;
+        let uuid_component_parent = Uuid::parse_str(&data.uuid_component_parent)?;
+        let commentchange = String::new();
+
+        let component_data = ComponentData {
+            is_standard: (data.is_standard),
+            commentchange: (commentchange),
+            id_type_access: (data.id_type_access),
+            is_delete: (0),
+            id_component_type: (data.id_component_type),
+            id_actual_status: (data.id_actual_status),
+            uuid_component_parent: (uuid_component_parent),
+            comment: (data.comment),
+            uuid_user: (user_uuid),
+            name: (data.name),
+        };
+
+        Ok(create_component(component_data, conn)?)
     }
 
     pub fn register_component_modification(context: &Context, data: ComponentModificationData) -> ServiceResult<SlimComponentModification> {

@@ -57,7 +57,7 @@ pub struct InsertableComponent {
     pub created_at: NaiveDateTime,
 }
 
-#[derive(Debug, Deserialize, juniper::GraphQLInputObject)]
+#[derive(Debug)]
 pub struct ComponentData {
     pub name: String,
     pub uuid_user: Uuid,
@@ -68,6 +68,17 @@ pub struct ComponentData {
     pub is_delete: i32,
     pub id_type_access: i32,
     pub commentchange: String,
+    pub is_standard: i32,
+}
+
+#[derive(Debug, Deserialize, juniper::GraphQLInputObject)]
+pub struct ComponentDataQuery {
+    pub name: String,
+    pub comment: String,
+    pub uuid_component_parent: String,
+    pub id_actual_status: i32,
+    pub id_component_type: i32,
+    pub id_type_access: i32,
     pub is_standard: i32,
 }
 

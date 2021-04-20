@@ -130,14 +130,11 @@ describe('components', () => {
         query: `mutation  {
             registerComponent( data: {
                 name: "${name2}",
-                uuidUser: "${uuid_user}",
                 comment: "${comment2}",
                 uuidComponentParent: "${uuid_component_parent}",
                 idActualStatus: ${id_actual_status},
                 idComponentType: ${id_component_type},
-                isDelete: ${is_delete},
                 idTypeAccess: ${id_type_access},
-                commentchange: "${commentchange}",
                 isStandard: ${is_standard1}
             }) {
                 uuid
@@ -172,14 +169,11 @@ describe('components', () => {
         query: `mutation  {
             registerComponent( data: {
                 name: "${name2}",
-                uuidUser: "${uuid_user}",
                 comment: "${comment2}",
                 uuidComponentParent: "${uuid_component_parent}",
                 idActualStatus: ${id_actual_status},
                 idComponentType: ${id_component_type},
-                isDelete: ${is_delete},
                 idTypeAccess: ${id_type_access},
-                commentchange: "${commentchange}",
                 isStandard: ${is_standard1}
             }) {
                 uuid
@@ -287,14 +281,11 @@ describe('components', () => {
         query: `mutation  {
             registerComponent( data: {
                 name: "${name2}",
-                uuidUser: "${uuid_user2}",
                 comment: "${comment2}",
                 uuidComponentParent: "${uuid_component_parent}",
                 idActualStatus: ${id_actual_status},
                 idComponentType: ${id_component_type},
-                isDelete: ${is_delete},
                 idTypeAccess: ${id_type_access},
-                commentchange: "${commentchange}",
                 isStandard: ${is_standard}
             }) {
                 uuid
@@ -344,14 +335,11 @@ describe('components', () => {
         query: `mutation  {
             registerComponent( data: {
                 name: "${name2}",
-                uuidUser: "${uuid_user2}",
                 comment: "${comment2}",
                 uuidComponentParent: "${uuid_component_parent}",
                 idActualStatus: ${id_actual_status},
                 idComponentType: ${id_component_type},
-                isDelete: ${is_delete},
                 idTypeAccess: ${id_type_access},
-                commentchange: "${commentchange}",
                 isStandard: ${is_standard1}
             }) {
                 uuid
