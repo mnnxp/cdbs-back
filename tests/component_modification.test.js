@@ -319,7 +319,7 @@ describe('modifications', () => {
       .expect(HttpStatus.BAD_REQUEST)
       .then(({ body }) => {
         debug('/modifications body=%o', body);
-        expect(body).toBe("This component not yours.");
+        expect(body).toBe("Not found this component of you.");
         done();
       });
   });
@@ -352,7 +352,7 @@ describe('modifications', () => {
     debug('/graphql - Not yours component registerComponentModification=%o', body);
     const { errors, data } = body;
     expect(data).toBeNull();
-    expect(errors[0].message).toBe("This component not yours.");
+    expect(errors[0].message).toBe("Not found this component of you.");
     done();
   });
 });

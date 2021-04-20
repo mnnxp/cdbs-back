@@ -32,8 +32,8 @@ pub async fn register(
         uuid_component: (Uuid::parse_str(&new_component_modification_data.uuid_component)?),
     };
 
-    let component_parent_uuid = component_modification_data.uuid_component;
+    // let component_parent_uuid = component_modification_data.uuid_component;
 
-    modification_list::register(component_modification_data, user_uuid, component_parent_uuid, pool)
+    modification_list::register(component_modification_data, user_uuid, pool)
         .map(|res| HttpResponse::Ok().json(&res))
 }

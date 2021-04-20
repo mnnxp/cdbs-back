@@ -251,9 +251,9 @@ impl Mutation {
         let conn: &PgConnection = &context.db;
 
         let uuid_user = context.user.as_ref().clone().unwrap().uuid;
-        let component_parent_uuid = data.uuid_component;
+        // let component_parent_uuid = data.uuid_component;
 
-        Ok(create_component_modification(data, uuid_user, component_parent_uuid, conn)?)
+        Ok(create_component_modification(data, uuid_user, conn)?)
     }
 
     pub fn register_param(context: &Context, data: ParamData) -> ServiceResult<Param> {
