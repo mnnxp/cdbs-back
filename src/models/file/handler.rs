@@ -15,7 +15,6 @@ pub struct ParamQuery {
 
 /// Upload images for profile picture
 pub async fn add_user(
-    // new_user_data: web::Json<RegisterFileDataQuery>,
     payload: Multipart,
     logged_user: LoggedUser,
     pool: web::Data<Pool>,

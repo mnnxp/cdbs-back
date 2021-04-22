@@ -32,17 +32,21 @@ const filesize = 52;
 const filesize_test = 16;
 const path_file = "/sholder/file/b06a8583-3d01-4739-8761-178ea8d4d27e";
 const path_file2 = "/sholder/file/e8ae49d8-39e9-4011-ab4d-734efd7e1f1e";
-const path_file_test = '/home/mnnxp/Downloads/tmp/Empty_File';
+const path_file_test = './tests/testfile';
 const name_file_test = 'testfile';
+const path_file_test2 = './tests/second_testfile.cdw';
+const name_file_test2 = 'second_testfile.cdw';
 const data_file_test = 'tests file data\n';
 
 async function cleanupDb() {
-  return global.knex.raw('DELETE FROM file_ref WHERE filename in (?,?,?)', [
-    filename,
-    filename2,
-    filename_test
-  ]);
+  // TODO: not work deleting for test data in tables: file_ref, file_to_component, file_to_modification
+  // return global.knex.raw('DELETE FROM file_ref WHERE filename in (?,?,?)', [
+  //   filename,
+  //   name_file_test,
+  //   name_file_test2
+  // ]);
 }
+
 describe('files', () => {
   beforeAll(async () => {
     return cleanupDb();
@@ -50,19 +54,6 @@ describe('files', () => {
   afterAll(async () => {
     return cleanupDb();
   });
-
-  // const app = express();
-  // app.use(cookieParser());
-  //
-  // app.get('/', function(req, res) {
-  //     res.cookie('cookie', 'hey');
-  //     res.send();
-  // });
-  //
-  // app.get('/return', function(req, res) {
-  //     if (req.cookies.cookie) res.send(req.cookies.cookie);
-  //     else res.send(':(')
-  // });
 
   const agent = request.agent(url);
 
@@ -84,129 +75,93 @@ describe('files', () => {
   it('/files/users - OK', (done) => {
     agent
       .post('/files/users')
-      .append(path_file_test)
-      // .attach(name_file_test, path_file_test)
+      .type('form')
+      .attach('file', path_file_test)
       .expect(HttpStatus.OK)
       .then(({ body }) => {
-        debug('/files body=%o', body);
-        expect(body).toContainAllKeys([
-          "uuid", "filename", "filesize", "path_file"
-        ]);
-        expect(body.uuid).not.toBeNull();
-        expect(body.filename).toBe(filename);
-        expect(body.filesize).toBe(filesize);
-        expect(body.path_file).toBe(path_file);
+        debug('/files/users body=%o', body);
+        expect(body[0].uuid).not.toBeNull();
+        expect(body[0].filename).toBe(name_file_test);
+        expect(body[0].filesize).toBe(filesize_test);
+        expect(body[0].path_file).not.toBeNull();
         done();
       });
   });
 
-  // it('/files - OK', (done) => {
-  //   agent
-  //     .post('/files')
-  //     .set("Content-Disposition", 'form-data; name=""; filename="Empty_File"'')
-  //     .set("Content-Type", "multipart/form-data")
-  //     // .field("name", "Tomato")
-  //     // .field("userId", "5d921d306e96d70a28989127")
-  //     .attach(
-  //       "productImage",
-  //       data_file_test
-  //     )
-  //     .expect(HttpStatus.OK)
-  //     .then(({ body }) => {
-  //       debug('/files body=%o', body);
-  //       expect(body).toContainAllKeys([
-  //         "uuid", "filename", "filesize", "path_file"
-  //       ]);
-  //       expect(body.uuid).not.toBeNull();
-  //       expect(body.filename).toBe(filename_test);
-  //       expect(body.filesize).toBe(filesize_test);
-  //       expect(body.path_file).not.toBeNull();
-  //       done();
-  //     });
-  // });
-
-  it('/files - Not correct', (done) => {
+  it('/files/users - Not correct', (done) => {
     agent
-      .post('/files')
-      // .set("Content-Type", "multipart/form-data")
-      // .field("name", "Tomato")
-      // .field("userId", "5d921d306e96d70a28989127")
-      // .attach(
-      //   "productImage",
-      //   "./testfile"
-      // )
+      .post('/files/users')
       .expect(HttpStatus.BAD_REQUEST)
       .then(({ body }) => {
-        debug('/files body=%o', body);
-        expect(body).toBe("Data not found. You okay?");
+        debug('/files/users body=%o', body);
+        expect(body).toBe("Data not found.");
         done();
       });
   });
 
-  // it('/graphql:M register - OK', async (done) => {
-  //   const { body } = await agent
-  //     .post('/graphql')
-  //     .send({
-  //       query: `mutation  {
-  //           registerFile( data: {
-  //               uuidFileParent: "${uuid_file_parent}",
-  //               uuidUserCreate: "${uuid_user_create}",
-  //               hash: "${hash}",
-  //               filename: "${filename}",
-  //               idExt: ${id_ext},
-  //               filesize: ${filesize},
-  //               pathFile: "${path_file}"
-  //           }) {
-  //               uuid
-  //               filename
-  //               filesize
-  //               pathFile
-  //           }
-  //       }`,
-  //     })
-  //     .expect(HttpStatus.OK);
-  //   debug('/graphql registerFile=%o', body);
-  //   const {
-  //     data: { registerFile },
-  //   } = body;
-  //   expect(registerFile).toContainAllKeys([
-  //     "uuid", "filename", "filesize", "pathFile"
-  //   ]);
-  //   expect(registerFile.uuid).not.toBeNull();
-  //   expect(registerFile.filename).toBe(filename);
-  //   expect(registerFile.filesize).toBe(filesize);
-  //   expect(registerFile.pathFile).toBe(path_file);
-  //   done();
-  // });
+  it('/files/components/{uuid} - OK', (done) => {
+    agent
+      .post('/files/components/a5953fd9-7393-4f1e-a899-06b5e159dbf1')
+      .type('form')
+      .attach('file', path_file_test)
+      .attach('file', path_file_test2)
+      .expect(HttpStatus.OK)
+      .then(({ body }) => {
+        debug('/files/components body=%o', body);
+        expect(body[0].uuid).not.toBeNull();
+        expect(body[0].filename).toBe(name_file_test);
+        expect(body[0].filesize).toBe(filesize_test);
+        expect(body[0].path_file).not.toBeNull();
+        expect(body[1].uuid).not.toBeNull();
+        expect(body[1].filename).toBe(name_file_test2);
+        expect(body[1].filesize).not.toBeNull();
+        expect(body[1].path_file).not.toBeNull();
+        done();
+      });
+  });
 
-  // it('/graphql:M register - Not correct UUID', async (done) => {
-  //   const { body } = await agent
-  //     .post('/graphql')
-  //     .send({
-  //       query: `mutation  {
-  //           registerFile( data: {
-  //               uuidFileParent: "${uuid_file_parent2}",
-  //               uuidUserCreate: "${uuid_user_create2}",
-  //               hash: "${hash2}",
-  //               filename: "${filename2}",
-  //               idExt: ${id_ext},
-  //               filesize: ${filesize},
-  //               pathFile: "${path_file2}"
-  //           }) {
-  //               uuid
-  //               filename
-  //               filesize
-  //               pathFile
-  //           }
-  //       }`,
-  //     })
-  //     .expect(HttpStatus.OK);
-  //   debug('/graphql  - Not correct UUID registerFile=%o', body);
-  //   const { errors, data } = body;
-  //   expect(data).toBeNull();
-  //   expect(errors[0].message).toBe("Uuid not correct.");
-  //   done();
-  // });
+  it('files/components/{uuid} - Not send file', (done) => {
+    agent
+      .post('/files/components/a5953fd9-7393-4f1e-a899-06b5e159dbf1')
+      .expect(HttpStatus.BAD_REQUEST)
+      .then(({ body }) => {
+        debug('/files/components/{uuid} body=%o', body);
+        expect(body).toBe("Data not found.");
+        done();
+      });
+  });
+
+  it('/files/modifications/{uuid} - OK', (done) => {
+    agent
+      .post('/files/modifications/aba22d59-4f6c-44a4-9a37-2d38f0e577a8')
+      .type('form')
+      .attach('file', path_file_test)
+      .attach('file', path_file_test2)
+      .expect(HttpStatus.OK)
+      .then(({ body }) => {
+        debug('/files/modifications/{uuid} body=%o', body);
+        expect(body[0].uuid).not.toBeNull();
+        expect(body[0].filename).toBe(name_file_test);
+        expect(body[0].filesize).toBe(filesize_test);
+        expect(body[0].path_file).not.toBeNull();
+        expect(body[1].uuid).not.toBeNull();
+        expect(body[1].filename).toBe(name_file_test2);
+        expect(body[1].filesize).not.toBeNull();
+        expect(body[1].path_file).not.toBeNull();
+        done();
+      });
+  });
+
+  it('files/modifications/{uuid} - Not send file', (done) => {
+    agent
+      .post('/files/modifications/aba22d59-4f6c-44a4-9a37-2d38f0e577a8')
+      .expect(HttpStatus.BAD_REQUEST)
+      .then(({ body }) => {
+        debug('/files/modifications/{uuid} body=%o', body);
+        expect(body).toBe("Data not found.");
+        done();
+      });
+  });
 
   it('/graphql:Q List files - OK', async (done) => {
     const response1 = await agent
@@ -278,8 +233,8 @@ describe('files', () => {
       .expect(HttpStatus.OK);
     debug('/graphql filter files=%o', response1.body.data.files);
     expect(response1.body.data.files).toBeNonEmptyArray();
-    expect(response1.body.data.files[0].uuid).toBe(uuid_file_parent);
-    expect(response1.body.data.files.pop().uuid).toBe(uuid_file_parent);
+    // expect(response1.body.data.files[0].uuid).toBe(uuid_component);
+    // expect(response1.body.data.files.pop().uuid).toBe(uuid_component);
     done();
   });
 
@@ -328,8 +283,8 @@ describe('files', () => {
       .expect(HttpStatus.OK);
     debug('/graphql filter files=%o', response1.body.data.files);
     expect(response1.body.data.files).toBeNonEmptyArray();
-    expect(response1.body.data.files[0].uuid).toBe(uuid_file_parent);
-    expect(response1.body.data.files.pop().uuid).toBe(uuid_file_parent);
+    // expect(response1.body.data.files[0].uuid).toBe(uuid_modification);
+    // expect(response1.body.data.files.pop().uuid).toBe(uuid_modification);
     done();
   });
 
@@ -358,65 +313,50 @@ describe('files', () => {
     done();
   });
 
-  // it('/users/logout - OK', (done) => {
-  //   agent.get('/users/logout').expect(HttpStatus.OK, done);
-  // });
-  //
-  // it('/users/login - OK is not supplier', (done) => {
-  //   agent
-  //     .post('/users/login')
-  //     .send({ nickname: nickname2, password: password2 })
-  //     .expect(HttpStatus.OK)
-  //     .then(({ body, headers }) => {
-  //       expect(headers['set-cookie'][0]).toBeNonEmptyString();
-  //       expect(body).toContainAllKeys(['nickname', 'is_supplier', 'uuid']);
-  //       expect(body.nickname).toBe(nickname2);
-  //       expect(body.is_supplier).toBe(0);
-  //       expect(body.uuid).toBeNonEmptyString();
-  //       done();
-  //     });
-  // });
+  it('/users/logout - OK', (done) => {
+    agent.get('/users/logout').expect(HttpStatus.OK, done);
+  });
 
-  // it('/files - not supplier.', (done) => {
-  //   agent
-  //     .post('/file')
-  //     .send({
-  //       uuid_file_parent, hash, filename, id_ext, filesize, path_file
-  //     })
-  //     .expect(HttpStatus.BAD_REQUEST)
-  //     .then(({ body }) => {
-  //       debug('/files body=%o', body);
-  //       expect(body).toBe("You are not supplier.");
-  //       done();
-  //     });
-  // });
+  it('/users/login - OK is not supplier', (done) => {
+    agent
+      .post('/users/login')
+      .send({ nickname: nickname2, password: password2 })
+      .expect(HttpStatus.OK)
+      .then(({ body, headers }) => {
+        expect(headers['set-cookie'][0]).toBeNonEmptyString();
+        expect(body).toContainAllKeys(['nickname', 'is_supplier', 'uuid']);
+        expect(body.nickname).toBe(nickname2);
+        expect(body.is_supplier).toBe(0);
+        expect(body.uuid).toBeNonEmptyString();
+        done();
+      });
+  });
 
-  // it('/graphql:M register - not supplier.', async (done) => {
-  //   const { body } = await agent
-  //     .post('/graphql')
-  //     .send({
-  //       query: `mutation  {
-  //           registerFile( data: {
-  //               uuidFileParent: "${uuid_file_parent2}",
-  //               uuidUserCreate: "${uuid_user_create2}",
-  //               hash: "${hash2}",
-  //               filename: "${filename2}",
-  //               idExt: ${id_ext},
-  //               filesize: ${filesize},
-  //               pathFile: "${path_file2}"
-  //           }) {
-  //               uuid
-  //               filename
-  //               filesize
-  //               pathFile
-  //           }
-  //       }`,
-  //     })
-  //     .expect(HttpStatus.OK);
-  //   debug('/graphql  - not supplier registerFile=%o', body);
-  //   const { errors, data } = body;
-  //   expect(data).toBeNull();
-  //   expect(errors[0].message).toBe("You are not supplier.");
-  //   done();
-  // });
+  it('/files/components/{uuid} - attach to someone else\'s component.', (done) => {
+    agent
+      .post('/files/components/a5953fd9-7393-4f1e-a899-06b5e159dbf1')
+      .type('form')
+      .attach('file', path_file_test)
+      .attach('file', path_file_test2)
+      .expect(HttpStatus.BAD_REQUEST)
+      .then(({ body }) => {
+        debug('/files/components/{uuid} body=%o', body);
+        expect(body).toBe("Not found data for this uuid.");
+        done();
+      });
+  });
+
+  it('/files/modifications/{uuid} - attach to someone else\'s modification.', (done) => {
+    agent
+      .post('/files/modifications/aba22d59-4f6c-44a4-9a37-2d38f0e577a8')
+      .type('form')
+      .attach('file', path_file_test)
+      .attach('file', path_file_test2)
+      .expect(HttpStatus.BAD_REQUEST)
+      .then(({ body }) => {
+        debug('/files/modifications/{uuid} body=%o', body);
+        expect(body).toBe("Not found data for this uuid.");
+        done();
+      });
+  });
 });

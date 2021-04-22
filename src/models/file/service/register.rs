@@ -6,7 +6,7 @@ use crate::models::file::model::{
     InsertableFile, SlimFile, File, FileData,
     InsertableFileToComponent, InsertableFileToModification, FileToModel, FileToModelData
 };
-use crate::models::file::service as file;
+use crate::models::file as file;
 
 use diesel::prelude::*;
 use actix_multipart::Multipart;
@@ -19,9 +19,9 @@ const UPLOAD_PATH: &str = "/home/mnnxp/Downloads/tmp/upload";
 pub(crate) async fn register(
     payload: Multipart,
     user_uuid: Uuid,
-    // uuid_file_parent: Uuid,
     addiction_table: u8,
     uuid_addiction: Uuid,
+    // uuid_file_parent: Uuid,
     pool: web::Data<Pool>
 ) -> ServiceResult<Vec<SlimFile>> {
     let conn = &db_connection(&pool)?;
@@ -29,16 +29,20 @@ pub(crate) async fn register(
     // TODO: add search for parent file by name in table file_ref
     let uuid_file_parent = Uuid::parse_str("3706d1a1-80ae-4367-be39-af7091373811")?;
 
-    // match addiction_table {
-    //     1_u8 => debug!("Addiction table not need."),
-    //     2_u8 => debug!("Select addiction table: file_to_component."),
-    //     3_u8 => debug!("Select addiction table: file_to_modification."),
-    //     _ => ServiceResult::Err(ServiceError::BadRequest("Addiction not found.".to_string()))?
-    // };
+    // Check uuid correct and bound with active user
+    let owned_correct: i32 = match addiction_table {
+        1_u8 => 1,                                                                            // <-- addiction table not need
+        2_u8 => file::util::check_user_owned_component(user_uuid, uuid_addiction, conn),      // <-- select addiction table: file_to_component
+        3_u8 => file::util::check_user_owned_modification(user_uuid, uuid_addiction, conn),   // <-- select addiction table: file_to_modification
+        _ => ServiceResult::Err(ServiceError::BadRequest("Bad...".to_string()))?
+    };
 
-    write_file(
-        payload, user_uuid, uuid_file_parent, addiction_table, uuid_addiction, conn
-    ).await
+    match owned_correct {
+        1..=i32::MAX => write_file(
+                payload, user_uuid, uuid_file_parent, addiction_table, uuid_addiction, conn
+            ).await,
+        _ => ServiceResult::Err(ServiceError::BadRequest("Not found data for this uuid.".to_string()))?
+    }
 }
 
 pub(crate) async fn write_file(
@@ -79,7 +83,7 @@ pub(crate) async fn write_file(
                 f = web::block(move || f.write_all(&data).map(|_| f)).await.unwrap();
             }
 
-            let file_metadata = file::metadata(&out_filepath, &filename, conn);
+            let file_metadata = file::util::metadata(&out_filepath, &filename, conn);
 
             // debug!("Hash TEST FILE {:?}", &file_metadata.hash);
             // debug!("uuid_file_parent before: {:#?}", uuid_file_parent);
