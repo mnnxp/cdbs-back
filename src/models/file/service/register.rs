@@ -2,7 +2,10 @@ use std::fs;
 use std::io::Write;
 use crate::database::{db_connection, Pool};
 use crate::errors::{ServiceError, ServiceResult};
-use crate::models::file::model::{InsertableFile, SlimFile, File, FileData};
+use crate::models::file::model::{
+    InsertableFile, SlimFile, File, FileData,
+    InsertableFileToComponent, InsertableFileToModification, FileToModel, FileToModelData
+};
 use crate::models::file::service as file;
 
 use diesel::prelude::*;
@@ -17,6 +20,8 @@ pub(crate) async fn register(
     payload: Multipart,
     user_uuid: Uuid,
     // uuid_file_parent: Uuid,
+    addiction_table: u8,
+    uuid_addiction: Uuid,
     pool: web::Data<Pool>
 ) -> ServiceResult<Vec<SlimFile>> {
     let conn = &db_connection(&pool)?;
@@ -24,22 +29,24 @@ pub(crate) async fn register(
     // TODO: add search for parent file by name in table file_ref
     let uuid_file_parent = Uuid::parse_str("3706d1a1-80ae-4367-be39-af7091373811")?;
 
-    write_file(payload, user_uuid, uuid_file_parent, conn).await
-}
+    // match addiction_table {
+    //     1_u8 => debug!("Addiction table not need."),
+    //     2_u8 => debug!("Select addiction table: file_to_component."),
+    //     3_u8 => debug!("Select addiction table: file_to_modification."),
+    //     _ => ServiceResult::Err(ServiceError::BadRequest("Addiction not found.".to_string()))?
+    // };
 
-// pub(crate) async fn create_file(
-//     payload: Multipart,
-//     user_uuid: Uuid,
-//     uuid_file_parent: Uuid,
-//     conn: &PgConnection
-// ) -> ServiceResult<Vec<SlimFile>> {
-//     write_file(payload, user_uuid, uuid_file_parent, conn).await
-// }
+    write_file(
+        payload, user_uuid, uuid_file_parent, addiction_table, uuid_addiction, conn
+    ).await
+}
 
 pub(crate) async fn write_file(
     mut payload: Multipart,
     user_uuid: Uuid,
     uuid_file_parent: Uuid,
+    addiction_table: u8,
+    uuid_addiction: Uuid,
     conn: &PgConnection
 ) -> ServiceResult<Vec<SlimFile>> {
 
@@ -47,6 +54,7 @@ pub(crate) async fn write_file(
     fs::create_dir_all(UPLOAD_PATH).unwrap();
 
     let mut slim_file_data: Vec<SlimFile> = Vec::new();
+    // let mut addiction_data: Vec<FileToModelData> = Vec::new();
 
     while let Ok(Some(mut field)) = payload.try_next().await {
             let content_type = field.content_disposition().unwrap();
@@ -88,25 +96,80 @@ pub(crate) async fn write_file(
 
             // debug!("uuid_file_parent after: {:#?}", uuid_file_parent);
 
-            // add data in response for user
+            // register data on db file_ref and addiction table (depends on the request)
             let value_slim_file_data = write_metadata(file_metadata, conn)?;
 
+            match addiction_table {
+                1_u8 => (),
+                2_u8..=4_u8 => {
+                    // colloborate data for addiction table
+                    let addiction_data = FileToModelData {
+                        uuid_file: value_slim_file_data.uuid,
+                        uuid: uuid_addiction,
+                    };
+                    write_addiction_data(addiction_data, addiction_table, conn)?;
+                },
+                _ => ServiceResult::Err(ServiceError::BadRequest("Error write data: addiction not found.".to_string()))?
+            };
+
+            // add data in response for user
             slim_file_data.push(value_slim_file_data)
         }
     // debug!("Slim_file_data Vec: {:#?}", &slim_file_data);
 
     // if response is empty - this error
     if slim_file_data.is_empty() {
-        ServiceResult::Err(ServiceError::BadRequest("Data not found. You okay?".to_string()))?
+        ServiceResult::Err(ServiceError::BadRequest("Data not found.".to_string()))?
     }
 
     Ok(slim_file_data)
 }
 
-pub(crate) fn write_metadata(file_data: FileData, conn: &PgConnection) -> ServiceResult<SlimFile> {
+
+/// Write information of file to db file_ref
+pub(crate) fn write_metadata(
+    file_data: FileData,
+    conn: &PgConnection
+) -> ServiceResult<SlimFile> {
     use crate::schema::file_ref::dsl::file_ref;
 
     let file: InsertableFile = file_data.into();
     let inserted_file: File = diesel::insert_into(file_ref).values(&file).get_result(conn)?;
     Ok(inserted_file.into())
+}
+
+/// Write information of file to db file_to_component or file_to_modification
+pub(crate) fn write_addiction_data(
+    addiction_data: FileToModelData,
+    addiction_table: u8,
+    conn: &PgConnection
+) -> ServiceResult<FileToModel>{
+    // select addiction table for write additional data
+    match addiction_table {
+        2_u8 => {   // <- add addiction data in file_to_component
+            use crate::schema::file_to_component::dsl::file_to_component;
+
+            let addiction: InsertableFileToComponent = addiction_data.into();
+            let inserted_addiction: FileToModel = diesel::insert_into(file_to_component)
+                .values(&addiction)
+                .get_result(conn)?;
+
+            debug!("Select addiction table: file_to_component, data: {:?} ", &inserted_addiction);
+
+            Ok(inserted_addiction)
+        },
+        3_u8 => {   // <- add addiction data in file_to_modification
+            use crate::schema::file_to_modification::dsl::file_to_modification;
+
+            let addiction: InsertableFileToModification = addiction_data.into();
+            let inserted_addiction: FileToModel = diesel::insert_into(file_to_modification)
+                .values(&addiction)
+                .get_result(conn)?;
+
+            debug!("Select addiction table: file_to_modification, data: {:?} ", &inserted_addiction);
+
+            Ok(inserted_addiction)
+        },
+        _ => ServiceResult::Err(ServiceError::BadRequest("Error select addiction_table".to_string()))?
+    }
 }

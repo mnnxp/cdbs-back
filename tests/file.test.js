@@ -32,7 +32,7 @@ const filesize = 52;
 const filesize_test = 16;
 const path_file = "/sholder/file/b06a8583-3d01-4739-8761-178ea8d4d27e";
 const path_file2 = "/sholder/file/e8ae49d8-39e9-4011-ab4d-734efd7e1f1e";
-const path_file_test = '/home/mnnxp/Downloads/Empty_File';
+const path_file_test = '/home/mnnxp/Downloads/tmp/Empty_File';
 const name_file_test = 'testfile';
 const data_file_test = 'tests file data\n';
 
@@ -81,10 +81,11 @@ describe('files', () => {
       });
   });
 
-  it('/files - OK', (done) => {
+  it('/files/users - OK', (done) => {
     agent
-      .post('/file')
-      .attach(name_file_test, path_file_test)
+      .post('/files/users')
+      .append(path_file_test)
+      // .attach(name_file_test, path_file_test)
       .expect(HttpStatus.OK)
       .then(({ body }) => {
         debug('/files body=%o', body);

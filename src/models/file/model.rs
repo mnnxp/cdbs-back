@@ -65,6 +65,33 @@ pub struct SlimFile {
     pub path_file: String,
 }
 
+#[derive(Debug, Serialize, Deserialize, Queryable, juniper::GraphQLObject)]
+pub struct FileToModel {
+    pub id: i32,
+    pub uuid_file: Uuid,
+    pub uuid: Uuid,
+}
+
+#[derive(Debug, Deserialize, Queryable)]
+pub struct FileToModelData {
+    pub uuid_file: Uuid,
+    pub uuid: Uuid,
+}
+
+#[derive(Debug, Insertable)]
+#[table_name = "file_to_component"]
+pub struct InsertableFileToComponent {
+    pub uuid_file: Uuid,
+    pub uuid_component: Uuid,
+}
+
+#[derive(Debug, Insertable)]
+#[table_name = "file_to_modification"]
+pub struct InsertableFileToModification {
+    pub uuid_file: Uuid,
+    pub uuid_modification: Uuid,
+}
+
 impl From<FileData> for InsertableFile {
     fn from(date_file: FileData) -> Self {
         let FileData {
@@ -114,6 +141,40 @@ impl From<File> for SlimFile {
             filename,
             filesize,
             path_file,
+        }
+    }
+}
+
+impl From<FileToModelData> for InsertableFileToComponent {
+    fn from(data_file_to_model: FileToModelData) -> Self {
+        let FileToModelData {
+            uuid_file,
+            uuid,
+            ..
+        } = data_file_to_model;
+
+        let uuid_component = uuid;
+
+        Self {
+            uuid_file,
+            uuid_component,
+        }
+    }
+}
+
+impl From<FileToModelData> for InsertableFileToModification {
+    fn from(data_file_to_model: FileToModelData) -> Self {
+        let FileToModelData {
+            uuid_file,
+            uuid,
+            ..
+        } = data_file_to_model;
+
+        let uuid_modification = uuid;
+
+        Self {
+            uuid_file,
+            uuid_modification,
         }
     }
 }
