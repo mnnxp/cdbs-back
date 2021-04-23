@@ -411,10 +411,10 @@ INSERT INTO user_ref (uuid, email, email_verified, psw_hash, psw_salt,
       6, 'noneposition', 'none',
       'bc1c2151-86d0-4656-9c9d-d016dd584297', 1, now());
 
--- TABLE: user_represet_ref: id (serial), id_user (INTEGER),
+-- TABLE: user_represent_ref: id (serial), id_user (INTEGER),
 -- id_region (INTEGER),   id_representation_type (INTEGER),
 -- name (VARCHAR(255)),   address (VARCHAR(512)),   phone (VARCHAR(100))
-INSERT INTO user_represet_ref (uuid, uuid_user, id_region, id_representation_type,
+INSERT INTO user_represent_ref (uuid, uuid_user, id_region, id_representation_type,
   name, address, phone) VALUES
   ('22a08149-b63a-4f65-a1cd-4a28f85567ec', '31ecc6f8-0c09-4a59-a2d5-34b5b833e59b', 1, 1, 'Местный офис', 'г. Москва', '+79991234567'),
   ('297e44b3-d36c-4ab5-be16-e2a955aabf13', '31ecc6f8-0c09-4a59-a2d5-34b5b833e59b', 2, 1, 'additional office', 'Batkov District, Minsk', '+375548418789'),

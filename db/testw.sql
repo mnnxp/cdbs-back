@@ -38,7 +38,7 @@ CREATE TABLE user_tokens_ref (
 );
 
 /* локальное представительство профиля */
-CREATE TABLE user_represet_ref (
+CREATE TABLE user_represent_ref (
   id SERIAL, /* id представительства */
   id_user INTEGER NOT NULL, /* id профиля (чьё представительства) */
   id_region INTEGER NOT NULL DEFAULT '1', /* регион представительства */
@@ -46,7 +46,7 @@ CREATE TABLE user_represet_ref (
   name VARCHAR(255) NOT NULL, /* наименование представительства */
   address VARCHAR(512) NOT NULL, /* почтовый адрес представительства */
   phone VARCHAR(100) NOT NULL, /* телефон представительства */
-  CONSTRAINT user_represet_ref_pk PRIMARY KEY (id)
+  CONSTRAINT user_represent_ref_pk PRIMARY KEY (id)
 );
 
 /* тип представительства профиля */
@@ -397,9 +397,9 @@ ALTER TABLE spec_translate_list ADD CONSTRAINT spec_translate_list_fk1 FOREIGN K
 ALTER TABLE param_translate_list ADD CONSTRAINT param_translate_list_fk0 FOREIGN KEY (id_param) REFERENCES param_ref(id);
 ALTER TABLE param_translate_list ADD CONSTRAINT param_translate_list_fk1 FOREIGN KEY (id_lang) REFERENCES language_ref(id);
 
-ALTER TABLE user_represet_ref ADD CONSTRAINT user_represet_ref_fk0 FOREIGN KEY (id_user) REFERENCES user_ref(id);
-ALTER TABLE user_represet_ref ADD CONSTRAINT user_represet_ref_fk1 FOREIGN KEY (id_representation_type) REFERENCES representation_type_ref(id);
-ALTER TABLE user_represet_ref ADD CONSTRAINT user_represet_ref_fk2 FOREIGN KEY (id_region) REFERENCES region_ref(id);
+ALTER TABLE user_represent_ref ADD CONSTRAINT user_represent_ref_fk0 FOREIGN KEY (id_user) REFERENCES user_ref(id);
+ALTER TABLE user_represent_ref ADD CONSTRAINT user_represent_ref_fk1 FOREIGN KEY (id_representation_type) REFERENCES representation_type_ref(id);
+ALTER TABLE user_represent_ref ADD CONSTRAINT user_represent_ref_fk2 FOREIGN KEY (id_region) REFERENCES region_ref(id);
 
 ALTER TABLE component_access_to_user ADD CONSTRAINT component_access_to_user_fk0 FOREIGN KEY (id_component) REFERENCES component_ref(id);
 ALTER TABLE component_access_to_user ADD CONSTRAINT component_access_to_user_fk1 FOREIGN KEY (id_user) REFERENCES user_ref(id);
@@ -449,14 +449,14 @@ COMMENT ON COLUMN user_tokens_ref.token IS 'токен пользователя'
 COMMENT ON COLUMN user_tokens_ref.date_start IS 'дата создания токена';
 COMMENT ON COLUMN user_tokens_ref.date_end IS 'дата окончания действия токена';
 
-COMMENT ON TABLE user_represet_ref IS 'локальное представительство профиля';
-COMMENT ON COLUMN user_represet_ref.id IS 'id представительства';
-COMMENT ON COLUMN user_represet_ref.id_user IS 'id профиля (чьё представительства)';
-COMMENT ON COLUMN user_represet_ref.id_region IS 'регион представительства';
-COMMENT ON COLUMN user_represet_ref.id_representation_type IS 'тип представительства';
-COMMENT ON COLUMN user_represet_ref.name IS 'наименование представительства';
-COMMENT ON COLUMN user_represet_ref.address IS 'почтовый адрес представительства';
-COMMENT ON COLUMN user_represet_ref.phone IS 'телефон представительства';
+COMMENT ON TABLE user_represent_ref IS 'локальное представительство профиля';
+COMMENT ON COLUMN user_represent_ref.id IS 'id представительства';
+COMMENT ON COLUMN user_represent_ref.id_user IS 'id профиля (чьё представительства)';
+COMMENT ON COLUMN user_represent_ref.id_region IS 'регион представительства';
+COMMENT ON COLUMN user_represent_ref.id_representation_type IS 'тип представительства';
+COMMENT ON COLUMN user_represent_ref.name IS 'наименование представительства';
+COMMENT ON COLUMN user_represent_ref.address IS 'почтовый адрес представительства';
+COMMENT ON COLUMN user_represent_ref.phone IS 'телефон представительства';
 
 COMMENT ON TABLE representation_type_ref IS 'тип представительства профиля';
 COMMENT ON COLUMN representation_type_ref.id IS 'id типа представительства';

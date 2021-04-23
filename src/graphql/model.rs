@@ -5,10 +5,10 @@ use crate::jwt::model::{DecodedToken, Token};
 use crate::models::user::model::{LoggedUser, ShowUser, UserData, SlimUser};
 use crate::models::user::service as user;
 use crate::models::user::service::token::ClaimsResponse;
-use crate::models::user_represet::model::{
-    ShowUserRepreset, UserRepresetData, SlimUserRepreset
+use crate::models::user_represent::model::{
+    ShowUserRepresent, UserRepresentData, SlimUserRepresent
 };
-use crate::models::user_represet::service as user_represet;
+use crate::models::user_represent::service as user_represent;
 // use crate::models::file::model::{ShowFile, FileData, SlimFile};
 use crate::models::file::model::ShowFile;
 use crate::models::file::service as file;
@@ -65,12 +65,12 @@ impl QueryRoot {
         user::list::find_all_users(&context, limit, offset)
     }
 
-    pub fn user_represet(
+    pub fn user_represent(
         context: &Context,
         uuid_user_search: Option<String>,
         limit: Option<i32>,
         offset: Option<i32>,
-    ) -> ServiceResult<Vec<ShowUserRepreset>> {
+    ) -> ServiceResult<Vec<ShowUserRepresent>> {
         let uuid_user_search = match uuid_user_search {
             None => Uuid::nil(),
             Some(uuid_user_search) => Uuid::parse_str(&uuid_user_search)?,
@@ -79,7 +79,7 @@ impl QueryRoot {
         let limit: i32 = limit.unwrap_or(100);
         let offset: i32 = offset.unwrap_or(0);
 
-        user_represet::list::show(&context, uuid_user_search, limit, offset)
+        user_represent::list::show(&context, uuid_user_search, limit, offset)
     }
 
     pub fn generate_token(context: &Context) -> ServiceResult<Token> {
@@ -213,16 +213,16 @@ impl Mutation {
         Ok(create_user(data, conn)?)
     }
 
-    pub fn register_user_represet(
-        context: &Context, data: UserRepresetData
-    ) -> ServiceResult<SlimUserRepreset> {
-        use crate::models::user_represet::service::register::create_user_represet;
+    pub fn register_user_represent(
+        context: &Context, data: UserRepresentData
+    ) -> ServiceResult<SlimUserRepresent> {
+        use crate::models::user_represent::service::register::create_user_represent;
         let conn: &PgConnection = &context.db;
 
         crate::models::user::has_supplier(&context.user, 1)?;
         crate::models::user::verify_uuid_user(&context.user, data.uuid_user)?;
 
-        Ok(create_user_represet(data, conn)?)
+        Ok(create_user_represent(data, conn)?)
     }
 
     // pub fn register_file(context: &Context, data: FileData) -> ServiceResult<SlimFile> {

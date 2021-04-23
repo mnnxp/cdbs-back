@@ -36,7 +36,7 @@ insert or update on table "user_ref" violates foreign key constraint "user_ref_f
   type_of_change_ref
   type_user_ref
   user_ref
-  user_represet_ref
+  user_represent_ref
   user_tokens_ref
 component_access_to_user
 component_modification_list

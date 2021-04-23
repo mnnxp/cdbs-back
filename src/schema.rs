@@ -302,7 +302,7 @@ table! {
 }
 
 table! {
-    user_represet_ref (uuid) {
+    user_represent_ref (uuid) {
         id -> Int4,
         uuid -> Uuid,
         uuid_user -> Uuid,
@@ -364,9 +364,9 @@ joinable!(user_history_list -> user_ref (uuid_user));
 joinable!(user_ref -> name_cad_ref (id_name_cad));
 joinable!(user_ref -> region_ref (id_region));
 joinable!(user_ref -> type_user_ref (id_type_user));
-joinable!(user_represet_ref -> region_ref (id_region));
-joinable!(user_represet_ref -> representation_type_ref (id_representation_type));
-joinable!(user_represet_ref -> user_ref (uuid_user));
+joinable!(user_represent_ref -> region_ref (id_region));
+joinable!(user_represent_ref -> representation_type_ref (id_representation_type));
+joinable!(user_represent_ref -> user_ref (uuid_user));
 joinable!(user_tokens_ref -> user_ref (uuid_user));
 
 allow_tables_to_appear_in_same_query!(
@@ -401,6 +401,6 @@ allow_tables_to_appear_in_same_query!(
     type_user_ref,
     user_history_list,
     user_ref,
-    user_represet_ref,
+    user_represent_ref,
     user_tokens_ref,
 );

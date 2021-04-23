@@ -1,4 +1,4 @@
-const debug = require('debug')('cdbs-back:user_represet.test.js');
+const debug = require('debug')('cdbs-back:user_represent.test.js');
 const request = require('supertest');
 
 const HttpStatus = require('http-status-codes');
@@ -21,14 +21,14 @@ const name = "test additional office";
 const address = "Fake str, Fantom";
 const phone = "+743874487556";
 const id_representation_type = 1;
-const uuid_represet = [];
+const uuid_represent = [];
 
 async function cleanupDb() {
-  return global.knex.raw('DELETE FROM user_represet_ref WHERE name in (?)', [
+  return global.knex.raw('DELETE FROM user_represent_ref WHERE name in (?)', [
     name,
   ]);
 }
-describe('represets', () => {
+describe('represents', () => {
   beforeAll(async () => {
     return cleanupDb();
   });
@@ -66,20 +66,20 @@ describe('represets', () => {
       });
   });
 
-  it('/represets - OK', (done) => {
+  it('/represents - OK', (done) => {
     agent
-      .post('/represets')
+      .post('/represents')
       .send({
         id_region, id_representation_type, name, address, phone
       })
       .expect(HttpStatus.OK)
       .then(({ body }) => {
-        debug('/represets body=%o', body);
+        debug('/represents body=%o', body);
         expect(body).toContainAllKeys(
           ['uuid', 'uuid_user', 'name', 'address', 'phone']
         );
         expect(body.uuid).not.toBeNull();
-        uuid_represet.push(body.uuid);  // <-- for test delete represet
+        uuid_represent.push(body.uuid);  // <-- for test delete represent
         expect(body.uuid_user).toBe(uuid_user);
         expect(body.name).toBe(name);
         expect(body.address).toBe(address);
@@ -93,7 +93,7 @@ describe('represets', () => {
       .post('/graphql')
       .send({
         query: `mutation  {
-            registerUserRepreset( data: {
+            registerUserRepresent( data: {
                 uuidUser: "${uuid_user}",
                 name: "${name}",
                 address: "${address}",
@@ -110,18 +110,18 @@ describe('represets', () => {
         }`,
       })
       .expect(HttpStatus.OK);
-    debug('/graphql registerUserRepreset=%o', body);
+    debug('/graphql registerUserRepresent=%o', body);
     const {
-      data: { registerUserRepreset },
+      data: { registerUserRepresent },
     } = body;
-    expect(registerUserRepreset).toContainAllKeys(['uuid', 'uuidUser',
+    expect(registerUserRepresent).toContainAllKeys(['uuid', 'uuidUser',
       'name', 'address', 'phone']);
-    expect(registerUserRepreset.uuid).toBeNonEmptyString();
-    uuid_represet.push(registerUserRepreset.uuid);  // <-- for test delete represet not owned user
-    expect(registerUserRepreset.uuidUser).toBe(uuid_user);
-    expect(registerUserRepreset.name).toBe(name);
-    expect(registerUserRepreset.address).toBe(address);
-    expect(registerUserRepreset.phone).toBe(phone);
+    expect(registerUserRepresent.uuid).toBeNonEmptyString();
+    uuid_represent.push(registerUserRepresent.uuid);  // <-- for test delete represent not owned user
+    expect(registerUserRepresent.uuidUser).toBe(uuid_user);
+    expect(registerUserRepresent.name).toBe(name);
+    expect(registerUserRepresent.address).toBe(address);
+    expect(registerUserRepresent.phone).toBe(phone);
     done();
   });
 
@@ -130,7 +130,7 @@ describe('represets', () => {
       .post('/graphql')
       .send({
         query: `mutation  {
-            registerUserRepreset( data: {
+            registerUserRepresent( data: {
                 uuidUser: "${uuid_user2}",
                 name: "${name}",
                 address: "${address}",
@@ -147,19 +147,19 @@ describe('represets', () => {
         }`,
       })
       .expect(HttpStatus.OK);
-    debug('/graphql  - Not correct UUID registerUserRepreset=%o', body);
+    debug('/graphql  - Not correct UUID registerUserRepresent=%o', body);
     const { errors, data } = body;
     expect(data).toBeNull();
     expect(errors[0].message).toBe("Uuid not correct.");
     done();
   });
 
-  it('/graphql:Q List userRepreset - OK', async (done) => {
+  it('/graphql:Q List userRepresent - OK', async (done) => {
     const response1 = await agent
       .post('/graphql')
       .send({
-        query: `query ListUserRepreset {
-            userRepreset {
+        query: `query ListUserRepresent {
+            userRepresent {
                 uuid
                 uuidUser
                 name
@@ -170,17 +170,17 @@ describe('represets', () => {
         }`,
       })
       .expect(HttpStatus.OK);
-    debug('/graphql all userRepreset=%o', response1.body.data.userRepreset);
-    expect(response1.body.data.userRepreset).toBeNonEmptyArray();
+    debug('/graphql all userRepresent=%o', response1.body.data.userRepresent);
+    expect(response1.body.data.userRepresent).toBeNonEmptyArray();
     done();
   });
 
-  it('/graphql:Q List userRepreset with uuidUserSearch - OK', async (done) => {
+  it('/graphql:Q List userRepresent with uuidUserSearch - OK', async (done) => {
     const response1 = await agent
       .post('/graphql')
       .send({
-        query: `query ListUserRepreset {
-            userRepreset (uuidUserSearch: "${uuid_user}") {
+        query: `query ListUserRepresent {
+            userRepresent (uuidUserSearch: "${uuid_user}") {
                 uuid
                 uuidUser
                 idRegion
@@ -191,45 +191,45 @@ describe('represets', () => {
         }`,
       })
       .expect(HttpStatus.OK);
-    debug('/graphql filter userRepreset=%o', response1.body.data.userRepreset);
-    expect(response1.body.data.userRepreset).toBeNonEmptyArray();
-    expect(response1.body.data.userRepreset[0].uuidUser).toBe(uuid_user);
-    expect(response1.body.data.userRepreset.pop().uuidUser).toBe(uuid_user);
+    debug('/graphql filter userRepresent=%o', response1.body.data.userRepresent);
+    expect(response1.body.data.userRepresent).toBeNonEmptyArray();
+    expect(response1.body.data.userRepresent[0].uuidUser).toBe(uuid_user);
+    expect(response1.body.data.userRepresent.pop().uuidUser).toBe(uuid_user);
     done();
   });
 
-  it('/represets - Delete bad uuid', (done) => {
+  it('/represents - Delete bad uuid', (done) => {
     agent
-      .delete('/represets/' + 'BadUuid')
+      .delete('/represents/' + 'BadUuid')
       .expect(HttpStatus.BAD_REQUEST)
       .then(({ body }) => {
-        debug('/represets body=%o', body);
+        debug('/represents body=%o', body);
         expect(body).toBe("Invalid UUID");
         done();
       });
   });
 
-  it('/represets - Delete random uuid', (done) => {
+  it('/represents - Delete random uuid', (done) => {
     agent
-      .delete('/represets/' + uuid_fail)
+      .delete('/represents/' + uuid_fail)
       .expect(HttpStatus.BAD_REQUEST)
       .then(({ body }) => {
-        debug('/represets body=%o', body);
+        debug('/represents body=%o', body);
         expect(body).toBe("The representative not you or not found.");
         done();
       });
   });
 
-  it('/represets - Delete OK', (done) => {
+  it('/represents - Delete OK', (done) => {
     agent
-      .delete('/represets/' + uuid_represet[0])
+      .delete('/represents/' + uuid_represent[0])
       .expect(HttpStatus.OK)
       .then(({ body }) => {
-        debug('/represets body=%o', body);
+        debug('/represents body=%o', body);
         expect(body).toContainAllKeys(
           ['uuid', 'uuid_user', 'name', 'address', 'phone']
         );
-        expect(body.uuid).toBe(uuid_represet[0]);
+        expect(body.uuid).toBe(uuid_represent[0]);
         expect(body.uuid_user).toBe(uuid_user);
         expect(body.name).toBe(name);
         expect(body.address).toBe(address);
@@ -257,15 +257,15 @@ describe('represets', () => {
       });
   });
 
-  it('/represets - not supplier.', (done) => {
+  it('/represents - not supplier.', (done) => {
     agent
-      .post('/represets')
+      .post('/represents')
       .send({
         id_region, id_representation_type, name, address, phone
       })
       .expect(HttpStatus.BAD_REQUEST)
       .then(({ body }) => {
-        debug('/represets body=%o', body);
+        debug('/represents body=%o', body);
         expect(body).toBe("You are not supplier.");
         done();
       });
@@ -276,7 +276,7 @@ describe('represets', () => {
       .post('/graphql')
       .send({
         query: `mutation  {
-            registerUserRepreset( data: {
+            registerUserRepresent( data: {
                 uuidUser: "${uuid_user2}",
                 name: "${name}",
                 address: "${address}",
@@ -293,19 +293,19 @@ describe('represets', () => {
         }`,
       })
       .expect(HttpStatus.OK);
-    debug('/graphql  - not supplier registerUserRepreset=%o', body);
+    debug('/graphql  - not supplier registerUserRepresent=%o', body);
     const { errors, data } = body;
     expect(data).toBeNull();
     expect(errors[0].message).toBe("You are not supplier.");
     done();
   });
 
-  it('/represets - Delete not onwed', (done) => {
+  it('/represents - Delete not onwed', (done) => {
     agent
-      .delete('/represets/' + uuid_represet[1])
+      .delete('/represents/' + uuid_represent[1])
       .expect(HttpStatus.BAD_REQUEST)
       .then(({ body }) => {
-        debug('/represets body=%o', body);
+        debug('/represents body=%o', body);
         expect(body).toBe("The representative not you or not found.");
         done();
       });

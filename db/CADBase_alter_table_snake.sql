@@ -51,9 +51,9 @@ ALTER TABLE spec_translate_list ADD CONSTRAINT spec_translate_list_fk1 FOREIGN K
 ALTER TABLE param_translate_list ADD CONSTRAINT param_translate_list_fk0 FOREIGN KEY (id_param) REFERENCES param_ref(id);
 ALTER TABLE param_translate_list ADD CONSTRAINT param_translate_list_fk1 FOREIGN KEY (id_lang) REFERENCES language_ref(id);
 
-ALTER TABLE user_represet_ref ADD CONSTRAINT user_represet_ref_fk0 FOREIGN KEY (id_user) REFERENCES user_ref(id);
-ALTER TABLE user_represet_ref ADD CONSTRAINT user_represet_ref_fk1 FOREIGN KEY (id_representation_type) REFERENCES representation_type_ref(id);
-ALTER TABLE user_represet_ref ADD CONSTRAINT user_represet_ref_fk2 FOREIGN KEY (id_region) REFERENCES region_ref(id);
+ALTER TABLE user_represent_ref ADD CONSTRAINT user_represent_ref_fk0 FOREIGN KEY (id_user) REFERENCES user_ref(id);
+ALTER TABLE user_represent_ref ADD CONSTRAINT user_represent_ref_fk1 FOREIGN KEY (id_representation_type) REFERENCES representation_type_ref(id);
+ALTER TABLE user_represent_ref ADD CONSTRAINT user_represent_ref_fk2 FOREIGN KEY (id_region) REFERENCES region_ref(id);
 
 ALTER TABLE component_access_to_user ADD CONSTRAINT component_access_to_user_fk0 FOREIGN KEY (id_component) REFERENCES component_ref(id);
 ALTER TABLE component_access_to_user ADD CONSTRAINT component_access_to_user_fk1 FOREIGN KEY (id_user) REFERENCES user_ref(id);

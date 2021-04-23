@@ -4,7 +4,7 @@ use crate::schema::*;
 use uuid::Uuid;
 
 #[derive(Debug, Queryable)]
-pub struct UserRepreset {
+pub struct UserRepresent {
     pub id: i32,
     pub uuid: Uuid,
     pub uuid_user: Uuid,
@@ -16,7 +16,7 @@ pub struct UserRepreset {
 }
 
 #[derive(Debug, Serialize, Deserialize, Queryable, juniper::GraphQLObject)]
-pub struct ShowUserRepreset {
+pub struct ShowUserRepresent {
     pub uuid: Uuid,
     pub uuid_user: Uuid,
     pub id_region: i32,
@@ -29,8 +29,8 @@ pub struct ShowUserRepreset {
 }
 
 #[derive(Debug, Insertable)]
-#[table_name = "user_represet_ref"]
-pub struct InsertableUserRepreset {
+#[table_name = "user_represent_ref"]
+pub struct InsertableUserRepresent {
     pub uuid: Uuid,
     pub uuid_user: Uuid,
     pub id_region: i32,
@@ -41,7 +41,7 @@ pub struct InsertableUserRepreset {
 }
 
 #[derive(Debug, Deserialize, juniper::GraphQLInputObject)]
-pub struct UserRepresetData {
+pub struct UserRepresentData {
     pub uuid_user: Uuid,
     pub id_region: i32,
     pub id_representation_type: i32,
@@ -51,7 +51,7 @@ pub struct UserRepresetData {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, juniper::GraphQLObject)]
-pub struct SlimUserRepreset {
+pub struct SlimUserRepresent {
     pub uuid: Uuid,
     pub uuid_user: Uuid,
     pub name: String,
@@ -59,9 +59,9 @@ pub struct SlimUserRepreset {
     pub phone: String,
 }
 
-impl From<UserRepresetData> for InsertableUserRepreset {
-    fn from(user_represet_data: UserRepresetData) -> Self {
-        let UserRepresetData {
+impl From<UserRepresentData> for InsertableUserRepresent {
+    fn from(user_represent_data: UserRepresentData) -> Self {
+        let UserRepresentData {
             uuid_user,
             id_region,
             id_representation_type,
@@ -69,7 +69,7 @@ impl From<UserRepresetData> for InsertableUserRepreset {
             address,
             phone,
             ..
-        } = user_represet_data;
+        } = user_represent_data;
 
         // let uuid_user = "31ecc6f8-0c09-4a59-a2d5-34b5b833e59b".parse().unwrap();
 
@@ -85,16 +85,16 @@ impl From<UserRepresetData> for InsertableUserRepreset {
     }
 }
 
-impl From<UserRepreset> for SlimUserRepreset {
-    fn from(user_represet: UserRepreset) -> Self {
-        let UserRepreset {
+impl From<UserRepresent> for SlimUserRepresent {
+    fn from(user_represent: UserRepresent) -> Self {
+        let UserRepresent {
             uuid,
             uuid_user,
             name,
             address,
             phone,
             ..
-        } = user_represet;
+        } = user_represent;
 
         Self {
             uuid,

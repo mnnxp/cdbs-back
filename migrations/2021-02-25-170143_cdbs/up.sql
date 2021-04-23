@@ -39,7 +39,7 @@ CREATE TABLE user_tokens_ref (
 );
 
 /* локальное представительство профиля */
-CREATE TABLE user_represet_ref (
+CREATE TABLE user_represent_ref (
   id SERIAL, /* id представительства */
   uuid UUID NOT NULL UNIQUE,
   uuid_user UUID NOT NULL, /* id профиля (чьё представительства) */
@@ -49,7 +49,7 @@ CREATE TABLE user_represet_ref (
   address VARCHAR(512) NOT NULL, /* почтовый адрес представительства */
   phone VARCHAR(100) NOT NULL, /* телефон представительства */
   -- UNIQUE (uuid_user, name),
-  CONSTRAINT user_represet_ref_pk PRIMARY KEY (uuid)
+  CONSTRAINT user_represent_ref_pk PRIMARY KEY (uuid)
 );
 
 /* тип представительства профиля */

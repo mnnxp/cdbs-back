@@ -28,14 +28,14 @@ COMMENT ON COLUMN user_tokens_ref.token IS 'токен пользователя'
 COMMENT ON COLUMN user_tokens_ref.date_start IS 'дата создания токена';
 COMMENT ON COLUMN user_tokens_ref.date_end IS 'дата окончания действия токена';
 
-COMMENT ON TABLE user_represet_ref IS 'локальное представительство профиля';
-COMMENT ON COLUMN user_represet_ref.id IS 'id представительства';
-COMMENT ON COLUMN user_represet_ref.id_user IS 'id профиля (чьё представительства)';
-COMMENT ON COLUMN user_represet_ref.id_region IS 'регион представительства';
-COMMENT ON COLUMN user_represet_ref.id_representation_type IS 'тип представительства';
-COMMENT ON COLUMN user_represet_ref.name IS 'наименование представительства';
-COMMENT ON COLUMN user_represet_ref.address IS 'почтовый адрес представительства';
-COMMENT ON COLUMN user_represet_ref.phone IS 'телефон представительства';
+COMMENT ON TABLE user_represent_ref IS 'локальное представительство профиля';
+COMMENT ON COLUMN user_represent_ref.id IS 'id представительства';
+COMMENT ON COLUMN user_represent_ref.id_user IS 'id профиля (чьё представительства)';
+COMMENT ON COLUMN user_represent_ref.id_region IS 'регион представительства';
+COMMENT ON COLUMN user_represent_ref.id_representation_type IS 'тип представительства';
+COMMENT ON COLUMN user_represent_ref.name IS 'наименование представительства';
+COMMENT ON COLUMN user_represent_ref.address IS 'почтовый адрес представительства';
+COMMENT ON COLUMN user_represent_ref.phone IS 'телефон представительства';
 
 COMMENT ON TABLE representation_type_ref IS 'тип представительства профиля';
 COMMENT ON COLUMN representation_type_ref.id IS 'id типа представительства';

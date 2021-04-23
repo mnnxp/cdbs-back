@@ -26,7 +26,7 @@ async function cleanupDb() {
     param_test_value2,
   ]);
 }
-describe('represets', () => {
+describe('represents', () => {
   beforeAll(async () => {
     return cleanupDb();
   });

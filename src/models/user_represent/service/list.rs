@@ -1,7 +1,7 @@
 use crate::database::PooledConnection;
 use crate::errors::{ServiceResult, ServiceError};
 use crate::graphql::model::Context;
-use crate::models::user_represet::model::ShowUserRepreset;
+use crate::models::user_represent::model::ShowUserRepresent;
 use diesel::prelude::*;
 // use std::any::Any;
 use uuid::Uuid;
@@ -12,25 +12,25 @@ pub(crate) fn show(
     uuid_user_search: Uuid,
     limit: i32,
     offset: i32,
-) -> ServiceResult<Vec<ShowUserRepreset>> {
+) -> ServiceResult<Vec<ShowUserRepresent>> {
     match uuid_user_search {
-        uuid_user_search if uuid_user_search == Uuid::nil() => find_all_user_represets(context, limit, offset),
-        uuid_user_search if uuid_user_search > Uuid::nil() => find_uuid_user_represets(context, uuid_user_search, limit, offset),
+        uuid_user_search if uuid_user_search == Uuid::nil() => find_all_user_represents(context, limit, offset),
+        uuid_user_search if uuid_user_search > Uuid::nil() => find_uuid_user_represents(context, uuid_user_search, limit, offset),
         _ => ServiceResult::Err(ServiceError::BadRequest("What?".to_string()))
     }
 }
 
-fn find_all_user_represets(
+fn find_all_user_represents(
     context: &Context,
     limit: i32,
     offset: i32,
-) -> ServiceResult<Vec<ShowUserRepreset>> {
-    use crate::schema::user_represet_ref::dsl::*;
+) -> ServiceResult<Vec<ShowUserRepresent>> {
+    use crate::schema::user_represent_ref::dsl::*;
     use crate::schema::representation_type_ref::dsl::*;
     use crate::schema::region_ref::dsl::*;
     let conn: &PooledConnection = &context.db;
 
-    Ok(user_represet_ref
+    Ok(user_represent_ref
         .inner_join(representation_type_ref)
         .inner_join(region_ref)
         .select((
@@ -39,21 +39,21 @@ fn find_all_user_represets(
         ))
         .limit(limit as i64)
         .offset(offset as i64)
-        .load::<ShowUserRepreset>(conn)?)
+        .load::<ShowUserRepresent>(conn)?)
 }
 
-fn find_uuid_user_represets(
+fn find_uuid_user_represents(
     context: &Context,
     uuid_user_search: Uuid,
     limit: i32,
     offset: i32,
-) -> ServiceResult<Vec<ShowUserRepreset>> {
-    use crate::schema::user_represet_ref::dsl::*;
+) -> ServiceResult<Vec<ShowUserRepresent>> {
+    use crate::schema::user_represent_ref::dsl::*;
     use crate::schema::representation_type_ref::dsl::*;
     use crate::schema::region_ref::dsl::*;
     let conn: &PooledConnection = &context.db;
 
-    Ok(user_represet_ref
+    Ok(user_represent_ref
         .inner_join(representation_type_ref)
         .inner_join(region_ref)
         .filter(uuid_user.eq(uuid_user_search))
@@ -63,5 +63,5 @@ fn find_uuid_user_represets(
         ))
         .limit(limit as i64)
         .offset(offset as i64)
-        .load::<ShowUserRepreset>(conn)?)
+        .load::<ShowUserRepresent>(conn)?)
 }
