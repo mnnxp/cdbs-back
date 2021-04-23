@@ -45,6 +45,9 @@ pub(crate) fn create_param(
                 .get_result(conn)?;
             Ok(inserted_param_data)
         },
-        _ => Err(ServiceError::BadRequest("This param name is already there.".to_string())),
+        1..=i32::MAX => Err(ServiceError::BadRequest(
+            format!("This param name is already there. Id: {}", flag_found_param))
+        ),
+        _ => Err(ServiceError::BadRequest("What?".to_string())),
     }
 }
