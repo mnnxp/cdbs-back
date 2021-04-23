@@ -10,6 +10,6 @@ pub fn route(cfg: &mut web::ServiceConfig) {
     cfg.service(
         web::scope("/represets")
             .service(web::resource("").route(web::post().to(register)))
-            .service(web::resource("").route(web::delete().to(delete))),
+            .service(web::resource("/{uuid_represet}").route(web::delete().to(delete))),
     );
 }

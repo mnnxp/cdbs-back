@@ -1,33 +1,9 @@
-use crate::database::{
-    Pool
-    // PooledConnection
-};
+use crate::database::Pool;
 use crate::errors::{ServiceResult, ServiceError};
-use crate::models::user::model::{
-    LoggedUser
-    // SlimUser,
-    // UserData
-};
-// use crate::models::user::service as user;
-use crate::models::user_represet::model::{
-    // UserRepreset,
-    // SlimUserRepreset,
-    UserRepresetData
-};
+use crate::models::user::model::LoggedUser;
+use crate::models::user_represet::model::UserRepresetData;
 use crate::models::user_represet::service as user_represet;
-// use crate::graphql::model::Context;
-// use actix_identity::{Identity, RequestIdentity};
-// use actix_web::dev::Payload;
-use actix_web::{
-    web,
-    // Error,
-    // FromRequest,
-    // HttpRequest,
-    HttpResponse
-};
-// use diesel::prelude::*;
-// use crate::schema::user_represet_ref::dsl::user_represet_ref;
-// use std::any::Any;
+use actix_web::{web,HttpResponse};
 use uuid::Uuid;
 
 #[derive(Debug, Deserialize)]
@@ -39,6 +15,7 @@ pub struct RegisterRepresetQuery {
     pub phone: String,
 }
 
+/// Register representative for user
 pub async fn register(
     new_user_represet_data: web::Json<RegisterRepresetQuery>,
     logged_user: LoggedUser,
@@ -69,38 +46,21 @@ pub struct DeleteRepresetQuery {
     pub uuid_represet: String,
 }
 
+/// Delete representative user by uuid
 pub async fn delete(
-    represet_delete_data: web::Json<DeleteRepresetQuery>,
+    represet_delete_data: web::Path<DeleteRepresetQuery>,
     logged_user: LoggedUser,
     pool: web::Data<Pool>,
 ) -> Result<HttpResponse, ServiceError> {
     let user_uuid = logged_user.0.as_ref().unwrap().uuid;
-    // let user_uuid = Uuid::nil();
 
-    // debug!("represet_delete_data before parsing={}", &represet_delete_data.uuid_represet);
-    let uuid_represet_delete =  Uuid::parse_str(&represet_delete_data.uuid_represet)
-        .unwrap_or_else(|_| Uuid::nil());
-    // debug!("uuid_represet_delete after parsing={}", &uuid_represet_delete);
-
-    // user_represet::delete(user_uuid, uuid_represet_delete, pool)
-    //             .map(|res| HttpResponse::Ok().json(&res))
+    let uuid_represet_delete = Uuid::parse_str(&represet_delete_data.uuid_represet).unwrap_or_else(|_| Uuid::nil());
 
     match logged_user.0 {
         None => ServiceResult::Err(ServiceError::Unauthorized),
         Some(..) if (user_uuid != Uuid::nil()) && (uuid_represet_delete != Uuid::nil()) =>
             user_represet::delete(user_uuid, uuid_represet_delete, pool)
                 .map(|res| HttpResponse::Ok().json(&res)),
-        // _ => ServiceResult::Err(ServiceError::BadRequest("Not valid uuid.".to_string())),
-        _ => ServiceResult::Err(ServiceError::BadRequest(
-            format!("user_uuid: {}, uuid_represet_delete: {}", user_uuid, uuid_represet_delete)
-        )),
+        _ => ServiceResult::Err(ServiceError::BadRequest("Invalid UUID".to_string())),
     }
-
-    // if logged_user.0 == None {
-    //     ServiceResult::Err(ServiceError::Unauthorized)
-    // }
-    // else {
-    //     user_represet::delete(*user_uuid, uuid_represet_delete, pool)
-    //         .map(|res| HttpResponse::Ok().json(&res))
-    // }
 }

@@ -13,7 +13,7 @@ const nickname = "nicknameeee";
 const nickname2 = "albane";
 const password = "password";
 const password2 = "password1";
-// const uuid = "";
+const uuid_fail = "aba22d59-4f6c-24a4-9a37-2d38f0e577a8";
 const uuid_user = "31ecc6f8-0c09-4a59-a2d5-34b5b833e59b";
 const uuid_user2 = "68b8281a-d19c-4d4b-88eb-6fd4a2afde1b";
 const id_region = 15;
@@ -21,6 +21,7 @@ const name = "test additional office";
 const address = "Fake str, Fantom";
 const phone = "+743874487556";
 const id_representation_type = 1;
+const uuid_represet = [];
 
 async function cleanupDb() {
   return global.knex.raw('DELETE FROM user_represet_ref WHERE name in (?)', [
@@ -78,6 +79,7 @@ describe('represets', () => {
           ['uuid', 'uuid_user', 'name', 'address', 'phone']
         );
         expect(body.uuid).not.toBeNull();
+        uuid_represet.push(body.uuid);  // <-- for test delete represet
         expect(body.uuid_user).toBe(uuid_user);
         expect(body.name).toBe(name);
         expect(body.address).toBe(address);
@@ -115,6 +117,7 @@ describe('represets', () => {
     expect(registerUserRepreset).toContainAllKeys(['uuid', 'uuidUser',
       'name', 'address', 'phone']);
     expect(registerUserRepreset.uuid).toBeNonEmptyString();
+    uuid_represet.push(registerUserRepreset.uuid);  // <-- for test delete represet not owned user
     expect(registerUserRepreset.uuidUser).toBe(uuid_user);
     expect(registerUserRepreset.name).toBe(name);
     expect(registerUserRepreset.address).toBe(address);
@@ -195,6 +198,46 @@ describe('represets', () => {
     done();
   });
 
+  it('/represets - Delete bad uuid', (done) => {
+    agent
+      .delete('/represets/' + 'BadUuid')
+      .expect(HttpStatus.BAD_REQUEST)
+      .then(({ body }) => {
+        debug('/represets body=%o', body);
+        expect(body).toBe("Invalid UUID");
+        done();
+      });
+  });
+
+  it('/represets - Delete random uuid', (done) => {
+    agent
+      .delete('/represets/' + uuid_fail)
+      .expect(HttpStatus.BAD_REQUEST)
+      .then(({ body }) => {
+        debug('/represets body=%o', body);
+        expect(body).toBe("The representative not you or not found.");
+        done();
+      });
+  });
+
+  it('/represets - Delete OK', (done) => {
+    agent
+      .delete('/represets/' + uuid_represet[0])
+      .expect(HttpStatus.OK)
+      .then(({ body }) => {
+        debug('/represets body=%o', body);
+        expect(body).toContainAllKeys(
+          ['uuid', 'uuid_user', 'name', 'address', 'phone']
+        );
+        expect(body.uuid).toBe(uuid_represet[0]);
+        expect(body.uuid_user).toBe(uuid_user);
+        expect(body.name).toBe(name);
+        expect(body.address).toBe(address);
+        expect(body.phone).toBe(phone);
+        done();
+      });
+  });
+
   it('/users/logout - OK', (done) => {
     agent.get('/users/logout').expect(HttpStatus.OK, done);
   });
@@ -255,5 +298,16 @@ describe('represets', () => {
     expect(data).toBeNull();
     expect(errors[0].message).toBe("You are not supplier.");
     done();
+  });
+
+  it('/represets - Delete not onwed', (done) => {
+    agent
+      .delete('/represets/' + uuid_represet[1])
+      .expect(HttpStatus.BAD_REQUEST)
+      .then(({ body }) => {
+        debug('/represets body=%o', body);
+        expect(body).toBe("The representative not you or not found.");
+        done();
+      });
   });
 });
