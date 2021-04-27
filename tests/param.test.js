@@ -19,6 +19,7 @@ const paramname_index = 2;
 const paramname = "Selector";
 const param_test_name = "testnameparametr";
 const param_test_name2 = "testnameparametr2";
+const id_param_test = [];
 
 async function cleanupDb() {
   return global.knex.raw('DELETE FROM param_ref WHERE paramname in (?,?)', [
@@ -104,6 +105,7 @@ describe('params', () => {
       "id", "paramname"
     ]);
     expect(registerParam.id).not.toBeNull();
+    id_param_test.push(registerParam.id);   // <-- save data for test "already param"
     expect(registerParam.paramname).toBe(param_test_name2);
     done();
   });
@@ -125,7 +127,9 @@ describe('params', () => {
     debug('/graphql  - param name is already =%o', body);
     const { errors, data } = body;
     expect(data).toBeNull();
-    expect(errors[0].message).toBe("This param name is already there.");
+    expect(errors[0].message).toInclude(
+      "This param name is already there. Id: " + id_param_test[0]
+    );
     done();
   });
 
