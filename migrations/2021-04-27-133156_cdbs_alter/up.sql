@@ -1,4 +1,4 @@
-
+-- ALTER for database cdbs
 ALTER TABLE user_ref ADD CONSTRAINT user_ref_fk0 FOREIGN KEY (id_type_user) REFERENCES type_user_ref(id);
 ALTER TABLE user_ref ADD CONSTRAINT user_ref_fk1 FOREIGN KEY (id_name_cad) REFERENCES name_cad_ref(id);
 ALTER TABLE user_ref ADD CONSTRAINT user_ref_fk2 FOREIGN KEY (uuid_file_info_icon) REFERENCES file_ref(uuid);

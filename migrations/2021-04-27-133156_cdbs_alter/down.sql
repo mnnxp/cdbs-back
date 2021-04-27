@@ -1,3 +1,4 @@
+-- This file should undo anything in `up.sql`
 DROP TABLE user_ref;
 DROP TABLE user_tokens_ref;
 DROP TABLE user_represent_ref;
