@@ -337,11 +337,11 @@ INSERT INTO representation_type_ref (representation_type) VALUES
     ('Представительство');
 
 -- TABLE: spec_ref: id (serial), spec (VARCHAR(100)), id_spec_parent (INTEGER)
-INSERT INTO spec_ref (spec, id_spec_parent) VALUES
-    ('main', 1),
-    ('Components', 1),
-    ('Construction', 2),
-    ('Tools', 2);
+-- INSERT INTO spec_ref (spec, id_spec_parent) VALUES
+--     ('main', 1),
+--     ('Components', 1),
+--     ('Construction', 2),
+--     ('Tools', 2);
 
 -- TABLE: component_access_to_user: id SERIAL, id_component INTEGER, id_user INTEGER,
 -- id_type_access INTEGER, is_actual INTEGER, is_delete INTEGER, created_at TIMESTAMP
