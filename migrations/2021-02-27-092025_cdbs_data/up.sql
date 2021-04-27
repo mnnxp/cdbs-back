@@ -337,11 +337,8 @@ INSERT INTO representation_type_ref (representation_type) VALUES
     ('Представительство');
 
 -- TABLE: spec_ref: id (serial), spec (VARCHAR(100)), id_spec_parent (INTEGER)
--- INSERT INTO spec_ref (spec, id_spec_parent) VALUES
---     ('main', 1),
---     ('Components', 1),
---     ('Construction', 2),
---     ('Tools', 2);
+INSERT INTO spec_ref (spec, id_spec_parent) VALUES
+    ('Root_catalog', 1);
 
 -- TABLE: component_access_to_user: id SERIAL, id_component INTEGER, id_user INTEGER,
 -- id_type_access INTEGER, is_actual INTEGER, is_delete INTEGER, created_at TIMESTAMP
@@ -438,7 +435,3 @@ INSERT INTO type_of_change_ref (type_of_change) VALUES
 INSERT INTO spec_to_user (id_spec, uuid_user) VALUES
   (2, '31ecc6f8-0c09-4a59-a2d5-34b5b833e59b'),
   (3, '31ecc6f8-0c09-4a59-a2d5-34b5b833e59b');
-
--- TABLE: spec_ref: id (serial), spec (VARCHAR(100)), id_spec_parent (INTEGER),
-INSERT INTO spec_ref (spec, id_spec_parent) VALUES
-  ('Root_catalog', 1);
