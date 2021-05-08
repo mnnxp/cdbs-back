@@ -112,11 +112,11 @@ impl From<ComponentModification> for SlimComponentModification {
             uuid,
             uuid_component,
             modification_name,
-            comment,
-            created_at,
             id_name_cad,
+            comment,
             uuid_modification_parent,
             id_actual_status,
+            created_at,
             ..
         } = data_modification;
 
@@ -124,11 +124,11 @@ impl From<ComponentModification> for SlimComponentModification {
             uuid,
             uuid_component,
             modification_name,
-            comment,
-            created_at,
             id_name_cad,
+            comment,
             uuid_modification_parent,
             id_actual_status,
+            created_at,
         }
     }
 }
