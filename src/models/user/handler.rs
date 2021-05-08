@@ -34,7 +34,7 @@ pub struct RegisterUserDataQuery {
     pub firstname: String,
     pub lastname: String,
     pub secondname: String,
-    pub nickname: String,
+    pub username: String,
     pub email: String,
     pub password: String,
     pub id_type_user: i32,
@@ -91,7 +91,7 @@ pub async fn register(
         id_type_user: (new_user_data.id_type_user),
         password: (new_user_data.password.to_owned()),
         email: (new_user_data.email.to_owned()),
-        nickname: (new_user_data.nickname.to_owned()),
+        username: (new_user_data.username.to_owned()),
         secondname: (new_user_data.secondname.to_owned()),
         lastname: (new_user_data.lastname.to_owned()),
         firstname: (new_user_data.firstname.to_owned()),
@@ -102,7 +102,7 @@ pub async fn register(
 
 #[derive(Debug, Deserialize)]
 pub(super) struct LoginQuery {
-    pub nickname: String,
+    pub username: String,
     pub password: String,
 }
 
@@ -111,7 +111,7 @@ pub(super) async fn login(
     id: Identity,
     pool: web::Data<Pool>,
 ) -> Result<HttpResponse, ServiceError> {
-    user::login(&auth_data.nickname, &auth_data.password, pool).and_then(|res| {
+    user::login(&auth_data.username, &auth_data.password, pool).and_then(|res| {
         let user_string =
             serde_json::to_string(&res).map_err(|_| ServiceError::InternalServerError)?;
         debug!("user_string={}", user_string);

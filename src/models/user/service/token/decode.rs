@@ -9,8 +9,8 @@ impl ClaimsResponse {
     fn iss(&self) -> &str {
         self.iss.as_str()
     }
-    fn nickname(&self) -> &str {
-        self.nickname.as_str()
+    fn username(&self) -> &str {
+        self.username.as_str()
     }
     fn sub(&self) -> &str {
         self.sub.as_str()

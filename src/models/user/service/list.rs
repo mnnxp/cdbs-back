@@ -27,7 +27,7 @@ pub(crate) fn find_all_users(
         .select((
             uuid, email, email_verified, id_type_user,
             typeusershort, is_supplier, firstname, lastname,
-            secondname, nickname, orgname, shortname,
+            secondname, username, orgname, shortname,
             inn, phone, id_name_cad, name_cad,
             comment, address, time_zone, position,
             site_url, uuid_file_info_icon, id_region,

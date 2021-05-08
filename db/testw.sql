@@ -11,7 +11,7 @@ CREATE TABLE user_ref (
   firstname VARCHAR(100) NOT NULL, /*Имя */
   lastname VARCHAR(100) NOT NULL, /*Фамилия */
   secondname VARCHAR(100) NOT NULL, /*Отчество */
-  nickname VARCHAR(100) NOT NULL UNIQUE, /* ник профиля (может использоваться для авторизации) */
+  username VARCHAR(100) NOT NULL UNIQUE, /* ник профиля (может использоваться для авторизации) */
   orgname VARCHAR(255) NOT NULL, /* наименование организации (для юр.лиц) */
   shortname VARCHAR(255) NOT NULL, /* сокращённое наименование организации (для юр.лиц) */
   inn VARCHAR(30) NOT NULL, /*инн профиля */
@@ -428,7 +428,7 @@ COMMENT ON COLUMN user_ref.id_type_user  IS 'тип профиля (физ. ли
 COMMENT ON COLUMN user_ref.firstname IS 'Имя';
 COMMENT ON COLUMN user_ref.lastname IS 'Фамилия';
 COMMENT ON COLUMN user_ref.secondname IS 'Отчество';
-COMMENT ON COLUMN user_ref.nickname IS 'ник профиля (может использоваться для авторизации)';
+COMMENT ON COLUMN user_ref.username IS 'ник профиля (может использоваться для авторизации)';
 COMMENT ON COLUMN user_ref.orgname IS 'наименование организации (для юр.лиц)';
 COMMENT ON COLUMN user_ref.shortname IS 'сокращённое наименование организации (для юр.лиц)';
 COMMENT ON COLUMN user_ref.inn IS 'инн профиля';

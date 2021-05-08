@@ -11,7 +11,7 @@ CREATE TABLE user_ref (
   firstname VARCHAR(100) NOT NULL, /*Имя */
   lastname VARCHAR(100) NOT NULL, /*Фамилия */
   secondname VARCHAR(100) NOT NULL, /*Отчество */
-  nickname VARCHAR(100) NOT NULL UNIQUE, /* ник профиля (может использоваться для авторизации) */
+  username VARCHAR(100) NOT NULL UNIQUE, /* ник профиля (может использоваться для авторизации) */
   orgname VARCHAR(255) NOT NULL, /* наименование организации (для юр.лиц) */
   shortname VARCHAR(255) NOT NULL, /* сокращённое наименование организации (для юр.лиц) */
   inn VARCHAR(30) NOT NULL, /*инн профиля */

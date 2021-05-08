@@ -17,7 +17,7 @@ pub struct User {
     pub firstname: String,
     pub lastname: String,
     pub secondname: String,
-    pub nickname: String,
+    pub username: String,
     pub orgname: String,
     pub shortname: String,
     pub inn: String,
@@ -44,7 +44,7 @@ pub struct ShowUser {
     pub firstname: String,
     pub lastname: String,
     pub secondname: String,
-    pub nickname: String,
+    pub username: String,
     pub orgname: String,
     pub shortname: String,
     pub inn: String,
@@ -75,7 +75,7 @@ pub struct InsertableUser {
     pub firstname: String,
     pub lastname: String,
     pub secondname: String,
-    pub nickname: String,
+    pub username: String,
     pub orgname: String,
     pub shortname: String,
     pub inn: String,
@@ -96,7 +96,7 @@ pub struct UserData {
     pub firstname: String,
     pub lastname: String,
     pub secondname: String,
-    pub nickname: String,
+    pub username: String,
     pub email: String,
     pub password: String,
     pub id_type_user: i32,
@@ -119,7 +119,7 @@ pub struct UserData {
 pub struct SlimUser {
     pub uuid: Uuid,
     pub is_supplier: i32,
-    pub nickname: String,
+    pub username: String,
 }
 
 #[derive(Shrinkwrap, Clone, Default)]
@@ -137,7 +137,7 @@ impl From<UserData> for InsertableUser {
             firstname,
             lastname,
             secondname,
-            nickname,
+            username,
             email,
             password,
             id_type_user,
@@ -171,7 +171,7 @@ impl From<UserData> for InsertableUser {
             firstname,
             lastname,
             secondname,
-            nickname,
+            username,
             orgname,
             shortname,
             inn,
@@ -194,14 +194,14 @@ impl From<User> for SlimUser {
         let User {
             uuid,
             is_supplier,
-            nickname,
+            username,
             ..
         } = user;
 
         Self {
             uuid,
             is_supplier,
-            nickname,
+            username,
         }
     }
 }

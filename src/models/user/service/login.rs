@@ -6,15 +6,15 @@ use actix_web::web;
 use diesel::prelude::*;
 
 pub fn login(
-    user_nickname: &str,
+    user_username: &str,
     user_password: &str,
     pool: web::Data<Pool>,
 ) -> ServiceResult<SlimUser> {
-    use crate::schema::user_ref::dsl::{nickname, user_ref};
+    use crate::schema::user_ref::dsl::{username, user_ref};
 
     let conn = &db_connection(&pool)?;
     let user = user_ref
-        .filter(nickname.eq(user_nickname))
+        .filter(username.eq(user_username))
         .first::<User>(conn)
         .map_err(|_| ServiceError::Unauthorized)?;
 

@@ -9,8 +9,8 @@ const url = `http://${apiDomain}:${apiPort}`;
 
 jest.setTimeout(1300);
 
-const nickname = "nicknameeee";
-const nickname2 = "albane";
+const username = "usernameeee";
+const username2 = "albane";
 const password = "password";
 const password2 = "password1";
 const uuid_fail = "aba22d59-4f6c-24a4-9a37-2d38f0e577a8";
@@ -54,12 +54,12 @@ describe('represents', () => {
   it('/users/login - OK is supplier', (done) => {
     agent
       .post('/users/login')
-      .send({ nickname, password })
+      .send({ username, password })
       .expect(HttpStatus.OK)
       .then(({ body, headers }) => {
         expect(headers['set-cookie'][0]).toBeNonEmptyString();
-        expect(body).toContainAllKeys(['nickname', 'is_supplier', 'uuid']);
-        expect(body.nickname).toBe(nickname);
+        expect(body).toContainAllKeys(['username', 'is_supplier', 'uuid']);
+        expect(body.username).toBe(username);
         expect(body.is_supplier).toBe(1);
         expect(body.uuid).toBeNonEmptyString();
         done();
@@ -245,12 +245,12 @@ describe('represents', () => {
   it('/users/login - OK is not supplier', (done) => {
     agent
       .post('/users/login')
-      .send({ nickname: nickname2, password: password2 })
+      .send({ username: username2, password: password2 })
       .expect(HttpStatus.OK)
       .then(({ body, headers }) => {
         expect(headers['set-cookie'][0]).toBeNonEmptyString();
-        expect(body).toContainAllKeys(['nickname', 'is_supplier', 'uuid']);
-        expect(body.nickname).toBe(nickname2);
+        expect(body).toContainAllKeys(['username', 'is_supplier', 'uuid']);
+        expect(body.username).toBe(username2);
         expect(body.is_supplier).toBe(0);
         expect(body.uuid).toBeNonEmptyString();
         done();

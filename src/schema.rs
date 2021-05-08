@@ -284,7 +284,7 @@ table! {
         firstname -> Varchar,
         lastname -> Varchar,
         secondname -> Varchar,
-        nickname -> Varchar,
+        username -> Varchar,
         orgname -> Varchar,
         shortname -> Varchar,
         inn -> Varchar,

@@ -157,17 +157,17 @@ INSERT INTO name_cad_ref (name_cad) VALUES
 -- uuid (UUID), email (VARCHAR(100)), email_verified (INTEGER),
 -- psw_hash (BYTEA), psw_salt (VARCHAR(255)), id_type_user (INTEGER),
 -- firstname (VARCHAR(100)), lastname (VARCHAR(100)), secondname (VARCHAR(100)),
--- nickname (VARCHAR(100)), orgname (VARCHAR(255)), shortname (VARCHAR(255)),
+-- username (VARCHAR(100)), orgname (VARCHAR(255)), shortname (VARCHAR(255)),
 -- inn (VARCHAR(30)), phone (VARCHAR(100)), id_name_cad (INTEGER),
 -- comment (VARCHAR(2000)), address (VARCHAR(512)), time_zone (INTEGER),
 -- position (VARCHAR(255)), site_url (VARCHAR(255)), id_file_info_icon (INTEGER),
 -- id_region (INTEGER), created_at (TIMESTAMP),
 INSERT INTO user_ref (uuid, email, email_verified, psw_hash, psw_salt,
-  id_type_user, firstname, lastname, secondname, nickname, orgname, shortname,
+  id_type_user, firstname, lastname, secondname, username, orgname, shortname,
   inn, phone, id_name_cad, comment, address, time_zone, position, site_url,
   id_file_info_icon, id_region, created_at) VALUES
     ('31ecc6f8-0c09-4a59-a2d5-34b5b833e59b', 'email@email.ru', 0, E'\\000',
-      '000', 0, 'Johm', 'Ivanov', 'Rucovich', 'nicknameeee', 'romashka', 'rom-ka',
+      '000', 0, 'Johm', 'Ivanov', 'Rucovich', 'usernameeee', 'romashka', 'rom-ka',
       '12345678910', '+7999123456', 0, 'comment for this user', 'Moscow',
       3, 'engineer', 'https://cadbase.ru', 0, 0, now());
 

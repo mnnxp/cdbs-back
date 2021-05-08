@@ -12,7 +12,7 @@ Content-Type: application/json
   	"firstname": "Vans",
   	"lastname": "Bpero",
   	"secondname": "Nado",
-  	"nickname": "albane",
+  	"username": "albane",
   	"email": "bname@somain.com",
   	"password": "password1",
   	"id_type_user": 1,
@@ -37,7 +37,7 @@ POST http://0.0.0.0:3000/user/login HTTP/1.1
 Content-Type: application/json
 
 {
-  	"nickname": "albane",
+  	"username": "albane",
   	"password": "password"
 }
 
@@ -177,7 +177,7 @@ query usersQuery {
     firstname
     lastname
     secondname
-    nickname
+    username
     orgname
     shortname
     inn

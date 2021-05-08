@@ -19,8 +19,8 @@ pub struct Claims {
     pub iat: i64,
     // expiry
     pub exp: i64,
-    // user nickname
-    pub nickname: String,
+    // user username
+    pub username: String,
     // user is supplier
     pub is_supplier: i32,
 }
@@ -31,7 +31,7 @@ impl Claims {
         let SlimUser {
             uuid,
             is_supplier,
-            nickname,
+            username,
             ..
         } = slim_user;
 
@@ -42,7 +42,7 @@ impl Claims {
             iss: issuer,
             sub: uuid.to_string(),
             is_supplier: *is_supplier,
-            nickname: nickname.clone(),
+            username: username.clone(),
             iat: iat.timestamp(),
             exp: exp.timestamp(),
         }
@@ -59,12 +59,12 @@ impl TryFrom<Claims> for SlimUser {
 
     fn try_from(claims: Claims) -> Result<Self> {
         let Claims {
-            is_supplier, nickname, sub, ..
+            is_supplier, username, sub, ..
         }: Claims = claims;
 
         Ok(SlimUser {
             uuid: Uuid::parse_str(&sub)?,
-            nickname,
+            username,
             is_supplier,
         })
     }

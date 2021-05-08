@@ -9,7 +9,7 @@ const url = `http://${apiDomain}:${apiPort}`;
 
 jest.setTimeout(1300);
 
-const nickname = "nicknameeee";
+const username = "usernameeee";
 const password = "password";
 const uuid_user_create = "31ecc6f8-0c09-4a59-a2d5-34b5b833e59b";
 const uuid_component = "a5953fd9-7393-4f1e-a899-06b5e159dbf1";
@@ -52,12 +52,12 @@ describe('params', () => {
   it('/users/login - OK is supplier', (done) => {
     agent
       .post('/users/login')
-      .send({ nickname, password })
+      .send({ username, password })
       .expect(HttpStatus.OK)
       .then(({ body, headers }) => {
         expect(headers['set-cookie'][0]).toBeNonEmptyString();
-        expect(body).toContainAllKeys(['nickname', 'is_supplier', 'uuid']);
-        expect(body.nickname).toBe(nickname);
+        expect(body).toContainAllKeys(['username', 'is_supplier', 'uuid']);
+        expect(body.username).toBe(username);
         expect(body.is_supplier).toBe(1);
         expect(body.uuid).toBeNonEmptyString();
         done();
