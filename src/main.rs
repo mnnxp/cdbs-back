@@ -13,6 +13,7 @@ mod jwt;
 mod schema;
 mod models;
 
+use actix_cors::Cors;
 use actix_identity::{CookieIdentityPolicy, IdentityService};
 use actix_web::{App, HttpServer, web};
 use actix_web::middleware::Logger;
@@ -48,13 +49,16 @@ async fn main() -> std::io::Result<()> {
     let server = HttpServer::new(move || {
         // prevents double Arc
         let schema: web::Data<graphql::model::Schema> = schema.clone().into();
-
+        // CORS a very permissive set of default for quick development
+        let cors = Cors::permissive();
         App::new()
             // Database
             .data(pool.clone())
             .app_data(schema)
             // Options
             .data(opt.clone())
+            // CORS
+            .wrap(cors)
             // Error logging
             .wrap(Logger::default())
             // Authorisation
