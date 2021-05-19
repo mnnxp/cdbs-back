@@ -67,19 +67,19 @@ impl QueryRoot {
 
     pub fn user_represent(
         context: &Context,
-        uuid_user_search: Option<String>,
+        uuid_user: Option<String>,
         limit: Option<i32>,
         offset: Option<i32>,
     ) -> ServiceResult<Vec<ShowUserRepresent>> {
-        let uuid_user_search = match uuid_user_search {
+        let uuid_user = match uuid_user {
             None => Uuid::nil(),
-            Some(uuid_user_search) => Uuid::parse_str(&uuid_user_search)?,
+            Some(uuid_user) => Uuid::parse_str(&uuid_user)?,
         };
 
         let limit: i32 = limit.unwrap_or(100);
         let offset: i32 = offset.unwrap_or(0);
 
-        user_represent::list::show(&context, uuid_user_search, limit, offset)
+        user_represent::list::show(&context, uuid_user, limit, offset)
     }
 
     pub fn generate_token(context: &Context) -> ServiceResult<Token> {
@@ -92,113 +92,113 @@ impl QueryRoot {
 
     pub fn files(
         context: &Context,
-        uuid_user_create_search: Option<String>,
-        uuid_component_search: Option<String>,
-        uuid_component_modification_search: Option<String>,
+        uuid_user: Option<String>,
+        uuid_component: Option<String>,
+        uuid_component_modification: Option<String>,
         limit: Option<i32>,
         offset: Option<i32>,
     ) -> ServiceResult<Vec<ShowFile>> {
-        let uuid_user_create_search = match uuid_user_create_search {
+        let uuid_user_create = match uuid_user {
             None => Uuid::nil(),
-            Some(uuid_user_create_search) => Uuid::parse_str(&uuid_user_create_search)?,
+            Some(uuid) => Uuid::parse_str(&uuid)?,
         };
-        let uuid_component_search = match uuid_component_search {
+        let uuid_component = match uuid_component {
             None => Uuid::nil(),
-            Some(uuid_component_search) => Uuid::parse_str(&uuid_component_search)?,
+            Some(uuid) => Uuid::parse_str(&uuid)?,
         };
-        let uuid_component_modification_search = match uuid_component_modification_search {
+        let uuid_component_modification = match uuid_component_modification {
             None => Uuid::nil(),
-            Some(uuid_component_modification_search) => Uuid::parse_str(&uuid_component_modification_search)?,
+            Some(uuid) => Uuid::parse_str(&uuid)?,
         };
 
         let limit: i32 = limit.unwrap_or(100);
         let offset: i32 = offset.unwrap_or(0);
 
-        file::list::show(&context, uuid_user_create_search, uuid_component_search,
-            uuid_component_modification_search, limit, offset)
+        file::list::show(&context, uuid_user_create, uuid_component,
+            uuid_component_modification, limit, offset)
     }
 
     pub fn components(
         context: &Context,
-        uuid_component_search: Option<String>,
+        uuid_component: Option<String>,
         limit: Option<i32>,
         offset: Option<i32>,
     ) -> ServiceResult<Vec<ShowComponent>> {
-        let uuid_component_search = match uuid_component_search {
+        let uuid_component = match uuid_component {
             None => Uuid::nil(),
-            Some(uuid_component_search) => Uuid::parse_str(&uuid_component_search)?,
+            Some(uuid_component) => Uuid::parse_str(&uuid_component)?,
         };
 
         let limit: i32 = limit.unwrap_or(100);
         let offset: i32 = offset.unwrap_or(0);
 
-        component::list::show(&context, uuid_component_search, limit, offset)
+        component::list::show(&context, uuid_component, limit, offset)
     }
 
     pub fn component_modification(
         context: &Context,
-        uuid_component_search: Option<String>,
+        uuid_component: Option<String>,
         limit: Option<i32>,
         offset: Option<i32>,
     ) -> ServiceResult<Vec<ShowComponentModification>> {
-        let uuid_component_search = match uuid_component_search {
+        let uuid_component = match uuid_component {
             None => Uuid::nil(),
-            Some(uuid_component_search) => Uuid::parse_str(&uuid_component_search)?,
+            Some(uuid_component) => Uuid::parse_str(&uuid_component)?,
         };
 
         let limit: i32 = limit.unwrap_or(100);
         let offset: i32 = offset.unwrap_or(0);
 
-        component_modification::list::show(&context, uuid_component_search, limit, offset)
+        component_modification::list::show(&context, uuid_component, limit, offset)
     }
 
     pub fn param(
         context: &Context,
-        id_param_search: Vec<i32>,
+        id_param: Vec<i32>,
         limit: Option<i32>,
         offset: Option<i32>,
     ) -> ServiceResult<Vec<Param>> {
-        let id_param_search: Vec<i32> = id_param_search;
+        let id_param: Vec<i32> = id_param;
         let limit: i32 = limit.unwrap_or(100);
         let offset: i32 = offset.unwrap_or(0);
 
-        param::list::show(&context, id_param_search, limit, offset)
+        param::list::show(&context, id_param, limit, offset)
     }
 
     pub fn param_component(
         context: &Context,
-        id_param_search: Option<i32>,
-        uuid_component_search: Option<String>,
+        id_param: Option<i32>,
+        uuid_component: Option<String>,
         limit: Option<i32>,
         offset: Option<i32>,
     ) -> ServiceResult<Vec<ParamToModel>> {
-        let id_param_search: i32 = id_param_search.unwrap_or(0);
-        let uuid_component_search = match uuid_component_search {
+        let id_param: i32 = id_param.unwrap_or(0);
+        let uuid_component = match uuid_component {
             None => Uuid::nil(),
-            Some(uuid_component_search) => Uuid::parse_str(&uuid_component_search)?,
+            Some(uuid_component) => Uuid::parse_str(&uuid_component)?,
         };
         let limit: i32 = limit.unwrap_or(100);
         let offset: i32 = offset.unwrap_or(0);
 
-        param::list_component::show_component(&context, id_param_search, uuid_component_search, limit, offset)
+        param::list_component::show_component(&context, id_param, uuid_component, limit, offset)
     }
 
     pub fn param_modification(
         context: &Context,
-        id_param_search: Option<i32>,
-        uuid_modification_search: Option<String>,
+        id_param: Option<i32>,
+        uuid_modification: Option<String>,
         limit: Option<i32>,
         offset: Option<i32>,
     ) -> ServiceResult<Vec<ParamToModel>> {
-        let id_param_search: i32 = id_param_search.unwrap_or(0);
-        let uuid_modification_search = match uuid_modification_search {
+        let id_param: i32 = id_param.unwrap_or(0);
+        let uuid_modification = match uuid_modification {
             None => Uuid::nil(),
-            Some(uuid_modification_search) => Uuid::parse_str(&uuid_modification_search)?,
+            Some(uuid_modification) => Uuid::parse_str(&uuid_modification)?,
         };
         let limit: i32 = limit.unwrap_or(100);
         let offset: i32 = offset.unwrap_or(0);
 
-        param::list_modification::show_modification(&context, id_param_search, uuid_modification_search, limit, offset)
+        param::list_modification::show_modification(&context, id_param, uuid_modification, limit, offset)
     }
 }
 

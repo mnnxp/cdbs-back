@@ -138,7 +138,7 @@ describe('params', () => {
       .post('/graphql')
       .send({
         query: `query ListParam {
-            param (idParamSearch: []) {
+            param (idParam: []) {
                 id
                 paramname
             }
@@ -150,12 +150,12 @@ describe('params', () => {
     done();
   });
 
-  it('/graphql:Q List param with idParamSearch - OK', async (done) => {
+  it('/graphql:Q List param with idParam - OK', async (done) => {
     const response1 = await agent
       .post('/graphql')
       .send({
         query: `query ListUserParam {
-            param (idParamSearch: ${paramname_index}) {
+            param (idParam: ${paramname_index}) {
                 id
                 paramname
             }
@@ -169,12 +169,12 @@ describe('params', () => {
     done();
   });
 
-  it('/graphql:Q List param of vector idParamSearch - OK', async (done) => {
+  it('/graphql:Q List param of vector idParam - OK', async (done) => {
     const response1 = await agent
       .post('/graphql')
       .send({
         query: `query ListUserParam {
-            param (idParamSearch: [1, ${paramname_index}]) {
+            param (idParam: [1, ${paramname_index}]) {
                 id
                 paramname
             }

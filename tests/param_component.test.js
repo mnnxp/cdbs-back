@@ -158,12 +158,12 @@ describe('params', () => {
     done();
   });
 
-  it('/graphql:Q List param filter idParamSearch - OK', async (done) => {
+  it('/graphql:Q List param filter idParam - OK', async (done) => {
     const response1 = await agent
       .post('/graphql')
       .send({
         query: `query ListParamComponent {
-            paramComponent (idParamSearch: ${paramname_index}) {
+            paramComponent (idParam: ${paramname_index}) {
                 id
                 uuid
                 idParam
@@ -172,19 +172,19 @@ describe('params', () => {
         }`,
       })
       .expect(HttpStatus.OK);
-    debug('/graphql filter idParamSearch =%o', response1.body.data.paramComponent);
+    debug('/graphql filter idParam =%o', response1.body.data.paramComponent);
     expect(response1.body.data.paramComponent).toBeNonEmptyArray();
     expect(response1.body.data.paramComponent.pop().id).not.toBeNull();
     expect(response1.body.data.paramComponent.pop().idParam).toBe(paramname_index);
     done();
   });
 
-  it('/graphql:Q List param filter uuidComponentSearch - OK', async (done) => {
+  it('/graphql:Q List param filter uuidComponent - OK', async (done) => {
     const response1 = await agent
       .post('/graphql')
       .send({
         query: `query ListParamComponent {
-            paramComponent (uuidComponentSearch: "${uuid_component}") {
+            paramComponent (uuidComponent: "${uuid_component}") {
                 id
                 uuid
                 idParam
@@ -193,21 +193,21 @@ describe('params', () => {
         }`,
       })
       .expect(HttpStatus.OK);
-    debug('/graphql filter uuidComponentSearch =%o', response1.body.data.paramComponent);
+    debug('/graphql filter uuidComponent =%o', response1.body.data.paramComponent);
     expect(response1.body.data.paramComponent).toBeNonEmptyArray();
     expect(response1.body.data.paramComponent.pop().id).not.toBeNull();
     expect(response1.body.data.paramComponent.pop().uuid).toBe(uuid_component);
     done();
   });
 
-  it('/graphql:Q List param filter idParam and uuidComponentSearch - OK', async (done) => {
+  it('/graphql:Q List param filter idParam and uuidComponent - OK', async (done) => {
     const response1 = await agent
       .post('/graphql')
       .send({
         query: `query ListParamComponent {
             paramComponent (
-              idParamSearch: ${paramname_index},
-              uuidComponentSearch: "${uuid_component}"
+              idParam: ${paramname_index},
+              uuidComponent: "${uuid_component}"
             ) {
                 id
                 uuid
@@ -217,7 +217,7 @@ describe('params', () => {
         }`,
       })
       .expect(HttpStatus.OK);
-    debug('/graphql filter idParam and uuidComponentSearch =%o', response1.body.data.paramComponent);
+    debug('/graphql filter idParam and uuidComponent =%o', response1.body.data.paramComponent);
     expect(response1.body.data.paramComponent).toBeNonEmptyArray();
     expect(response1.body.data.paramComponent.pop().id).not.toBeNull();
     expect(response1.body.data.paramComponent.pop().idParam).toBe(paramname_index);

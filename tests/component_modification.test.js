@@ -220,12 +220,12 @@ describe('modifications', () => {
     done();
   });
 
-  it('/graphql:Q componentModification with uuidComponentSearch - OK', async (done) => {
+  it('/graphql:Q componentModification with uuidComponent - OK', async (done) => {
     const response1 = await agent
       .post('/graphql')
       .send({
         query: `query componentModification {
-            componentModification (uuidComponentSearch: "${uuid_component}") {
+            componentModification (uuidComponent: "${uuid_component}") {
                 uuid
                 uuidComponent
                 modificationName

@@ -175,12 +175,12 @@ describe('represents', () => {
     done();
   });
 
-  it('/graphql:Q List userRepresent with uuidUserSearch - OK', async (done) => {
+  it('/graphql:Q List userRepresent with uuidUser - OK', async (done) => {
     const response1 = await agent
       .post('/graphql')
       .send({
         query: `query ListUserRepresent {
-            userRepresent (uuidUserSearch: "${uuid_user}") {
+            userRepresent (uuidUser: "${uuid_user}") {
                 uuid
                 uuidUser
                 idRegion

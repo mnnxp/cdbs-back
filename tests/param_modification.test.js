@@ -158,12 +158,12 @@ describe('represents', () => {
     done();
   });
 
-  it('/graphql:Q List param filter idParamSearch - OK', async (done) => {
+  it('/graphql:Q List param filter idParam - OK', async (done) => {
     const response1 = await agent
       .post('/graphql')
       .send({
         query: `query ListParamModification {
-            paramModification (idParamSearch: ${paramname_index}) {
+            paramModification (idParam: ${paramname_index}) {
                 id
                 uuid
                 idParam
@@ -172,19 +172,19 @@ describe('represents', () => {
         }`,
       })
       .expect(HttpStatus.OK);
-    debug('/graphql filter idParamSearch =%o', response1.body.data.paramModification);
+    debug('/graphql filter idParam =%o', response1.body.data.paramModification);
     expect(response1.body.data.paramModification).toBeNonEmptyArray();
     expect(response1.body.data.paramModification.pop().id).not.toBeNull();
     expect(response1.body.data.paramModification.pop().idParam).toBe(paramname_index);
     done();
   });
 
-  it('/graphql:Q List param filter uuidModificationSearch - OK', async (done) => {
+  it('/graphql:Q List param filter uuidModification - OK', async (done) => {
     const response1 = await agent
       .post('/graphql')
       .send({
         query: `query ListParamModification {
-            paramModification (uuidModificationSearch: "${uuid_modification}") {
+            paramModification (uuidModification: "${uuid_modification}") {
                 id
                 uuid
                 idParam
@@ -193,21 +193,21 @@ describe('represents', () => {
         }`,
       })
       .expect(HttpStatus.OK);
-    debug('/graphql filter uuidModificationSearch =%o', response1.body.data.paramModification);
+    debug('/graphql filter uuidModification =%o', response1.body.data.paramModification);
     expect(response1.body.data.paramModification).toBeNonEmptyArray();
     expect(response1.body.data.paramModification.pop().id).not.toBeNull();
     expect(response1.body.data.paramModification.pop().uuid).toBe(uuid_modification);
     done();
   });
 
-  it('/graphql:Q List param filter idParam and uuidModificationSearch - OK', async (done) => {
+  it('/graphql:Q List param filter idParam and uuidModification - OK', async (done) => {
     const response1 = await agent
       .post('/graphql')
       .send({
         query: `query ListParamModification {
             paramModification (
-              idParamSearch: ${paramname_index},
-              uuidModificationSearch: "${uuid_modification}"
+              idParam: ${paramname_index},
+              uuidModification: "${uuid_modification}"
             ) {
                 id
                 uuid
@@ -217,7 +217,7 @@ describe('represents', () => {
         }`,
       })
       .expect(HttpStatus.OK);
-    debug('/graphql filter idParam and uuidModificationSearch =%o', response1.body.data.paramModification);
+    debug('/graphql filter idParam and uuidModification =%o', response1.body.data.paramModification);
     expect(response1.body.data.paramModification).toBeNonEmptyArray();
     expect(response1.body.data.paramModification.pop().id).not.toBeNull();
     expect(response1.body.data.paramModification.pop().idParam).toBe(paramname_index);

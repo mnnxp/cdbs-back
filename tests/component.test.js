@@ -226,12 +226,12 @@ describe('components', () => {
     done();
   });
 
-  it('/graphql:Q Components with uuidComponentSearch - OK', async (done) => {
+  it('/graphql:Q Components with uuidComponent - OK', async (done) => {
     const response1 = await agent
       .post('/graphql')
       .send({
         query: `query Component {
-            components (uuidComponentSearch: "${uuid_component_parent}") {
+            components (uuidComponent: "${uuid_component_parent}") {
                 uuid
                 name
                 uuidUser
