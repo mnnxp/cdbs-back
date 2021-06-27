@@ -16,7 +16,7 @@ CREATE TABLE user_ref (
   time_zone INTEGER NOT NULL, /*часовой пояс профиля */
   uuid_image_file UUID NOT NULL, /* картинка пользователя */
   id_region INTEGER NOT NULL, /* регион */
-  id_programm INTEGER NOT NULL DEFAULT '1', /* САПР «по умолчанию» (для быстрой загрузки данных) */
+  id_program INTEGER NOT NULL DEFAULT '1', /* САПР «по умолчанию» (для быстрой загрузки данных) */
   is_email_verified BOOLEAN NOT NULL DEFAULT 'f', /* подтверждение email */
   is_enabled BOOLEAN NOT NULL DEFAULT 't', /* флаг активности пользователь */
   is_delete BOOLEAN NOT NULL DEFAULT 'f', /* флаг удаления пользователя */
@@ -119,10 +119,10 @@ CREATE TABLE role_access (
 );
 
 /* перечень CAD (и других программ) (пред.название type_cad_ref) */
-CREATE TABLE programm_ref (
+CREATE TABLE program_ref (
   id SERIAL, /* id наименования софта */
   name VARCHAR(225) NOT NULL UNIQUE, /* наименование CAD (название программы) */
-  CONSTRAINT programm_ref_pk PRIMARY KEY (id)
+  CONSTRAINT program_ref_pk PRIMARY KEY (id)
 );
 
 /* категории (каталога) */
@@ -209,7 +209,7 @@ CREATE TABLE file_ref (
 CREATE TABLE extension_ref (
   id SERIAL, /* id соответствия */
   extension VARCHAR(50) NOT NULL, /* расширение файла, одно расширение может быть у нескольких программ */
-  id_programm INTEGER NOT NULL, /* соответствующая программа (CAD) */
+  id_program INTEGER NOT NULL, /* соответствующая программа (CAD) */
   CONSTRAINT extension_ref_pk PRIMARY KEY (id)
 );
 
@@ -524,12 +524,12 @@ CREATE TABLE file_to_modification (
 );
 
 /* набор файлоы модификации (файлы под САПР) */
-CREATE TABLE set_file_to_programm (
+CREATE TABLE set_file_to_program (
   id SERIAL, /* id файла модификации */
   uuid_modification UUID NOT NULL, /* идентификатор модификации */
   uuid_file UUID NOT NULL, /* идентификатор объекта/файла */
-  id_programm INTEGER NOT NULL, /* САПР (для быстрой загрузки данных) */
-  UNIQUE (uuid_modification, id_programm), /* один набор файлов модификации для одного САПРа */
+  id_program INTEGER NOT NULL, /* САПР (для быстрой загрузки данных) */
+  UNIQUE (uuid_modification, id_program), /* один набор файлов модификации для одного САПРа */
   CONSTRAINT set_file_to_modification_pk PRIMARY KEY (id)
 );
 

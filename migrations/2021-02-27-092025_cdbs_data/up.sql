@@ -66,7 +66,7 @@ INSERT INTO file_to_component (uuid_component, uuid_file) VALUES
 INSERT INTO file_to_modification (uuid_modification, uuid_file) VALUES
   ('aba22d59-4f6c-44a4-9a37-2d38f0e577a8', 'bc1c2151-86d0-4656-9c9d-d016dd584297');
 
-INSERT INTO set_file_to_programm (uuid_modification, uuid_file, id_programm) VALUES
+INSERT INTO set_file_to_program (uuid_modification, uuid_file, id_program) VALUES
   ('aba22d59-4f6c-44a4-9a37-2d38f0e577a8', '3706d1a1-80ae-4367-be39-af7091373811', 1);
 
 INSERT INTO component_modification_list (uuid, uuid_component, uuid_modification_parent,
@@ -97,7 +97,7 @@ INSERT INTO discussion_company_ref (id_discussion_parent, uuid_company,
   uuid_author, message_content, is_delete, created_at, updated_at) VALUES
   (1, '2cd385e1-8f7e-4908-8235-dfe42938b46d', '31ecc6f8-0c09-4a59-a2d5-34b5b833e59b', 'this message', 'f', now(), now());
 
-INSERT INTO extension_ref (extension, id_programm) VALUES
+INSERT INTO extension_ref (extension, id_program) VALUES
     ('3dm', 1),
     ('3ds', 1),
     ('a2c', 2),
@@ -166,7 +166,7 @@ INSERT INTO spec_translate_list (id_spec, id_lang, spec) VALUES
 INSERT INTO param_translate_list (id_param, id_lang, param) VALUES
   (1, 1, 'Индекс');
 
-INSERT INTO programm_ref (name) VALUES
+INSERT INTO program_ref (name) VALUES
     ('AutoCAD'),
     ('BricsCAD'),
     ('CATIA V4'),
@@ -364,7 +364,7 @@ INSERT INTO type_access_ref (name) VALUES
 
 INSERT INTO user_ref (uuid, email, psw_hash, psw_salt,
   firstname, lastname, secondname, username, phone, description, address,
-  position, time_zone, uuid_image_file, id_region, id_programm,
+  position, time_zone, uuid_image_file, id_region, id_program,
   is_email_verified, is_enabled, is_delete, created_at, updated_at) VALUES
   ('31ecc6f8-0c09-4a59-a2d5-34b5b833e59b', 'email@email.ru', E'\\xc3747b782c0b5c13cb1257a951d5120cd6a958f3516ba5d40c1db1c1eae99b15', '8%8lDv&TB!295%cNWDmghT5lNDSxTUxUgRY6xNw^hACP!DDDK8IKNLP)0Hr(C7m55BQDr&L%V0F^~3O&J~QPQDfJ$&uDjwUwPShyK0B4yDhXcBe^cPoV@%^gax^%z)92', 'Johm', 'Ivanov', 'Rucovich', 'usernameeee', '+79991234567', 'description for this user', 'Moscow', 'manufacturer', 3, 'bc1c2151-86d0-4656-9c9d-d016dd584297', 1, 1, 'f', 't', 'f', now(), now()),
   ('68b8281a-d19c-4d4b-88eb-6fd4a2afde1b', 'bname@somain.com', E'\\x085f06287c840b5c23578912d5e0cc2e4baf53865e9170a05ed084c1292ab7f4', 'pKFpenRqOFyutR#OAkxb%!bi%mV5q(GPKgHmwQ*bWrcuJHC3k8raBNzUnw7r%^oFKzBf%McZlVBI#O@U1@JApg@rVHEuzlybCWx&BXjrI(41x)8kR9rjURVG9lqr0EIM', 'Vans', 'Bpero', 'Nado', 'albane', 'none', 'none', 'noneadress', 'engineer', 2, 'bc1c2151-86d0-4656-9c9d-d016dd584297', 4, 1, 'f', 't', 'f', now(), now()),
