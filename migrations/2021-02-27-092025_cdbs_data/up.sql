@@ -1,13 +1,7 @@
--- TABLE: actual_status_ref: id (SERIAL), actualstatus (VARCHAR(100))
-INSERT INTO actual_status_ref (actualstatus) VALUES
+INSERT INTO actual_status_ref (name) VALUES
     ('актуальный'),
     ('архивный'),
     ('снят с производства');
-
--- TABLE: component_fav_ref: id (SERIAL), id_component (INTEGER),
--- id_user (INTEGER), created_at (TIMESTAMP), is_active (INTEGER),
-INSERT INTO component_fav_ref (uuid_component, uuid_user, created_at, is_active) VALUES
-    ('a5953fd9-7393-4f1e-a899-06b5e159dbf1', '31ecc6f8-0c09-4a59-a2d5-34b5b833e59b', now(), 1);
 
 -- TABLE: component_keyword_ref: keyword (VARCHAR(10))
 INSERT INTO component_keyword_ref (keyword) VALUES
@@ -19,19 +13,23 @@ INSERT INTO component_keyword_ref (keyword) VALUES
     ('fusion'),
     ('tech');
 
--- TABLE: component_ref: id SERIAL, name VARCHAR(225), id_user INTEGER,
--- comment VARCHAR(2000), id_component_parent INTEGER, id_actual_status INTEGER,
--- id_component_type INTEGER, is_delete INTEGER, id_type_access INTEGER,
--- commentchange VARCHAR(2000), is_standard INTEGER, created_at TIMESTAMP
-INSERT INTO component_ref (uuid, name, uuid_user, comment, uuid_component_parent,
-  id_actual_status, id_component_type, is_delete, id_type_access,
-  commentchange, is_standard, created_at) VALUES
-  ('a5953fd9-7393-4f1e-a899-06b5e159dbf1', 'Reduced shank bolts and screws with coarse thread',
-    '31ecc6f8-0c09-4a59-a2d5-34b5b833e59b', 'Continuously improve the product quality and applicability...',
-    'a5953fd9-7393-4f1e-a899-06b5e159dbf1', 1, 1, 0, 1, 'no', 1, now()),
-  ('e925833e-f8d3-4ecb-bd67-5aa450f9f0ad', 'Knobs 123 Inch',
-    '68b8281a-d19c-4d4b-88eb-6fd4a2afde1b', 'Plastic...',
-    'a5953fd9-7393-4f1e-a899-06b5e159dbf1', 1, 1, 0, 1, 'Not change', 0, now());
+INSERT INTO standard_status_ref (name) VALUES
+    ('Published'),
+    ('Development'),
+    ('Withdrawn'),
+    ('Deleted');
+
+INSERT INTO standard_ref (
+  uuid, uuid_standard_parent, classifier, name, description, specified_tolerance,
+  technical_committee, publication_at, uuid_image_file, uuid_user, uuid_company,
+  id_type_access,  id_standard_status, id_region, is_delete, created_at, updated_at) VALUES
+  ('303ec2aa-2066-42e3-93fb-de4fb9344bcb', '303ec2aa-2066-42e3-93fb-de4fb9344bcb', 'ISO 10511', 'Prevailing torque type hexagon thin nuts (with non-metallic insert)', 'ISO 10511:2012 specifies the characteristics of prevailing torque type hexagon thin nuts (with non-metallic insert) with thread from M3 up to and including M36, in product grade A for threads up to and including M16 and product grade B for threads above M16, and with property classes 04 and 05.', 'Class I', 'ISO/TC 2/SC 12 Fasteners with metric internal thread', '2012-12-01T00:00:00', '3706d1a1-80ae-4367-be39-af7091373811', '31ecc6f8-0c09-4a59-a2d5-34b5b833e59b', '2cd385e1-8f7e-4908-8235-dfe42938b46d', 1, 1, 13, 'f', now(), now());
+
+INSERT INTO component_ref (uuid, uuid_component_parent, name, description,
+  uuid_user, id_type_access, id_component_type, id_actual_status, is_standard,
+  is_delete, created_at, updated_at) VALUES
+  ('a5953fd9-7393-4f1e-a899-06b5e159dbf1', 'a5953fd9-7393-4f1e-a899-06b5e159dbf1', 'Reduced shank bolts and screws with coarse thread', 'Continuously improve the product quality and applicability...', '31ecc6f8-0c09-4a59-a2d5-34b5b833e59b', 1, 1, 1, 1, 'f', now(), now()),
+  ('e925833e-f8d3-4ecb-bd67-5aa450f9f0ad', 'a5953fd9-7393-4f1e-a899-06b5e159dbf1', 'Knobs 123 Inch', 'Plastic...', '68b8281a-d19c-4d4b-88eb-6fd4a2afde1b', 1, 1, 1, 0, 'f', now(), now());
 
   -- TABLE: spec_to_component: id (SERIAL), id_spec (INTEGER),
   -- id_component (INTEGER)
@@ -68,15 +66,13 @@ INSERT INTO file_to_component (uuid_component, uuid_file) VALUES
 INSERT INTO file_to_modification (uuid_modification, uuid_file) VALUES
   ('aba22d59-4f6c-44a4-9a37-2d38f0e577a8', 'bc1c2151-86d0-4656-9c9d-d016dd584297');
 
--- TABLE: component_modification_list: id SERIAL, id_component INTEGER,
--- modification_name VARCHAR(100), created_at TIMESTAMP, id_name_cad INTEGER,
--- comment VARCHAR(2000), id_modification_parent INTEGER, commentchange VARCHAR(2000),
--- id_actual_status INTEGER, is_delete INTEGER)
-INSERT INTO component_modification_list (uuid, uuid_component, modification_name,
-  created_at, id_name_cad, comment, uuid_modification_parent, commentchange,
-  id_actual_status, is_delete) VALUES
-  ('aba22d59-4f6c-44a4-9a37-2d38f0e577a8', 'a5953fd9-7393-4f1e-a899-06b5e159dbf1',
-    'Head style C - Type H', now(), 1, 'main modification', 'aba22d59-4f6c-44a4-9a37-2d38f0e577a8', 'comment change', 1, 0);
+INSERT INTO set_file_to_programm (uuid_modification, uuid_file, id_programm) VALUES
+  ('aba22d59-4f6c-44a4-9a37-2d38f0e577a8', '3706d1a1-80ae-4367-be39-af7091373811', 1);
+
+INSERT INTO component_modification_list (uuid, uuid_component, uuid_modification_parent,
+  modification_name, description, id_actual_status,
+  is_delete, created_at, updated_at) VALUES
+  ('aba22d59-4f6c-44a4-9a37-2d38f0e577a8', 'a5953fd9-7393-4f1e-a899-06b5e159dbf1', 'aba22d59-4f6c-44a4-9a37-2d38f0e577a8', 'Head style C - Type H', 'main modification', 1, 'f', now(), now());
 
 -- TABLE: param_to_modification: id SERIAL, id_modification INTEGER,
 -- id_param INTEGER, value VARCHAR(255)
@@ -90,21 +86,18 @@ INSERT INTO param_to_modification (uuid_modification, id_param, value) VALUES
   ('aba22d59-4f6c-44a4-9a37-2d38f0e577a8', 7, 'Electrogalvanized'),
   ('aba22d59-4f6c-44a4-9a37-2d38f0e577a8', 8, '187197');
 
--- TABLE: component_to_user: id (SERIAL), id_component (INTEGER),
--- id_user (INTEGER), comment (VARCHAR(255)),
-INSERT INTO component_to_user (uuid_component, uuid_user, comment) VALUES
-  ('a5953fd9-7393-4f1e-a899-06b5e159dbf1', '31ecc6f8-0c09-4a59-a2d5-34b5b833e59b', 'Комментарий поставщика');
+INSERT INTO supplier_to_component (uuid_component, uuid_company, description) VALUES
+  ('a5953fd9-7393-4f1e-a899-06b5e159dbf1', 'e97ea679-4560-4a9b-ad8b-80d2d191235e', 'Комментарий поставщика');
 
--- TABLE: discussion_ref: id (SERIAL), created_at (TIMESTAMP),
--- id_component (INTEGER), id_user_from (INTEGER), id_user_to (INTEGER),
--- comment (VARCHAR(2000)), id_discussion_parent (INTEGER)
-INSERT INTO discussion_ref (created_at, uuid_component, uuid_user_from,
-  uuid_user_to, comment, id_discussion_parent) VALUES
-  (now(), 'a5953fd9-7393-4f1e-a899-06b5e159dbf1', '31ecc6f8-0c09-4a59-a2d5-34b5b833e59b',
-  '31ecc6f8-0c09-4a59-a2d5-34b5b833e59b', 'this comment', 1);
+INSERT INTO discussion_component_ref (id_discussion_parent, uuid_component,
+  uuid_author, message_content, is_delete, created_at, updated_at) VALUES
+  (1, 'a5953fd9-7393-4f1e-a899-06b5e159dbf1', '31ecc6f8-0c09-4a59-a2d5-34b5b833e59b', 'this message', 'f', now(), now());
 
--- TABLE: extension_ref: id (SERIAL), extension (VARCHAR(10)), id_name_cad (INTEGER)
-INSERT INTO extension_ref (extension, id_name_cad) VALUES
+INSERT INTO discussion_company_ref (id_discussion_parent, uuid_company,
+  uuid_author, message_content, is_delete, created_at, updated_at) VALUES
+  (1, '2cd385e1-8f7e-4908-8235-dfe42938b46d', '31ecc6f8-0c09-4a59-a2d5-34b5b833e59b', 'this message', 'f', now(), now());
+
+INSERT INTO extension_ref (extension, id_programm) VALUES
     ('3dm', 1),
     ('3ds', 1),
     ('a2c', 2),
@@ -153,13 +146,10 @@ INSERT INTO extension_ref (extension, id_name_cad) VALUES
     ('wm', 1),
     ('wm2d', 1);
 
--- TABLE: : id (serial), uuid_file_parent (integer), hash (bytea), id_user_create (integer),
---           created_at (Timestamp), filename (varying(225)), id_ext (integer),
---           filesize (double precision), path_file (varying(225)),
-INSERT INTO file_ref (uuid, uuid_file_parent, hash, uuid_user_create, created_at, filename, id_ext, filesize , path_file) VALUES
-    ('bc1c2151-86d0-4656-9c9d-d016dd584297', 'bc1c2151-86d0-4656-9c9d-d016dd584297', E'\\000', '31ecc6f8-0c09-4a59-a2d5-34b5b833e59b', now(), 'filename', 1, 0, 'path/file/file.txt'),
-    ('3706d1a1-80ae-4367-be39-af7091373811', 'bc1c2151-86d0-4656-9c9d-d016dd584297', E'\\xe3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855',
-      '68b8281a-d19c-4d4b-88eb-6fd4a2afde1b', now(), 'file_child_two.pdd', 1, 136, '/sholder/file/f1c5a362-55f9-4edb-ad90-a2ea64d586df');
+INSERT INTO file_ref (uuid, uuid_file_parent, hash, uuid_user, filename,
+  id_ext, filesize , path_file, created_at, updated_at) VALUES
+    ('bc1c2151-86d0-4656-9c9d-d016dd584297', 'bc1c2151-86d0-4656-9c9d-d016dd584297', E'\\000', '31ecc6f8-0c09-4a59-a2d5-34b5b833e59b', 'filename', 1, 0, 'path/file/file.txt', now(), now()),
+    ('3706d1a1-80ae-4367-be39-af7091373811', 'bc1c2151-86d0-4656-9c9d-d016dd584297', E'\\xe3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855', '68b8281a-d19c-4d4b-88eb-6fd4a2afde1b', 'file_child_two.pdd', 1, 136, '/sholder/file/f1c5a362-55f9-4edb-ad90-a2ea64d586df', now(), now());
 
 -- TABLE: language_ref: id (SERIAL), lang (VARCHAR(100)), langshort (VARCHAR(10))
 INSERT INTO language_ref (lang, langshort) VALUES
@@ -176,8 +166,7 @@ INSERT INTO spec_translate_list (id_spec, id_lang, spec) VALUES
 INSERT INTO param_translate_list (id_param, id_lang, param) VALUES
   (1, 1, 'Индекс');
 
--- TABLE: name_cad_ref: id (serial), name_cad (varying(225))
-INSERT INTO name_cad_ref (name_cad) VALUES
+INSERT INTO programm_ref (name) VALUES
     ('AutoCAD'),
     ('BricsCAD'),
     ('CATIA V4'),
@@ -340,21 +329,65 @@ INSERT INTO representation_type_ref (representation_type) VALUES
 INSERT INTO spec_ref (spec, id_spec_parent) VALUES
     ('Root_catalog', 1);
 
--- TABLE: component_access_to_user: id SERIAL, id_component INTEGER, id_user INTEGER,
--- id_type_access INTEGER, is_actual INTEGER, is_delete INTEGER, created_at TIMESTAMP
-INSERT INTO component_access_to_user (uuid_component, uuid_user, id_type_access,
-is_actual, is_delete, created_at) VALUES
-  ('a5953fd9-7393-4f1e-a899-06b5e159dbf1', '31ecc6f8-0c09-4a59-a2d5-34b5b833e59b', 1, 1, 0, now());
+INSERT INTO component_access_to_company (uuid_component, uuid_company, id_type_access,
+  is_enabled, is_delete, created_at, updated_at) VALUES
+  ('a5953fd9-7393-4f1e-a899-06b5e159dbf1', '2cd385e1-8f7e-4908-8235-dfe42938b46d', 1, 't', 'f', now(), now());
 
--- TABLE: type_access_ref: id (serial), type_access (VARCHAR(100))
-INSERT INTO type_access_ref (type_access) VALUES
+INSERT INTO component_access_to_user (uuid_component, uuid_user, id_type_access,
+  is_enabled, is_delete, created_at, updated_at) VALUES
+  ('a5953fd9-7393-4f1e-a899-06b5e159dbf1', '31ecc6f8-0c09-4a59-a2d5-34b5b833e59b', 1, 't', 'f', now(), now());
+
+INSERT INTO standard_access_to_company (uuid_standard, uuid_company, id_type_access,
+  is_enabled, is_delete, created_at, updated_at) VALUES
+  ('303ec2aa-2066-42e3-93fb-de4fb9344bcb', '2cd385e1-8f7e-4908-8235-dfe42938b46d', 1, 't', 'f', now(), now());
+
+INSERT INTO standard_access_to_user (uuid_standard, uuid_user, id_type_access,
+  is_enabled, is_delete, created_at, updated_at) VALUES
+  ('303ec2aa-2066-42e3-93fb-de4fb9344bcb', '31ecc6f8-0c09-4a59-a2d5-34b5b833e59b', 1, 't', 'f', now(), now());
+
+INSERT INTO component_fav (uuid_component, uuid_user) VALUES
+  ('a5953fd9-7393-4f1e-a899-06b5e159dbf1', '31ecc6f8-0c09-4a59-a2d5-34b5b833e59b');
+
+INSERT INTO company_fav (uuid_company, uuid_user) VALUES
+  ('2cd385e1-8f7e-4908-8235-dfe42938b46d', '31ecc6f8-0c09-4a59-a2d5-34b5b833e59b');
+
+INSERT INTO standard_fav (uuid_standard, uuid_user) VALUES
+  ('303ec2aa-2066-42e3-93fb-de4fb9344bcb', '31ecc6f8-0c09-4a59-a2d5-34b5b833e59b');
+
+INSERT INTO user_fav (uuid_user_favorite, uuid_user_follower) VALUES
+  ('68b8281a-d19c-4d4b-88eb-6fd4a2afde1b', '31ecc6f8-0c09-4a59-a2d5-34b5b833e59b');
+
+INSERT INTO type_access_ref (name) VALUES
   ('Полный'),
   ('Частичный'),
   ('Закрыт');
 
--- TABLE: type_user_ref: id (serial), typeuser (varying(100)), typeusershort (varying(10))
-INSERT INTO type_user_ref (typeuser, typeusershort) VALUES
-  ('Физическое лицо', 'Физ.лицо'),
+INSERT INTO user_ref (uuid, email, psw_hash, psw_salt,
+  firstname, lastname, secondname, username, phone, description, address,
+  position, time_zone, uuid_image_file, id_region, id_programm,
+  is_email_verified, is_enabled, is_delete, created_at, updated_at) VALUES
+  ('31ecc6f8-0c09-4a59-a2d5-34b5b833e59b', 'email@email.ru', E'\\xc3747b782c0b5c13cb1257a951d5120cd6a958f3516ba5d40c1db1c1eae99b15', '8%8lDv&TB!295%cNWDmghT5lNDSxTUxUgRY6xNw^hACP!DDDK8IKNLP)0Hr(C7m55BQDr&L%V0F^~3O&J~QPQDfJ$&uDjwUwPShyK0B4yDhXcBe^cPoV@%^gax^%z)92', 'Johm', 'Ivanov', 'Rucovich', 'usernameeee', '+79991234567', 'description for this user', 'Moscow', 'manufacturer', 3, 'bc1c2151-86d0-4656-9c9d-d016dd584297', 1, 1, 'f', 't', 'f', now(), now()),
+  ('68b8281a-d19c-4d4b-88eb-6fd4a2afde1b', 'bname@somain.com', E'\\x085f06287c840b5c23578912d5e0cc2e4baf53865e9170a05ed084c1292ab7f4', 'pKFpenRqOFyutR#OAkxb%!bi%mV5q(GPKgHmwQ*bWrcuJHC3k8raBNzUnw7r%^oFKzBf%McZlVBI#O@U1@JApg@rVHEuzlybCWx&BXjrI(41x)8kR9rjURVG9lqr0EIM', 'Vans', 'Bpero', 'Nado', 'albane', 'none', 'none', 'noneadress', 'engineer', 2, 'bc1c2151-86d0-4656-9c9d-d016dd584297', 4, 1, 'f', 't', 'f', now(), now()),
+  ('e97ea679-4560-4a9b-ad8b-80d2d1912602', 'testemail@testemail.ru', E'\\xc0a6617d8971cac49489078028b6ea4bd6f7929f6e542a1de5cc4c2a0f6fdfce', 'a13%A1r9kCmDHieCl(^Yt$~traAIlnTM(0#vHvjE&tZ@9Cm2OJKCKENu6&a2pTrd*Z%qQyiYXX@fG2j7XeBLx4FYY9tkSK*B^yV)0s$sQ!y)qBL#!RDxcxZLPEKD5@lg', 'testfirstname', 'testlastname', 'testsecondname', 'testingname', '+1234567890', 'testdescription', 'testaddress', 'testposition', 2, 'bc1c2151-86d0-4656-9c9d-d016dd584297', 5, 1, 'f', 't', 'f', now(), now()),
+  ('c3f5f69c-bb54-45d9-bfa7-1d28cc1afa5a', 'bname@somain.com', E'\\xfdeba1b9304208da90c90ddb6fe0ee49787b085636b26f156d6240869bdb3665', 'ThmlF#HCNEX6%##AFGH(%0Tdo0w$5kh(WA9%@KwHe3mrVlhMIj~NxeiiJyh~Ty1t(J3F#lGDWFFJRZnV1&WFMA%Rl5~8qvfW)5WjL&qm%jSuFx1Uslth^a$64YkJjN)q', 'Vans', 'Bpero', 'Nado', 'testusertext', 'none', 'none', 'noneadress', 'noneposition', 6, 'bc1c2151-86d0-4656-9c9d-d016dd584297', 4, 1, 'f', 't', 'f', now(), now());
+
+INSERT INTO user_tokens_ref (uuid_user, token, date_start, date_end, is_enabled) VALUES
+  ('31ecc6f8-0c09-4a59-a2d5-34b5b833e59b', 'GNLw1GKzykA926Rhdcpy1c6lugZXTd5y', now(), now(), 'f');
+
+INSERT INTO company_ref (uuid, orgname, shortname, inn, phone,
+  email, description, address, site_url, time_zone, uuid_user,
+  uuid_image_file, id_region, id_type_org, is_supplier, is_email_verified,
+  is_enabled, is_delete, created_at, updated_at) VALUES
+    ('2cd385e1-8f7e-4908-8235-dfe42938b46d', 'romashka', 'rom-ka', '12345678910', '+79991234567', 'email@email.ru', 'description for this company', 'Moscow', 'https://cadbase.ru', 3, '31ecc6f8-0c09-4a59-a2d5-34b5b833e59b', 'bc1c2151-86d0-4656-9c9d-d016dd584297', 1, 1, 't', 't', 't', 'f', now(), now()),
+    ('e97ea679-4560-4a9b-ad8b-80d2d191235e', 'testorgname', 'testshortname', 'testinn', '+1234567890', 'testemail@testemail.ru', 'testdescription', 'testaddress', 'testsiteUrl', 2, '68b8281a-d19c-4d4b-88eb-6fd4a2afde1b', 'bc1c2151-86d0-4656-9c9d-d016dd584297', 13, 5, 'f', 'f', 't', 'f', now(), now());
+
+INSERT INTO company_represent_ref (uuid, uuid_company, id_region, id_representation_type,
+  name, address, phone) VALUES
+  ('22a08149-b63a-4f65-a1cd-4a28f85567ec', 'e97ea679-4560-4a9b-ad8b-80d2d191235e', 1, 1, 'Местный офис', 'г. Москва', '+79991234567'),
+  ('297e44b3-d36c-4ab5-be16-e2a955aabf13', 'e97ea679-4560-4a9b-ad8b-80d2d191235e', 2, 1, 'additional office', 'Batkov District, Minsk', '+375548418789'),
+  ('96df6359-a31e-40ad-aa06-9355abc2cc58', 'e97ea679-4560-4a9b-ad8b-80d2d191235e', 3, 1, 'additional office', 'None str, Kiev', '+380874487556');
+
+INSERT INTO type_company_ref (name, shortname) VALUES
   ('Индивидуальный предприниматель', 'ИП'),
   ('Акционерные общества', 'АО'),
   ('Публичные акционерные общества', 'ПАО'),
@@ -366,72 +399,35 @@ INSERT INTO type_user_ref (typeuser, typeusershort) VALUES
   ('Кооперативные хозяйства (коопхозы)', 'Коопхоз'),
   ('Прочие юридические лица, являющиеся коммерческими организациями', 'Прочие');
 
--- TABLE: user_ref:
--- uuid (UUID), email (VARCHAR(100)), email_verified (INTEGER),
--- psw_hash (BYTEA), psw_salt (VARCHAR(255)), id_type_user (INTEGER),
--- firstname (VARCHAR(100)), lastname (VARCHAR(100)), secondname (VARCHAR(100)),
--- username (VARCHAR(100)), orgname (VARCHAR(255)), shortname (VARCHAR(255)),
--- inn (VARCHAR(30)), phone (VARCHAR(100)), id_name_cad (INTEGER),
--- comment (VARCHAR(2000)), address (VARCHAR(512)), time_zone (INTEGER),
--- position (VARCHAR(255)), site_url (VARCHAR(255)), uuid_file_info_icon (INTEGER),
--- id_region (INTEGER), created_at (TIMESTAMP),
-INSERT INTO user_ref (uuid, email, email_verified, psw_hash, psw_salt,
-  id_type_user, is_supplier, firstname, lastname, secondname, username, orgname, shortname,
-  inn, phone, id_name_cad, comment, address, time_zone, position, site_url,
-  uuid_file_info_icon, id_region, created_at) VALUES
-    ('31ecc6f8-0c09-4a59-a2d5-34b5b833e59b', 'email@email.ru', 1,
-      E'\\xc3747b782c0b5c13cb1257a951d5120cd6a958f3516ba5d40c1db1c1eae99b15',
-      '8%8lDv&TB!295%cNWDmghT5lNDSxTUxUgRY6xNw^hACP!DDDK8IKNLP)0Hr(C7m55BQDr&L%V0F^~3O&J~QPQDfJ$&uDjwUwPShyK0B4yDhXcBe^cPoV@%^gax^%z)92',
-      2, 1, 'Johm', 'Ivanov', 'Rucovich', 'usernameeee', 'romashka', 'rom-ka', '12345678910', '+79991234567',
-      1, 'comment for this user', 'Moscow',
-      3, 'manufacturer', 'https://cadbase.ru',
-      'bc1c2151-86d0-4656-9c9d-d016dd584297', 1, now()),
-    ('68b8281a-d19c-4d4b-88eb-6fd4a2afde1b', 'bname@somain.com', 0,
-      E'\\x085f06287c840b5c23578912d5e0cc2e4baf53865e9170a05ed084c1292ab7f4',
-      'pKFpenRqOFyutR#OAkxb%!bi%mV5q(GPKgHmwQ*bWrcuJHC3k8raBNzUnw7r%^oFKzBf%McZlVBI#O@U1@JApg@rVHEuzlybCWx&BXjrI(41x)8kR9rjURVG9lqr0EIM',
-      1, 0, 'Vans', 'Bpero', 'Nado', 'albane', 'none', 'none', 'none', 'none',
-      4, 'none', 'noneadress',
-      2, 'engineer', 'none',
-      'bc1c2151-86d0-4656-9c9d-d016dd584297', 1, now()),
-    ('e97ea679-4560-4a9b-ad8b-80d2d1912602', 'testemail@testemail.ru', 0,
-      E'\\xc0a6617d8971cac49489078028b6ea4bd6f7929f6e542a1de5cc4c2a0f6fdfce',
-      'a13%A1r9kCmDHieCl(^Yt$~traAIlnTM(0#vHvjE&tZ@9Cm2OJKCKENu6&a2pTrd*Z%qQyiYXX@fG2j7XeBLx4FYY9tkSK*B^yV)0s$sQ!y)qBL#!RDxcxZLPEKD5@lg',
-      3, 0, 'testfirstname', 'testlastname', 'testsecondname', 'testingname', 'testorgname', 'testshortname', 'testinn', '+1234567890',
-      5, 'testcomment', 'testaddress',
-      2, 'testposition', 'testsiteUrl',
-      'bc1c2151-86d0-4656-9c9d-d016dd584297', 13, now()),
-    ('c3f5f69c-bb54-45d9-bfa7-1d28cc1afa5a', 'bname@somain.com', 0,
-      E'\\xfdeba1b9304208da90c90ddb6fe0ee49787b085636b26f156d6240869bdb3665',
-      'ThmlF#HCNEX6%##AFGH(%0Tdo0w$5kh(WA9%@KwHe3mrVlhMIj~NxeiiJyh~Ty1t(J3F#lGDWFFJRZnV1&WFMA%Rl5~8qvfW)5WjL&qm%jSuFx1Uslth^a$64YkJjN)q',
-      1, 0, 'Vans', 'Bpero', 'Nado', 'testusertext', 'none', 'none', 'none', 'none',
-      4, 'none', 'noneadress',
-      6, 'noneposition', 'none',
-      'bc1c2151-86d0-4656-9c9d-d016dd584297', 1, now());
+INSERT INTO company_member_role (uuid_company, uuid_user, id_role,
+  is_enabled, created_at, updated_at) VALUES
+  ('2cd385e1-8f7e-4908-8235-dfe42938b46d', '31ecc6f8-0c09-4a59-a2d5-34b5b833e59b', 1, 't', now(), now()),
+  ('e97ea679-4560-4a9b-ad8b-80d2d191235e', '68b8281a-d19c-4d4b-88eb-6fd4a2afde1b', 1, 't', now(), now());
 
--- TABLE: user_represent_ref: id (serial), id_user (INTEGER),
--- id_region (INTEGER),   id_representation_type (INTEGER),
--- name (VARCHAR(255)),   address (VARCHAR(512)),   phone (VARCHAR(100))
-INSERT INTO user_represent_ref (uuid, uuid_user, id_region, id_representation_type,
-  name, address, phone) VALUES
-  ('22a08149-b63a-4f65-a1cd-4a28f85567ec', '31ecc6f8-0c09-4a59-a2d5-34b5b833e59b', 1, 1, 'Местный офис', 'г. Москва', '+79991234567'),
-  ('297e44b3-d36c-4ab5-be16-e2a955aabf13', '31ecc6f8-0c09-4a59-a2d5-34b5b833e59b', 2, 1, 'additional office', 'Batkov District, Minsk', '+375548418789'),
-  ('96df6359-a31e-40ad-aa06-9355abc2cc58', '31ecc6f8-0c09-4a59-a2d5-34b5b833e59b', 3, 1, 'additional office', 'None str, Kiev', '+380874487556');
+INSERT INTO role_member_ref (name) VALUES
+  ('Стажер'),
+  ('Инженер');
 
--- TABLE: user_tokens_ref: id (serial), id_user (INTEGER), token (VARCHAR(512)),
--- date_start (TIMESTAMP), date_end (TIMESTAMP)
-INSERT INTO user_tokens_ref (uuid_user, token, date_start, date_end) VALUES
-  ('31ecc6f8-0c09-4a59-a2d5-34b5b833e59b', 'GNLw1GKzykA926Rhdcpy1c6lugZXTd5y', now(), now());
+INSERT INTO role_access (id_role, id_type_access) VALUES
+  (1, 2),
+  (1, 1);
 
--- TABLE: user_history_list: id (serial), id_user (INTEGER), datechange (TIMESTAMP),
--- id_type_of_change (INTEGER), commentchange (VARCHAR(2000))
-INSERT INTO user_history_list (uuid_user, datechange, id_type_of_change, commentchange) VALUES
-  ('31ecc6f8-0c09-4a59-a2d5-34b5b833e59b', now(), 1, 'Комментарий к изменению');
+INSERT INTO user_history_list (uuid_user, id_type_of_change, old_data, changed_at) VALUES
+  ('31ecc6f8-0c09-4a59-a2d5-34b5b833e59b', 1, 'Комментарий к изменению', now());
+
+INSERT INTO company_history_list (uuid_company, id_type_of_change, old_data, changed_at) VALUES
+  ('2cd385e1-8f7e-4908-8235-dfe42938b46d', 1, 'Комментарий к изменению', now());
+
+INSERT INTO component_history_list (uuid_component, id_type_of_change, old_data, changed_at) VALUES
+  ('a5953fd9-7393-4f1e-a899-06b5e159dbf1', 1, 'Комментарий к изменению', now());
+
+INSERT INTO standard_history_list (uuid_standard, id_type_of_change, old_data, changed_at) VALUES
+  ('303ec2aa-2066-42e3-93fb-de4fb9344bcb', 1, 'Комментарий к изменению', now());
 
 -- TABLE: type_of_change_ref: id (serial), type_of_change (VARCHAR(100))
 INSERT INTO type_of_change_ref (type_of_change) VALUES
   ('Изменение типа профиля');
 
--- TABLE: spec_to_user: id (serial), id_spec (INTEGER), id_user (INTEGER),
-INSERT INTO spec_to_user (id_spec, uuid_user) VALUES
-  (2, '31ecc6f8-0c09-4a59-a2d5-34b5b833e59b'),
-  (3, '31ecc6f8-0c09-4a59-a2d5-34b5b833e59b');
+INSERT INTO spec_to_company (id_spec, uuid_company) VALUES
+  (2, '2cd385e1-8f7e-4908-8235-dfe42938b46d'),
+  (3, 'e97ea679-4560-4a9b-ad8b-80d2d191235e');
