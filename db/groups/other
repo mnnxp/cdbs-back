@@ -9,3 +9,4 @@ param_translate_list /* перевод параметра */
 spec_translate_list /* перевод раздела каталога */
 region_ref /* регион */
 type_of_change_ref /* перечень типов изменений */
+spec_ref /* категории (каталога) */

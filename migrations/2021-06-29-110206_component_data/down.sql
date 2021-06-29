@@ -12,5 +12,4 @@ DROP TABLE param_to_modification;
 DROP TABLE file_to_component;
 DROP TABLE file_to_modification;
 DROP TABLE set_file_to_program;
-DROP TABLE spec_ref;
 DROP TABLE spec_to_component;

@@ -76,10 +76,6 @@ INSERT INTO file_to_modification (uuid_modification, uuid_file) VALUES
 INSERT INTO set_file_to_program (uuid_modification, uuid_file, id_program) VALUES
   ('aba22d59-4f6c-44a4-9a37-2d38f0e577a8', '3706d1a1-80ae-4367-be39-af7091373811', 1);
 
--- TABLE: spec_ref: id (serial), spec (VARCHAR(100)), id_spec_parent (INTEGER)
-INSERT INTO spec_ref (spec, id_spec_parent) VALUES
-    ('Root_catalog', 1);
-
 -- TABLE: spec_to_component: id (SERIAL), id_spec (INTEGER),
 -- id_component (INTEGER)
 INSERT INTO spec_to_component (id_spec, uuid_component) VALUES

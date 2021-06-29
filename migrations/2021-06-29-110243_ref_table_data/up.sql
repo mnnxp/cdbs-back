@@ -235,3 +235,7 @@ INSERT INTO region_ref (region) VALUES
 -- TABLE: type_of_change_ref: id (serial), type_of_change (VARCHAR(100))
 INSERT INTO type_of_change_ref (type_of_change) VALUES
   ('Изменение типа профиля');
+
+-- TABLE: spec_ref: id (serial), spec (VARCHAR(100)), id_spec_parent (INTEGER)
+INSERT INTO spec_ref (spec, id_spec_parent) VALUES
+  ('ROOT', 1);

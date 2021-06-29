@@ -11,5 +11,4 @@ param_to_modification /* параметр модификации */
 file_to_component /* объект/файл компонента */
 file_to_modification /* объект/файл модификации */
 set_file_to_program /* набор файлоы модификации (файлы под САПР) */
-spec_ref /* категории (каталога) */
 spec_to_component /* каталог компонента */

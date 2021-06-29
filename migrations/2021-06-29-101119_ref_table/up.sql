@@ -90,3 +90,11 @@ CREATE TABLE type_of_change_ref (
   type_of_change VARCHAR(100) NOT NULL, /*наименование изменения */
   CONSTRAINT type_of_change_ref_pk PRIMARY KEY (id)
 );
+
+/* категории (каталога) */
+CREATE TABLE spec_ref (
+  id SERIAL, /* id категории каталога */
+  spec VARCHAR(100) NOT NULL, /*наименование категории */
+  id_spec_parent INTEGER NOT NULL DEFAULT '1', /* id родительского каталога */
+  CONSTRAINT spec_ref_pk PRIMARY KEY (id)
+);
