@@ -1,0 +1,12 @@
+company_ref /* компания */
+type_company_ref /* тип компании */
+company_represent_ref /* локальное представительство профиля */
+company_member_role /* члены компании и их роли */
+spec_to_company /* связь каталогов с компанией */
+company_history_list /* запись изменений данных компании */
+discussion_company_ref /* обсуждение компании */
+representation_type_ref /* тип представительства компании */
+role_member_ref /* роль члена */
+role_access /* уровень доступа роли */
+component_access_to_company /* доступ к компоненту отдельного компании */
+standard_access_to_company /* доступ к стандарту отдельного компании */
