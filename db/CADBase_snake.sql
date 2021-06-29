@@ -530,7 +530,7 @@ CREATE TABLE set_file_to_program (
   uuid_file UUID NOT NULL, /* идентификатор объекта/файла */
   id_program INTEGER NOT NULL, /* САПР (для быстрой загрузки данных) */
   UNIQUE (uuid_modification, id_program), /* один набор файлов модификации для одного САПРа */
-  CONSTRAINT set_file_to_modification_pk PRIMARY KEY (id)
+  CONSTRAINT set_file_to_program_pk PRIMARY KEY (id)
 );
 
 /* параметр модификации */
