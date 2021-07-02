@@ -122,14 +122,22 @@ CREATE TABLE file_to_modification (
   CONSTRAINT file_to_modification_pk PRIMARY KEY (id)
 );
 
-/* набор файлоы модификации (файлы под САПР) */
-CREATE TABLE set_file_to_program (
-  id SERIAL, /* id файла модификации */
+/* набор файлов модификации (файлы под САПР) */
+CREATE TABLE set_files_for_program (
+  id SERIAL UNIQUE, /* идентификатор набора объектов/файлов */
   uuid_modification UUID NOT NULL, /* идентификатор модификации */
-  uuid_file UUID NOT NULL, /* идентификатор объекта/файла */
   id_program INTEGER NOT NULL, /* САПР (для быстрой загрузки данных) */
-  UNIQUE (uuid_modification, id_program), /* один набор файлов модификации для одного САПРа */
-  CONSTRAINT set_file_to_program_pk PRIMARY KEY (id)
+  -- UNIQUE (uuid_modification, id_program), /* один набор файлов модификации для одного САПРа */
+  CONSTRAINT set_files_for_program_pk PRIMARY KEY (id)
+);
+
+/* файлы набора модификации (файлы под САПР) */
+CREATE TABLE file_to_set_modification (
+  id SERIAL UNIQUE, /* id файла модификации */
+  id_set INTEGER NOT NULL, /* идентификатор набора */
+  uuid_file UUID NOT NULL, /* идентификатор объекта/файла */
+  -- UNIQUE (id_set, uuid_file), /* один набор файлов модификации для одного САПРа */
+  CONSTRAINT file_to_set_modification_pk PRIMARY KEY (id)
 );
 
 /* каталог компонента */

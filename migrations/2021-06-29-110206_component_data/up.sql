@@ -73,8 +73,11 @@ INSERT INTO file_to_component (uuid_component, uuid_file) VALUES
 INSERT INTO file_to_modification (uuid_modification, uuid_file) VALUES
   ('aba22d59-4f6c-44a4-9a37-2d38f0e577a8', 'bc1c2151-86d0-4656-9c9d-d016dd584297');
 
-INSERT INTO set_file_to_program (uuid_modification, uuid_file, id_program) VALUES
-  ('aba22d59-4f6c-44a4-9a37-2d38f0e577a8', '3706d1a1-80ae-4367-be39-af7091373811', 1);
+INSERT INTO set_files_for_program (uuid_modification, id_program) VALUES
+  ('aba22d59-4f6c-44a4-9a37-2d38f0e577a8', 1);
+
+INSERT INTO file_to_set_modification (id_set, uuid_file) VALUES
+  (1, '3706d1a1-80ae-4367-be39-af7091373811');
 
 -- TABLE: spec_to_component: id (SERIAL), id_spec (INTEGER),
 -- id_component (INTEGER)

@@ -34,9 +34,11 @@ ALTER TABLE file_to_component ADD CONSTRAINT file_to_component_fk1 FOREIGN KEY (
 ALTER TABLE file_to_modification ADD CONSTRAINT file_to_modification_fk0 FOREIGN KEY (uuid_modification) REFERENCES component_modification_list(uuid);
 ALTER TABLE file_to_modification ADD CONSTRAINT file_to_modification_fk1 FOREIGN KEY (uuid_file) REFERENCES file_ref(uuid);
 
-ALTER TABLE set_file_to_program ADD CONSTRAINT set_file_to_program_fk0 FOREIGN KEY (uuid_modification) REFERENCES component_modification_list(uuid);
-ALTER TABLE set_file_to_program ADD CONSTRAINT set_file_to_program_fk1 FOREIGN KEY (uuid_file) REFERENCES file_ref(uuid);
-ALTER TABLE set_file_to_program ADD CONSTRAINT set_file_to_program_fk2 FOREIGN KEY (id_program) REFERENCES program_ref(id);
+ALTER TABLE set_files_for_program ADD CONSTRAINT set_files_for_program_fk0 FOREIGN KEY (uuid_modification) REFERENCES component_modification_list(uuid);
+ALTER TABLE set_files_for_program ADD CONSTRAINT set_files_for_program_fk1 FOREIGN KEY (id_program) REFERENCES program_ref(id);
+
+ALTER TABLE file_to_set_modification ADD CONSTRAINT file_to_set_modification_fk0 FOREIGN KEY (id_set) REFERENCES set_files_for_program(id);
+ALTER TABLE file_to_set_modification ADD CONSTRAINT file_to_set_modification_fk1 FOREIGN KEY (uuid_file) REFERENCES file_ref(uuid);
 
 ALTER TABLE spec_to_component ADD CONSTRAINT spec_to_component_fk0 FOREIGN KEY (id_spec) REFERENCES spec_ref(id);
 ALTER TABLE spec_to_component ADD CONSTRAINT spec_to_component_fk1 FOREIGN KEY (uuid_component) REFERENCES component_ref(uuid);
