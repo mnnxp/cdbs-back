@@ -3,8 +3,8 @@
 INSERT INTO component_ref (uuid, uuid_component_parent, name, description,
   uuid_user, id_type_access, id_component_type, id_actual_status, is_standard,
   is_delete, created_at, updated_at) VALUES
-  ('a5953fd9-7393-4f1e-a899-06b5e159dbf1', 'a5953fd9-7393-4f1e-a899-06b5e159dbf1', 'Reduced shank bolts and screws with coarse thread', 'Continuously improve the product quality and applicability...', '31ecc6f8-0c09-4a59-a2d5-34b5b833e59b', 1, 1, 1, 1, 'f', now(), now()),
-  ('e925833e-f8d3-4ecb-bd67-5aa450f9f0ad', 'a5953fd9-7393-4f1e-a899-06b5e159dbf1', 'Knobs 123 Inch', 'Plastic...', '68b8281a-d19c-4d4b-88eb-6fd4a2afde1b', 1, 1, 1, 0, 'f', now(), now());
+  ('a5953fd9-7393-4f1e-a899-06b5e159dbf1', 'a5953fd9-7393-4f1e-a899-06b5e159dbf1', 'Reduced shank bolts and screws with coarse thread', 'Continuously improve the product quality and applicability...', '31ecc6f8-0c09-4a59-a2d5-34b5b833e59b', 1, 1, 1, 't', 'f', now(), now()),
+  ('e925833e-f8d3-4ecb-bd67-5aa450f9f0ad', 'a5953fd9-7393-4f1e-a899-06b5e159dbf1', 'Knobs 123 Inch', 'Plastic...', '68b8281a-d19c-4d4b-88eb-6fd4a2afde1b', 1, 1, 1, 'f', 'f', now(), now());
 
 INSERT INTO component_history_list (uuid_component, id_type_of_change, old_data, changed_at) VALUES
   ('a5953fd9-7393-4f1e-a899-06b5e159dbf1', 1, 'Комментарий к изменению', now());
