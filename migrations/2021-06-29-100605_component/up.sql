@@ -111,6 +111,7 @@ CREATE TABLE file_to_component (
   id SERIAL, /* id файла компонента */
   uuid_file UUID NOT NULL, /* идентификатор объекта/файла */
   uuid_component UUID NOT NULL, /* идентификатор компонента */
+  UNIQUE (uuid_file, uuid_component),
   CONSTRAINT file_to_component_pk PRIMARY KEY (id)
 );
 
@@ -119,6 +120,7 @@ CREATE TABLE file_to_modification (
   id SERIAL, /* id файла модификации */
   uuid_file UUID NOT NULL, /* идентификатор объекта/файла */
   uuid_modification UUID NOT NULL, /* идентификатор модификации */
+  UNIQUE (uuid_file, uuid_modification),
   CONSTRAINT file_to_modification_pk PRIMARY KEY (id)
 );
 
@@ -127,7 +129,7 @@ CREATE TABLE set_files_for_program (
   id SERIAL UNIQUE, /* идентификатор набора объектов/файлов */
   uuid_modification UUID NOT NULL, /* идентификатор модификации */
   id_program INTEGER NOT NULL, /* САПР (для быстрой загрузки данных) */
-  -- UNIQUE (uuid_modification, id_program), /* один набор файлов модификации для одного САПРа */
+  UNIQUE (uuid_modification, id_program), /* один набор файлов модификации для одного САПРа */
   CONSTRAINT set_files_for_program_pk PRIMARY KEY (id)
 );
 
@@ -136,7 +138,7 @@ CREATE TABLE file_to_set_modification (
   id SERIAL UNIQUE, /* id файла модификации */
   id_set INTEGER NOT NULL, /* идентификатор набора */
   uuid_file UUID NOT NULL, /* идентификатор объекта/файла */
-  -- UNIQUE (id_set, uuid_file), /* один набор файлов модификации для одного САПРа */
+  UNIQUE (id_set, uuid_file), /* один набор файлов модификации для одного САПРа */
   CONSTRAINT file_to_set_modification_pk PRIMARY KEY (id)
 );
 
@@ -145,5 +147,24 @@ CREATE TABLE spec_to_component (
   id SERIAL, /* id связи компонента с каталогом */
   id_spec INTEGER NOT NULL, /* идентификатор позиции в каталоге */
   uuid_component UUID NOT NULL, /* идентификатор компонента */
+  UNIQUE (id_spec, uuid_component),
   CONSTRAINT spec_to_component_pk PRIMARY KEY (id)
+);
+
+/* лицензия компонента */
+CREATE TABLE license_to_component (
+  id SERIAL, /* id связи компонента с лицензией */
+  id_license INTEGER NOT NULL, /* идентификатор лицензии  */
+  uuid_component UUID NOT NULL, /* идентификатор компонента */
+  UNIQUE (id_license, uuid_component),
+  CONSTRAINT license_to_component_pk PRIMARY KEY (id)
+);
+
+/* стандарт компонента */
+CREATE TABLE standard_to_component (
+  id SERIAL, /* id связи компонента со стандартом */
+  uuid_standard UUID NOT NULL, /* идентификатор стандарта  */
+  uuid_component UUID NOT NULL, /* идентификатор компонента */
+  UNIQUE (uuid_standard, uuid_component),
+  CONSTRAINT standard_to_component_pk PRIMARY KEY (id)
 );

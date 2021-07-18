@@ -42,3 +42,9 @@ ALTER TABLE file_to_set_modification ADD CONSTRAINT file_to_set_modification_fk1
 
 ALTER TABLE spec_to_component ADD CONSTRAINT spec_to_component_fk0 FOREIGN KEY (id_spec) REFERENCES spec_ref(id);
 ALTER TABLE spec_to_component ADD CONSTRAINT spec_to_component_fk1 FOREIGN KEY (uuid_component) REFERENCES component_ref(uuid);
+
+ALTER TABLE license_to_component ADD CONSTRAINT license_to_component_fk0 FOREIGN KEY (id_license) REFERENCES license_ref(id);
+ALTER TABLE license_to_component ADD CONSTRAINT license_to_component_fk1 FOREIGN KEY (uuid_component) REFERENCES component_ref(uuid);
+
+ALTER TABLE standard_to_component ADD CONSTRAINT standard_to_component_fk0 FOREIGN KEY (uuid_standard) REFERENCES standard_ref(uuid);
+ALTER TABLE standard_to_component ADD CONSTRAINT standard_to_component_fk1 FOREIGN KEY (uuid_component) REFERENCES component_ref(uuid);

@@ -83,3 +83,9 @@ INSERT INTO file_to_set_modification (id_set, uuid_file) VALUES
 -- id_component (INTEGER)
 INSERT INTO spec_to_component (id_spec, uuid_component) VALUES
   (1, 'a5953fd9-7393-4f1e-a899-06b5e159dbf1');
+
+INSERT INTO license_to_component (id_license, uuid_component) VALUES
+  (1, 'a5953fd9-7393-4f1e-a899-06b5e159dbf1');
+
+INSERT INTO standard_to_component (uuid_standard, uuid_component) VALUES
+  ('303ec2aa-2066-42e3-93fb-de4fb9344bcb', 'a5953fd9-7393-4f1e-a899-06b5e159dbf1');
