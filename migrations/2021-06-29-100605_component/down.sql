@@ -13,3 +13,5 @@ DROP TABLE file_to_component;
 DROP TABLE file_to_modification;
 DROP TABLE set_file_to_program;
 DROP TABLE spec_to_component;
+DROP TABLE license_to_component;
+DROP TABLE standard_to_component;

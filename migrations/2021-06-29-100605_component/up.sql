@@ -1,7 +1,7 @@
 -- Your SQL goes here
 /* компонент */
 CREATE TABLE component_ref (
-  id SERIAL, /* id компонента */
+  id SERIAL UNIQUE, /* id компонента */
   uuid UUID NOT NULL UNIQUE,
   uuid_component_parent UUID NOT NULL, /* родительский компонент */
   name VARCHAR(225) NOT NULL, /* наименование компонента */
@@ -20,7 +20,7 @@ CREATE TABLE component_ref (
 
 /* запись изменений данных компонента */
 CREATE TABLE component_history_list (
-  id SERIAL, /* id события */
+  id SERIAL UNIQUE, /* id события */
   uuid_component UUID NOT NULL, /* идентификатор стандарта к которому относится изменение */
   id_type_of_change INTEGER NOT NULL, /* id изменения (тип изменения) */
   old_data VARCHAR(2000) NOT NULL, /*  обновляемые данные данные */
@@ -30,21 +30,21 @@ CREATE TABLE component_history_list (
 
 /* тип компонента (базовый, кастомный) */
 CREATE TABLE component_type_ref (
-  id SERIAL, /* id типа */
+  id SERIAL UNIQUE, /* id типа */
   component_type VARCHAR(100) NOT NULL UNIQUE, /* наименование типа */
   CONSTRAINT component_type_ref_pk PRIMARY KEY (id)
 );
 
 /* ключевые слова компонента (тегирование) */
 CREATE TABLE component_keyword_ref (
-  id SERIAL, /* id тега */
+  id SERIAL UNIQUE, /* id тега */
   keyword VARCHAR(10) NOT NULL UNIQUE, /* ключевое слово */
   CONSTRAINT component_keyword_ref_pk PRIMARY KEY (id)
 );
 
 /* ключевые слова связанные с компонентом (тегирование) */
 CREATE TABLE component_to_keyword (
-  id SERIAL, /* id связи тега и компонента */
+  id SERIAL UNIQUE, /* id связи тега и компонента */
   uuid_component UUID NOT NULL, /* идентификатор компонента */
   id_component_keyword INTEGER NOT NULL, /* идентификатор ключевого слова (тега) */
   CONSTRAINT component_to_keyword_pk PRIMARY KEY (id)
@@ -52,7 +52,7 @@ CREATE TABLE component_to_keyword (
 
 /* параметр компонента */
 CREATE TABLE param_to_component (
-  id SERIAL, /* id параметра компонента */
+  id SERIAL UNIQUE, /* id параметра компонента */
   uuid_component UUID NOT NULL, /* идентификатор компонента */
   id_param INTEGER NOT NULL, /* идентификатор параметра */
   value VARCHAR(100) NOT NULL, /* параметр компонента */
@@ -61,7 +61,7 @@ CREATE TABLE param_to_component (
 
 /* список поставщиков компонента (list shippers) */
 CREATE TABLE supplier_to_component (
-  id SERIAL, /* id записи профиля в поставщики компонента */
+  id SERIAL UNIQUE, /* id записи профиля в поставщики компонента */
   uuid_component UUID NOT NULL, /* идентификатор компонента */
   uuid_company UUID NOT NULL, /* идентификатор компании-поставщика */
   description VARCHAR(255) NOT NULL, /* комментарий к поставщику */
@@ -70,7 +70,7 @@ CREATE TABLE supplier_to_component (
 
 /* обсуждение компонента */
 CREATE TABLE discussion_component_ref (
-  id SERIAL, /* id комментария */
+  id SERIAL UNIQUE, /* id комментария */
   id_discussion_parent INTEGER NOT NULL, /* id родительского комментария */
   uuid_component UUID NOT NULL, /* идентификатор обсуждаемого компонента */
   uuid_author UUID NOT NULL, /* идентификатор профиля отправителя */
@@ -83,7 +83,7 @@ CREATE TABLE discussion_component_ref (
 
 /* Список модификаций компонента */
 CREATE TABLE component_modification_list (
-  id SERIAL, /* id компонента */
+  id SERIAL UNIQUE, /* id компонента */
   uuid UUID NOT NULL UNIQUE,
   uuid_component UUID NOT NULL, /* идентификатор компонента */
   uuid_modification_parent UUID NOT NULL, /* родительская модификация */
@@ -99,7 +99,7 @@ CREATE TABLE component_modification_list (
 
 /* параметр модификации */
 CREATE TABLE param_to_modification (
-  id SERIAL, /* id параметра модификации */
+  id SERIAL UNIQUE, /* id параметра модификации */
   uuid_modification UUID NOT NULL, /* идентификатор модификации */
   id_param INTEGER NOT NULL, /* идентификатор параметра */
   value VARCHAR(255) NOT NULL, /* параметр компонента */
@@ -108,7 +108,7 @@ CREATE TABLE param_to_modification (
 
 /* объект/файл компонента */
 CREATE TABLE file_to_component (
-  id SERIAL, /* id файла компонента */
+  id SERIAL UNIQUE, /* id файла компонента */
   uuid_file UUID NOT NULL, /* идентификатор объекта/файла */
   uuid_component UUID NOT NULL, /* идентификатор компонента */
   UNIQUE (uuid_file, uuid_component),
@@ -117,7 +117,7 @@ CREATE TABLE file_to_component (
 
 /* объект/файл модификации */
 CREATE TABLE file_to_modification (
-  id SERIAL, /* id файла модификации */
+  id SERIAL UNIQUE, /* id файла модификации */
   uuid_file UUID NOT NULL, /* идентификатор объекта/файла */
   uuid_modification UUID NOT NULL, /* идентификатор модификации */
   UNIQUE (uuid_file, uuid_modification),
@@ -144,7 +144,7 @@ CREATE TABLE file_to_set_modification (
 
 /* каталог компонента */
 CREATE TABLE spec_to_component (
-  id SERIAL, /* id связи компонента с каталогом */
+  id SERIAL UNIQUE, /* id связи компонента с каталогом */
   id_spec INTEGER NOT NULL, /* идентификатор позиции в каталоге */
   uuid_component UUID NOT NULL, /* идентификатор компонента */
   UNIQUE (id_spec, uuid_component),
@@ -153,16 +153,16 @@ CREATE TABLE spec_to_component (
 
 /* лицензия компонента */
 CREATE TABLE license_to_component (
-  id SERIAL, /* id связи компонента с лицензией */
-  id_license INTEGER NOT NULL, /* идентификатор лицензии  */
+  id SERIAL UNIQUE, /* id связи компонента с лицензией */
   uuid_component UUID NOT NULL, /* идентификатор компонента */
-  UNIQUE (id_license, uuid_component),
+  id_license INTEGER NOT NULL, /* идентификатор лицензии  */
+  UNIQUE (uuid_component, id_license),
   CONSTRAINT license_to_component_pk PRIMARY KEY (id)
 );
 
 /* стандарт компонента */
 CREATE TABLE standard_to_component (
-  id SERIAL, /* id связи компонента со стандартом */
+  id SERIAL UNIQUE, /* id связи компонента со стандартом */
   uuid_standard UUID NOT NULL, /* идентификатор стандарта  */
   uuid_component UUID NOT NULL, /* идентификатор компонента */
   UNIQUE (uuid_standard, uuid_component),

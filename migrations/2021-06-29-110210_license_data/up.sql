@@ -1,8 +1,7 @@
 -- Your SQL goes here
-INSERT INTO license_ref (name, keyword, description, permission, limitation,
-  condition, publication_at) VALUES
+INSERT INTO license_ref (name, keyword, description, publication_at) VALUES
   ('MIT License', 'mit', 'A short and simple permissive license with conditions only requiring preservation of copyright and license notices. Licensed works, modifications, and larger works may be distributed under different terms and without source code.',
-    1, 1, 1, now());
+    now());
 
 INSERT INTO license_permission_ref (permission) VALUES
   ('Commercial use'),
