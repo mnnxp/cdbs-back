@@ -8,102 +8,97 @@ use uuid::Uuid;
 pub struct Component {
     pub id: i32,
     pub uuid: Uuid,
-    pub name: String,
-    pub uuid_user: Uuid,
-    pub comment: String,
     pub uuid_component_parent: Uuid,
-    pub id_actual_status: i32,
-    pub id_component_type: i32,
-    pub is_delete: i32,
+    pub name: String,
+    pub description: String,
+    pub uuid_user: Uuid,
     pub id_type_access: i32,
-    pub commentchange: String,
-    pub is_standard: i32,
+    pub id_component_type: i32,
+    pub id_actual_status: i32,
+    pub is_standard: bool,
+    pub is_delete: bool,
     pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
 }
 
 #[derive(Debug, Serialize, Deserialize, Queryable, juniper::GraphQLObject)]
 pub struct ShowComponent {
     pub uuid: Uuid,
-    pub name: String,
-    pub uuid_user: Uuid,
-    pub comment: String,
     pub uuid_component_parent: Uuid,
-    pub id_actual_status: i32,
-    pub value_actual_status: String,
-    pub id_component_type: i32,
-    pub value_component_type: String,
-    pub is_delete: i32,
+    pub name: String,
+    pub description: String,
+    pub uuid_user: Uuid,
     pub id_type_access: i32,
-    pub value_type_access: String,
-    pub commentchange: String,
-    pub is_standard: i32,
+    pub id_component_type: i32,
+    pub id_actual_status: i32,
+    pub is_standard: bool,
+    pub is_delete: bool,
     pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
 }
 
 #[derive(Debug, Insertable)]
 #[table_name = "component_ref"]
 pub struct InsertableComponent {
     pub uuid: Uuid,
-    pub name: String,
-    pub uuid_user: Uuid,
-    pub comment: String,
     pub uuid_component_parent: Uuid,
-    pub id_actual_status: i32,
-    pub id_component_type: i32,
-    pub is_delete: i32,
+    pub name: String,
+    pub description: String,
+    pub uuid_user: Uuid,
     pub id_type_access: i32,
-    pub commentchange: String,
-    pub is_standard: i32,
+    pub id_component_type: i32,
+    pub id_actual_status: i32,
+    pub is_standard: bool,
+    pub is_delete: bool,
     pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
 }
 
 #[derive(Debug)]
 pub struct ComponentData {
-    pub name: String,
-    pub uuid_user: Uuid,
-    pub comment: String,
     pub uuid_component_parent: Uuid,
-    pub id_actual_status: i32,
-    pub id_component_type: i32,
-    pub is_delete: i32,
+    pub name: String,
+    pub description: String,
+    pub uuid_user: Uuid,
     pub id_type_access: i32,
-    pub commentchange: String,
-    pub is_standard: i32,
+    pub id_component_type: i32,
+    pub id_actual_status: i32,
+    pub is_standard: bool,
 }
 
 #[derive(Debug, Deserialize, juniper::GraphQLInputObject)]
 pub struct ComponentDataQuery {
-    pub name: String,
-    pub comment: String,
     pub uuid_component_parent: String,
-    pub id_actual_status: i32,
-    pub id_component_type: i32,
+    pub name: String,
+    pub description: String,
     pub id_type_access: i32,
-    pub is_standard: i32,
+    pub id_component_type: i32,
+    pub id_actual_status: i32,
+    pub is_standard: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, juniper::GraphQLObject)]
 pub struct SlimComponent {
     pub uuid: Uuid,
     pub name: String,
-    pub comment: String,
+    pub description: String,
+    pub id_type_access: i32,
+    pub id_component_type: i32,
     pub id_actual_status: i32,
-    pub is_standard: i32,
+    pub is_standard: bool,
     pub created_at: NaiveDateTime,
 }
 
 impl From<ComponentData> for InsertableComponent {
     fn from(data_component: ComponentData) -> Self {
         let ComponentData {
-            name,
-            uuid_user,
-            comment,
             uuid_component_parent,
-            id_actual_status,
-            id_component_type,
-            is_delete,
+            name,
+            description,
+            uuid_user,
             id_type_access,
-            commentchange,
+            id_component_type,
+            id_actual_status,
             is_standard,
             ..
         } = data_component;
@@ -119,17 +114,17 @@ impl From<ComponentData> for InsertableComponent {
 
         Self {
             uuid: Uuid::new_v4(),
-            name,
-            uuid_user,
-            comment,
             uuid_component_parent,
-            id_actual_status,
-            id_component_type,
-            is_delete,
+            name,
+            description,
+            uuid_user,
             id_type_access,
-            commentchange,
+            id_component_type,
+            id_actual_status,
             is_standard,
+            is_delete: false,
             created_at: chrono::Local::now().naive_local(),
+            updated_at: chrono::Local::now().naive_local(),
         }
     }
 }
@@ -139,7 +134,9 @@ impl From<Component> for SlimComponent {
         let Component {
             uuid,
             name,
-            comment,
+            description,
+            id_type_access,
+            id_component_type,
             id_actual_status,
             is_standard,
             created_at,
@@ -149,7 +146,9 @@ impl From<Component> for SlimComponent {
         Self {
             uuid,
             name,
-            comment,
+            description,
+            id_type_access,
+            id_component_type,
             id_actual_status,
             is_standard,
             created_at,
