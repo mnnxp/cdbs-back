@@ -1,7 +1,91 @@
 table! {
     actual_status_ref (id) {
         id -> Int4,
-        actualstatus -> Varchar,
+        name -> Varchar,
+    }
+}
+
+table! {
+    company_fav (id) {
+        id -> Int4,
+        uuid_company -> Uuid,
+        uuid_user -> Uuid,
+        is_enabled -> Bool,
+        created_at -> Timestamp,
+    }
+}
+
+table! {
+    company_history_list (id) {
+        id -> Int4,
+        uuid_company -> Uuid,
+        id_type_of_change -> Int4,
+        old_data -> Varchar,
+        changed_at -> Timestamp,
+    }
+}
+
+table! {
+    company_member_role (id) {
+        id -> Int4,
+        uuid_company -> Uuid,
+        uuid_user -> Uuid,
+        id_role -> Int4,
+        is_enabled -> Bool,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
+
+table! {
+    company_ref (uuid) {
+        id -> Int4,
+        uuid -> Uuid,
+        orgname -> Varchar,
+        shortname -> Varchar,
+        inn -> Varchar,
+        phone -> Varchar,
+        email -> Varchar,
+        description -> Varchar,
+        address -> Varchar,
+        site_url -> Varchar,
+        time_zone -> Int4,
+        uuid_user -> Uuid,
+        uuid_image_file -> Uuid,
+        id_region -> Int4,
+        id_type_org -> Int4,
+        is_supplier -> Bool,
+        is_email_verified -> Bool,
+        is_enabled -> Bool,
+        is_delete -> Bool,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
+
+table! {
+    company_represent_ref (uuid) {
+        id -> Int4,
+        uuid -> Uuid,
+        uuid_company -> Uuid,
+        id_region -> Int4,
+        id_representation_type -> Int4,
+        name -> Varchar,
+        address -> Varchar,
+        phone -> Varchar,
+    }
+}
+
+table! {
+    component_access_to_company (id) {
+        id -> Int4,
+        uuid_component -> Uuid,
+        uuid_company -> Uuid,
+        id_type_access -> Int4,
+        is_enabled -> Bool,
+        is_delete -> Bool,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
     }
 }
 
@@ -11,19 +95,30 @@ table! {
         uuid_component -> Uuid,
         uuid_user -> Uuid,
         id_type_access -> Int4,
-        is_actual -> Int4,
-        is_delete -> Int4,
+        is_enabled -> Bool,
+        is_delete -> Bool,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
+
+table! {
+    component_fav (id) {
+        id -> Int4,
+        uuid_component -> Uuid,
+        uuid_user -> Uuid,
+        is_enabled -> Bool,
         created_at -> Timestamp,
     }
 }
 
 table! {
-    component_fav_ref (id) {
+    component_history_list (id) {
         id -> Int4,
         uuid_component -> Uuid,
-        uuid_user -> Uuid,
-        created_at -> Timestamp,
-        is_active -> Int4,
+        id_type_of_change -> Int4,
+        old_data -> Varchar,
+        changed_at -> Timestamp,
     }
 }
 
@@ -39,14 +134,13 @@ table! {
         id -> Int4,
         uuid -> Uuid,
         uuid_component -> Uuid,
-        modification_name -> Varchar,
-        created_at -> Timestamp,
-        id_name_cad -> Int4,
-        comment -> Varchar,
         uuid_modification_parent -> Uuid,
-        commentchange -> Varchar,
+        modification_name -> Varchar,
+        description -> Varchar,
         id_actual_status -> Int4,
-        is_delete -> Int4,
+        is_delete -> Bool,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
     }
 }
 
@@ -54,17 +148,17 @@ table! {
     component_ref (uuid) {
         id -> Int4,
         uuid -> Uuid,
-        name -> Varchar,
-        uuid_user -> Uuid,
-        comment -> Varchar,
         uuid_component_parent -> Uuid,
-        id_actual_status -> Int4,
-        id_component_type -> Int4,
-        is_delete -> Int4,
+        name -> Varchar,
+        description -> Varchar,
+        uuid_user -> Uuid,
         id_type_access -> Int4,
-        commentchange -> Varchar,
-        is_standard -> Int4,
+        id_component_type -> Int4,
+        id_actual_status -> Int4,
+        is_standard -> Bool,
+        is_delete -> Bool,
         created_at -> Timestamp,
+        updated_at -> Timestamp,
     }
 }
 
@@ -77,15 +171,6 @@ table! {
 }
 
 table! {
-    component_to_user (id) {
-        id -> Int4,
-        uuid_component -> Uuid,
-        uuid_user -> Uuid,
-        comment -> Varchar,
-    }
-}
-
-table! {
     component_type_ref (id) {
         id -> Int4,
         component_type -> Varchar,
@@ -93,14 +178,36 @@ table! {
 }
 
 table! {
-    discussion_ref (id) {
+    condition_to_license (id) {
         id -> Int4,
-        created_at -> Timestamp,
-        uuid_component -> Uuid,
-        uuid_user_from -> Uuid,
-        uuid_user_to -> Uuid,
-        comment -> Varchar,
+        id_condition -> Int4,
+        id_license -> Int4,
+    }
+}
+
+table! {
+    discussion_company_ref (id) {
+        id -> Int4,
         id_discussion_parent -> Int4,
+        uuid_company -> Uuid,
+        uuid_author -> Uuid,
+        message_content -> Varchar,
+        is_delete -> Bool,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
+
+table! {
+    discussion_component_ref (id) {
+        id -> Int4,
+        id_discussion_parent -> Int4,
+        uuid_component -> Uuid,
+        uuid_author -> Uuid,
+        message_content -> Varchar,
+        is_delete -> Bool,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
     }
 }
 
@@ -108,7 +215,7 @@ table! {
     extension_ref (id) {
         id -> Int4,
         extension -> Varchar,
-        id_name_cad -> Int4,
+        id_program -> Int4,
     }
 }
 
@@ -118,12 +225,13 @@ table! {
         uuid -> Uuid,
         uuid_file_parent -> Uuid,
         hash -> Bytea,
-        uuid_user_create -> Uuid,
-        created_at -> Timestamp,
+        uuid_user -> Uuid,
         filename -> Varchar,
         id_ext -> Int4,
         filesize -> Int4,
         path_file -> Varchar,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
     }
 }
 
@@ -144,6 +252,22 @@ table! {
 }
 
 table! {
+    file_to_set_modification (id) {
+        id -> Int4,
+        id_set -> Int4,
+        uuid_file -> Uuid,
+    }
+}
+
+table! {
+    file_to_standard (id) {
+        id -> Int4,
+        uuid_file -> Uuid,
+        uuid_standard -> Uuid,
+    }
+}
+
+table! {
     language_ref (id) {
         id -> Int4,
         lang -> Varchar,
@@ -152,9 +276,49 @@ table! {
 }
 
 table! {
-    name_cad_ref (id) {
+    license_condition_ref (id) {
         id -> Int4,
-        name_cad -> Varchar,
+        condition -> Varchar,
+    }
+}
+
+table! {
+    license_limitation_ref (id) {
+        id -> Int4,
+        limitation -> Varchar,
+    }
+}
+
+table! {
+    license_permission_ref (id) {
+        id -> Int4,
+        permission -> Varchar,
+    }
+}
+
+table! {
+    license_ref (id) {
+        id -> Int4,
+        name -> Varchar,
+        keyword -> Varchar,
+        description -> Varchar,
+        publication_at -> Timestamp,
+    }
+}
+
+table! {
+    license_to_component (id) {
+        id -> Int4,
+        uuid_component -> Uuid,
+        id_license -> Int4,
+    }
+}
+
+table! {
+    limitation_to_license (id) {
+        id -> Int4,
+        id_limitation -> Int4,
+        id_license -> Int4,
     }
 }
 
@@ -193,6 +357,21 @@ table! {
 }
 
 table! {
+    permission_to_license (id) {
+        id -> Int4,
+        id_permission -> Int4,
+        id_license -> Int4,
+    }
+}
+
+table! {
+    program_ref (id) {
+        id -> Int4,
+        name -> Varchar,
+    }
+}
+
+table! {
     region_ref (id) {
         id -> Int4,
         region -> Varchar,
@@ -207,6 +386,29 @@ table! {
 }
 
 table! {
+    role_access (id) {
+        id -> Int4,
+        id_role -> Int4,
+        id_type_access -> Int4,
+    }
+}
+
+table! {
+    role_member_ref (id) {
+        id -> Int4,
+        name -> Varchar,
+    }
+}
+
+table! {
+    set_files_for_program (id) {
+        id -> Int4,
+        uuid_modification -> Uuid,
+        id_program -> Int4,
+    }
+}
+
+table! {
     spec_ref (id) {
         id -> Int4,
         spec -> Varchar,
@@ -215,18 +417,18 @@ table! {
 }
 
 table! {
-    spec_to_component (id) {
+    spec_to_company (id) {
         id -> Int4,
         id_spec -> Int4,
-        uuid_component -> Uuid,
+        uuid_company -> Uuid,
     }
 }
 
 table! {
-    spec_to_user (id) {
+    spec_to_component (id) {
         id -> Int4,
         id_spec -> Int4,
-        uuid_user -> Uuid,
+        uuid_component -> Uuid,
     }
 }
 
@@ -240,9 +442,110 @@ table! {
 }
 
 table! {
+    standard_access_to_company (id) {
+        id -> Int4,
+        uuid_standard -> Uuid,
+        uuid_company -> Uuid,
+        id_type_access -> Int4,
+        is_enabled -> Bool,
+        is_delete -> Bool,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
+
+table! {
+    standard_access_to_user (id) {
+        id -> Int4,
+        uuid_standard -> Uuid,
+        uuid_user -> Uuid,
+        id_type_access -> Int4,
+        is_enabled -> Bool,
+        is_delete -> Bool,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
+
+table! {
+    standard_fav (id) {
+        id -> Int4,
+        uuid_standard -> Uuid,
+        uuid_user -> Uuid,
+        is_enabled -> Bool,
+        created_at -> Timestamp,
+    }
+}
+
+table! {
+    standard_history_list (id) {
+        id -> Int4,
+        uuid_standard -> Uuid,
+        id_type_of_change -> Int4,
+        old_data -> Varchar,
+        changed_at -> Timestamp,
+    }
+}
+
+table! {
+    standard_ref (uuid) {
+        id -> Int4,
+        uuid -> Uuid,
+        uuid_standard_parent -> Uuid,
+        classifier -> Varchar,
+        name -> Varchar,
+        description -> Varchar,
+        specified_tolerance -> Varchar,
+        technical_committee -> Varchar,
+        publication_at -> Timestamp,
+        uuid_image_file -> Uuid,
+        uuid_user -> Uuid,
+        uuid_company -> Uuid,
+        id_type_access -> Int4,
+        id_standard_status -> Int4,
+        id_region -> Int4,
+        is_delete -> Bool,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
+
+table! {
+    standard_status_ref (id) {
+        id -> Int4,
+        name -> Varchar,
+    }
+}
+
+table! {
+    standard_to_component (id) {
+        id -> Int4,
+        uuid_standard -> Uuid,
+        uuid_component -> Uuid,
+    }
+}
+
+table! {
+    supplier_to_component (id) {
+        id -> Int4,
+        uuid_component -> Uuid,
+        uuid_company -> Uuid,
+        description -> Varchar,
+    }
+}
+
+table! {
     type_access_ref (id) {
         id -> Int4,
-        type_access -> Varchar,
+        name -> Varchar,
+    }
+}
+
+table! {
+    type_company_ref (id) {
+        id -> Int4,
+        name -> Varchar,
+        shortname -> Varchar,
     }
 }
 
@@ -254,10 +557,12 @@ table! {
 }
 
 table! {
-    type_user_ref (id) {
+    user_fav (id) {
         id -> Int4,
-        typeuser -> Varchar,
-        typeusershort -> Varchar,
+        uuid_user_favorite -> Uuid,
+        uuid_user_follower -> Uuid,
+        is_enabled -> Bool,
+        created_at -> Timestamp,
     }
 }
 
@@ -265,9 +570,9 @@ table! {
     user_history_list (id) {
         id -> Int4,
         uuid_user -> Uuid,
-        datechange -> Timestamp,
         id_type_of_change -> Int4,
-        commentchange -> Varchar,
+        old_data -> Varchar,
+        changed_at -> Timestamp,
     }
 }
 
@@ -276,41 +581,25 @@ table! {
         id -> Int4,
         uuid -> Uuid,
         email -> Varchar,
-        email_verified -> Int4,
         psw_hash -> Bytea,
         psw_salt -> Varchar,
-        id_type_user -> Int4,
-        is_supplier -> Int4,
         firstname -> Varchar,
         lastname -> Varchar,
         secondname -> Varchar,
         username -> Varchar,
-        orgname -> Varchar,
-        shortname -> Varchar,
-        inn -> Varchar,
         phone -> Varchar,
-        id_name_cad -> Int4,
-        comment -> Varchar,
+        description -> Varchar,
         address -> Varchar,
-        time_zone -> Int4,
         position -> Varchar,
-        site_url -> Varchar,
-        uuid_file_info_icon -> Uuid,
+        time_zone -> Int4,
+        uuid_image_file -> Uuid,
         id_region -> Int4,
+        id_program -> Int4,
+        is_email_verified -> Bool,
+        is_enabled -> Bool,
+        is_delete -> Bool,
         created_at -> Timestamp,
-    }
-}
-
-table! {
-    user_represent_ref (uuid) {
-        id -> Int4,
-        uuid -> Uuid,
-        uuid_user -> Uuid,
-        id_region -> Int4,
-        id_representation_type -> Int4,
-        name -> Varchar,
-        address -> Varchar,
-        phone -> Varchar,
+        updated_at -> Timestamp,
     }
 }
 
@@ -321,86 +610,164 @@ table! {
         token -> Varchar,
         date_start -> Timestamp,
         date_end -> Timestamp,
+        is_enabled -> Bool,
     }
 }
 
+joinable!(company_fav -> company_ref (uuid_company));
+joinable!(company_fav -> user_ref (uuid_user));
+joinable!(company_history_list -> company_ref (uuid_company));
+joinable!(company_history_list -> type_of_change_ref (id_type_of_change));
+joinable!(company_member_role -> company_ref (uuid_company));
+joinable!(company_member_role -> role_member_ref (id_role));
+joinable!(company_member_role -> user_ref (uuid_user));
+joinable!(company_ref -> file_ref (uuid_image_file));
+joinable!(company_ref -> region_ref (id_region));
+joinable!(company_ref -> type_company_ref (id_type_org));
+joinable!(company_ref -> user_ref (uuid_user));
+joinable!(company_represent_ref -> company_ref (uuid_company));
+joinable!(company_represent_ref -> region_ref (id_region));
+joinable!(company_represent_ref -> representation_type_ref (id_representation_type));
+joinable!(component_access_to_company -> company_ref (uuid_company));
+joinable!(component_access_to_company -> component_ref (uuid_component));
+joinable!(component_access_to_company -> type_access_ref (id_type_access));
 joinable!(component_access_to_user -> component_ref (uuid_component));
 joinable!(component_access_to_user -> type_access_ref (id_type_access));
 joinable!(component_access_to_user -> user_ref (uuid_user));
-joinable!(component_fav_ref -> component_ref (uuid_component));
-joinable!(component_fav_ref -> user_ref (uuid_user));
+joinable!(component_fav -> component_ref (uuid_component));
+joinable!(component_fav -> user_ref (uuid_user));
+joinable!(component_history_list -> component_ref (uuid_component));
 joinable!(component_modification_list -> actual_status_ref (id_actual_status));
 joinable!(component_modification_list -> component_ref (uuid_component));
-joinable!(component_modification_list -> name_cad_ref (id_name_cad));
 joinable!(component_ref -> actual_status_ref (id_actual_status));
 joinable!(component_ref -> component_type_ref (id_component_type));
 joinable!(component_ref -> type_access_ref (id_type_access));
 joinable!(component_ref -> user_ref (uuid_user));
 joinable!(component_to_keyword -> component_keyword_ref (id_component_keyword));
 joinable!(component_to_keyword -> component_ref (uuid_component));
-joinable!(component_to_user -> component_ref (uuid_component));
-joinable!(component_to_user -> user_ref (uuid_user));
-joinable!(discussion_ref -> component_ref (uuid_component));
-joinable!(extension_ref -> name_cad_ref (id_name_cad));
+joinable!(condition_to_license -> license_condition_ref (id_condition));
+joinable!(condition_to_license -> license_ref (id_license));
+joinable!(discussion_company_ref -> company_ref (uuid_company));
+joinable!(discussion_company_ref -> user_ref (uuid_author));
+joinable!(discussion_component_ref -> component_ref (uuid_component));
+joinable!(discussion_component_ref -> user_ref (uuid_author));
+joinable!(extension_ref -> program_ref (id_program));
 joinable!(file_ref -> extension_ref (id_ext));
 joinable!(file_to_component -> component_ref (uuid_component));
 joinable!(file_to_component -> file_ref (uuid_file));
 joinable!(file_to_modification -> component_modification_list (uuid_modification));
 joinable!(file_to_modification -> file_ref (uuid_file));
+joinable!(file_to_set_modification -> file_ref (uuid_file));
+joinable!(file_to_set_modification -> set_files_for_program (id_set));
+joinable!(file_to_standard -> file_ref (uuid_file));
+joinable!(file_to_standard -> standard_ref (uuid_standard));
+joinable!(license_to_component -> component_ref (uuid_component));
+joinable!(license_to_component -> license_ref (id_license));
+joinable!(limitation_to_license -> license_limitation_ref (id_limitation));
+joinable!(limitation_to_license -> license_ref (id_license));
 joinable!(param_to_component -> component_ref (uuid_component));
 joinable!(param_to_component -> param_ref (id_param));
 joinable!(param_to_modification -> component_modification_list (uuid_modification));
 joinable!(param_to_modification -> param_ref (id_param));
 joinable!(param_translate_list -> language_ref (id_lang));
 joinable!(param_translate_list -> param_ref (id_param));
+joinable!(permission_to_license -> license_permission_ref (id_permission));
+joinable!(permission_to_license -> license_ref (id_license));
+joinable!(role_access -> role_member_ref (id_role));
+joinable!(role_access -> type_access_ref (id_type_access));
+joinable!(set_files_for_program -> component_modification_list (uuid_modification));
+joinable!(set_files_for_program -> program_ref (id_program));
+joinable!(spec_to_company -> company_ref (uuid_company));
+joinable!(spec_to_company -> spec_ref (id_spec));
 joinable!(spec_to_component -> component_ref (uuid_component));
 joinable!(spec_to_component -> spec_ref (id_spec));
-joinable!(spec_to_user -> spec_ref (id_spec));
-joinable!(spec_to_user -> user_ref (uuid_user));
 joinable!(spec_translate_list -> language_ref (id_lang));
 joinable!(spec_translate_list -> spec_ref (id_spec));
+joinable!(standard_access_to_company -> company_ref (uuid_company));
+joinable!(standard_access_to_company -> standard_ref (uuid_standard));
+joinable!(standard_access_to_company -> type_access_ref (id_type_access));
+joinable!(standard_access_to_user -> standard_ref (uuid_standard));
+joinable!(standard_access_to_user -> type_access_ref (id_type_access));
+joinable!(standard_access_to_user -> user_ref (uuid_user));
+joinable!(standard_fav -> standard_ref (uuid_standard));
+joinable!(standard_fav -> user_ref (uuid_user));
+joinable!(standard_history_list -> standard_ref (uuid_standard));
+joinable!(standard_ref -> company_ref (uuid_company));
+joinable!(standard_ref -> file_ref (uuid_image_file));
+joinable!(standard_ref -> region_ref (id_region));
+joinable!(standard_ref -> standard_status_ref (id_standard_status));
+joinable!(standard_ref -> type_access_ref (id_type_access));
+joinable!(standard_ref -> user_ref (uuid_user));
+joinable!(standard_to_component -> component_ref (uuid_component));
+joinable!(standard_to_component -> standard_ref (uuid_standard));
+joinable!(supplier_to_component -> company_ref (uuid_company));
+joinable!(supplier_to_component -> component_ref (uuid_component));
 joinable!(user_history_list -> type_of_change_ref (id_type_of_change));
 joinable!(user_history_list -> user_ref (uuid_user));
-joinable!(user_ref -> name_cad_ref (id_name_cad));
+joinable!(user_ref -> program_ref (id_program));
 joinable!(user_ref -> region_ref (id_region));
-joinable!(user_ref -> type_user_ref (id_type_user));
-joinable!(user_represent_ref -> region_ref (id_region));
-joinable!(user_represent_ref -> representation_type_ref (id_representation_type));
-joinable!(user_represent_ref -> user_ref (uuid_user));
 joinable!(user_tokens_ref -> user_ref (uuid_user));
 
 allow_tables_to_appear_in_same_query!(
     actual_status_ref,
+    company_fav,
+    company_history_list,
+    company_member_role,
+    company_ref,
+    company_represent_ref,
+    component_access_to_company,
     component_access_to_user,
-    component_fav_ref,
+    component_fav,
+    component_history_list,
     component_keyword_ref,
     component_modification_list,
     component_ref,
     component_to_keyword,
-    component_to_user,
     component_type_ref,
-    discussion_ref,
+    condition_to_license,
+    discussion_company_ref,
+    discussion_component_ref,
     extension_ref,
     file_ref,
     file_to_component,
     file_to_modification,
+    file_to_set_modification,
+    file_to_standard,
     language_ref,
-    name_cad_ref,
+    license_condition_ref,
+    license_limitation_ref,
+    license_permission_ref,
+    license_ref,
+    license_to_component,
+    limitation_to_license,
     param_ref,
     param_to_component,
     param_to_modification,
     param_translate_list,
+    permission_to_license,
+    program_ref,
     region_ref,
     representation_type_ref,
+    role_access,
+    role_member_ref,
+    set_files_for_program,
     spec_ref,
+    spec_to_company,
     spec_to_component,
-    spec_to_user,
     spec_translate_list,
+    standard_access_to_company,
+    standard_access_to_user,
+    standard_fav,
+    standard_history_list,
+    standard_ref,
+    standard_status_ref,
+    standard_to_component,
+    supplier_to_component,
     type_access_ref,
+    type_company_ref,
     type_of_change_ref,
-    type_user_ref,
+    user_fav,
     user_history_list,
     user_ref,
-    user_represent_ref,
     user_tokens_ref,
 );
