@@ -5,6 +5,8 @@ use crate::jwt::model::{DecodedToken, Token};
 use crate::models::user::model::{LoggedUser, ShowUser, SlimUser, UserData};
 use crate::models::user::service as user;
 use crate::models::user::service::token::ClaimsResponse;
+use crate::models::user::notification::model::{Notification, NotificationData, SlimNotification};
+use crate::models::user::notification::service as notification;
 // use crate::models::file::model::{ShowFile, FileData, SlimFile};
 use crate::models::company::company_represent::model::{
     CompanyRepresentData, ShowCompanyRepresent, SlimCompanyRepresent,
@@ -86,6 +88,23 @@ impl QueryRoot {
         user::token::decode(&context)
     }
 
+    pub fn notification(
+        context: &Context,
+        id_notification: Option<i32>,
+        limit: Option<i32>,
+        offset: Option<i32>,
+    ) -> ServiceResult<Vec<Notification>> {
+        let id_notification: i32 = id_notification.unwrap_or(0);
+        let limit: i32 = limit.unwrap_or(100);
+        let offset: i32 = offset.unwrap_or(0);
+
+        let uuid_user = crate::models::user::get_uuid_user(&context.user)?;
+
+        notification::list::get_notifications(
+            &context, id_notification, uuid_user, limit, offset,
+        )
+    }
+
     pub fn files(
         context: &Context,
         uuid_user: Option<String>,
@@ -111,12 +130,8 @@ impl QueryRoot {
         let offset: i32 = offset.unwrap_or(0);
 
         file::list::get_files(
-            &context,
-            uuid_user_create,
-            uuid_component,
-            uuid_component_modification,
-            limit,
-            offset,
+            &context, uuid_user_create,
+            uuid_component, uuid_component_modification, limit, offset,
         )
     }
 
@@ -152,10 +167,7 @@ impl QueryRoot {
         let offset: i32 = offset.unwrap_or(0);
 
         component_modification::list::get_component_modifications(
-            &context,
-            uuid_component,
-            limit,
-            offset,
+            &context, uuid_component, limit, offset,
         )
     }
 
@@ -188,11 +200,7 @@ impl QueryRoot {
         let offset: i32 = offset.unwrap_or(0);
 
         component_license::service::list_component::get_licenses_component(
-            &context,
-            id_license,
-            uuid_component,
-            limit,
-            offset,
+            &context, id_license, uuid_component, limit, offset,
         )
     }
 
@@ -206,7 +214,9 @@ impl QueryRoot {
         let limit: i32 = limit.unwrap_or(100);
         let offset: i32 = offset.unwrap_or(0);
 
-        component_param::service::list::get_params(&context, id_param, limit, offset)
+        component_param::service::list::get_params(
+            &context, id_param, limit, offset
+        )
     }
 
     pub fn param_component(
@@ -249,11 +259,7 @@ impl QueryRoot {
         let offset: i32 = offset.unwrap_or(0);
 
         component_param::service::list_modification::get_params_modification(
-            &context,
-            id_param,
-            uuid_modification,
-            limit,
-            offset,
+            &context, id_param, uuid_modification, limit, offset,
         )
     }
 
@@ -288,7 +294,9 @@ impl QueryRoot {
         let limit: i32 = limit.unwrap_or(100);
         let offset: i32 = offset.unwrap_or(0);
 
-        company_represent::list::get_company_represents(&context, uuid_company, limit, offset)
+        company_represent::list::get_company_represents(
+            &context, uuid_company, limit, offset
+        )
     }
 
     pub fn standards(
@@ -313,11 +321,36 @@ pub(crate) struct Mutation;
 
 #[juniper::object(Context = Context)]
 impl Mutation {
-    pub fn register_user(context: &Context, data: UserData) -> ServiceResult<SlimUser> {
+    pub fn register_user(
+        context: &Context, data: UserData
+    ) -> ServiceResult<SlimUser> {
         use crate::models::user::service::register::create_user;
         let conn: &PgConnection = &context.db;
 
         Ok(create_user(data, conn)?)
+    }
+
+    pub fn register_notification(
+        context: &Context, data: NotificationData
+    ) -> ServiceResult<SlimNotification> {
+        use crate::models::user::notification::service::register::create_notification;
+        let conn: &PgConnection = &context.db;
+
+        crate::models::user::hash_authorized(&context.user)?;
+
+        Ok(create_notification(data, conn)?)
+    }
+
+    pub fn delete_notification(
+        context: &Context, id_notification: i32,
+    ) -> ServiceResult<Notification> {
+        use crate::models::user::notification::service::delete::delete_notification;
+        let conn: &PgConnection = &context.db;
+
+        // crate::models::user::hash_authorized(&context.user)?;
+        let uuid_user = crate::models::user::get_uuid_user(&context.user)?;
+
+        Ok(delete_notification(uuid_user, id_notification, conn)?)
     }
 
     // todo!(receive files via MultipartField or MultipartData)
@@ -332,8 +365,7 @@ impl Mutation {
     // }
 
     pub fn register_component(
-        context: &Context,
-        data: ComponentDataQuery,
+        context: &Context, data: ComponentDataQuery,
     ) -> ServiceResult<SlimComponent> {
         use crate::models::component::service::register::create_component;
         let conn: &PgConnection = &context.db;
@@ -364,8 +396,7 @@ impl Mutation {
     }
 
     pub fn register_component_modification(
-        context: &Context,
-        data: ComponentModificationData,
+        context: &Context, data: ComponentModificationData,
     ) -> ServiceResult<SlimComponentModification> {
         use crate::models::component::component_modification::service::register::create_component_modification;
         let conn: &PgConnection = &context.db;
@@ -386,8 +417,7 @@ impl Mutation {
     }
 
     pub fn register_license_component(
-        context: &Context,
-        data: LicenseToComponentData,
+        context: &Context, data: LicenseToComponentData,
     ) -> ServiceResult<LicenseToComponent> {
         use crate::models::component::license::service::add_to_component::create_license_component;
         let conn: &PgConnection = &context.db;
@@ -407,8 +437,7 @@ impl Mutation {
     }
 
     pub fn register_param_component(
-        context: &Context,
-        data: ParamToModelData,
+        context: &Context, data: ParamToModelData,
     ) -> ServiceResult<ParamToModel> {
         use crate::models::component::param::service::add_to_component::create_param_component;
         let conn: &PgConnection = &context.db;
@@ -419,8 +448,7 @@ impl Mutation {
     }
 
     pub fn register_param_modification(
-        context: &Context,
-        data: ParamToModelData,
+        context: &Context, data: ParamToModelData,
     ) -> ServiceResult<ParamToModel> {
         use crate::models::component::param::service::add_to_modification::create_param_modification;
         let conn: &PgConnection = &context.db;
@@ -430,7 +458,9 @@ impl Mutation {
         Ok(create_param_modification(data, conn)?)
     }
 
-    pub fn register_company(context: &Context, data: CompanyData) -> ServiceResult<SlimCompany> {
+    pub fn register_company(
+        context: &Context, data: CompanyData
+    ) -> ServiceResult<SlimCompany> {
         use crate::models::company::service::register::create_company;
         let conn: &PgConnection = &context.db;
 
@@ -463,8 +493,7 @@ impl Mutation {
     }
 
     pub fn register_company_represent(
-        context: &Context,
-        data: CompanyRepresentData,
+        context: &Context, data: CompanyRepresentData,
     ) -> ServiceResult<SlimCompanyRepresent> {
         use crate::models::company::company_represent::service::register::create_company_represent;
         let conn: &PgConnection = &context.db;
@@ -478,9 +507,7 @@ impl Mutation {
     }
 
     pub fn delete_company_represent(
-        context: &Context,
-        uuid_company: Uuid,
-        uuid_company_represent: Uuid,
+        context: &Context, uuid_company: Uuid, uuid_company_represent: Uuid,
     ) -> ServiceResult<SlimCompanyRepresent> {
         use crate::models::company::company_represent::service::delete::delete_company_represent;
         let conn: &PgConnection = &context.db;
@@ -492,7 +519,9 @@ impl Mutation {
         Ok(delete_company_represent(uuid_company, uuid_company_represent, conn)?)
     }
 
-    pub fn register_standard(context: &Context, data: StandardData) -> ServiceResult<SlimStandard> {
+    pub fn register_standard(
+        context: &Context, data: StandardData
+    ) -> ServiceResult<SlimStandard> {
         use crate::models::standard::service::register::create_standard;
         let conn: &PgConnection = &context.db;
 
