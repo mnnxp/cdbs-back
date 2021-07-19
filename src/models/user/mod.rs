@@ -1,5 +1,6 @@
 mod handler;
 pub mod model;
+pub(crate) mod notification;
 pub(crate) mod service;
 pub mod util;
 
@@ -17,4 +18,5 @@ pub fn route(cfg: &mut web::ServiceConfig) {
 
 // pub use util::has_supplier;
 pub(crate) use util::hash_authorized;
+pub(crate) use util::get_uuid_user;
 // pub use util::verify_uuid_user;

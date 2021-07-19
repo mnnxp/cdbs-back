@@ -5,7 +5,7 @@ use super::model::{
 };
 use crate::errors::ServiceError;
 use argon2rs::argon2i_simple;
-// use uuid::Uuid;
+use uuid::Uuid;
 
 pub(crate) fn make_salt() -> String {
     use rand::Rng;
@@ -40,6 +40,15 @@ pub(crate) fn hash_authorized(user: &LoggedUser) -> Result<bool, ServiceError> {
     match user.0 {
         None => Err(ServiceError::Unauthorized),
         Some(_) => Ok(true),
+    }
+}
+
+pub(crate) fn get_uuid_user(user: &LoggedUser) -> Result<Uuid, ServiceError> {
+    match user.0 {
+        None => Err(ServiceError::Unauthorized),
+        Some(ref user) => Ok(user.uuid),
+        // _ => Err(ServiceError::BadRequest("Uuid not correct.".to_string())),
+        // Some(ref user) => Err(ServiceError::BadRequest(format!("Uuid not correct. UUID1: {}, UUID2: {};", user.uuid, uuid_user))),
     }
 }
 
