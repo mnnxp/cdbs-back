@@ -14,6 +14,7 @@ use actix_web::web;
 use futures::{StreamExt, TryStreamExt};
 use uuid::Uuid;
 
+// todo!(move this out in a .env file)
 const UPLOAD_PATH: &str = "/home/mnnxp/Downloads/tmp/upload";
 
 pub(crate) async fn register(
@@ -93,7 +94,7 @@ pub(crate) async fn write_file(
                 filesize: (file_metadata.filesize),
                 id_ext: (file_metadata.id_ext),
                 filename: (filename),
-                uuid_user_create: (user_uuid),
+                uuid_user: (user_uuid),
                 hash: (file_metadata.hash),
                 uuid_file_parent: (uuid_file_parent),
             };

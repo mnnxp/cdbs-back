@@ -5,31 +5,35 @@ use chrono::*;
 use uuid::Uuid;
 // use crate::models::file::util::hex_to_bytes;
 
+// Main file structures
+
 #[derive(Debug, Queryable)]
 pub struct File {
     pub id: i32,
     pub uuid: Uuid,
     pub uuid_file_parent: Uuid,
     pub hash: Vec<u8>,
-    pub uuid_user_create: Uuid,
-    pub created_at: NaiveDateTime,
+    pub uuid_user: Uuid,
     pub filename: String,
     pub id_ext: i32,
     pub filesize: i32,
     pub path_file: String,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
 }
 
 #[derive(Debug, Serialize, Deserialize, Queryable, juniper::GraphQLObject)]
 pub struct ShowFile {
     pub uuid: Uuid,
     pub uuid_file_parent: Uuid,
-    pub uuid_user_create: Uuid,
-    pub created_at: NaiveDateTime,
+    pub uuid_user: Uuid,
     pub filename: String,
     pub id_ext: i32,
     pub value_ext: String,
     pub filesize: i32,
     pub path_file: String,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
 }
 
 #[derive(Debug, Insertable)]
@@ -38,19 +42,20 @@ pub struct InsertableFile {
     pub uuid: Uuid,
     pub uuid_file_parent: Uuid,
     pub hash: Vec<u8>,
-    pub uuid_user_create: Uuid,
-    pub created_at: NaiveDateTime,
+    pub uuid_user: Uuid,
     pub filename: String,
     pub id_ext: i32,
     pub filesize: i32,
     pub path_file: String,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
 }
 
 #[derive(Debug, Deserialize)]
 pub struct FileData {
     pub uuid_file_parent: Uuid,
     pub hash:  Vec<u8>,
-    pub uuid_user_create: Uuid,
+    pub uuid_user: Uuid,
     pub filename: String,
     pub id_ext: i32,
     pub filesize: i32,
@@ -65,6 +70,7 @@ pub struct SlimFile {
     pub path_file: String,
 }
 
+// Related file structures
 #[derive(Debug, Serialize, Deserialize, Queryable, juniper::GraphQLObject)]
 pub struct FileToModel {
     pub id: i32,
@@ -78,11 +84,26 @@ pub struct FileToModelData {
     pub uuid: Uuid,
 }
 
+// Structures for Component
+#[derive(Debug, Serialize, Deserialize, Queryable, juniper::GraphQLObject)]
+pub struct FileToComponent {
+    pub id: i32,
+    pub uuid_file: Uuid,
+    pub uuid_component: Uuid,
+}
+
 #[derive(Debug, Insertable)]
 #[table_name = "file_to_component"]
 pub struct InsertableFileToComponent {
     pub uuid_file: Uuid,
     pub uuid_component: Uuid,
+}
+
+#[derive(Debug, Serialize, Deserialize, Queryable, juniper::GraphQLObject)]
+pub struct FileToModification {
+    pub id: i32,
+    pub uuid_file: Uuid,
+    pub uuid_modification: Uuid,
 }
 
 #[derive(Debug, Insertable)]
@@ -92,12 +113,27 @@ pub struct InsertableFileToModification {
     pub uuid_modification: Uuid,
 }
 
+// Structures for Standard
+#[derive(Debug, Serialize, Deserialize, Queryable, juniper::GraphQLObject)]
+pub struct FileToStandard {
+    pub id: i32,
+    pub uuid_file: Uuid,
+    pub uuid_standard: Uuid,
+}
+
+#[derive(Debug, Insertable)]
+#[table_name = "file_to_standard"]
+pub struct InsertableFileToStandard {
+    pub uuid_file: Uuid,
+    pub uuid_standard: Uuid,
+}
+
 impl From<FileData> for InsertableFile {
     fn from(date_file: FileData) -> Self {
         let FileData {
             uuid_file_parent,
             hash,
-            uuid_user_create,
+            uuid_user,
             filename,
             id_ext,
             filesize,
@@ -116,12 +152,13 @@ impl From<FileData> for InsertableFile {
             uuid: Uuid::new_v4(),
             uuid_file_parent,
             hash,
-            uuid_user_create,
-            created_at: chrono::Local::now().naive_local(),
+            uuid_user,
             filename,
             id_ext,
             filesize,
             path_file,
+            created_at: chrono::Local::now().naive_local(),
+            updated_at: chrono::Local::now().naive_local(),
         }
     }
 }

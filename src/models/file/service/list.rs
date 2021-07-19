@@ -9,16 +9,16 @@ use diesel::prelude::*;
 
 use uuid::Uuid;
 
-pub(crate) fn show(
+pub(crate) fn get_files(
     context: &Context,
-    uuid_user_create_search: Uuid,
+    uuid_user_search: Uuid,
     uuid_component_search: Uuid,
     uuid_component_modification_search: Uuid,
     limit: i32,
     offset: i32,
 ) -> ServiceResult<Vec<ShowFile>> {
     let mut variant_selection: u8 = 0;
-    if uuid_user_create_search > Uuid::nil() {
+    if uuid_user_search > Uuid::nil() {
         variant_selection += 1;
     }
     if uuid_component_search > Uuid::nil() {
@@ -30,7 +30,7 @@ pub(crate) fn show(
 
     match variant_selection {
         0 => find_all_files(context, limit, offset),
-        1 => find_uuid_user_create_file(context, uuid_user_create_search, limit, offset),
+        1 => find_uuid_user_file(context, uuid_user_search, limit, offset),
         10 => find_uuid_component_file(context, uuid_component_search, limit, offset),
         // 11
         100 => find_uuid_component_modification_file(
@@ -55,17 +55,16 @@ fn find_all_files(
     Ok(file_ref
         .inner_join(extension_ref)
         .select((
-            uuid, uuid_file_parent, uuid_user_create, created_at, filename,
-            id_ext, extension, filesize, path_file
+            uuid, uuid_file_parent, uuid_user, filename, id_ext, extension, filesize, path_file, created_at, updated_at
         ))
         .limit(limit as i64)
         .offset(offset as i64)
         .load::<ShowFile>(conn)?)
 }
 
-fn find_uuid_user_create_file(
+fn find_uuid_user_file(
     context: &Context,
-    uuid_user_create_search: Uuid,
+    uuid_user_search: Uuid,
     limit: i32,
     offset: i32,
 ) -> ServiceResult<Vec<ShowFile>> {
@@ -76,10 +75,9 @@ fn find_uuid_user_create_file(
     Ok(file_ref
         .inner_join(extension_ref)
         .select((
-            uuid, uuid_file_parent, uuid_user_create, created_at, filename,
-            id_ext, extension, filesize, path_file
+            uuid, uuid_file_parent, uuid_user, filename, id_ext, extension, filesize, path_file, created_at, updated_at
         ))
-        .filter(uuid_user_create.eq(uuid_user_create_search))
+        .filter(uuid_user.eq(uuid_user_search))
         .limit(limit as i64)
         .offset(offset as i64)
         .load::<ShowFile>(conn)?)
@@ -112,8 +110,7 @@ fn find_uuid_component_file(
                 Ok(file_ref
                 .inner_join(extension_ref)
                 .select((
-                    uuid, uuid_file_parent, uuid_user_create, created_at, filename,
-                    id_ext, extension, filesize, path_file
+                    uuid, uuid_file_parent, uuid_user, filename, id_ext, extension, filesize, path_file, created_at, updated_at
                 ))
                 .filter(uuid.eq_any(uuid_for_select_file))
                 .limit(limit as i64)
@@ -148,8 +145,7 @@ fn find_uuid_component_modification_file(
             => Ok(file_ref
                 .inner_join(extension_ref)
                 .select((
-                    uuid, uuid_file_parent, uuid_user_create, created_at, filename,
-                    id_ext, extension, filesize, path_file
+                    uuid, uuid_file_parent, uuid_user, filename, id_ext, extension, filesize, path_file, created_at, updated_at
                 ))
                 .filter(uuid.eq_any(uuid_for_select_file))
                 .limit(limit as i64)
