@@ -12,6 +12,12 @@ jest.setTimeout(1300);
 const firstname = "testfirstname";
 const lastname = "testlastname";
 const secondname = "testsecondname";
+const loginData = [ { "user": {
+      "username": "baromi",
+      "password": "password"
+    }
+  }
+];
 const username = "baromi";
 const username2 = "simaco";
 const email = "email@baromi.com";
@@ -223,7 +229,12 @@ describe('users', () => {
   it('/users/login - UNAUTHORIZED with invalid username', (done) => {
     agent
       .post('/users/login')
-      .send({ username: 'invalidusername', password })
+      // .send({ username: 'invalidusername', password })
+      .send({ "user": {
+            "username": 'invalidusername',
+            "password": password,
+          }
+        })
       .expect(HttpStatus.UNAUTHORIZED)
       .then(({ body, text, error, headers }) => {
         debug(
@@ -242,7 +253,12 @@ describe('users', () => {
   it('/users/login - UNAUTHORIZED with invalid password', (done) => {
     agent
       .post('/users/login')
-      .send({ username, password: 'invalid password' })
+      // .send({ username, password: 'invalid password' })
+      .send({ "user": {
+            "username": username,
+            "password": 'invalid password',
+          }
+        })
       .expect(HttpStatus.UNAUTHORIZED)
       .then(({ body, text, error, headers }) => {
         debug(
@@ -261,7 +277,12 @@ describe('users', () => {
   it('/users/login - OK to login first time', (done) => {
     agent
       .post('/users/login')
-      .send({ username, password })
+      // .send({ username, password })
+      .send({ "user": {
+            "username": username,
+            "password": password,
+          }
+        })
       .expect(HttpStatus.OK)
       .then(({ body, headers }) => {
         debug('/users/login headers=%o', headers);
@@ -277,7 +298,12 @@ describe('users', () => {
   it('/users/login - OK to login second time', (done) => {
     agent
       .post('/users/login')
-      .send({ username, password })
+      // .send({ username, password })
+      .send({ "user": {
+            "username": username,
+            "password": password,
+          }
+        })
       .expect(HttpStatus.OK)
       .then(({ body, headers }) => {
         expect(headers['set-cookie'][0]).toBeNonEmptyString();
