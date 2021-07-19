@@ -24,7 +24,6 @@ pub struct InsertableNotification {
 pub struct NotificationData {
     pub notification: String,
     pub id_degree_importance: i32,
-    pub is_read: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, juniper::GraphQLObject)]
@@ -39,7 +38,6 @@ impl From<NotificationData> for InsertableNotification {
         let NotificationData {
             notification,
             id_degree_importance,
-            is_read,
             ..
         } = notification_data;
 
@@ -47,7 +45,7 @@ impl From<NotificationData> for InsertableNotification {
             notification,
             id_degree_importance,
             generated_at: chrono::Local::now().naive_local(),
-            is_read,
+            is_read: false,
         }
     }
 }
