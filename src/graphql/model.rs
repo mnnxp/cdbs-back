@@ -336,9 +336,9 @@ impl Mutation {
         use crate::models::user::notification::service::register::create_notification;
         let conn: &PgConnection = &context.db;
 
-        crate::models::user::hash_authorized(&context.user)?;
+        let uuid_user = crate::models::user::get_uuid_user(&context.user)?;
 
-        Ok(create_notification(data, conn)?)
+        Ok(create_notification(data, uuid_user, conn)?)
     }
 
     pub fn delete_notification(
