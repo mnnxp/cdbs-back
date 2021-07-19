@@ -127,7 +127,7 @@ CREATE TABLE component_access_to_company (
   CONSTRAINT component_access_to_company_pk PRIMARY KEY (id)
 );
 
-/* доступ к стандарту отдельного компании */
+/* доступ к стандарту отдельной компании */
 CREATE TABLE standard_access_to_company (
   id SERIAL, /* id доступа */
   uuid_standard UUID NOT NULL, /* идентификатор стандарта */
