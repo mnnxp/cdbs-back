@@ -186,6 +186,13 @@ table! {
 }
 
 table! {
+    degree_importance_ref (id) {
+        id -> Int4,
+        degree -> Varchar,
+    }
+}
+
+table! {
     discussion_company_ref (id) {
         id -> Int4,
         id_discussion_parent -> Int4,
@@ -319,6 +326,24 @@ table! {
         id -> Int4,
         id_limitation -> Int4,
         id_license -> Int4,
+    }
+}
+
+table! {
+    notification_ref (id) {
+        id -> Int4,
+        notification -> Varchar,
+        id_degree_importance -> Int4,
+        generated_at -> Timestamp,
+        is_read -> Bool,
+    }
+}
+
+table! {
+    notification_to_user (id) {
+        id -> Int4,
+        id_notification -> Int4,
+        uuid_user -> Uuid,
     }
 }
 
@@ -665,6 +690,9 @@ joinable!(license_to_component -> component_ref (uuid_component));
 joinable!(license_to_component -> license_ref (id_license));
 joinable!(limitation_to_license -> license_limitation_ref (id_limitation));
 joinable!(limitation_to_license -> license_ref (id_license));
+joinable!(notification_ref -> degree_importance_ref (id_degree_importance));
+joinable!(notification_to_user -> notification_ref (id_notification));
+joinable!(notification_to_user -> user_ref (uuid_user));
 joinable!(param_to_component -> component_ref (uuid_component));
 joinable!(param_to_component -> param_ref (id_param));
 joinable!(param_to_modification -> component_modification_list (uuid_modification));
@@ -725,6 +753,7 @@ allow_tables_to_appear_in_same_query!(
     component_to_keyword,
     component_type_ref,
     condition_to_license,
+    degree_importance_ref,
     discussion_company_ref,
     discussion_component_ref,
     extension_ref,
@@ -740,6 +769,8 @@ allow_tables_to_appear_in_same_query!(
     license_ref,
     license_to_component,
     limitation_to_license,
+    notification_ref,
+    notification_to_user,
     param_ref,
     param_to_component,
     param_to_modification,
