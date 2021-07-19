@@ -88,7 +88,7 @@ impl QueryRoot {
         user::token::decode(&context)
     }
 
-    pub fn notification(
+    pub fn notifications(
         context: &Context,
         id_notification: Option<i32>,
         limit: Option<i32>,
