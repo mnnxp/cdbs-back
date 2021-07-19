@@ -27,3 +27,6 @@ ALTER TABLE component_fav ADD CONSTRAINT component_fav_fk1 FOREIGN KEY (uuid_use
 
 ALTER TABLE standard_fav ADD CONSTRAINT standard_fav_fk0 FOREIGN KEY (uuid_standard) REFERENCES standard_ref(uuid);
 ALTER TABLE standard_fav ADD CONSTRAINT standard_fav_fk1 FOREIGN KEY (uuid_user) REFERENCES user_ref(uuid);
+
+ALTER TABLE notification_to_user ADD CONSTRAINT notification_to_user_fk0 FOREIGN KEY (id_notification) REFERENCES notification_ref(id);
+ALTER TABLE notification_to_user ADD CONSTRAINT notification_to_user_fk1 FOREIGN KEY (uuid_user) REFERENCES user_ref(uuid);

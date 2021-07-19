@@ -111,3 +111,12 @@ CREATE TABLE standard_fav (
   created_at TIMESTAMP NOT NULL DEFAULT NOW(), /* дата создания */
   CONSTRAINT standard_fav_pk PRIMARY KEY (id)
 );
+
+/* доступ к стандарту отдельного пользователя */
+CREATE TABLE notification_to_user (
+  id SERIAL, /* id уведомления */
+  id_notification INTEGER NOT NULL, /* идентификатор уведомления */
+  uuid_user UUID NOT NULL, /* идентификатор профиля */
+  UNIQUE (id_notification, uuid_user), /* ограничение на дублирование уведомлений */
+  CONSTRAINT notification_to_user_pk PRIMARY KEY (id)
+);

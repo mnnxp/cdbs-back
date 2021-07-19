@@ -8,3 +8,4 @@ DROP TABLE user_fav;
 DROP TABLE company_fav;
 DROP TABLE component_fav;
 DROP TABLE standard_fav;
+DROP TABLE notification_to_user;

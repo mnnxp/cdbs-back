@@ -33,3 +33,6 @@ INSERT INTO component_fav (uuid_component, uuid_user) VALUES
 
 INSERT INTO standard_fav (uuid_standard, uuid_user) VALUES
   ('303ec2aa-2066-42e3-93fb-de4fb9344bcb', '31ecc6f8-0c09-4a59-a2d5-34b5b833e59b');
+
+INSERT INTO notification_to_user (id_notification, uuid_user) VALUES
+  (1, '31ecc6f8-0c09-4a59-a2d5-34b5b833e59b');
