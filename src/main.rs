@@ -74,11 +74,6 @@ async fn main() -> std::io::Result<()> {
             ))
             // Sets routes via secondary files
             .configure(models::user::route)
-            .configure(models::user_represent::route)
-            .configure(models::file::route)
-            .configure(models::component::route)
-            .configure(models::component_modification::route)
-            .configure(models::param::route)
             .configure(graphql::route)
     })
     // Running at `format!("{}:{}",port,"0.0.0.0")`
