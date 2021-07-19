@@ -3,19 +3,18 @@ pub mod model;
 pub(crate) mod service;
 pub mod util;
 
-use crate::models::user::handler::{login, logout, me, register};
+use crate::models::user::handler::{login, logout, me};
 use actix_web::web;
 
 pub fn route(cfg: &mut web::ServiceConfig) {
     cfg.service(
         web::scope("/users")
-            .service(web::resource("").route(web::post().to(register)))
             .service(web::resource("/login").route(web::post().to(login)))
             .service(web::resource("/logout").route(web::get().to(logout)))
             .service(web::resource("/me").route(web::get().to(me))),
     );
 }
 
-pub use util::has_supplier;
-pub use util::hash_authorized;
-pub use util::verify_uuid_user;
+// pub use util::has_supplier;
+pub(crate) use util::hash_authorized;
+// pub use util::verify_uuid_user;

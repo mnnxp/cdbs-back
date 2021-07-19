@@ -1,13 +1,13 @@
 use super::model::{
     LoggedUser,
     // SlimUser,
-    User
+    User,
 };
 use crate::errors::ServiceError;
 use argon2rs::argon2i_simple;
-use uuid::Uuid;
+// use uuid::Uuid;
 
-pub fn make_salt() -> String {
+pub(crate) fn make_salt() -> String {
     use rand::Rng;
     const CHARSET: &[u8] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZ\
                             abcdefghijklmnopqrstuvwxyz\
@@ -24,35 +24,30 @@ pub fn make_salt() -> String {
     password
 }
 
-pub fn make_hash_salt(password: &str, psw_salt: &str) -> [u8; argon2rs::defaults::LENGTH] {
+pub(crate) fn make_hash_salt(password: &str, psw_salt: &str) -> [u8; argon2rs::defaults::LENGTH] {
     argon2i_simple(password, psw_salt)
 }
 
-pub fn verify(user: &User, password: &str) -> bool {
-    let User { psw_hash, psw_salt, .. } = user;
+pub(crate) fn verify(user: &User, password: &str) -> bool {
+    let User {
+        psw_hash, psw_salt, ..
+    } = user;
 
     make_hash_salt(password, psw_salt) == psw_hash.as_ref()
 }
 
-pub fn hash_authorized(user: &LoggedUser) -> Result<bool, ServiceError> {
+pub(crate) fn hash_authorized(user: &LoggedUser) -> Result<bool, ServiceError> {
     match user.0 {
         None => Err(ServiceError::Unauthorized),
         Some(_) => Ok(true),
     }
 }
 
-pub fn verify_uuid_user(user: &LoggedUser, uuid_user: Uuid) -> Result<bool, ServiceError> {
-    match user.0 {
-        None => Err(ServiceError::Unauthorized),
-        Some(ref user) if user.uuid == uuid_user => Ok(true),
-        _ => Err(ServiceError::BadRequest("Uuid not correct.".to_string())),
-        // Some(ref user) => Err(ServiceError::BadRequest(format!("Uuid not correct. UUID1: {}, UUID2: {};", user.uuid, uuid_user))),
-    }
-}
-
-pub fn has_supplier(user: &LoggedUser, need_supplier: i32) -> Result<bool, ServiceError> {
-    match user.0 {
-        Some(ref user) if user.is_supplier == need_supplier => Ok(true),
-        _ => Err(ServiceError::BadRequest("You are not supplier.".to_string())),
-    }
-}
+// pub fn verify_uuid_user(user: &LoggedUser, uuid_user: Uuid) -> Result<bool, ServiceError> {
+//     match user.0 {
+//         None => Err(ServiceError::Unauthorized),
+//         Some(ref user) if user.uuid == uuid_user => Ok(true),
+//         _ => Err(ServiceError::BadRequest("Uuid not correct.".to_string())),
+//         // Some(ref user) => Err(ServiceError::BadRequest(format!("Uuid not correct. UUID1: {}, UUID2: {};", user.uuid, uuid_user))),
+//     }
+// }
