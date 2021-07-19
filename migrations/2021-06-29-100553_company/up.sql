@@ -20,7 +20,8 @@ CREATE TABLE company_ref (
   is_enabled BOOLEAN NOT NULL DEFAULT 't', /* флаг активности пользователь */
   is_delete BOOLEAN NOT NULL DEFAULT 'f', /* флаг удаления пользователя */
   created_at TIMESTAMP NOT NULL DEFAULT NOW(), /* дата создания компании */
-  updated_at TIMESTAMP NOT NULL DEFAULT NOW() /* дата обновления компании */
+  updated_at TIMESTAMP NOT NULL DEFAULT NOW(), /* дата обновления компании */
+  UNIQUE (orgname, inn, uuid_user) /* пользователь не может создавать компании с одним названием и инн */
 );
 
 /* тип компании */
