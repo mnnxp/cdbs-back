@@ -1,14 +1,14 @@
 -- Your SQL goes here
 /* перечень CAD (и других программ) (пред.название type_cad_ref) */
 CREATE TABLE program_ref (
-  id SERIAL, /* id наименования софта */
+  id SERIAL UNIQUE, /* id наименования софта */
   name VARCHAR(225) NOT NULL UNIQUE, /* наименование CAD (название программы) */
   CONSTRAINT program_ref_pk PRIMARY KEY (id)
 );
 
 /* таблица соответствия программ и расширений файлов */
 CREATE TABLE extension_ref (
-  id SERIAL, /* id соответствия */
+  id SERIAL UNIQUE, /* id соответствия */
   extension VARCHAR(50) NOT NULL, /* расширение файла, одно расширение может быть у нескольких программ */
   id_program INTEGER NOT NULL, /* соответствующая программа (CAD) */
   CONSTRAINT extension_ref_pk PRIMARY KEY (id)
@@ -32,28 +32,28 @@ CREATE TABLE file_ref (
 
 /* статус компонента */
 CREATE TABLE actual_status_ref (
-  id SERIAL, /* id статуса */
+  id SERIAL UNIQUE, /* id статуса */
   name VARCHAR(100) NOT NULL UNIQUE, /* к примеру: «актуальный», «архивный», «снято с производства» */
   CONSTRAINT actual_status_ref_pk PRIMARY KEY (id)
 );
 
 /* типы доступа */
 CREATE TABLE type_access_ref (
-  id SERIAL, /* id типа доступа */
+  id SERIAL UNIQUE, /* id типа доступа */
   name VARCHAR(100) NOT NULL UNIQUE, /* наименование доступа */
   CONSTRAINT type_access_ref_pk PRIMARY KEY (id)
 );
 
 /* параметры для модификации */
 CREATE TABLE param_ref (
-  id SERIAL, /* id параметра (характеристики) */
+  id SERIAL UNIQUE, /* id параметра (характеристики) */
   paramname VARCHAR(100) NOT NULL UNIQUE, /* наименование парметра модификации*/
   CONSTRAINT param_ref_pk PRIMARY KEY (id)
 );
 
 /* языки перевода */
 CREATE TABLE language_ref (
-  id SERIAL, /* id языка */
+  id SERIAL UNIQUE, /* id языка */
   lang VARCHAR(100) NOT NULL UNIQUE, /* полное наименование языка */
   langshort VARCHAR(10) NOT NULL UNIQUE, /* краткое наименование языка */
   CONSTRAINT language_ref_pk PRIMARY KEY (id)
@@ -61,7 +61,7 @@ CREATE TABLE language_ref (
 
 /* перевод параметра */
 CREATE TABLE param_translate_list (
-  id SERIAL, /* id перевода */
+  id SERIAL UNIQUE, /* id перевода */
   id_param INTEGER NOT NULL, /* идентификатор параметра */
   id_lang INTEGER NOT NULL, /* идентификатор языка перевода */
   param VARCHAR(100) NOT NULL, /* перевод параметра */
@@ -70,7 +70,7 @@ CREATE TABLE param_translate_list (
 
 /* перевод раздела каталога */
 CREATE TABLE spec_translate_list (
-  id SERIAL, /* id перевода */
+  id SERIAL UNIQUE, /* id перевода */
   id_spec INTEGER NOT NULL, /* идентификатор раздела */
   id_lang INTEGER NOT NULL, /* идентификатор языка перевода */
   spec VARCHAR(255) NOT NULL, /* перевод раздела */
@@ -79,21 +79,21 @@ CREATE TABLE spec_translate_list (
 
 /* регион */
 CREATE TABLE region_ref (
-  id SERIAL, /* id наименования региона */
-  region VARCHAR(100) NOT NULL, /* наименование региона */
+  id SERIAL UNIQUE, /* id наименования региона */
+  region VARCHAR(100) NOT NULL UNIQUE, /* наименование региона */
   CONSTRAINT region_ref_pk PRIMARY KEY (id)
 );
 
 /* перечень типов изменений */
 CREATE TABLE type_of_change_ref (
-  id SERIAL, /* id типа изменения */
+  id SERIAL UNIQUE, /* id типа изменения */
   type_of_change VARCHAR(100) NOT NULL, /*наименование изменения */
   CONSTRAINT type_of_change_ref_pk PRIMARY KEY (id)
 );
 
 /* категории (каталога) */
 CREATE TABLE spec_ref (
-  id SERIAL, /* id категории каталога */
+  id SERIAL UNIQUE, /* id категории каталога */
   spec VARCHAR(100) NOT NULL, /*наименование категории */
   id_spec_parent INTEGER NOT NULL DEFAULT '1', /* id родительского каталога */
   CONSTRAINT spec_ref_pk PRIMARY KEY (id)
