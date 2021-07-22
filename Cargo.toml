@@ -18,11 +18,13 @@ futures = "0.3.5"
 diesel = { version = "1.4", features = ["postgres", "uuidv07", "uuid", "chrono", "r2d2"] }
 r2d2 = "0.8"
 
-juniper = "0.14.2"
+# juniper = "0.14.2"
+async-graphql = { version = "2.9.9", default-features = false, features = ["chrono", "uuid"] }
+async-graphql-actix-web = "2.9.9"
 
 uuid = { version = "0.7", features = ["serde", "v4"] }
 time = "0.2"
-chrono = { version = "0.4", features = ["serde"] }
+chrono = { version = "0.4.19", features = ["serde"] }
 
 lazy_static = "1"
 log = "0.4.8"
@@ -52,3 +54,7 @@ sha2 = "0.9.3"
 digest = "0.9.0"
 blake3 = "0.3.7"
 bytes = "1"
+
+[dev-dependencies]
+actix-rt = "2.2.0"
+reqwest = "0.11.4"
