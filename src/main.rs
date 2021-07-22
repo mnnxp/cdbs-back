@@ -54,7 +54,7 @@ async fn main() -> std::io::Result<()> {
     // Server port
     let port = opt.port;
 
-    let schema = crate::graphql::handler::build_schema();
+    let schema = crate::graphql::handler::build_schema(pool).await;
 
     // Server
     let server = HttpServer::new(move || {
@@ -64,7 +64,7 @@ async fn main() -> std::io::Result<()> {
         let cors = Cors::permissive();
         App::new()
             // Database
-            .data(pool.clone())
+            // .data(pool.clone())
             // .app_data(schema)
             .data(schema.clone())
             // Options

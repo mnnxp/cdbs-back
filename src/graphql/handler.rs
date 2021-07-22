@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use crate::graphql::model::Context;
 use crate::jwt::model::DecodedToken;
 use crate::models::user::model::LoggedUser;
@@ -14,13 +16,16 @@ use crate::graphql::{mutations::MutationRoot, queries::QueryRoot};
 
 type ActixSchema = Schema<QueryRoot, MutationRoot, EmptySubscription>;
 
-// pub async fn build_schema() -> ActixSchema {
-//     Schema::build(QueryRoot, MutationRoot, EmptySubscription).finish()
-// }
-
-pub fn build_schema() -> async_graphql::Schema<QueryRoot, MutationRoot, EmptySubscription> {
-  Schema::new(QueryRoot, MutationRoot, EmptySubscription)
+pub async fn build_schema(pool: Pool) -> ActixSchema {
+    Schema::build(QueryRoot, MutationRoot, EmptySubscription)
+        .enable_federation()
+        .data(pool)
+        .finish()
 }
+
+// pub fn build_schema() -> ActixSchema  {
+//   Schema::new(QueryRoot, MutationRoot, EmptySubscription)
+// }
 
 pub async fn graphql(
     schema: web::Data<ActixSchema>,
