@@ -1,6 +1,7 @@
 use crate::schema::*;
+use async_graphql::types::ID;
+use async_graphql::*;
 // use chrono::*;
-// use shrinkwraprs::Shrinkwrap;
 use uuid::Uuid;
 
 #[derive(Debug, Queryable)]
@@ -24,6 +25,31 @@ pub struct ShowCompanyRepresent {
     pub name: String,
     pub address: String,
     pub phone: String,
+}
+
+#[Object]
+impl ShowCompanyRepresent {
+    async fn uuid(&self) -> ID {
+        self.uuid.into()
+    }
+    async fn uuid_company(&self) -> ID {
+        self.uuid_company.into()
+    }
+    async fn id_region(&self) -> i32 {
+        self.id_region.into()
+    }
+    async fn id_representation_type(&self) -> i32 {
+        self.id_representation_type.into()
+    }
+    async fn name(&self) -> String {
+        self.name.clone()
+    }
+    async fn address(&self) -> String {
+        self.address.clone()
+    }
+    async fn phone(&self) -> String {
+        self.phone.clone()
+    }
 }
 
 #[derive(Debug, Insertable)]

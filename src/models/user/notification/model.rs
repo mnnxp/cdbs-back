@@ -1,4 +1,5 @@
 use crate::schema::*;
+use async_graphql::*;
 use chrono::*;
 use uuid::Uuid;
 
@@ -9,6 +10,25 @@ pub struct Notification {
     pub id_degree_importance: i32,
     pub generated_at: NaiveDateTime,
     pub is_read: bool,
+}
+
+#[Object]
+impl Notification {
+    async fn id(&self) -> i32 {
+        self.id.into()
+    }
+    async fn notification(&self) -> String {
+        self.notification.clone()
+    }
+    async fn id_degree_importance(&self) -> i32 {
+        self.id_degree_importance.into()
+    }
+    async fn generated_at(&self) -> NaiveDateTime {
+        self.generated_at.into()
+    }
+    async fn is_read(&self) -> bool {
+        self.is_read.into()
+    }
 }
 
 #[derive(Debug, Insertable)]

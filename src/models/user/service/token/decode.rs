@@ -1,5 +1,6 @@
 use crate::errors::{ServiceError, ServiceResult};
-use crate::graphql::model::Context;
+// use crate::graphql::model::Context;
+use async_graphql::Context;
 use crate::jwt::model::Claims;
 
 pub type ClaimsResponse = Claims;
@@ -27,9 +28,11 @@ impl ClaimsResponse {
     }
 }
 
-pub(crate) fn decode(context: &Context) -> ServiceResult<&ClaimsResponse> {
-    match context.token.jwt {
-        None => Err(ServiceError::Unauthorized),
-        Some(ref m) => Ok(m as &ClaimsResponse),
-    }
+pub(crate) fn decode<'a>(context: &'a Context) -> ServiceResult<&'a ClaimsResponse>  {
+    // match context.token.jwt {
+    //     None => Err(ServiceError::Unauthorized),
+    //     Some(ref m) => Ok(m as &ClaimsResponse),
+    // }
+    let jwt = context.data::<Claims>().map_err(|_| ServiceError::Unauthorized)?;
+    Ok(jwt as &ClaimsResponse)
 }

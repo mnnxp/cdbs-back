@@ -1,6 +1,6 @@
 // use crate::database::{db_connection, Pool};
 use crate::errors::ServiceResult;
-use crate::models::user::model::{InsertableUser, SlimUser, User, UserData};
+use crate::models::user::model::{InsertableUser, SlimUser, User, IptUserData};
 // use actix_web::web;
 use diesel::prelude::*;
 
@@ -9,7 +9,7 @@ use diesel::prelude::*;
 //     create_user(user_data, conn)
 // }
 
-pub(crate) fn create_user(user_data: UserData, conn: &PgConnection) -> ServiceResult<SlimUser> {
+pub(crate) fn create_user(user_data: IptUserData, conn: &PgConnection) -> ServiceResult<SlimUser> {
     use crate::schema::user_ref::dsl::user_ref;
 
     let user: InsertableUser = user_data.into();

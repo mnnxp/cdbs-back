@@ -1,16 +1,17 @@
-use crate::database::PooledConnection;
+use crate::database::{get_conn, PooledConnection};
 use crate::errors::{
     ServiceError,
     ServiceResult
 };
-use crate::graphql::model::Context;
+// use crate::graphql::model::Context;
+use async_graphql::Context;
 use crate::models::file::model::ShowFile;
 use diesel::prelude::*;
 
 use uuid::Uuid;
 
 pub(crate) fn get_files(
-    context: &Context,
+    context: &Context<'_>,
     uuid_user_search: Uuid,
     uuid_component_search: Uuid,
     uuid_component_modification_search: Uuid,
@@ -44,13 +45,13 @@ pub(crate) fn get_files(
 }
 
 fn find_all_files(
-    context: &Context,
+    context: &Context<'_>,
     limit: i32,
     offset: i32,
 ) -> ServiceResult<Vec<ShowFile>> {
     use crate::schema::file_ref::dsl::*;
     use crate::schema::extension_ref::dsl::*;
-    let conn: &PooledConnection = &context.db;
+    let conn: &PooledConnection = &get_conn(context)?;
 
     Ok(file_ref
         .inner_join(extension_ref)
@@ -63,14 +64,14 @@ fn find_all_files(
 }
 
 fn find_uuid_user_file(
-    context: &Context,
+    context: &Context<'_>,
     uuid_user_search: Uuid,
     limit: i32,
     offset: i32,
 ) -> ServiceResult<Vec<ShowFile>> {
     use crate::schema::file_ref::dsl::*;
     use crate::schema::extension_ref::dsl::*;
-    let conn: &PooledConnection = &context.db;
+    let conn: &PooledConnection = &get_conn(context)?;
 
     Ok(file_ref
         .inner_join(extension_ref)
@@ -84,7 +85,7 @@ fn find_uuid_user_file(
 }
 
 fn find_uuid_component_file(
-    context: &Context,
+    context: &Context<'_>,
     uuid_component_search: Uuid,
     limit: i32,
     offset: i32,
@@ -92,7 +93,7 @@ fn find_uuid_component_file(
     use crate::schema::file_ref::dsl::*;
     use crate::schema::file_to_component::dsl::*;
     use crate::schema::extension_ref::dsl::*;
-    let conn: &PooledConnection = &context.db;
+    let conn: &PooledConnection = &get_conn(context)?;
 
     let uuid_for_select_file: Vec<Uuid> = file_to_component
         .filter(uuid_component.eq(uuid_component_search))
@@ -121,7 +122,7 @@ fn find_uuid_component_file(
 }
 
 fn find_uuid_component_modification_file(
-    context: &Context,
+    context: &Context<'_>,
     uuid_component_modification_search: Uuid,
     limit: i32,
     offset: i32,
@@ -129,7 +130,7 @@ fn find_uuid_component_modification_file(
     use crate::schema::file_ref::dsl::*;
     use crate::schema::file_to_modification::dsl::*;
     use crate::schema::extension_ref::dsl::*;
-    let conn: &PooledConnection = &context.db;
+    let conn: &PooledConnection = &get_conn(context)?;
 
     let uuid_for_select_file: Vec<Uuid> = file_to_modification
         .filter(uuid_modification.eq(uuid_component_modification_search))

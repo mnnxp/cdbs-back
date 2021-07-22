@@ -1,11 +1,8 @@
-// use crate::user::model::{LoggedUser, User};
 use crate::schema::*;
+use async_graphql::types::ID;
+use async_graphql::*;
 use chrono::*;
-// use shrinkwraprs::Shrinkwrap;
 use uuid::Uuid;
-// use crate::models::file::util::hex_to_bytes;
-// type NaiveDateTime = chrono::NaiveDateTime;
-// Main file structures
 
 #[derive(Debug, Queryable)]
 pub struct File {
@@ -34,6 +31,40 @@ pub struct ShowFile {
     pub path_file: String,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
+}
+
+#[Object]
+impl ShowFile {
+    async fn uuid(&self) -> ID {
+        self.uuid.into()
+    }
+    async fn uuid_file_parent(&self) -> ID {
+        self.uuid_file_parent.into()
+    }
+    async fn uuid_user(&self) -> ID {
+        self.uuid_user.into()
+    }
+    async fn filename(&self) -> String {
+        self.filename.clone()
+    }
+    async fn id_ext(&self) -> i32 {
+        self.id_ext.into()
+    }
+    async fn value_ext(&self) -> String {
+        self.value_ext.clone()
+    }
+    async fn filesize(&self) -> i32 {
+        self.filesize.into()
+    }
+    async fn path_file(&self) -> String {
+        self.path_file.clone()
+    }
+    async fn created_at(&self) -> NaiveDateTime {
+        self.created_at.into()
+    }
+    async fn updated_at(&self) -> NaiveDateTime {
+        self.updated_at.into()
+    }
 }
 
 #[derive(Debug, Insertable)]

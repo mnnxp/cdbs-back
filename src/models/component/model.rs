@@ -1,8 +1,8 @@
-// use crate::user::model::{LoggedUser, User};
 use crate::schema::*;
+use async_graphql::types::ID;
+use async_graphql::*;
 use chrono::*;
 use uuid::Uuid;
-// use num::ToPrimitive;
 
 #[derive(Debug, Queryable)]
 pub struct Component {
@@ -37,6 +37,46 @@ pub struct ShowComponent {
     pub updated_at: NaiveDateTime,
 }
 
+#[Object]
+impl ShowComponent {
+    async fn uuid(&self) -> ID {
+        self.uuid.into()
+    }
+    async fn uuid_component_parent(&self) -> ID {
+        self.uuid_component_parent.into()
+    }
+    async fn name(&self) -> String {
+        self.name.clone()
+    }
+    async fn description(&self) -> String {
+        self.description.clone()
+    }
+    async fn uuid_user(&self) -> ID {
+        self.uuid_user.into()
+    }
+    async fn id_type_access(&self) -> i32 {
+        self.id_type_access.into()
+    }
+    async fn id_component_type(&self) -> i32 {
+        self.id_component_type.into()
+    }
+    async fn id_actual_status(&self) -> i32 {
+        self.id_actual_status.into()
+    }
+    async fn is_standard(&self) -> bool {
+        self.is_standard.into()
+    }
+    async fn is_delete(&self) -> bool {
+        self.is_delete.into()
+    }
+    async fn created_at(&self) -> NaiveDateTime {
+        self.created_at.into()
+    }
+    async fn updated_at(&self) -> NaiveDateTime {
+        self.updated_at.into()
+    }
+}
+
 #[derive(Debug, Insertable)]
 #[table_name = "component_ref"]
 pub struct InsertableComponent {
@@ -67,8 +107,8 @@ pub struct ComponentData {
 }
 
 #[derive(Debug, Deserialize)]
-pub struct ComponentDataQuery {
-    pub uuid_component_parent: String,
+pub struct IptComponentData {
+    pub uuid_component_parent: ID,
     pub name: String,
     pub description: String,
     pub id_type_access: i32,

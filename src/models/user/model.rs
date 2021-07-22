@@ -60,6 +60,60 @@ impl ShowUser {
     async fn uuid(&self) -> ID {
         self.uuid.into()
     }
+    async fn email(&self) -> String {
+        self.email.clone()
+    }
+    async fn firstname(&self) -> String {
+        self.firstname.clone()
+    }
+    async fn lastname(&self) -> String {
+        self.lastname.clone()
+    }
+    async fn secondname(&self) -> String {
+        self.secondname.clone()
+    }
+    async fn username(&self) -> String {
+        self.username.clone()
+    }
+    async fn phone(&self) -> String {
+        self.phone.clone()
+    }
+    async fn description(&self) -> String {
+        self.description.clone()
+    }
+    async fn address(&self) -> String {
+        self.address.clone()
+    }
+    async fn position(&self) -> String {
+        self.position.clone()
+    }
+    async fn time_zone(&self) -> i32 {
+        self.time_zone.into()
+    }
+    async fn uuid_image_file(&self) -> ID {
+        self.uuid_image_file.into()
+    }
+    async fn id_region(&self) -> i32 {
+        self.id_region.into()
+    }
+    async fn id_program(&self) -> i32 {
+        self.id_program.into()
+    }
+    async fn is_email_verified(&self) -> bool {
+        self.is_email_verified.into()
+    }
+    async fn is_enabled(&self) -> bool {
+        self.is_enabled.into()
+    }
+    async fn is_delete(&self) -> bool {
+        self.is_delete.into()
+    }
+    async fn created_at(&self) -> NaiveDateTime {
+        self.created_at.into()
+    }
+    async fn updated_at(&self) -> NaiveDateTime {
+        self.updated_at.into()
+    }
 }
 
 #[derive(Debug, Insertable)]
@@ -199,9 +253,9 @@ impl From<SlimUser> for LoggedUser {
     }
 }
 
-impl From<UserData> for InsertableUser {
-    fn from(user_data: UserData) -> Self {
-        let UserData {
+impl From<IptUserData> for InsertableUser {
+    fn from(user_data: IptUserData) -> Self {
+        let IptUserData {
             email,
             password,
             firstname,
@@ -221,6 +275,7 @@ impl From<UserData> for InsertableUser {
 
         let psw_salt = make_salt();
         let psw_hash = make_hash_salt(&password, &psw_salt).to_vec();
+        let uuid_image_file = uuid::Uuid::parse_str(&uuid_image_file).unwrap();
 
         Self {
             uuid: Uuid::new_v4(),

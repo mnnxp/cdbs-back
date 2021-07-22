@@ -1,8 +1,8 @@
 use async_graphql::{Context, Result};
 
-// use crate::database::PooledConnection;
+// use crate::database::{get_conn, PooledConnection};
 use crate::errors::{ServiceError, ServiceResult};
-use crate::models::user::model::{SlimUser, UserData, IptUserData};
+use crate::models::user::model::{SlimUser, IptUserData};
 use crate::models::user::service as user;
 pub struct MutationRoot;
 // use diesel::PgConnection;
@@ -19,10 +19,8 @@ impl MutationRoot {
         data: IptUserData,
     ) -> ServiceResult<SlimUser> {
         let conn = context
-            .data::<Pool>()
-            .expect("Can't get pool")
-            .get()
-            .expect("Can't get DB connection");
+            .data::<Pool>().expect("Can't get pool")
+            .get().expect("Can't get DB connection");
         user::register::create_user(data.into(), &conn)
     }
 }

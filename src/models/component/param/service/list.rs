@@ -1,15 +1,16 @@
-use crate::database::PooledConnection;
+use crate::database::{get_conn, PooledConnection};
 use crate::errors::{
     // ServiceError,
     ServiceResult
 };
-use crate::graphql::model::Context;
+// use crate::graphql::model::Context;
+use async_graphql::Context;
 use crate::models::component::param::model::Param;
 use diesel::prelude::*;
 
 
 pub(crate) fn get_params(
-    context: &Context,
+    context: &Context<'_>,
     id_param_search: Vec<i32>,
     limit: i32,
     offset: i32,
@@ -22,12 +23,12 @@ pub(crate) fn get_params(
 }
 
 fn find_all_param(
-    context: &Context,
+    context: &Context<'_>,
     limit: i32,
     offset: i32,
 ) -> ServiceResult<Vec<Param>> {
     use crate::schema::param_ref::dsl::*;
-    let conn: &PooledConnection = &context.db;
+    let conn: &PooledConnection = &get_conn(context)?;
 
     Ok(param_ref
         .limit(limit as i64)
@@ -36,13 +37,13 @@ fn find_all_param(
 }
 
 fn find_id_param(
-    context: &Context,
+    context: &Context<'_>,
     id_param_search: Vec<i32>,
     limit: i32,
     offset: i32,
 ) -> ServiceResult<Vec<Param>> {
     use crate::schema::param_ref::dsl::*;
-    let conn: &PooledConnection = &context.db;
+    let conn: &PooledConnection = &get_conn(context)?;
 
     Ok(param_ref
         .filter(id.eq_any(id_param_search))

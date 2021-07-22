@@ -1,8 +1,8 @@
-// use crate::user::model::{LoggedUser, User};
 use crate::schema::*;
+use async_graphql::types::ID;
+use async_graphql::*;
 use chrono::*;
 use uuid::Uuid;
-// use num::ToPrimitive;
 
 #[derive(Debug, Queryable)]
 pub struct ComponentModification {
@@ -29,6 +29,37 @@ pub struct ShowComponentModification {
     pub is_delete: bool,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
+}
+
+#[Object]
+impl ShowComponentModification {
+    async fn uuid(&self) -> ID {
+        self.uuid.into()
+    }
+    async fn uuid_component(&self) -> ID {
+        self.uuid_component.into()
+    }
+    async fn uuid_modification_parent(&self) -> ID {
+        self.uuid_modification_parent.into()
+    }
+    async fn modification_name(&self) -> String {
+        self.modification_name.clone()
+    }
+    async fn description(&self) -> String {
+        self.description.clone()
+    }
+    async fn id_actual_status(&self) -> i32 {
+        self.id_actual_status.into()
+    }
+    async fn is_delete(&self) -> bool {
+        self.is_delete.into()
+    }
+    async fn created_at(&self) -> NaiveDateTime {
+        self.created_at.into()
+    }
+    async fn updated_at(&self) -> NaiveDateTime {
+        self.updated_at.into()
+    }
 }
 
 #[derive(Debug, Insertable)]

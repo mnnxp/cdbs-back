@@ -3,7 +3,7 @@ use crate::jwt::model::Claims;
 use crate::models::user::model::SlimUser;
 use jsonwebtoken::{decode, encode, Algorithm, Header, Validation};
 
-pub fn create_token(
+pub(crate) fn create_token(
     user: &SlimUser,
     issuer: String,
     auth_duration_in_hour: u16,

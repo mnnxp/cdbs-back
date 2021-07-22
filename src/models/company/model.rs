@@ -1,4 +1,6 @@
 use crate::schema::*;
+use async_graphql::types::ID;
+use async_graphql::*;
 use chrono::*;
 use uuid::Uuid;
 
@@ -49,6 +51,70 @@ pub struct ShowCompany {
     pub is_delete: bool,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
+}
+
+#[Object]
+impl ShowCompany {
+    async fn uuid(&self) -> ID {
+        self.uuid.into()
+    }
+    async fn orgname(&self) -> String {
+        self.orgname.clone()
+    }
+    async fn shortname(&self) -> String {
+        self.shortname.clone()
+    }
+    async fn inn(&self) -> String {
+        self.inn.clone()
+    }
+    async fn phone(&self) -> String {
+        self.phone.clone()
+    }
+    async fn email(&self) -> String {
+        self.email.clone()
+    }
+    async fn description(&self) -> String {
+        self.description.clone()
+    }
+    async fn address(&self) -> String {
+        self.address.clone()
+    }
+    async fn site_url(&self) -> String {
+        self.site_url.clone()
+    }
+    async fn time_zone(&self) -> i32 {
+        self.time_zone.into()
+    }
+    async fn uuid_user(&self) -> ID {
+        self.uuid_user.into()
+    }
+    async fn uuid_image_file(&self) -> ID {
+        self.uuid_image_file.into()
+    }
+    async fn id_region(&self) -> i32 {
+        self.id_region.into()
+    }
+    async fn id_type_org(&self) -> i32 {
+        self.id_type_org.into()
+    }
+    async fn is_supplier(&self) -> bool {
+        self.is_supplier.into()
+    }
+    async fn is_email_verified(&self) -> bool {
+        self.is_email_verified.into()
+    }
+    async fn is_enabled(&self) -> bool {
+        self.is_enabled.into()
+    }
+    async fn is_delete(&self) -> bool {
+        self.is_delete.into()
+    }
+    async fn created_at(&self) -> NaiveDateTime {
+        self.created_at.into()
+    }
+    async fn updated_at(&self) -> NaiveDateTime {
+        self.updated_at.into()
+    }
 }
 
 #[derive(Debug, Insertable)]

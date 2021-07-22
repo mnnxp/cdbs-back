@@ -1,15 +1,16 @@
-use crate::database::PooledConnection;
+use crate::database::{get_conn, PooledConnection};
 use crate::errors::{
     ServiceError,
     ServiceResult
 };
-use crate::graphql::model::Context;
+// use crate::graphql::model::Context;
+use async_graphql::Context;
 use crate::models::company::model::ShowCompany;
 use diesel::prelude::*;
 use uuid::Uuid;
 
 pub(crate) fn get_companies(
-    context: &Context,
+    context: &Context<'_>,
     uuid_company_search: Uuid,
     limit: i32,
     offset: i32,
@@ -33,12 +34,12 @@ pub(crate) fn get_companies(
 }
 
 fn find_all_companys(
-    context: &Context,
+    context: &Context<'_>,
     limit: i32,
     offset: i32,
 ) -> ServiceResult<Vec<ShowCompany>> {
     use crate::schema::company_ref::dsl::*;
-    let conn: &PooledConnection = &context.db;
+    let conn: &PooledConnection = &get_conn(context)?;
 
     Ok(company_ref
         .select((
@@ -52,13 +53,13 @@ fn find_all_companys(
 }
 
 fn find_uuid_company(
-    context: &Context,
+    context: &Context<'_>,
     uuid_company_search: Uuid,
     limit: i32,
     offset: i32,
 ) -> ServiceResult<Vec<ShowCompany>> {
     use crate::schema::company_ref::dsl::*;
-    let conn: &PooledConnection = &context.db;
+    let conn: &PooledConnection = &get_conn(context)?;
 
     Ok(company_ref
         .filter(uuid.eq(uuid_company_search))

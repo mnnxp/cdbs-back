@@ -1,4 +1,6 @@
 use crate::schema::*;
+use async_graphql::types::ID;
+use async_graphql::*;
 use chrono::*;
 use uuid::Uuid;
 
@@ -45,6 +47,61 @@ pub struct ShowStandard {
     pub updated_at: NaiveDateTime,
 }
 
+#[Object]
+impl ShowStandard {
+    async fn uuid(&self) -> ID {
+        self.uuid.into()
+    }
+    async fn uuid_standard_parent(&self) -> ID {
+        self.uuid_standard_parent.into()
+    }
+    async fn classifier(&self) -> String {
+        self.classifier.clone()
+    }
+    async fn name(&self) -> String {
+        self.name.clone()
+    }
+    async fn description(&self) -> String {
+        self.description.clone()
+    }
+    async fn specified_tolerance(&self) -> String {
+        self.specified_tolerance.clone()
+    }
+    async fn technical_committee(&self) -> String {
+        self.technical_committee.clone()
+    }
+    async fn publication_at(&self) -> NaiveDateTime {
+        self.publication_at.into()
+    }
+    async fn uuid_image_file(&self) -> ID {
+        self.uuid_image_file.into()
+    }
+    async fn uuid_user(&self) -> ID {
+        self.uuid_user.into()
+    }
+    async fn uuid_company(&self) -> ID {
+        self.uuid_company.into()
+    }
+    async fn id_type_access(&self) -> i32 {
+        self.id_type_access.into()
+    }
+    async fn id_standard_status(&self) -> i32 {
+        self.id_standard_status.into()
+    }
+    async fn id_region(&self) -> i32 {
+        self.id_region.into()
+    }
+    async fn is_delete(&self) -> i32 {
+        self.is_delete.into()
+    }
+    async fn created_at(&self) -> NaiveDateTime {
+        self.created_at.into()
+    }
+    async fn updated_at(&self) -> NaiveDateTime {
+        self.updated_at.into()
+    }
+}
+
 #[derive(Debug, Insertable)]
 #[table_name = "standard_ref"]
 pub struct InsertableStandard {
@@ -68,6 +125,23 @@ pub struct InsertableStandard {
 }
 
 #[derive(Debug, Deserialize)]
+pub struct IptStandardData {
+    pub uuid_standard_parent: ID,
+    pub classifier: String,
+    pub name: String,
+    pub description: String,
+    pub specified_tolerance: String,
+    pub technical_committee: String,
+    pub publication_at: NaiveDateTime,
+    pub uuid_image_file: ID,
+    pub uuid_user: ID,
+    pub uuid_company: ID,
+    pub id_type_access: i32,
+    pub id_standard_status: i32,
+    pub id_region: i32,
+}
+
+#[derive(Debug, Deserialize)]
 pub struct StandardData {
     pub uuid_standard_parent: Uuid,
     pub classifier: String,
@@ -82,6 +156,40 @@ pub struct StandardData {
     pub id_type_access: i32,
     pub id_standard_status: i32,
     pub id_region: i32,
+}
+impl From<IptStandardData> for StandardData {
+    fn from(ipt_data: IptStandardData) -> Self {
+        let IptStandardData {
+            uuid_standard_parent,
+            classifier,
+            name,
+            description,
+            specified_tolerance,
+            technical_committee,
+            publication_at,
+            uuid_image_file,
+            uuid_user,
+            uuid_company,
+            id_type_access,
+            id_standard_status,
+            id_region,
+        } = ipt_data;
+        StandardData {
+            uuid_standard_parent: Uuid::parse_str(&uuid_standard_parent.to_string()).unwrap(),
+            classifier,
+            name,
+            description,
+            specified_tolerance,
+            technical_committee,
+            publication_at,
+            uuid_image_file: Uuid::parse_str(&uuid_image_file.to_string()).unwrap(),
+            uuid_user: Uuid::parse_str(&uuid_user.to_string()).unwrap(),
+            uuid_company: Uuid::parse_str(&uuid_company.to_string()).unwrap(),
+            id_type_access,
+            id_standard_status,
+            id_region,
+        }
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -113,6 +221,11 @@ impl From<StandardData> for InsertableStandard {
             id_region,
             ..
         } = company_data;
+
+        // let uuid_standard_parent = Uuid::parse_str(&uuid_standard_parent).unwrap();
+        // let uuid_image_file = Uuid::parse_str(&uuid_image_file).unwrap();
+        // let uuid_user = Uuid::parse_str(&uuid_user).unwrap();
+        // let uuid_company = Uuid::parse_str(&uuid_company).unwrap();
 
         Self {
             uuid: Uuid::new_v4(),

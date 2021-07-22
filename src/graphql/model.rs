@@ -1,5 +1,5 @@
 use crate::cli_args::Opt;
-use crate::database::PooledConnection;
+use crate::database::{get_conn, PooledConnection};
 use crate::jwt::model::DecodedToken;
 use crate::models::user::model::LoggedUser;
 
