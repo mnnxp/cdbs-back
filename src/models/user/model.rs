@@ -1,5 +1,7 @@
-use crate::schema::*;
 use crate::models::user::util::{make_hash_salt, make_salt};
+use crate::schema::*;
+use async_graphql::types::ID;
+use async_graphql::*;
 use chrono::*;
 use shrinkwraprs::Shrinkwrap;
 use uuid::Uuid;
@@ -53,6 +55,13 @@ pub struct ShowUser {
     pub updated_at: NaiveDateTime,
 }
 
+#[Object]
+impl ShowUser {
+    async fn uuid(&self) -> ID {
+        self.uuid.into()
+    }
+}
+
 #[derive(Debug, Insertable)]
 #[table_name = "user_ref"]
 pub struct InsertableUser {
@@ -79,7 +88,25 @@ pub struct InsertableUser {
     pub updated_at: NaiveDateTime,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Clone, InputObject)]
+pub struct IptUserData {
+    pub email: String,
+    pub password: String,
+    pub firstname: String,
+    pub lastname: String,
+    pub secondname: String,
+    pub username: String,
+    pub phone: String,
+    pub description: String,
+    pub address: String,
+    pub position: String,
+    pub time_zone: i32,
+    pub uuid_image_file: ID,
+    pub id_region: i32,
+    pub id_program: i32,
+}
+
+#[derive(Debug, Deserialize, Clone)]
 pub struct UserData {
     pub email: String,
     pub password: String,
@@ -97,11 +124,70 @@ pub struct UserData {
     pub id_program: i32,
 }
 
+impl From<IptUserData> for UserData {
+    fn from(ipt_data: IptUserData) -> Self {
+        let IptUserData {
+            email,
+            password,
+            firstname,
+            lastname,
+            secondname,
+            username,
+            phone,
+            description,
+            address,
+            position,
+            time_zone,
+            uuid_image_file,
+            id_region,
+            id_program,
+        } = ipt_data;
+        UserData {
+            email,
+            password,
+            firstname,
+            lastname,
+            secondname,
+            username,
+            phone,
+            description,
+            address,
+            position,
+            time_zone,
+            uuid_image_file: uuid::Uuid::parse_str(&uuid_image_file.to_string()).unwrap(),
+            id_region,
+            id_program,
+        }
+    }
+}
+
+#[Object]
+impl UserData {
+    async fn uuid_image_file(&self) -> ID {
+        self.uuid_image_file.into()
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct SlimUser {
     pub uuid: Uuid,
     pub id_program: i32,
     pub username: String,
+}
+
+#[Object]
+impl SlimUser {
+    async fn uuid(&self) -> ID {
+        self.uuid.into()
+    }
+
+    async fn id_program(&self) -> &i32 {
+        &self.id_program
+    }
+
+    async fn username(&self) -> &String {
+        &self.username
+    }
 }
 
 #[derive(Shrinkwrap, Clone, Default)]

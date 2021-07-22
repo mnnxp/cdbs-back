@@ -4,7 +4,7 @@ use async_graphql::{ErrorExtensions, FieldError};
 use std::convert::From;
 use thiserror::Error;
 
-#[derive(Debug, Error, Serialize)]
+#[derive(Debug, Error, Serialize, Clone)]
 pub enum ServiceError {
     #[error("Internal Server Error")]
     InternalServerError,

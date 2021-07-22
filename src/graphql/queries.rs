@@ -29,6 +29,6 @@ impl QueryRoot {
         let limit: i32 = limit.unwrap_or(100);
         let offset: i32 = offset.unwrap_or(0);
 
-        user::list::get_users(&context, uuid_user_create, limit, offset)
+        user::list::get_users(context, uuid_user_create, limit, offset)
     }
 }
