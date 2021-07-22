@@ -4,6 +4,7 @@ use super::model::{
     User,
 };
 use crate::errors::ServiceError;
+use async_graphql::Context;
 use argon2rs::argon2i_simple;
 use uuid::Uuid;
 
@@ -36,19 +37,19 @@ pub(crate) fn verify(user: &User, password: &str) -> bool {
     make_hash_salt(password, psw_salt) == psw_hash.as_ref()
 }
 
-pub(crate) fn hash_authorized(user: &LoggedUser) -> Result<bool, ServiceError> {
+pub(crate) fn hash_authorized(context: &Context<'_>) -> Result<bool, ServiceError> {
+    let user = context.data::<LoggedUser>().unwrap();
     match user.0 {
         None => Err(ServiceError::Unauthorized),
         Some(_) => Ok(true),
     }
 }
 
-pub(crate) fn get_uuid_user(user: &LoggedUser) -> Result<Uuid, ServiceError> {
+pub(crate) fn get_uuid_user(context: &Context<'_>) -> Result<Uuid, ServiceError> {
+    let user = context.data::<LoggedUser>().unwrap();
     match user.0 {
         None => Err(ServiceError::Unauthorized),
         Some(ref user) => Ok(user.uuid),
-        // _ => Err(ServiceError::BadRequest("Uuid not correct.".to_string())),
-        // Some(ref user) => Err(ServiceError::BadRequest(format!("Uuid not correct. UUID1: {}, UUID2: {};", user.uuid, uuid_user))),
     }
 }
 
