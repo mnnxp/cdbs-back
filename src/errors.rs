@@ -1,6 +1,6 @@
 use actix_web::{error::ResponseError, HttpResponse};
 use diesel::result::Error as DBError;
-use juniper::graphql_value;
+use async_graphql::{ErrorExtensions, FieldError};
 use std::convert::From;
 use thiserror::Error;
 
@@ -19,34 +19,14 @@ pub enum ServiceError {
     UnableToConnectToDb,
 }
 
-impl juniper::IntoFieldError for ServiceError {
-    fn into_field_error(self) -> juniper::FieldError {
-        match self {
-            ServiceError::Unauthorized => juniper::FieldError::new(
-                "Unauthorized",
-                graphql_value!({
-                    "type": "NO_ACCESS"
-                }),
-            ),
-            ServiceError::BadRequest(s) => juniper::FieldError::new(
-                s,
-                graphql_value!({
-                    "type": "BAD_REQUEST"
-                }),
-            ),
-            ServiceError::InternalServerError => juniper::FieldError::new(
-                "Internal Error",
-                graphql_value!({
-                    "type": "INTERNAL_ERROR"
-                }),
-            ),
-            ServiceError::UnableToConnectToDb => juniper::FieldError::new(
-                "Unable to connect to DB",
-                graphql_value!({
-                    "type": "DB_CONNECTION_ERROR"
-                }),
-            ),
-        }
+impl ErrorExtensions for ServiceError {
+    fn extend(&self) -> FieldError {
+        self.extend_with(|err, e| match err {
+            ServiceError::Unauthorized => e.set("code", "Unauthorized"),
+            ServiceError::BadRequest(reason) => e.set("reason", reason.to_string()),
+            ServiceError::InternalServerError => e.set("code", "Internal Error"),
+            ServiceError::UnableToConnectToDb => e.set("code", "Unable to connect to DB"),
+        })
     }
 }
 
