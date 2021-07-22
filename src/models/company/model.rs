@@ -27,7 +27,7 @@ pub struct Company {
     pub updated_at: NaiveDateTime,
 }
 
-#[derive(Debug, Serialize, Deserialize, Queryable, juniper::GraphQLObject)]
+#[derive(Debug, Serialize, Deserialize, Queryable)]
 pub struct ShowCompany {
     pub uuid: Uuid,
     pub orgname: String,
@@ -76,7 +76,7 @@ pub struct InsertableCompany {
     pub updated_at: NaiveDateTime,
 }
 
-#[derive(Debug, Deserialize, juniper::GraphQLInputObject)]
+#[derive(Debug, Deserialize)]
 pub struct CompanyData {
     pub orgname: String,
     pub shortname: String,
@@ -93,7 +93,7 @@ pub struct CompanyData {
     pub id_type_org: i32,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, juniper::GraphQLObject)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct SlimCompany {
     pub uuid: Uuid,
     pub shortname: String,

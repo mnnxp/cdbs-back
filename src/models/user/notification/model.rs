@@ -2,7 +2,7 @@ use crate::schema::*;
 use chrono::*;
 use uuid::Uuid;
 
-#[derive(Debug, Serialize, Deserialize, Queryable, juniper::GraphQLObject)]
+#[derive(Debug, Serialize, Deserialize, Queryable)]
 pub struct Notification {
     pub id: i32,
     pub notification: String,
@@ -20,13 +20,13 @@ pub struct InsertableNotification {
     pub is_read: bool,
 }
 
-#[derive(Debug, Deserialize, juniper::GraphQLInputObject)]
+#[derive(Debug, Deserialize)]
 pub struct NotificationData {
     pub notification: String,
     pub id_degree_importance: i32,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, juniper::GraphQLObject)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct SlimNotification {
     pub notification: String,
     pub id_degree_importance: i32,
@@ -34,7 +34,7 @@ pub struct SlimNotification {
 }
 
 
-#[derive(Debug, Serialize, Deserialize, Queryable, juniper::GraphQLObject)]
+#[derive(Debug, Serialize, Deserialize, Queryable)]
 pub struct NotificationToUser {
     pub id: i32,
     pub id_notification: i32,

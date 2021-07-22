@@ -30,7 +30,7 @@ pub struct User {
     pub updated_at: NaiveDateTime,
 }
 
-#[derive(Debug, Serialize, Deserialize, Queryable, juniper::GraphQLObject)]
+#[derive(Debug, Serialize, Deserialize, Queryable)]
 pub struct ShowUser {
     pub uuid: Uuid,
     pub email: String,
@@ -79,7 +79,7 @@ pub struct InsertableUser {
     pub updated_at: NaiveDateTime,
 }
 
-#[derive(Debug, Deserialize, juniper::GraphQLInputObject)]
+#[derive(Debug, Deserialize)]
 pub struct UserData {
     pub email: String,
     pub password: String,
@@ -97,7 +97,7 @@ pub struct UserData {
     pub id_program: i32,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, juniper::GraphQLObject)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct SlimUser {
     pub uuid: Uuid,
     pub id_program: i32,

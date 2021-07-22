@@ -2,7 +2,7 @@ use crate::schema::*;
 use chrono::*;
 use uuid::Uuid;
 
-#[derive(Debug, Serialize, Deserialize, Queryable, juniper::GraphQLObject)]
+#[derive(Debug, Serialize, Deserialize, Queryable)]
 pub struct License {
     pub id: i32,
     pub name: String,
@@ -20,7 +20,7 @@ pub struct InsertableLicense {
     pub publication_at: NaiveDateTime,
 }
 
-#[derive(Debug, Deserialize, juniper::GraphQLInputObject)]
+#[derive(Debug, Deserialize)]
 pub struct LicenseData {
     pub name: String,
     pub keyword: String,
@@ -28,20 +28,20 @@ pub struct LicenseData {
     pub publication_at: NaiveDateTime,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, juniper::GraphQLObject)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct SlimLicense {
     pub id: i32,
     pub keyword: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, Queryable, juniper::GraphQLObject)]
+#[derive(Debug, Serialize, Deserialize, Queryable)]
 pub struct LicenseToComponent {
     pub id: i32,
     pub uuid_component: Uuid,
     pub id_license: i32,
 }
 
-#[derive(Debug, Serialize, Deserialize, Queryable, juniper::GraphQLInputObject)]
+#[derive(Debug, Serialize, Deserialize, Queryable)]
 pub struct LicenseToComponentData {
     pub uuid_component: Uuid,
     pub id_license: i32,

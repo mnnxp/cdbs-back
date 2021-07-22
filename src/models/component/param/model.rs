@@ -4,7 +4,7 @@ use crate::schema::*;
 use uuid::Uuid;
 // use num::ToPrimitive;
 
-#[derive(Debug, Serialize, Deserialize, Queryable, juniper::GraphQLObject)]
+#[derive(Debug, Serialize, Deserialize, Queryable)]
 pub struct Param {
     pub id: i32,
     pub paramname: String,
@@ -16,12 +16,12 @@ pub struct InsertableParam {
     pub paramname: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, Queryable, juniper::GraphQLInputObject)]
+#[derive(Debug, Serialize, Deserialize, Queryable)]
 pub struct ParamData {
     pub paramname: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, Queryable, juniper::GraphQLObject)]
+#[derive(Debug, Serialize, Deserialize, Queryable)]
 pub struct ParamToModel {
     pub id: i32,
     pub uuid: Uuid,
@@ -29,14 +29,14 @@ pub struct ParamToModel {
     pub value: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, Queryable, juniper::GraphQLInputObject)]
+#[derive(Debug, Serialize, Deserialize, Queryable)]
 pub struct ParamToModelData {
     pub uuid: Uuid,
     pub id_param: i32,
     pub value: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, Queryable, juniper::GraphQLObject)]
+#[derive(Debug, Serialize, Deserialize, Queryable)]
 pub struct ShowParamForUuid {
     pub uuid: Uuid,
     pub id_param: i32,

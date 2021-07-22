@@ -18,7 +18,7 @@ pub struct ComponentModification {
     pub updated_at: NaiveDateTime,
 }
 
-#[derive(Debug, Serialize, Deserialize, Queryable, juniper::GraphQLObject)]
+#[derive(Debug, Serialize, Deserialize, Queryable)]
 pub struct ShowComponentModification {
     pub uuid: Uuid,
     pub uuid_component: Uuid,
@@ -45,7 +45,7 @@ pub struct InsertableComponentModification {
     pub updated_at: NaiveDateTime,
 }
 
-#[derive(Debug, Deserialize, juniper::GraphQLInputObject)]
+#[derive(Debug, Deserialize)]
 pub struct ComponentModificationData {
     pub uuid_component: Uuid,
     pub uuid_modification_parent: Uuid,
@@ -54,7 +54,7 @@ pub struct ComponentModificationData {
     pub id_actual_status: i32,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, juniper::GraphQLObject)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct SlimComponentModification {
     pub uuid: Uuid,
     pub uuid_component: Uuid,

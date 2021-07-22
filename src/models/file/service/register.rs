@@ -1,6 +1,5 @@
 use std::fs;
 use std::io::Write;
-use crate::database::{db_connection, Pool};
 use crate::errors::{ServiceError, ServiceResult};
 use crate::models::file::model::{
     InsertableFile, SlimFile, File, FileData,
@@ -22,14 +21,9 @@ pub(crate) async fn register(
     user_uuid: Uuid,
     addiction_table: u8,
     uuid_addiction: Uuid,
-    // uuid_file_parent: Uuid,
-    pool: web::Data<Pool>
+    uuid_file_parent: Uuid,
+    conn: &PgConnection,
 ) -> ServiceResult<Vec<SlimFile>> {
-    let conn = &db_connection(&pool)?;
-
-    // TODO: add search for parent file by name in table file_ref
-    let uuid_file_parent = Uuid::parse_str("3706d1a1-80ae-4367-be39-af7091373811")?;
-
     // Check uuid correct and bound with active user
     let owned_correct: i32 = match addiction_table {
         1_u8 => 1,                                                                            // <-- addiction table not need

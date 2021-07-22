@@ -4,7 +4,7 @@ use chrono::*;
 // use shrinkwraprs::Shrinkwrap;
 use uuid::Uuid;
 // use crate::models::file::util::hex_to_bytes;
-
+// type NaiveDateTime = chrono::NaiveDateTime;
 // Main file structures
 
 #[derive(Debug, Queryable)]
@@ -22,7 +22,7 @@ pub struct File {
     pub updated_at: NaiveDateTime,
 }
 
-#[derive(Debug, Serialize, Deserialize, Queryable, juniper::GraphQLObject)]
+#[derive(Debug, Serialize, Deserialize, Queryable)]
 pub struct ShowFile {
     pub uuid: Uuid,
     pub uuid_file_parent: Uuid,
@@ -62,7 +62,7 @@ pub struct FileData {
     pub path_file: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, juniper::GraphQLObject)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct SlimFile {
     pub uuid: Uuid,
     pub filename: String,
@@ -71,7 +71,7 @@ pub struct SlimFile {
 }
 
 // Related file structures
-#[derive(Debug, Serialize, Deserialize, Queryable, juniper::GraphQLObject)]
+#[derive(Debug, Serialize, Deserialize, Queryable)]
 pub struct FileToModel {
     pub id: i32,
     pub uuid_file: Uuid,
@@ -85,7 +85,7 @@ pub struct FileToModelData {
 }
 
 // Structures for Component
-#[derive(Debug, Serialize, Deserialize, Queryable, juniper::GraphQLObject)]
+#[derive(Debug, Serialize, Deserialize, Queryable)]
 pub struct FileToComponent {
     pub id: i32,
     pub uuid_file: Uuid,
@@ -99,7 +99,7 @@ pub struct InsertableFileToComponent {
     pub uuid_component: Uuid,
 }
 
-#[derive(Debug, Serialize, Deserialize, Queryable, juniper::GraphQLObject)]
+#[derive(Debug, Serialize, Deserialize, Queryable)]
 pub struct FileToModification {
     pub id: i32,
     pub uuid_file: Uuid,
@@ -114,7 +114,7 @@ pub struct InsertableFileToModification {
 }
 
 // Structures for Standard
-#[derive(Debug, Serialize, Deserialize, Queryable, juniper::GraphQLObject)]
+#[derive(Debug, Serialize, Deserialize, Queryable)]
 pub struct FileToStandard {
     pub id: i32,
     pub uuid_file: Uuid,

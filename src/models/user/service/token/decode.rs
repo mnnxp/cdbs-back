@@ -4,7 +4,7 @@ use crate::jwt::model::Claims;
 
 pub type ClaimsResponse = Claims;
 
-#[juniper::object]
+// #[juniper::object]
 impl ClaimsResponse {
     fn iss(&self) -> &str {
         self.iss.as_str()

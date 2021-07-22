@@ -21,7 +21,7 @@ pub struct Component {
     pub updated_at: NaiveDateTime,
 }
 
-#[derive(Debug, Serialize, Deserialize, Queryable, juniper::GraphQLObject)]
+#[derive(Debug, Serialize, Deserialize, Queryable)]
 pub struct ShowComponent {
     pub uuid: Uuid,
     pub uuid_component_parent: Uuid,
@@ -66,7 +66,7 @@ pub struct ComponentData {
     pub is_standard: bool,
 }
 
-#[derive(Debug, Deserialize, juniper::GraphQLInputObject)]
+#[derive(Debug, Deserialize)]
 pub struct ComponentDataQuery {
     pub uuid_component_parent: String,
     pub name: String,
@@ -77,7 +77,7 @@ pub struct ComponentDataQuery {
     pub is_standard: bool,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, juniper::GraphQLObject)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct SlimComponent {
     pub uuid: Uuid,
     pub name: String,

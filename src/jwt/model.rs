@@ -49,7 +49,7 @@ impl Claims {
     }
 }
 
-#[derive(juniper::GraphQLObject)]
+// #[derive(juniper::GraphQLObject)]
 pub struct Token {
     pub bearer: Option<String>,
 }

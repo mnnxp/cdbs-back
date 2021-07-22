@@ -24,7 +24,7 @@ pub struct Standard {
     pub updated_at: NaiveDateTime,
 }
 
-#[derive(Debug, Serialize, Deserialize, Queryable, juniper::GraphQLObject)]
+#[derive(Debug, Serialize, Deserialize, Queryable)]
 pub struct ShowStandard {
     pub uuid: Uuid,
     pub uuid_standard_parent: Uuid,
@@ -67,7 +67,7 @@ pub struct InsertableStandard {
     pub updated_at: NaiveDateTime,
 }
 
-#[derive(Debug, Deserialize, juniper::GraphQLInputObject)]
+#[derive(Debug, Deserialize)]
 pub struct StandardData {
     pub uuid_standard_parent: Uuid,
     pub classifier: String,
@@ -84,7 +84,7 @@ pub struct StandardData {
     pub id_region: i32,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, juniper::GraphQLObject)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct SlimStandard {
     pub uuid: Uuid,
     pub classifier: String,

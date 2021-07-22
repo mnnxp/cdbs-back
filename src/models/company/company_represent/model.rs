@@ -15,7 +15,7 @@ pub struct CompanyRepresent {
     pub phone: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, Queryable, juniper::GraphQLObject)]
+#[derive(Debug, Serialize, Deserialize, Queryable)]
 pub struct ShowCompanyRepresent {
     pub uuid: Uuid,
     pub uuid_company: Uuid,
@@ -38,7 +38,7 @@ pub struct InsertableCompanyRepresent {
     pub phone: String,
 }
 
-#[derive(Debug, Deserialize, juniper::GraphQLInputObject)]
+#[derive(Debug, Deserialize)]
 pub struct CompanyRepresentData {
     pub uuid_company: Uuid,
     pub id_region: i32,
@@ -48,7 +48,7 @@ pub struct CompanyRepresentData {
     pub phone: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, juniper::GraphQLObject)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct SlimCompanyRepresent {
     pub uuid: Uuid,
     pub uuid_company: Uuid,
