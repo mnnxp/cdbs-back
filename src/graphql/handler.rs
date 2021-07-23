@@ -15,6 +15,7 @@ use crate::database::{db_connection, Pool};
 use crate::graphql::{mutations::MutationRoot, queries::QueryRoot};
 
 type ActixSchema = Schema<QueryRoot, MutationRoot, EmptySubscription>;
+pub struct MyToken(pub String);
 
 pub async fn build_schema(pool: Pool) -> ActixSchema {
     Schema::build(QueryRoot, MutationRoot, EmptySubscription)
@@ -36,7 +37,15 @@ pub async fn graphql(
     // pool: web::Data<Pool>,
     // opt: web::Data<Opt>
 ) -> Response {
-    schema.execute(gql_request.into_inner()).await.into()
+    let token = req
+        .headers()
+        .get("Token")
+        .and_then(|value| value.to_str().map(|s| MyToken(s.to_string())).ok());
+    let mut request = gql_request.into_inner();
+    if let Some(token) = token {
+        request = request.data(token);
+    }
+    schema.execute(request).await.into()
 
     // let db_pool = db_connection(&pool)?;
 

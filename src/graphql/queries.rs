@@ -1,10 +1,6 @@
 // use crate::cli_args::Opt;
 use crate::errors::ServiceResult;
 // use crate::jwt::model::{DecodedToken, Token};
-use crate::models::user::model::ShowUser;
-use crate::models::user::service as user;
-use crate::models::user::notification::model::Notification;
-use crate::models::user::notification::service as notification;
 use crate::models::company::company_represent::model::ShowCompanyRepresent;
 use crate::models::company::company_represent::service as company_represent;
 use crate::models::company::model::ShowCompany;
@@ -17,6 +13,10 @@ use crate::models::component::model::ShowComponent;
 use crate::models::component::param as component_param;
 use crate::models::component::param::model::{Param, ParamToModel};
 use crate::models::component::service as component;
+use crate::models::user::model::ShowUser;
+use crate::models::user::notification::model::Notification;
+use crate::models::user::notification::service as notification;
+use crate::models::user::service as user;
 // use crate::models::file::model::{ShowFile, FileData, SlimFile};
 use crate::models::file::model::ShowFile;
 use crate::models::file::service as file;
@@ -27,6 +27,7 @@ use async_graphql::Context;
 // use diesel::PgConnection;
 
 // use std::sync::Arc;
+use crate::graphql::handler::MyToken;
 use uuid::Uuid;
 
 pub struct QueryRoot;
@@ -47,7 +48,11 @@ impl QueryRoot {
         };
         let limit: i32 = limit.unwrap_or(100);
         let offset: i32 = offset.unwrap_or(0);
-
+        let token = context
+            .data_opt::<MyToken>()
+            .map(|token| token.0.as_str())
+            .unwrap_or("no token");
+        println!("{:?}", token);
         user::list::get_users(context, uuid_user_create, limit, offset)
     }
 
@@ -64,9 +69,7 @@ impl QueryRoot {
 
         let uuid_user = crate::models::user::get_uuid_user(&context)?;
 
-        notification::list::get_notifications(
-            context, id_notification, uuid_user, limit, offset,
-        )
+        notification::list::get_notifications(context, id_notification, uuid_user, limit, offset)
     }
 
     async fn files(
@@ -95,8 +98,12 @@ impl QueryRoot {
         let offset: i32 = offset.unwrap_or(0);
 
         file::list::get_files(
-            context, uuid_user_create,
-            uuid_component, uuid_component_modification, limit, offset,
+            context,
+            uuid_user_create,
+            uuid_component,
+            uuid_component_modification,
+            limit,
+            offset,
         )
     }
 
@@ -134,7 +141,10 @@ impl QueryRoot {
         let offset: i32 = offset.unwrap_or(0);
 
         component_modification::list::get_component_modifications(
-            context, uuid_component, limit, offset,
+            context,
+            uuid_component,
+            limit,
+            offset,
         )
     }
 
@@ -169,7 +179,11 @@ impl QueryRoot {
         let offset: i32 = offset.unwrap_or(0);
 
         component_license::service::list_component::get_licenses_component(
-            context, id_license, uuid_component, limit, offset,
+            context,
+            id_license,
+            uuid_component,
+            limit,
+            offset,
         )
     }
 
@@ -184,9 +198,7 @@ impl QueryRoot {
         let limit: i32 = limit.unwrap_or(100);
         let offset: i32 = offset.unwrap_or(0);
 
-        component_param::service::list::get_params(
-            context, id_param, limit, offset
-        )
+        component_param::service::list::get_params(context, id_param, limit, offset)
     }
 
     async fn param_component(
@@ -231,7 +243,11 @@ impl QueryRoot {
         let offset: i32 = offset.unwrap_or(0);
 
         component_param::service::list_modification::get_params_modification(
-            context, id_param, uuid_modification, limit, offset,
+            context,
+            id_param,
+            uuid_modification,
+            limit,
+            offset,
         )
     }
 
@@ -268,9 +284,7 @@ impl QueryRoot {
         let limit: i32 = limit.unwrap_or(100);
         let offset: i32 = offset.unwrap_or(0);
 
-        company_represent::list::get_company_represents(
-            context, uuid_company, limit, offset
-        )
+        company_represent::list::get_company_represents(context, uuid_company, limit, offset)
     }
 
     async fn standards(
