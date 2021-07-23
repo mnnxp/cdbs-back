@@ -1,17 +1,21 @@
-use std::sync::Arc;
+// use std::sync::Arc;
 
-use crate::graphql::model::Context;
-use crate::jwt::model::DecodedToken;
-use crate::models::user::model::LoggedUser;
-use actix_web::{error, web, Error, HttpRequest, HttpResponse, Result};
+// use crate::graphql::model::Context;
+// use crate::jwt::model::DecodedToken;
+// use crate::models::user::model::LoggedUser;
+use actix_web::{web, HttpRequest, HttpResponse, Result};
+// use actix_web::{error, Error};
 
 use async_graphql::http::playground_source;
 use async_graphql::http::GraphQLPlaygroundConfig;
-use async_graphql::{EmptySubscription, Schema, SchemaBuilder};
-use async_graphql_actix_web::{BatchRequest, Request, Response};
+use async_graphql::{EmptySubscription, Schema};
+// use async_graphql::SchemaBuilder;
+use async_graphql_actix_web::{Request, Response};
+// use async_graphql_actix_web::{BatchRequest, Request, Response};
 
 use crate::cli_args::Opt;
-use crate::database::{db_connection, Pool};
+use crate::database::Pool;
+// use crate::database::{db_connection, Pool};
 use crate::graphql::{mutations::MutationRoot, queries::QueryRoot};
 
 type ActixSchema = Schema<QueryRoot, MutationRoot, EmptySubscription>;
@@ -46,23 +50,6 @@ pub async fn graphql(
         request = request.data(token);
     }
     schema.execute(request).await.into()
-
-    // let db_pool = db_connection(&pool)?;
-
-    // let opt = opt.into_inner().as_ref().clone();
-    // let ctx = Context::new(token, user, db_pool, opt);
-
-    // let db_pool = db_connection(&pool)?;
-
-    // let opt = opt.into_inner().as_ref().clone();
-    // let ctx = Context::new(token, user, db_pool, opt);
-
-    // let res = web::Json(Response(st.execute(data.into_inner()).await)).execute(&st, &ctx);
-    // let json = serde_json::to_string(&res).map_err(error::ErrorInternalServerError)?;
-
-    // Ok(HttpResponse::Ok()
-    //     .content_type("application/json")
-    //     .body(json))
 }
 
 pub async fn graphiql(opt: web::Data<Opt>) -> Result<HttpResponse> {

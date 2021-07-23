@@ -1,6 +1,8 @@
 use crate::errors::{ ServiceError, ServiceResult };
 use crate::models::component::license::model::{
-    LicenseToComponent, LicenseToComponentData, InsertableLicenseToComponent
+    LicenseToComponent,
+    LicenseToComponentData,
+    InsertableLicenseToComponent,
 };
 use diesel::prelude::*;
 // use uuid::Uuid;

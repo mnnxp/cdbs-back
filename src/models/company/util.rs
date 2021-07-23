@@ -1,5 +1,5 @@
 use crate::errors::ServiceError;
-use crate::models::user::model::LoggedUser;
+// use crate::models::user::model::LoggedUser;
 use diesel::prelude::*;
 use uuid::Uuid;
 
@@ -31,14 +31,14 @@ pub fn check_is_supplier(uuid_company: Uuid, conn: &PgConnection) -> Result<bool
 }
 
 pub(crate) fn check_company_access(
-    user: &LoggedUser,
+    logged_uuid_user: Uuid,
     input_uuid_company: Uuid,
     required_access: i32,
     conn: &PgConnection,
 ) -> Result<bool, ServiceError> {
-    match user.0 {
-        None => Err(ServiceError::Unauthorized),
-        Some(ref user) => {
+    // match user.0 {
+        // None => Err(ServiceError::Unauthorized),
+        // Some(ref user) => {
             use crate::schema::company_member_role::dsl::id_role as member_id_role;
             use crate::schema::company_member_role::dsl::*;
             use crate::schema::role_access::dsl::id_role as access_id_role;
@@ -56,7 +56,7 @@ pub(crate) fn check_company_access(
             // find id_role user
             let get_id_role_user: i32 = company_member_role
                 .filter(uuid_company.eq(input_uuid_company))
-                .filter(uuid_user.eq(user.uuid))
+                .filter(uuid_user.eq(logged_uuid_user))
                 .select(member_id_role)
                 .first(conn)
                 .unwrap_or(0);
@@ -82,8 +82,8 @@ pub(crate) fn check_company_access(
                 }
                 _ => Err(ServiceError::BadRequest("You not have access.".to_string())),
             }
-        }
+        // }
         // _ => Err(ServiceError::BadRequest("Uuid not correct.".to_string())),
         // Some(ref user) => Err(ServiceError::BadRequest(format!("Uuid not correct. UUID1: {}, UUID2: {};", user.uuid, uuid_user))),
-    }
+    // }
 }

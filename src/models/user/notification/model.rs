@@ -14,20 +14,20 @@ pub struct Notification {
 
 #[Object]
 impl Notification {
-    async fn id(&self) -> i32 {
-        self.id.into()
+    async fn id(&self) -> &i32 {
+        &self.id
     }
-    async fn notification(&self) -> String {
-        self.notification.clone()
+    async fn notification(&self) -> &String {
+        &self.notification
     }
-    async fn id_degree_importance(&self) -> i32 {
-        self.id_degree_importance.into()
+    async fn id_degree_importance(&self) -> &i32 {
+        &self.id_degree_importance
     }
-    async fn generated_at(&self) -> NaiveDateTime {
-        self.generated_at.into()
+    async fn generated_at(&self) -> &NaiveDateTime {
+        &self.generated_at
     }
-    async fn is_read(&self) -> bool {
-        self.is_read.into()
+    async fn is_read(&self) -> &bool {
+        &self.is_read
     }
 }
 
@@ -40,11 +40,21 @@ pub struct InsertableNotification {
     pub is_read: bool,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Clone, InputObject)]
 pub struct NotificationData {
     pub notification: String,
     pub id_degree_importance: i32,
 }
+
+// #[Object]
+// impl NotificationData {
+//     async fn notification(&self) -> &String {
+//         &self.notification
+//     }
+//     async fn id_degree_importance(&self) -> &i32 {
+//         &self.id_degree_importance
+//     }
+// }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct SlimNotification {
@@ -53,6 +63,18 @@ pub struct SlimNotification {
     pub is_read: bool,
 }
 
+#[Object]
+impl SlimNotification {
+    async fn notification(&self) -> &String {
+        &self.notification
+    }
+    async fn id_degree_importance(&self) -> &i32 {
+        &self.id_degree_importance
+    }
+    async fn is_read(&self) -> &bool {
+        &self.is_read
+    }
+}
 
 #[derive(Debug, Serialize, Deserialize, Queryable)]
 pub struct NotificationToUser {

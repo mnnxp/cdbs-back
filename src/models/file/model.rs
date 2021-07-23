@@ -44,26 +44,26 @@ impl ShowFile {
     async fn uuid_user(&self) -> ID {
         self.uuid_user.into()
     }
-    async fn filename(&self) -> String {
-        self.filename.clone()
+    async fn filename(&self) -> &String {
+        &self.filename
     }
-    async fn id_ext(&self) -> i32 {
-        self.id_ext.into()
+    async fn id_ext(&self) -> &i32 {
+        &self.id_ext
     }
-    async fn value_ext(&self) -> String {
-        self.value_ext.clone()
+    async fn value_ext(&self) -> &String {
+        &self.value_ext
     }
-    async fn filesize(&self) -> i32 {
-        self.filesize.into()
+    async fn filesize(&self) -> &i32 {
+        &self.filesize
     }
-    async fn path_file(&self) -> String {
-        self.path_file.clone()
+    async fn path_file(&self) -> &String {
+        &self.path_file
     }
-    async fn created_at(&self) -> NaiveDateTime {
-        self.created_at.into()
+    async fn created_at(&self) -> &NaiveDateTime {
+        &self.created_at
     }
-    async fn updated_at(&self) -> NaiveDateTime {
-        self.updated_at.into()
+    async fn updated_at(&self) -> &NaiveDateTime {
+        &self.updated_at
     }
 }
 
@@ -81,6 +81,17 @@ pub struct InsertableFile {
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
 }
+
+// #[derive(Debug, Deserialize, Clone, InputObject)]
+// pub struct FileData {
+//     pub uuid_file_parent: ID,
+//     pub hash:  Vec<u8>,
+//     pub uuid_user: ID,
+//     pub filename: String,
+//     pub id_ext: i32,
+//     pub filesize: i32,
+//     pub path_file: String,
+// }
 
 #[derive(Debug, Deserialize)]
 pub struct FileData {

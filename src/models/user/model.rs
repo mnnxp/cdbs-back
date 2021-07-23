@@ -60,59 +60,59 @@ impl ShowUser {
     async fn uuid(&self) -> ID {
         self.uuid.into()
     }
-    async fn email(&self) -> String {
-        self.email.clone()
+    async fn email(&self) -> &String {
+        &self.email
     }
-    async fn firstname(&self) -> String {
-        self.firstname.clone()
+    async fn firstname(&self) -> &String {
+        &self.firstname
     }
-    async fn lastname(&self) -> String {
-        self.lastname.clone()
+    async fn lastname(&self) -> &String {
+        &self.lastname
     }
-    async fn secondname(&self) -> String {
-        self.secondname.clone()
+    async fn secondname(&self) -> &String {
+        &self.secondname
     }
-    async fn username(&self) -> String {
-        self.username.clone()
+    async fn username(&self) -> &String {
+        &self.username
     }
-    async fn phone(&self) -> String {
-        self.phone.clone()
+    async fn phone(&self) -> &String {
+        &self.phone
     }
-    async fn description(&self) -> String {
-        self.description.clone()
+    async fn description(&self) -> &String {
+        &self.description
     }
-    async fn address(&self) -> String {
-        self.address.clone()
+    async fn address(&self) -> &String {
+        &self.address
     }
-    async fn position(&self) -> String {
-        self.position.clone()
+    async fn position(&self) -> &String {
+        &self.position
     }
-    async fn time_zone(&self) -> i32 {
-        self.time_zone.into()
+    async fn time_zone(&self) -> &i32 {
+        &self.time_zone
     }
     async fn uuid_image_file(&self) -> ID {
         self.uuid_image_file.into()
     }
-    async fn id_region(&self) -> i32 {
-        self.id_region.into()
+    async fn id_region(&self) -> &i32 {
+        &self.id_region
     }
-    async fn id_program(&self) -> i32 {
-        self.id_program.into()
+    async fn id_program(&self) -> &i32 {
+        &self.id_program
     }
-    async fn is_email_verified(&self) -> bool {
-        self.is_email_verified.into()
+    async fn is_email_verified(&self) -> &bool {
+        &self.is_email_verified
     }
-    async fn is_enabled(&self) -> bool {
-        self.is_enabled.into()
+    async fn is_enabled(&self) -> &bool {
+        &self.is_enabled
     }
-    async fn is_delete(&self) -> bool {
-        self.is_delete.into()
+    async fn is_delete(&self) -> &bool {
+        &self.is_delete
     }
-    async fn created_at(&self) -> NaiveDateTime {
-        self.created_at.into()
+    async fn created_at(&self) -> &NaiveDateTime {
+        &self.created_at
     }
-    async fn updated_at(&self) -> NaiveDateTime {
-        self.updated_at.into()
+    async fn updated_at(&self) -> &NaiveDateTime {
+        &self.updated_at
     }
 }
 
@@ -208,7 +208,7 @@ impl From<IptUserData> for UserData {
             address,
             position,
             time_zone,
-            uuid_image_file: uuid::Uuid::parse_str(&uuid_image_file.to_string()).unwrap(),
+            uuid_image_file: Uuid::parse_str(&uuid_image_file.to_string()).unwrap(),
             id_region,
             id_program,
         }
@@ -217,8 +217,44 @@ impl From<IptUserData> for UserData {
 
 #[Object]
 impl UserData {
+    async fn email(&self) -> &String {
+        &self.email
+    }
+    async fn firstname(&self) -> &String {
+        &self.firstname
+    }
+    async fn lastname(&self) -> &String {
+        &self.lastname
+    }
+    async fn secondname(&self) -> &String {
+        &self.secondname
+    }
+    async fn username(&self) -> &String {
+        &self.username
+    }
+    async fn phone(&self) -> &String {
+        &self.phone
+    }
+    async fn description(&self) -> &String {
+        &self.description
+    }
+    async fn address(&self) -> &String {
+        &self.address
+    }
+    async fn position(&self) -> &String {
+        &self.position
+    }
+    async fn time_zone(&self) -> &i32 {
+        &self.time_zone
+    }
     async fn uuid_image_file(&self) -> ID {
         self.uuid_image_file.into()
+    }
+    async fn id_region(&self) -> &i32 {
+        &self.id_region
+    }
+    async fn id_program(&self) -> &i32 {
+        &self.id_program
     }
 }
 
@@ -253,9 +289,9 @@ impl From<SlimUser> for LoggedUser {
     }
 }
 
-impl From<IptUserData> for InsertableUser {
-    fn from(user_data: IptUserData) -> Self {
-        let IptUserData {
+impl From<UserData> for InsertableUser {
+    fn from(user_data: UserData) -> Self {
+        let UserData {
             email,
             password,
             firstname,
@@ -275,7 +311,6 @@ impl From<IptUserData> for InsertableUser {
 
         let psw_salt = make_salt();
         let psw_hash = make_hash_salt(&password, &psw_salt).to_vec();
-        let uuid_image_file = uuid::Uuid::parse_str(&uuid_image_file).unwrap();
 
         Self {
             uuid: Uuid::new_v4(),
