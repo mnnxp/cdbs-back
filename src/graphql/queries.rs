@@ -60,12 +60,12 @@ impl QueryRoot {
     }
 
     async fn generate_token( &self, context: &Context<'_>) -> ServiceResult<Token> {
-        let token_old = user::token::token_from_context(context)?;
-        // println!("Token: {:?}", token_old);
+        let old_data = user::token::token_from_context(context)?;
+        // println!("Token: {:?}", old_data);
 
-        let token_old = user::token::decode(token_old)?;
+        let old_data = user::token::decode(old_data)?;
 
-        let user = user::token::get_slim_user(token_old)?;
+        let user = user::token::get_slim_user(old_data)?;
 
         user::token::generate(&user)
     }
