@@ -19,10 +19,10 @@ use actix_identity::{CookieIdentityPolicy, IdentityService};
 use actix_web::middleware::Logger;
 use actix_web::{App, HttpServer};
 
-use crate::graphql::handler::{graphiql, graphql};
-use crate::graphql::{mutations::MutationRoot, queries::QueryRoot};
-use actix_web::{guard, web};
-use async_graphql::EmptySubscription;
+// use crate::graphql::handler::{graphiql, graphql};
+// use crate::graphql::{mutations::MutationRoot, queries::QueryRoot};
+// use actix_web::{guard, web};
+// use async_graphql::EmptySubscription;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -54,7 +54,7 @@ async fn main() -> std::io::Result<()> {
     // Server port
     let port = opt.port;
 
-    let schema = crate::graphql::handler::build_schema(pool).await;
+    let schema = crate::graphql::handler::build_schema(pool.clone()).await;
 
     // Server
     let server = HttpServer::new(move || {
@@ -64,7 +64,7 @@ async fn main() -> std::io::Result<()> {
         let cors = Cors::permissive();
         App::new()
             // Database
-            // .data(pool.clone())
+            .data(pool.clone())
             // .app_data(schema)
             .data(schema.clone())
             // Options

@@ -1,11 +1,20 @@
-use crate::errors::{ServiceError, ServiceResult};
+use crate::errors::ServiceResult;
+// use crate::errors::{ServiceError, ServiceResult};
 // use crate::graphql::model::Context;
-use async_graphql::Context;
+// use async_graphql::Context;
+use async_graphql::*;
 use crate::models::user::model::SlimUser;
 use crate::jwt::manager::create_token;
 use crate::jwt::model::Token;
 
-pub(crate) fn generate<'a>(context: &'a Context) -> ServiceResult<Token> {
+#[Object]
+impl Token {
+    async fn bearer(&self) -> &Option<String> {
+        &self.bearer
+    }
+}
+
+pub(crate) fn generate(user: &SlimUser) -> ServiceResult<Token> {
     // match context.user.0 {
     //     None => Err(ServiceError::Unauthorized),
     //     Some(ref user) => {
@@ -19,7 +28,7 @@ pub(crate) fn generate<'a>(context: &'a Context) -> ServiceResult<Token> {
     //         }
     //     }
     // }
-    let user = context.data::<SlimUser>().map_err(|_| ServiceError::Unauthorized)?;
+    // let user = context.data::<String>().map_err(|_| ServiceError::Unauthorized)?;
     // Sets options to enviroment variables
     let opt = {
         use structopt::StructOpt;

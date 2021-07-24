@@ -13,7 +13,7 @@ pub(crate) fn db_connection(pool: &Pool) -> Result<PooledConnection, ServiceErro
     Ok(conn)
 }
 
-pub(crate) fn get_conn<'a>(context: &Context<'a>) -> Result<PooledConnection, ServiceError> {
+pub(crate) fn get_conn(context: &Context) -> Result<PooledConnection, ServiceError> {
     let conn = context
         .data::<Pool>().expect("Can't get pool")
         .get().map_err(|_| ServiceError::UnableToConnectToDb)?;

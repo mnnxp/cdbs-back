@@ -1,6 +1,6 @@
 // use crate::cli_args::Opt;
 use crate::errors::ServiceResult;
-// use crate::jwt::model::{DecodedToken, Token};
+use crate::jwt::model::{Claims, Token};
 use crate::models::company::company_represent::model::ShowCompanyRepresent;
 use crate::models::company::company_represent::service as company_represent;
 use crate::models::company::model::ShowCompany;
@@ -13,7 +13,7 @@ use crate::models::component::model::ShowComponent;
 use crate::models::component::param as component_param;
 use crate::models::component::param::model::{Param, ParamToModel};
 use crate::models::component::service as component;
-use crate::models::user::model::ShowUser;
+use crate::models::user::model::{SlimUser, ShowUser};
 use crate::models::user::notification::model::Notification;
 use crate::models::user::notification::service as notification;
 use crate::models::user::service as user;
@@ -27,7 +27,6 @@ use async_graphql::Context;
 // use diesel::PgConnection;
 
 // use std::sync::Arc;
-use crate::graphql::handler::MyToken;
 use uuid::Uuid;
 
 pub struct QueryRoot;
@@ -48,12 +47,38 @@ impl QueryRoot {
         };
         let limit: i32 = limit.unwrap_or(100);
         let offset: i32 = offset.unwrap_or(0);
-        let token = context
-            .data_opt::<MyToken>()
-            .map(|token| token.0.as_str())
-            .unwrap_or("no token");
-        println!("{:?}", token);
+
         user::list::get_users(context, uuid_user_create, limit, offset)
+    }
+
+    async fn myself( &self, context: &Context<'_>) -> ServiceResult<SlimUser> {
+        let token = user::token::token_from_context(context)?;
+
+        let token = user::token::decode(token)?;
+
+        user::token::get_slim_user(token)
+    }
+
+    async fn generate_token( &self, context: &Context<'_>) -> ServiceResult<Token> {
+        let token_old = user::token::token_from_context(context)?;
+        // println!("Token: {:?}", token_old);
+
+        let token_old = user::token::decode(token_old)?;
+
+        let user = user::token::get_slim_user(token_old)?;
+
+        user::token::generate(&user)
+    }
+
+    async fn decode_token( &self, context: &Context<'_>) -> ServiceResult<Claims> {
+        let token = user::token::token_from_context(context)?;
+        user::token::decode(token)
+    }
+
+    async fn logout( &self ) -> ServiceResult<String> {
+        // todo!(deacticate user token)
+        // user::token::deactive_all(context, target_uuid_user)
+        Ok("Good Luck".to_owned())
     }
 
     async fn notifications(

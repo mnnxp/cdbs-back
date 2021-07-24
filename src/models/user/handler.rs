@@ -1,31 +1,33 @@
 use crate::database::Pool;
 use crate::errors::ServiceError;
-use crate::models::user::model::{LoggedUser, SlimUser};
+// use crate::models::user::model::{LoggedUser, SlimUser};
 use crate::models::user::service as user;
-use actix_identity::{Identity, RequestIdentity};
-use actix_web::dev::Payload;
-use actix_web::{web, Error, FromRequest, HttpRequest, HttpResponse};
+// use actix_identity::{Identity, RequestIdentity};
+use actix_identity::Identity;
+// use actix_web::dev::Payload;
+// use actix_web::{web, Error, FromRequest, HttpRequest, HttpResponse};
+use actix_web::{web, HttpResponse};
 
-impl FromRequest for LoggedUser {
-    type Error = Error;
-    type Future = futures::future::Ready<Result<Self, Self::Error>>;
-    type Config = ();
-
-    fn from_request(req: &HttpRequest, _: &mut Payload) -> Self::Future {
-        let identity = req.get_identity();
-
-        let slim_user = if let Some(identity) = identity {
-            match serde_json::from_str::<SlimUser>(&identity) {
-                Err(e) => return futures::future::err(e.into()),
-                Ok(y) => Ok(Some(y)),
-            }
-        } else {
-            Ok(None)
-        };
-
-        futures::future::ready(slim_user.map(LoggedUser))
-    }
-}
+// impl FromRequest for LoggedUser {
+//     type Error = Error;
+//     type Future = futures::future::Ready<Result<Self, Self::Error>>;
+//     type Config = ();
+//
+//     fn from_request(req: &HttpRequest, _: &mut Payload) -> Self::Future {
+//         let identity = req.get_identity();
+//
+//         let slim_user = if let Some(identity) = identity {
+//             match serde_json::from_str::<SlimUser>(&identity) {
+//                 Err(e) => return futures::future::err(e.into()),
+//                 Ok(y) => Ok(Some(y)),
+//             }
+//         } else {
+//             Ok(None)
+//         };
+//
+//         futures::future::ready(slim_user.map(LoggedUser))
+//     }
+// }
 
 #[derive(Debug, Deserialize)]
 pub(super) struct UserLogin {
@@ -48,18 +50,19 @@ pub(super) async fn login(
             serde_json::to_string(&res).map_err(|_| ServiceError::InternalServerError)?;
         debug!("user_string={}", user_string);
         id.remember(user_string);
-        Ok(HttpResponse::Ok().json(res))
+        let token = user::token::generate(&res)?;
+        Ok(HttpResponse::Ok().json(token))
     })
 }
 
-pub fn me(logged_user: LoggedUser) -> HttpResponse {
-    match logged_user.0 {
-        None => HttpResponse::Unauthorized().json(ServiceError::Unauthorized),
-        Some(user) => HttpResponse::Ok().json(user),
-    }
-}
+// pub fn me(logged_user: LoggedUser) -> HttpResponse {
+//     match logged_user.0 {
+//         None => HttpResponse::Unauthorized().json(ServiceError::Unauthorized),
+//         Some(user) => HttpResponse::Ok().json(user),
+//     }
+// }
 
-pub fn logout(id: Identity) -> HttpResponse {
-    id.forget();
-    HttpResponse::Ok().finish()
-}
+// pub fn logout(id: Identity) -> HttpResponse {
+//     id.forget();
+//     HttpResponse::Ok().finish()
+// }
