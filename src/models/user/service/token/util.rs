@@ -11,7 +11,7 @@ pub(crate) fn token_from_context<'a>(context: &Context<'a>) -> Result<&'a String
     //     .map(|token| token.to_owned());
 
     match context.data_opt::<String>() {
-        None => Err(ServiceError::InternalServerError),
+        None => Err(ServiceError::Unauthorized),
         Some(token) => Ok(token),
     }
 }
