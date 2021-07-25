@@ -6,8 +6,7 @@ table! {
 }
 
 table! {
-    company_fav (id) {
-        id -> Int4,
+    company_fav (uuid_company, uuid_user) {
         uuid_company -> Uuid,
         uuid_user -> Uuid,
         is_enabled -> Bool,
@@ -90,8 +89,7 @@ table! {
 }
 
 table! {
-    component_access_to_user (id) {
-        id -> Int4,
+    component_access_to_user (uuid_component, uuid_user) {
         uuid_component -> Uuid,
         uuid_user -> Uuid,
         id_type_access -> Int4,
@@ -103,8 +101,7 @@ table! {
 }
 
 table! {
-    component_fav (id) {
-        id -> Int4,
+    component_fav (uuid_component, uuid_user) {
         uuid_component -> Uuid,
         uuid_user -> Uuid,
         is_enabled -> Bool,
@@ -340,7 +337,7 @@ table! {
 }
 
 table! {
-    notification_to_user (id) {
+    notification_to_user (id_notification, uuid_user) {
         id -> Int4,
         id_notification -> Int4,
         uuid_user -> Uuid,
@@ -480,8 +477,7 @@ table! {
 }
 
 table! {
-    standard_access_to_user (id) {
-        id -> Int4,
+    standard_access_to_user (uuid_standard, uuid_user) {
         uuid_standard -> Uuid,
         uuid_user -> Uuid,
         id_type_access -> Int4,
@@ -493,8 +489,7 @@ table! {
 }
 
 table! {
-    standard_fav (id) {
-        id -> Int4,
+    standard_fav (uuid_standard, uuid_user) {
         uuid_standard -> Uuid,
         uuid_user -> Uuid,
         is_enabled -> Bool,
@@ -582,8 +577,7 @@ table! {
 }
 
 table! {
-    user_fav (id) {
-        id -> Int4,
+    user_fav (uuid_user_favorite, uuid_user_follower) {
         uuid_user_favorite -> Uuid,
         uuid_user_follower -> Uuid,
         is_enabled -> Bool,
@@ -603,7 +597,6 @@ table! {
 
 table! {
     user_ref (uuid) {
-        id -> Int4,
         uuid -> Uuid,
         email -> Varchar,
         psw_hash -> Bytea,
@@ -629,8 +622,7 @@ table! {
 }
 
 table! {
-    user_tokens_ref (id) {
-        id -> Int4,
+    user_tokens_ref (uuid_user, token) {
         uuid_user -> Uuid,
         token -> Varchar,
         start_at -> Timestamp,

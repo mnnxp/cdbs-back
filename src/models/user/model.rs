@@ -8,7 +8,7 @@ use uuid::Uuid;
 
 #[derive(Debug, Queryable)]
 pub struct User {
-    pub id: i32,
+    // pub id: i32,
     pub uuid: Uuid,
     pub email: String,
     pub psw_hash: Vec<u8>,
