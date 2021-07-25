@@ -73,7 +73,7 @@ fn disable_token(target_token: &str, conn: &PooledConnection) -> Result<UserToke
 }
 
 /// write token to table user_tokens_ref of database
-fn write_token(new_token: &str, jwt: Claims, conn: &PooledConnection) -> Result<UserToken, ServiceError> {
+pub(crate) fn write_token(new_token: &str, jwt: Claims, conn: &PooledConnection) -> Result<UserToken, ServiceError> {
     use crate::schema::user_tokens_ref::dsl::user_tokens_ref;
 
     // creating a structure for writing token to a table

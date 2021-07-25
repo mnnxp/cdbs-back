@@ -1,4 +1,4 @@
-use crate::database::Pool;
+use crate::database::{db_connection, Pool, PooledConnection};
 use crate::errors::ServiceError;
 // use crate::models::user::model::{LoggedUser, SlimUser};
 use crate::models::user::service as user;
@@ -45,13 +45,29 @@ pub(super) async fn login(
     // id: Identity,
     pool: web::Data<Pool>,
 ) -> Result<HttpResponse, ServiceError> {
-    user::login(&auth_data.user.username, &auth_data.user.password, pool).and_then(|res| {
+    let conn: &PooledConnection = &db_connection(&pool)?;
+
+    user::login(&auth_data.user.username, &auth_data.user.password, conn).and_then(|res| {
         let user_string =
             serde_json::to_string(&res).map_err(|_| ServiceError::InternalServerError)?;
         debug!("user_string={}", user_string);
         // id.remember(user_string);
-        let token = user::token::generate(&res)?;
-        Ok(HttpResponse::Ok().json(token))
+        let new_token = user::token::generate(&res)?;
+
+        println!("Token, new_token: {:?}", &new_token);
+
+        match new_token.bearer {
+            None => Err(ServiceError::InternalServerError),
+            Some(ref token) => {
+                // decrypt new token
+                let new_data = user::token::decode(token.as_str())?;
+                println!("Token, new_data: {:?}", &new_data);
+                // insert data new token into the table
+                let inserted_token = user::token::write_token(token, new_data, conn)?;
+                println!("Inserted token: {:#?}", inserted_token);
+                Ok(HttpResponse::Ok().json(new_token))
+            }
+        }
     })
 }
 
