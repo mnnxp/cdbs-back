@@ -29,36 +29,38 @@ pub(crate) fn get_slim_user(jwt: Claims) -> Result<SlimUser, ServiceError> {
 
 /// update token for authorized user
 pub(crate) fn update(context: &Context<'_>) -> Result<Token, ServiceError> {
-        let conn: &PooledConnection = &get_conn(context)?;
-        // get old token
-        let old_token = user::token::token_from_context(context)?;
-        println!("Token, old_token: {:?}", &old_token);
-        // decrypt old token
-        let old_data = user::token::decode(old_token.as_str())?;
-        println!("Token, old_data: {:?}", &old_data);
+    let conn: &PooledConnection = &get_conn(context)?;
+    // get old token
+    let old_token = user::token::token_from_context(context)?;
+    // println!("Token, old_token: {:?}", &old_token);
+    // decrypt old token
+    let old_data = user::token::decode(old_token.as_str())?;
+    // println!("Token, old_data: {:?}", &old_data);
+    if check_token(old_token.as_str(), conn)? {
         // deactivate old token
-        let dis_token = disable_token(&old_token, conn)?;
-        println!("Token, user: {:#?}", &dis_token);
+        disable_token(&old_token, conn)?;
         // get data from old token
         let user = user::token::get_slim_user(old_data)?;
-        println!("Token, user: {:?}", &user);
+        // println!("Token, user: {:?}", &user);
         // creating a new token
         let new_token = user::token::generate(&user)?;
-        println!("Token, new_token: {:?}", &new_token);
+        // println!("Token, new_token: {:?}", &new_token);
         // decrypt new token
         let new_data = user::token::decode(old_token.as_str())?;
-        println!("Token, new_data: {:?}", &new_data);
+        // println!("Token, new_data: {:?}", &new_data);
 
         match new_token.bearer {
             None => Err(ServiceError::InternalServerError),
             Some(ref token) => {
                 // insert data new token into the table
-                println!("Token: {:#?}", token);
-                let inserted_token = write_token(token, new_data, conn)?;
-                println!("Inserted token: {:#?}", inserted_token);
+                // println!("Token: {:#?}", token);
+                write_token(token, new_data, conn)?;
                 Ok(new_token)
             }
         }
+    } else {
+        Err(ServiceError::BadRequest("Your token is invalid.".to_string()))
+    }
 }
 
 /// disable token to table user_tokens_ref of database
@@ -89,4 +91,26 @@ pub(crate) fn write_token(new_token: &str, jwt: Claims, conn: &PooledConnection)
         .values(&user_token)
         .get_result(conn)?;
     Ok(inserted_token)
+}
+
+/// check valide token
+pub(crate) fn check_token(target_token: &str, conn: &PooledConnection) -> Result<bool, ServiceError> {
+    use crate::schema::user_tokens_ref::dsl::*;
+
+    // todo!(check end_at token)
+    // let timestamp_now = chrono::Local::now().timestamp();
+    // Ok(diesel::sql_query(format!(
+    //         "SELECT is_enabled \
+    //          FROM user_tokens_ref \
+    //          WHERE target_token = {} \
+    //          AND is_end AS TIMESTAMP WITHOUT TIME ZONE > {} \
+    //          LIMIT 1;",
+    //          target_token,
+    //          timestamp_now)
+    //      ).load(conn).unwrap())
+
+    Ok(user_tokens_ref
+        .filter(token.eq(target_token))
+        .select(is_enabled)
+        .first(conn).unwrap_or(false))
 }
