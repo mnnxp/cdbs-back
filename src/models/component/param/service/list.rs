@@ -28,7 +28,7 @@ fn find_all_param(
     offset: i32,
 ) -> ServiceResult<Vec<Param>> {
     use crate::schema::param_ref::dsl::*;
-    let conn: &PooledConnection = &get_conn(context)?;
+    let conn: &PooledConnection = &get_conn(&context)?;
 
     Ok(param_ref
         .limit(limit as i64)
@@ -43,7 +43,7 @@ fn find_id_param(
     offset: i32,
 ) -> ServiceResult<Vec<Param>> {
     use crate::schema::param_ref::dsl::*;
-    let conn: &PooledConnection = &get_conn(context)?;
+    let conn: &PooledConnection = &get_conn(&context)?;
 
     Ok(param_ref
         .filter(id.eq_any(id_param_search))

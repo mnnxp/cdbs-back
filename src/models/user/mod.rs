@@ -17,6 +17,6 @@ pub fn route(cfg: &mut web::ServiceConfig) {
 }
 
 // pub use util::has_supplier;
-pub(crate) use util::hash_authorized;
-pub(crate) use util::get_uuid_user;
-// pub use util::verify_uuid_user;
+pub(crate) use util::is_authorized;
+pub(crate) use util::get_auth_uuid_user;
+pub(crate) use util::compare_uuid_user;

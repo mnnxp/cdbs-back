@@ -5,14 +5,13 @@ use crate::models::user::util::verify;
 // use actix_web::web;
 use diesel::prelude::*;
 
-pub fn login(
+pub(crate) fn login(
     user_username: &str,
     user_password: &str,
     conn: &PooledConnection,
 ) -> ServiceResult<SlimUser> {
     use crate::schema::user_ref::dsl::{username, user_ref};
 
-    // let conn = &db_connection(&pool)?;
     let user = user_ref
         .filter(username.eq(user_username))
         .first::<User>(conn)

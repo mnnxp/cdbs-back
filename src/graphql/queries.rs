@@ -51,11 +51,13 @@ impl QueryRoot {
         user::list::get_users(context, uuid_user_create, limit, offset)
     }
 
+    // return SlimUser data auth user
     async fn myself( &self, context: &Context<'_>) -> ServiceResult<SlimUser> {
+        // get the token of the authorized user
         let token_data = user::token::token_from_context(context)?;
-
+        // decode token
         let token_data = user::token::decode(&token_data)?;
-
+        // get SlimUser from jwt
         user::token::get_slim_user(token_data)
     }
 
@@ -68,10 +70,22 @@ impl QueryRoot {
         user::token::decode(&token)
     }
 
-    async fn logout( &self ) -> ServiceResult<String> {
-        // todo!(deacticate user token)
-        // user::token::deactive_all(context, target_uuid_user)
-        Ok("Good Luck".to_owned())
+    async fn disable_all_tokens( &self, context: &Context<'_>) -> ServiceResult<String> {
+        let target_auth_uuid_user = crate::models::user::get_auth_uuid_user(context)?;
+        let deactivated_tokens = format!(
+            "Deactivated tokens: {}",
+            // deactivate all user token
+            user::token::disable_all_tokens(
+                target_auth_uuid_user,
+                context
+            )?
+        );
+        Ok(deactivated_tokens)
+    }
+
+    async fn logout( &self, context: &Context<'_> ) -> ServiceResult<String> {
+        // deactivate user token
+        Ok(user::logout(context)?)
     }
 
     async fn notifications(
@@ -85,9 +99,9 @@ impl QueryRoot {
         let limit: i32 = limit.unwrap_or(100);
         let offset: i32 = offset.unwrap_or(0);
 
-        let uuid_user = crate::models::user::get_uuid_user(context)?;
+        let target_auth_uuid_user = crate::models::user::get_auth_uuid_user(context)?;
 
-        notification::list::get_notifications(context, id_notification, uuid_user, limit, offset)
+        notification::list::get_notifications(context, id_notification, target_auth_uuid_user, limit, offset)
     }
 
     async fn files(

@@ -51,7 +51,7 @@ fn find_all_files(
 ) -> ServiceResult<Vec<ShowFile>> {
     use crate::schema::file_ref::dsl::*;
     use crate::schema::extension_ref::dsl::*;
-    let conn: &PooledConnection = &get_conn(context)?;
+    let conn: &PooledConnection = &get_conn(&context)?;
 
     Ok(file_ref
         .inner_join(extension_ref)
@@ -71,7 +71,7 @@ fn find_uuid_user_file(
 ) -> ServiceResult<Vec<ShowFile>> {
     use crate::schema::file_ref::dsl::*;
     use crate::schema::extension_ref::dsl::*;
-    let conn: &PooledConnection = &get_conn(context)?;
+    let conn: &PooledConnection = &get_conn(&context)?;
 
     Ok(file_ref
         .inner_join(extension_ref)
@@ -93,7 +93,7 @@ fn find_uuid_component_file(
     use crate::schema::file_ref::dsl::*;
     use crate::schema::file_to_component::dsl::*;
     use crate::schema::extension_ref::dsl::*;
-    let conn: &PooledConnection = &get_conn(context)?;
+    let conn: &PooledConnection = &get_conn(&context)?;
 
     let uuid_for_select_file: Vec<Uuid> = file_to_component
         .filter(uuid_component.eq(uuid_component_search))
@@ -130,7 +130,7 @@ fn find_uuid_component_modification_file(
     use crate::schema::file_ref::dsl::*;
     use crate::schema::file_to_modification::dsl::*;
     use crate::schema::extension_ref::dsl::*;
-    let conn: &PooledConnection = &get_conn(context)?;
+    let conn: &PooledConnection = &get_conn(&context)?;
 
     let uuid_for_select_file: Vec<Uuid> = file_to_modification
         .filter(uuid_modification.eq(uuid_component_modification_search))

@@ -30,7 +30,7 @@ fn find_all_company_represents(
     offset: i32,
 ) -> ServiceResult<Vec<ShowCompanyRepresent>> {
     use crate::schema::company_represent_ref::dsl::*;
-    let conn: &PooledConnection = &get_conn(context)?;
+    let conn: &PooledConnection = &get_conn(&context)?;
 
     Ok(company_represent_ref
         .select((
@@ -54,7 +54,7 @@ fn find_uuid_company_represents(
     offset: i32,
 ) -> ServiceResult<Vec<ShowCompanyRepresent>> {
     use crate::schema::company_represent_ref::dsl::*;
-    let conn: &PooledConnection = &get_conn(context)?;
+    let conn: &PooledConnection = &get_conn(&context)?;
 
     Ok(company_represent_ref
         .filter(uuid_company.eq(uuid_company_search))

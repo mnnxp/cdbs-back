@@ -28,7 +28,7 @@ fn find_all_license(
     offset: i32,
 ) -> ServiceResult<Vec<License>> {
     use crate::schema::license_ref::dsl::*;
-    let conn: &PooledConnection = &get_conn(context)?;
+    let conn: &PooledConnection = &get_conn(&context)?;
 
     Ok(license_ref
         .limit(limit as i64)
@@ -43,7 +43,7 @@ fn find_id_license(
     offset: i32,
 ) -> ServiceResult<Vec<License>> {
     use crate::schema::license_ref::dsl::*;
-    let conn: &PooledConnection = &get_conn(context)?;
+    let conn: &PooledConnection = &get_conn(&context)?;
 
     Ok(license_ref
         .filter(id.eq_any(id_license_search))

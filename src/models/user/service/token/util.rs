@@ -12,13 +12,9 @@ use uuid::Uuid;
 
 /// get token from request
 pub(crate) fn token_from_context(context: &Context<'_>) -> Result<String, ServiceError> {
-    // let token = context
-    //     .data_opt::<String>()
-    //     .map(|token| token.to_owned());
-
     match context.data_opt::<String>() {
         None => Err(ServiceError::Unauthorized),
-        Some(token) => Ok(token.to_owned()),
+        Some(token) => Ok(token.to_string()),
     }
 }
 
@@ -29,7 +25,7 @@ pub(crate) fn get_slim_user(jwt: Claims) -> Result<SlimUser, ServiceError> {
 
 /// update token for authorized user
 pub(crate) fn update(context: &Context<'_>) -> Result<Token, ServiceError> {
-    let conn: &PooledConnection = &get_conn(context)?;
+    let conn: &PooledConnection = &get_conn(&context)?;
     // get old token
     let old_token = user::token::token_from_context(context)?;
     // println!("Token, old_token: {:?}", &old_token);
@@ -64,14 +60,27 @@ pub(crate) fn update(context: &Context<'_>) -> Result<Token, ServiceError> {
 }
 
 /// disable token to table user_tokens_ref of database
-fn disable_token(target_token: &str, conn: &PooledConnection) -> Result<UserToken, ServiceError> {
+pub(crate) fn disable_token(target_token: &str, conn: &PooledConnection) -> Result<UserToken, ServiceError> {
     use crate::schema::user_tokens_ref::dsl::*;
 
-    let updated_token: UserToken = diesel::update(user_tokens_ref
-        .filter(token.eq(&target_token)))
+    let updated_token: UserToken = diesel::update(user_tokens_ref)
+        .filter(token.eq(&target_token))
         .set(is_enabled.eq(false))
         .get_result(conn)?;
     Ok(updated_token)
+}
+
+/// disable token to table user_tokens_ref of database
+pub(crate) fn disable_all_tokens(target_auth_uuid_user: Uuid, context: &Context<'_>) -> Result<i32, ServiceError> {
+    let conn: &PooledConnection = &get_conn(&context)?;
+    use crate::schema::user_tokens_ref::dsl::*;
+
+    let updated_token: usize = diesel::update(user_tokens_ref)
+        .filter(uuid_user.eq(&target_auth_uuid_user))
+        .filter(is_enabled.eq(true))
+        .set(is_enabled.eq(false))
+        .execute(conn)?;
+    Ok(updated_token as i32)
 }
 
 /// write token to table user_tokens_ref of database
@@ -113,4 +122,15 @@ pub(crate) fn check_token(target_token: &str, conn: &PooledConnection) -> Result
         .filter(token.eq(target_token))
         .select(is_enabled)
         .first(conn).unwrap_or(false))
+}
+
+/// get the uuid_user who owns the token
+pub(crate) fn whose_token(target_token: &str, conn: &PooledConnection) -> Result<Uuid, ServiceError> {
+    use crate::schema::user_tokens_ref::dsl::*;
+
+    user_tokens_ref
+        .filter(token.eq(target_token))
+        .select(uuid_user)
+        .first(conn)
+        .map_err(|_| ServiceError::BadRequest("Token not found.".to_string()))
 }

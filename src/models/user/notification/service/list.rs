@@ -44,7 +44,7 @@ fn find_all_notifications(
     use crate::schema::notification_ref::dsl::*;
     use crate::schema::notification_ref::dsl::id as notification_ref_id;
     use crate::schema::notification_to_user::dsl::*;
-    let conn: &PooledConnection = &get_conn(context)?;
+    let conn: &PooledConnection = &get_conn(&context)?;
 
     Ok(notification_ref
         .inner_join(notification_to_user)
@@ -66,7 +66,7 @@ fn find_id_notification(
     use crate::schema::notification_ref::dsl::*;
     use crate::schema::notification_ref::dsl::id as notification_ref_id;
     use crate::schema::notification_to_user::dsl::*;
-    let conn: &PooledConnection = &get_conn(context)?;
+    let conn: &PooledConnection = &get_conn(&context)?;
 
     Ok(notification_ref
         .inner_join(notification_to_user)

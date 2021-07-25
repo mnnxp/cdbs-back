@@ -35,7 +35,7 @@ fn find_all_users(context: &Context<'_>, limit: i32, offset: i32) -> ServiceResu
     // use crate::schema::type_user_ref::dsl::*;
     // use crate::schema::name_cad_ref::dsl::*;
     // use crate::schema::region_ref::dsl::*;
-    let conn: &PooledConnection = &get_conn(context)?;
+    let conn: &PooledConnection = &get_conn(&context)?;
 
     // joinable!(type_user_ref -> user_ref (id));
     // joinable!(name_cad_ref -> user_ref (id));
@@ -77,7 +77,7 @@ fn find_user(context: &Context<'_>, uuid_user_search: Uuid) -> ServiceResult<Vec
     // use crate::schema::type_user_ref::dsl::*;
     // use crate::schema::name_cad_ref::dsl::*;
     // use crate::schema::region_ref::dsl::*;
-    let conn: &PooledConnection = &get_conn(context)?;
+    let conn: &PooledConnection = &get_conn(&context)?;
 
     // joinable!(type_user_ref -> user_ref (id));
     // joinable!(name_cad_ref -> user_ref (id));

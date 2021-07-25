@@ -42,7 +42,7 @@ fn find_all_component_modification(
     use crate::schema::component_modification_list::dsl::*;
     // use crate::schema::program_ref::dsl::*;
     // use crate::schema::actual_status_ref::dsl::*;
-    let conn: &PooledConnection = &get_conn(context)?;
+    let conn: &PooledConnection = &get_conn(&context)?;
 
     Ok(component_modification_list
         // .inner_join(program_ref)
@@ -65,7 +65,7 @@ fn find_uuid_component_modification(
     use crate::schema::component_modification_list::dsl::*;
     // use crate::schema::program_ref::dsl::*;
     // use crate::schema::actual_status_ref::dsl::*;
-    let conn: &PooledConnection = &get_conn(context)?;
+    let conn: &PooledConnection = &get_conn(&context)?;
 
     Ok(component_modification_list
         // .inner_join(program_ref)
