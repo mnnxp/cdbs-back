@@ -1,8 +1,10 @@
+use crate::jwt::model::Claims;
 use super::model::{
     LoggedUser,
-    // SlimUser,
+    SlimUser,
     User,
 };
+use crate::models::user::service as user;
 use crate::errors::ServiceError;
 use async_graphql::Context;
 use argon2rs::argon2i_simple;
@@ -38,6 +40,7 @@ pub(crate) fn verify(user: &User, password: &str) -> bool {
 }
 
 pub(crate) fn hash_authorized(context: &Context<'_>) -> Result<bool, ServiceError> {
+    // let token = user::token::token_from_context(context)?;
     let user = context.data::<LoggedUser>().unwrap();
     match user.0 {
         None => Err(ServiceError::Unauthorized),
@@ -46,11 +49,16 @@ pub(crate) fn hash_authorized(context: &Context<'_>) -> Result<bool, ServiceErro
 }
 
 pub(crate) fn get_uuid_user(context: &Context<'_>) -> Result<Uuid, ServiceError> {
-    let user = context.data::<LoggedUser>().unwrap();
-    match user.0 {
-        None => Err(ServiceError::Unauthorized),
-        Some(ref user) => Ok(user.uuid),
-    }
+    // todo!("this not works and I don't know why")
+    println!("get_uuid_user:");
+    let token = user::token::token_from_context(context)?;
+    // println!("token: {:#?}", token);
+    let jwt: Claims = user::token::decode(token.as_str())?;
+    // println!("jwt: {:#?}", jwt);
+    let slim_user: SlimUser = user::token::get_slim_user(jwt)?;
+    println!("slim_user: {:#?}", &slim_user);
+
+    Ok(slim_user.uuid)
 }
 
 // pub fn verify_uuid_user(user: &LoggedUser, uuid_user: Uuid) -> Result<bool, ServiceError> {

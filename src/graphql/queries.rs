@@ -52,27 +52,20 @@ impl QueryRoot {
     }
 
     async fn myself( &self, context: &Context<'_>) -> ServiceResult<SlimUser> {
-        let token = user::token::token_from_context(context)?;
+        let token_data = user::token::token_from_context(context)?;
 
-        let token = user::token::decode(token)?;
+        let token_data = user::token::decode(&token_data)?;
 
-        user::token::get_slim_user(token)
+        user::token::get_slim_user(token_data)
     }
 
-    async fn generate_token( &self, context: &Context<'_>) -> ServiceResult<Token> {
-        let old_data = user::token::token_from_context(context)?;
-        // println!("Token: {:?}", old_data);
-
-        let old_data = user::token::decode(old_data)?;
-
-        let user = user::token::get_slim_user(old_data)?;
-
-        user::token::generate(&user)
+    async fn update_token( &self, context: &Context<'_>) -> ServiceResult<Token> {
+        user::token::update(context)
     }
 
     async fn decode_token( &self, context: &Context<'_>) -> ServiceResult<Claims> {
         let token = user::token::token_from_context(context)?;
-        user::token::decode(token)
+        user::token::decode(&token)
     }
 
     async fn logout( &self ) -> ServiceResult<String> {
@@ -92,7 +85,7 @@ impl QueryRoot {
         let limit: i32 = limit.unwrap_or(100);
         let offset: i32 = offset.unwrap_or(0);
 
-        let uuid_user = crate::models::user::get_uuid_user(&context)?;
+        let uuid_user = crate::models::user::get_uuid_user(context)?;
 
         notification::list::get_notifications(context, id_notification, uuid_user, limit, offset)
     }

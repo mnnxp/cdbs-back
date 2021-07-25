@@ -15,21 +15,6 @@ impl Token {
 }
 
 pub(crate) fn generate(user: &SlimUser) -> ServiceResult<Token> {
-    // match context.user.0 {
-    //     None => Err(ServiceError::Unauthorized),
-    //     Some(ref user) => {
-    //         match create_token(
-    //             user,
-    //             context.opt.domain.clone(),
-    //             context.opt.auth_duration_in_hour,
-    //         ) {
-    //             Ok(r) => Ok(Token { bearer: Some(r) }),
-    //             Err(e) => Err(e),
-    //         }
-    //     }
-    // }
-    // let user = context.data::<String>().map_err(|_| ServiceError::Unauthorized)?;
-    // Sets options to enviroment variables
     let opt = {
         use structopt::StructOpt;
         crate::cli_args::Opt::from_args()

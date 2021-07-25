@@ -1,5 +1,6 @@
 mod decode;
 mod generate;
+mod model;
 mod util;
 
 pub(crate) use decode::decode;
