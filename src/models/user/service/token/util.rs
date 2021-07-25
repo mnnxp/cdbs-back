@@ -18,5 +18,5 @@ pub(crate) fn token_from_context<'a>(context: &Context<'a>) -> Result<&'a String
 
 /// get SlimUser from Claims
 pub(crate) fn get_slim_user(jwt: Claims) -> Result<SlimUser, ServiceError> {
-    SlimUser::try_from(jwt).map_err(|_| ServiceError::InternalServerError)
+    SlimUser::try_from(jwt).map_err(|e| ServiceError::BadRequest(e.to_string()))
 }

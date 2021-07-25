@@ -31,7 +31,7 @@ impl Claims {
 }
 
 pub(crate) fn decode(token: &str) -> ServiceResult<Claims>  {
-    decode_token(token).map_err(|_| ServiceError::InternalServerError)
+    decode_token(token).map_err(|e| ServiceError::BadRequest(e.to_string()))
     // match context.token.jwt {
     //     None => Err(ServiceError::Unauthorized),
     //     Some(ref m) => Ok(m as &ClaimsResponse),
