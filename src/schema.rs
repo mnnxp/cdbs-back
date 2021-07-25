@@ -633,8 +633,8 @@ table! {
         id -> Int4,
         uuid_user -> Uuid,
         token -> Varchar,
-        date_start -> Timestamp,
-        date_end -> Timestamp,
+        start_at -> Timestamp,
+        end_at -> Timestamp,
         is_enabled -> Bool,
     }
 }

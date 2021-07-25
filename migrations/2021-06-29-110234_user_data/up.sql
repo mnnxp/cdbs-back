@@ -8,7 +8,7 @@ INSERT INTO user_ref (uuid, email, psw_hash, psw_salt,
   ('e97ea679-4560-4a9b-ad8b-80d2d1912602', 'testemail@testemail.ru', E'\\xc0a6617d8971cac49489078028b6ea4bd6f7929f6e542a1de5cc4c2a0f6fdfce', 'a13%A1r9kCmDHieCl(^Yt$~traAIlnTM(0#vHvjE&tZ@9Cm2OJKCKENu6&a2pTrd*Z%qQyiYXX@fG2j7XeBLx4FYY9tkSK*B^yV)0s$sQ!y)qBL#!RDxcxZLPEKD5@lg', 'testfirstname', 'testlastname', 'testsecondname', 'testingname', '+1234567890', 'testdescription', 'testaddress', 'testposition', 2, 'bc1c2151-86d0-4656-9c9d-d016dd584297', 5, 1, 'f', 't', 'f', now(), now()),
   ('c3f5f69c-bb54-45d9-bfa7-1d28cc1afa5a', 'bname@somain.com', E'\\xfdeba1b9304208da90c90ddb6fe0ee49787b085636b26f156d6240869bdb3665', 'ThmlF#HCNEX6%##AFGH(%0Tdo0w$5kh(WA9%@KwHe3mrVlhMIj~NxeiiJyh~Ty1t(J3F#lGDWFFJRZnV1&WFMA%Rl5~8qvfW)5WjL&qm%jSuFx1Uslth^a$64YkJjN)q', 'Vans', 'Bpero', 'Nado', 'testusertext', 'none', 'none', 'noneadress', 'noneposition', 6, 'bc1c2151-86d0-4656-9c9d-d016dd584297', 4, 1, 'f', 't', 'f', now(), now());
 
-INSERT INTO user_tokens_ref (uuid_user, token, date_start, date_end, is_enabled) VALUES
+INSERT INTO user_tokens_ref (uuid_user, token, start_at, end_at, is_enabled) VALUES
   ('31ecc6f8-0c09-4a59-a2d5-34b5b833e59b', 'GNLw1GKzykA926Rhdcpy1c6lugZXTd5y', now(), now(), 'f');
 
 INSERT INTO user_history_list (uuid_user, id_type_of_change, old_data, changed_at) VALUES

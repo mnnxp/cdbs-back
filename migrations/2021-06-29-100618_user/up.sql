@@ -30,8 +30,8 @@ CREATE TABLE user_tokens_ref (
   id SERIAL, /* id токена */
   uuid_user UUID NOT NULL, /* идентификатор пользователя */
   token VARCHAR(512) NOT NULL, /* токен пользователя */
-  date_start TIMESTAMP NOT NULL DEFAULT NOW(), /* дата создания токена */
-  date_end TIMESTAMP NOT NULL DEFAULT NOW(), /* дата окончания действия токена */
+  start_at TIMESTAMP NOT NULL DEFAULT NOW(), /* дата создания токена */
+  end_at TIMESTAMP NOT NULL DEFAULT NOW(), /* дата окончания действия токена */
   is_enabled BOOLEAN NOT NULL DEFAULT 't',
   CONSTRAINT user_tokens_ref_pk PRIMARY KEY (id)
 );
