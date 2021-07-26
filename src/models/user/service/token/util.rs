@@ -43,10 +43,8 @@ pub(crate) fn update(context: &Context<'_>, flag_delete_token: bool) -> Result<T
     let conn: &PooledConnection = &get_conn(&context)?;
     // get old token
     let old_token = user::token::token_from_context(&context)?;
-    // println!("Token, old_token: {:?}", &old_token);
     // decrypt old token
     let old_data = user::token::decode(old_token.as_str())?;
-    // println!("Token, old_data: {:?}", &old_data);
     if check_token(old_token.as_str(), conn)? {
         if flag_delete_token {
             // deactivate old token
@@ -54,19 +52,15 @@ pub(crate) fn update(context: &Context<'_>, flag_delete_token: bool) -> Result<T
         }
         // get data from old token
         let user = user::token::get_slim_user(old_data)?;
-        // println!("Token, user: {:?}", &user);
         // creating a new token
         let new_token = user::token::generate(&user)?;
-        // println!("Token, new_token: {:?}", &new_token);
         // decrypt new token
         let new_data = user::token::decode(old_token.as_str())?;
-        // println!("Token, new_data: {:?}", &new_data);
 
         match new_token.bearer {
             None => Err(ServiceError::InternalServerError),
             Some(ref token) => {
                 // insert data new token into the table
-                // println!("Token: {:#?}", token);
                 write_token(token, new_data, conn)?;
                 Ok(new_token)
             }
@@ -138,7 +132,7 @@ pub(crate) fn write_token(
     Ok(inserted_token)
 }
 
-/// check valide token
+/// check token for validity
 pub(crate) fn check_token(
     target_token: &str,
     conn: &PooledConnection,

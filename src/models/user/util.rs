@@ -49,9 +49,7 @@ pub(crate) fn is_authorized(context: &Context<'_>) -> Result<bool, ServiceError>
 /// get uuid_user of the authorized user
 pub(crate) fn get_auth_uuid_user(context: &Context<'_>) -> Result<Uuid, ServiceError> {
     let conn: &PooledConnection = &get_conn(&context)?;
-    // println!("get_auth_uuid_user:");
     let target_token = user::token::token_from_context(&context)?;
-    // println!("token: {:#?}", &target_token);
     user::token::whose_token(target_token.as_str(), conn)
 }
 
