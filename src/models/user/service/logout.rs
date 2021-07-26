@@ -9,8 +9,9 @@ pub(crate) fn logout(
     let conn: &PooledConnection = &get_conn(&context)?;
 
     let target_token = user::token::token_from_context(&context)?;
-    user::token::delete_token(&target_token, conn)?;
 
-    // Ok(true)
-    Ok("Good Luck".to_string())
+    match user::token::delete_token(target_token.as_str(), conn) {
+        Ok(_) => Ok("Good Luck".to_string()),
+        Err(_) => Err(ServiceError::Unauthorized),
+    }
 }

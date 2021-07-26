@@ -70,7 +70,11 @@ impl MutationRoot {
         crate::models::user::is_authorized(&context)?;
         let uuid_user = crate::models::user::get_auth_uuid_user(&context)?;
 
-        Ok(delete_notification(uuid_user, id_notification, conn)?)
+        Ok(delete_notification(
+            uuid_user,
+            id_notification,
+            conn,
+        )?)
     }
 
     async fn component_register(

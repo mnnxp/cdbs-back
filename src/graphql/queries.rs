@@ -67,11 +67,14 @@ impl QueryRoot {
         context: &Context<'_>
     ) -> ServiceResult<Vec<UserToken>> {
         let auth_uuid_user = crate::models::user::get_auth_uuid_user(&context)?;
-        user::token::show_tokens(auth_uuid_user, context)
+        user::token::show_tokens(
+            &context,
+            auth_uuid_user,
+        )
     }
 
     async fn update_token(&self, context: &Context<'_>) -> ServiceResult<Token> {
-        user::token::update(context)
+        user::token::update(&context)
     }
 
     async fn decode_token(&self, context: &Context<'_>) -> ServiceResult<Claims> {
@@ -89,9 +92,9 @@ impl QueryRoot {
             "removed {} tokens.",
             // deactivate all user token
             user::token::delete_user_token(
+                &context,
                 token.as_str(),
                 auth_uuid_user,
-                context
             )?
         );
         Ok(deactivated_tokens)
@@ -103,16 +106,16 @@ impl QueryRoot {
             "removed {} tokens.",
             // deactivate all user token
             user::token::delete_all_tokens(
+                &context,
                 target_auth_uuid_user,
-                context
             )?
         );
         Ok(deactivated_tokens)
     }
 
     async fn logout(&self, context: &Context<'_> ) -> ServiceResult<String> {
-        // deactivate user token
-        Ok(user::logout(&context)?)
+        // removed user token
+        user::logout(&context)
     }
 
     async fn notifications(
@@ -122,20 +125,18 @@ impl QueryRoot {
         limit: Option<i32>,
         offset: Option<i32>,
     ) -> ServiceResult<Vec<Notification>> {
-        let target_auth_uuid_user = crate::models::user::get_auth_uuid_user(&context)?;
-
         let id_notification: i32 = id_notification.unwrap_or(0);
         let limit: i32 = limit.unwrap_or(100);
         let offset: i32 = offset.unwrap_or(0);
 
-        println!("notifications: {:#?}", &target_auth_uuid_user);
+        let target_auth_uuid_user = crate::models::user::get_auth_uuid_user(&context)?;
 
         notification::list::get_notifications(
+            &context,
             id_notification,
             target_auth_uuid_user,
             limit,
             offset,
-            context,
         )
     }
 
@@ -165,7 +166,7 @@ impl QueryRoot {
         let offset: i32 = offset.unwrap_or(0);
 
         file::list::get_files(
-            context,
+            &context,
             uuid_user_create,
             uuid_component,
             uuid_component_modification,
@@ -208,7 +209,7 @@ impl QueryRoot {
         let offset: i32 = offset.unwrap_or(0);
 
         component_modification::list::get_component_modifications(
-            context,
+            &context,
             uuid_component,
             limit,
             offset,
@@ -246,7 +247,7 @@ impl QueryRoot {
         let offset: i32 = offset.unwrap_or(0);
 
         component_license::service::list_component::get_licenses_component(
-            context,
+            &context,
             id_license,
             uuid_component,
             limit,
@@ -285,7 +286,7 @@ impl QueryRoot {
         let offset: i32 = offset.unwrap_or(0);
 
         component_param::service::list_component::get_params_component(
-            context,
+            &context,
             id_param,
             uuid_component,
             limit,
@@ -310,7 +311,7 @@ impl QueryRoot {
         let offset: i32 = offset.unwrap_or(0);
 
         component_param::service::list_modification::get_params_modification(
-            context,
+            &context,
             id_param,
             uuid_modification,
             limit,
@@ -333,7 +334,12 @@ impl QueryRoot {
         let limit: i32 = limit.unwrap_or(100);
         let offset: i32 = offset.unwrap_or(0);
 
-        company::list::get_companies(context, uuid_company, limit, offset)
+        company::list::get_companies(
+            &context,
+            uuid_company,
+            limit,
+            offset
+        )
     }
 
     async fn company_represents(
@@ -351,7 +357,12 @@ impl QueryRoot {
         let limit: i32 = limit.unwrap_or(100);
         let offset: i32 = offset.unwrap_or(0);
 
-        company_represent::list::get_company_represents(context, uuid_company, limit, offset)
+        company_represent::list::get_company_represents(
+            &context,
+            uuid_company,
+            limit,
+            offset
+        )
     }
 
     async fn standards(
@@ -369,6 +380,11 @@ impl QueryRoot {
         let limit: i32 = limit.unwrap_or(100);
         let offset: i32 = offset.unwrap_or(0);
 
-        standard::list::get_standards(context, uuid_standard, limit, offset)
+        standard::list::get_standards(
+            &context,
+            uuid_standard,
+            limit,
+            offset
+        )
     }
 }

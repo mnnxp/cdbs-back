@@ -8,11 +8,11 @@ use diesel::prelude::*;
 use uuid::Uuid;
 
 pub(crate) fn get_notifications(
+    context: &Context<'_>,
     id_notification_search: i32,
     uuid_owner_user: Uuid,
     limit: i32,
     offset: i32,
-    context: &Context<'_>,
 ) -> ServiceResult<Vec<Notification>> {
     let mut variant_selection: u8 = 0;
     if id_notification_search > 0 {

@@ -20,8 +20,8 @@ pub(crate) fn token_from_context(context: &Context<'_>) -> Result<String, Servic
 
 /// show all tokens for uuid_user
 pub(crate) fn show_tokens(
+    context: &Context<'_>,
     auth_uuid_user: Uuid,
-    context: &Context<'_>
 ) -> Result<Vec<UserToken>, ServiceError> {
     let conn: &PooledConnection = &get_conn(&context)?;
     use crate::schema::user_tokens_ref::dsl::*;
@@ -49,7 +49,7 @@ pub(crate) fn update(context: &Context<'_>) -> Result<Token, ServiceError> {
     // println!("Token, old_data: {:?}", &old_data);
     if check_token(old_token.as_str(), conn)? {
         // deactivate old token
-        delete_token(&old_token, conn)?;
+        delete_token(old_token.as_str(), conn)?;
         // get data from old token
         let user = user::token::get_slim_user(old_data)?;
         // println!("Token, user: {:?}", &user);
@@ -86,9 +86,9 @@ pub(crate) fn delete_token(target_token: &str, conn: &PooledConnection) -> Resul
 
 /// delete target token to table user_tokens_ref of database
 pub(crate) fn delete_user_token(
+    context: &Context<'_>,
     target_token: &str,
     auth_uuid_user: Uuid,
-    context: &Context<'_>
 ) -> Result<i32, ServiceError> {
     let conn: &PooledConnection = &get_conn(&context)?;
     use crate::schema::user_tokens_ref::dsl::*;
@@ -102,8 +102,8 @@ pub(crate) fn delete_user_token(
 
 /// delete tokens to table user_tokens_ref of database
 pub(crate) fn delete_all_tokens(
+    context: &Context<'_>,
     target_auth_uuid_user: Uuid,
-    context: &Context<'_>
 ) -> Result<i32, ServiceError> {
     let conn: &PooledConnection = &get_conn(&context)?;
     use crate::schema::user_tokens_ref::dsl::*;
@@ -115,7 +115,11 @@ pub(crate) fn delete_all_tokens(
 }
 
 /// write token to table user_tokens_ref of database
-pub(crate) fn write_token(new_token: &str, jwt: Claims, conn: &PooledConnection) -> Result<UserToken, ServiceError> {
+pub(crate) fn write_token(
+    new_token: &str,
+    jwt: Claims,
+    conn: &PooledConnection,
+) -> Result<UserToken, ServiceError> {
     use crate::schema::user_tokens_ref::dsl::user_tokens_ref;
 
     // creating a structure for writing token to a table
@@ -135,7 +139,7 @@ pub(crate) fn write_token(new_token: &str, jwt: Claims, conn: &PooledConnection)
 /// check valide token
 pub(crate) fn check_token(
     target_token: &str,
-    conn: &PooledConnection
+    conn: &PooledConnection,
 ) -> Result<bool, ServiceError> {
     use crate::schema::user_tokens_ref::dsl::*;
 
@@ -154,7 +158,10 @@ pub(crate) fn check_token(
 }
 
 /// get the uuid_user who owns the token
-pub(crate) fn whose_token(target_token: &str, conn: &PooledConnection) -> Result<Uuid, ServiceError> {
+pub(crate) fn whose_token(
+    target_token: &str,
+    conn: &PooledConnection,
+) -> Result<Uuid, ServiceError> {
     use crate::schema::user_tokens_ref::dsl::*;
 
     user_tokens_ref
