@@ -3,7 +3,7 @@ CADBase Backend
 The platform for publishing and sharing information on drawings and manufacturers.
 
 ## The CADBase project is based on the Canduma project
-- bases - [link](https://github.com/clifinger/canduma)
+- bases - [link](https://github.com/clifinger/cdbs-back)
 
 ## Collection of major crates used in CADBase
 - actix - [link](https://actix.rs/)
@@ -43,4 +43,41 @@ cp .env.example .env
 diesel setup --database-url='postgres://postgres:password@localhost/cdbs'
 diesel migration run
 cargo run
+```
+### Generate RSA keys for JWT
+
+In development mode you can keep the one in `/keys` folder.
+
+```shell script
+// private key
+$ openssl genrsa -out rs256-4096-private.rsa 4096
+
+// public key
+$ openssl rsa -in rs256-4096-private.rsa -pubout > rs256-4096-public.pem
+```
+
+### Logging
+
+Logging controlled by middleware::Logger [actix.rs](https://actix.rs/docs/errors/)
+
+To enable debug logging set `RUST_LOG=debug` in `.env`
+
+### Testing
+
+#### Initialization
+
+First run `yarn` or `npm install` to get all required packages
+
+#### yarn run test
+
+To run you can use `npm run test` or `yarn test`.
+
+#### yarn run testci
+Running all tests
+```bash
+$ yarn run testci
+```
+Running the selected test
+```bash
+$ yarn testci -- user.test.js
 ```
