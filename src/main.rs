@@ -10,13 +10,19 @@ mod database;
 mod errors;
 mod graphql;
 mod jwt;
-mod schema;
 mod models;
+mod schema;
 
 use actix_cors::Cors;
 use actix_identity::{CookieIdentityPolicy, IdentityService};
-use actix_web::{App, HttpServer, web};
+// use actix_web::{App, HttpServer, web};
 use actix_web::middleware::Logger;
+use actix_web::{App, HttpServer};
+
+// use crate::graphql::handler::{graphiql, graphql};
+// use crate::graphql::{mutations::MutationRoot, queries::QueryRoot};
+// use actix_web::{guard, web};
+// use async_graphql::EmptySubscription;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -34,7 +40,10 @@ async fn main() -> std::io::Result<()> {
 
     // Database
     let pool = database::pool::establish_connection(opt.clone());
-    let schema = std::sync::Arc::new(crate::graphql::model::create_schema());
+    // let schema = std::sync::Arc::new(crate::graphql::model::create_schema());
+    // let schema = std::sync::Arc::new(crate::graphql::handler::build_schema());
+    // let schema = build_schema().await;
+    // let schema = std::sync::Arc::new(crate::graphql::handler::build_schema());
 
     // Authorisation
     let domain = opt.domain.clone();
@@ -45,16 +54,19 @@ async fn main() -> std::io::Result<()> {
     // Server port
     let port = opt.port;
 
+    let schema = crate::graphql::handler::build_schema(pool.clone()).await;
+
     // Server
     let server = HttpServer::new(move || {
         // prevents double Arc
-        let schema: web::Data<graphql::model::Schema> = schema.clone().into();
+        // let schema: web::Data<graphql::model::Schema> = schema.clone().into();
         // CORS a very permissive set of default for quick development
         let cors = Cors::permissive();
         App::new()
             // Database
             .data(pool.clone())
-            .app_data(schema)
+            // .app_data(schema)
+            .data(schema.clone())
             // Options
             .data(opt.clone())
             // CORS
@@ -75,6 +87,8 @@ async fn main() -> std::io::Result<()> {
             // Sets routes via secondary files
             .configure(models::user::route)
             .configure(graphql::route)
+            // .service(web::resource("/graphql").guard(guard::Post()).to(graphql))
+            // .service(web::resource("/").guard(guard::Get()).to(graphiql))
     })
     // Running at `format!("{}:{}",port,"0.0.0.0")`
     .bind(("0.0.0.0", port))

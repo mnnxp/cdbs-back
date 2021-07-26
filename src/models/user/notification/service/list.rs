@@ -1,13 +1,14 @@
-use crate::database::PooledConnection;
+use crate::database::{get_conn, PooledConnection};
 use crate::errors::{ServiceError, ServiceResult};
-use crate::graphql::model::Context;
+// use crate::graphql::model::Context;
+use async_graphql::Context;
 use crate::models::user::notification::model::Notification;
 use diesel::prelude::*;
 // use std::any::Any;
 use uuid::Uuid;
 
 pub(crate) fn get_notifications(
-    context: &Context,
+    context: &Context<'_>,
     id_notification_search: i32,
     uuid_owner_user: Uuid,
     limit: i32,
@@ -35,7 +36,7 @@ pub(crate) fn get_notifications(
 }
 
 fn find_all_notifications(
-    context: &Context,
+    context: &Context<'_>,
     uuid_owner_user: Uuid,
     limit: i32,
     offset: i32,
@@ -43,7 +44,7 @@ fn find_all_notifications(
     use crate::schema::notification_ref::dsl::*;
     use crate::schema::notification_ref::dsl::id as notification_ref_id;
     use crate::schema::notification_to_user::dsl::*;
-    let conn: &PooledConnection = &context.db;
+    let conn: &PooledConnection = &get_conn(&context)?;
 
     Ok(notification_ref
         .inner_join(notification_to_user)
@@ -58,14 +59,14 @@ fn find_all_notifications(
 }
 
 fn find_id_notification(
-    context: &Context,
+    context: &Context<'_>,
     id_notification_search: i32,
     uuid_owner_user: Uuid,
 ) -> ServiceResult<Vec<Notification>> {
     use crate::schema::notification_ref::dsl::*;
     use crate::schema::notification_ref::dsl::id as notification_ref_id;
     use crate::schema::notification_to_user::dsl::*;
-    let conn: &PooledConnection = &context.db;
+    let conn: &PooledConnection = &get_conn(&context)?;
 
     Ok(notification_ref
         .inner_join(notification_to_user)

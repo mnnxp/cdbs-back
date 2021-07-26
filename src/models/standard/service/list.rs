@@ -1,15 +1,16 @@
-use crate::database::PooledConnection;
+use crate::database::{get_conn, PooledConnection};
 use crate::errors::{
     ServiceError,
     ServiceResult
 };
-use crate::graphql::model::Context;
+// use crate::graphql::model::Context;
+use async_graphql::Context;
 use crate::models::standard::model::ShowStandard;
 use diesel::prelude::*;
 use uuid::Uuid;
 
 pub(crate) fn get_standards(
-    context: &Context,
+    context: &Context<'_>,
     uuid_standard_search: Uuid,
     limit: i32,
     offset: i32,
@@ -33,12 +34,12 @@ pub(crate) fn get_standards(
 }
 
 fn find_all_standards(
-    context: &Context,
+    context: &Context<'_>,
     limit: i32,
     offset: i32,
 ) -> ServiceResult<Vec<ShowStandard>> {
     use crate::schema::standard_ref::dsl::*;
-    let conn: &PooledConnection = &context.db;
+    let conn: &PooledConnection = &get_conn(&context)?;
 
     Ok(standard_ref
         .select((
@@ -53,13 +54,13 @@ fn find_all_standards(
 }
 
 fn find_uuid_standard(
-    context: &Context,
+    context: &Context<'_>,
     uuid_standard_search: Uuid,
     limit: i32,
     offset: i32,
 ) -> ServiceResult<Vec<ShowStandard>> {
     use crate::schema::standard_ref::dsl::*;
-    let conn: &PooledConnection = &context.db;
+    let conn: &PooledConnection = &get_conn(&context)?;
 
     Ok(standard_ref
         .filter(uuid.eq(uuid_standard_search))

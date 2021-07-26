@@ -1,14 +1,34 @@
 use crate::schema::*;
+use async_graphql::*;
 use chrono::*;
 use uuid::Uuid;
 
-#[derive(Debug, Serialize, Deserialize, Queryable, juniper::GraphQLObject)]
+#[derive(Debug, Serialize, Deserialize, Queryable)]
 pub struct Notification {
     pub id: i32,
     pub notification: String,
     pub id_degree_importance: i32,
     pub generated_at: NaiveDateTime,
     pub is_read: bool,
+}
+
+#[Object]
+impl Notification {
+    async fn id(&self) -> &i32 {
+        &self.id
+    }
+    async fn notification(&self) -> &String {
+        &self.notification
+    }
+    async fn id_degree_importance(&self) -> &i32 {
+        &self.id_degree_importance
+    }
+    async fn generated_at(&self) -> &NaiveDateTime {
+        &self.generated_at
+    }
+    async fn is_read(&self) -> &bool {
+        &self.is_read
+    }
 }
 
 #[derive(Debug, Insertable)]
@@ -20,21 +40,43 @@ pub struct InsertableNotification {
     pub is_read: bool,
 }
 
-#[derive(Debug, Deserialize, juniper::GraphQLInputObject)]
+#[derive(Debug, Deserialize, Clone, InputObject)]
 pub struct NotificationData {
     pub notification: String,
     pub id_degree_importance: i32,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, juniper::GraphQLObject)]
+// #[Object]
+// impl NotificationData {
+//     async fn notification(&self) -> &String {
+//         &self.notification
+//     }
+//     async fn id_degree_importance(&self) -> &i32 {
+//         &self.id_degree_importance
+//     }
+// }
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct SlimNotification {
     pub notification: String,
     pub id_degree_importance: i32,
     pub is_read: bool,
 }
 
+#[Object]
+impl SlimNotification {
+    async fn notification(&self) -> &String {
+        &self.notification
+    }
+    async fn id_degree_importance(&self) -> &i32 {
+        &self.id_degree_importance
+    }
+    async fn is_read(&self) -> &bool {
+        &self.is_read
+    }
+}
 
-#[derive(Debug, Serialize, Deserialize, Queryable, juniper::GraphQLObject)]
+#[derive(Debug, Serialize, Deserialize, Queryable)]
 pub struct NotificationToUser {
     pub id: i32,
     pub id_notification: i32,

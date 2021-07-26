@@ -1,12 +1,14 @@
-use crate::schema::*;
 use crate::models::user::util::{make_hash_salt, make_salt};
+use crate::schema::*;
+use async_graphql::types::ID;
+use async_graphql::*;
 use chrono::*;
 use shrinkwraprs::Shrinkwrap;
 use uuid::Uuid;
 
 #[derive(Debug, Queryable)]
 pub struct User {
-    pub id: i32,
+    // pub id: i32,
     pub uuid: Uuid,
     pub email: String,
     pub psw_hash: Vec<u8>,
@@ -30,7 +32,7 @@ pub struct User {
     pub updated_at: NaiveDateTime,
 }
 
-#[derive(Debug, Serialize, Deserialize, Queryable, juniper::GraphQLObject)]
+#[derive(Debug, Serialize, Deserialize, Queryable)]
 pub struct ShowUser {
     pub uuid: Uuid,
     pub email: String,
@@ -51,6 +53,67 @@ pub struct ShowUser {
     pub is_delete: bool,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
+}
+
+#[Object]
+impl ShowUser {
+    async fn uuid(&self) -> ID {
+        self.uuid.into()
+    }
+    async fn email(&self) -> &String {
+        &self.email
+    }
+    async fn firstname(&self) -> &String {
+        &self.firstname
+    }
+    async fn lastname(&self) -> &String {
+        &self.lastname
+    }
+    async fn secondname(&self) -> &String {
+        &self.secondname
+    }
+    async fn username(&self) -> &String {
+        &self.username
+    }
+    async fn phone(&self) -> &String {
+        &self.phone
+    }
+    async fn description(&self) -> &String {
+        &self.description
+    }
+    async fn address(&self) -> &String {
+        &self.address
+    }
+    async fn position(&self) -> &String {
+        &self.position
+    }
+    async fn time_zone(&self) -> &i32 {
+        &self.time_zone
+    }
+    async fn uuid_image_file(&self) -> ID {
+        self.uuid_image_file.into()
+    }
+    async fn id_region(&self) -> &i32 {
+        &self.id_region
+    }
+    async fn id_program(&self) -> &i32 {
+        &self.id_program
+    }
+    async fn is_email_verified(&self) -> &bool {
+        &self.is_email_verified
+    }
+    async fn is_enabled(&self) -> &bool {
+        &self.is_enabled
+    }
+    async fn is_delete(&self) -> &bool {
+        &self.is_delete
+    }
+    async fn created_at(&self) -> &NaiveDateTime {
+        &self.created_at
+    }
+    async fn updated_at(&self) -> &NaiveDateTime {
+        &self.updated_at
+    }
 }
 
 #[derive(Debug, Insertable)]
@@ -79,7 +142,25 @@ pub struct InsertableUser {
     pub updated_at: NaiveDateTime,
 }
 
-#[derive(Debug, Deserialize, juniper::GraphQLInputObject)]
+#[derive(Debug, Deserialize, Clone, InputObject)]
+pub struct IptUserData {
+    pub email: String,
+    pub password: String,
+    pub firstname: String,
+    pub lastname: String,
+    pub secondname: String,
+    pub username: String,
+    pub phone: String,
+    pub description: String,
+    pub address: String,
+    pub position: String,
+    pub time_zone: i32,
+    pub uuid_image_file: ID,
+    pub id_region: i32,
+    pub id_program: i32,
+}
+
+#[derive(Debug, Deserialize, Clone)]
 pub struct UserData {
     pub email: String,
     pub password: String,
@@ -97,11 +178,106 @@ pub struct UserData {
     pub id_program: i32,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, juniper::GraphQLObject)]
+impl From<IptUserData> for UserData {
+    fn from(ipt_data: IptUserData) -> Self {
+        let IptUserData {
+            email,
+            password,
+            firstname,
+            lastname,
+            secondname,
+            username,
+            phone,
+            description,
+            address,
+            position,
+            time_zone,
+            uuid_image_file,
+            id_region,
+            id_program,
+        } = ipt_data;
+        UserData {
+            email,
+            password,
+            firstname,
+            lastname,
+            secondname,
+            username,
+            phone,
+            description,
+            address,
+            position,
+            time_zone,
+            uuid_image_file: Uuid::parse_str(&uuid_image_file.to_string()).unwrap(),
+            id_region,
+            id_program,
+        }
+    }
+}
+
+#[Object]
+impl UserData {
+    async fn email(&self) -> &String {
+        &self.email
+    }
+    async fn firstname(&self) -> &String {
+        &self.firstname
+    }
+    async fn lastname(&self) -> &String {
+        &self.lastname
+    }
+    async fn secondname(&self) -> &String {
+        &self.secondname
+    }
+    async fn username(&self) -> &String {
+        &self.username
+    }
+    async fn phone(&self) -> &String {
+        &self.phone
+    }
+    async fn description(&self) -> &String {
+        &self.description
+    }
+    async fn address(&self) -> &String {
+        &self.address
+    }
+    async fn position(&self) -> &String {
+        &self.position
+    }
+    async fn time_zone(&self) -> &i32 {
+        &self.time_zone
+    }
+    async fn uuid_image_file(&self) -> ID {
+        self.uuid_image_file.into()
+    }
+    async fn id_region(&self) -> &i32 {
+        &self.id_region
+    }
+    async fn id_program(&self) -> &i32 {
+        &self.id_program
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct SlimUser {
     pub uuid: Uuid,
     pub id_program: i32,
     pub username: String,
+}
+
+#[Object]
+impl SlimUser {
+    async fn uuid(&self) -> ID {
+        self.uuid.into()
+    }
+
+    async fn id_program(&self) -> &i32 {
+        &self.id_program
+    }
+
+    async fn username(&self) -> &String {
+        &self.username
+    }
 }
 
 #[derive(Shrinkwrap, Clone, Default)]

@@ -1,12 +1,13 @@
-use crate::database::PooledConnection;
-use crate::errors::{ ServiceError, ServiceResult };
-use crate::graphql::model::Context;
+use crate::database::{get_conn, PooledConnection};
+use crate::errors::{ServiceError, ServiceResult};
 use crate::models::user::model::ShowUser;
+use async_graphql::Context;
 use diesel::prelude::*;
+// use r2d2::PooledConnection;
 use uuid::Uuid;
 
 pub(crate) fn get_users(
-    context: &Context,
+    context: &Context<'_>,
     uuid_user_search: Uuid,
     limit: i32,
     offset: i32,
@@ -25,20 +26,16 @@ pub(crate) fn get_users(
         // 101
         // 110
         // 111
-        _ => ServiceResult::Err(ServiceError::BadRequest("What?".to_string()))
+        _ => ServiceResult::Err(ServiceError::BadRequest("What?".to_string())),
     }
 }
 
-fn find_all_users(
-    context: &Context,
-    limit: i32,
-    offset: i32,
-) -> ServiceResult<Vec<ShowUser>> {
+fn find_all_users(context: &Context<'_>, limit: i32, offset: i32) -> ServiceResult<Vec<ShowUser>> {
     use crate::schema::user_ref::dsl::*;
     // use crate::schema::type_user_ref::dsl::*;
     // use crate::schema::name_cad_ref::dsl::*;
     // use crate::schema::region_ref::dsl::*;
-    let conn: &PooledConnection = &context.db;
+    let conn: &PooledConnection = &get_conn(&context)?;
 
     // joinable!(type_user_ref -> user_ref (id));
     // joinable!(name_cad_ref -> user_ref (id));
@@ -50,26 +47,37 @@ fn find_all_users(
         // .inner_join(name_cad_ref)
         // .inner_join(region_ref)
         .select((
-            uuid, email, firstname, lastname, secondname, username,
-            phone, description, address,  position, time_zone,
-            uuid_image_file, id_region, id_program,
-            is_email_verified, is_enabled, is_delete,
-            created_at, updated_at,
+            uuid,
+            email,
+            firstname,
+            lastname,
+            secondname,
+            username,
+            phone,
+            description,
+            address,
+            position,
+            time_zone,
+            uuid_image_file,
+            id_region,
+            id_program,
+            is_email_verified,
+            is_enabled,
+            is_delete,
+            created_at,
+            updated_at,
         ))
         .limit(limit as i64)
         .offset(offset as i64)
         .load::<ShowUser>(conn)?)
 }
 
-fn find_user(
-    context: &Context,
-    uuid_user_search: Uuid,
-) -> ServiceResult<Vec<ShowUser>> {
+fn find_user(context: &Context<'_>, uuid_user_search: Uuid) -> ServiceResult<Vec<ShowUser>> {
     use crate::schema::user_ref::dsl::*;
     // use crate::schema::type_user_ref::dsl::*;
     // use crate::schema::name_cad_ref::dsl::*;
     // use crate::schema::region_ref::dsl::*;
-    let conn: &PooledConnection = &context.db;
+    let conn: &PooledConnection = &get_conn(&context)?;
 
     // joinable!(type_user_ref -> user_ref (id));
     // joinable!(name_cad_ref -> user_ref (id));
@@ -82,11 +90,25 @@ fn find_user(
         // .inner_join(region_ref)
         .filter(uuid.eq(uuid_user_search))
         .select((
-            uuid, email, firstname, lastname, secondname, username,
-            phone, description, address,  position, time_zone,
-            uuid_image_file, id_region, id_program,
-            is_email_verified, is_enabled, is_delete,
-            created_at, updated_at,
+            uuid,
+            email,
+            firstname,
+            lastname,
+            secondname,
+            username,
+            phone,
+            description,
+            address,
+            position,
+            time_zone,
+            uuid_image_file,
+            id_region,
+            id_program,
+            is_email_verified,
+            is_enabled,
+            is_delete,
+            created_at,
+            updated_at,
         ))
         .load::<ShowUser>(conn)?)
 }

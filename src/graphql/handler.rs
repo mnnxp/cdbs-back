@@ -1,36 +1,52 @@
+use actix_web::{web, HttpRequest, HttpResponse, Result};
+use async_graphql::http::playground_source;
+use async_graphql::http::GraphQLPlaygroundConfig;
+use async_graphql::{EmptySubscription, Schema};
+use async_graphql_actix_web::{Request, Response};
 use crate::cli_args::Opt;
-use crate::database::{db_connection, Pool};
-use crate::graphql::model::{Context, Schema};
-use crate::jwt::model::DecodedToken;
-use crate::models::user::model::LoggedUser;
-use actix_web::{error, web, Error, HttpResponse};
-use juniper::http::playground::playground_source;
-use juniper::http::GraphQLRequest;
+use crate::database::Pool;
+use crate::graphql::{mutations::MutationRoot, queries::QueryRoot};
+use crate::jwt::util::token_from_request;
 
-pub(super) async fn graphql(
-    st: web::Data<Schema>,
-    data: web::Json<GraphQLRequest>,
-    user: LoggedUser,
-    token: DecodedToken,
-    pool: web::Data<Pool>,
-    opt: web::Data<Opt>,
-) -> Result<HttpResponse, Error> {
-    let db_pool = db_connection(&pool)?;
+type ActixSchema = Schema<QueryRoot, MutationRoot, EmptySubscription>;
+// pub struct MyToken(pub String);
 
-    let opt = opt.into_inner().as_ref().clone();
-    let ctx = Context::new(token, user, db_pool, opt);
-
-    let res = data.execute(&st, &ctx);
-    let json = serde_json::to_string(&res).map_err(error::ErrorInternalServerError)?;
-
-    Ok(HttpResponse::Ok()
-        .content_type("application/json")
-        .body(json))
+pub async fn build_schema(pool: Pool) -> ActixSchema {
+    Schema::build(QueryRoot, MutationRoot, EmptySubscription)
+        .enable_federation()
+        .data(pool)
+        .finish()
 }
 
-pub(super) fn playground(opt: web::Data<Opt>) -> HttpResponse {
-    let html = playground_source(&format!("http://{}:{}/graphql", opt.domain, opt.port));
-    HttpResponse::Ok()
+pub async fn graphql(
+    schema: web::Data<ActixSchema>,
+    req: HttpRequest,
+    gql_request: Request,
+    // user: LoggedUser,
+    // token: DecodedToken,
+    // pool: web::Data<Pool>,
+    // opt: web::Data<Opt>
+) -> Response {
+    let token = token_from_request(&req);
+
+    let mut request = gql_request.into_inner();
+
+    match token {
+        None => (),
+        Some(token) => {
+            // println!("match token Ok");
+            request = request.data(token)
+        }
+    }
+
+    schema.execute(request).await.into()
+}
+
+pub async fn graphiql(opt: web::Data<Opt>) -> Result<HttpResponse> {
+    let gql_ver = &format!("http://{}:{}/graphql", opt.domain, opt.port);
+    Ok(HttpResponse::Ok()
         .content_type("text/html; charset=utf-8")
-        .body(html)
+        .body(playground_source(
+            GraphQLPlaygroundConfig::new(gql_ver).subscription_endpoint(gql_ver),
+        )))
 }

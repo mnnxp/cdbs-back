@@ -1,9 +1,8 @@
-use super::model::{
-    LoggedUser,
-    // SlimUser,
-    User,
-};
+use crate::database::{get_conn, PooledConnection};
+use super::model::User;
+use crate::models::user::service as user;
 use crate::errors::ServiceError;
+use async_graphql::Context;
 use argon2rs::argon2i_simple;
 use uuid::Uuid;
 
@@ -36,27 +35,25 @@ pub(crate) fn verify(user: &User, password: &str) -> bool {
     make_hash_salt(password, psw_salt) == psw_hash.as_ref()
 }
 
-pub(crate) fn hash_authorized(user: &LoggedUser) -> Result<bool, ServiceError> {
-    match user.0 {
-        None => Err(ServiceError::Unauthorized),
-        Some(_) => Ok(true),
+/// checking user authorization
+pub(crate) fn is_authorized(context: &Context<'_>) -> Result<bool, ServiceError> {
+    let conn: &PooledConnection = &get_conn(&context)?;
+    let token = user::token::token_from_context(&context)?;
+    if user::token::check_token(token.as_str(), conn)? {
+        Ok(true)
+    } else {
+        Err(ServiceError::Unauthorized)
     }
 }
 
-pub(crate) fn get_uuid_user(user: &LoggedUser) -> Result<Uuid, ServiceError> {
-    match user.0 {
-        None => Err(ServiceError::Unauthorized),
-        Some(ref user) => Ok(user.uuid),
-        // _ => Err(ServiceError::BadRequest("Uuid not correct.".to_string())),
-        // Some(ref user) => Err(ServiceError::BadRequest(format!("Uuid not correct. UUID1: {}, UUID2: {};", user.uuid, uuid_user))),
-    }
+/// get uuid_user of the authorized user
+pub(crate) fn get_auth_uuid_user(context: &Context<'_>) -> Result<Uuid, ServiceError> {
+    let conn: &PooledConnection = &get_conn(&context)?;
+    let target_token = user::token::token_from_context(&context)?;
+    user::token::whose_token(target_token.as_str(), conn)
 }
 
-// pub fn verify_uuid_user(user: &LoggedUser, uuid_user: Uuid) -> Result<bool, ServiceError> {
-//     match user.0 {
-//         None => Err(ServiceError::Unauthorized),
-//         Some(ref user) if user.uuid == uuid_user => Ok(true),
-//         _ => Err(ServiceError::BadRequest("Uuid not correct.".to_string())),
-//         // Some(ref user) => Err(ServiceError::BadRequest(format!("Uuid not correct. UUID1: {}, UUID2: {};", user.uuid, uuid_user))),
-//     }
-// }
+/// comparison of the received uuid_user with the uuid_user of the authorized user
+pub(crate) fn compare_uuid_user(target_auth_uuid_user: Uuid, context: &Context<'_>) -> Result<bool, ServiceError> {
+    Ok(get_auth_uuid_user(&context)? == target_auth_uuid_user)
+}

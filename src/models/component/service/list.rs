@@ -1,13 +1,14 @@
-use crate::database::PooledConnection;
+use crate::database::{get_conn, PooledConnection};
 use crate::errors::{ServiceResult, ServiceError};
-use crate::graphql::model::Context;
+// use crate::graphql::model::Context;
+use async_graphql::Context;
 use crate::models::component::model::ShowComponent;
 use diesel::prelude::*;
 use uuid::Uuid;
 
 
 pub(crate) fn get_components(
-    context: &Context,
+    context: &Context<'_>,
     uuid_component_search: Uuid,
     limit: i32,
     offset: i32,
@@ -31,7 +32,7 @@ pub(crate) fn get_components(
 }
 
 fn find_all_components(
-    context: &Context,
+    context: &Context<'_>,
     limit: i32,
     offset: i32,
 ) -> ServiceResult<Vec<ShowComponent>> {
@@ -39,7 +40,7 @@ fn find_all_components(
     // use crate::schema::actual_status_ref::dsl::*;
     // use crate::schema::component_type_ref::dsl::*;
     // use crate::schema::type_access_ref::dsl::*;
-    let conn: &PooledConnection = &context.db;
+    let conn: &PooledConnection = &get_conn(&context)?;
 
     Ok(component_ref
         // .inner_join(actual_status_ref)
@@ -56,7 +57,7 @@ fn find_all_components(
 }
 
 fn find_uuid_component(
-    context: &Context,
+    context: &Context<'_>,
     uuid_component_search: Uuid,
     limit: i32,
     offset: i32,
@@ -65,7 +66,7 @@ fn find_uuid_component(
     // use crate::schema::actual_status_ref::dsl::*;
     // use crate::schema::component_type_ref::dsl::*;
     // use crate::schema::type_access_ref::dsl::*;
-    let conn: &PooledConnection = &context.db;
+    let conn: &PooledConnection = &get_conn(&context)?;
 
     Ok(component_ref
         // .inner_join(actual_status_ref)

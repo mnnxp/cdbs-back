@@ -11,7 +11,7 @@ The platform for publishing and sharing information on drawings and manufacturer
 - actix-cors - [link](https://docs.rs/actix-cors/)
 - actix-multipart - [link](https://docs.rs/actix-multipart/)
 - diesel - [link](http://diesel.rs/)
-- juniper - [link](https://graphql-rust.github.io/juniper/current/)
+- async-graphql - [link](https://docs.rs/crates/async-graphql)
 - uuid - [link](https://docs.rs/uuid/)
 - time - [link](https://docs.rs/time/)
 - chrono - [link](https://docs.rs/chrono/)

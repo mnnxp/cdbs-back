@@ -1,8 +1,8 @@
-// use crate::user::model::{LoggedUser, User};
 use crate::schema::*;
+use async_graphql::types::ID;
+use async_graphql::*;
 use chrono::*;
 use uuid::Uuid;
-// use num::ToPrimitive;
 
 #[derive(Debug, Queryable)]
 pub struct Component {
@@ -21,7 +21,7 @@ pub struct Component {
     pub updated_at: NaiveDateTime,
 }
 
-#[derive(Debug, Serialize, Deserialize, Queryable, juniper::GraphQLObject)]
+#[derive(Debug, Serialize, Deserialize, Queryable)]
 pub struct ShowComponent {
     pub uuid: Uuid,
     pub uuid_component_parent: Uuid,
@@ -35,6 +35,46 @@ pub struct ShowComponent {
     pub is_delete: bool,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
+}
+
+#[Object]
+impl ShowComponent {
+    async fn uuid(&self) -> ID {
+        self.uuid.into()
+    }
+    async fn uuid_component_parent(&self) -> ID {
+        self.uuid_component_parent.into()
+    }
+    async fn name(&self) -> &String {
+        &self.name
+    }
+    async fn description(&self) -> &String {
+        &self.description
+    }
+    async fn uuid_user(&self) -> ID {
+        self.uuid_user.into()
+    }
+    async fn id_type_access(&self) -> &i32 {
+        &self.id_type_access
+    }
+    async fn id_component_type(&self) -> &i32 {
+        &self.id_component_type
+    }
+    async fn id_actual_status(&self) -> &i32 {
+        &self.id_actual_status
+    }
+    async fn is_standard(&self) -> &bool {
+        &self.is_standard
+    }
+    async fn is_delete(&self) -> &bool {
+        &self.is_delete
+    }
+    async fn created_at(&self) -> &NaiveDateTime {
+        &self.created_at
+    }
+    async fn updated_at(&self) -> &NaiveDateTime {
+        &self.updated_at
+    }
 }
 
 #[derive(Debug, Insertable)]
@@ -66,9 +106,9 @@ pub struct ComponentData {
     pub is_standard: bool,
 }
 
-#[derive(Debug, Deserialize, juniper::GraphQLInputObject)]
-pub struct ComponentDataQuery {
-    pub uuid_component_parent: String,
+#[derive(Debug, Deserialize, InputObject)]
+pub struct IptComponentData {
+    pub uuid_component_parent: ID,
     pub name: String,
     pub description: String,
     pub id_type_access: i32,
@@ -77,7 +117,32 @@ pub struct ComponentDataQuery {
     pub is_standard: bool,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, juniper::GraphQLObject)]
+// #[Object]
+// impl IptComponentData {
+//     async fn uuid_component_parent(&self) -> ID {
+//         self.uuid_component_parent.clone()
+//     }
+//     async fn name(&self) -> &String {
+//         &self.name
+//     }
+//     async fn description(&self) -> &String {
+//         &self.description
+//     }
+//     async fn id_type_access(&self) -> &i32 {
+//          &self.id_type_access
+//     }
+//     async fn id_component_type(&self) -> &i32 {
+//         &self.id_component_type
+//     }
+//     async fn id_actual_status(&self) -> &i32 {
+//         &self.id_actual_status
+//     }
+//     async fn is_standard(&self) -> &bool {
+//         &self.is_standard
+//     }
+// }
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct SlimComponent {
     pub uuid: Uuid,
     pub name: String,
@@ -87,6 +152,34 @@ pub struct SlimComponent {
     pub id_actual_status: i32,
     pub is_standard: bool,
     pub created_at: NaiveDateTime,
+}
+
+#[Object]
+impl SlimComponent {
+    async fn uuid(&self) -> ID {
+        self.uuid.into()
+    }
+    async fn name(&self) -> &String {
+        &self.name
+    }
+    async fn description(&self) -> &String {
+        &self.description
+    }
+    async fn id_type_access(&self) -> &i32 {
+         &self.id_type_access
+    }
+    async fn id_component_type(&self) -> &i32 {
+        &self.id_component_type
+    }
+    async fn id_actual_status(&self) -> &i32 {
+        &self.id_actual_status
+    }
+    async fn is_standard(&self) -> &bool {
+        &self.is_standard
+    }
+    async fn created_at(&self) -> &NaiveDateTime {
+        &self.created_at
+    }
 }
 
 impl From<ComponentData> for InsertableComponent {

@@ -1,15 +1,16 @@
-use crate::database::PooledConnection;
+use crate::database::{get_conn, PooledConnection};
 use crate::errors::{
     // ServiceError,
     ServiceResult
 };
-use crate::graphql::model::Context;
+// use crate::graphql::model::Context;
+use async_graphql::Context;
 use crate::models::component::license::model::License;
 use diesel::prelude::*;
 
 
 pub(crate) fn get_licenses(
-    context: &Context,
+    context: &Context<'_>,
     id_license_search: Vec<i32>,
     limit: i32,
     offset: i32,
@@ -22,12 +23,12 @@ pub(crate) fn get_licenses(
 }
 
 fn find_all_license(
-    context: &Context,
+    context: &Context<'_>,
     limit: i32,
     offset: i32,
 ) -> ServiceResult<Vec<License>> {
     use crate::schema::license_ref::dsl::*;
-    let conn: &PooledConnection = &context.db;
+    let conn: &PooledConnection = &get_conn(&context)?;
 
     Ok(license_ref
         .limit(limit as i64)
@@ -36,13 +37,13 @@ fn find_all_license(
 }
 
 fn find_id_license(
-    context: &Context,
+    context: &Context<'_>,
     id_license_search: Vec<i32>,
     limit: i32,
     offset: i32,
 ) -> ServiceResult<Vec<License>> {
     use crate::schema::license_ref::dsl::*;
-    let conn: &PooledConnection = &context.db;
+    let conn: &PooledConnection = &get_conn(&context)?;
 
     Ok(license_ref
         .filter(id.eq_any(id_license_search))

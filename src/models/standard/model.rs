@@ -1,4 +1,6 @@
 use crate::schema::*;
+use async_graphql::types::ID;
+use async_graphql::*;
 use chrono::*;
 use uuid::Uuid;
 
@@ -24,7 +26,7 @@ pub struct Standard {
     pub updated_at: NaiveDateTime,
 }
 
-#[derive(Debug, Serialize, Deserialize, Queryable, juniper::GraphQLObject)]
+#[derive(Debug, Serialize, Deserialize, Queryable)]
 pub struct ShowStandard {
     pub uuid: Uuid,
     pub uuid_standard_parent: Uuid,
@@ -43,6 +45,61 @@ pub struct ShowStandard {
     pub is_delete: bool,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
+}
+
+#[Object]
+impl ShowStandard {
+    async fn uuid(&self) -> ID {
+        self.uuid.into()
+    }
+    async fn uuid_standard_parent(&self) -> ID {
+        self.uuid_standard_parent.into()
+    }
+    async fn classifier(&self) -> &String {
+        &self.classifier
+    }
+    async fn name(&self) -> &String {
+        &self.name
+    }
+    async fn description(&self) -> &String {
+        &self.description
+    }
+    async fn specified_tolerance(&self) -> &String {
+        &self.specified_tolerance
+    }
+    async fn technical_committee(&self) -> &String {
+        &self.technical_committee
+    }
+    async fn publication_at(&self) -> &NaiveDateTime {
+        &self.publication_at
+    }
+    async fn uuid_image_file(&self) -> ID {
+        self.uuid_image_file.into()
+    }
+    async fn uuid_user(&self) -> ID {
+        self.uuid_user.into()
+    }
+    async fn uuid_company(&self) -> ID {
+        self.uuid_company.into()
+    }
+    async fn id_type_access(&self) -> &i32 {
+        &self.id_type_access
+    }
+    async fn id_standard_status(&self) -> &i32 {
+        &self.id_standard_status
+    }
+    async fn id_region(&self) -> &i32 {
+        &self.id_region
+    }
+    async fn is_delete(&self) -> &bool {
+        &self.is_delete
+    }
+    async fn created_at(&self) -> &NaiveDateTime {
+        &self.created_at
+    }
+    async fn updated_at(&self) -> &NaiveDateTime {
+        &self.updated_at
+    }
 }
 
 #[derive(Debug, Insertable)]
@@ -67,7 +124,24 @@ pub struct InsertableStandard {
     pub updated_at: NaiveDateTime,
 }
 
-#[derive(Debug, Deserialize, juniper::GraphQLInputObject)]
+#[derive(Debug, Deserialize, Clone, InputObject)]
+pub struct IptStandardData {
+    pub uuid_standard_parent: ID,
+    pub classifier: String,
+    pub name: String,
+    pub description: String,
+    pub specified_tolerance: String,
+    pub technical_committee: String,
+    pub publication_at: NaiveDateTime,
+    pub uuid_image_file: ID,
+    pub uuid_user: ID,
+    pub uuid_company: ID,
+    pub id_type_access: i32,
+    pub id_standard_status: i32,
+    pub id_region: i32,
+}
+
+#[derive(Debug, Deserialize, Clone)]
 pub struct StandardData {
     pub uuid_standard_parent: Uuid,
     pub classifier: String,
@@ -84,7 +158,86 @@ pub struct StandardData {
     pub id_region: i32,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, juniper::GraphQLObject)]
+#[Object]
+impl StandardData {
+    async fn uuid_standard_parent(&self) -> ID {
+        self.uuid_standard_parent.into()
+    }
+    async fn classifier(&self) -> &String {
+        &self.classifier
+    }
+    async fn name(&self) -> &String {
+        &self.name
+    }
+    async fn description(&self) -> &String {
+        &self.description
+    }
+    async fn specified_tolerance(&self) -> &String {
+        &self.specified_tolerance
+    }
+    async fn technical_committee(&self) -> &String {
+        &self.technical_committee
+    }
+    async fn publication_at(&self) -> &NaiveDateTime {
+        &self.publication_at
+    }
+    async fn uuid_image_file(&self) -> ID {
+        self.uuid_image_file.into()
+    }
+    async fn uuid_user(&self) -> ID {
+        self.uuid_user.into()
+    }
+    async fn uuid_company(&self) -> ID {
+        self.uuid_company.into()
+    }
+    async fn id_type_access(&self) -> &i32 {
+        &self.id_type_access
+    }
+    async fn id_standard_status(&self) -> &i32 {
+        &self.id_standard_status
+    }
+    async fn id_region(&self) -> &i32 {
+        &self.id_region
+    }
+}
+
+
+impl From<IptStandardData> for StandardData {
+    fn from(ipt_data: IptStandardData) -> Self {
+        let IptStandardData {
+            uuid_standard_parent,
+            classifier,
+            name,
+            description,
+            specified_tolerance,
+            technical_committee,
+            publication_at,
+            uuid_image_file,
+            uuid_user,
+            uuid_company,
+            id_type_access,
+            id_standard_status,
+            id_region,
+        } = ipt_data;
+        StandardData {
+            uuid_standard_parent: Uuid::parse_str(&uuid_standard_parent.to_string()).unwrap(),
+            classifier,
+            name,
+            description,
+            specified_tolerance,
+            technical_committee,
+            publication_at,
+            uuid_image_file: Uuid::parse_str(&uuid_image_file.to_string()).unwrap(),
+            uuid_user: Uuid::parse_str(&uuid_user.to_string()).unwrap(),
+            uuid_company: Uuid::parse_str(&uuid_company.to_string()).unwrap(),
+            id_type_access,
+            id_standard_status,
+            id_region,
+        }
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct SlimStandard {
     pub uuid: Uuid,
     pub classifier: String,
@@ -93,6 +246,31 @@ pub struct SlimStandard {
     pub technical_committee: String,
     pub publication_at: NaiveDateTime,
     pub id_standard_status: i32,
+}
+
+#[Object]
+impl SlimStandard {
+    async fn uuid(&self) -> ID {
+        self.uuid.into()
+    }
+    async fn classifier(&self) -> &String {
+        &self.classifier
+    }
+    async fn name(&self) -> &String {
+        &self.name
+    }
+    async fn specified_tolerance(&self) -> &String {
+        &self.specified_tolerance
+    }
+    async fn technical_committee(&self) -> &String {
+        &self.technical_committee
+    }
+    async fn publication_at(&self) -> &NaiveDateTime {
+        &self.publication_at
+    }
+    async fn id_standard_status(&self) -> &i32 {
+        &self.id_standard_status
+    }
 }
 
 impl From<StandardData> for InsertableStandard {
@@ -113,6 +291,11 @@ impl From<StandardData> for InsertableStandard {
             id_region,
             ..
         } = company_data;
+
+        // let uuid_standard_parent = Uuid::parse_str(&uuid_standard_parent).unwrap();
+        // let uuid_image_file = Uuid::parse_str(&uuid_image_file).unwrap();
+        // let uuid_user = Uuid::parse_str(&uuid_user).unwrap();
+        // let uuid_company = Uuid::parse_str(&uuid_company).unwrap();
 
         Self {
             uuid: Uuid::new_v4(),

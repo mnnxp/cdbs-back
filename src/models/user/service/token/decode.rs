@@ -1,35 +1,35 @@
 use crate::errors::{ServiceError, ServiceResult};
-use crate::graphql::model::Context;
+// use crate::graphql::model::Context;
 use crate::jwt::model::Claims;
+use crate::jwt::manager::decode_token;
 
-pub type ClaimsResponse = Claims;
+use async_graphql::*;
 
-#[juniper::object]
-impl ClaimsResponse {
-    fn iss(&self) -> &str {
-        self.iss.as_str()
+// pub type ClaimsResponse = Claims;
+
+#[Object]
+impl Claims {
+    async fn iss(&self) -> &String {
+        &self.iss
     }
-    fn username(&self) -> &str {
-        self.username.as_str()
+    async fn username(&self) -> &String {
+        &self.username
     }
-    fn sub(&self) -> &str {
-        self.sub.as_str()
+    async fn sub(&self) -> &String {
+        &self.sub
     }
-    fn iat(&self) -> String {
+    async fn iat(&self) -> String {
         chrono::NaiveDateTime::from_timestamp(self.iat, 0)
             .format("%Y-%m-%dT%H:%M:%S%.f")
             .to_string()
     }
-    fn exp(&self) -> String {
+    async fn exp(&self) -> String {
         chrono::NaiveDateTime::from_timestamp(self.exp, 0)
             .format("%Y-%m-%dT%H:%M:%S%.f")
             .to_string()
     }
 }
 
-pub(crate) fn decode(context: &Context) -> ServiceResult<&ClaimsResponse> {
-    match context.token.jwt {
-        None => Err(ServiceError::Unauthorized),
-        Some(ref m) => Ok(m as &ClaimsResponse),
-    }
+pub(crate) fn decode(token: &str) -> ServiceResult<Claims>  {
+    decode_token(token).map_err(|e| ServiceError::BadRequest(e.to_string()))
 }

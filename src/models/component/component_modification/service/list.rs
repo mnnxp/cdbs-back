@@ -1,16 +1,17 @@
-use crate::database::PooledConnection;
+use crate::database::{get_conn, PooledConnection};
 use crate::errors::{
     ServiceError,
     ServiceResult
 };
-use crate::graphql::model::Context;
+// use crate::graphql::model::Context;
+use async_graphql::Context;
 use crate::models::component::component_modification::model::ShowComponentModification;
 use diesel::prelude::*;
 use uuid::Uuid;
 
 
 pub(crate) fn get_component_modifications(
-    context: &Context,
+    context: &Context<'_>,
     uuid_component_search: Uuid,
     limit: i32,
     offset: i32,
@@ -34,14 +35,14 @@ pub(crate) fn get_component_modifications(
 }
 
 fn find_all_component_modification(
-    context: &Context,
+    context: &Context<'_>,
     limit: i32,
     offset: i32,
 ) -> ServiceResult<Vec<ShowComponentModification>> {
     use crate::schema::component_modification_list::dsl::*;
     // use crate::schema::program_ref::dsl::*;
     // use crate::schema::actual_status_ref::dsl::*;
-    let conn: &PooledConnection = &context.db;
+    let conn: &PooledConnection = &get_conn(&context)?;
 
     Ok(component_modification_list
         // .inner_join(program_ref)
@@ -56,7 +57,7 @@ fn find_all_component_modification(
 }
 
 fn find_uuid_component_modification(
-    context: &Context,
+    context: &Context<'_>,
     uuid_component_search: Uuid,
     limit: i32,
     offset: i32,
@@ -64,7 +65,7 @@ fn find_uuid_component_modification(
     use crate::schema::component_modification_list::dsl::*;
     // use crate::schema::program_ref::dsl::*;
     // use crate::schema::actual_status_ref::dsl::*;
-    let conn: &PooledConnection = &context.db;
+    let conn: &PooledConnection = &get_conn(&context)?;
 
     Ok(component_modification_list
         // .inner_join(program_ref)
