@@ -38,8 +38,8 @@ pub(crate) fn get_slim_user(jwt: Claims) -> Result<SlimUser, ServiceError> {
         .map_err(|_| ServiceError::BadRequest("Fail get SlimUser from Claims.".to_string()))
 }
 
-/// update token for authorized user
-pub(crate) fn update(context: &Context<'_>) -> Result<Token, ServiceError> {
+/// updating a token with or without removing the old one
+pub(crate) fn update(context: &Context<'_>, flag_delete_token: bool) -> Result<Token, ServiceError> {
     let conn: &PooledConnection = &get_conn(&context)?;
     // get old token
     let old_token = user::token::token_from_context(&context)?;
@@ -48,8 +48,10 @@ pub(crate) fn update(context: &Context<'_>) -> Result<Token, ServiceError> {
     let old_data = user::token::decode(old_token.as_str())?;
     // println!("Token, old_data: {:?}", &old_data);
     if check_token(old_token.as_str(), conn)? {
-        // deactivate old token
-        delete_token(old_token.as_str(), conn)?;
+        if flag_delete_token {
+            // deactivate old token
+            delete_token(old_token.as_str(), conn)?;
+        }
         // get data from old token
         let user = user::token::get_slim_user(old_data)?;
         // println!("Token, user: {:?}", &user);

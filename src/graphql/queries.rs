@@ -73,8 +73,12 @@ impl QueryRoot {
         )
     }
 
+    async fn get_token(&self, context: &Context<'_>) -> ServiceResult<Token> {
+        user::token::update(&context, false)
+    }
+
     async fn update_token(&self, context: &Context<'_>) -> ServiceResult<Token> {
-        user::token::update(&context)
+        user::token::update(&context, true)
     }
 
     async fn decode_token(&self, context: &Context<'_>) -> ServiceResult<Claims> {
