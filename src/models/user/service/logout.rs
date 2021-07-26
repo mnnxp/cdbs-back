@@ -9,7 +9,7 @@ pub(crate) fn logout(
     let conn: &PooledConnection = &get_conn(&context)?;
 
     let target_token = user::token::token_from_context(&context)?;
-    user::token::disable_token(&target_token, conn)?;
+    user::token::delete_token(&target_token, conn)?;
 
     // Ok(true)
     Ok("Good Luck".to_string())

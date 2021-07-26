@@ -70,12 +70,12 @@ impl QueryRoot {
         user::token::decode(&token)
     }
 
-    async fn disable_all_tokens( &self, context: &Context<'_>) -> ServiceResult<String> {
+    async fn delete_all_tokens( &self, context: &Context<'_>) -> ServiceResult<String> {
         let target_auth_uuid_user = crate::models::user::get_auth_uuid_user(context)?;
         let deactivated_tokens = format!(
             "Deactivated tokens: {}",
             // deactivate all user token
-            user::token::disable_all_tokens(
+            user::token::delete_all_tokens(
                 target_auth_uuid_user,
                 context
             )?

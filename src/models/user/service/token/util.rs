@@ -34,7 +34,7 @@ pub(crate) fn update(context: &Context<'_>) -> Result<Token, ServiceError> {
     // println!("Token, old_data: {:?}", &old_data);
     if check_token(old_token.as_str(), conn)? {
         // deactivate old token
-        disable_token(&old_token, conn)?;
+        delete_token(&old_token, conn)?;
         // get data from old token
         let user = user::token::get_slim_user(old_data)?;
         // println!("Token, user: {:?}", &user);
@@ -60,25 +60,22 @@ pub(crate) fn update(context: &Context<'_>) -> Result<Token, ServiceError> {
 }
 
 /// disable token to table user_tokens_ref of database
-pub(crate) fn disable_token(target_token: &str, conn: &PooledConnection) -> Result<UserToken, ServiceError> {
+pub(crate) fn delete_token(target_token: &str, conn: &PooledConnection) -> Result<UserToken, ServiceError> {
     use crate::schema::user_tokens_ref::dsl::*;
 
-    let updated_token: UserToken = diesel::update(user_tokens_ref)
+    let updated_token: UserToken = diesel::delete(user_tokens_ref)
         .filter(token.eq(&target_token))
-        .set(is_enabled.eq(false))
         .get_result(conn)?;
     Ok(updated_token)
 }
 
 /// disable token to table user_tokens_ref of database
-pub(crate) fn disable_all_tokens(target_auth_uuid_user: Uuid, context: &Context<'_>) -> Result<i32, ServiceError> {
+pub(crate) fn delete_all_tokens(target_auth_uuid_user: Uuid, context: &Context<'_>) -> Result<i32, ServiceError> {
     let conn: &PooledConnection = &get_conn(&context)?;
     use crate::schema::user_tokens_ref::dsl::*;
 
-    let updated_token: usize = diesel::update(user_tokens_ref)
-        .filter(uuid_user.eq(&target_auth_uuid_user))
-        .filter(is_enabled.eq(true))
-        .set(is_enabled.eq(false))
+    let updated_token: usize = diesel::delete(user_tokens_ref)
+        .filter(uuid_user.eq_all(&target_auth_uuid_user))
         .execute(conn)?;
     Ok(updated_token as i32)
 }
@@ -106,20 +103,11 @@ pub(crate) fn write_token(new_token: &str, jwt: Claims, conn: &PooledConnection)
 pub(crate) fn check_token(target_token: &str, conn: &PooledConnection) -> Result<bool, ServiceError> {
     use crate::schema::user_tokens_ref::dsl::*;
 
-    // todo!(check end_at token)
-    // let timestamp_now = chrono::Local::now().timestamp();
-    // Ok(diesel::sql_query(format!(
-    //         "SELECT is_enabled \
-    //          FROM user_tokens_ref \
-    //          WHERE target_token = {} \
-    //          AND is_end AS TIMESTAMP WITHOUT TIME ZONE > {} \
-    //          LIMIT 1;",
-    //          target_token,
-    //          timestamp_now)
-    //      ).load(conn).unwrap())
+    let naive_local_now = chrono::Local::now().naive_local();
 
     Ok(user_tokens_ref
         .filter(token.eq(target_token))
+        .filter(end_at.gt(naive_local_now))
         .select(is_enabled)
         .first(conn).unwrap_or(false))
 }

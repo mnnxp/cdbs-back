@@ -1,20 +1,10 @@
-// use std::sync::Arc;
-
-// use crate::graphql::model::Context;
-// use crate::models::user::model::LoggedUser;
 use actix_web::{web, HttpRequest, HttpResponse, Result};
-// use actix_web::{error, Error};
-
 use async_graphql::http::playground_source;
 use async_graphql::http::GraphQLPlaygroundConfig;
 use async_graphql::{EmptySubscription, Schema};
-// use async_graphql::SchemaBuilder;
 use async_graphql_actix_web::{Request, Response};
-// use async_graphql_actix_web::{BatchRequest, Request, Response};
-
 use crate::cli_args::Opt;
 use crate::database::Pool;
-// use crate::database::{db_connection, Pool};
 use crate::graphql::{mutations::MutationRoot, queries::QueryRoot};
 use crate::jwt::util::token_from_request;
 
@@ -28,10 +18,6 @@ pub async fn build_schema(pool: Pool) -> ActixSchema {
         .finish()
 }
 
-// pub fn build_schema() -> ActixSchema  {
-//   Schema::new(QueryRoot, MutationRoot, EmptySubscription)
-// }
-
 pub async fn graphql(
     schema: web::Data<ActixSchema>,
     req: HttpRequest,
@@ -42,11 +28,7 @@ pub async fn graphql(
     // opt: web::Data<Opt>
 ) -> Response {
     let token = token_from_request(&req);
-    // let decode_token: DecodedToken;
-    // let token = req
-    //     .headers()
-    //     .get("Token")
-    //     .and_then(|value| value.to_str().map(|s| MyToken(s.to_string())).ok());
+
     let mut request = gql_request.into_inner();
 
     match token {
@@ -56,11 +38,6 @@ pub async fn graphql(
             request = request.data(token)
         }
     }
-
-    // if token.is_some() {
-    //     println!("match Some: {:?}", token);
-    //     request = request.data(token);
-    // }
 
     schema.execute(request).await.into()
 }
