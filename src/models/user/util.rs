@@ -38,7 +38,7 @@ pub(crate) fn verify(user: &User, password: &str) -> bool {
 /// checking user authorization
 pub(crate) fn is_authorized(context: &Context<'_>) -> Result<bool, ServiceError> {
     let conn: &PooledConnection = &get_conn(&context)?;
-    let token = user::token::token_from_context(context)?;
+    let token = user::token::token_from_context(&context)?;
     if user::token::check_token(token.as_str(), conn)? {
         Ok(true)
     } else {
@@ -50,8 +50,8 @@ pub(crate) fn is_authorized(context: &Context<'_>) -> Result<bool, ServiceError>
 pub(crate) fn get_auth_uuid_user(context: &Context<'_>) -> Result<Uuid, ServiceError> {
     let conn: &PooledConnection = &get_conn(&context)?;
     // println!("get_auth_uuid_user:");
-    let target_token = user::token::token_from_context(context)?;
-    // println!("token: {:#?}", token);
+    let target_token = user::token::token_from_context(&context)?;
+    // println!("token: {:#?}", &target_token);
     user::token::whose_token(target_token.as_str(), conn)
 }
 

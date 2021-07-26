@@ -627,7 +627,6 @@ table! {
         token -> Varchar,
         start_at -> Timestamp,
         end_at -> Timestamp,
-        is_enabled -> Bool,
     }
 }
 

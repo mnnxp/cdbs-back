@@ -14,6 +14,7 @@ use crate::models::component::param as component_param;
 use crate::models::component::param::model::{Param, ParamToModel};
 use crate::models::component::service as component;
 use crate::models::user::model::{SlimUser, ShowUser};
+use crate::models::user::service::token::model::UserToken;
 use crate::models::user::notification::model::Notification;
 use crate::models::user::notification::service as notification;
 use crate::models::user::service as user;
@@ -52,28 +53,54 @@ impl QueryRoot {
     }
 
     // return SlimUser data auth user
-    async fn myself( &self, context: &Context<'_>) -> ServiceResult<SlimUser> {
+    async fn myself(&self, context: &Context<'_>) -> ServiceResult<SlimUser> {
         // get the token of the authorized user
-        let token_data = user::token::token_from_context(context)?;
+        let token_data = user::token::token_from_context(&context)?;
         // decode token
         let token_data = user::token::decode(&token_data)?;
         // get SlimUser from jwt
         user::token::get_slim_user(token_data)
     }
 
-    async fn update_token( &self, context: &Context<'_>) -> ServiceResult<Token> {
+    async fn show_tokens(
+        &self,
+        context: &Context<'_>
+    ) -> ServiceResult<Vec<UserToken>> {
+        let auth_uuid_user = crate::models::user::get_auth_uuid_user(&context)?;
+        user::token::show_tokens(auth_uuid_user, context)
+    }
+
+    async fn update_token(&self, context: &Context<'_>) -> ServiceResult<Token> {
         user::token::update(context)
     }
 
-    async fn decode_token( &self, context: &Context<'_>) -> ServiceResult<Claims> {
-        let token = user::token::token_from_context(context)?;
+    async fn decode_token(&self, context: &Context<'_>) -> ServiceResult<Claims> {
+        let token = user::token::token_from_context(&context)?;
         user::token::decode(&token)
     }
 
-    async fn delete_all_tokens( &self, context: &Context<'_>) -> ServiceResult<String> {
-        let target_auth_uuid_user = crate::models::user::get_auth_uuid_user(context)?;
+    async fn delete_token(
+        &self,
+        context: &Context<'_>,
+        token: String,
+    ) -> ServiceResult<String> {
+        let auth_uuid_user = crate::models::user::get_auth_uuid_user(&context)?;
         let deactivated_tokens = format!(
-            "Deactivated tokens: {}",
+            "removed {} tokens.",
+            // deactivate all user token
+            user::token::delete_user_token(
+                token.as_str(),
+                auth_uuid_user,
+                context
+            )?
+        );
+        Ok(deactivated_tokens)
+    }
+
+    async fn delete_all_tokens(&self, context: &Context<'_>) -> ServiceResult<String> {
+        let target_auth_uuid_user = crate::models::user::get_auth_uuid_user(&context)?;
+        let deactivated_tokens = format!(
+            "removed {} tokens.",
             // deactivate all user token
             user::token::delete_all_tokens(
                 target_auth_uuid_user,
@@ -83,9 +110,9 @@ impl QueryRoot {
         Ok(deactivated_tokens)
     }
 
-    async fn logout( &self, context: &Context<'_> ) -> ServiceResult<String> {
+    async fn logout(&self, context: &Context<'_> ) -> ServiceResult<String> {
         // deactivate user token
-        Ok(user::logout(context)?)
+        Ok(user::logout(&context)?)
     }
 
     async fn notifications(
@@ -95,13 +122,21 @@ impl QueryRoot {
         limit: Option<i32>,
         offset: Option<i32>,
     ) -> ServiceResult<Vec<Notification>> {
+        let target_auth_uuid_user = crate::models::user::get_auth_uuid_user(&context)?;
+
         let id_notification: i32 = id_notification.unwrap_or(0);
         let limit: i32 = limit.unwrap_or(100);
         let offset: i32 = offset.unwrap_or(0);
 
-        let target_auth_uuid_user = crate::models::user::get_auth_uuid_user(context)?;
+        println!("notifications: {:#?}", &target_auth_uuid_user);
 
-        notification::list::get_notifications(context, id_notification, target_auth_uuid_user, limit, offset)
+        notification::list::get_notifications(
+            id_notification,
+            target_auth_uuid_user,
+            limit,
+            offset,
+            context,
+        )
     }
 
     async fn files(

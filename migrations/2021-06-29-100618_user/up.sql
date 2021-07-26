@@ -32,7 +32,7 @@ CREATE TABLE user_tokens_ref (
   token VARCHAR(4096) NOT NULL, /* токен пользователя */
   start_at TIMESTAMP NOT NULL DEFAULT NOW(), /* дата создания токена */
   end_at TIMESTAMP NOT NULL DEFAULT NOW(), /* дата окончания действия токена */
-  is_enabled BOOLEAN NOT NULL DEFAULT 't',
+  -- is_enabled BOOLEAN NOT NULL DEFAULT 't',
   CHECK(start_at<end_at),
   CONSTRAINT user_tokens_ref_pk PRIMARY KEY (uuid_user, token)
 );

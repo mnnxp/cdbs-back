@@ -1,6 +1,6 @@
 use crate::schema::*;
-// use async_graphql::types::ID;
-// use async_graphql::*;
+use async_graphql::types::ID;
+use async_graphql::*;
 use chrono::*;
 use uuid::Uuid;
 
@@ -10,7 +10,6 @@ pub struct UserToken {
     pub token: String,
     pub start_at: NaiveDateTime,
     pub end_at: NaiveDateTime,
-    pub is_enabled: bool,
 }
 
 #[derive(Debug, Insertable)]
@@ -20,27 +19,23 @@ pub struct InsertableUserToken {
     pub token: String,
     pub start_at: NaiveDateTime,
     pub end_at: NaiveDateTime,
-    pub is_enabled: bool,
 }
 
-// #[Object]
-// impl UserToken {
-//     async fn uuid_user(&self) -> ID {
-//         self.uuid_user.into()
-//     }
-//     async fn token(&self) -> &String {
-//         &self.token
-//     }
-//     async fn start_at(&self) -> &NaiveDateTime {
-//         &self.start_at
-//     }
-//     async fn end_at(&self) -> &NaiveDateTime {
-//         &self.end_at
-//     }
-//     async fn is_enabled(&self) -> &bool {
-//         &self.is_enabled
-//     }
-// }
+#[Object]
+impl UserToken {
+    async fn uuid_user(&self) -> ID {
+        self.uuid_user.into()
+    }
+    async fn token(&self) -> &String {
+        &self.token
+    }
+    async fn start_at(&self) -> &NaiveDateTime {
+        &self.start_at
+    }
+    async fn end_at(&self) -> &NaiveDateTime {
+        &self.end_at
+    }
+}
 
 impl From<UserToken> for InsertableUserToken {
     fn from(user_data: UserToken) -> Self {
@@ -49,7 +44,6 @@ impl From<UserToken> for InsertableUserToken {
             token,
             start_at,
             end_at,
-            is_enabled,
             ..
         } = user_data;
 
@@ -58,7 +52,6 @@ impl From<UserToken> for InsertableUserToken {
             token,
             start_at,
             end_at,
-            is_enabled,
         }
     }
 }

@@ -18,16 +18,31 @@ pub(crate) fn token_from_context(context: &Context<'_>) -> Result<String, Servic
     }
 }
 
+/// show all tokens for uuid_user
+pub(crate) fn show_tokens(
+    auth_uuid_user: Uuid,
+    context: &Context<'_>
+) -> Result<Vec<UserToken>, ServiceError> {
+    let conn: &PooledConnection = &get_conn(&context)?;
+    use crate::schema::user_tokens_ref::dsl::*;
+
+    user_tokens_ref
+        .filter(uuid_user.eq(auth_uuid_user))
+        .load(conn)
+        .map_err(|_| ServiceError::BadRequest("Token not found.".to_string()))
+}
+
 /// get SlimUser from Claims
 pub(crate) fn get_slim_user(jwt: Claims) -> Result<SlimUser, ServiceError> {
-    SlimUser::try_from(jwt).map_err(|e| ServiceError::BadRequest(e.to_string()))
+    SlimUser::try_from(jwt)
+        .map_err(|_| ServiceError::BadRequest("Fail get SlimUser from Claims.".to_string()))
 }
 
 /// update token for authorized user
 pub(crate) fn update(context: &Context<'_>) -> Result<Token, ServiceError> {
     let conn: &PooledConnection = &get_conn(&context)?;
     // get old token
-    let old_token = user::token::token_from_context(context)?;
+    let old_token = user::token::token_from_context(&context)?;
     // println!("Token, old_token: {:?}", &old_token);
     // decrypt old token
     let old_data = user::token::decode(old_token.as_str())?;
@@ -59,7 +74,7 @@ pub(crate) fn update(context: &Context<'_>) -> Result<Token, ServiceError> {
     }
 }
 
-/// disable token to table user_tokens_ref of database
+/// delete token to table user_tokens_ref of database
 pub(crate) fn delete_token(target_token: &str, conn: &PooledConnection) -> Result<UserToken, ServiceError> {
     use crate::schema::user_tokens_ref::dsl::*;
 
@@ -69,8 +84,27 @@ pub(crate) fn delete_token(target_token: &str, conn: &PooledConnection) -> Resul
     Ok(updated_token)
 }
 
-/// disable token to table user_tokens_ref of database
-pub(crate) fn delete_all_tokens(target_auth_uuid_user: Uuid, context: &Context<'_>) -> Result<i32, ServiceError> {
+/// delete target token to table user_tokens_ref of database
+pub(crate) fn delete_user_token(
+    target_token: &str,
+    auth_uuid_user: Uuid,
+    context: &Context<'_>
+) -> Result<i32, ServiceError> {
+    let conn: &PooledConnection = &get_conn(&context)?;
+    use crate::schema::user_tokens_ref::dsl::*;
+
+    let updated_token: usize = diesel::delete(user_tokens_ref)
+        .filter(uuid_user.eq(&auth_uuid_user))
+        .filter(token.eq(&target_token))
+        .execute(conn)?;
+    Ok(updated_token as i32)
+}
+
+/// delete tokens to table user_tokens_ref of database
+pub(crate) fn delete_all_tokens(
+    target_auth_uuid_user: Uuid,
+    context: &Context<'_>
+) -> Result<i32, ServiceError> {
     let conn: &PooledConnection = &get_conn(&context)?;
     use crate::schema::user_tokens_ref::dsl::*;
 
@@ -90,7 +124,6 @@ pub(crate) fn write_token(new_token: &str, jwt: Claims, conn: &PooledConnection)
         token: new_token.to_string(),
         start_at: NaiveDateTime::from_timestamp(jwt.iat, 0),
         end_at: NaiveDateTime::from_timestamp(jwt.exp, 0),
-        is_enabled: true,
     };
 
     let inserted_token: UserToken = diesel::insert_into(user_tokens_ref)
@@ -100,16 +133,24 @@ pub(crate) fn write_token(new_token: &str, jwt: Claims, conn: &PooledConnection)
 }
 
 /// check valide token
-pub(crate) fn check_token(target_token: &str, conn: &PooledConnection) -> Result<bool, ServiceError> {
+pub(crate) fn check_token(
+    target_token: &str,
+    conn: &PooledConnection
+) -> Result<bool, ServiceError> {
     use crate::schema::user_tokens_ref::dsl::*;
 
     let naive_local_now = chrono::Local::now().naive_local();
 
-    Ok(user_tokens_ref
+    let find_token = user_tokens_ref
         .filter(token.eq(target_token))
         .filter(end_at.gt(naive_local_now))
-        .select(is_enabled)
-        .first(conn).unwrap_or(false))
+        .execute(conn).unwrap();
+
+    match find_token as i32 {
+        0 => Ok(false),
+        1 => Ok(true),
+        _ => Err(ServiceError::InternalServerError),
+    }
 }
 
 /// get the uuid_user who owns the token
@@ -120,5 +161,5 @@ pub(crate) fn whose_token(target_token: &str, conn: &PooledConnection) -> Result
         .filter(token.eq(target_token))
         .select(uuid_user)
         .first(conn)
-        .map_err(|_| ServiceError::BadRequest("Token not found.".to_string()))
+        .map_err(|e| ServiceError::BadRequest(e.to_string()))
 }
