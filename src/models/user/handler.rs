@@ -21,13 +21,11 @@ pub(super) async fn login(
     let conn: &PooledConnection = &db_connection(&pool)?;
 
     user::login(&auth_data.user.username, &auth_data.user.password, conn).and_then(|res| {
-        let user_string =
-            serde_json::to_string(&res).map_err(|_| ServiceError::InternalServerError)?;
-        debug!("user_string={}", user_string);
+        serde_json::to_string(&res).map_err(|_| ServiceError::InternalServerError)?;
+        // debug!("user_string={}", user_string);
 
         // generate new token for user
         let new_token = user::token::generate(&res)?;
-        // println!("Token, new_token: {:?}", &new_token);
 
         match new_token.bearer {
             None => Err(ServiceError::InternalServerError),
