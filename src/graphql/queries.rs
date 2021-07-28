@@ -42,6 +42,9 @@ impl QueryRoot {
         limit: Option<i32>,
         offset: Option<i32>,
     ) -> ServiceResult<Vec<ShowUser>> {
+        // authorization check
+        crate::models::user::util::check_authorized(&context)?;
+
         let uuid_user_create = match uuid {
             None => Uuid::nil(),
             Some(uuid) => Uuid::parse_str(&uuid)?,
@@ -49,11 +52,13 @@ impl QueryRoot {
         let limit: i32 = limit.unwrap_or(100);
         let offset: i32 = offset.unwrap_or(0);
 
-        user::list::get_users(context, uuid_user_create, limit, offset)
+        user::list::get_users(&context, uuid_user_create, limit, offset)
     }
 
     // return SlimUser data auth user
     async fn myself(&self, context: &Context<'_>) -> ServiceResult<SlimUser> {
+        // authorization check
+        crate::models::user::util::check_authorized(&context)?;
         // get the token of the authorized user
         let token_data = user::token::token_from_context(&context)?;
         // decode token
@@ -66,7 +71,7 @@ impl QueryRoot {
         &self,
         context: &Context<'_>
     ) -> ServiceResult<Vec<UserToken>> {
-        let auth_uuid_user = crate::models::user::get_auth_uuid_user(&context)?;
+        let auth_uuid_user = crate::models::user::get_auth_uuid_user(&context, true)?;
         user::token::show_tokens(
             &context,
             auth_uuid_user,
@@ -82,6 +87,8 @@ impl QueryRoot {
     }
 
     async fn decode_token(&self, context: &Context<'_>) -> ServiceResult<Claims> {
+        // authorization check
+        crate::models::user::util::check_authorized(&context)?;
         let token = user::token::token_from_context(&context)?;
         user::token::decode(&token)
     }
@@ -91,9 +98,9 @@ impl QueryRoot {
         context: &Context<'_>,
         token: String,
     ) -> ServiceResult<String> {
-        let auth_uuid_user = crate::models::user::get_auth_uuid_user(&context)?;
+        let auth_uuid_user = crate::models::user::get_auth_uuid_user(&context, true)?;
         let deactivated_tokens = format!(
-            "removed {} tokens.",
+            "removed {} token.",
             // deactivate all user token
             user::token::delete_user_token(
                 &context,
@@ -105,7 +112,7 @@ impl QueryRoot {
     }
 
     async fn delete_all_tokens(&self, context: &Context<'_>) -> ServiceResult<String> {
-        let target_auth_uuid_user = crate::models::user::get_auth_uuid_user(&context)?;
+        let target_auth_uuid_user = crate::models::user::get_auth_uuid_user(&context, true)?;
         let deactivated_tokens = format!(
             "removed {} tokens.",
             // deactivate all user token
@@ -133,7 +140,7 @@ impl QueryRoot {
         let limit: i32 = limit.unwrap_or(100);
         let offset: i32 = offset.unwrap_or(0);
 
-        let target_auth_uuid_user = crate::models::user::get_auth_uuid_user(&context)?;
+        let target_auth_uuid_user = crate::models::user::get_auth_uuid_user(&context, true)?;
 
         notification::list::get_notifications(
             &context,

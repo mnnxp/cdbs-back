@@ -36,24 +36,37 @@ pub(crate) fn verify(user: &User, password: &str) -> bool {
 }
 
 /// checking user authorization
-pub(crate) fn is_authorized(context: &Context<'_>) -> Result<bool, ServiceError> {
+pub(crate) fn check_authorized(context: &Context<'_>) -> Result<bool, ServiceError> {
     let conn: &PooledConnection = &get_conn(&context)?;
     let token = user::token::token_from_context(&context)?;
-    if user::token::check_token(token.as_str(), conn)? {
-        Ok(true)
-    } else {
-        Err(ServiceError::Unauthorized)
+
+    match user::token::check_token(token.as_str(), conn)? {
+        true => Ok(true),
+        false => Err(ServiceError::Unauthorized),
     }
 }
 
-/// get uuid_user of the authorized user
-pub(crate) fn get_auth_uuid_user(context: &Context<'_>) -> Result<Uuid, ServiceError> {
+/// get uuid_user of the authorized user with and without checking
+pub(crate) fn get_auth_uuid_user(
+    context: &Context<'_>,
+    need_check: bool
+) -> Result<Uuid, ServiceError> {
     let conn: &PooledConnection = &get_conn(&context)?;
     let target_token = user::token::token_from_context(&context)?;
-    user::token::whose_token(target_token.as_str(), conn)
+
+    match need_check {
+        false => user::token::whose_token(target_token.as_str(), conn),
+        true => {
+            if user::token::check_token(target_token.as_str(), conn)? {
+                user::token::whose_token(target_token.as_str(), conn)
+            } else {
+                Err(ServiceError::Unauthorized)
+            }
+        }
+    }
 }
 
 /// comparison of the received uuid_user with the uuid_user of the authorized user
 pub(crate) fn compare_uuid_user(target_auth_uuid_user: Uuid, context: &Context<'_>) -> Result<bool, ServiceError> {
-    Ok(get_auth_uuid_user(&context)? == target_auth_uuid_user)
+    Ok(get_auth_uuid_user(&context, false)? == target_auth_uuid_user)
 }

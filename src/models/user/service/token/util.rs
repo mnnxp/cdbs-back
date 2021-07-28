@@ -13,8 +13,8 @@ use uuid::Uuid;
 /// get token from request
 pub(crate) fn token_from_context(context: &Context<'_>) -> Result<String, ServiceError> {
     match context.data_opt::<String>() {
-        None => Err(ServiceError::Unauthorized),
         Some(token) => Ok(token.to_string()),
+        None => Err(ServiceError::BadRequest("Token not found.".to_string())),
     }
 }
 
@@ -29,7 +29,7 @@ pub(crate) fn show_tokens(
     user_tokens_ref
         .filter(uuid_user.eq(auth_uuid_user))
         .load(conn)
-        .map_err(|_| ServiceError::BadRequest("Token not found.".to_string()))
+        .map_err(|e| ServiceError::BadRequest(e.to_string()))
 }
 
 /// get SlimUser from Claims
@@ -43,9 +43,9 @@ pub(crate) fn update(context: &Context<'_>, flag_delete_token: bool) -> Result<T
     let conn: &PooledConnection = &get_conn(&context)?;
     // get old token
     let old_token = user::token::token_from_context(&context)?;
-    // decrypt old token
-    let old_data = user::token::decode(old_token.as_str())?;
     if check_token(old_token.as_str(), conn)? {
+        // decrypt old token
+        let old_data = user::token::decode(old_token.as_str())?;
         if flag_delete_token {
             // deactivate old token
             delete_token(old_token.as_str(), conn)?;
@@ -149,7 +149,7 @@ pub(crate) fn check_token(
     match find_token as i32 {
         0 => Ok(false),
         1 => Ok(true),
-        _ => Err(ServiceError::InternalServerError),
+        _ => Err(ServiceError::BadRequest("Duplicate token found.".to_string())),
     }
 }
 
