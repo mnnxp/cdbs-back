@@ -43,7 +43,7 @@ impl QueryRoot {
         offset: Option<i32>,
     ) -> ServiceResult<Vec<ShowUser>> {
         // authorization check
-        crate::models::user::util::check_authorized(&context)?;
+        crate::models::user::util::check_authorized(context)?;
 
         let uuid_user_create = match uuid {
             None => Uuid::nil(),
@@ -52,15 +52,15 @@ impl QueryRoot {
         let limit: i32 = limit.unwrap_or(100);
         let offset: i32 = offset.unwrap_or(0);
 
-        user::list::get_users(&context, uuid_user_create, limit, offset)
+        user::list::get_users(context, uuid_user_create, limit, offset)
     }
 
     // return SlimUser data auth user
     async fn myself(&self, context: &Context<'_>) -> ServiceResult<SlimUser> {
         // authorization check
-        crate::models::user::util::check_authorized(&context)?;
+        crate::models::user::util::check_authorized(context)?;
         // get the token of the authorized user
-        let token_data = user::token::token_from_context(&context)?;
+        let token_data = user::token::token_from_context(context)?;
         // decode token
         let token_data = user::token::decode(&token_data)?;
         // get SlimUser from jwt
@@ -71,25 +71,25 @@ impl QueryRoot {
         &self,
         context: &Context<'_>
     ) -> ServiceResult<Vec<UserToken>> {
-        let auth_uuid_user = crate::models::user::get_auth_uuid_user(&context, true)?;
+        let auth_uuid_user = crate::models::user::get_auth_uuid_user(context, true)?;
         user::token::show_tokens(
-            &context,
+            context,
             auth_uuid_user,
         )
     }
 
     async fn get_token(&self, context: &Context<'_>) -> ServiceResult<Token> {
-        user::token::update(&context, false)
+        user::token::update(context, false)
     }
 
     async fn update_token(&self, context: &Context<'_>) -> ServiceResult<Token> {
-        user::token::update(&context, true)
+        user::token::update(context, true)
     }
 
     async fn decode_token(&self, context: &Context<'_>) -> ServiceResult<Claims> {
         // authorization check
-        crate::models::user::util::check_authorized(&context)?;
-        let token = user::token::token_from_context(&context)?;
+        crate::models::user::util::check_authorized(context)?;
+        let token = user::token::token_from_context(context)?;
         user::token::decode(&token)
     }
 
@@ -98,12 +98,12 @@ impl QueryRoot {
         context: &Context<'_>,
         token: String,
     ) -> ServiceResult<String> {
-        let auth_uuid_user = crate::models::user::get_auth_uuid_user(&context, true)?;
+        let auth_uuid_user = crate::models::user::get_auth_uuid_user(context, true)?;
         let deactivated_tokens = format!(
             "removed {} token.",
             // deactivate all user token
             user::token::delete_user_token(
-                &context,
+                context,
                 token.as_str(),
                 auth_uuid_user,
             )?
@@ -112,12 +112,12 @@ impl QueryRoot {
     }
 
     async fn delete_all_tokens(&self, context: &Context<'_>) -> ServiceResult<String> {
-        let target_auth_uuid_user = crate::models::user::get_auth_uuid_user(&context, true)?;
+        let target_auth_uuid_user = crate::models::user::get_auth_uuid_user(context, true)?;
         let deactivated_tokens = format!(
             "removed {} tokens.",
             // deactivate all user token
             user::token::delete_all_tokens(
-                &context,
+                context,
                 target_auth_uuid_user,
             )?
         );
@@ -126,7 +126,7 @@ impl QueryRoot {
 
     async fn logout(&self, context: &Context<'_> ) -> ServiceResult<String> {
         // removed user token
-        user::logout(&context)
+        user::logout(context)
     }
 
     async fn notifications(
@@ -140,10 +140,10 @@ impl QueryRoot {
         let limit: i32 = limit.unwrap_or(100);
         let offset: i32 = offset.unwrap_or(0);
 
-        let target_auth_uuid_user = crate::models::user::get_auth_uuid_user(&context, true)?;
+        let target_auth_uuid_user = crate::models::user::get_auth_uuid_user(context, true)?;
 
         notification::list::get_notifications(
-            &context,
+            context,
             id_notification,
             target_auth_uuid_user,
             limit,
@@ -177,7 +177,7 @@ impl QueryRoot {
         let offset: i32 = offset.unwrap_or(0);
 
         file::list::get_files(
-            &context,
+            context,
             uuid_user_create,
             uuid_component,
             uuid_component_modification,
@@ -220,7 +220,7 @@ impl QueryRoot {
         let offset: i32 = offset.unwrap_or(0);
 
         component_modification::list::get_component_modifications(
-            &context,
+            context,
             uuid_component,
             limit,
             offset,
@@ -258,7 +258,7 @@ impl QueryRoot {
         let offset: i32 = offset.unwrap_or(0);
 
         component_license::service::list_component::get_licenses_component(
-            &context,
+            context,
             id_license,
             uuid_component,
             limit,
@@ -297,7 +297,7 @@ impl QueryRoot {
         let offset: i32 = offset.unwrap_or(0);
 
         component_param::service::list_component::get_params_component(
-            &context,
+            context,
             id_param,
             uuid_component,
             limit,
@@ -322,7 +322,7 @@ impl QueryRoot {
         let offset: i32 = offset.unwrap_or(0);
 
         component_param::service::list_modification::get_params_modification(
-            &context,
+            context,
             id_param,
             uuid_modification,
             limit,
@@ -337,6 +337,9 @@ impl QueryRoot {
         limit: Option<i32>,
         offset: Option<i32>,
     ) -> ServiceResult<Vec<ShowCompany>> {
+        // authorization check
+        crate::models::user::util::check_authorized(context)?;
+
         let uuid_company = match uuid_company {
             None => Uuid::nil(),
             Some(uuid_company) => Uuid::parse_str(&uuid_company)?,
@@ -346,7 +349,7 @@ impl QueryRoot {
         let offset: i32 = offset.unwrap_or(0);
 
         company::list::get_companies(
-            &context,
+            context,
             uuid_company,
             limit,
             offset
@@ -369,7 +372,7 @@ impl QueryRoot {
         let offset: i32 = offset.unwrap_or(0);
 
         company_represent::list::get_company_represents(
-            &context,
+            context,
             uuid_company,
             limit,
             offset
@@ -392,7 +395,7 @@ impl QueryRoot {
         let offset: i32 = offset.unwrap_or(0);
 
         standard::list::get_standards(
-            &context,
+            context,
             uuid_standard,
             limit,
             offset
