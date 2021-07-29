@@ -109,7 +109,7 @@ describe('users', () => {
       .post('/graphql')
       .send({
         query: `mutation  {
-            userRegister( data: {
+            registerUser( data: {
                 email: "testemail@mail.ru",
                 firstname: "test_firstname",
                 lastname: "test_lastname",
@@ -134,12 +134,12 @@ describe('users', () => {
       .expect(HttpStatus.OK)
     debug('/graphql users=%o', body);
     const {
-      data: { userRegister },
+      data: { registerUser },
     } = body;
-    expect(userRegister).toContainAllKeys(['uuid', 'idProgram', 'username']);
-    expect(userRegister.uuid).toBeNonEmptyString();
-    expect(userRegister.idProgram).toBe(1);
-    expect(userRegister.username).toBe(username);
+    expect(registerUser).toContainAllKeys(['uuid', 'idProgram', 'username']);
+    expect(registerUser.uuid).toBeNonEmptyString();
+    expect(registerUser.idProgram).toBe(1);
+    expect(registerUser.username).toBe(username);
     done();
   });
 
@@ -148,7 +148,7 @@ describe('users', () => {
       .post('/graphql')
       .send({
         query: `mutation  {
-            userRegister( data: {
+            registerUser( data: {
                 email: "testemail@mail.ru",
                 firstname: "test_firstname",
                 lastname: "test_lastname",
@@ -173,12 +173,12 @@ describe('users', () => {
       .expect(HttpStatus.OK)
     debug('/graphql users=%o', body);
     const {
-      data: { userRegister },
+      data: { registerUser },
     } = body;
-    expect(userRegister).toContainAllKeys(['uuid', 'idProgram', 'username']);
-    expect(userRegister.uuid).toBeNonEmptyString();
-    expect(userRegister.idProgram).toBe(1);
-    expect(userRegister.username).toBe(username2);
+    expect(registerUser).toContainAllKeys(['uuid', 'idProgram', 'username']);
+    expect(registerUser.uuid).toBeNonEmptyString();
+    expect(registerUser.idProgram).toBe(1);
+    expect(registerUser.username).toBe(username2);
     done();
   });
 
@@ -187,7 +187,7 @@ describe('users', () => {
       .post('/graphql')
       .send({
         query: `mutation  {
-            userRegister( data: {
+            registerUser( data: {
                 email: "testemail@mail.ru",
                 firstname: "test_firstname",
                 lastname: "test_lastname",
