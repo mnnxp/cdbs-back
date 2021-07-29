@@ -36,10 +36,28 @@ const uuidCompanyBase = "2cd385e1-8f7e-4908-8235-dfe42938b46d";
 var uuidCompanyNoSupplier = "";
 var uuidCompanySupplier = "";
 
+// data for represent
+const idRegionRepresentation = 15;
+const idRepresentationType = 1;
+const nameRepresentationFirst = "test first additional office";
+const nameRepresentationSecond = "test second additional office";
+const addressRepresentation = "Fake str, Fantom";
+const phoneRepresentation = "+743874487556";
+const uuidRepresentArray = [];
+var uuidCompanyFirst = "";
+var uuidRepresentFirst = "";
+
 async function cleanupCompanyDb() {
   return global.knex.raw('DELETE FROM company_ref WHERE orgname IN (?,?)', [
     orgname,
     orgname2,
+  ]);
+}
+
+async function cleanupCompanyRepresentDb() {
+  return global.knex.raw('DELETE FROM company_represent_ref WHERE name in (?,?)', [
+    nameRepresentationFirst,
+    nameRepresentationSecond,
   ]);
 }
 
@@ -54,18 +72,18 @@ async function cleanupUserDb() {
   ]);
 }
 
-describe('users', () => {
+describe('company', () => {
   beforeAll(async () => {
+    cleanupCompanyRepresentDb();
     cleanupCompanyDb();
     cleanupTokenDb();
-    cleanupUserDb();
-    return;
+    return cleanupUserDb();
   });
   afterAll(async () => {
+    cleanupCompanyRepresentDb();
     cleanupCompanyDb();
     cleanupTokenDb();
-    cleanupUserDb();
-    return;
+    return cleanupUserDb();
   });
 
   const agent = request.agent(url);
@@ -75,7 +93,7 @@ describe('users', () => {
       .post('/graphql')
       .send({
         query: `mutation  {
-            userRegister( data: {
+            registerUser( data: {
                 email: "testemail@mail.ru",
                 firstname: "test_firstname",
                 lastname: "test_lastname",
@@ -100,12 +118,12 @@ describe('users', () => {
       .expect(HttpStatus.OK)
     debug('/graphql registerUser=%o', body);
     const {
-      data: { userRegister },
+      data: { registerUser },
     } = body;
-    expect(userRegister).toContainAllKeys(['uuid', 'idProgram', 'username']);
-    expect(userRegister.uuid).toBeNonEmptyString();
-    expect(userRegister.idProgram).toBe(1);
-    expect(userRegister.username).toBe(username);
+    expect(registerUser).toContainAllKeys(['uuid', 'idProgram', 'username']);
+    expect(registerUser.uuid).toBeNonEmptyString();
+    expect(registerUser.idProgram).toBe(1);
+    expect(registerUser.username).toBe(username);
     done();
   });
 
@@ -126,7 +144,7 @@ describe('users', () => {
       });
   });
 
-  it('/graphql:M companyRegister - OK Supplier', async (done) => {
+  it('/graphql:M registerCompany - OK Supplier', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .set(
@@ -135,7 +153,7 @@ describe('users', () => {
       )
       .send({
         query: `mutation newCompany {
-         companyRegister( data: {
+         registerCompany( data: {
             orgname: "${orgname}",
             shortname: "${shortname}",
             inn: "${inn}",
@@ -158,18 +176,98 @@ describe('users', () => {
       .expect(HttpStatus.OK)
     debug('/graphql registerCompany=%o', body);
     const {
-      data: { companyRegister },
+      data: { registerCompany },
     } = body;
-    expect(companyRegister.uuid).toBeNonEmptyString();
-    expect(companyRegister.shortname).toBe(shortname);
-    expect(companyRegister.isSupplier).toBe(false);
-    uuidCompanySupplier = companyRegister.uuid;
+    expect(registerCompany.uuid).toBeNonEmptyString();
+    expect(registerCompany.shortname).toBe(shortname);
+    expect(registerCompany.isSupplier).toBe(false);
+    uuidCompanySupplier = registerCompany.uuid;
     done();
     // change supplier status on 1
-    await global.knex.raw('UPDATE company_ref SET is_supplier=? WHERE shortname=?', [
+    await global.knex.raw('UPDATE company_ref SET is_supplier=? WHERE orgname=?', [
       't',
-      shortname,
+      orgname,
     ]);
+  });
+
+  it('/graphql:M registerCompany - OK NoSupplier', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation newCompany {
+         registerCompany( data: {
+            orgname: "${orgname2}",
+            shortname: "${shortname}",
+            inn: "${inn}",
+            phone: "${phoneCompany}",
+            email: "${email}",
+            description: "${description}",
+            address: "${addressCompany}"
+            siteUrl: "${siteUrl}",
+            timeZone: ${timeZone},
+            uuidImageFile: "${uuidImageFile}",
+            idRegion: ${idRegionCompany},
+            idTypeOrg: ${idTypeOrg}
+          }) {
+            uuid
+            shortname
+            isSupplier
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql registerCompany=%o', body);
+    const {
+      data: { registerCompany },
+    } = body;
+    expect(registerCompany.uuid).toBeNonEmptyString();
+    expect(registerCompany.shortname).toBe(shortname);
+    expect(registerCompany.isSupplier).toBe(false);
+    uuidCompanyNoSupplier = registerCompany.uuid;
+    done();
+  });
+
+  it('/graphql:Q companies - OK Select no supplier company', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `query companies {
+        	companies (uuidCompany: "${uuidCompanyNoSupplier}"){
+            uuid
+            orgname
+            shortname
+            inn
+            phone
+            email
+            description
+            address
+            siteUrl
+            timeZone
+            uuidUser
+            uuidImageFile
+            idRegion
+            idTypeOrg
+            isSupplier
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql companies=%o', body);
+    const {
+      data: { companies },
+    } = body;
+    expect(companies[0].uuid).toBe(uuidCompanyNoSupplier);
+    expect(companies[0].orgname).toBe(orgname2);
+    expect(companies[0].isSupplier).toBe(false);
+    done();
   });
 
   it('/graphql:Q companies - OK Select supplier company', async (done) => {
@@ -216,57 +314,12 @@ describe('users', () => {
     done();
   });
 
-  it('/graphql:M companyRegister - OK NoSupplier', async (done) => {
-    const { body } = await agent
+  it('/graphql:Q companies - UNAUTHORIZED List all', async (done) => {
+    const response1 = await agent
       .post('/graphql')
-      .set(
-        'Authorization',
-        `Bearer ${authorizationTokenFirst}`
-      )
-      .send({
-        query: `mutation newCompany {
-         companyRegister( data: {
-            orgname: "${orgname2}",
-            shortname: "${shortname}",
-            inn: "${inn}",
-            phone: "${phoneCompany}",
-            email: "${email}",
-            description: "${description}",
-            address: "${addressCompany}"
-            siteUrl: "${siteUrl}",
-            timeZone: ${timeZone},
-            uuidImageFile: "${uuidImageFile}",
-            idRegion: ${idRegionCompany},
-            idTypeOrg: ${idTypeOrg}
-          }) {
-            uuid
-            shortname
-            isSupplier
-          }
-        }`,
-      })
-      .expect(HttpStatus.OK)
-    debug('/graphql registerCompany=%o', body);
-    const {
-      data: { companyRegister },
-    } = body;
-    expect(companyRegister.uuid).toBeNonEmptyString();
-    expect(companyRegister.shortname).toBe(shortname);
-    expect(companyRegister.isSupplier).toBe(false);
-    uuidCompanyNoSupplier = companyRegister.uuid;
-    done();
-  });
-
-  it('/graphql:Q companies - OK Select no supplier company', async (done) => {
-    const { body } = await agent
-      .post('/graphql')
-      .set(
-        'Authorization',
-        `Bearer ${authorizationTokenFirst}`
-      )
       .send({
         query: `query companies {
-        	companies (uuidCompany: "${uuidCompanyNoSupplier}"){
+        	companies {
             uuid
             orgname
             shortname
@@ -282,17 +335,185 @@ describe('users', () => {
             idRegion
             idTypeOrg
             isSupplier
+            isEmailVerified
+            isEnabled
+            isDelete
+            createdAt
+            updatedAt
           }
         }`,
       })
       .expect(HttpStatus.OK)
-    debug('/graphql companies=%o', body);
+    debug('/graphql body=%o', response1.body);
+    expect(response1.body.data).toBeNull();
+    expect(response1.body.errors[0].message).toBe(
+      'BadRequest: Token not found.'
+    );
+    expect(response1.body.errors[0].path[0]).toBe('companies');
+    done();
+  });
+
+  it('/graphql:Q companies - OK List all', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `query companies {
+        	companies {
+            uuid
+            orgname
+            shortname
+            inn
+            phone
+            email
+            description
+            address
+            siteUrl
+            timeZone
+            uuidUser
+            uuidImageFile
+            idRegion
+            idTypeOrg
+            isSupplier
+            isEmailVerified
+            isEnabled
+            isDelete
+            createdAt
+            updatedAt
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
     const {
       data: { companies },
     } = body;
-    expect(companies[0].uuid).toBe(uuidCompanyNoSupplier);
-    expect(companies[0].orgname).toBe(orgname2);
-    expect(companies[0].isSupplier).toBe(false);
+    expect(companies).toBeNonEmptyArray();
+    expect(companies[0].orgname).toBeNonEmptyString();
+    expect(companies[1].orgname).toBeNonEmptyString();
     done();
   });
+
+  // Test for represent
+  it('/graphql:M registerCompanyRepresent - OK', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation companyRepresentQuery {
+          registerCompanyRepresent( data: {
+            uuidCompany: "${uuidCompanySupplier}",
+            name: "${nameRepresentationFirst}",
+            address: "${addressRepresentation}",
+            phone: "${phoneRepresentation}",
+            idRegion: ${idRegionRepresentation},
+            idRepresentationType: ${idRepresentationType}
+          }) {
+            uuid
+            uuidCompany
+            address
+            phone
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql registerCompanyRepresent body=%o', body);
+    const {
+      data: { registerCompanyRepresent },
+    } = body;
+    expect(registerCompanyRepresent).toContainAllKeys(
+      ["address", "phone", "uuid", "uuidCompany"]
+    );
+    expect(registerCompanyRepresent.uuid).toBeNonEmptyString();
+    expect(registerCompanyRepresent.uuidCompany).toBe(uuidCompanySupplier);
+    expect(registerCompanyRepresent.address).toBe(addressRepresentation);
+    expect(registerCompanyRepresent.phone).toBe(phoneRepresentation);
+    // for test delete represent not owned user
+    uuidRepresentArray.push(registerCompanyRepresent.uuid);
+    done();
+  });
+
+  it('/graphql:M register - Not supplier', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation  {
+            registerCompanyRepresent( data: {
+                uuidCompany: "${uuidCompanyNoSupplier}",
+                name: "${nameRepresentationFirst}",
+                address: "${addressRepresentation}",
+                phone: "${phoneRepresentation}",
+                idRegion: ${idRegionRepresentation},
+                idRepresentationType: ${idRepresentationType}
+            }) {
+                uuid
+                uuidCompany
+                name
+                address
+                phone
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql - body=%o', body);
+    const { errors, data } = body;
+    expect(data).toBeNull();
+    expect(errors[0].message).toBe("BadRequest: The company is not supplier.");
+    done();
+  });
+
+  it('/graphql:Q List companyRepresents - OK', async (done) => {
+    const response1 = await agent
+      .post('/graphql')
+      .send({
+        query: `query ListcompanyRepresents {
+            companyRepresents {
+                uuid
+                uuidCompany
+                name
+                phone
+                idRegion
+                idRepresentationType
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql all body=%o', response1.body);
+    expect(response1.body.data.companyRepresents).toBeNonEmptyArray();
+    done();
+  });
+
+  it('/graphql:Q List companyRepresents with uuidCompany - OK', async (done) => {
+    const response1 = await agent
+      .post('/graphql')
+      .send({
+        query: `query ListcompanyRepresents {
+            companyRepresents (uuidCompany: "${uuidCompanySupplier}") {
+                uuid
+                uuidCompany
+                idRegion
+                name
+                phone
+                idRepresentationType
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql filter body=%o', response1.body);
+    expect(response1.body.data.companyRepresents).toBeNonEmptyArray();
+    expect(response1.body.data.companyRepresents[0].uuidCompany).toBe(uuidCompanySupplier);
+    expect(response1.body.data.companyRepresents.pop().uuidCompany).toBe(uuidCompanySupplier);
+    done();
+  });
+
 });
