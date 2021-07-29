@@ -153,7 +153,7 @@ pub struct IptCompanyData {
     pub address: String,
     pub site_url: String,
     pub time_zone: i32,
-    pub uuid_user: ID,
+    // pub uuid_user: ID,
     pub uuid_image_file: ID,
     pub id_region: i32,
     pub id_type_org: i32,
@@ -176,40 +176,40 @@ pub struct CompanyData {
     pub id_type_org: i32,
 }
 
-impl From<IptCompanyData> for CompanyData {
-    fn from(ipt_data: IptCompanyData) -> Self {
-        let IptCompanyData {
-            orgname,
-            shortname,
-            inn,
-            phone,
-            email,
-            description,
-            address,
-            site_url,
-            time_zone,
-            uuid_user,
-            uuid_image_file,
-            id_region,
-            id_type_org,
-        } = ipt_data;
-        CompanyData {
-            orgname,
-            shortname,
-            inn,
-            phone,
-            email,
-            description,
-            address,
-            site_url,
-            time_zone,
-            uuid_user: Uuid::parse_str(&uuid_user.to_string()).unwrap(),
-            uuid_image_file: Uuid::parse_str(&uuid_image_file.to_string()).unwrap(),
-            id_region,
-            id_type_org,
-        }
-    }
-}
+// impl From<IptCompanyData> for CompanyData {
+//     fn from(ipt_data: IptCompanyData) -> Self {
+//         let IptCompanyData {
+//             orgname,
+//             shortname,
+//             inn,
+//             phone,
+//             email,
+//             description,
+//             address,
+//             site_url,
+//             time_zone,
+//             uuid_user,
+//             uuid_image_file,
+//             id_region,
+//             id_type_org,
+//         } = ipt_data;
+//         CompanyData {
+//             orgname,
+//             shortname,
+//             inn,
+//             phone,
+//             email,
+//             description,
+//             address,
+//             site_url,
+//             time_zone,
+//             uuid_user: Uuid::parse_str(&uuid_user.to_string()).unwrap(),
+//             uuid_image_file: Uuid::parse_str(&uuid_image_file.to_string()).unwrap(),
+//             id_region,
+//             id_type_org,
+//         }
+//     }
+// }
 
 #[Object]
 impl CompanyData {

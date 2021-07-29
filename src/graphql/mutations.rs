@@ -67,7 +67,6 @@ impl MutationRoot {
         use crate::models::user::notification::service::delete::delete_notification;
         let conn: &PooledConnection = &get_conn(&context)?;
 
-        crate::models::user::check_authorized(&context)?;
         let uuid_user = crate::models::user::get_auth_uuid_user(&context, true)?;
 
         Ok(delete_notification(
@@ -125,6 +124,7 @@ impl MutationRoot {
         use component::license::service::register::create_license;
         let conn: &PooledConnection = &get_conn(&context)?;
 
+        // todo!(check owned company)
         crate::models::user::check_authorized(&context)?;
 
         Ok(create_license(data, conn)?)
