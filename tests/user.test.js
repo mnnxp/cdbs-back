@@ -40,11 +40,11 @@ var authorizationTokenFirst = "";
 var authorizationTokenSecond = "";
 var uuidUserFirst = "";
 
-async function cleanupUserDb() {
+async function cleanupTokenDb() {
   return global.knex.raw('DELETE FROM user_tokens_ref');
 }
 
-async function cleanupTokenDb() {
+async function cleanupUserDb() {
   return global.knex.raw('DELETE FROM user_ref WHERE username IN (?,?)', [
     username,
     username2,
@@ -53,13 +53,13 @@ async function cleanupTokenDb() {
 
 describe('users', () => {
   beforeAll(async () => {
-    cleanupTokenDb();
     cleanupUserDb();
+    cleanupTokenDb();
     return;
   });
   afterAll(async () => {
-    cleanupTokenDb();
     cleanupUserDb();
+    cleanupTokenDb();
     return;
   });
 
