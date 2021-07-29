@@ -44,7 +44,7 @@ fn find_all_licenses(
     offset: i32,
 ) -> ServiceResult<Vec<LicenseToComponent>> {
     use crate::schema::license_to_component::dsl::*;
-    let conn: &PooledConnection = &get_conn(&context)?;
+    let conn: &PooledConnection = &get_conn(context)?;
 
     Ok(license_to_component
         .limit(limit as i64)
@@ -59,7 +59,7 @@ fn find_id_license(
     offset: i32,
 ) -> ServiceResult<Vec<LicenseToComponent>> {
     use crate::schema::license_to_component::dsl::*;
-    let conn: &PooledConnection = &get_conn(&context)?;
+    let conn: &PooledConnection = &get_conn(context)?;
 
     Ok(license_to_component
         .filter(id_license.eq(id_license_search))
@@ -75,7 +75,7 @@ fn find_uuid_component_license(
     offset: i32,
 ) -> ServiceResult<Vec<LicenseToComponent>> {
     use crate::schema::license_to_component::dsl::*;
-    let conn: &PooledConnection = &get_conn(&context)?;
+    let conn: &PooledConnection = &get_conn(context)?;
 
     Ok(license_to_component
         .filter(uuid_component.eq(uuid_component_search))
@@ -92,7 +92,7 @@ fn find_id_license_and_uuid_component(
     offset: i32,
 ) -> ServiceResult<Vec<LicenseToComponent>> {
     use crate::schema::license_to_component::dsl::*;
-    let conn: &PooledConnection = &get_conn(&context)?;
+    let conn: &PooledConnection = &get_conn(context)?;
 
     Ok(license_to_component
         .filter(uuid_component.eq(uuid_component_search))

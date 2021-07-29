@@ -23,7 +23,7 @@ pub(crate) fn show_tokens(
     context: &Context<'_>,
     auth_uuid_user: Uuid,
 ) -> Result<Vec<UserToken>, ServiceError> {
-    let conn: &PooledConnection = &get_conn(&context)?;
+    let conn: &PooledConnection = &get_conn(context)?;
     use crate::schema::user_tokens_ref::dsl::*;
 
     user_tokens_ref
@@ -40,9 +40,9 @@ pub(crate) fn get_slim_user(jwt: Claims) -> Result<SlimUser, ServiceError> {
 
 /// updating a token with or without removing the old one
 pub(crate) fn update(context: &Context<'_>, flag_delete_token: bool) -> Result<Token, ServiceError> {
-    let conn: &PooledConnection = &get_conn(&context)?;
+    let conn: &PooledConnection = &get_conn(context)?;
     // get old token
-    let old_token = user::token::token_from_context(&context)?;
+    let old_token = user::token::token_from_context(context)?;
     if check_token(old_token.as_str(), conn)? {
         // decrypt old token
         let old_data = user::token::decode(old_token.as_str())?;
@@ -86,7 +86,7 @@ pub(crate) fn delete_user_token(
     target_token: &str,
     auth_uuid_user: Uuid,
 ) -> Result<i32, ServiceError> {
-    let conn: &PooledConnection = &get_conn(&context)?;
+    let conn: &PooledConnection = &get_conn(context)?;
     use crate::schema::user_tokens_ref::dsl::*;
 
     let updated_token: usize = diesel::delete(user_tokens_ref)
@@ -101,7 +101,7 @@ pub(crate) fn delete_all_tokens(
     context: &Context<'_>,
     target_auth_uuid_user: Uuid,
 ) -> Result<i32, ServiceError> {
-    let conn: &PooledConnection = &get_conn(&context)?;
+    let conn: &PooledConnection = &get_conn(context)?;
     use crate::schema::user_tokens_ref::dsl::*;
 
     let updated_token: usize = diesel::delete(user_tokens_ref)

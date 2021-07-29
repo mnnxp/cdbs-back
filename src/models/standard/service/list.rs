@@ -39,7 +39,7 @@ fn find_all_standards(
     offset: i32,
 ) -> ServiceResult<Vec<ShowStandard>> {
     use crate::schema::standard_ref::dsl::*;
-    let conn: &PooledConnection = &get_conn(&context)?;
+    let conn: &PooledConnection = &get_conn(context)?;
 
     Ok(standard_ref
         .select((
@@ -60,7 +60,7 @@ fn find_uuid_standard(
     offset: i32,
 ) -> ServiceResult<Vec<ShowStandard>> {
     use crate::schema::standard_ref::dsl::*;
-    let conn: &PooledConnection = &get_conn(&context)?;
+    let conn: &PooledConnection = &get_conn(context)?;
 
     Ok(standard_ref
         .filter(uuid.eq(uuid_standard_search))

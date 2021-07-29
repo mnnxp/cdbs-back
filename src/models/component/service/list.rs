@@ -40,7 +40,7 @@ fn find_all_components(
     // use crate::schema::actual_status_ref::dsl::*;
     // use crate::schema::component_type_ref::dsl::*;
     // use crate::schema::type_access_ref::dsl::*;
-    let conn: &PooledConnection = &get_conn(&context)?;
+    let conn: &PooledConnection = &get_conn(context)?;
 
     Ok(component_ref
         // .inner_join(actual_status_ref)
@@ -66,7 +66,7 @@ fn find_uuid_component(
     // use crate::schema::actual_status_ref::dsl::*;
     // use crate::schema::component_type_ref::dsl::*;
     // use crate::schema::type_access_ref::dsl::*;
-    let conn: &PooledConnection = &get_conn(&context)?;
+    let conn: &PooledConnection = &get_conn(context)?;
 
     Ok(component_ref
         // .inner_join(actual_status_ref)

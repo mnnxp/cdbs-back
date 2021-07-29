@@ -17,7 +17,7 @@ pub(crate) fn login(
         .first::<User>(conn)
         .map_err(|_| ServiceError::Unauthorized)?;
 
-    if verify(&user, &user_password) {
+    if verify(&user, user_password) {
         Ok(user.into())
     } else {
         Err(ServiceError::Unauthorized)
