@@ -43,6 +43,7 @@ const nameRepresentationFirst = "test first additional office";
 const nameRepresentationSecond = "test second additional office";
 const addressRepresentation = "Fake str, Fantom";
 const phoneRepresentation = "+743874487556";
+const uuidFake = "2cd385e1-8f7e-4908-8235-dfe42938b888";
 const uuidRepresentArray = [];
 var uuidCompanyFirst = "";
 var uuidRepresentFirst = "";
@@ -613,6 +614,68 @@ describe('company', () => {
     done();
   });
 
+  it('/graphql:M deleteCompanyRepresent - BadRequest fake uuid company', async (done) => {
+    response1 = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `mutation deleteCompanyRepresentQuery {
+          deleteCompanyRepresent(
+            uuidCompany: "${uuidFake}",
+            uuidCompanyRepresent: "${uuidRepresentFirst}"
+          ){
+            uuid
+            uuidCompany
+            name
+            address
+            phone
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', response1.body);
+    expect(response1.body.data).toBeNull();
+    expect(response1.body.errors[0].message).toBe(
+      'BadRequest: You not have access.'
+    );
+    expect(response1.body.errors[0].path[0]).toBe('deleteCompanyRepresent');
+    done();
+  });
+
+  it('/graphql:M deleteCompanyRepresent - BadRequest fake uuid represent', async (done) => {
+    response1 = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation deleteCompanyRepresentQuery {
+          deleteCompanyRepresent(
+            uuidCompany: "${uuidCompanySupplier}",
+            uuidCompanyRepresent: "${uuidFake}"
+          ){
+            uuid
+            uuidCompany
+            name
+            address
+            phone
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', response1.body);
+    expect(response1.body.data).toBeNull();
+    expect(response1.body.errors[0].message).toBe(
+      'BadRequest: The representative not you or not found.'
+    );
+    expect(response1.body.errors[0].path[0]).toBe('deleteCompanyRepresent');
+    done();
+  });
+
   it('/graphql:Q Select companyRepresents with uuidCompany - OK', async (done) => {
     const response1 = await agent
       .post('/graphql')
@@ -702,4 +765,7 @@ describe('company', () => {
     expect(response1.body.data.companyRepresents).toBeEmptyArray();
     done();
   });
+
+  // Test for add memeber to company
+
 });
