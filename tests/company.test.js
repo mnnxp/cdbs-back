@@ -46,6 +46,7 @@ const phoneRepresentation = "+743874487556";
 const uuidRepresentArray = [];
 var uuidCompanyFirst = "";
 var uuidRepresentFirst = "";
+var uuidRepresentDelete = "";
 
 async function cleanupCompanyDb() {
   return global.knex.raw('DELETE FROM company_ref WHERE orgname IN (?,?)', [
@@ -142,6 +143,62 @@ describe('company', () => {
         debug('/login headers=%o', headers);
         expect(body.bearer).toBeNonEmptyString();
         authorizationTokenFirst = body.bearer;
+        done();
+      });
+  });
+
+  it('/graphql:M register second - OK', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .send({
+        query: `mutation  {
+            registerUser( data: {
+                email: "testemail@mail.ru",
+                firstname: "test_firstname",
+                lastname: "test_lastname",
+                secondname: "test_secondname",
+                username: "${username2}",
+                password: "${password}",
+                phone: "test_phone",
+                description: "test_description",
+                address: "test_address",
+                position: "test_position",
+                timeZone: 1,
+                uuidImageFile: "bc1c2151-86d0-4656-9c9d-d016dd584297",
+                idRegion: 1,
+                idProgram: 5,
+            }) {
+                uuid
+                idProgram
+                username
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql registerUser=%o', body);
+    const {
+      data: { registerUser },
+    } = body;
+    expect(registerUser).toContainAllKeys(['uuid', 'idProgram', 'username']);
+    expect(registerUser.uuid).toBeNonEmptyString();
+    expect(registerUser.idProgram).toBe(5);
+    expect(registerUser.username).toBe(username2);
+    done();
+  });
+
+  it('/login second - OK', (done) => {
+    agent
+      .post('/login')
+      .send({ "user": {
+            "username": username2,
+            "password": password,
+          }
+        })
+      .expect(HttpStatus.OK)
+      .then(({ body, headers }) => {
+        debug('/login headers=%o', headers);
+        expect(body.bearer).toBeNonEmptyString();
+        authorizationTokenSecond = body.bearer;
         done();
       });
   });
@@ -437,11 +494,12 @@ describe('company', () => {
     expect(registerCompanyRepresent.address).toBe(addressRepresentation);
     expect(registerCompanyRepresent.phone).toBe(phoneRepresentation);
     // for test delete represent not owned user
-    uuidRepresentArray.push(registerCompanyRepresent.uuid);
+    // uuidRepresentArray.push(registerCompanyRepresent.uuid);
+    uuidRepresentFirst = registerCompanyRepresent.uuid;
     done();
   });
 
-  it('/graphql:M register - Not supplier', async (done) => {
+  it('/graphql:M registerCompanyRepresent - BadRequest Not supplier', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .set(
@@ -474,9 +532,38 @@ describe('company', () => {
     done();
   });
 
+  it('/graphql:Q List companyRepresents - UNAUTHORIZED', async (done) => {
+    const response1 = await agent
+      .post('/graphql')
+      .send({
+        query: `query ListcompanyRepresents {
+            companyRepresents {
+                uuid
+                uuidCompany
+                name
+                phone
+                idRegion
+                idRepresentationType
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', response1.body);
+    expect(response1.body.data).toBeNull();
+    expect(response1.body.errors[0].message).toBe(
+      'BadRequest: Token not found.'
+    );
+    expect(response1.body.errors[0].path[0]).toBe('companyRepresents');
+    done();
+  });
+
   it('/graphql:Q List companyRepresents - OK', async (done) => {
     const response1 = await agent
       .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
       .send({
         query: `query ListcompanyRepresents {
             companyRepresents {
@@ -495,9 +582,44 @@ describe('company', () => {
     done();
   });
 
-  it('/graphql:Q List companyRepresents with uuidCompany - OK', async (done) => {
+  it('/graphql:M deleteCompanyRepresent - BadRequest not access', async (done) => {
+    response1 = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `mutation deleteCompanyRepresentQuery {
+          deleteCompanyRepresent(
+            uuidCompany: "${uuidCompanySupplier}",
+            uuidCompanyRepresent: "${uuidRepresentFirst}"
+          ){
+            uuid
+            uuidCompany
+            name
+            address
+            phone
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', response1.body);
+    expect(response1.body.data).toBeNull();
+    expect(response1.body.errors[0].message).toBe(
+      'BadRequest: You not have access.'
+    );
+    expect(response1.body.errors[0].path[0]).toBe('deleteCompanyRepresent');
+    done();
+  });
+
+  it('/graphql:Q Select companyRepresents with uuidCompany - OK', async (done) => {
     const response1 = await agent
       .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
       .send({
         query: `query ListcompanyRepresents {
             companyRepresents (uuidCompany: "${uuidCompanySupplier}") {
@@ -518,4 +640,66 @@ describe('company', () => {
     done();
   });
 
+  it('/graphql:M deleteCompanyRepresent - OK', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation deleteCompanyRepresentQuery {
+          deleteCompanyRepresent(
+            uuidCompany: "${uuidCompanySupplier}",
+            uuidCompanyRepresent: "${uuidRepresentFirst}"
+          ){
+            uuid
+            uuidCompany
+            name
+            address
+            phone
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql deleteCompanyRepresent body=%o', body);
+    const {
+      data: { deleteCompanyRepresent },
+    } = body;
+    expect(deleteCompanyRepresent).toContainAllKeys(
+      ["address", "name", "phone", "uuid", "uuidCompany"]
+    );
+    expect(deleteCompanyRepresent.uuid).toBe(uuidRepresentFirst);
+    expect(deleteCompanyRepresent.uuidCompany).toBe(uuidCompanySupplier);
+    expect(deleteCompanyRepresent.address).toBe(addressRepresentation);
+    expect(deleteCompanyRepresent.phone).toBe(phoneRepresentation);
+    // for test delete represent not owned user
+    uuidRepresentDelete = deleteCompanyRepresent.uuid;
+    done();
+  });
+
+  it('/graphql:Q Select remove companyRepresent - EmptyArray', async (done) => {
+    const response1 = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `query ListcompanyRepresents {
+            companyRepresents (uuidCompany: "${uuidCompanySupplier}") {
+                uuid
+                uuidCompany
+                idRegion
+                name
+                phone
+                idRepresentationType
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql filter body=%o', response1.body);
+    expect(response1.body.data.companyRepresents).toBeEmptyArray();
+    done();
+  });
 });
