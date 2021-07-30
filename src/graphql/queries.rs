@@ -363,6 +363,9 @@ impl QueryRoot {
         limit: Option<i32>,
         offset: Option<i32>,
     ) -> ServiceResult<Vec<ShowCompanyRepresent>> {
+        // authorization check
+        crate::models::user::util::check_authorized(context)?;
+        
         let uuid_company = match uuid_company {
             None => Uuid::nil(),
             Some(uuid_company) => Uuid::parse_str(&uuid_company)?,

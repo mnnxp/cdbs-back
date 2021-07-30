@@ -239,16 +239,16 @@ impl MutationRoot {
     async fn delete_company_represent(
         &self,
         context: &Context<'_>,
-        target_uuid_company: String,
-        target_uuid_company_represent: String,
+        uuid_company: String,
+        uuid_company_represent: String,
     ) -> ServiceResult<SlimCompanyRepresent> {
         use crate::models::company::company_represent::service::delete::delete_company_represent;
         let conn: &PooledConnection = &get_conn(context)?;
 
         let logged_uuid_user = crate::models::user::get_auth_uuid_user(context, true)?;
 
-        let target_uuid_company = Uuid::parse_str(&target_uuid_company)?;
-        let target_uuid_company_represent = Uuid::parse_str(&target_uuid_company_represent)?;
+        let target_uuid_company = Uuid::parse_str(&uuid_company)?;
+        let target_uuid_company_represent = Uuid::parse_str(&uuid_company_represent)?;
 
         crate::models::company::util::check_company_access(
             logged_uuid_user, target_uuid_company, 3, conn,
