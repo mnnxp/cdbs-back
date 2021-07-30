@@ -52,14 +52,14 @@ async function cleanupUserDb() {
 }
 
 describe('users', () => {
-  beforeAll(async () => {
-    cleanupUserDb();
+  beforeAll(() => {
     cleanupTokenDb();
+    cleanupUserDb();
     return;
   });
-  afterAll(async () => {
-    cleanupUserDb();
+  afterAll(() => {
     cleanupTokenDb();
+    cleanupUserDb();
     return;
   });
 

@@ -73,17 +73,19 @@ async function cleanupUserDb() {
 }
 
 describe('company', () => {
-  beforeAll(async () => {
+  beforeAll(() => {
     cleanupCompanyRepresentDb();
     cleanupCompanyDb();
     cleanupTokenDb();
-    return cleanupUserDb();
+    cleanupUserDb();
+    return;
   });
-  afterAll(async () => {
+  afterAll(() => {
     cleanupCompanyRepresentDb();
     cleanupCompanyDb();
     cleanupTokenDb();
-    return cleanupUserDb();
+    cleanupUserDb();
+    return;
   });
 
   const agent = request.agent(url);
