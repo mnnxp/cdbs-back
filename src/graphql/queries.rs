@@ -388,13 +388,13 @@ impl QueryRoot {
     async fn standards(
         &self,
         context: &Context<'_>,
-        uuid: Option<String>,
+        uuid_standard: Option<String>,
         limit: Option<i32>,
         offset: Option<i32>,
     ) -> ServiceResult<Vec<ShowStandard>> {
-        let uuid_standard = match uuid {
+        let target_uuid_standard = match uuid_standard {
             None => Uuid::nil(),
-            Some(uuid) => Uuid::parse_str(&uuid)?,
+            Some(uuid_standard) => Uuid::parse_str(&uuid_standard)?,
         };
 
         let limit: i32 = limit.unwrap_or(100);
@@ -402,7 +402,7 @@ impl QueryRoot {
 
         standard::list::get_standards(
             context,
-            uuid_standard,
+            target_uuid_standard,
             limit,
             offset
         )
