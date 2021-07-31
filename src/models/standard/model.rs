@@ -6,7 +6,7 @@ use uuid::Uuid;
 
 #[derive(Debug, Queryable)]
 pub struct Standard {
-    pub id: i32,
+    // pub id: i32,
     pub uuid: Uuid,
     pub uuid_standard_parent: Uuid,
     pub classifier: String,
@@ -134,7 +134,6 @@ pub struct IptStandardData {
     pub technical_committee: String,
     pub publication_at: NaiveDateTime,
     pub uuid_image_file: ID,
-    pub uuid_user: ID,
     pub uuid_company: ID,
     pub id_type_access: i32,
     pub id_standard_status: i32,
@@ -184,9 +183,6 @@ impl StandardData {
     async fn uuid_image_file(&self) -> ID {
         self.uuid_image_file.into()
     }
-    async fn uuid_user(&self) -> ID {
-        self.uuid_user.into()
-    }
     async fn uuid_company(&self) -> ID {
         self.uuid_company.into()
     }
@@ -198,42 +194,6 @@ impl StandardData {
     }
     async fn id_region(&self) -> &i32 {
         &self.id_region
-    }
-}
-
-
-impl From<IptStandardData> for StandardData {
-    fn from(ipt_data: IptStandardData) -> Self {
-        let IptStandardData {
-            uuid_standard_parent,
-            classifier,
-            name,
-            description,
-            specified_tolerance,
-            technical_committee,
-            publication_at,
-            uuid_image_file,
-            uuid_user,
-            uuid_company,
-            id_type_access,
-            id_standard_status,
-            id_region,
-        } = ipt_data;
-        StandardData {
-            uuid_standard_parent: Uuid::parse_str(&uuid_standard_parent.to_string()).unwrap(),
-            classifier,
-            name,
-            description,
-            specified_tolerance,
-            technical_committee,
-            publication_at,
-            uuid_image_file: Uuid::parse_str(&uuid_image_file.to_string()).unwrap(),
-            uuid_user: Uuid::parse_str(&uuid_user.to_string()).unwrap(),
-            uuid_company: Uuid::parse_str(&uuid_company.to_string()).unwrap(),
-            id_type_access,
-            id_standard_status,
-            id_region,
-        }
     }
 }
 

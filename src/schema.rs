@@ -260,8 +260,7 @@ table! {
 }
 
 table! {
-    file_to_standard (id) {
-        id -> Int4,
+    file_to_standard (uuid_file, uuid_standard) {
         uuid_file -> Uuid,
         uuid_standard -> Uuid,
     }
@@ -502,7 +501,6 @@ table! {
 
 table! {
     standard_ref (uuid) {
-        id -> Int4,
         uuid -> Uuid,
         uuid_standard_parent -> Uuid,
         classifier -> Varchar,
