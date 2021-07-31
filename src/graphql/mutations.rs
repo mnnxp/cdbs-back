@@ -225,13 +225,19 @@ impl MutationRoot {
 
         let logged_uuid_user = crate::models::user::get_auth_uuid_user(context, true)?;
 
-        let main_uuid_company = Uuid::parse_str(&data.uuid_company.to_string())?;
+        let target_uuid_company = Uuid::parse_str(&data.uuid_company.to_string())?;
 
         crate::models::company::util::check_company_access(
-            logged_uuid_user, main_uuid_company, 3, conn,
+            logged_uuid_user,
+            target_uuid_company,
+            3,
+            conn,
         )?;
 
-        crate::models::company::util::check_is_supplier(main_uuid_company, conn)?;
+        crate::models::company::util::check_is_supplier(
+            target_uuid_company,
+            conn
+        )?;
 
         Ok(create_company_represent(data.into(), conn)?)
     }
@@ -269,18 +275,17 @@ impl MutationRoot {
         use crate::models::standard::service::register::create_standard;
         let conn: &PooledConnection = &get_conn(context)?;
 
-        crate::models::user::compare_uuid_user(Uuid::parse_str(&data.uuid_user)?, context)?;
-        crate::models::user::check_authorized(context)?;
-
-        // if data.is_standard != 0 {
-        //     crate::models::user::has_supplier(context, 1)?;
-        // }
-
         let logged_uuid_user = crate::models::user::get_auth_uuid_user(context, true)?;
 
         let target_uuid_standard_parent = Uuid::parse_str(&data.uuid_standard_parent.to_string())?;
         let target_uuid_image_file = Uuid::parse_str(&data.uuid_image_file.to_string())?;
         let target_uuid_company = Uuid::parse_str(&data.uuid_company.to_string())?;
+
+        crate::models::company::util::check_company_access(
+            logged_uuid_user, target_uuid_company, 3, conn,
+        )?;
+
+        crate::models::company::util::check_is_supplier(target_uuid_company, conn)?;
 
         let standard_data = StandardData {
             uuid_standard_parent: (target_uuid_standard_parent),

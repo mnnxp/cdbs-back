@@ -66,7 +66,7 @@ pub(crate) fn get_auth_uuid_user(
     }
 }
 
-/// comparison of the received uuid_user with the uuid_user of the authorized user
-pub(crate) fn compare_uuid_user(target_auth_uuid_user: Uuid, context: &Context<'_>) -> Result<bool, ServiceError> {
-    Ok(get_auth_uuid_user(context, false)? == target_auth_uuid_user)
-}
+// comparison of the received uuid_user with the uuid_user of the authorized user
+// pub(crate) fn compare_uuid_user(target_auth_uuid_user: Uuid, context: &Context<'_>) -> Result<bool, ServiceError> {
+//     Ok(get_auth_uuid_user(context, false)? == target_auth_uuid_user)
+// }
