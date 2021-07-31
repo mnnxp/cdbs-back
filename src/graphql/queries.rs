@@ -193,7 +193,10 @@ impl QueryRoot {
         limit: Option<i32>,
         offset: Option<i32>,
     ) -> ServiceResult<Vec<ShowComponent>> {
-        let uuid_component = match uuid_component {
+        // authorization check
+        crate::models::user::util::check_authorized(context)?;
+
+        let target_uuid_component = match uuid_component {
             None => Uuid::nil(),
             Some(uuid_component) => Uuid::parse_str(&uuid_component)?,
         };
@@ -201,7 +204,7 @@ impl QueryRoot {
         let limit: i32 = limit.unwrap_or(100);
         let offset: i32 = offset.unwrap_or(0);
 
-        component::list::get_components(context, uuid_component, limit, offset)
+        component::list::get_components(context, target_uuid_component, limit, offset)
     }
 
     async fn component_modification(
