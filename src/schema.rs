@@ -124,7 +124,6 @@ table! {
 
 table! {
     component_modification_list (uuid) {
-        id -> Int4,
         uuid -> Uuid,
         uuid_component -> Uuid,
         uuid_modification_parent -> Uuid,
@@ -139,7 +138,6 @@ table! {
 
 table! {
     component_ref (uuid) {
-        id -> Int4,
         uuid -> Uuid,
         uuid_component_parent -> Uuid,
         name -> Varchar,
@@ -156,8 +154,7 @@ table! {
 }
 
 table! {
-    component_to_keyword (id) {
-        id -> Int4,
+    component_to_keyword (uuid_component, id_component_keyword) {
         uuid_component -> Uuid,
         id_component_keyword -> Int4,
     }
@@ -236,24 +233,21 @@ table! {
 }
 
 table! {
-    file_to_component (id) {
-        id -> Int4,
+    file_to_component (uuid_file, uuid_component) {
         uuid_file -> Uuid,
         uuid_component -> Uuid,
     }
 }
 
 table! {
-    file_to_modification (id) {
-        id -> Int4,
+    file_to_modification (uuid_file, uuid_modification) {
         uuid_file -> Uuid,
         uuid_modification -> Uuid,
     }
 }
 
 table! {
-    file_to_set_modification (id) {
-        id -> Int4,
+    file_to_set_modification (id_set, uuid_file) {
         id_set -> Int4,
         uuid_file -> Uuid,
     }
@@ -306,8 +300,7 @@ table! {
 }
 
 table! {
-    license_to_component (id) {
-        id -> Int4,
+    license_to_component (uuid_component, id_license) {
         uuid_component -> Uuid,
         id_license -> Int4,
     }
@@ -347,8 +340,7 @@ table! {
 }
 
 table! {
-    param_to_component (id) {
-        id -> Int4,
+    param_to_component (uuid_component, id_param) {
         uuid_component -> Uuid,
         id_param -> Int4,
         value -> Varchar,
@@ -356,8 +348,7 @@ table! {
 }
 
 table! {
-    param_to_modification (id) {
-        id -> Int4,
+    param_to_modification (uuid_modification, id_param) {
         uuid_modification -> Uuid,
         id_param -> Int4,
         value -> Varchar,
@@ -440,8 +431,7 @@ table! {
 }
 
 table! {
-    spec_to_component (id) {
-        id -> Int4,
+    spec_to_component (id_spec, uuid_component) {
         id_spec -> Int4,
         uuid_component -> Uuid,
     }
@@ -529,16 +519,14 @@ table! {
 }
 
 table! {
-    standard_to_component (id) {
-        id -> Int4,
+    standard_to_component (uuid_standard, uuid_component) {
         uuid_standard -> Uuid,
         uuid_component -> Uuid,
     }
 }
 
 table! {
-    supplier_to_component (id) {
-        id -> Int4,
+    supplier_to_component (uuid_component, uuid_company) {
         uuid_component -> Uuid,
         uuid_company -> Uuid,
         description -> Varchar,
