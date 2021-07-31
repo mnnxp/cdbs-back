@@ -25,8 +25,7 @@ table! {
 }
 
 table! {
-    company_member_role (id) {
-        id -> Int4,
+    company_member_role (uuid_company, uuid_user, id_role) {
         uuid_company -> Uuid,
         uuid_user -> Uuid,
         id_role -> Int4,
@@ -38,7 +37,6 @@ table! {
 
 table! {
     company_ref (uuid) {
-        id -> Int4,
         uuid -> Uuid,
         orgname -> Varchar,
         shortname -> Varchar,
@@ -64,7 +62,6 @@ table! {
 
 table! {
     company_represent_ref (uuid) {
-        id -> Int4,
         uuid -> Uuid,
         uuid_company -> Uuid,
         id_region -> Int4,
@@ -76,8 +73,7 @@ table! {
 }
 
 table! {
-    component_access_to_company (id) {
-        id -> Int4,
+    component_access_to_company (uuid_component, uuid_company) {
         uuid_component -> Uuid,
         uuid_company -> Uuid,
         id_type_access -> Int4,
@@ -408,8 +404,7 @@ table! {
 }
 
 table! {
-    role_access (id) {
-        id -> Int4,
+    role_access (id_role, id_type_access) {
         id_role -> Int4,
         id_type_access -> Int4,
     }
@@ -439,8 +434,7 @@ table! {
 }
 
 table! {
-    spec_to_company (id) {
-        id -> Int4,
+    spec_to_company (id_spec, uuid_company) {
         id_spec -> Int4,
         uuid_company -> Uuid,
     }
@@ -464,8 +458,7 @@ table! {
 }
 
 table! {
-    standard_access_to_company (id) {
-        id -> Int4,
+    standard_access_to_company (uuid_standard, uuid_company) {
         uuid_standard -> Uuid,
         uuid_company -> Uuid,
         id_type_access -> Int4,

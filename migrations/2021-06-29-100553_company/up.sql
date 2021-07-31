@@ -1,6 +1,6 @@
 -- Your SQL goes here/* компания */
 CREATE TABLE company_ref (
-  id SERIAL, /* id компании */
+  -- id SERIAL, /* id компании */
   uuid UUID NOT NULL UNIQUE PRIMARY KEY,
   orgname VARCHAR(255) NOT NULL, /* наименование организации (для юр.лиц) */
   shortname VARCHAR(255) NOT NULL, /* сокращённое наименование организации (для юр.лиц) */
@@ -34,7 +34,7 @@ CREATE TABLE type_company_ref (
 
 /* локальное представительство профиля */
 CREATE TABLE company_represent_ref (
-  id SERIAL, /* id представительства */
+  -- id SERIAL, /* id представительства */
   uuid UUID NOT NULL UNIQUE,
   uuid_company UUID NOT NULL, /* uuid компании (чьё представительства) */
   id_region INTEGER NOT NULL DEFAULT '1', /* регион представительства */
@@ -48,24 +48,24 @@ CREATE TABLE company_represent_ref (
 
 /* члены компании и их роли */
 CREATE TABLE company_member_role (
-  id SERIAL, /* id записи */
+  -- id SERIAL, /* id записи */
   uuid_company UUID NOT NULL, /* uuid компании */
   uuid_user UUID NOT NULL, /* uuid профиля */
   id_role INTEGER NOT NULL, /* идентификатор роли пользователя */
   is_enabled BOOLEAN NOT NULL DEFAULT 't', /* член компании активен */
   created_at TIMESTAMP NOT NULL DEFAULT NOW(), /* дата создания */
   updated_at TIMESTAMP NOT NULL DEFAULT NOW(), /* дата обновления */
-  UNIQUE(uuid_company, uuid_user, id_role), /* совокупоность id не может повторяться */
-  CONSTRAINT company_member_role_pk PRIMARY KEY (id)
+  -- UNIQUE(uuid_company, uuid_user, id_role), /* совокупоность id не может повторяться */
+  CONSTRAINT company_member_role_pk PRIMARY KEY (uuid_company, uuid_user, id_role)
 );
 
 /* связь каталогов с компанией */
 CREATE TABLE spec_to_company (
-  id SERIAL, /* id связи */
+  -- id SERIAL, /* id связи */
   id_spec INTEGER NOT NULL, /* связанный с компанией каталог (категория) */
   uuid_company UUID NOT NULL, /* связанная с каталогом (категорией) компания */
-  UNIQUE (id_spec, uuid_company),
-  CONSTRAINT spec_to_company_pk PRIMARY KEY (id)
+  -- UNIQUE (id_spec, uuid_company),
+  CONSTRAINT spec_to_company_pk PRIMARY KEY (id_spec, uuid_company)
 );
 
 /* запись изменений данных компании */
@@ -107,16 +107,16 @@ CREATE TABLE role_member_ref (
 
 /* уровень доступа роли */
 CREATE TABLE role_access (
-  id SERIAL, /* id записи */
+  -- id SERIAL, /* id записи */
   id_role INTEGER NOT NULL, /* идентификатор роли пользователя */
   id_type_access INTEGER NOT NULL, /* тип доступа */
-  UNIQUE (id_role, id_type_access),
-  CONSTRAINT role_access_pk PRIMARY KEY (id)
+  -- UNIQUE (id_role, id_type_access),
+  CONSTRAINT role_access_pk PRIMARY KEY (id_role, id_type_access)
 );
 
 /* доступ к компоненту отдельного компании */
 CREATE TABLE component_access_to_company (
-  id SERIAL, /* id доступа */
+  -- id SERIAL, /* id доступа */
   uuid_component UUID NOT NULL, /* идентификатор компонента */
   uuid_company UUID NOT NULL, /* идентификатор компании */
   id_type_access INTEGER NOT NULL, /* тип доступа к компоненту */
@@ -124,12 +124,12 @@ CREATE TABLE component_access_to_company (
   is_delete BOOLEAN NOT NULL DEFAULT 'f', /* флаг удаления доступа */
   created_at TIMESTAMP NOT NULL DEFAULT NOW(), /* дата создания доступа */
   updated_at TIMESTAMP NOT NULL DEFAULT NOW(), /* дата обновления */
-  CONSTRAINT component_access_to_company_pk PRIMARY KEY (id)
+  CONSTRAINT component_access_to_company_pk PRIMARY KEY (uuid_component, uuid_company)
 );
 
 /* доступ к стандарту отдельной компании */
 CREATE TABLE standard_access_to_company (
-  id SERIAL, /* id доступа */
+  -- id SERIAL, /* id доступа */
   uuid_standard UUID NOT NULL, /* идентификатор стандарта */
   uuid_company UUID NOT NULL, /* идентификатор компании */
   id_type_access INTEGER NOT NULL, /* тип доступа к стандарту */
@@ -137,5 +137,5 @@ CREATE TABLE standard_access_to_company (
   is_delete BOOLEAN NOT NULL DEFAULT 'f', /* флаг удаления доступа */
   created_at TIMESTAMP NOT NULL DEFAULT NOW(), /* дата создания доступа */
   updated_at TIMESTAMP NOT NULL DEFAULT NOW(), /* дата обновления */
-  CONSTRAINT standard_access_to_company_pk PRIMARY KEY (id)
+  CONSTRAINT standard_access_to_company_pk PRIMARY KEY (uuid_standard, uuid_company)
 );

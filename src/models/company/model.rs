@@ -6,7 +6,7 @@ use uuid::Uuid;
 
 #[derive(Debug, Queryable)]
 pub struct Company {
-    pub id: i32,
+    // pub id: i32,
     pub uuid: Uuid,
     pub orgname: String,
     pub shortname: String,
