@@ -486,7 +486,7 @@ describe('company', () => {
       )
       .send({
         query: `query selectStandardQuery{
-          standards (uuid: "${uuidFake}") {
+          standards (uuidStandard: "${uuidFake}") {
             uuid
             uuidStandardParent
             classifier
@@ -525,7 +525,7 @@ describe('company', () => {
       )
       .send({
         query: `query selectStandardQuery{
-          standards (uuid: "${uuidStandardFirst}") {
+          standards (uuidStandard: "${uuidStandardFirst}") {
             uuid
             uuidStandardParent
             classifier
@@ -595,7 +595,7 @@ describe('company', () => {
     done();
   });
 
-  it('/graphql:Q standard - OK Select with uuid', async (done) => {
+  it('/graphql:Q standard - BadReuest no access', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .set(
@@ -604,7 +604,7 @@ describe('company', () => {
       )
       .send({
         query: `query selectStandardQuery{
-          standards (uuid: "${uuidStandardFirst}") {
+          standards (uuidStandard: "${uuidStandardFirst}") {
             uuid
             uuidStandardParent
             classifier
