@@ -6,7 +6,7 @@ use uuid::Uuid;
 
 #[derive(Debug, Queryable)]
 pub struct Component {
-    pub id: i32,
+    // pub id: i32,
     pub uuid: Uuid,
     pub uuid_component_parent: Uuid,
     pub name: String,

@@ -83,16 +83,16 @@ impl SlimLicense {
 
 #[derive(Debug, Serialize, Deserialize, Queryable)]
 pub struct LicenseToComponent {
-    pub id: i32,
+    // pub id: i32,
     pub uuid_component: Uuid,
     pub id_license: i32,
 }
 
 #[Object]
 impl LicenseToComponent {
-    async fn id(&self) -> &i32 {
-        &self.id
-    }
+    // async fn id(&self) -> &i32 {
+    //     &self.id
+    // }
     async fn uuid_component(&self) -> ID {
         self.uuid_component.into()
     }

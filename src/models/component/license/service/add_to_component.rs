@@ -17,12 +17,11 @@ pub(crate) fn create_license_component(
     let flag_found_license = license_to_component
         .filter(uuid_component.eq(&new_license_data.uuid_component))
         .filter(id_license.eq(&new_license_data.id_license))
-        .select(id)
-        .first::<i32>(conn).unwrap_or(0);
+        .execute(conn).unwrap_or(0);
 
     // debug!("fn create_license START SEARCH ={:?}", flag_found_license);
 
-    match flag_found_license {
+    match flag_found_license as i32 {
         0 => {
             let new_license_data: InsertableLicenseToComponent = new_license_data.into();
             let inserted_license_data: LicenseToComponent = diesel::insert_into(license_to_component)

@@ -31,12 +31,11 @@ pub(crate) fn create_param_modification(
         .filter(uuid_modification.eq(&new_param_data.uuid))
         .filter(id_param.eq(&new_param_data.id_param))
         .filter(value.eq(&new_param_data.value))
-        .select(id)
-        .first::<i32>(conn).unwrap_or(0);
+        .execute(conn).unwrap_or(0);
 
     // debug!("fn create_param START SEARCH ={:?}", flag_found_param);
 
-    match flag_found_param {
+    match flag_found_param as i32 {
         0 => {
             let new_param_data: InsertableParamToModification = new_param_data.into();
             let inserted_param_data: ParamToModel = diesel::insert_into(param_to_modification)

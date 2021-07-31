@@ -40,7 +40,7 @@ pub struct ParamData {
 
 #[derive(Debug, Serialize, Deserialize, Queryable)]
 pub struct ParamToModel {
-    pub id: i32,
+    // pub id: i32,
     pub uuid: Uuid,
     pub id_param: i32,
     pub value: String,
@@ -48,9 +48,9 @@ pub struct ParamToModel {
 
 #[Object]
 impl ParamToModel {
-    async fn id(&self) -> &i32 {
-        &self.id
-    }
+    // async fn id(&self) -> &i32 {
+    //     &self.id
+    // }
     async fn uuid(&self) -> ID {
         self.uuid.into()
     }

@@ -6,7 +6,7 @@ use uuid::Uuid;
 
 #[derive(Debug, Queryable)]
 pub struct ComponentModification {
-    pub id: i32,
+    // pub id: i32,
     pub uuid: Uuid,
     pub uuid_component: Uuid,
     pub uuid_modification_parent: Uuid,
@@ -20,9 +20,9 @@ pub struct ComponentModification {
 
 #[Object]
 impl ComponentModification {
-    async fn id(&self) -> &i32 {
-        &self.id
-    }
+    // async fn id(&self) -> &i32 {
+    //     &self.id
+    // }
     async fn uuid(&self) -> ID {
         self.uuid.into()
     }
