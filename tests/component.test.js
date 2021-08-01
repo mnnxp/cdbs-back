@@ -67,7 +67,7 @@ var uuidRepresentDelete = "";
 // data for component
 const uuidComponentParent = "a5953fd9-7393-4f1e-a899-06b5e159dbf1";
 const nameComponent = "M Series Geared Motor";
-const nameComponent2 = "X Series Geared Motor";
+const nameComponent2 = "X Custom Geared Motor";
 const descriptionComponent = "graphqlcomment for component";
 const idTypeAccessComponent = 1;
 const idComponentType = 2;
@@ -76,6 +76,15 @@ const isStandardComponent = true;
 const isStandardComponent0 = false;
 var uuidComponentNoStandard = "";
 var uuidComponentStandard = "";
+
+// data for component modification
+const uuidModificationParent = "aba22d59-4f6c-44a4-9a37-2d38f0e577a8";
+const modificationName = "testmodificationcomponent";
+const modificationName2 = "test modification component 2";
+const descriptionModification = "commentcomponent";
+const idActualStatusModification = 1;
+var uuidComponentModificationFirst = "";
+var uuidComponentModificationSecond = "";
 
 async function cleanupCompanyDb() {
   return global.knex.raw('DELETE FROM company_ref WHERE orgname IN (?,?)', [
@@ -115,8 +124,18 @@ async function cleanupComponentDb() {
   ]);
 }
 
+async function cleanupComponentModificationDb() {
+  return global.knex.raw(
+    'DELETE FROM component_modification_list WHERE modification_name in (?,?)',
+    [
+    modificationName,
+    modificationName2,
+  ]);
+}
+
 describe('component', () => {
   beforeAll(() => {
+    cleanupComponentModificationDb();
     cleanupComponentDb();
     cleanupStandardDb();
     cleanupCompanyRepresentDb();
@@ -125,6 +144,7 @@ describe('component', () => {
     return cleanupUserDb();
   });
   afterAll(() => {
+    cleanupComponentModificationDb();
     cleanupComponentDb();
     cleanupStandardDb();
     cleanupCompanyRepresentDb();
@@ -334,7 +354,7 @@ describe('component', () => {
     done();
   });
 
-  it('/graphql:M registerComponent - BadReuest no token', async (done) => {
+  it('/graphql:M registerComponent - BadRequest no token', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .send({
@@ -357,7 +377,7 @@ describe('component', () => {
             }
         }`,
       })
-      .expect(HttpStatus.OK);
+      .expect(HttpStatus.OK)
     debug('/graphql body=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
@@ -367,7 +387,7 @@ describe('component', () => {
     done();
   });
 
-  it('/graphql:M registerComponent - OK', async (done) => {
+  it('/graphql:M registerComponent - OK standard', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .set(
@@ -394,7 +414,7 @@ describe('component', () => {
             }
         }`,
       })
-      .expect(HttpStatus.OK);
+      .expect(HttpStatus.OK)
     debug('/graphql registerComponent=%o', body);
     const {
       data: { registerComponent },
@@ -407,11 +427,11 @@ describe('component', () => {
     expect(registerComponent.description).toBe(descriptionComponent);
     expect(registerComponent.isStandard).toBe(isStandardComponent0);
     expect(registerComponent.idActualStatus).toBe(idActualStatusComponent);
-    uuidComponentNoStandard = registerComponent.uuid;
+    uuidComponentStandard = registerComponent.uuid;
     done();
   });
 
-  it('/graphql:M registerComponent - BadReuest', async (done) => {
+  it('/graphql:M registerComponent - OK not standard', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .set(
@@ -422,12 +442,12 @@ describe('component', () => {
         query: `mutation  {
             registerComponent( data: {
                 uuidComponentParent: "${uuidComponentParent}",
-                name: "${nameComponent}",
+                name: "${nameComponent2}",
                 description: "${descriptionComponent}",
                 idTypeAccess: ${idTypeAccessComponent},
                 idComponentType: ${idComponentType},
                 idActualStatus: ${idActualStatusComponent},
-                isStandard: ${isStandardComponent}
+                isStandard: ${isStandardComponent0}
             }) {
                 uuid
                 name
@@ -439,12 +459,56 @@ describe('component', () => {
         }`,
       })
       .expect(HttpStatus.OK)
-    debug('/graphql body=%o', body);
-    const { errors, data } = body;
-    expect(data).toBeNull();
-    expect(errors[0].message).toBe('');
+    debug('/graphql registerComponent=%o', body);
+    const {
+      data: { registerComponent },
+    } = body;
+    expect(registerComponent).toContainAllKeys([
+      'uuid', 'name', 'description', 'idActualStatus', 'isStandard', 'createdAt'
+    ]);
+    expect(registerComponent.uuid).toBeNonEmptyString();
+    expect(registerComponent.name).toBe(nameComponent2);
+    expect(registerComponent.description).toBe(descriptionComponent);
+    expect(registerComponent.isStandard).toBe(isStandardComponent0);
+    expect(registerComponent.idActualStatus).toBe(idActualStatusComponent);
+    uuidComponentNoStandard = registerComponent.uuid;
     done();
   });
+
+  // it('/graphql:M registerComponent - BadRequest no access', async (done) => {
+  //   const { body } = await agent
+  //     .post('/graphql')
+  //     .set(
+  //       'Authorization',
+  //       `Bearer ${authorizationTokenSecond}`
+  //     )
+  //     .send({
+  //       query: `mutation  {
+  //           registerComponent( data: {
+  //               uuidComponentParent: "${uuidComponentParent}",
+  //               name: "${nameComponent}",
+  //               description: "${descriptionComponent}",
+  //               idTypeAccess: ${idTypeAccessComponent},
+  //               idComponentType: ${idComponentType},
+  //               idActualStatus: ${idActualStatusComponent},
+  //               isStandard: ${isStandardComponent}
+  //           }) {
+  //               uuid
+  //               name
+  //               description
+  //               idActualStatus
+  //               isStandard
+  //               createdAt
+  //           }
+  //       }`,
+  //     })
+  //     .expect(HttpStatus.OK)
+  //   debug('/graphql body=%o', body);
+  //   const { errors, data } = body;
+  //   expect(data).toBeNull();
+  //   expect(errors[0].message).toBe('user not access true standard status');
+  //   done();
+  // });
 
   it('/graphql:Q List Component - OK', async (done) => {
     const response1 = await agent
@@ -478,7 +542,7 @@ describe('component', () => {
     done();
   });
 
-  it('/graphql:Q List Component - BadReuest no token', async (done) => {
+  it('/graphql:Q List Component - BadRequest no token', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .send({
@@ -518,7 +582,7 @@ describe('component', () => {
       )
       .send({
         query: `query selectComponentQuery{
-          components (uuidComponent: "${uuidComponentNoStandard}") {
+          components (uuidComponent: "${uuidComponentStandard}") {
             uuid
             uuidComponentParent
             name
@@ -536,39 +600,377 @@ describe('component', () => {
       })
       .expect(HttpStatus.OK)
     debug('/graphql filter components=%o', response1.body.data.components);
-    expect(response1.body.data.components[0].uuid).toBe(uuidComponentNoStandard);
+    expect(response1.body.data.components[0].uuid).toBe(uuidComponentStandard);
     expect(response1.body.data.components[0].name).toBe(nameComponent);
     done();
   });
 
-  it('/graphql:M add - not supplier.', async (done) => {
+  it('/graphql:Q List Component - OK no access', async (done) => {
     const { body } = await agent
       .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
       .send({
-        query: `mutation  {
-            registerComponent( data: {
-                uuidComponentParent: "${uuidComponentParent}",
-                name: "${nameComponent}",
-                description: "${descriptionComponent}",
-                idTypeAccess: ${idTypeAccessComponent},
-                idComponentType: ${idComponentType},
-                idActualStatus: ${idActualStatusComponent},
-                isStandard: ${isStandardComponent}
-            }) {
-                uuid
-                name
-                description
-                idActualStatus
-                isStandard
-                createdAt
-            }
+        query: `query selectComponentQuery{
+          components (uuidComponent: "${uuidComponentNoStandard}") {
+            uuid
+            uuidComponentParent
+            name
+            description
+            uuidUser
+            idTypeAccess
+            idComponentType
+            idActualStatus
+            isStandard
+            isDelete
+            createdAt
+            updatedAt
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql filter components=%o', body.data.components);
+    expect(body.data.components).toBeNonEmptyArray();
+    done();
+  });
+
+  // it('/graphql:M registerComponent - BadRequest not supplier.', async (done) => {
+  //   const { body } = await agent
+  //     .post('/graphql')
+  //     .set(
+  //       'Authorization',
+  //       `Bearer ${authorizationTokenSecond}`
+  //     )
+  //     .send({
+  //       query: `mutation  {
+  //           registerComponent( data: {
+  //               uuidComponentParent: "${uuidComponentParent}",
+  //               name: "${nameComponent}",
+  //               description: "${descriptionComponent}",
+  //               idTypeAccess: ${idTypeAccessComponent},
+  //               idComponentType: ${idComponentType},
+  //               idActualStatus: ${idActualStatusComponent},
+  //               isStandard: ${isStandardComponent}
+  //           }) {
+  //               uuid
+  //               name
+  //               description
+  //               idActualStatus
+  //               isStandard
+  //               createdAt
+  //           }
+  //       }`,
+  //     })
+  //     .expect(HttpStatus.OK)
+  //   debug('/graphql  - not supplier registerComponent=%o', body);
+  //   const { errors, data } = body;
+  //   expect(data).toBeNull();
+  //   expect(errors[0].message).toBe("BadRequest: You are not supplier.");
+  //   done();
+  // });
+
+  // Test component modification
+  it('/graphql:M registerComponentModification - BadRequest no access/not found', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation ComponentModificationQuery {
+          registerComponentModification( data: {
+            modificationName: "${modificationName}",
+            uuidComponent: "${uuidComponentNoStandard}",
+            uuidModificationParent: "${uuidModificationParent}",
+            description: "${descriptionModification}",
+            idActualStatus: ${idActualStatusModification}
+          }) {
+            uuid
+            uuidComponent
+            modificationName
+            description
+          }
         }`,
       })
       .expect(HttpStatus.OK)
     debug('/graphql  - not supplier registerComponent=%o', body);
     const { errors, data } = body;
     expect(data).toBeNull();
-    expect(errors[0].message).toBe("You are not supplier.");
+    expect(errors[0].message).toBe("BadRequest: Not found this component of you.");
+    done();
+  });
+
+  it('/graphql:M registerComponentModification - OK', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation ComponentModificationQuery {
+          registerComponentModification( data: {
+            modificationName: "${modificationName}",
+            uuidComponent: "${uuidComponentStandard}",
+            uuidModificationParent: "${uuidModificationParent}",
+            description: "${descriptionModification}",
+            idActualStatus: ${idActualStatusModification}
+          }) {
+            uuid
+            uuidComponent
+            modificationName
+            description
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    const {
+      data: { registerComponentModification },
+    } = body;
+    expect(registerComponentModification).toContainAllKeys(
+      ["uuid", "uuidComponent", "modificationName", "description"]
+    );
+    expect(registerComponentModification.uuid).not.toBeNull();
+    expect(registerComponentModification.uuidComponent).toBe(uuidComponentStandard);
+    expect(registerComponentModification.modificationName).toBe(modificationName);
+    expect(registerComponentModification.description).toBe(descriptionModification);
+    uuidComponentModificationFirst = registerComponentModification.uuid;
+    done();
+  });
+
+  it('/graphql:M registerComponentModification - OK', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `mutation ComponentModificationQuery {
+          registerComponentModification( data: {
+            modificationName: "${modificationName}",
+            uuidComponent: "${uuidComponentNoStandard}",
+            uuidModificationParent: "${uuidModificationParent}",
+            description: "${descriptionModification}",
+            idActualStatus: ${idActualStatusModification}
+          }) {
+            uuid
+            uuidComponent
+            modificationName
+            description
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    const {
+      data: { registerComponentModification },
+    } = body;
+    expect(registerComponentModification).toContainAllKeys(
+      ["uuid", "uuidComponent", "modificationName", "description"]
+    );
+    expect(registerComponentModification.uuid).not.toBeNull();
+    expect(registerComponentModification.uuidComponent).toBe(uuidComponentNoStandard);
+    expect(registerComponentModification.modificationName).toBe(modificationName);
+    expect(registerComponentModification.description).toBe(descriptionModification);
+    uuidComponentModificationSecond = registerComponentModification.uuid;
+    done();
+  });
+
+  it('/graphql:M registerComponentModification - OK with parent uuidComponentModificationFirst', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation ComponentModificationQuery {
+          registerComponentModification( data: {
+            modificationName: "${modificationName}",
+            uuidComponent: "${uuidComponentStandard}",
+            uuidModificationParent: "${uuidComponentModificationFirst}",
+            description: "${descriptionModification}",
+            idActualStatus: ${idActualStatusModification}
+          }) {
+            uuid
+            uuidComponent
+            modificationName
+            description
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    const {
+      data: { registerComponentModification },
+    } = body;
+    expect(registerComponentModification).toContainAllKeys(
+      ["uuid", "uuidComponent", "modificationName", "description"]
+    );
+    expect(registerComponentModification.uuid).not.toBe(uuidComponentModificationFirst);
+    expect(registerComponentModification.uuidComponent).toBe(uuidComponentStandard);
+    expect(registerComponentModification.modificationName).toBe(modificationName);
+    expect(registerComponentModification.description).toBe(descriptionModification);
+    done();
+  });
+
+  it('/graphql:M registerComponentModification - BadRequest no token.', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .send({
+        query: `mutation ComponentModificationQuery {
+          registerComponentModification( data: {
+            modificationName: "${modificationName}",
+            uuidComponent: "${uuidComponentNoStandard}",
+            uuidModificationParent: "${uuidModificationParent}",
+            description: "${descriptionModification}",
+            idActualStatus: ${idActualStatusModification}
+          }) {
+            uuid
+            modificationName
+            description
+            updatedAt
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Token not found.'
+    );
+    expect(body.errors[0].path[0]).toBe('registerComponentModification');
+    done();
+  });
+
+  it('/graphql:Q List ComponentModification - OK', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `query componentModificationQuery {
+          componentModification {
+            uuid
+            uuidComponent
+            uuidModificationParent
+            modificationName
+            description
+            idActualStatus
+            isDelete
+            createdAt
+            updatedAt
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    const {
+      data: { componentModification },
+    } = body;
+    expect(componentModification).toBeNonEmptyArray();
+    done();
+  });
+
+  it('/graphql:Q componentModification - OK with uuidComponentStandard', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `query componentModification {
+            componentModification (uuidComponent: "${uuidComponentStandard}") {
+                uuid
+                uuidComponent
+                uuidModificationParent
+                modificationName
+                description
+                idActualStatus
+                isDelete
+                createdAt
+                updatedAt
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    const {
+      data: { componentModification },
+    } = body;
+    expect(componentModification).toBeNonEmptyArray();
+    expect(componentModification[0].uuidComponent).toBe(uuidComponentStandard);
+    expect(componentModification.pop().uuidComponent).toBe(uuidComponentStandard);
+    done();
+  });
+
+  it('/graphql:Q componentModification - OK with uuidComponentNoStandard', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `query componentModification {
+            componentModification (uuidComponent: "${uuidComponentNoStandard}") {
+                uuid
+                uuidComponent
+                uuidModificationParent
+                modificationName
+                description
+                idActualStatus
+                isDelete
+                createdAt
+                updatedAt
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    const {
+      data: { componentModification },
+    } = body;
+    expect(componentModification).toBeNonEmptyArray();
+    expect(componentModification[0].uuidComponent).toBe(uuidComponentNoStandard);
+    expect(componentModification.pop().uuidComponent).toBe(uuidComponentNoStandard);
+    done();
+  });
+
+  it('/graphql:Q componentModification - BadRequest no token', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .send({
+        query: `query componentModification {
+            componentModification (uuidComponent: "${uuidComponentStandard}") {
+                uuid
+                uuidComponent
+                uuidModificationParent
+                modificationName
+                description
+                idActualStatus
+                isDelete
+                createdAt
+                updatedAt
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    const {
+      data: { componentModification },
+    } = body;
+    expect(componentModification).toBeNonEmptyArray();
+    expect(componentModification[0].uuidComponent).toBe(uuidComponentStandard);
+    expect(componentModification.pop().uuidComponent).toBe(uuidComponentStandard);
     done();
   });
 });
