@@ -3,7 +3,7 @@ use std::io::Write;
 use crate::errors::{ServiceError, ServiceResult};
 use crate::models::file::model::{
     InsertableFile, SlimFile, File, FileData,
-    InsertableFileToComponent, InsertableFileToModification, FileToModel, FileToModelData
+    InsertableFileToComponent, InsertableFileToModification, FileToModel
 };
 use crate::models::file as file;
 
@@ -53,7 +53,7 @@ pub(crate) async fn write_file(
     fs::create_dir_all(UPLOAD_PATH).unwrap();
 
     let mut slim_file_data: Vec<SlimFile> = Vec::new();
-    // let mut addiction_data: Vec<FileToModelData> = Vec::new();
+    // let mut addiction_data: Vec<FileToModel> = Vec::new();
 
     while let Ok(Some(mut field)) = payload.try_next().await {
             let content_type = field.content_disposition().unwrap();
@@ -102,7 +102,7 @@ pub(crate) async fn write_file(
                 1_u8 => (),
                 2_u8..=4_u8 => {
                     // colloborate data for addiction table
-                    let addiction_data = FileToModelData {
+                    let addiction_data = FileToModel {
                         uuid_file: value_slim_file_data.uuid,
                         uuid: uuid_addiction,
                     };
@@ -139,7 +139,7 @@ pub(crate) fn write_metadata(
 
 /// Write information of file to db file_to_component or file_to_modification
 pub(crate) fn write_addiction_data(
-    addiction_data: FileToModelData,
+    addiction_data: FileToModel,
     addiction_table: u8,
     conn: &PgConnection
 ) -> ServiceResult<FileToModel>{

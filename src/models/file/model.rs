@@ -6,7 +6,6 @@ use uuid::Uuid;
 
 #[derive(Debug, Queryable)]
 pub struct File {
-    pub id: i32,
     pub uuid: Uuid,
     pub uuid_file_parent: Uuid,
     pub hash: Vec<u8>,
@@ -115,21 +114,23 @@ pub struct SlimFile {
 // Related file structures
 #[derive(Debug, Serialize, Deserialize, Queryable)]
 pub struct FileToModel {
-    pub id: i32,
     pub uuid_file: Uuid,
     pub uuid: Uuid,
 }
 
-#[derive(Debug, Deserialize, Queryable)]
-pub struct FileToModelData {
-    pub uuid_file: Uuid,
-    pub uuid: Uuid,
-}
+// #[Object]
+// impl FileToModel {
+//     async fn uuid_file(&self) -> ID {
+//         self.uuid_file.into()
+//     }
+//     async fn uuid(&self) -> ID {
+//         self.uuid.into()
+//     }
+// }
 
 // Structures for Component
 #[derive(Debug, Serialize, Deserialize, Queryable)]
 pub struct FileToComponent {
-    pub id: i32,
     pub uuid_file: Uuid,
     pub uuid_component: Uuid,
 }
@@ -143,7 +144,6 @@ pub struct InsertableFileToComponent {
 
 #[derive(Debug, Serialize, Deserialize, Queryable)]
 pub struct FileToModification {
-    pub id: i32,
     pub uuid_file: Uuid,
     pub uuid_modification: Uuid,
 }
@@ -158,7 +158,6 @@ pub struct InsertableFileToModification {
 // Structures for Standard
 #[derive(Debug, Serialize, Deserialize, Queryable)]
 pub struct FileToStandard {
-    pub id: i32,
     pub uuid_file: Uuid,
     pub uuid_standard: Uuid,
 }
@@ -224,9 +223,9 @@ impl From<File> for SlimFile {
     }
 }
 
-impl From<FileToModelData> for InsertableFileToComponent {
-    fn from(data_file_to_model: FileToModelData) -> Self {
-        let FileToModelData {
+impl From<FileToModel> for InsertableFileToComponent {
+    fn from(data_file_to_model: FileToModel) -> Self {
+        let FileToModel {
             uuid_file,
             uuid,
             ..
@@ -241,9 +240,9 @@ impl From<FileToModelData> for InsertableFileToComponent {
     }
 }
 
-impl From<FileToModelData> for InsertableFileToModification {
-    fn from(data_file_to_model: FileToModelData) -> Self {
-        let FileToModelData {
+impl From<FileToModel> for InsertableFileToModification {
+    fn from(data_file_to_model: FileToModel) -> Self {
+        let FileToModel {
             uuid_file,
             uuid,
             ..

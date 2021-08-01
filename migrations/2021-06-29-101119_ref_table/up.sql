@@ -16,7 +16,7 @@ CREATE TABLE extension_ref (
 
 /* информация о файле (изображении) */
 CREATE TABLE file_ref (
-  id SERIAL, /* id файла */
+  -- id SERIAL, /* id файла */
   uuid UUID NOT NULL UNIQUE, /* идентификатор объекта/файла */
   uuid_file_parent UUID NOT NULL, /* идентификатор объекта/файла родителя */
   hash BYTEA NOT NULL, /* хеш значение объекта/файла */

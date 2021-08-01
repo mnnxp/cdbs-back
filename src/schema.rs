@@ -218,7 +218,6 @@ table! {
 
 table! {
     file_ref (uuid) {
-        id -> Int4,
         uuid -> Uuid,
         uuid_file_parent -> Uuid,
         hash -> Bytea,

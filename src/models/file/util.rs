@@ -69,8 +69,7 @@ pub(crate) fn check_user_owned_component(
     component_ref
         .filter(uuid.eq(component_uuid))
         .filter(uuid_user.eq(user_uuid))
-        .select(id)
-        .first::<i32>(conn).unwrap_or(0)
+        .execute(conn).unwrap_or(0) as i32
 }
 
 /// Find and check existence user owned component
