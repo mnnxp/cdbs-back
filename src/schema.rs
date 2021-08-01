@@ -223,6 +223,7 @@ table! {
         hash -> Bytea,
         uuid_user -> Uuid,
         filename -> Varchar,
+        content_type -> Varchar,
         id_ext -> Int4,
         filesize -> Int4,
         path_file -> Varchar,

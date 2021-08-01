@@ -56,7 +56,17 @@ fn find_all_files(
     Ok(file_ref
         .inner_join(extension_ref)
         .select((
-            uuid, uuid_file_parent, uuid_user, filename, id_ext, extension, filesize, path_file, created_at, updated_at
+            uuid,
+            uuid_file_parent,
+            uuid_user,
+            filename,
+            content_type,
+            id_ext,
+            extension,
+            filesize,
+            path_file,
+            created_at,
+            updated_at
         ))
         .limit(limit as i64)
         .offset(offset as i64)
@@ -76,7 +86,17 @@ fn find_uuid_user_file(
     Ok(file_ref
         .inner_join(extension_ref)
         .select((
-            uuid, uuid_file_parent, uuid_user, filename, id_ext, extension, filesize, path_file, created_at, updated_at
+            uuid,
+            uuid_file_parent,
+            uuid_user,
+            filename,
+            content_type,
+            id_ext,
+            extension,
+            filesize,
+            path_file,
+            created_at,
+            updated_at
         ))
         .filter(uuid_user.eq(uuid_user_search))
         .limit(limit as i64)
@@ -111,7 +131,17 @@ fn find_uuid_component_file(
                 Ok(file_ref
                 .inner_join(extension_ref)
                 .select((
-                    uuid, uuid_file_parent, uuid_user, filename, id_ext, extension, filesize, path_file, created_at, updated_at
+                    uuid,
+                    uuid_file_parent,
+                    uuid_user,
+                    filename,
+                    content_type,
+                    id_ext,
+                    extension,
+                    filesize,
+                    path_file,
+                    created_at,
+                    updated_at
                 ))
                 .filter(uuid.eq_any(uuid_for_select_file))
                 .limit(limit as i64)
@@ -146,7 +176,17 @@ fn find_uuid_component_modification_file(
             => Ok(file_ref
                 .inner_join(extension_ref)
                 .select((
-                    uuid, uuid_file_parent, uuid_user, filename, id_ext, extension, filesize, path_file, created_at, updated_at
+                    uuid,
+                    uuid_file_parent,
+                    uuid_user,
+                    filename,
+                    content_type,
+                    id_ext,
+                    extension,
+                    filesize,
+                    path_file,
+                    created_at,
+                    updated_at
                 ))
                 .filter(uuid.eq_any(uuid_for_select_file))
                 .limit(limit as i64)

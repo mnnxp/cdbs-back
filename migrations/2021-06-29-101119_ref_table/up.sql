@@ -22,6 +22,7 @@ CREATE TABLE file_ref (
   hash BYTEA NOT NULL, /* хеш значение объекта/файла */
   uuid_user UUID NOT NULL, /* идентификатор профиля загрузившего файл */
   filename VARCHAR(225) NOT NULL, /* наименование файла */
+  content_type VARCHAR(50) NOT NULL, /* тип контента в файле */
   id_ext INTEGER NOT NULL, /* расширение файла (используется для определения CAD) */
   filesize INTEGER NOT NULL, /* размер файла */
   path_file VARCHAR(225) NOT NULL, /* путь к файлу */

@@ -11,6 +11,7 @@ pub struct File {
     pub hash: Vec<u8>,
     pub uuid_user: Uuid,
     pub filename: String,
+    pub content_type: String,
     pub id_ext: i32,
     pub filesize: i32,
     pub path_file: String,
@@ -24,6 +25,7 @@ pub struct ShowFile {
     pub uuid_file_parent: Uuid,
     pub uuid_user: Uuid,
     pub filename: String,
+    pub content_type: String,
     pub id_ext: i32,
     pub value_ext: String,
     pub filesize: i32,
@@ -45,6 +47,9 @@ impl ShowFile {
     }
     async fn filename(&self) -> &String {
         &self.filename
+    }
+    async fn content_type(&self) -> &String {
+        &self.content_type
     }
     async fn id_ext(&self) -> &i32 {
         &self.id_ext
@@ -74,6 +79,7 @@ pub struct InsertableFile {
     pub hash: Vec<u8>,
     pub uuid_user: Uuid,
     pub filename: String,
+    pub content_type: String,
     pub id_ext: i32,
     pub filesize: i32,
     pub path_file: String,
@@ -87,6 +93,7 @@ pub struct InsertableFile {
 //     pub hash:  Vec<u8>,
 //     pub uuid_user: ID,
 //     pub filename: String,
+//     pub content_type: String,
 //     pub id_ext: i32,
 //     pub filesize: i32,
 //     pub path_file: String,
@@ -98,6 +105,7 @@ pub struct FileData {
     pub hash:  Vec<u8>,
     pub uuid_user: Uuid,
     pub filename: String,
+    pub content_type: String,
     pub id_ext: i32,
     pub filesize: i32,
     pub path_file: String,
@@ -176,6 +184,7 @@ impl From<FileData> for InsertableFile {
             hash,
             uuid_user,
             filename,
+            content_type,
             id_ext,
             filesize,
             path_file,
@@ -195,6 +204,7 @@ impl From<FileData> for InsertableFile {
             hash,
             uuid_user,
             filename,
+            content_type,
             id_ext,
             filesize,
             path_file,
