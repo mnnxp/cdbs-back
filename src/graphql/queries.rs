@@ -214,6 +214,9 @@ impl QueryRoot {
         limit: Option<i32>,
         offset: Option<i32>,
     ) -> ServiceResult<Vec<ShowComponentModification>> {
+        // authorization check
+        crate::models::user::util::check_authorized(context)?;
+
         let uuid_component = match uuid_component {
             None => Uuid::nil(),
             Some(uuid_component) => Uuid::parse_str(&uuid_component)?,
@@ -237,6 +240,9 @@ impl QueryRoot {
         limit: Option<i32>,
         offset: Option<i32>,
     ) -> ServiceResult<Vec<License>> {
+        // authorization check
+        crate::models::user::util::check_authorized(context)?;
+
         let id_license: Vec<i32> = id_license.unwrap_or_default();
         let limit: i32 = limit.unwrap_or(100);
         let offset: i32 = offset.unwrap_or(0);
@@ -252,6 +258,9 @@ impl QueryRoot {
         limit: Option<i32>,
         offset: Option<i32>,
     ) -> ServiceResult<Vec<LicenseToComponent>> {
+        // authorization check
+        crate::models::user::util::check_authorized(context)?;
+
         let id_license: i32 = id_license.unwrap_or(0);
         let uuid_component = match uuid_component {
             None => Uuid::nil(),
@@ -294,6 +303,9 @@ impl QueryRoot {
         limit: Option<i32>,
         offset: Option<i32>,
     ) -> ServiceResult<Vec<ParamToModel>> {
+        // authorization check
+        crate::models::user::util::check_authorized(context)?;
+
         let id_param: i32 = id_param.unwrap_or(0);
         let uuid_component = match uuid_component {
             None => Uuid::nil(),
@@ -319,6 +331,9 @@ impl QueryRoot {
         limit: Option<i32>,
         offset: Option<i32>,
     ) -> ServiceResult<Vec<ParamToModel>> {
+        // authorization check
+        crate::models::user::util::check_authorized(context)?;
+
         let id_param: i32 = id_param.unwrap_or(0);
         let uuid_modification = match uuid_modification {
             None => Uuid::nil(),
