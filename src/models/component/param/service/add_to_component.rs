@@ -29,7 +29,7 @@ pub(crate) fn create_param_component(
     let flag_found_param = param_to_component
         .filter(uuid_component.eq(&new_param_data.uuid))
         .filter(id_param.eq(&new_param_data.id_param))
-        .filter(value.eq(&new_param_data.value))
+        // .filter(value.eq(&new_param_data.value))
         .execute(conn).unwrap_or(0);
 
     // debug!("fn create_param START SEARCH ={:?}", flag_found_param);

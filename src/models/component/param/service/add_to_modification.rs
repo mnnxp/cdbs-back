@@ -30,7 +30,7 @@ pub(crate) fn create_param_modification(
     let flag_found_param = param_to_modification
         .filter(uuid_modification.eq(&new_param_data.uuid))
         .filter(id_param.eq(&new_param_data.id_param))
-        .filter(value.eq(&new_param_data.value))
+        // .filter(value.eq(&new_param_data.value))
         .execute(conn).unwrap_or(0);
 
     // debug!("fn create_param START SEARCH ={:?}", flag_found_param);
@@ -43,8 +43,6 @@ pub(crate) fn create_param_modification(
                 .get_result(conn)?;
             Ok(inserted_param_data)
         },
-        find_id => Err(ServiceError::BadRequest(
-            format!("This param name is already with the component, id: {:?}.", find_id)
-        )),
+        _ => Err(ServiceError::BadRequest("This param name is already with the modification.".to_string())),
     }
 }
