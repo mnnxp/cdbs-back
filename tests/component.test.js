@@ -86,6 +86,21 @@ const idActualStatusModification = 1;
 var uuidComponentModificationFirst = "";
 var uuidComponentModificationSecond = "";
 
+// data for param
+const paramnameIndexFail = 100;
+const paramnameIndex = 2;
+const paramname = "Selector";
+const paramValueTest = "testparametr";
+const paramValueTest2 = "testparametr2";
+var idParamTest = "";
+
+async function cleanupParamToComponentDb() {
+  return global.knex.raw('DELETE FROM param_to_component WHERE value in (?,?)', [
+    paramValueTest,
+    paramValueTest2,
+  ]);
+}
+
 async function cleanupCompanyDb() {
   return global.knex.raw('DELETE FROM company_ref WHERE orgname IN (?,?)', [
     orgname,
@@ -135,6 +150,7 @@ async function cleanupComponentModificationDb() {
 
 describe('component', () => {
   beforeAll(() => {
+    cleanupParamToComponentDb();
     cleanupComponentModificationDb();
     cleanupComponentDb();
     cleanupStandardDb();
@@ -144,6 +160,7 @@ describe('component', () => {
     return cleanupUserDb();
   });
   afterAll(() => {
+    cleanupParamToComponentDb();
     cleanupComponentModificationDb();
     cleanupComponentDb();
     cleanupStandardDb();
@@ -671,6 +688,241 @@ describe('component', () => {
   //   done();
   // });
 
+  // Test param component
+  it('/graphql:M registerParamComponent - BadRequest no token', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .send({
+        query: `mutation  {
+            registerParamComponent( data: {
+                uuid: "${uuidComponentStandard}",
+                idParam: ${paramnameIndex},
+                value: "${paramValueTest}"
+            }) {
+                uuid
+                idParam
+                value
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Token not found.'
+    );
+    expect(body.errors[0].path[0]).toBe('registerParamComponent');
+    done();
+  });
+
+  it('/graphql:M registerParamComponent - OK', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `mutation  {
+            registerParamComponent( data: {
+                uuid: "${uuidComponentStandard}",
+                idParam: ${paramnameIndex},
+                value: "${paramValueTest}"
+            }) {
+                uuid
+                idParam
+                value
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK);
+    debug('/graphql registerParamComponent=%o', body);
+    const {
+      data: { registerParamComponent },
+    } = body;
+    expect(registerParamComponent).toContainAllKeys([
+      "uuid", "idParam", "value"
+    ]);
+    expect(registerParamComponent.id).not.toBeNull();
+    expect(registerParamComponent.value).toBe(paramValueTest);
+    done();
+  });
+
+  it('/graphql:M registerParamComponent - BadRequest no access', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `mutation  {
+            registerParamComponent( data: {
+                uuid: "${uuidComponentStandard}",
+                idParam: ${paramnameIndex},
+                value: "${paramValueTest}"
+            }) {
+                uuid
+                idParam
+                value
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql filter components=%o', body.data.components);
+    expect(body.data.components).toBeNonEmptyArray();
+    done();
+  });
+
+  it('/graphql:M registerParamComponent - param is already has', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation  {
+            registerParamComponent( data: {
+                uuid: "${uuidComponentStandard}",
+                idParam: ${paramnameIndex},
+                value: "${paramValueTest}"
+            }) {
+                uuid
+                idParam
+                value
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK);
+    debug('/graphql - param is already has =%o', body);
+    const { errors, data } = body;
+    expect(data).toBeNull();
+    expect(errors[0].message).toBe(
+      "BadRequest: This param name is already with the component."
+    );
+    done();
+  });
+
+  it('/graphql:Q List param - OK', async (done) => {
+    const response1 = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `query ListParam {
+            paramComponent {
+                uuid
+                idParam
+                value
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK);
+    debug('/graphql all param=%o', response1.body.data.paramComponent);
+    expect(response1.body.data.paramComponent).toBeNonEmptyArray();
+    done();
+  });
+
+  it('/graphql:Q List param - OK filter idParam', async (done) => {
+    const response1 = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `query ListParamComponent {
+            paramComponent (idParam: ${paramnameIndex}) {
+                uuid
+                idParam
+                value
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK);
+    debug('/graphql filter idParam =%o', response1.body.data.paramComponent);
+    expect(response1.body.data.paramComponent).toBeNonEmptyArray();
+    expect(response1.body.data.paramComponent[0].idParam).toBe(paramnameIndex);
+    done();
+  });
+
+  it('/graphql:Q List param - OK filter uuidComponent', async (done) => {
+    const response1 = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `query ListParamComponent {
+            paramComponent (uuidComponent: "${uuidComponentStandard}") {
+                uuid
+                idParam
+                value
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK);
+    debug('/graphql filter uuidComponent =%o', response1.body.data.paramComponent);
+    expect(response1.body.data.paramComponent).toBeNonEmptyArray();
+    expect(response1.body.data.paramComponent[0].uuid).toBe(uuidComponentStandard);
+    done();
+  });
+
+  it('/graphql:Q List param - OK filter idParam and uuidComponent', async (done) => {
+    const response1 = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `query ListParamComponent {
+            paramComponent (
+              idParam: ${paramnameIndex},
+              uuidComponent: "${uuidComponentStandard}"
+            ) {
+                uuid
+                idParam
+                value
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK);
+    debug('/graphql filter idParam and uuidComponent =%o', response1.body.data.paramComponent);
+    expect(response1.body.data.paramComponent).toBeNonEmptyArray();
+    expect(response1.body.data.paramComponent[0].uuid).toBe(uuidComponentStandard);
+    expect(response1.body.data.paramComponent[0].idParam).toBe(paramnameIndex);
+    done();
+  });
+
+  it('/graphql:M registerParamComponent - no token', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .send({
+        query: `mutation  {
+            registerParamComponent( data: {
+                uuid: "${uuidComponentNoStandard}",
+                idParam: ${paramnameIndex},
+                value: "${paramValueTest}"
+            }) {
+                uuid
+                idParam
+                value
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK);
+    debug('/graphql - body=%o', body);
+    const { errors, data } = body;
+    expect(data).toBeNull();
+    expect(errors[0].message).toBe("BadRequest: Token not found.");
+    done();
+  });
+
   // Test component modification
   it('/graphql:M registerComponentModification - BadRequest no access/not found', async (done) => {
     const { body } = await agent
@@ -819,7 +1071,7 @@ describe('component', () => {
     done();
   });
 
-  it('/graphql:M registerComponentModification - BadRequest no token.', async (done) => {
+  it('/graphql:M registerComponentModification - BadRequest no token', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .send({
@@ -964,13 +1216,12 @@ describe('component', () => {
         }`,
       })
       .expect(HttpStatus.OK)
-    debug('/graphql body=%o', body);
-    const {
-      data: { componentModification },
-    } = body;
-    expect(componentModification).toBeNonEmptyArray();
-    expect(componentModification[0].uuidComponent).toBe(uuidComponentStandard);
-    expect(componentModification.pop().uuidComponent).toBe(uuidComponentStandard);
-    done();
+  debug('/graphql body=%o', body);
+  expect(body.data).toBeNull();
+  expect(body.errors[0].message).toBe(
+    'BadRequest: Token not found.'
+  );
+  expect(body.errors[0].path[0]).toBe('componentModification');
+  done();
   });
 });
