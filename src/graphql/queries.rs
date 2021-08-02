@@ -272,11 +272,14 @@ impl QueryRoot {
     async fn param(
         &self,
         context: &Context<'_>,
-        id_param: Vec<i32>,
+        id_param: Option<Vec<i32>>,
         limit: Option<i32>,
         offset: Option<i32>,
     ) -> ServiceResult<Vec<Param>> {
-        let id_param: Vec<i32> = id_param;
+        // authorization check
+        crate::models::user::util::check_authorized(context)?;
+
+        let id_param: Vec<i32> = id_param.unwrap_or_default();
         let limit: i32 = limit.unwrap_or(100);
         let offset: i32 = offset.unwrap_or(0);
 
@@ -368,7 +371,7 @@ impl QueryRoot {
     ) -> ServiceResult<Vec<ShowCompanyRepresent>> {
         // authorization check
         crate::models::user::util::check_authorized(context)?;
-        
+
         let uuid_company = match uuid_company {
             None => Uuid::nil(),
             Some(uuid_company) => Uuid::parse_str(&uuid_company)?,
