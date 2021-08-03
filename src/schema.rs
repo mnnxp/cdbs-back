@@ -73,7 +73,7 @@ table! {
 }
 
 table! {
-    component_access_to_company (uuid_component, uuid_company) {
+    company_access_to_component (uuid_component, uuid_company) {
         uuid_component -> Uuid,
         uuid_company -> Uuid,
         id_type_access -> Int4,
@@ -623,9 +623,9 @@ joinable!(company_ref -> user_ref (uuid_user));
 joinable!(company_represent_ref -> company_ref (uuid_company));
 joinable!(company_represent_ref -> region_ref (id_region));
 joinable!(company_represent_ref -> representation_type_ref (id_representation_type));
-joinable!(component_access_to_company -> company_ref (uuid_company));
-joinable!(component_access_to_company -> component_ref (uuid_component));
-joinable!(component_access_to_company -> type_access_ref (id_type_access));
+joinable!(company_access_to_component -> company_ref (uuid_company));
+joinable!(company_access_to_component -> component_ref (uuid_component));
+joinable!(company_access_to_component -> type_access_ref (id_type_access));
 joinable!(component_fav -> component_ref (uuid_component));
 joinable!(component_fav -> user_ref (uuid_user));
 joinable!(component_history_list -> component_ref (uuid_component));
@@ -713,7 +713,7 @@ allow_tables_to_appear_in_same_query!(
     company_member_role,
     company_ref,
     company_represent_ref,
-    component_access_to_company,
+    company_access_to_component,
     component_fav,
     component_history_list,
     component_keyword_ref,

@@ -115,7 +115,7 @@ CREATE TABLE role_access (
 );
 
 /* доступ к компоненту отдельного компании */
-CREATE TABLE component_access_to_company (
+CREATE TABLE company_access_to_component (
   -- id SERIAL, /* id доступа */
   uuid_component UUID NOT NULL, /* идентификатор компонента */
   uuid_company UUID NOT NULL, /* идентификатор компании */
@@ -124,7 +124,7 @@ CREATE TABLE component_access_to_company (
   is_delete BOOLEAN NOT NULL DEFAULT 'f', /* флаг удаления доступа */
   created_at TIMESTAMP NOT NULL DEFAULT NOW(), /* дата создания доступа */
   updated_at TIMESTAMP NOT NULL DEFAULT NOW(), /* дата обновления */
-  CONSTRAINT component_access_to_company_pk PRIMARY KEY (uuid_component, uuid_company)
+  CONSTRAINT company_access_to_component_pk PRIMARY KEY (uuid_component, uuid_company)
 );
 
 /* доступ к стандарту отдельной компании */

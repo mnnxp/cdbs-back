@@ -8,5 +8,5 @@ discussion_company_ref /* обсуждение компании */
 representation_type_ref /* тип представительства компании */
 role_member_ref /* роль члена */
 role_access /* уровень доступа роли */
-component_access_to_company /* доступ к компоненту отдельного компании */
+company_access_to_component /* доступ к компоненту отдельного компании */
 standard_access_to_company /* доступ к стандарту отдельного компании */

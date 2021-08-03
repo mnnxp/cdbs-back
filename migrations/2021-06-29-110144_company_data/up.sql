@@ -50,7 +50,7 @@ INSERT INTO role_access (id_role, id_type_access) VALUES
   (1, 2),
   (1, 1);
 
-INSERT INTO component_access_to_company (uuid_component, uuid_company, id_type_access,
+INSERT INTO company_access_to_component (uuid_component, uuid_company, id_type_access,
 is_enabled, is_delete, created_at, updated_at) VALUES
   ('a5953fd9-7393-4f1e-a899-06b5e159dbf1', '2cd385e1-8f7e-4908-8235-dfe42938b46d', 1, 't', 'f', now(), now());
   

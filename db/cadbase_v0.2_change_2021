@@ -3,7 +3,7 @@ company_ref
 company_member_role 
 role_member_ref
 role_access
-component_access_to_company
+company_access_to_component
 company_fav
 standard_fav
 user_fav
