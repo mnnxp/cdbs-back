@@ -50,7 +50,7 @@ var uuidRepresentFirst = "";
 var uuidRepresentDelete = "";
 
 async function cleanupCompanyDb() {
-  return global.knex.raw('DELETE FROM company_ref WHERE orgname IN (?,?)', [
+  return global.knex.raw('DELETE FROM company_ref WHERE orgname in (?,?)', [
     orgname,
     orgname2,
   ]);
@@ -68,7 +68,7 @@ async function cleanupTokenDb() {
 }
 
 async function cleanupUserDb() {
-  return global.knex.raw('DELETE FROM user_ref WHERE username IN (?,?)', [
+  return global.knex.raw('DELETE FROM user_ref WHERE username in (?,?)', [
     username,
     username2,
   ]);
