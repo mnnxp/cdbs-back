@@ -8,9 +8,9 @@ ALTER TABLE user_tokens_ref ADD CONSTRAINT user_tokens_ref_fk0 FOREIGN KEY (uuid
 ALTER TABLE user_history_list ADD CONSTRAINT user_history_list_fk0 FOREIGN KEY (uuid_user) REFERENCES user_ref(uuid);
 ALTER TABLE user_history_list ADD CONSTRAINT user_history_list_fk1 FOREIGN KEY (id_type_of_change) REFERENCES type_of_change_ref(id);
 
-ALTER TABLE component_access_to_user ADD CONSTRAINT component_access_to_user_fk0 FOREIGN KEY (uuid_component) REFERENCES component_ref(uuid);
-ALTER TABLE component_access_to_user ADD CONSTRAINT component_access_to_user_fk1 FOREIGN KEY (uuid_user) REFERENCES user_ref(uuid);
-ALTER TABLE component_access_to_user ADD CONSTRAINT component_access_to_user_fk2 FOREIGN KEY (id_type_access) REFERENCES type_access_ref(id);
+ALTER TABLE user_access_to_component ADD CONSTRAINT user_access_to_component_fk0 FOREIGN KEY (uuid_component) REFERENCES component_ref(uuid);
+ALTER TABLE user_access_to_component ADD CONSTRAINT user_access_to_component_fk1 FOREIGN KEY (uuid_user) REFERENCES user_ref(uuid);
+ALTER TABLE user_access_to_component ADD CONSTRAINT user_access_to_component_fk2 FOREIGN KEY (id_type_access) REFERENCES type_access_ref(id);
 
 ALTER TABLE user_access_to_standard ADD CONSTRAINT user_access_to_standard_fk0 FOREIGN KEY (uuid_standard) REFERENCES standard_ref(uuid);
 ALTER TABLE user_access_to_standard ADD CONSTRAINT user_access_to_standard_fk1 FOREIGN KEY (uuid_user) REFERENCES user_ref(uuid);

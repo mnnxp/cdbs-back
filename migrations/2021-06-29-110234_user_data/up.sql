@@ -14,7 +14,7 @@ INSERT INTO user_tokens_ref (uuid_user, token, start_at, end_at) VALUES
 INSERT INTO user_history_list (uuid_user, id_type_of_change, old_data, changed_at) VALUES
   ('31ecc6f8-0c09-4a59-a2d5-34b5b833e59b', 1, 'Комментарий к изменению', now());
 
-INSERT INTO component_access_to_user (uuid_component, uuid_user, id_type_access,
+INSERT INTO user_access_to_component (uuid_component, uuid_user, id_type_access,
   is_enabled, is_delete, created_at, updated_at) VALUES
   ('a5953fd9-7393-4f1e-a899-06b5e159dbf1', '31ecc6f8-0c09-4a59-a2d5-34b5b833e59b', 1, 't', 'f', now(), now());
 

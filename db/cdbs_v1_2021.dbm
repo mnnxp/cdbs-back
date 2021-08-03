@@ -516,16 +516,16 @@ END;]]></definition>
 	</constraint>
 </table>
 
-<sequence name="component_access_to_user_id_seq" cycle="false" start="1" increment="1" min-value="1" max-value="2147483647" cache="1">
+<sequence name="user_access_to_component_id_seq" cycle="false" start="1" increment="1" min-value="1" max-value="2147483647" cache="1">
 	<schema name="public"/>
 	<role name="postgres"/>
 </sequence>
 
-<table name="component_access_to_user" layer="0" collapse-mode="2" max-obj-count="8" z-value="0">
+<table name="user_access_to_component" layer="0" collapse-mode="2" max-obj-count="8" z-value="0">
 	<schema name="public"/>
 	<role name="postgres"/>
 	<position x="3780" y="660"/>
-	<column name="id" not-null="true" sequence="public.component_access_to_user_id_seq">
+	<column name="id" not-null="true" sequence="public.user_access_to_component_id_seq">
 		<type name="integer" length="0"/>
 	</column>
 	<column name="uuid_component" not-null="true">
@@ -546,7 +546,7 @@ END;]]></definition>
 	<column name="created_at" not-null="true" default-value="now()">
 		<type name="timestamp" length="0"/>
 	</column>
-	<constraint name="component_access_to_user_pk" type="pk-constr" table="public.component_access_to_user">
+	<constraint name="user_access_to_component_pk" type="pk-constr" table="public.user_access_to_component">
 		<columns names="id" ref-type="src-columns"/>
 	</constraint>
 </table>
@@ -1183,20 +1183,20 @@ END;]]></definition>
 	<columns names="id" ref-type="dst-columns"/>
 </constraint>
 
-<constraint name="component_access_to_user_fk0" type="fk-constr" comparison-type="MATCH SIMPLE"
-	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="public.component_ref" table="public.component_access_to_user">
+<constraint name="user_access_to_component_fk0" type="fk-constr" comparison-type="MATCH SIMPLE"
+	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="public.component_ref" table="public.user_access_to_component">
 	<columns names="uuid_component" ref-type="src-columns"/>
 	<columns names="uuid" ref-type="dst-columns"/>
 </constraint>
 
-<constraint name="component_access_to_user_fk1" type="fk-constr" comparison-type="MATCH SIMPLE"
-	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="public.user_ref" table="public.component_access_to_user">
+<constraint name="user_access_to_component_fk1" type="fk-constr" comparison-type="MATCH SIMPLE"
+	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="public.user_ref" table="public.user_access_to_component">
 	<columns names="uuid_user" ref-type="src-columns"/>
 	<columns names="uuid" ref-type="dst-columns"/>
 </constraint>
 
-<constraint name="component_access_to_user_fk2" type="fk-constr" comparison-type="MATCH SIMPLE"
-	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="public.type_access_ref" table="public.component_access_to_user">
+<constraint name="user_access_to_component_fk2" type="fk-constr" comparison-type="MATCH SIMPLE"
+	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="public.type_access_ref" table="public.user_access_to_component">
 	<columns names="id_type_access" ref-type="src-columns"/>
 	<columns names="id" ref-type="dst-columns"/>
 </constraint>
@@ -1519,22 +1519,22 @@ END;]]></definition>
 	 dst-table="public.type_access_ref" reference-fk="component_ref_fk4"
 	 src-required="false" dst-required="true"/>
 
-<relationship name="rel_component_access_to_user_component_ref" type="relfk" layer="0"
+<relationship name="rel_user_access_to_component_component_ref" type="relfk" layer="0"
 	 custom-color="#9a64bb"
-	 src-table="public.component_access_to_user"
-	 dst-table="public.component_ref" reference-fk="component_access_to_user_fk0"
+	 src-table="public.user_access_to_component"
+	 dst-table="public.component_ref" reference-fk="user_access_to_component_fk0"
 	 src-required="false" dst-required="true"/>
 
-<relationship name="rel_component_access_to_user_user_ref" type="relfk" layer="0"
+<relationship name="rel_user_access_to_component_user_ref" type="relfk" layer="0"
 	 custom-color="#f53529"
-	 src-table="public.component_access_to_user"
-	 dst-table="public.user_ref" reference-fk="component_access_to_user_fk1"
+	 src-table="public.user_access_to_component"
+	 dst-table="public.user_ref" reference-fk="user_access_to_component_fk1"
 	 src-required="false" dst-required="true"/>
 
-<relationship name="rel_component_access_to_user_type_access_ref" type="relfk" layer="0"
+<relationship name="rel_user_access_to_component_type_access_ref" type="relfk" layer="0"
 	 custom-color="#863e8e"
-	 src-table="public.component_access_to_user"
-	 dst-table="public.type_access_ref" reference-fk="component_access_to_user_fk2"
+	 src-table="public.user_access_to_component"
+	 dst-table="public.type_access_ref" reference-fk="user_access_to_component_fk2"
 	 src-required="false" dst-required="true"/>
 
 <relationship name="rel_spec_to_component_spec_ref" type="relfk" layer="0"

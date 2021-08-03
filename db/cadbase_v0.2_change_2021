@@ -30,12 +30,12 @@ component_to_user
 supplier_to_component
 discussion_ref
 spec_to_user
-component_access_to_user
+user_access_to_component
 actual_status_ref
 user_history_list_ref
 name_programm_ref
 extension_ref
-component_access_to_user
+user_access_to_component
 
 component
 a5953fd9-7393-4f1e-a899-06b5e159dbf1

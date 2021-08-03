@@ -48,7 +48,7 @@ CREATE TABLE user_history_list (
 );
 
 /* доступ к компоненту отдельного пользователя */
-CREATE TABLE component_access_to_user (
+CREATE TABLE user_access_to_component (
   -- id SERIAL, /* id доступа */
   uuid_component UUID NOT NULL, /* идентификатор компонента */
   uuid_user UUID NOT NULL, /* идентификатор профиля */
@@ -57,7 +57,7 @@ CREATE TABLE component_access_to_user (
   is_delete BOOLEAN NOT NULL DEFAULT 'f', /* флаг удаления доступа */
   created_at TIMESTAMP NOT NULL DEFAULT NOW(), /* дата создания доступа */
   updated_at TIMESTAMP NOT NULL DEFAULT NOW(), /* дата обновления */
-  CONSTRAINT component_access_to_user_pk PRIMARY KEY (uuid_component, uuid_user)
+  CONSTRAINT user_access_to_component_pk PRIMARY KEY (uuid_component, uuid_user)
 );
 
 /* доступ к стандарту отдельного пользователя */

@@ -85,18 +85,6 @@ table! {
 }
 
 table! {
-    component_access_to_user (uuid_component, uuid_user) {
-        uuid_component -> Uuid,
-        uuid_user -> Uuid,
-        id_type_access -> Int4,
-        is_enabled -> Bool,
-        is_delete -> Bool,
-        created_at -> Timestamp,
-        updated_at -> Timestamp,
-    }
-}
-
-table! {
     component_fav (uuid_component, uuid_user) {
         uuid_component -> Uuid,
         uuid_user -> Uuid,
@@ -544,6 +532,18 @@ table! {
 }
 
 table! {
+    user_access_to_component (uuid_component, uuid_user) {
+        uuid_component -> Uuid,
+        uuid_user -> Uuid,
+        id_type_access -> Int4,
+        is_enabled -> Bool,
+        is_delete -> Bool,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
+
+table! {
     user_access_to_standard (uuid_standard, uuid_user) {
         uuid_standard -> Uuid,
         uuid_user -> Uuid,
@@ -626,9 +626,6 @@ joinable!(company_represent_ref -> representation_type_ref (id_representation_ty
 joinable!(component_access_to_company -> company_ref (uuid_company));
 joinable!(component_access_to_company -> component_ref (uuid_component));
 joinable!(component_access_to_company -> type_access_ref (id_type_access));
-joinable!(component_access_to_user -> component_ref (uuid_component));
-joinable!(component_access_to_user -> type_access_ref (id_type_access));
-joinable!(component_access_to_user -> user_ref (uuid_user));
 joinable!(component_fav -> component_ref (uuid_component));
 joinable!(component_fav -> user_ref (uuid_user));
 joinable!(component_history_list -> component_ref (uuid_component));
@@ -697,6 +694,9 @@ joinable!(standard_to_component -> component_ref (uuid_component));
 joinable!(standard_to_component -> standard_ref (uuid_standard));
 joinable!(supplier_to_component -> company_ref (uuid_company));
 joinable!(supplier_to_component -> component_ref (uuid_component));
+joinable!(user_access_to_component -> component_ref (uuid_component));
+joinable!(user_access_to_component -> type_access_ref (id_type_access));
+joinable!(user_access_to_component -> user_ref (uuid_user));
 joinable!(user_access_to_standard -> standard_ref (uuid_standard));
 joinable!(user_access_to_standard -> type_access_ref (id_type_access));
 joinable!(user_access_to_standard -> user_ref (uuid_user));
@@ -714,7 +714,6 @@ allow_tables_to_appear_in_same_query!(
     company_ref,
     company_represent_ref,
     component_access_to_company,
-    component_access_to_user,
     component_fav,
     component_history_list,
     component_keyword_ref,
@@ -766,6 +765,7 @@ allow_tables_to_appear_in_same_query!(
     type_access_ref,
     type_company_ref,
     type_of_change_ref,
+    user_access_to_component,
     user_access_to_standard,
     user_fav,
     user_history_list,
