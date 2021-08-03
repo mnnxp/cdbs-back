@@ -15,7 +15,7 @@ discussion_component_ref
 discussion_company_ref
 standard_ref
 file_to_standard
-standard_access_to_user
+user_access_to_standard
 standard_access_to_company
 standard_status_ref
 

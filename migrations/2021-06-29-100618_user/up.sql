@@ -61,7 +61,7 @@ CREATE TABLE component_access_to_user (
 );
 
 /* доступ к стандарту отдельного пользователя */
-CREATE TABLE standard_access_to_user (
+CREATE TABLE user_access_to_standard (
   -- id SERIAL, /* id доступа */
   uuid_standard UUID NOT NULL, /* идентификатор стандарта */
   uuid_user UUID NOT NULL, /* идентификатор профиля */
@@ -70,7 +70,7 @@ CREATE TABLE standard_access_to_user (
   is_delete BOOLEAN NOT NULL DEFAULT 'f', /* флаг удаления доступа */
   created_at TIMESTAMP NOT NULL DEFAULT NOW(), /* дата создания доступа */
   updated_at TIMESTAMP NOT NULL DEFAULT NOW(), /* дата обновления */
-  CONSTRAINT standard_access_to_user_pk PRIMARY KEY (uuid_standard, uuid_user)
+  CONSTRAINT user_access_to_standard_pk PRIMARY KEY (uuid_standard, uuid_user)
 );
 
 /* отслеживание профиля пользователем */

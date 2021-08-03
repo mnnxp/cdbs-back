@@ -18,7 +18,7 @@ INSERT INTO component_access_to_user (uuid_component, uuid_user, id_type_access,
   is_enabled, is_delete, created_at, updated_at) VALUES
   ('a5953fd9-7393-4f1e-a899-06b5e159dbf1', '31ecc6f8-0c09-4a59-a2d5-34b5b833e59b', 1, 't', 'f', now(), now());
 
-INSERT INTO standard_access_to_user (uuid_standard, uuid_user, id_type_access,
+INSERT INTO user_access_to_standard (uuid_standard, uuid_user, id_type_access,
   is_enabled, is_delete, created_at, updated_at) VALUES
   ('303ec2aa-2066-42e3-93fb-de4fb9344bcb', '31ecc6f8-0c09-4a59-a2d5-34b5b833e59b', 1, 't', 'f', now(), now());
 

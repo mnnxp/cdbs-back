@@ -459,18 +459,6 @@ table! {
 }
 
 table! {
-    standard_access_to_user (uuid_standard, uuid_user) {
-        uuid_standard -> Uuid,
-        uuid_user -> Uuid,
-        id_type_access -> Int4,
-        is_enabled -> Bool,
-        is_delete -> Bool,
-        created_at -> Timestamp,
-        updated_at -> Timestamp,
-    }
-}
-
-table! {
     standard_fav (uuid_standard, uuid_user) {
         uuid_standard -> Uuid,
         uuid_user -> Uuid,
@@ -552,6 +540,18 @@ table! {
     type_of_change_ref (id) {
         id -> Int4,
         type_of_change -> Varchar,
+    }
+}
+
+table! {
+    user_access_to_standard (uuid_standard, uuid_user) {
+        uuid_standard -> Uuid,
+        uuid_user -> Uuid,
+        id_type_access -> Int4,
+        is_enabled -> Bool,
+        is_delete -> Bool,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
     }
 }
 
@@ -684,9 +684,6 @@ joinable!(spec_translate_list -> spec_ref (id_spec));
 joinable!(standard_access_to_company -> company_ref (uuid_company));
 joinable!(standard_access_to_company -> standard_ref (uuid_standard));
 joinable!(standard_access_to_company -> type_access_ref (id_type_access));
-joinable!(standard_access_to_user -> standard_ref (uuid_standard));
-joinable!(standard_access_to_user -> type_access_ref (id_type_access));
-joinable!(standard_access_to_user -> user_ref (uuid_user));
 joinable!(standard_fav -> standard_ref (uuid_standard));
 joinable!(standard_fav -> user_ref (uuid_user));
 joinable!(standard_history_list -> standard_ref (uuid_standard));
@@ -700,6 +697,9 @@ joinable!(standard_to_component -> component_ref (uuid_component));
 joinable!(standard_to_component -> standard_ref (uuid_standard));
 joinable!(supplier_to_component -> company_ref (uuid_company));
 joinable!(supplier_to_component -> component_ref (uuid_component));
+joinable!(user_access_to_standard -> standard_ref (uuid_standard));
+joinable!(user_access_to_standard -> type_access_ref (id_type_access));
+joinable!(user_access_to_standard -> user_ref (uuid_user));
 joinable!(user_history_list -> type_of_change_ref (id_type_of_change));
 joinable!(user_history_list -> user_ref (uuid_user));
 joinable!(user_ref -> program_ref (id_program));
@@ -757,7 +757,6 @@ allow_tables_to_appear_in_same_query!(
     spec_to_component,
     spec_translate_list,
     standard_access_to_company,
-    standard_access_to_user,
     standard_fav,
     standard_history_list,
     standard_ref,
@@ -767,6 +766,7 @@ allow_tables_to_appear_in_same_query!(
     type_access_ref,
     type_company_ref,
     type_of_change_ref,
+    user_access_to_standard,
     user_fav,
     user_history_list,
     user_ref,

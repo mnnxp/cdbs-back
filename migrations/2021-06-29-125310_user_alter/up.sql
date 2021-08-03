@@ -12,9 +12,9 @@ ALTER TABLE component_access_to_user ADD CONSTRAINT component_access_to_user_fk0
 ALTER TABLE component_access_to_user ADD CONSTRAINT component_access_to_user_fk1 FOREIGN KEY (uuid_user) REFERENCES user_ref(uuid);
 ALTER TABLE component_access_to_user ADD CONSTRAINT component_access_to_user_fk2 FOREIGN KEY (id_type_access) REFERENCES type_access_ref(id);
 
-ALTER TABLE standard_access_to_user ADD CONSTRAINT standard_access_to_user_fk0 FOREIGN KEY (uuid_standard) REFERENCES standard_ref(uuid);
-ALTER TABLE standard_access_to_user ADD CONSTRAINT standard_access_to_user_fk1 FOREIGN KEY (uuid_user) REFERENCES user_ref(uuid);
-ALTER TABLE standard_access_to_user ADD CONSTRAINT standard_access_to_user_fk2 FOREIGN KEY (id_type_access) REFERENCES type_access_ref(id);
+ALTER TABLE user_access_to_standard ADD CONSTRAINT user_access_to_standard_fk0 FOREIGN KEY (uuid_standard) REFERENCES standard_ref(uuid);
+ALTER TABLE user_access_to_standard ADD CONSTRAINT user_access_to_standard_fk1 FOREIGN KEY (uuid_user) REFERENCES user_ref(uuid);
+ALTER TABLE user_access_to_standard ADD CONSTRAINT user_access_to_standard_fk2 FOREIGN KEY (id_type_access) REFERENCES type_access_ref(id);
 
 ALTER TABLE user_fav ADD CONSTRAINT user_fav_fk0 FOREIGN KEY (uuid_user_favorite) REFERENCES user_ref(uuid);
 ALTER TABLE user_fav ADD CONSTRAINT user_fav_fk1 FOREIGN KEY (uuid_user_follower) REFERENCES user_ref(uuid);
