@@ -104,14 +104,16 @@ INSERT INTO file_ref (uuid, uuid_file_parent, hash, uuid_user, filename, content
   ('3706d1a1-80ae-4367-be39-af7091373811', 'bc1c2151-86d0-4656-9c9d-d016dd584297', E'\\xe3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855', '68b8281a-d19c-4d4b-88eb-6fd4a2afde1b', 'file_child_two.pdd', 'text/plain', 1, 136, '/sholder/file/f1c5a362-55f9-4edb-ad90-a2ea64d586df', now(), now());
 
 INSERT INTO actual_status_ref (name) VALUES
-  ('актуальный'),
-  ('архивный'),
-  ('снят с производства');
+  ('Developed'),
+  ('Tested'),
+  ('Planned'),
+  ('Launched'),
+  ('Discontinued');
 
 INSERT INTO type_access_ref (name) VALUES
-  ('Полный'),
-  ('Частичный'),
-  ('Закрыт');
+  ('Private'),
+  ('Protected'),
+  ('Public');
 
 -- TABLE: param_ref: id (serial), paramname (VARCHAR(100))
 INSERT INTO param_ref (paramname) VALUES
@@ -234,7 +236,7 @@ INSERT INTO region_ref (region) VALUES
 
 -- TABLE: type_of_change_ref: id (serial), type_of_change (VARCHAR(100))
 INSERT INTO type_of_change_ref (type_of_change) VALUES
-  ('Изменение типа профиля');
+  ('data update');
 
 -- TABLE: spec_ref: id (serial), spec (VARCHAR(100)), id_spec_parent (INTEGER)
 INSERT INTO spec_ref (spec, id_spec_parent) VALUES
