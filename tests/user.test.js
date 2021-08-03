@@ -384,7 +384,22 @@ describe('users', () => {
     done();
   });
 
-  it('/graphql:Q getToken', async (done) => {
+  it('/graphql:Q getToken - BadRequest too fast release of tokens', async (done) => {
+    const response1 = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `query tokenQuery {
+         getToken {
+            bearer
+         }
+       }`,
+      })
+      .expect(HttpStatus.OK);
+    debug('/graphql body=%o', response1.body);
     const response2 = await agent
       .post('/graphql')
       .set(
@@ -398,12 +413,38 @@ describe('users', () => {
          }
        }`,
       })
-      .expect(HttpStatus.OK)
+      .expect(HttpStatus.OK);
     debug('/graphql body=%o', response2.body);
-    expect(response2.body.data.getToken.bearer).toBeNonEmptyString();
-    authorizationTokenSecond = response2.body.data.getToken.bearer;
+    expect(response2.body.errors[0].message).toBe(
+      'BadRequest: Please, try again later.'
+    );
+    done();
+  });
 
-    const response3 = await agent
+  it('/graphql:Q getToken', async (done) => {
+    await new Promise(r => setTimeout(r, 1100));
+    const response1 = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `query tokenQuery {
+         getToken {
+            bearer
+         }
+       }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', response1.body);
+    debug('/graphql authorizationTokenFirst=%o', authorizationTokenFirst);
+    debug('/graphql authorizationTokenSecond=%o', authorizationTokenSecond);
+    debug('/graphql getToken.bearer=%o', response1.body.data.getToken.bearer);
+    expect(response1.body.data.getToken.bearer).toBeNonEmptyString();
+    authorizationTokenSecond = response1.body.data.getToken.bearer;
+
+    const response2 = await agent
       .post('/graphql')
       .set(
         'Authorization',
@@ -421,8 +462,8 @@ describe('users', () => {
       }`,
       })
       .expect(HttpStatus.OK)
-    debug('/graphql body=%o', response3.body);
-    expect(response3.body.data.decodeToken.username).toBe(username);
+    debug('/graphql body=%o', response2.body);
+    expect(response2.body.data.decodeToken.username).toBe(username);
     done();
   });
 
