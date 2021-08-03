@@ -128,7 +128,7 @@ CREATE TABLE company_access_to_component (
 );
 
 /* доступ к стандарту отдельной компании */
-CREATE TABLE standard_access_to_company (
+CREATE TABLE company_access_to_standard (
   -- id SERIAL, /* id доступа */
   uuid_standard UUID NOT NULL, /* идентификатор стандарта */
   uuid_company UUID NOT NULL, /* идентификатор компании */
@@ -137,5 +137,5 @@ CREATE TABLE standard_access_to_company (
   is_delete BOOLEAN NOT NULL DEFAULT 'f', /* флаг удаления доступа */
   created_at TIMESTAMP NOT NULL DEFAULT NOW(), /* дата создания доступа */
   updated_at TIMESTAMP NOT NULL DEFAULT NOW(), /* дата обновления */
-  CONSTRAINT standard_access_to_company_pk PRIMARY KEY (uuid_standard, uuid_company)
+  CONSTRAINT company_access_to_standard_pk PRIMARY KEY (uuid_standard, uuid_company)
 );

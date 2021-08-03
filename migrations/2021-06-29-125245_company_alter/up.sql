@@ -29,6 +29,6 @@ ALTER TABLE company_access_to_component ADD CONSTRAINT company_access_to_compone
 ALTER TABLE company_access_to_component ADD CONSTRAINT company_access_to_component_fk1 FOREIGN KEY (uuid_company) REFERENCES company_ref(uuid);
 ALTER TABLE company_access_to_component ADD CONSTRAINT company_access_to_component_fk2 FOREIGN KEY (id_type_access) REFERENCES type_access_ref(id);
 
-ALTER TABLE standard_access_to_company ADD CONSTRAINT standard_access_to_company_fk0 FOREIGN KEY (uuid_standard) REFERENCES standard_ref(uuid);
-ALTER TABLE standard_access_to_company ADD CONSTRAINT standard_access_to_company_fk1 FOREIGN KEY (uuid_company) REFERENCES company_ref(uuid);
-ALTER TABLE standard_access_to_company ADD CONSTRAINT standard_access_to_company_fk2 FOREIGN KEY (id_type_access) REFERENCES type_access_ref(id);
+ALTER TABLE company_access_to_standard ADD CONSTRAINT company_access_to_standard_fk0 FOREIGN KEY (uuid_standard) REFERENCES standard_ref(uuid);
+ALTER TABLE company_access_to_standard ADD CONSTRAINT company_access_to_standard_fk1 FOREIGN KEY (uuid_company) REFERENCES company_ref(uuid);
+ALTER TABLE company_access_to_standard ADD CONSTRAINT company_access_to_standard_fk2 FOREIGN KEY (id_type_access) REFERENCES type_access_ref(id);

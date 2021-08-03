@@ -6,6 +6,30 @@ table! {
 }
 
 table! {
+    company_access_to_component (uuid_component, uuid_company) {
+        uuid_component -> Uuid,
+        uuid_company -> Uuid,
+        id_type_access -> Int4,
+        is_enabled -> Bool,
+        is_delete -> Bool,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
+
+table! {
+    company_access_to_standard (uuid_standard, uuid_company) {
+        uuid_standard -> Uuid,
+        uuid_company -> Uuid,
+        id_type_access -> Int4,
+        is_enabled -> Bool,
+        is_delete -> Bool,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
+
+table! {
     company_fav (uuid_company, uuid_user) {
         uuid_company -> Uuid,
         uuid_user -> Uuid,
@@ -69,18 +93,6 @@ table! {
         name -> Varchar,
         address -> Varchar,
         phone -> Varchar,
-    }
-}
-
-table! {
-    company_access_to_component (uuid_component, uuid_company) {
-        uuid_component -> Uuid,
-        uuid_company -> Uuid,
-        id_type_access -> Int4,
-        is_enabled -> Bool,
-        is_delete -> Bool,
-        created_at -> Timestamp,
-        updated_at -> Timestamp,
     }
 }
 
@@ -435,18 +447,6 @@ table! {
 }
 
 table! {
-    standard_access_to_company (uuid_standard, uuid_company) {
-        uuid_standard -> Uuid,
-        uuid_company -> Uuid,
-        id_type_access -> Int4,
-        is_enabled -> Bool,
-        is_delete -> Bool,
-        created_at -> Timestamp,
-        updated_at -> Timestamp,
-    }
-}
-
-table! {
     standard_fav (uuid_standard, uuid_user) {
         uuid_standard -> Uuid,
         uuid_user -> Uuid,
@@ -609,6 +609,12 @@ table! {
     }
 }
 
+joinable!(company_access_to_component -> company_ref (uuid_company));
+joinable!(company_access_to_component -> component_ref (uuid_component));
+joinable!(company_access_to_component -> type_access_ref (id_type_access));
+joinable!(company_access_to_standard -> company_ref (uuid_company));
+joinable!(company_access_to_standard -> standard_ref (uuid_standard));
+joinable!(company_access_to_standard -> type_access_ref (id_type_access));
 joinable!(company_fav -> company_ref (uuid_company));
 joinable!(company_fav -> user_ref (uuid_user));
 joinable!(company_history_list -> company_ref (uuid_company));
@@ -623,9 +629,6 @@ joinable!(company_ref -> user_ref (uuid_user));
 joinable!(company_represent_ref -> company_ref (uuid_company));
 joinable!(company_represent_ref -> region_ref (id_region));
 joinable!(company_represent_ref -> representation_type_ref (id_representation_type));
-joinable!(company_access_to_component -> company_ref (uuid_company));
-joinable!(company_access_to_component -> component_ref (uuid_component));
-joinable!(company_access_to_component -> type_access_ref (id_type_access));
 joinable!(component_fav -> component_ref (uuid_component));
 joinable!(component_fav -> user_ref (uuid_user));
 joinable!(component_history_list -> component_ref (uuid_component));
@@ -678,9 +681,6 @@ joinable!(spec_to_component -> component_ref (uuid_component));
 joinable!(spec_to_component -> spec_ref (id_spec));
 joinable!(spec_translate_list -> language_ref (id_lang));
 joinable!(spec_translate_list -> spec_ref (id_spec));
-joinable!(standard_access_to_company -> company_ref (uuid_company));
-joinable!(standard_access_to_company -> standard_ref (uuid_standard));
-joinable!(standard_access_to_company -> type_access_ref (id_type_access));
 joinable!(standard_fav -> standard_ref (uuid_standard));
 joinable!(standard_fav -> user_ref (uuid_user));
 joinable!(standard_history_list -> standard_ref (uuid_standard));
@@ -708,12 +708,13 @@ joinable!(user_tokens_ref -> user_ref (uuid_user));
 
 allow_tables_to_appear_in_same_query!(
     actual_status_ref,
+    company_access_to_component,
+    company_access_to_standard,
     company_fav,
     company_history_list,
     company_member_role,
     company_ref,
     company_represent_ref,
-    company_access_to_component,
     component_fav,
     component_history_list,
     component_keyword_ref,
@@ -755,7 +756,6 @@ allow_tables_to_appear_in_same_query!(
     spec_to_company,
     spec_to_component,
     spec_translate_list,
-    standard_access_to_company,
     standard_fav,
     standard_history_list,
     standard_ref,

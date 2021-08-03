@@ -9,4 +9,4 @@ representation_type_ref /* тип представительства компа�
 role_member_ref /* роль члена */
 role_access /* уровень доступа роли */
 company_access_to_component /* доступ к компоненту отдельного компании */
-standard_access_to_company /* доступ к стандарту отдельного компании */
+company_access_to_standard /* доступ к стандарту отдельного компании */

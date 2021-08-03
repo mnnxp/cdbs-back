@@ -10,4 +10,4 @@ DROP TABLE representation_type_ref;
 DROP TABLE role_member_ref;
 DROP TABLE role_access;
 DROP TABLE company_access_to_component;
-DROP TABLE standard_access_to_company;
+DROP TABLE company_access_to_standard;
