@@ -117,19 +117,32 @@ pub(crate) fn write_token(
     conn: &PooledConnection,
 ) -> Result<UserToken, ServiceError> {
     use crate::schema::user_tokens_ref::dsl::user_tokens_ref;
+    use crate::schema::user_tokens_ref::dsl::token;
 
-    // creating a structure for writing token to a table
-    let user_token = InsertableUserToken {
-        uuid_user: Uuid::parse_str(&jwt.sub)?,
-        token: new_token.to_string(),
-        start_at: NaiveDateTime::from_timestamp(jwt.iat, 0),
-        end_at: NaiveDateTime::from_timestamp(jwt.exp, 0),
-    };
+    // find duplicate token
+    let find_token = user_tokens_ref
+        .filter(token.eq(new_token))
+        .execute(conn).unwrap_or(0);
 
-    let inserted_token: UserToken = diesel::insert_into(user_tokens_ref)
-        .values(&user_token)
-        .get_result(conn)?;
-    Ok(inserted_token)
+    // check for no duplicate token
+    match find_token {
+        0 => {
+            // creating a structure for writing token to a table
+            let user_token = InsertableUserToken {
+                uuid_user: Uuid::parse_str(&jwt.sub)?,
+                token: new_token.to_string(),
+                start_at: NaiveDateTime::from_timestamp(jwt.iat, 0),
+                end_at: NaiveDateTime::from_timestamp(jwt.exp, 0),
+            };
+
+            let inserted_token: UserToken = diesel::insert_into(user_tokens_ref)
+            .values(&user_token)
+            .get_result(conn)?;
+            Ok(inserted_token)
+        },
+        1 => Err(ServiceError::BadRequest("Please, try again later.".to_string())),
+        _ => Err(ServiceError::BadRequest("Duplicate token found.".to_string())),
+    }
 }
 
 /// check token for validity
