@@ -24,8 +24,11 @@ INSERT INTO company_represent_ref (uuid, uuid_company, id_region, id_representat
   ('96df6359-a31e-40ad-aa06-9355abc2cc58', 'e97ea679-4560-4a9b-ad8b-80d2d191235e', 3, 1, 'additional office', 'None str, Kiev', '+380874487556');
 
 INSERT INTO company_member_role (uuid_company, uuid_user, id_role, is_enabled, created_at, updated_at) VALUES
-  ('2cd385e1-8f7e-4908-8235-dfe42938b46d', '31ecc6f8-0c09-4a59-a2d5-34b5b833e59b', 1, 't', now(), now()),
-  ('e97ea679-4560-4a9b-ad8b-80d2d191235e', '68b8281a-d19c-4d4b-88eb-6fd4a2afde1b', 1, 't', now(), now());
+  ('2cd385e1-8f7e-4908-8235-dfe42938b46d', '31ecc6f8-0c09-4a59-a2d5-34b5b833e59b', 5, 't', now(), now()),
+  ('2cd385e1-8f7e-4908-8235-dfe42938b46d', 'c3f5f69c-bb54-45d9-bfa7-1d28cc1afa5a', 1, 't', now(), now()),
+  ('2cd385e1-8f7e-4908-8235-dfe42938b46d', '68b8281a-d19c-4d4b-88eb-6fd4a2afde1b', 3, 't', now(), now()),
+  ('e97ea679-4560-4a9b-ad8b-80d2d191235e', '68b8281a-d19c-4d4b-88eb-6fd4a2afde1b', 1, 't', now(), now()),
+  ('e97ea679-4560-4a9b-ad8b-80d2d191235e', 'e97ea679-4560-4a9b-ad8b-80d2d1912602', 4, 't', now(), now());
 
 INSERT INTO spec_to_company (id_spec, uuid_company) VALUES
   (2, '2cd385e1-8f7e-4908-8235-dfe42938b46d'),
@@ -40,20 +43,27 @@ uuid_author, message_content, is_delete, created_at, updated_at) VALUES
 
 -- TABLE: representation_type_ref:  id (serial), representation_type (VARCHAR(100))
 INSERT INTO representation_type_ref (representation_type) VALUES
-  ('Представительство');
+  ('Office'),
+  ('Branch');
 
 INSERT INTO role_member_ref (name) VALUES
-  ('Стажер'),
-  ('Инженер');
+  ('Trainee'),
+  ('Designer'),
+  ('Engineer'),
+  ('Constructor'),
+  ('Architect');
 
 INSERT INTO role_access (id_role, id_type_access) VALUES
-  (1, 2),
-  (1, 1);
+  (1, 3),
+  (2, 2),
+  (3, 1),
+  (4, 1),
+  (5, 1);
 
 INSERT INTO company_access_to_component (uuid_component, uuid_company, id_type_access,
 is_enabled, is_delete, created_at, updated_at) VALUES
   ('a5953fd9-7393-4f1e-a899-06b5e159dbf1', '2cd385e1-8f7e-4908-8235-dfe42938b46d', 1, 't', 'f', now(), now());
-  
+
 INSERT INTO company_access_to_standard (uuid_standard, uuid_company, id_type_access,
   is_enabled, is_delete, created_at, updated_at) VALUES
   ('303ec2aa-2066-42e3-93fb-de4fb9344bcb', '2cd385e1-8f7e-4908-8235-dfe42938b46d', 1, 't', 'f', now(), now());
