@@ -22,7 +22,7 @@ use crate::models::user::service as user;
 use crate::models::file::model::ShowFile;
 use crate::models::file::service as file;
 use crate::models::standard::model::ShowStandard;
-use crate::models::standard::service as standard;
+use crate::models::standard as standard;
 use async_graphql::Context;
 // use crate::database::PooledConnection;
 // use diesel::PgConnection;
@@ -112,13 +112,13 @@ impl QueryRoot {
     }
 
     async fn delete_all_tokens(&self, context: &Context<'_>) -> ServiceResult<String> {
-        let target_auth_uuid_user = crate::models::user::get_auth_uuid_user(context, true)?;
+        let auth_uuid_user = crate::models::user::get_auth_uuid_user(context, true)?;
         let deactivated_tokens = format!(
             "removed {} tokens.",
             // deactivate all user token
             user::token::delete_all_tokens(
                 context,
-                target_auth_uuid_user,
+                auth_uuid_user,
             )?
         );
         Ok(deactivated_tokens)
@@ -140,12 +140,12 @@ impl QueryRoot {
         let limit: i32 = limit.unwrap_or(100);
         let offset: i32 = offset.unwrap_or(0);
 
-        let target_auth_uuid_user = crate::models::user::get_auth_uuid_user(context, true)?;
+        let auth_uuid_user = crate::models::user::get_auth_uuid_user(context, true)?;
 
         notification::list::get_notifications(
             context,
             id_notification,
-            target_auth_uuid_user,
+            auth_uuid_user,
             limit,
             offset,
         )
@@ -410,16 +410,39 @@ impl QueryRoot {
         limit: Option<i32>,
         offset: Option<i32>,
     ) -> ServiceResult<Vec<ShowStandard>> {
-        let target_uuid_standard = match uuid_standard {
-            None => Uuid::nil(),
-            Some(uuid_standard) => Uuid::parse_str(&uuid_standard)?,
-        };
+        // authorization check
+        let auth_uuid_user = crate::models::user::get_auth_uuid_user(context, true)?;
 
         let limit: i32 = limit.unwrap_or(100);
         let offset: i32 = offset.unwrap_or(0);
 
-        standard::list::get_standards(
+        let target_uuid_standard = match uuid_standard {
+            //if no standard is specified, get all standards the user has access
+            None => Uuid::nil(),
+            // if the standard was specified, you need to check the access right
+            Some(uuid_standard) => {
+                let target_uuid_standard = Uuid::parse_str(&uuid_standard)?;
+
+                // access check for user
+                if standard::util::get_default_access_standard(
+                    context,
+                    target_uuid_standard,
+                )? < 3 {
+                    debug!("start access check for user");
+                    standard::util::check_standard_access(
+                        context,
+                        crate::models::user::get_auth_uuid_user(context, false)?,
+                        target_uuid_standard,
+                        2
+                    )?;
+                }
+                target_uuid_standard
+            },
+        };
+
+        standard::service::list::get_standards(
             context,
+            auth_uuid_user,
             target_uuid_standard,
             limit,
             offset
