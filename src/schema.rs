@@ -168,8 +168,7 @@ table! {
 }
 
 table! {
-    condition_to_license (id) {
-        id -> Int4,
+    condition_to_license (id_condition, id_license) {
         id_condition -> Int4,
         id_license -> Int4,
     }
@@ -307,8 +306,7 @@ table! {
 }
 
 table! {
-    limitation_to_license (id) {
-        id -> Int4,
+    limitation_to_license (id_limitation, id_license) {
         id_limitation -> Int4,
         id_license -> Int4,
     }
@@ -365,8 +363,7 @@ table! {
 }
 
 table! {
-    permission_to_license (id) {
-        id -> Int4,
+    permission_to_license (id_permission, id_license) {
         id_permission -> Int4,
         id_license -> Int4,
     }
