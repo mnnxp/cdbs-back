@@ -89,7 +89,7 @@ async function cleanupTokenDb() {
 }
 
 async function cleanupUserDb() {
-  return global.knex.raw('DELETE FROM user_ref WHERE username IN (?,?)', [
+  return global.knex.raw('DELETE FROM user_ref WHERE username in (?,?)', [
     username,
     username2,
   ]);
@@ -97,16 +97,16 @@ async function cleanupUserDb() {
 
 describe('company', () => {
   beforeAll(() => {
-    cleanupStandardDb();
     cleanupCompanyRepresentDb();
+    cleanupStandardDb();
     cleanupCompanyDb();
     cleanupTokenDb();
     cleanupUserDb();
     return;
   });
   afterAll(() => {
-    cleanupStandardDb();
     cleanupCompanyRepresentDb();
+    cleanupStandardDb();
     cleanupCompanyDb();
     cleanupTokenDb();
     cleanupUserDb();
@@ -395,6 +395,50 @@ describe('company', () => {
     done();
   });
 
+  it('/graphql:M registerStandard - OK', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation standardQuery {
+          registerStandard( data: {
+            uuidStandardParent: "${uuidStandardParent}",
+            classifier: "${classifierStandard}",
+            name: "${nameStandard}",
+            description: "${descriptionStandard}",
+            specifiedTolerance: "${specifiedTolerance}",
+            technicalCommittee: "${technicalCommittee}",
+            publicationAt: "${publicationAt}",
+            uuidImageFile: "${uuidImageFile}",
+            uuidCompany: "${uuidCompanySupplier}",
+            idTypeAccess: ${idTypeAccess1},
+            idStandardStatus: ${idStandardStatus},
+            idRegion: ${idRegion}
+          }) {
+            uuid
+            classifier
+            name
+            specifiedTolerance
+            technicalCommittee
+            publicationAt
+            idStandardStatus
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql registerStandard=%o', body);
+    const {
+      data: { registerStandard },
+    } = body;
+    expect(registerStandard.uuid).toBeNonEmptyString();
+    expect(registerStandard.name).toBe(nameStandard);
+    uuidStandardSecond = registerStandard.uuid;
+    done();
+  });
+
   it('/graphql:M registerStandard - BadRequest no access', async (done) => {
     const { body } = await agent
       .post('/graphql')
@@ -477,6 +521,40 @@ describe('company', () => {
     done();
   });
 
+  it('/graphql:Q standard - BadRequest without token', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .send({
+        query: `query selectStandardQuery{
+          standards{
+            uuid
+            uuidStandardParent
+            classifier
+            name
+            description
+            specifiedTolerance
+            technicalCommittee
+            publicationAt
+            uuidImageFile
+            uuidUser
+            uuidCompany
+            idTypeAccess
+            idStandardStatus
+            idRegion
+            isDelete
+            createdAt
+            updatedAt
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql - body=%o', body);
+    const { errors, data } = body;
+    expect(data).toBeNull();
+    expect(errors[0].message).toBe("BadRequest: Token not found.");
+    done();
+  });
+
   it('/graphql:Q standard - OK Select with fake uuid', async (done) => {
     const { body } = await agent
       .post('/graphql')
@@ -508,11 +586,10 @@ describe('company', () => {
         }`,
       })
       .expect(HttpStatus.OK)
-    debug('/graphql body=%o', body);
-    const {
-      data: { standards },
-    } = body;
-    expect(standards).toBeEmptyArray();
+    debug('/graphql - body=%o', body);
+    const { errors, data } = body;
+    expect(data).toBeNull();
+    expect(errors[0].message).toBe("BadRequest: You not have access.");
     done();
   });
 
@@ -522,6 +599,46 @@ describe('company', () => {
       .set(
         'Authorization',
         `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `query selectStandardQuery{
+          standards (uuidStandard: "${uuidStandardFirst}") {
+            uuid
+            uuidStandardParent
+            classifier
+            name
+            description
+            specifiedTolerance
+            technicalCommittee
+            publicationAt
+            uuidImageFile
+            uuidUser
+            uuidCompany
+            idTypeAccess
+            idStandardStatus
+            idRegion
+            isDelete
+            createdAt
+            updatedAt
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    const {
+      data: { standards },
+    } = body;
+    expect(standards[0].uuid).toBe(uuidStandardFirst);
+    expect(standards[0].classifier).toBe(classifierStandard);
+    done();
+  });
+
+  it('/graphql:Q standard - OK Select with uuid (public access)', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
       )
       .send({
         query: `query selectStandardQuery{
@@ -591,7 +708,7 @@ describe('company', () => {
     const {
       data: { standards },
     } = body;
-    expect(standards.pop().uuid).toBe(uuidStandardFirst);
+    expect(standards.pop().uuid).toBe(uuidStandardSecond);
     done();
   });
 
@@ -604,7 +721,7 @@ describe('company', () => {
       )
       .send({
         query: `query selectStandardQuery{
-          standards (uuidStandard: "${uuidStandardFirst}") {
+          standards (uuidStandard: "${uuidStandardSecond}") {
             uuid
             uuidStandardParent
             classifier
@@ -626,11 +743,10 @@ describe('company', () => {
         }`,
       })
       .expect(HttpStatus.OK)
-    debug('/graphql body=%o', body);
-    const {
-      data: { standards },
-    } = body;
-    expect(standards).toBeEmptyArray();
+    debug('/graphql - body=%o', body);
+    const { errors, data } = body;
+    expect(data).toBeNull();
+    expect(errors[0].message).toBe("BadRequest: You not have access.");
     done();
   });
 });
