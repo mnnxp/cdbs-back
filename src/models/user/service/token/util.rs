@@ -99,13 +99,13 @@ pub(crate) fn delete_user_token(
 /// delete tokens to table user_tokens_ref of database
 pub(crate) fn delete_all_tokens(
     context: &Context<'_>,
-    target_auth_uuid_user: Uuid,
+    target_uuid_user: Uuid,
 ) -> Result<i32, ServiceError> {
     let conn: &PooledConnection = &get_conn(context)?;
     use crate::schema::user_tokens_ref::dsl::*;
 
     let updated_token: usize = diesel::delete(user_tokens_ref)
-        .filter(uuid_user.eq_all(&target_auth_uuid_user))
+        .filter(uuid_user.eq_all(&target_uuid_user))
         .execute(conn)?;
     Ok(updated_token as i32)
 }

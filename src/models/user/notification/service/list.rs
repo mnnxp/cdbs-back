@@ -10,7 +10,7 @@ use uuid::Uuid;
 pub(crate) fn get_notifications(
     context: &Context<'_>,
     id_notification_search: i32,
-    uuid_owner_user: Uuid,
+    target_uuid_user: Uuid,
     limit: i32,
     offset: i32,
 ) -> ServiceResult<Vec<Notification>> {
@@ -18,13 +18,13 @@ pub(crate) fn get_notifications(
     if id_notification_search > 0 {
         variant_selection += 1;
     }
-    // if uuid_owner_user > Uuid::nil() {
+    // if target_uuid_user > Uuid::nil() {
     //     variant_selection += 10;
     // }
 
     match variant_selection {
-        0 => find_all_notifications(context, uuid_owner_user, limit, offset),
-        1 => find_id_notification(context, id_notification_search, uuid_owner_user),
+        0 => find_all_notifications(context, target_uuid_user, limit, offset),
+        1 => find_id_notification(context, id_notification_search, target_uuid_user),
         // 10
         // 11
         // 100
@@ -37,7 +37,7 @@ pub(crate) fn get_notifications(
 
 fn find_all_notifications(
     context: &Context<'_>,
-    uuid_owner_user: Uuid,
+    target_uuid_user: Uuid,
     limit: i32,
     offset: i32,
 ) -> ServiceResult<Vec<Notification>> {
@@ -48,7 +48,7 @@ fn find_all_notifications(
 
     Ok(notification_ref
         .inner_join(notification_to_user)
-        .filter(uuid_user.eq(uuid_owner_user))
+        .filter(uuid_user.eq(target_uuid_user))
         .select((
             notification_ref_id, notification, id_degree_importance,
             generated_at, is_read,
@@ -61,7 +61,7 @@ fn find_all_notifications(
 fn find_id_notification(
     context: &Context<'_>,
     id_notification_search: i32,
-    uuid_owner_user: Uuid,
+    target_uuid_user: Uuid,
 ) -> ServiceResult<Vec<Notification>> {
     use crate::schema::notification_ref::dsl::*;
     use crate::schema::notification_ref::dsl::id as notification_ref_id;
@@ -70,7 +70,7 @@ fn find_id_notification(
 
     Ok(notification_ref
         .inner_join(notification_to_user)
-        .filter(uuid_user.eq(uuid_owner_user))
+        .filter(uuid_user.eq(target_uuid_user))
         .filter(id_notification.eq(id_notification_search))
         .select((
             notification_ref_id, notification, id_degree_importance,

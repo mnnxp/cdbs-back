@@ -11,18 +11,19 @@ use uuid::Uuid;
 
 pub(crate) fn get_standards(
     context: &Context<'_>,
-    uuid_standard_search: Uuid,
+    target_uuid_user: Uuid,
+    target_uuid_standard: Uuid,
     limit: i32,
     offset: i32,
 ) -> ServiceResult<Vec<ShowStandard>> {
     let mut variant_selection: u8 = 0;
-    if uuid_standard_search > Uuid::nil() {
+    if target_uuid_standard > Uuid::nil() {
         variant_selection += 1;
     }
 
     match variant_selection {
-        0 => find_all_standards(context, limit, offset),
-        1 => find_uuid_standard(context, uuid_standard_search, limit, offset),
+        0 => find_all_standards(context, target_uuid_user, limit, offset),
+        1 => find_uuid_standard(context, target_uuid_standard, limit, offset),
         // 10
         // 11
         // 100
@@ -35,6 +36,7 @@ pub(crate) fn get_standards(
 
 fn find_all_standards(
     context: &Context<'_>,
+    target_uuid_user: Uuid,
     limit: i32,
     offset: i32,
 ) -> ServiceResult<Vec<ShowStandard>> {
@@ -42,6 +44,7 @@ fn find_all_standards(
     let conn: &PooledConnection = &get_conn(context)?;
 
     Ok(standard_ref
+        .filter(uuid_user.eq(target_uuid_user))
         .select((
             uuid, uuid_standard_parent, classifier, name, description,
             specified_tolerance, technical_committee, publication_at,
@@ -55,7 +58,7 @@ fn find_all_standards(
 
 fn find_uuid_standard(
     context: &Context<'_>,
-    uuid_standard_search: Uuid,
+    target_uuid_standard: Uuid,
     limit: i32,
     offset: i32,
 ) -> ServiceResult<Vec<ShowStandard>> {
@@ -63,7 +66,7 @@ fn find_uuid_standard(
     let conn: &PooledConnection = &get_conn(context)?;
 
     Ok(standard_ref
-        .filter(uuid.eq(uuid_standard_search))
+        .filter(uuid.eq(target_uuid_standard))
         .select((
             uuid, uuid_standard_parent, classifier, name, description,
             specified_tolerance, technical_committee, publication_at,
