@@ -9,6 +9,8 @@ services:
       - 'max_connections=100'
       - '-c'
       - 'shared_buffers=256MB'
+      - '-c'
+      - 'log_statement=all'
     environment:
       POSTGRES_PASSWORD: password
     ports:
