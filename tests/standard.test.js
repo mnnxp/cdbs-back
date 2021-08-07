@@ -17,6 +17,7 @@ const password = "password";
 const uuidFail = "aba22d59-4f6c-24a4-9a37-2d38f0e577a8";
 const uuidUser = "31ecc6f8-0c09-4a59-a2d5-34b5b833e59b";
 const uuidUser2 = "68b8281a-d19c-4d4b-88eb-6fd4a2afde1b";
+var uuidUserSecond = "";
 
 // data for standard
 const uuidStandardParent = "303ec2aa-2066-42e3-93fb-de4fb9344bcb";
@@ -65,7 +66,7 @@ var uuidRepresentFirst = "";
 var uuidRepresentDelete = "";
 
 async function cleanupCompanyDb() {
-  return global.knex.raw('DELETE FROM company_ref WHERE orgname in (?,?)', [
+  return global.knex.raw('DELETE FROM company_ref WHERE orgname in (?,?);', [
     orgname,
     orgname2,
   ]);
@@ -207,6 +208,7 @@ describe('company', () => {
     expect(registerUser.uuid).toBeNonEmptyString();
     expect(registerUser.idProgram).toBe(5);
     expect(registerUser.username).toBe(username2);
+    uuidUserSecond = registerUser.uuid;
     done();
   });
 
@@ -747,6 +749,51 @@ describe('company', () => {
     const { errors, data } = body;
     expect(data).toBeNull();
     expect(errors[0].message).toBe("BadRequest: You not have access.");
+    done();
+  });
+
+  it('/graphql:Q standard - OK Select with uuid (private access)', async (done) => {
+    // add access to the object for the user
+    await global.knex.raw('INSERT INTO user_access_to_standard (uuid_standard, uuid_user, id_type_access, is_enabled, is_delete, created_at, updated_at) VALUES (?, ?, 1, true, false, now(), now());', [
+      uuidStandardSecond,
+      uuidUserSecond,
+    ]);
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `query selectStandardQuery{
+          standards (uuidStandard: "${uuidStandardSecond}") {
+            uuid
+            uuidStandardParent
+            classifier
+            name
+            description
+            specifiedTolerance
+            technicalCommittee
+            publicationAt
+            uuidImageFile
+            uuidUser
+            uuidCompany
+            idTypeAccess
+            idStandardStatus
+            idRegion
+            isDelete
+            createdAt
+            updatedAt
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    const {
+      data: { standards },
+    } = body;
+    expect(standards[0].uuid).toBe(uuidStandardSecond);
+    expect(standards[0].classifier).toBe(classifierStandard);
     done();
   });
 });
