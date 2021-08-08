@@ -51,7 +51,7 @@ pub(crate) fn check_standard_access(
 
     debug!("find_max_level {:?}", find_max_level);
     match find_max_level {
-        1..=i32::MAX if found_id_type_access < required_access => {
+        1..=i32::MAX if found_id_type_access <= required_access => {
             Ok(true)
         },
         // 1..=i32::MAX => {
@@ -140,17 +140,23 @@ pub(crate) fn get_user_access_granted_by_company(
     conn: &PgConnection,
 ) -> i32 {
     use diesel::sql_types::Integer;
-    #[derive(QueryableByName)]
+
+    #[derive(Debug, QueryableByName)]
     pub struct RoleAccess {
         #[sql_type = "Integer"]
-        id_type_access: i32,
+        access_level: i32,
     }
 
     debug!("target_uuid_user: {:?}", target_uuid_user);
     debug!("target_uuid_standard: {:?}", target_uuid_standard);
     debug!("required_access: {:?}", required_access);
 
-    let query: &str = "SELECT role_access.id_type_access \
+    let query: &str = "SELECT  \
+        CASE \
+            WHEN company_access_to_standard.id_type_access > role_access.id_type_access \
+                THEN company_access_to_standard.id_type_access \
+                ELSE role_access.id_type_access \
+        END access_level \
         FROM company_member_role \
         INNER JOIN company_access_to_standard \
             ON (company_member_role.uuid_company = company_access_to_standard.uuid_company) \
@@ -158,16 +164,19 @@ pub(crate) fn get_user_access_granted_by_company(
             ON (company_member_role.id_role = role_access.id_role) \
         WHERE company_member_role.uuid_user = $1 \
             AND company_access_to_standard.uuid_standard = $2 \
+            AND company_access_to_standard.id_type_access <= $3 \
             AND role_access.id_type_access <= $3;";
 
-    let test = diesel::sql_query(query)
+    let find_user_access = diesel::sql_query(query)
         .bind::<diesel::sql_types::Uuid, _>(&target_uuid_user)
         .bind::<diesel::sql_types::Uuid, _>(&target_uuid_standard)
         .bind::<diesel::sql_types::Integer, _>(required_access)
         .get_result::<RoleAccess>(conn);
 
-    match test {
-        Ok(test) => test.id_type_access,
+    debug!("find_user_access: {:?}", find_user_access);
+
+    match find_user_access {
+        Ok(find_user_access) => find_user_access.access_level,
         Err(_) => 0,
     }
 }
