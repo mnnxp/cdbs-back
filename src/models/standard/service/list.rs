@@ -44,7 +44,8 @@ fn find_all_standards(
     let conn: &PooledConnection = &get_conn(context)?;
 
     Ok(standard_ref
-        .filter(uuid_user.eq(target_uuid_user))
+        .filter(id_type_access.eq(3)) // 3 - this public standards
+        .or_filter(uuid_user.eq(target_uuid_user))
         .select((
             uuid, uuid_standard_parent, classifier, name, description,
             specified_tolerance, technical_committee, publication_at,
