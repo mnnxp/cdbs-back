@@ -87,7 +87,7 @@ pub(crate) fn recursive_search_availability_access(
     required_access: i32,
     conn: &PgConnection,
 ) -> i32 {
-    let find_access_of_companies = get_companies_owned_by_user(
+    let find_access_of_companies = get_access_from_company_owned_by_user(
         target_uuid_user,
         target_uuid_standard,
         required_access,
@@ -173,7 +173,7 @@ pub(crate) fn get_user_access_granted_by_company(
 }
 
 /// Get user owned company then have role_access
-pub(crate) fn get_companies_owned_by_user(
+pub(crate) fn get_access_from_company_owned_by_user(
     target_uuid_user: Uuid,
     target_uuid_standard: Uuid,
     required_access: i32,
