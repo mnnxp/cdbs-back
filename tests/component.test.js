@@ -96,14 +96,14 @@ const paramValueTest = "testparametr";
 const paramValueTest2 = "testparametr2";
 var idParamTest = "";
 
-async function cleanupParamToComponentDb() {
+async function cleanupParamComponentDb() {
   return global.knex.raw('DELETE FROM param_to_component WHERE value in (?,?)', [
     paramValueTest,
     paramValueTest2,
   ]);
 }
 
-async function cleanupParamToModificationDb() {
+async function cleanupParamModificationDb() {
   return global.knex.raw('DELETE FROM param_to_modification WHERE value in (?,?)', [
     paramValueTest,
     paramValueTest2,
@@ -159,8 +159,8 @@ async function cleanupComponentModificationDb() {
 
 describe('component', () => {
   beforeAll(() => {
-    cleanupParamToComponentDb();
-    cleanupParamToModificationDb();
+    cleanupParamComponentDb();
+    cleanupParamModificationDb();
     cleanupComponentModificationDb();
     cleanupComponentDb();
     cleanupStandardDb();
@@ -170,8 +170,8 @@ describe('component', () => {
     return cleanupUserDb();
   });
   afterAll(() => {
-    cleanupParamToComponentDb();
-    cleanupParamToModificationDb();
+    cleanupParamComponentDb();
+    cleanupParamModificationDb();
     cleanupComponentModificationDb();
     cleanupComponentDb();
     cleanupStandardDb();
@@ -707,11 +707,11 @@ describe('component', () => {
       .send({
         query: `mutation  {
             registerParamComponent( data: {
-                uuid: "${uuidComponentStandard}",
+                uuidComponent: "${uuidComponentStandard}",
                 idParam: ${paramnameIndex},
                 value: "${paramValueTest}"
             }) {
-                uuid
+                uuidComponent
                 idParam
                 value
             }
@@ -737,11 +737,11 @@ describe('component', () => {
       .send({
         query: `mutation  {
             registerParamComponent( data: {
-                uuid: "${uuidComponentStandard}",
+                uuidComponent: "${uuidComponentStandard}",
                 idParam: ${paramnameIndex},
                 value: "${paramValueTest}"
             }) {
-                uuid
+                uuidComponent
                 idParam
                 value
             }
@@ -753,7 +753,7 @@ describe('component', () => {
       data: { registerParamComponent },
     } = body;
     expect(registerParamComponent).toContainAllKeys([
-      "uuid", "idParam", "value"
+      "uuidComponent", "idParam", "value"
     ]);
     expect(registerParamComponent.id).not.toBeNull();
     expect(registerParamComponent.value).toBe(paramValueTest);
@@ -770,11 +770,11 @@ describe('component', () => {
       .send({
         query: `mutation  {
             registerParamComponent( data: {
-                uuid: "${uuidComponentStandard}",
+                uuidComponent: "${uuidComponentStandard}",
                 idParam: ${paramnameIndex},
                 value: "${paramValueTest}"
             }) {
-                uuid
+                uuidComponent
                 idParam
                 value
             }
@@ -801,11 +801,11 @@ describe('component', () => {
       .send({
         query: `mutation  {
             registerParamComponent( data: {
-                uuid: "${uuidComponentStandard}",
+                uuidComponent: "${uuidComponentStandard}",
                 idParam: ${paramnameIndex},
                 value: "${paramValueTest}"
             }) {
-                uuid
+                uuidComponent
                 idParam
                 value
             }
@@ -825,7 +825,7 @@ describe('component', () => {
       .send({
         query: `query ListParam {
             paramComponent {
-                uuid
+                uuidComponent
                 idParam
                 value
             }
@@ -851,7 +851,7 @@ describe('component', () => {
       .send({
         query: `query ListParam {
             paramComponent {
-                uuid
+                uuidComponent
                 idParam
                 value
             }
@@ -873,7 +873,7 @@ describe('component', () => {
       .send({
         query: `query ListParamComponent {
             paramComponent (idParam: ${paramnameIndex}) {
-                uuid
+                uuidComponent
                 idParam
                 value
             }
@@ -896,16 +896,16 @@ describe('component', () => {
       .send({
         query: `query ListParamComponent {
             paramComponent (uuidComponent: "${uuidComponentStandard}") {
-                uuid
+                uuidComponent
                 idParam
                 value
             }
         }`,
       })
       .expect(HttpStatus.OK);
-    debug('/graphql filter uuidComponent =%o', response1.body.data.paramComponent);
+    debug('/graphql filter paramComponent =%o', response1.body.data.paramComponent);
     expect(response1.body.data.paramComponent).toBeNonEmptyArray();
-    expect(response1.body.data.paramComponent[0].uuid).toBe(uuidComponentStandard);
+    expect(response1.body.data.paramComponent[0].uuidComponent).toBe(uuidComponentStandard);
     done();
   });
 
@@ -922,7 +922,7 @@ describe('component', () => {
               idParam: ${paramnameIndex},
               uuidComponent: "${uuidComponentStandard}"
             ) {
-                uuid
+                uuidComponent
                 idParam
                 value
             }
@@ -931,7 +931,7 @@ describe('component', () => {
       .expect(HttpStatus.OK);
     debug('/graphql body', response1.body);
     expect(response1.body.data.paramComponent).toBeNonEmptyArray();
-    expect(response1.body.data.paramComponent[0].uuid).toBe(uuidComponentStandard);
+    expect(response1.body.data.paramComponent[0].uuidComponent).toBe(uuidComponentStandard);
     expect(response1.body.data.paramComponent[0].idParam).toBe(paramnameIndex);
     done();
   });
@@ -1273,11 +1273,11 @@ describe('component', () => {
       .send({
         query: `mutation  {
             registerParamModification( data: {
-                uuid: "${uuidComponentStandard}",
+                uuidModification: "${uuidComponentModificationFirst}",
                 idParam: ${paramnameIndex2},
                 value: "${paramValueTest}"
             }) {
-                uuid
+                uuidModification
                 idParam
                 value
             }
@@ -1303,11 +1303,11 @@ describe('component', () => {
       .send({
         query: `mutation  {
             registerParamModification( data: {
-                uuid: "${uuidComponentModificationFirst}",
+                uuidModification: "${uuidComponentModificationFirst}",
                 idParam: ${paramnameIndex2},
                 value: "${paramValueTest}"
             }) {
-                uuid
+                uuidModification
                 idParam
                 value
             }
@@ -1319,7 +1319,7 @@ describe('component', () => {
       data: { registerParamModification },
     } = body;
     expect(registerParamModification).toContainAllKeys([
-      "uuid", "idParam", "value"
+      "uuidModification", "idParam", "value"
     ]);
     expect(registerParamModification.value).toBe(paramValueTest);
     done();
@@ -1335,11 +1335,11 @@ describe('component', () => {
       .send({
         query: `mutation  {
             registerParamModification( data: {
-                uuid: "${uuidComponentModificationFirst}",
+                uuidModification: "${uuidComponentModificationFirst}",
                 idParam: ${paramnameIndex2},
                 value: "${paramValueTest}"
             }) {
-                uuid
+                uuidModification
                 idParam
                 value
             }
@@ -1366,11 +1366,11 @@ describe('component', () => {
       .send({
         query: `mutation  {
             registerParamModification( data: {
-                uuid: "${uuidComponentModificationFirst}",
+                uuidModification: "${uuidComponentModificationFirst}",
                 idParam: ${paramnameIndex2},
                 value: "${paramValueTest}"
             }) {
-                uuid
+                uuidModification
                 idParam
                 value
             }
@@ -1390,7 +1390,7 @@ describe('component', () => {
       .send({
         query: `query ListParamModification {
             paramModification {
-                uuid
+                uuidModification
                 idParam
                 value
             }
@@ -1415,7 +1415,7 @@ describe('component', () => {
       .send({
         query: `query ListParamModification {
             paramModification {
-                uuid
+                uuidModification
                 idParam
                 value
             }
@@ -1437,7 +1437,7 @@ describe('component', () => {
       .send({
         query: `query ListParamModification {
             paramModification (idParam: ${paramnameIndex2}) {
-                uuid
+                uuidModification
                 idParam
                 value
             }
@@ -1462,7 +1462,7 @@ describe('component', () => {
             paramModification (
               uuidModification: "${uuidComponentModificationFirst}"
             ) {
-                uuid
+                uuidModification
                 idParam
                 value
             }
@@ -1471,7 +1471,7 @@ describe('component', () => {
       .expect(HttpStatus.OK);
     debug('/graphql paramModification =%o', response1.body.data.paramModification);
     expect(response1.body.data.paramModification).toBeNonEmptyArray();
-    expect(response1.body.data.paramModification[0].uuid).toBe(uuidComponentModificationFirst);
+    expect(response1.body.data.paramModification[0].uuidModification).toBe(uuidComponentModificationFirst);
     done();
   });
 
@@ -1488,7 +1488,7 @@ describe('component', () => {
               idParam: ${paramnameIndex2},
               uuidModification: "${uuidComponentModificationFirst}"
             ) {
-                uuid
+                uuidModification
                 idParam
                 value
             }
@@ -1497,7 +1497,7 @@ describe('component', () => {
       .expect(HttpStatus.OK);
     debug('/graphql body', response1.body);
     expect(response1.body.data.paramModification).toBeNonEmptyArray();
-    expect(response1.body.data.paramModification[0].uuid).toBe(uuidComponentModificationFirst);
+    expect(response1.body.data.paramModification[0].uuidModification).toBe(uuidComponentModificationFirst);
     expect(response1.body.data.paramModification[0].idParam).toBe(paramnameIndex2);
     done();
   });
