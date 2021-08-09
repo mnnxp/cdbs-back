@@ -1,18 +1,20 @@
 use crate::errors::{ ServiceError, ServiceResult };
 use crate::models::component::license::model::{
-    LicenseToComponent,
-    LicenseToComponentData,
-    InsertableLicenseToComponent,
+    LicenseComponent,
+    IptLicenseComponentData,
+    InsertableLicenseComponent,
 };
 use diesel::prelude::*;
 // use uuid::Uuid;
 
 pub(crate) fn create_license_component(
-    new_license_data: LicenseToComponentData,
+    new_license_data: IptLicenseComponentData,
     // user_uuid: Uuid, todo!(access manage for owner component)
     conn: &PgConnection
-) -> ServiceResult<LicenseToComponent> {
+) -> ServiceResult<LicenseComponent> {
     use crate::schema::license_to_component::dsl::*;
+
+    let new_license_data: InsertableLicenseComponent = new_license_data.into();
 
     let flag_found_license = license_to_component
         .filter(uuid_component.eq(&new_license_data.uuid_component))
@@ -23,8 +25,7 @@ pub(crate) fn create_license_component(
 
     match flag_found_license as i32 {
         0 => {
-            let new_license_data: InsertableLicenseToComponent = new_license_data.into();
-            let inserted_license_data: LicenseToComponent = diesel::insert_into(license_to_component)
+            let inserted_license_data: LicenseComponent = diesel::insert_into(license_to_component)
                 .values(&new_license_data)
                 .get_result(conn)?;
             Ok(inserted_license_data)

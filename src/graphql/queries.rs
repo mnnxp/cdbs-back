@@ -8,8 +8,9 @@ use crate::models::company::service as company;
 use crate::models::component::component_modification::model::ShowComponentModification;
 use crate::models::component::component_modification::service as component_modification;
 use crate::models::component::license as component_license;
-use crate::models::component::license::model::{License, LicenseToComponent};
+use crate::models::component::license::model::{License, LicenseComponent};
 use crate::models::component::model::ShowComponent;
+use crate::models::component::model::ShowComponentFull;
 use crate::models::component::param::model::{Param, ParamComponent};
 use crate::models::component::param as component_param;
 use crate::models::component::component_modification::param::model::ParamModification;
@@ -209,6 +210,22 @@ impl QueryRoot {
         component::list::get_components(context, target_uuid_component, limit, offset)
     }
 
+    async fn one_component(
+        &self,
+        context: &Context<'_>,
+        uuid_component: Option<String>,
+    ) -> ServiceResult<ShowComponentFull> {
+        // authorization check
+        crate::models::user::util::check_authorized(context)?;
+
+        let target_uuid_component = match uuid_component {
+            None => Uuid::nil(),
+            Some(uuid_component) => Uuid::parse_str(&uuid_component)?,
+        };
+
+        component::list::get_one_components(context, target_uuid_component)
+    }
+
     async fn component_modification(
         &self,
         context: &Context<'_>,
@@ -259,7 +276,7 @@ impl QueryRoot {
         uuid_component: Option<String>,
         limit: Option<i32>,
         offset: Option<i32>,
-    ) -> ServiceResult<Vec<LicenseToComponent>> {
+    ) -> ServiceResult<Vec<LicenseComponent>> {
         // authorization check
         crate::models::user::util::check_authorized(context)?;
 

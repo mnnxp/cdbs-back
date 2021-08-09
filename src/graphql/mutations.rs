@@ -11,7 +11,7 @@ use crate::models::component::component_modification::model::{
     SlimComponentModification, IptComponentModificationData,
 };
 use crate::models::component::license::model::{
-    License, LicenseData, LicenseToComponent, IptLicenseToComponentData,
+    License, LicenseData, LicenseComponent, IptLicenseComponentData,
 };
 use crate::models::component::model::{
     SlimComponent, ComponentData, IptComponentData,
@@ -138,14 +138,14 @@ impl MutationRoot {
     async fn register_license_component(
         &self,
         context: &Context<'_>,
-        data: IptLicenseToComponentData,
-    ) -> ServiceResult<LicenseToComponent> {
+        data: IptLicenseComponentData,
+    ) -> ServiceResult<LicenseComponent> {
         use crate::models::component::license::service::add_component_license::create_license_component;
         let conn: &PooledConnection = &get_conn(context)?;
 
         crate::models::user::check_authorized(context)?;
 
-        Ok(create_license_component(data.into(), conn)?)
+        Ok(create_license_component(data, conn)?)
     }
 
     async fn register_param(

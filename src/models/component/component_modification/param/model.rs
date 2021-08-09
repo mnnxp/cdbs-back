@@ -1,10 +1,14 @@
 use crate::schema::*;
+use crate::models::component::component_modification::model::ComponentModification;
 use async_graphql::types::ID;
 use async_graphql::*;
 // use chrono::*;
 use uuid::Uuid;
 
-#[derive(Debug, Serialize, Deserialize, Queryable)]
+#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, Debug)]
+#[primary_key(uuid_modification)]
+#[belongs_to(ComponentModification, foreign_key = "uuid_modification")]
+#[table_name = "param_to_modification"]
 pub struct ParamModification {
     pub uuid_modification: Uuid,
     pub id_param: i32,

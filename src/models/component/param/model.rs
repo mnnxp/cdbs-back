@@ -1,4 +1,5 @@
 use crate::schema::*;
+use crate::models::component::model::Component;
 use async_graphql::types::ID;
 use async_graphql::*;
 // use chrono::*;
@@ -60,7 +61,10 @@ impl From<ParamData> for InsertableParam {
 }
 
 // Param component models
-#[derive(Debug, Serialize, Deserialize, Queryable)]
+#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, Debug)]
+#[primary_key(uuid_component, id_param)]
+#[belongs_to(Component, foreign_key = "uuid_component")]
+#[table_name = "param_to_component"]
 pub struct ParamComponent {
     pub uuid_component: Uuid,
     pub id_param: i32,

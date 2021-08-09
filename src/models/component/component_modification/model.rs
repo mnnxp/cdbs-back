@@ -1,12 +1,15 @@
 use crate::schema::*;
+use crate::models::component::model::Component;
 use async_graphql::types::ID;
 use async_graphql::*;
 use chrono::*;
 use uuid::Uuid;
 
-#[derive(Debug, Queryable)]
+#[derive(Identifiable, Deserialize, Queryable, Associations, Debug)]
+#[primary_key(uuid)]
+#[belongs_to(Component, foreign_key = "uuid_component")]
+#[table_name = "component_modification_list"]
 pub struct ComponentModification {
-    // pub id: i32,
     pub uuid: Uuid,
     pub uuid_component: Uuid,
     pub uuid_modification_parent: Uuid,
@@ -20,9 +23,6 @@ pub struct ComponentModification {
 
 #[Object]
 impl ComponentModification {
-    // async fn id(&self) -> &i32 {
-    //     &self.id
-    // }
     async fn uuid(&self) -> ID {
         self.uuid.into()
     }
