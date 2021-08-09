@@ -1,4 +1,9 @@
 use crate::schema::*;
+use crate::models::component::param::model::ParamComponent;
+use crate::models::component::component_modification::model::ShowComponentModification;
+use crate::models::component::component_modification::param::model::ParamModification;
+use crate::models::component::license::model::License;
+use crate::models::file::model::ShowFile;
 use async_graphql::types::ID;
 use async_graphql::*;
 use chrono::*;
@@ -19,6 +24,16 @@ pub struct Component {
     pub is_delete: bool,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
+}
+
+#[derive(Debug, Deserialize, SimpleObject, Description)]
+pub struct ShowComponentFull {
+    pub component: ShowComponent,
+    pub param_component: Vec<ParamComponent>,
+    pub license: Vec<License>,
+    pub files: Vec<ShowFile>,
+    pub component_modification: Vec<ShowComponentModification>,
+    pub param_modification: Vec<ParamModification>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Queryable)]

@@ -10,8 +10,10 @@ use crate::models::component::component_modification::service as component_modif
 use crate::models::component::license as component_license;
 use crate::models::component::license::model::{License, LicenseToComponent};
 use crate::models::component::model::ShowComponent;
+use crate::models::component::param::model::{Param, ParamComponent};
 use crate::models::component::param as component_param;
-use crate::models::component::param::model::{Param, ParamToModel};
+use crate::models::component::component_modification::param::model::ParamModification;
+use crate::models::component::component_modification::param as component_modification_param;
 use crate::models::component::service as component;
 use crate::models::user::model::{SlimUser, ShowUser};
 use crate::models::user::service::token::model::UserToken;
@@ -302,7 +304,7 @@ impl QueryRoot {
         uuid_component: Option<String>,
         limit: Option<i32>,
         offset: Option<i32>,
-    ) -> ServiceResult<Vec<ParamToModel>> {
+    ) -> ServiceResult<Vec<ParamComponent>> {
         // authorization check
         crate::models::user::util::check_authorized(context)?;
 
@@ -330,7 +332,7 @@ impl QueryRoot {
         uuid_modification: Option<String>,
         limit: Option<i32>,
         offset: Option<i32>,
-    ) -> ServiceResult<Vec<ParamToModel>> {
+    ) -> ServiceResult<Vec<ParamModification>> {
         // authorization check
         crate::models::user::util::check_authorized(context)?;
 
@@ -342,7 +344,7 @@ impl QueryRoot {
         let limit: i32 = limit.unwrap_or(100);
         let offset: i32 = offset.unwrap_or(0);
 
-        component_param::service::list_modification::get_params_modification(
+        component_modification_param::service::list::get_params_modification(
             context,
             id_param,
             uuid_modification,

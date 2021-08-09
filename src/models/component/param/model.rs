@@ -4,6 +4,8 @@ use async_graphql::*;
 // use chrono::*;
 use uuid::Uuid;
 
+// Param models
+
 #[derive(Debug, Serialize, Deserialize, Queryable)]
 pub struct Param {
     pub id: i32,
@@ -29,104 +31,6 @@ pub struct InsertableParam {
 #[derive(Debug, Serialize, Deserialize, Queryable, Clone, InputObject)]
 pub struct ParamData {
     pub paramname: String,
-}
-
-// #[Object]
-// impl ParamData {
-//     async fn paramname(&self) -> &String {
-//         &self.paramname
-//     }
-// }
-
-#[derive(Debug, Serialize, Deserialize, Queryable)]
-pub struct ParamToModel {
-    // pub id: i32,
-    pub uuid: Uuid,
-    pub id_param: i32,
-    pub value: String,
-}
-
-#[Object]
-impl ParamToModel {
-    // async fn id(&self) -> &i32 {
-    //     &self.id
-    // }
-    async fn uuid(&self) -> ID {
-        self.uuid.into()
-    }
-    async fn id_param(&self) -> &i32 {
-        &self.id_param
-    }
-    async fn value(&self) -> &String {
-        &self.value
-    }
-}
-
-
-#[derive(Debug, Deserialize, Clone, InputObject)]
-pub struct IptParamToModelData {
-    pub uuid: ID,
-    pub id_param: i32,
-    pub value: String,
-}
-
-#[derive(Debug, Serialize, Deserialize, Queryable)]
-pub struct ParamToModelData {
-    pub uuid: Uuid,
-    pub id_param: i32,
-    pub value: String,
-}
-
-impl From<IptParamToModelData> for ParamToModelData {
-    fn from(ipt_data: IptParamToModelData) -> Self {
-        let IptParamToModelData {
-            uuid,
-            id_param,
-            value,
-        } = ipt_data;
-        ParamToModelData {
-            uuid: Uuid::parse_str(&uuid.to_string()).unwrap(),
-            id_param,
-            value,
-        }
-    }
-}
-
-#[Object]
-impl ParamToModelData {
-    async fn uuid(&self) -> ID {
-        self.uuid.into()
-    }
-    async fn id_param(&self) -> &i32 {
-        &self.id_param
-    }
-    async fn value(&self) -> &String {
-        &self.value
-    }
-}
-
-#[derive(Debug, Serialize, Deserialize, Queryable)]
-pub struct ShowParamForUuid {
-    pub uuid: Uuid,
-    pub id_param: i32,
-    pub paramname: String,
-    pub value: String,
-}
-
-#[derive(Debug, Insertable)]
-#[table_name = "param_to_component"]
-pub struct InsertableParamToComponent {
-    pub uuid_component: Uuid,
-    pub id_param: i32,
-    pub value: String,
-}
-
-#[derive(Debug, Insertable)]
-#[table_name = "param_to_modification"]
-pub struct InsertableParamToModification {
-    pub uuid_modification: Uuid,
-    pub id_param: i32,
-    pub value: String,
 }
 
 impl From<Param> for ParamData {
@@ -155,38 +59,53 @@ impl From<ParamData> for InsertableParam {
     }
 }
 
-impl From<ParamToModelData> for InsertableParamToComponent {
-    fn from(data_param_to_model: ParamToModelData) -> Self {
-        let ParamToModelData {
-            uuid,
-            id_param,
-            value,
-            ..
-        } = data_param_to_model;
+// Param component models
+#[derive(Debug, Serialize, Deserialize, Queryable)]
+pub struct ParamComponent {
+    pub uuid_component: Uuid,
+    pub id_param: i32,
+    pub value: String,
+}
 
-        let uuid_component = uuid;
-
-        Self {
-            uuid_component,
-            id_param,
-            value,
-        }
+#[Object]
+impl ParamComponent {
+    async fn uuid_component(&self) -> ID {
+        self.uuid_component.into()
+    }
+    async fn id_param(&self) -> &i32 {
+        &self.id_param
+    }
+    async fn value(&self) -> &String {
+        &self.value
     }
 }
 
-impl From<ParamToModelData> for InsertableParamToModification {
-    fn from(data_param_to_model: ParamToModelData) -> Self {
-        let ParamToModelData {
-            uuid,
+#[derive(Debug, Deserialize, Clone, InputObject)]
+pub struct IptParamComponentData {
+    pub uuid_component: ID,
+    pub id_param: i32,
+    pub value: String,
+}
+
+#[derive(Debug, Insertable)]
+#[table_name = "param_to_component"]
+pub struct InsertableParamComponent {
+    pub uuid_component: Uuid,
+    pub id_param: i32,
+    pub value: String,
+}
+
+impl From<IptParamComponentData> for InsertableParamComponent {
+    fn from(ipt_data: IptParamComponentData) -> Self {
+        let IptParamComponentData {
+            uuid_component,
             id_param,
             value,
             ..
-        } = data_param_to_model;
-
-        let uuid_modification = uuid;
+        } = ipt_data;
 
         Self {
-            uuid_modification,
+            uuid_component: Uuid::parse_str(&uuid_component.to_string()).unwrap(),
             id_param,
             value,
         }

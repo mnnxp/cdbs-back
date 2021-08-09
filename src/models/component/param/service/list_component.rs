@@ -5,7 +5,7 @@ use crate::errors::{
 };
 // use crate::graphql::model::Context;
 use async_graphql::Context;
-use crate::models::component::param::model::ParamToModel;
+use crate::models::component::param::model::ParamComponent;
 use diesel::prelude::*;
 use uuid::Uuid;
 
@@ -16,7 +16,7 @@ pub(crate) fn get_params_component(
     uuid_component_search: Uuid,
     limit: i32,
     offset: i32,
-) -> ServiceResult<Vec<ParamToModel>> {
+) -> ServiceResult<Vec<ParamComponent>> {
     let mut variant_selection: u8 = 0;
     if id_param_search > 0 {
         variant_selection += 1;
@@ -42,14 +42,14 @@ fn find_all_params(
     context: &Context<'_>,
     limit: i32,
     offset: i32,
-) -> ServiceResult<Vec<ParamToModel>> {
+) -> ServiceResult<Vec<ParamComponent>> {
     use crate::schema::param_to_component::dsl::*;
     let conn: &PooledConnection = &get_conn(context)?;
 
     Ok(param_to_component
         .limit(limit as i64)
         .offset(offset as i64)
-        .load::<ParamToModel>(conn)?)
+        .load::<ParamComponent>(conn)?)
 }
 
 fn find_id_param(
@@ -57,7 +57,7 @@ fn find_id_param(
     id_param_search: i32,
     limit: i32,
     offset: i32,
-) -> ServiceResult<Vec<ParamToModel>> {
+) -> ServiceResult<Vec<ParamComponent>> {
     use crate::schema::param_to_component::dsl::*;
     let conn: &PooledConnection = &get_conn(context)?;
 
@@ -65,7 +65,7 @@ fn find_id_param(
         .filter(id_param.eq(id_param_search))
         .limit(limit as i64)
         .offset(offset as i64)
-        .load::<ParamToModel>(conn)?)
+        .load::<ParamComponent>(conn)?)
 }
 
 fn find_uuid_component_param(
@@ -73,7 +73,7 @@ fn find_uuid_component_param(
     uuid_component_search: Uuid,
     limit: i32,
     offset: i32,
-) -> ServiceResult<Vec<ParamToModel>> {
+) -> ServiceResult<Vec<ParamComponent>> {
     use crate::schema::param_to_component::dsl::*;
     let conn: &PooledConnection = &get_conn(context)?;
 
@@ -81,7 +81,7 @@ fn find_uuid_component_param(
         .filter(uuid_component.eq(uuid_component_search))
         .limit(limit as i64)
         .offset(offset as i64)
-        .load::<ParamToModel>(conn)?)
+        .load::<ParamComponent>(conn)?)
 }
 
 fn find_id_param_and_uuid_component(
@@ -90,7 +90,7 @@ fn find_id_param_and_uuid_component(
     uuid_component_search: Uuid,
     limit: i32,
     offset: i32,
-) -> ServiceResult<Vec<ParamToModel>> {
+) -> ServiceResult<Vec<ParamComponent>> {
     use crate::schema::param_to_component::dsl::*;
     let conn: &PooledConnection = &get_conn(context)?;
 
@@ -99,5 +99,5 @@ fn find_id_param_and_uuid_component(
         .filter(id_param.eq(id_param_search))
         .limit(limit as i64)
         .offset(offset as i64)
-        .load::<ParamToModel>(conn)?)
+        .load::<ParamComponent>(conn)?)
 }

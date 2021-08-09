@@ -17,8 +17,13 @@ use crate::models::component::model::{
     SlimComponent, ComponentData, IptComponentData,
 };
 use crate::models::component::param::model::{
-    Param, ParamData, ParamToModel, IptParamToModelData,
+    Param, ParamData, ParamComponent, IptParamComponentData
 };
+use crate::models::component::param as component_param;
+use crate::models::component::component_modification::param::model::{
+    ParamModification, IptParamModificationData
+};
+use crate::models::component::component_modification::param as component_modification_param;
 use crate::models::component as component;
 use crate::models::standard::model::{SlimStandard, IptStandardData, StandardData};
 // use crate::models::file::model::{ShowFile, IptFileData, SlimFile};
@@ -148,7 +153,7 @@ impl MutationRoot {
         context: &Context<'_>,
         data: ParamData,
     ) -> ServiceResult<Param> {
-        use component::param::service::register::create_param;
+        use component_param::service::register::create_param;
         let conn: &PooledConnection = &get_conn(context)?;
 
         crate::models::user::check_authorized(context)?;
@@ -159,27 +164,27 @@ impl MutationRoot {
     async fn register_param_component(
         &self,
         context: &Context<'_>,
-        data: IptParamToModelData,
-    ) -> ServiceResult<ParamToModel> {
-        use crate::models::component::param::service::add_to_component::create_param_component;
+        data: IptParamComponentData,
+    ) -> ServiceResult<ParamComponent> {
+        use component_param::service::add_to_component::create_param_component;
         let conn: &PooledConnection = &get_conn(context)?;
 
         crate::models::user::check_authorized(context)?;
 
-        Ok(create_param_component(data.into(), conn)?)
+        Ok(create_param_component(data, conn)?)
     }
 
     async fn register_param_modification(
         &self,
         context: &Context<'_>,
-        data: IptParamToModelData,
-    ) -> ServiceResult<ParamToModel> {
-        use crate::models::component::param::service::add_to_modification::create_param_modification;
+        data: IptParamModificationData,
+    ) -> ServiceResult<ParamModification> {
+        use component_modification_param::service::register::create_param_modification;
         let conn: &PooledConnection = &get_conn(context)?;
 
         crate::models::user::check_authorized(context)?;
 
-        Ok(create_param_modification(data.into(), conn)?)
+        Ok(create_param_modification(data, conn)?)
     }
 
     async fn register_company(

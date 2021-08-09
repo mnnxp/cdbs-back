@@ -5,7 +5,7 @@ use crate::errors::{
 };
 // use crate::graphql::model::Context;
 use async_graphql::Context;
-use crate::models::component::param::model::ParamToModel;
+use crate::models::component::component_modification::param::model::ParamModification;
 use diesel::prelude::*;
 use uuid::Uuid;
 
@@ -16,7 +16,7 @@ pub(crate) fn get_params_modification(
     uuid_modification_search: Uuid,
     limit: i32,
     offset: i32,
-) -> ServiceResult<Vec<ParamToModel>> {
+) -> ServiceResult<Vec<ParamModification>> {
     let mut variant_selection: u8 = 0;
     if id_param_search > 0 {
         variant_selection += 1;
@@ -42,14 +42,14 @@ fn find_all_params(
     context: &Context<'_>,
     limit: i32,
     offset: i32,
-) -> ServiceResult<Vec<ParamToModel>> {
+) -> ServiceResult<Vec<ParamModification>> {
     use crate::schema::param_to_modification::dsl::*;
     let conn: &PooledConnection = &get_conn(context)?;
 
     Ok(param_to_modification
         .limit(limit as i64)
         .offset(offset as i64)
-        .load::<ParamToModel>(conn)?)
+        .load::<ParamModification>(conn)?)
 }
 
 fn find_id_param(
@@ -57,7 +57,7 @@ fn find_id_param(
     id_param_search: i32,
     limit: i32,
     offset: i32,
-) -> ServiceResult<Vec<ParamToModel>> {
+) -> ServiceResult<Vec<ParamModification>> {
     use crate::schema::param_to_modification::dsl::*;
     let conn: &PooledConnection = &get_conn(context)?;
 
@@ -65,7 +65,7 @@ fn find_id_param(
         .filter(id_param.eq(id_param_search))
         .limit(limit as i64)
         .offset(offset as i64)
-        .load::<ParamToModel>(conn)?)
+        .load::<ParamModification>(conn)?)
 }
 
 fn find_uuid_modification_param(
@@ -73,7 +73,7 @@ fn find_uuid_modification_param(
     uuid_modification_search: Uuid,
     limit: i32,
     offset: i32,
-) -> ServiceResult<Vec<ParamToModel>> {
+) -> ServiceResult<Vec<ParamModification>> {
     use crate::schema::param_to_modification::dsl::*;
     let conn: &PooledConnection = &get_conn(context)?;
 
@@ -81,7 +81,7 @@ fn find_uuid_modification_param(
         .filter(uuid_modification.eq(uuid_modification_search))
         .limit(limit as i64)
         .offset(offset as i64)
-        .load::<ParamToModel>(conn)?)
+        .load::<ParamModification>(conn)?)
 }
 
 fn find_id_param_and_uuid_modification(
@@ -90,7 +90,7 @@ fn find_id_param_and_uuid_modification(
     uuid_modification_search: Uuid,
     limit: i32,
     offset: i32,
-) -> ServiceResult<Vec<ParamToModel>> {
+) -> ServiceResult<Vec<ParamModification>> {
     use crate::schema::param_to_modification::dsl::*;
     let conn: &PooledConnection = &get_conn(context)?;
 
@@ -99,5 +99,5 @@ fn find_id_param_and_uuid_modification(
         .filter(id_param.eq(id_param_search))
         .limit(limit as i64)
         .offset(offset as i64)
-        .load::<ParamToModel>(conn)?)
+        .load::<ParamModification>(conn)?)
 }
