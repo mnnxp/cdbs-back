@@ -5,7 +5,7 @@ use crate::models::company::company_represent::model::ShowCompanyRepresent;
 use crate::models::company::company_represent::service as company_represent;
 use crate::models::company::model::ShowCompany;
 use crate::models::company::service as company;
-use crate::models::component::component_modification::model::ShowComponentModification;
+use crate::models::component::component_modification::model::ComponentModification;
 use crate::models::component::component_modification::service as component_modification;
 use crate::models::component::license as component_license;
 use crate::models::component::license::model::{License, LicenseComponent};
@@ -232,7 +232,7 @@ impl QueryRoot {
         uuid_component: Option<String>,
         limit: Option<i32>,
         offset: Option<i32>,
-    ) -> ServiceResult<Vec<ShowComponentModification>> {
+    ) -> ServiceResult<Vec<ComponentModification>> {
         // authorization check
         crate::models::user::util::check_authorized(context)?;
 

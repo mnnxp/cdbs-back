@@ -5,7 +5,7 @@ use crate::errors::{
 };
 // use crate::graphql::model::Context;
 use async_graphql::Context;
-use crate::models::component::component_modification::model::ShowComponentModification;
+use crate::models::component::component_modification::model::ComponentModification;
 use diesel::prelude::*;
 use uuid::Uuid;
 
@@ -15,7 +15,7 @@ pub(crate) fn get_component_modifications(
     uuid_component_search: Uuid,
     limit: i32,
     offset: i32,
-) -> ServiceResult<Vec<ShowComponentModification>> {
+) -> ServiceResult<Vec<ComponentModification>> {
     let mut variant_selection: u8 = 0;
     if uuid_component_search > Uuid::nil() {
         variant_selection += 1;
@@ -38,7 +38,7 @@ fn find_all_component_modification(
     context: &Context<'_>,
     limit: i32,
     offset: i32,
-) -> ServiceResult<Vec<ShowComponentModification>> {
+) -> ServiceResult<Vec<ComponentModification>> {
     use crate::schema::component_modification_list::dsl::*;
     // use crate::schema::program_ref::dsl::*;
     // use crate::schema::actual_status_ref::dsl::*;
@@ -53,7 +53,7 @@ fn find_all_component_modification(
         ))
         .limit(limit as i64)
         .offset(offset as i64)
-        .load::<ShowComponentModification>(conn)?)
+        .load::<ComponentModification>(conn)?)
 }
 
 fn find_uuid_component_modification(
@@ -61,7 +61,7 @@ fn find_uuid_component_modification(
     uuid_component_search: Uuid,
     limit: i32,
     offset: i32,
-) -> ServiceResult<Vec<ShowComponentModification>> {
+) -> ServiceResult<Vec<ComponentModification>> {
     use crate::schema::component_modification_list::dsl::*;
     // use crate::schema::program_ref::dsl::*;
     // use crate::schema::actual_status_ref::dsl::*;
@@ -77,5 +77,5 @@ fn find_uuid_component_modification(
         ))
         .limit(limit as i64)
         .offset(offset as i64)
-        .load::<ShowComponentModification>(conn)?)
+        .load::<ComponentModification>(conn)?)
 }

@@ -5,25 +5,16 @@ use crate::errors::{
 };
 use crate::models::component::component_modification::model::{
     InsertableComponentModification,
+    IptComponentModificationData,
     SlimComponentModification,
     ComponentModification,
-    ComponentModificationData
 };
 // use actix_web::web;
 use diesel::prelude::*;
 use uuid::Uuid;
 
-// pub(crate) fn register(
-//     new_modification_data: ComponentModificationData,
-//     user_uuid: Uuid,
-//     pool: web::Data<Pool>
-// ) -> ServiceResult<SlimComponentModification> {
-//     let conn = &db_connection(&pool)?;
-//     create_component_modification(new_modification_data, user_uuid, conn)
-// }
-
 pub(crate) fn create_component_modification(
-    new_modification_data: ComponentModificationData,
+    new_modification_data: IptComponentModificationData,
     user_uuid: Uuid,
     conn: &PgConnection
 ) -> ServiceResult<SlimComponentModification> {
@@ -31,6 +22,8 @@ pub(crate) fn create_component_modification(
     use crate::schema::component_ref::dsl::uuid as uuid_component;
     use crate::schema::component_modification_list::dsl::*;
     use diesel::dsl::count;
+
+    let new_modification_data: InsertableComponentModification = new_modification_data.into();
 
     let flag_found_component: i64 = component_ref
         .filter(uuid_user.eq(user_uuid))
@@ -43,7 +36,6 @@ pub(crate) fn create_component_modification(
     match flag_found_component {
         0 => Err(ServiceError::BadRequest("Not found this component of you.".to_string())),
         1 => {
-            let new_modification_data: InsertableComponentModification = new_modification_data.into();
             let inserted_modification_data: ComponentModification = diesel::insert_into(
                 component_modification_list)
                 .values(&new_modification_data)

@@ -2,7 +2,9 @@ use async_graphql::Context;
 use crate::errors::ServiceResult;
 use crate::database::{get_conn, PooledConnection};
 use crate::models::user::model::{SlimUser, IptUserData};
-use crate::models::user::notification::model::{Notification, NotificationData, SlimNotification};
+use crate::models::user::notification::model::{
+    Notification, NotificationData, SlimNotification
+};
 use crate::models::company::company_represent::model::{
     IptCompanyRepresentData, SlimCompanyRepresent,
 };
@@ -118,7 +120,7 @@ impl MutationRoot {
 
         let logged_uuid_user = crate::models::user::get_auth_uuid_user(context, true)?;
 
-        Ok(create_component_modification(data.into(), logged_uuid_user, conn)?)
+        Ok(create_component_modification(data, logged_uuid_user, conn)?)
     }
 
     async fn register_license(
