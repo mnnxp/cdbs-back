@@ -6,7 +6,7 @@ pub(crate) mod service;
 // pub mod util;
 
 // use crate::models::component::handler::register;
-// use crate::models::param::handler::add_to_component;
+// use crate::models::param::handler::add_component_param;
 // use actix_web::web;
 //
 // pub fn route(cfg: &mut web::ServiceConfig) {
@@ -14,6 +14,6 @@ pub(crate) mod service;
 //         web::scope("/components")
 //             .service(web::resource("").route(web::post().to(register)))
 //             .service(web::resource("/params")
-//                 .route(web::post().to(add_to_component))),
+//                 .route(web::post().to(add_component_param))),
 //     );
 // }

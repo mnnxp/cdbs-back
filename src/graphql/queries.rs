@@ -271,7 +271,7 @@ impl QueryRoot {
         let limit: i32 = limit.unwrap_or(100);
         let offset: i32 = offset.unwrap_or(0);
 
-        component_license::service::list_component::get_licenses_component(
+        component_license::service::list_component_licenses::get_licenses_component(
             context,
             id_license,
             uuid_component,
@@ -316,7 +316,7 @@ impl QueryRoot {
         let limit: i32 = limit.unwrap_or(100);
         let offset: i32 = offset.unwrap_or(0);
 
-        component_param::service::list_component::get_params_component(
+        component_param::service::list_component_params::get_params_component(
             context,
             id_param,
             uuid_component,

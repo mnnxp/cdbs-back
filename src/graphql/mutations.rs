@@ -140,7 +140,7 @@ impl MutationRoot {
         context: &Context<'_>,
         data: IptLicenseToComponentData,
     ) -> ServiceResult<LicenseToComponent> {
-        use crate::models::component::license::service::add_to_component::create_license_component;
+        use crate::models::component::license::service::add_component_license::create_license_component;
         let conn: &PooledConnection = &get_conn(context)?;
 
         crate::models::user::check_authorized(context)?;
@@ -166,7 +166,7 @@ impl MutationRoot {
         context: &Context<'_>,
         data: IptParamComponentData,
     ) -> ServiceResult<ParamComponent> {
-        use component_param::service::add_to_component::create_param_component;
+        use component_param::service::add_component_param::create_param_component;
         let conn: &PooledConnection = &get_conn(context)?;
 
         crate::models::user::check_authorized(context)?;
