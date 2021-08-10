@@ -401,7 +401,7 @@ describe('component', () => {
                 description
                 idActualStatus
                 isStandard
-                createdAt
+                updatedAt
             }
         }`,
       })
@@ -438,7 +438,7 @@ describe('component', () => {
                 description
                 idActualStatus
                 isStandard
-                createdAt
+                updatedAt
             }
         }`,
       })
@@ -448,7 +448,7 @@ describe('component', () => {
       data: { registerComponent },
     } = body;
     expect(registerComponent).toContainAllKeys([
-      'uuid', 'name', 'description', 'idActualStatus', 'isStandard', 'createdAt'
+      "description", "idActualStatus", "isStandard", "name", "updatedAt", "uuid"
     ]);
     expect(registerComponent.uuid).toBeNonEmptyString();
     expect(registerComponent.name).toBe(nameComponent);
@@ -482,7 +482,7 @@ describe('component', () => {
                 description
                 idActualStatus
                 isStandard
-                createdAt
+                updatedAt
             }
         }`,
       })
@@ -492,7 +492,7 @@ describe('component', () => {
       data: { registerComponent },
     } = body;
     expect(registerComponent).toContainAllKeys([
-      'uuid', 'name', 'description', 'idActualStatus', 'isStandard', 'createdAt'
+      "description", "idActualStatus", "isStandard", "name", "updatedAt", "uuid"
     ]);
     expect(registerComponent.uuid).toBeNonEmptyString();
     expect(registerComponent.name).toBe(nameComponent2);
@@ -526,7 +526,7 @@ describe('component', () => {
                 description
                 idActualStatus
                 isStandard
-                createdAt
+                updatedAt
             }
         }`,
       })
@@ -610,7 +610,7 @@ describe('component', () => {
       )
       .send({
         query: `query selectComponentQuery{
-          components (uuidComponent: "${uuidComponentStandard}") {
+          components (uuidComponents: "${uuidComponentStandard}") {
             uuid
             uuidComponentParent
             name
@@ -642,7 +642,7 @@ describe('component', () => {
       )
       .send({
         query: `query selectComponentQuery{
-          components (uuidComponent: "${uuidComponentNoStandard}") {
+          components (uuidComponents: "${uuidComponentNoStandard}") {
             uuid
             uuidComponentParent
             name
