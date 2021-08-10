@@ -19,7 +19,9 @@ pub struct File {
     pub updated_at: NaiveDateTime,
 }
 
-#[derive(Debug, Serialize, Deserialize, Queryable)]
+#[derive(Identifiable, Deserialize, Queryable, Debug)]
+#[primary_key(uuid)]
+#[table_name = "file_ref"]
 pub struct ShowFile {
     pub uuid: Uuid,
     pub uuid_file_parent: Uuid,
@@ -27,7 +29,6 @@ pub struct ShowFile {
     pub filename: String,
     pub content_type: String,
     pub id_ext: i32,
-    pub value_ext: String,
     pub filesize: i32,
     pub path_file: String,
     pub created_at: NaiveDateTime,
@@ -53,9 +54,6 @@ impl ShowFile {
     }
     async fn id_ext(&self) -> &i32 {
         &self.id_ext
-    }
-    async fn value_ext(&self) -> &String {
-        &self.value_ext
     }
     async fn filesize(&self) -> &i32 {
         &self.filesize
@@ -88,7 +86,7 @@ pub struct InsertableFile {
 }
 
 // #[derive(Debug, Deserialize, Clone, InputObject)]
-// pub struct FileData {
+// pub struct IptFileData {
 //     pub uuid_file_parent: ID,
 //     pub hash:  Vec<u8>,
 //     pub uuid_user: ID,
@@ -119,64 +117,6 @@ pub struct SlimFile {
     pub path_file: String,
 }
 
-// Related file structures
-#[derive(Debug, Serialize, Deserialize, Queryable)]
-pub struct FileToModel {
-    pub uuid_file: Uuid,
-    pub uuid: Uuid,
-}
-
-// #[Object]
-// impl FileToModel {
-//     async fn uuid_file(&self) -> ID {
-//         self.uuid_file.into()
-//     }
-//     async fn uuid(&self) -> ID {
-//         self.uuid.into()
-//     }
-// }
-
-// Structures for Component
-#[derive(Debug, Serialize, Deserialize, Queryable)]
-pub struct FileToComponent {
-    pub uuid_file: Uuid,
-    pub uuid_component: Uuid,
-}
-
-#[derive(Debug, Insertable)]
-#[table_name = "file_to_component"]
-pub struct InsertableFileToComponent {
-    pub uuid_file: Uuid,
-    pub uuid_component: Uuid,
-}
-
-#[derive(Debug, Serialize, Deserialize, Queryable)]
-pub struct FileToModification {
-    pub uuid_file: Uuid,
-    pub uuid_modification: Uuid,
-}
-
-#[derive(Debug, Insertable)]
-#[table_name = "file_to_modification"]
-pub struct InsertableFileToModification {
-    pub uuid_file: Uuid,
-    pub uuid_modification: Uuid,
-}
-
-// Structures for Standard
-#[derive(Debug, Serialize, Deserialize, Queryable)]
-pub struct FileToStandard {
-    pub uuid_file: Uuid,
-    pub uuid_standard: Uuid,
-}
-
-#[derive(Debug, Insertable)]
-#[table_name = "file_to_standard"]
-pub struct InsertableFileToStandard {
-    pub uuid_file: Uuid,
-    pub uuid_standard: Uuid,
-}
-
 impl From<FileData> for InsertableFile {
     fn from(date_file: FileData) -> Self {
         let FileData {
@@ -190,13 +130,6 @@ impl From<FileData> for InsertableFile {
             path_file,
             ..
         } = date_file;
-
-        // let id_ext = 1; // get_ext_id(&path_file);
-        // let hash = Vec::from("76738cf561df624bff0de7151eec68c1d40a56c76a8f6859e09c799a251468ac");
-        // let filesize = 156.5; // get_file_size(&path_file);
-        // let uuid_user_create= "31ecc6f8-0c09-4a59-a2d5-34b5b833e59b".parse().unwrap();
-        // let default_hash = Vec::from("0".as_bytes());
-        // let hash = hex_to_bytes(hash.as_str()).unwrap_or(default_hash);
 
         Self {
             uuid: Uuid::new_v4(),
@@ -229,40 +162,6 @@ impl From<File> for SlimFile {
             filename,
             filesize,
             path_file,
-        }
-    }
-}
-
-impl From<FileToModel> for InsertableFileToComponent {
-    fn from(data_file_to_model: FileToModel) -> Self {
-        let FileToModel {
-            uuid_file,
-            uuid,
-            ..
-        } = data_file_to_model;
-
-        let uuid_component = uuid;
-
-        Self {
-            uuid_file,
-            uuid_component,
-        }
-    }
-}
-
-impl From<FileToModel> for InsertableFileToModification {
-    fn from(data_file_to_model: FileToModel) -> Self {
-        let FileToModel {
-            uuid_file,
-            uuid,
-            ..
-        } = data_file_to_model;
-
-        let uuid_modification = uuid;
-
-        Self {
-            uuid_file,
-            uuid_modification,
         }
     }
 }

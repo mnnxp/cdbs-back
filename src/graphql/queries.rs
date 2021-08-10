@@ -9,8 +9,8 @@ use crate::models::component::component_modification::model::ComponentModificati
 use crate::models::component::component_modification::service as component_modification;
 use crate::models::component::license as component_license;
 use crate::models::component::license::model::{License, LicenseComponent};
+use crate::models::component::model::Component;
 use crate::models::component::model::ShowComponent;
-use crate::models::component::model::ShowComponentFull;
 use crate::models::component::param::model::{Param, ParamComponent};
 use crate::models::component::param as component_param;
 use crate::models::component::component_modification::param::model::ParamModification;
@@ -192,38 +192,37 @@ impl QueryRoot {
     async fn components(
         &self,
         context: &Context<'_>,
-        uuid_component: Option<String>,
+        uuid_components: Option<Vec<String>>,
         limit: Option<i32>,
         offset: Option<i32>,
-    ) -> ServiceResult<Vec<ShowComponent>> {
+    ) -> ServiceResult<Vec<Component>> {
         // authorization check
         crate::models::user::util::check_authorized(context)?;
 
-        let target_uuid_component = match uuid_component {
-            None => Uuid::nil(),
-            Some(uuid_component) => Uuid::parse_str(&uuid_component)?,
+        let target_uuid_components = match uuid_components {
+            Some(vec_uuid) => {
+                vec_uuid.into_iter()
+                    .map(|x| Uuid::parse_str(x.as_str()).unwrap())
+                    .collect()
+            },
+            None => Vec::new(),
         };
 
         let limit: i32 = limit.unwrap_or(100);
         let offset: i32 = offset.unwrap_or(0);
 
-        component::list::get_components(context, target_uuid_component, limit, offset)
+        component::list::find_components(context, target_uuid_components, limit, offset)
     }
 
-    async fn one_component(
+    async fn component(
         &self,
         context: &Context<'_>,
-        uuid_component: Option<String>,
-    ) -> ServiceResult<ShowComponentFull> {
+        uuid_component: String,
+    ) -> ServiceResult<ShowComponent> {
         // authorization check
         crate::models::user::util::check_authorized(context)?;
 
-        let target_uuid_component = match uuid_component {
-            None => Uuid::nil(),
-            Some(uuid_component) => Uuid::parse_str(&uuid_component)?,
-        };
-
-        component::list::get_one_components(context, target_uuid_component)
+        component::list::find_uuid_component(context, Uuid::parse_str(&uuid_component)?)
     }
 
     async fn component_modification(

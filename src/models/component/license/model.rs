@@ -5,7 +5,9 @@ use async_graphql::*;
 use chrono::*;
 use uuid::Uuid;
 
-#[derive(Debug, Serialize, Deserialize, Queryable)]
+#[derive(Identifiable, Serialize, Deserialize, Queryable, Debug)]
+#[primary_key(id)]
+#[table_name = "license_ref"]
 pub struct License {
     pub id: i32,
     pub name: String,
@@ -66,10 +68,10 @@ impl SlimLicense {
     }
 }
 
-
 #[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, Debug)]
 #[primary_key(uuid_component, id_license)]
 #[belongs_to(Component, foreign_key = "uuid_component")]
+#[belongs_to(License, foreign_key = "id_license")]
 #[table_name = "license_to_component"]
 pub struct LicenseComponent {
     pub uuid_component: Uuid,

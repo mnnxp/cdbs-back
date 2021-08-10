@@ -2,8 +2,8 @@ use crate::schema::*;
 use crate::models::component::param::model::ParamComponent;
 use crate::models::component::component_modification::model::ComponentModification;
 use crate::models::component::component_modification::param::model::ParamModification;
-use crate::models::component::license::model::LicenseComponent;
-// use crate::models::file::model::ShowFile;
+use crate::models::component::license::model::License;
+use crate::models::file::model::ShowFile;
 use async_graphql::types::ID;
 use async_graphql::*;
 use chrono::*;
@@ -28,73 +28,17 @@ pub struct Component {
 }
 
 #[derive(Debug, Deserialize, SimpleObject, Description)]
-pub struct ShowComponentFull {
+pub struct ShowComponent {
     pub component: Component,
     pub param_component: Vec<ParamComponent>,
-    pub license: Vec<LicenseComponent>,
-    // pub files: Vec<ShowFile>,
+    pub license: Vec<License>,
+    pub file: Vec<ShowFile>,
     pub component_modification: Vec<ComponentModification>,
     pub param_modification: Vec<ParamModification>,
 }
 
 #[Object]
 impl Component {
-    async fn uuid(&self) -> ID {
-        self.uuid.into()
-    }
-    async fn uuid_component_parent(&self) -> ID {
-        self.uuid_component_parent.into()
-    }
-    async fn name(&self) -> &String {
-        &self.name
-    }
-    async fn description(&self) -> &String {
-        &self.description
-    }
-    async fn uuid_user(&self) -> ID {
-        self.uuid_user.into()
-    }
-    async fn id_type_access(&self) -> &i32 {
-        &self.id_type_access
-    }
-    async fn id_component_type(&self) -> &i32 {
-        &self.id_component_type
-    }
-    async fn id_actual_status(&self) -> &i32 {
-        &self.id_actual_status
-    }
-    async fn is_standard(&self) -> &bool {
-        &self.is_standard
-    }
-    async fn is_delete(&self) -> &bool {
-        &self.is_delete
-    }
-    async fn created_at(&self) -> &NaiveDateTime {
-        &self.created_at
-    }
-    async fn updated_at(&self) -> &NaiveDateTime {
-        &self.updated_at
-    }
-}
-
-#[derive(Debug, Serialize, Deserialize, Queryable)]
-pub struct ShowComponent {
-    pub uuid: Uuid,
-    pub uuid_component_parent: Uuid,
-    pub name: String,
-    pub description: String,
-    pub uuid_user: Uuid,
-    pub id_type_access: i32,
-    pub id_component_type: i32,
-    pub id_actual_status: i32,
-    pub is_standard: bool,
-    pub is_delete: bool,
-    pub created_at: NaiveDateTime,
-    pub updated_at: NaiveDateTime,
-}
-
-#[Object]
-impl ShowComponent {
     async fn uuid(&self) -> ID {
         self.uuid.into()
     }
@@ -182,7 +126,7 @@ pub struct SlimComponent {
     pub id_component_type: i32,
     pub id_actual_status: i32,
     pub is_standard: bool,
-    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
 }
 
 #[Object]
@@ -208,8 +152,8 @@ impl SlimComponent {
     async fn is_standard(&self) -> &bool {
         &self.is_standard
     }
-    async fn created_at(&self) -> &NaiveDateTime {
-        &self.created_at
+    async fn updated_at(&self) -> &NaiveDateTime {
+        &self.updated_at
     }
 }
 
@@ -226,15 +170,6 @@ impl From<ComponentData> for InsertableComponent {
             is_standard,
             ..
         } = data_component;
-
-        // let uuid_user = "31ecc6f8-0c09-4a59-a2d5-34b5b833e59b".parse().unwrap();
-        // let uuid_component_parent =  "a5953fd9-7393-4f1e-a899-06b5e159dbf1".parse().unwrap();
-        // let id_actual_status = 1;
-        // let id_component_type = 1;
-        // let is_delete = 0;
-        // let id_type_access = 1;
-        // let commentchange = "Not change".to_owned();
-        // let is_standard = 0;
 
         Self {
             uuid: Uuid::new_v4(),
@@ -263,7 +198,7 @@ impl From<Component> for SlimComponent {
             id_component_type,
             id_actual_status,
             is_standard,
-            created_at,
+            updated_at,
             ..
         } = component;
 
@@ -275,7 +210,7 @@ impl From<Component> for SlimComponent {
             id_component_type,
             id_actual_status,
             is_standard,
-            created_at,
+            updated_at,
         }
     }
 }
