@@ -1,7 +1,13 @@
 use crate::errors::ServiceError;
 use crate::jwt::model::Claims;
 use crate::models::user::model::SlimUser;
-use jsonwebtoken::{decode, encode, Algorithm, Header, Validation};
+use jsonwebtoken::{encode, decode, Header, Algorithm, Validation, EncodingKey, DecodingKey};
+
+lazy_static::lazy_static! {
+    static ref ENCODE_KEY : EncodingKey = EncodingKey::from_rsa_pem(
+        include_bytes!("../../keys/rs256-4096-private.pem")
+    ).expect("Encode private key failed!");
+}
 
 pub(crate) fn create_token(
     user: &SlimUser,
@@ -9,11 +15,10 @@ pub(crate) fn create_token(
     auth_duration_in_hour: u16,
 ) -> Result<String, ServiceError> {
     let claims: Claims = Claims::new(user, issuer, auth_duration_in_hour);
-
     encode(
         &Header::new(Algorithm::RS256),
         &claims,
-        include_bytes!("../../keys/rs256-4096-private.rsa"),
+        &ENCODE_KEY,
     )
     .map_err(|e| ServiceError::BadRequest(e.to_string()))
 }
@@ -21,7 +26,9 @@ pub(crate) fn create_token(
 pub fn decode_token(token: &str) -> Result<Claims, ServiceError> {
     decode::<Claims>(
         token,
-        include_bytes!("../../keys/rs256-4096-public.pem"),
+        &DecodingKey::from_rsa_pem(
+            include_bytes!("../../keys/rs256-4096-public.pem")
+        ).unwrap(),
         &Validation::new(Algorithm::RS256),
     )
     .map(|data| data.claims)

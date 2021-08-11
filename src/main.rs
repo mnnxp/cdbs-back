@@ -14,7 +14,7 @@ mod models;
 mod schema;
 
 use actix_cors::Cors;
-use actix_identity::{CookieIdentityPolicy, IdentityService};
+// use actix_identity::{CookieIdentityPolicy, IdentityService};
 // use actix_web::{App, HttpServer, web};
 use actix_web::middleware::Logger;
 use actix_web::{App, HttpServer};
@@ -46,10 +46,10 @@ async fn main() -> std::io::Result<()> {
     // let schema = std::sync::Arc::new(crate::graphql::handler::build_schema());
 
     // Authorisation
-    let domain = opt.domain.clone();
-    let cookie_secret_key = opt.auth_secret_key.clone();
-    let secure_cookie = opt.secure_cookie;
-    let auth_duration = time::Duration::hours(i64::from(opt.auth_duration_in_hour));
+    // let domain = opt.domain.clone();
+    // let cookie_secret_key = opt.auth_secret_key.clone();
+    // let secure_cookie = opt.secure_cookie;
+    // let auth_duration = time::Duration::hours(i64::from(opt.auth_duration_in_hour));
 
     // Server port
     let port = opt.port;
@@ -73,17 +73,17 @@ async fn main() -> std::io::Result<()> {
             .wrap(cors)
             // Error logging
             .wrap(Logger::default())
-            // Authorisation
-            .wrap(IdentityService::new(
-                CookieIdentityPolicy::new(cookie_secret_key.as_bytes())
-                    .name("auth")
-                    .path("/")
-                    .domain(&domain)
-                    // Time from creation that cookie remains valid
-                    .max_age_time(auth_duration)
-                    // Restricted to https?
-                    .secure(secure_cookie),
-            ))
+            // Authorisation (now we do not use cookies)
+            // .wrap(IdentityService::new(
+            //     CookieIdentityPolicy::new(cookie_secret_key.as_bytes())
+            //         .name("auth")
+            //         .path("/")
+            //         .domain(&domain)
+            //         // Time from creation that cookie remains valid
+            //         .max_age_time(auth_duration)
+            //         // Restricted to https?
+            //         .secure(secure_cookie),
+            // ))
             // Sets routes via secondary files
             .configure(models::user::route)
             .configure(graphql::route)
