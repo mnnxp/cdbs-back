@@ -120,3 +120,11 @@ CREATE TABLE notification_to_user (
   uuid_user UUID NOT NULL, /* идентификатор профиля */
   CONSTRAINT notification_to_user_pk PRIMARY KEY (id_notification, uuid_user)
 );
+
+/* сертификаты пользователя */
+CREATE TABLE user_certificate_ref (
+  uuid_file UUID NOT NULL, /* файл сертификата */
+  uuid_user UUID NOT NULL, /* пользователь которому выдан сертификат */
+  description VARCHAR(100) NOT NULL, /* информация, дополнение */
+  CONSTRAINT user_certificate_ref_pk PRIMARY KEY (uuid_file, uuid_user)
+);

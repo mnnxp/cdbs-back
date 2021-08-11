@@ -30,6 +30,14 @@ table! {
 }
 
 table! {
+    company_certificate_ref (uuid_file, uuid_company) {
+        uuid_file -> Uuid,
+        uuid_company -> Uuid,
+        description -> Varchar,
+    }
+}
+
+table! {
     company_fav (uuid_company, uuid_user) {
         uuid_company -> Uuid,
         uuid_user -> Uuid,
@@ -553,6 +561,14 @@ table! {
 }
 
 table! {
+    user_certificate_ref (uuid_file, uuid_user) {
+        uuid_file -> Uuid,
+        uuid_user -> Uuid,
+        description -> Varchar,
+    }
+}
+
+table! {
     user_fav (uuid_user_favorite, uuid_user_follower) {
         uuid_user_favorite -> Uuid,
         uuid_user_follower -> Uuid,
@@ -612,6 +628,8 @@ joinable!(company_access_to_component -> type_access_ref (id_type_access));
 joinable!(company_access_to_standard -> company_ref (uuid_company));
 joinable!(company_access_to_standard -> standard_ref (uuid_standard));
 joinable!(company_access_to_standard -> type_access_ref (id_type_access));
+joinable!(company_certificate_ref -> company_ref (uuid_company));
+joinable!(company_certificate_ref -> file_ref (uuid_file));
 joinable!(company_fav -> company_ref (uuid_company));
 joinable!(company_fav -> user_ref (uuid_user));
 joinable!(company_history_list -> company_ref (uuid_company));
@@ -697,6 +715,8 @@ joinable!(user_access_to_component -> user_ref (uuid_user));
 joinable!(user_access_to_standard -> standard_ref (uuid_standard));
 joinable!(user_access_to_standard -> type_access_ref (id_type_access));
 joinable!(user_access_to_standard -> user_ref (uuid_user));
+joinable!(user_certificate_ref -> file_ref (uuid_file));
+joinable!(user_certificate_ref -> user_ref (uuid_user));
 joinable!(user_history_list -> type_of_change_ref (id_type_of_change));
 joinable!(user_history_list -> user_ref (uuid_user));
 joinable!(user_ref -> program_ref (id_program));
@@ -707,6 +727,7 @@ allow_tables_to_appear_in_same_query!(
     actual_status_ref,
     company_access_to_component,
     company_access_to_standard,
+    company_certificate_ref,
     company_fav,
     company_history_list,
     company_member_role,
@@ -764,6 +785,7 @@ allow_tables_to_appear_in_same_query!(
     type_of_change_ref,
     user_access_to_component,
     user_access_to_standard,
+    user_certificate_ref,
     user_fav,
     user_history_list,
     user_ref,

@@ -139,3 +139,11 @@ CREATE TABLE company_access_to_standard (
   updated_at TIMESTAMP NOT NULL DEFAULT NOW(), /* дата обновления */
   CONSTRAINT company_access_to_standard_pk PRIMARY KEY (uuid_standard, uuid_company)
 );
+
+/* сертификаты компани */
+CREATE TABLE company_certificate_ref (
+  uuid_file UUID NOT NULL, /* файл сертификата */
+  uuid_company UUID NOT NULL, /* компания которой выдан сертификат */
+  description VARCHAR(100) NOT NULL, /* информация, дополнение */
+  CONSTRAINT company_certificate_ref_pk PRIMARY KEY (uuid_file, uuid_company)
+);

@@ -101,7 +101,10 @@ INSERT INTO extension_ref (extension, id_program) VALUES
 
 INSERT INTO file_ref (uuid, uuid_file_parent, hash, uuid_user, filename, content_type, id_ext, filesize , path_file, created_at, updated_at) VALUES
   ('bc1c2151-86d0-4656-9c9d-d016dd584297', 'bc1c2151-86d0-4656-9c9d-d016dd584297', E'\\000', '31ecc6f8-0c09-4a59-a2d5-34b5b833e59b', 'filename', 'text/plain', 1, 0, 'path/file/file.txt', now(), now()),
-  ('3706d1a1-80ae-4367-be39-af7091373811', 'bc1c2151-86d0-4656-9c9d-d016dd584297', E'\\xe3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855', '68b8281a-d19c-4d4b-88eb-6fd4a2afde1b', 'file_child_two.pdd', 'text/plain', 1, 136, '/sholder/file/f1c5a362-55f9-4edb-ad90-a2ea64d586df', now(), now());
+  ('ae496786-33f9-4727-a0fb-9c6702a3f30a', 'bc1c2151-86d0-4656-9c9d-d016dd584297', E'\\xe3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855', '68b8281a-d19c-4d4b-88eb-6fd4a2afde1b', 'file_child_one.pdd', 'text/plain', 1, 136, '/sholder/file/f1c5a362-55f9-4edb-ad90-a2ea64d586df', now(), now()),
+  ('a7ea73ef-1033-4cc7-b65b-93c1e9464360', 'bc1c2151-86d0-4656-9c9d-d016dd584297', E'\\xe3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855', '68b8281a-d19c-4d4b-88eb-6fd4a2afde1b', 'file_child_two.pdd', 'text/plain', 1, 365, '/sholder/file/f1c5a362-55f9-4edb-ad90-a2ea64d586df', now(), now()),
+  ('9a227a5d-c54e-496a-a1ef-c5d49d8bd0a2', 'bc1c2151-86d0-4656-9c9d-d016dd584297', E'\\xe3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855', '68b8281a-d19c-4d4b-88eb-6fd4a2afde1b', 'file_child_three.pdd', 'text/plain', 1, 256, '/sholder/file/f1c5a362-55f9-4edb-ad90-a2ea64d586df', now(), now()),
+  ('3706d1a1-80ae-4367-be39-af7091373811', 'bc1c2151-86d0-4656-9c9d-d016dd584297', E'\\xe3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855', '68b8281a-d19c-4d4b-88eb-6fd4a2afde1b', 'file_child_four.pdd', 'text/plain', 1, 175, '/sholder/file/f1c5a362-55f9-4edb-ad90-a2ea64d586df', now(), now());
 
 INSERT INTO actual_status_ref (name) VALUES
   ('Developed'),

@@ -30,3 +30,6 @@ ALTER TABLE standard_fav ADD CONSTRAINT standard_fav_fk1 FOREIGN KEY (uuid_user)
 
 ALTER TABLE notification_to_user ADD CONSTRAINT notification_to_user_fk0 FOREIGN KEY (id_notification) REFERENCES notification_ref(id);
 ALTER TABLE notification_to_user ADD CONSTRAINT notification_to_user_fk1 FOREIGN KEY (uuid_user) REFERENCES user_ref(uuid);
+
+ALTER TABLE user_certificate_ref ADD CONSTRAINT user_certificate_ref_fk0 FOREIGN KEY (uuid_file) REFERENCES file_ref(uuid);
+ALTER TABLE user_certificate_ref ADD CONSTRAINT user_certificate_ref_fk1 FOREIGN KEY (uuid_user) REFERENCES user_ref(uuid);

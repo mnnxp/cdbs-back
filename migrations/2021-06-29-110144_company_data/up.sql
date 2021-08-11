@@ -67,3 +67,6 @@ is_enabled, is_delete, created_at, updated_at) VALUES
 INSERT INTO company_access_to_standard (uuid_standard, uuid_company, id_type_access,
   is_enabled, is_delete, created_at, updated_at) VALUES
   ('303ec2aa-2066-42e3-93fb-de4fb9344bcb', '2cd385e1-8f7e-4908-8235-dfe42938b46d', 1, 't', 'f', now(), now());
+
+INSERT INTO company_certificate_ref (uuid_file, uuid_company, description) VALUES
+  ('9a227a5d-c54e-496a-a1ef-c5d49d8bd0a2', '2cd385e1-8f7e-4908-8235-dfe42938b46d', 'company certificate');
