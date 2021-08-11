@@ -1,4 +1,3 @@
-use async_graphql::Context;
 use crate::errors::ServiceResult;
 use crate::database::{get_conn, PooledConnection};
 use crate::models::user::model::{SlimUser, IptUserData};
@@ -28,7 +27,11 @@ use crate::models::component::component_modification::param::model::{
 use crate::models::component::component_modification::param as component_modification_param;
 use crate::models::component as component;
 use crate::models::standard::model::{SlimStandard, IptStandardData, StandardData};
-// use crate::models::file::model::{ShowFile, IptFileData, SlimFile};
+// use crate::models::file::model::{ShowFile, SlimFile};
+use async_graphql::Context;
+// use async_graphql::{
+//     dataloader::DataLoader, Context, EmptySubscription, FieldResult, Schema,
+// };
 
 use uuid::Uuid;
 
@@ -316,24 +319,26 @@ impl MutationRoot {
     // Upload images for profile picture
     // todo!(receive files via MultipartField or MultipartData)
     // pub async fn upload_favicon(
-    //     context: &Context, payload: Multipart
+    //     &self,
+    //     context: &Context<'_>,
+    //     // payload: Multipart,
     // ) -> ServiceResult<ShowFile> {
     //     let conn: &PooledConnection = &get_conn(context)?;
     //
     //     let uuid_user = crate::models::user::get_auth_uuid_user(context, true)?;
     //
-    //     let addiction_table: u8 = 1_u8;
-    //     let uuid_addiction = Uuid::nil();
-    //
-    //
     //     // TODO: add search for parent file by name in table file_ref
     //     let uuid_file_parent = Uuid::parse_str("3706d1a1-80ae-4367-be39-af7091373811")?;
     //
-    //     let respond_slim_file = file::register(
-    //         payload, user_uuid, addiction_table,
-    //         uuid_addiction, uuid_file_parent, conn
+    //     // let respond_slim_file = file::register(
+    //     //     payload, user_uuid, addiction_table,
+    //     //     uuid_addiction, uuid_file_parent, conn
+    //     // ).await?;
+    //
+    //     let upload_favicon_file = crate::models::user::upload::favicon(
+    //         context
     //     ).await?;
     //
-    //     Ok(respond_slim_file)
+    //     Ok(upload_favicon_file)
     // }
 }
