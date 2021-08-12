@@ -16,7 +16,7 @@ pub struct Company {
     pub description: String,
     pub address: String,
     pub site_url: String,
-    pub time_zone: i32,
+    pub time_zone: String,
     pub uuid_user: Uuid,
     pub uuid_image_file: Uuid,
     pub id_region: i32,
@@ -40,7 +40,7 @@ pub struct ShowCompany {
     pub description: String,
     pub address: String,
     pub site_url: String,
-    pub time_zone: i32,
+    pub time_zone: String,
     pub uuid_user: Uuid,
     pub uuid_image_file: Uuid,
     pub id_region: i32,
@@ -82,7 +82,7 @@ impl ShowCompany {
     async fn site_url(&self) -> &String {
         &self.site_url
     }
-    async fn time_zone(&self) -> &i32 {
+    async fn time_zone(&self) -> &String {
         &self.time_zone
     }
     async fn uuid_user(&self) -> ID {
@@ -129,7 +129,7 @@ pub struct InsertableCompany {
     pub description: String,
     pub address: String,
     pub site_url: String,
-    pub time_zone: i32,
+    pub time_zone: String,
     pub uuid_user: Uuid,
     pub uuid_image_file: Uuid,
     pub id_region: i32,
@@ -152,7 +152,7 @@ pub struct IptCompanyData {
     pub description: String,
     pub address: String,
     pub site_url: String,
-    pub time_zone: i32,
+    pub time_zone: String,
     // pub uuid_user: ID,
     pub uuid_image_file: ID,
     pub id_region: i32,
@@ -169,7 +169,7 @@ pub struct CompanyData {
     pub description: String,
     pub address: String,
     pub site_url: String,
-    pub time_zone: i32,
+    pub time_zone: String,
     pub uuid_user: Uuid,
     pub uuid_image_file: Uuid,
     pub id_region: i32,
@@ -237,7 +237,7 @@ impl CompanyData {
     async fn site_url(&self) -> &String {
         &self.site_url
     }
-    async fn time_zone(&self) -> &i32 {
+    async fn time_zone(&self) -> &String {
         &self.time_zone
     }
     async fn uuid_user(&self) -> ID {

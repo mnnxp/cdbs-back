@@ -10,7 +10,7 @@ CREATE TABLE company_ref (
   description VARCHAR(4000) NOT NULL, /* информация, описание */
   address VARCHAR(512) NOT NULL, /*почтовый адрес */
   site_url VARCHAR(255) NOT NULL, /* URL адрес сайта компании */
-  time_zone INTEGER NOT NULL, /*часовой пояс компании */
+  time_zone VARCHAR(50) NOT NULL, /* временная зона компании */
   uuid_user UUID NOT NULL, /* uuuid профиля - владельца */
   uuid_image_file UUID NOT NULL, /* логотип компании */
   id_region INTEGER NOT NULL, /* регион */

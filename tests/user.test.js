@@ -29,7 +29,7 @@ const phone = "test_phone";
 const description = "test_description";
 const address = "test_address";
 const position = "test_position";
-const time_zone = 1;
+const time_zone = "Europe/Moscow";
 const uuid_image_file = "test_uuid_image_file";
 const id_region = 1;
 const id_program = 1;
@@ -120,7 +120,7 @@ describe('users', () => {
                 description: "test_description",
                 address: "test_address",
                 position: "test_position",
-                timeZone: 1,
+                timeZone: "Europe/Moscow",
                 uuidImageFile: "bc1c2151-86d0-4656-9c9d-d016dd584297",
                 idRegion: 1,
                 idProgram: 1,
@@ -159,7 +159,7 @@ describe('users', () => {
                 description: "test_description",
                 address: "test_address",
                 position: "test_position",
-                timeZone: 1,
+                timeZone: "Europe/Moscow",
                 uuidImageFile: "bc1c2151-86d0-4656-9c9d-d016dd584297",
                 idRegion: 1,
                 idProgram: 1,
@@ -198,7 +198,7 @@ describe('users', () => {
                 description: "test_description",
                 address: "test_address",
                 position: "test_position",
-                timeZone: 1,
+                timeZone: "Europe/Moscow",
                 uuidImageFile: "bc1c2151-86d0-4656-9c9d-d016dd584297",
                 idRegion: 1,
                 idProgram: 1,

@@ -28,7 +28,7 @@ const email = "testcompany@testemail.ru";
 const description = "test company";
 const addressCompany = "China";
 const siteUrl = "example.test";
-const timeZone = 3;
+const timeZone = "Europe/Moscow";
 const uuidImageFile = "3706d1a1-80ae-4367-be39-af7091373811";
 const idRegionCompany = 5;
 const idTypeOrg = 2;
@@ -108,7 +108,7 @@ describe('company', () => {
                 description: "test_description",
                 address: "test_address",
                 position: "test_position",
-                timeZone: 1,
+                timeZone: "Europe/Moscow",
                 uuidImageFile: "bc1c2151-86d0-4656-9c9d-d016dd584297",
                 idRegion: 1,
                 idProgram: 1,
@@ -164,7 +164,7 @@ describe('company', () => {
                 description: "test_description",
                 address: "test_address",
                 position: "test_position",
-                timeZone: 1,
+                timeZone: "Europe/Moscow",
                 uuidImageFile: "bc1c2151-86d0-4656-9c9d-d016dd584297",
                 idRegion: 1,
                 idProgram: 5,
@@ -222,7 +222,7 @@ describe('company', () => {
             description: "${description}",
             address: "${addressCompany}"
             siteUrl: "${siteUrl}",
-            timeZone: ${timeZone},
+            timeZone: "${timeZone}",
             uuidImageFile: "${uuidImageFile}",
             idRegion: ${idRegionCompany},
             idTypeOrg: ${idTypeOrg}
@@ -268,7 +268,7 @@ describe('company', () => {
             description: "${description}",
             address: "${addressCompany}"
             siteUrl: "${siteUrl}",
-            timeZone: ${timeZone},
+            timeZone: "${timeZone}",
             uuidImageFile: "${uuidImageFile}",
             idRegion: ${idRegionCompany},
             idTypeOrg: ${idTypeOrg}

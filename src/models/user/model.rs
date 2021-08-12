@@ -21,7 +21,7 @@ pub struct User {
     pub description: String,
     pub address: String,
     pub position: String,
-    pub time_zone: i32,
+    pub time_zone: String,
     pub uuid_image_file: Uuid,
     pub id_region: i32,
     pub id_program: i32,
@@ -44,7 +44,7 @@ pub struct ShowUser {
     pub description: String,
     pub address: String,
     pub position: String,
-    pub time_zone: i32,
+    pub time_zone: String,
     pub uuid_image_file: Uuid,
     pub id_region: i32,
     pub id_program: i32,
@@ -87,7 +87,7 @@ impl ShowUser {
     async fn position(&self) -> &String {
         &self.position
     }
-    async fn time_zone(&self) -> &i32 {
+    async fn time_zone(&self) -> &String {
         &self.time_zone
     }
     async fn uuid_image_file(&self) -> ID {
@@ -131,7 +131,7 @@ pub struct InsertableUser {
     pub description: String,
     pub address: String,
     pub position: String,
-    pub time_zone: i32,
+    pub time_zone: String,
     pub uuid_image_file: Uuid,
     pub id_region: i32,
     pub id_program: i32,
@@ -154,7 +154,7 @@ pub struct IptUserData {
     pub description: String,
     pub address: String,
     pub position: String,
-    pub time_zone: i32,
+    pub time_zone: String,
     pub uuid_image_file: ID,
     pub id_region: i32,
     pub id_program: i32,
@@ -172,7 +172,7 @@ pub struct UserData {
     pub description: String,
     pub address: String,
     pub position: String,
-    pub time_zone: i32,
+    pub time_zone: String,
     pub uuid_image_file: Uuid,
     pub id_region: i32,
     pub id_program: i32,
@@ -244,7 +244,7 @@ impl UserData {
     async fn position(&self) -> &String {
         &self.position
     }
-    async fn time_zone(&self) -> &i32 {
+    async fn time_zone(&self) -> &String {
         &self.time_zone
     }
     async fn uuid_image_file(&self) -> ID {

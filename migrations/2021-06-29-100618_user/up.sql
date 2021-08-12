@@ -14,7 +14,7 @@ CREATE TABLE user_ref (
   description VARCHAR(2000) NOT NULL, /* информация для связи, подпись */
   address VARCHAR(512) NOT NULL, /*почтовый адрес */
   position VARCHAR(255) NOT NULL, /*роль/должность */
-  time_zone INTEGER NOT NULL, /*часовой пояс профиля */
+  time_zone VARCHAR(50) NOT NULL, /* временная зона профиля */
   uuid_image_file UUID NOT NULL, /* картинка пользователя */
   id_region INTEGER NOT NULL, /* регион */
   id_program INTEGER NOT NULL DEFAULT '1', /* САПР «по умолчанию» (для быстрой загрузки данных) */
