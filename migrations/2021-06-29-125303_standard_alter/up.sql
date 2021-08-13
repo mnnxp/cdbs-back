@@ -12,3 +12,5 @@ ALTER TABLE standard_history_list ADD CONSTRAINT standard_history_list_fk1 FOREI
 
 ALTER TABLE file_to_standard ADD CONSTRAINT file_to_standard_fk0 FOREIGN KEY (uuid_file) REFERENCES file_ref(uuid) ON DELETE CASCADE;
 ALTER TABLE file_to_standard ADD CONSTRAINT file_to_standard_fk1 FOREIGN KEY (uuid_standard) REFERENCES standard_ref(uuid) ON DELETE CASCADE;
+
+ALTER TABLE standard_status_ref ADD CONSTRAINT standard_status_ref_fk0 FOREIGN KEY (id_lang) REFERENCES language_ref(id);

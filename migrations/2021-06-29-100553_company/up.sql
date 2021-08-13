@@ -26,9 +26,11 @@ CREATE TABLE company_ref (
 
 /* тип компании */
 CREATE TABLE type_company_ref (
-  id SERIAL, /* id типа компании*/
-  name VARCHAR(255) NOT NULL UNIQUE, /* полное наименование (прим. юридическое лицо) */
-  shortname VARCHAR(50) NOT NULL UNIQUE, /* сокращенное наименование (прим. юр. лицо) */
+  id SERIAL, /* id типа компании */
+  id_lang INTEGER NOT NULL, /* идентификатор языка перевода */
+  name VARCHAR(255) NOT NULL, /* полное наименование (прим. юридическое лицо) в переводе */
+  shortname VARCHAR(50) NOT NULL, /* сокращенное наименование (прим. юр. лицо) в переводе */
+  UNIQUE(id_lang, name, shortname),
   CONSTRAINT type_company_ref_pk PRIMARY KEY (id)
 );
 
@@ -94,14 +96,18 @@ CREATE TABLE discussion_company_ref (
 /* тип представительства компании */
 CREATE TABLE representation_type_ref (
   id SERIAL, /* id типа представительства */
-  representation_type VARCHAR(100) NOT NULL UNIQUE, /* наименование типа представительства */
+  id_lang INTEGER NOT NULL, /* идентификатор языка перевода */
+  representation_type VARCHAR(100) NOT NULL UNIQUE, /* наименование типа представительства в переводе */
+  UNIQUE(id_lang, representation_type),
   CONSTRAINT representation_type_ref_pk PRIMARY KEY (id)
 );
 
 /* роль члена */
 CREATE TABLE role_member_ref (
   id SERIAL, /* id записи */
-  name VARCHAR(50) NOT NULL, /* наименование роли */
+  id_lang INTEGER NOT NULL, /* идентификатор языка перевода */
+  name VARCHAR(50) NOT NULL, /* наименование роли в переводе */
+  UNIQUE(id_lang, name),
   CONSTRAINT role_member_ref_pk PRIMARY KEY (id)
 );
 

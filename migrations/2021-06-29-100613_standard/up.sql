@@ -36,7 +36,9 @@ CREATE TABLE standard_history_list (
 /* статус стандарта */
 CREATE TABLE standard_status_ref (
   id SERIAL, /* id статуса */
-  name VARCHAR(100) NOT NULL UNIQUE, /* к примеру: «Стандарт опубликован» */
+  id_lang INTEGER NOT NULL, /* идентификатор языка перевода */
+  name VARCHAR(100) NOT NULL, /* наименование в переводе к примеру: «Стандарт опубликован» */
+  UNIQUE(id_lang, name),
   CONSTRAINT standard_status_ref_pk PRIMARY KEY (id)
 );
 

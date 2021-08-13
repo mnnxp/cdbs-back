@@ -11,6 +11,8 @@ CREATE TABLE notification_ref (
 
 CREATE TABLE degree_importance_ref (
   id SERIAL UNIQUE, /* id уведомления */
-  degree VARCHAR(50) NOT NULL, /* наименование степени важности */
+  id_lang INTEGER NOT NULL, /* идентификатор языка перевода */
+  degree VARCHAR(50) NOT NULL, /* наименование степени важности в переводе */
+  UNIQUE(id_lang, degree),
   CONSTRAINT degree_importance_ref_pk PRIMARY KEY (id)
 );
