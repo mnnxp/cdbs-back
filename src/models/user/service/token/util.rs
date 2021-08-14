@@ -12,8 +12,12 @@ use uuid::Uuid;
 
 /// get token from request
 pub(crate) fn token_from_context(context: &Context<'_>) -> Result<String, ServiceError> {
-    match context.data_opt::<String>() {
-        Some(token) => Ok(token.to_string()),
+    let token = match context.data_opt::<Token>() {
+        Some(token) => token.clone(),
+        None => Token { bearer: None },
+    };
+    match token.bearer {
+        Some(bearer) => Ok(bearer),
         None => Err(ServiceError::BadRequest("Token not found.".to_string())),
     }
 }

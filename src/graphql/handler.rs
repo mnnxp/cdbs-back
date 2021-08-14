@@ -6,7 +6,7 @@ use async_graphql_actix_web::{Request, Response};
 use crate::cli_args::Opt;
 use crate::database::Pool;
 use crate::graphql::{mutations::MutationRoot, queries::QueryRoot};
-use crate::jwt::util::token_from_request;
+use crate::jwt::model::Token;
 
 type ActixSchema = Schema<QueryRoot, MutationRoot, EmptySubscription>;
 // pub struct MyToken(pub String);
@@ -27,17 +27,11 @@ pub async fn graphql(
     // pool: web::Data<Pool>,
     // opt: web::Data<Opt>
 ) -> Response {
-    let token = token_from_request(&req);
-
     let mut request = gql_request.into_inner();
 
-    match token {
-        None => (),
-        Some(token) => {
-            // println!("match token Ok");
-            request = request.data(token)
-        }
-    }
+    let token: Token = req.into();
+    // println!("match token Ok");
+    request = request.data(token);
 
     schema.execute(request).await.into()
 }

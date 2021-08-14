@@ -3,6 +3,12 @@ use anyhow::Result;
 use chrono::{Duration, Local};
 use std::convert::TryFrom;
 use uuid::Uuid;
+use actix_web::{http::header, HttpRequest};
+use regex::Regex;
+
+lazy_static::lazy_static! {
+    static ref BEARER_REGEXP : Regex = Regex::new(r"^Bearer\s(.*)$").expect("Bearer regexp failed!");
+}
 
 #[derive(Clone)]
 pub struct DecodedToken {
@@ -67,5 +73,25 @@ impl TryFrom<Claims> for SlimUser {
             username,
             id_program,
         })
+    }
+}
+
+/// get token from request
+impl From<HttpRequest> for Token {
+    fn from(req: HttpRequest) -> Self {
+        let token = req
+            .headers()
+            .get(header::AUTHORIZATION)
+            .and_then(|v| v.to_str().ok())
+            .and_then(|authorization| {
+                BEARER_REGEXP
+                    .captures(authorization)
+                    .and_then(|captures| captures.get(1))
+            })
+            .map(|v| v.as_str());
+
+        Self {
+            bearer: token.map(|t| t.to_string())
+        }
     }
 }
