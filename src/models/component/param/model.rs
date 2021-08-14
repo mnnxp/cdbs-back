@@ -10,6 +10,7 @@ use uuid::Uuid;
 #[derive(Debug, Serialize, Deserialize, Queryable)]
 pub struct Param {
     pub id: i32,
+    pub id_lang: i32,
     pub paramname: String,
 }
 
@@ -17,6 +18,9 @@ pub struct Param {
 impl Param {
     async fn id(&self) -> &i32 {
         &self.id
+    }
+    async fn id_lang(&self) -> &i32 {
+        &self.id_lang
     }
     async fn paramname(&self) -> &String {
         &self.paramname
@@ -26,35 +30,41 @@ impl Param {
 #[derive(Debug, Insertable)]
 #[table_name = "param_ref"]
 pub struct InsertableParam {
+    pub id_lang: i32,
     pub paramname: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, Queryable, Clone, InputObject)]
 pub struct ParamData {
+    pub id_lang: i32,
     pub paramname: String,
 }
 
 impl From<Param> for ParamData {
-    fn from(file: Param) -> Self {
+    fn from(data: Param) -> Self {
         let Param {
+            id_lang,
             paramname,
             ..
-        } = file;
+        } = data;
 
         Self {
+            id_lang,
             paramname,
         }
     }
 }
 
 impl From<ParamData> for InsertableParam {
-    fn from(data_param: ParamData) -> Self {
+    fn from(ipt_data: ParamData) -> Self {
         let ParamData {
+            id_lang,
             paramname,
             ..
-        } = data_param;
+        } = ipt_data;
 
         Self {
+            id_lang,
             paramname,
         }
     }

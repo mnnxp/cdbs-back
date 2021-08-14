@@ -12,7 +12,6 @@ pub struct License {
     pub id: i32,
     pub name: String,
     pub keyword: String,
-    pub description: String,
     pub publication_at: NaiveDateTime,
 }
 
@@ -27,9 +26,6 @@ impl License {
     async fn keyword(&self) -> &String {
         &self.keyword
     }
-    async fn description(&self) -> &String {
-        &self.description
-    }
     async fn publication_at(&self) -> &NaiveDateTime {
         &self.publication_at
     }
@@ -40,7 +36,6 @@ impl License {
 pub struct InsertableLicense {
     pub name: String,
     pub keyword: String,
-    pub description: String,
     pub publication_at: NaiveDateTime,
 }
 
@@ -48,7 +43,6 @@ pub struct InsertableLicense {
 pub struct LicenseData {
     pub name: String,
     pub keyword: String,
-    pub description: String,
     pub publication_at: NaiveDateTime,
 }
 
@@ -106,7 +100,6 @@ impl From<LicenseData> for InsertableLicense {
         let LicenseData {
             name,
             keyword,
-            description,
             publication_at,
             ..
         } = data_license;
@@ -116,7 +109,6 @@ impl From<LicenseData> for InsertableLicense {
         Self {
             name,
             keyword,
-            description,
             publication_at,
         }
     }

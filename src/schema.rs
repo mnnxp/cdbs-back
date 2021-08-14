@@ -1,6 +1,7 @@
 table! {
     actual_status_ref (id) {
         id -> Int4,
+        id_lang -> Int4,
         name -> Varchar,
     }
 }
@@ -185,6 +186,7 @@ table! {
 table! {
     degree_importance_ref (id) {
         id -> Int4,
+        id_lang -> Int4,
         degree -> Varchar,
     }
 }
@@ -278,6 +280,7 @@ table! {
 table! {
     license_condition_ref (id) {
         id -> Int4,
+        id_lang -> Int4,
         condition -> Varchar,
     }
 }
@@ -285,6 +288,7 @@ table! {
 table! {
     license_limitation_ref (id) {
         id -> Int4,
+        id_lang -> Int4,
         limitation -> Varchar,
     }
 }
@@ -292,6 +296,7 @@ table! {
 table! {
     license_permission_ref (id) {
         id -> Int4,
+        id_lang -> Int4,
         permission -> Varchar,
     }
 }
@@ -301,7 +306,6 @@ table! {
         id -> Int4,
         name -> Varchar,
         keyword -> Varchar,
-        description -> Varchar,
         publication_at -> Timestamp,
     }
 }
@@ -341,6 +345,7 @@ table! {
 table! {
     param_ref (id) {
         id -> Int4,
+        id_lang -> Int4,
         paramname -> Varchar,
     }
 }
@@ -362,15 +367,6 @@ table! {
 }
 
 table! {
-    param_translate_list (id) {
-        id -> Int4,
-        id_param -> Int4,
-        id_lang -> Int4,
-        param -> Varchar,
-    }
-}
-
-table! {
     permission_to_license (id_permission, id_license) {
         id_permission -> Int4,
         id_license -> Int4,
@@ -387,6 +383,7 @@ table! {
 table! {
     region_ref (id) {
         id -> Int4,
+        id_lang -> Int4,
         region -> Varchar,
     }
 }
@@ -394,6 +391,7 @@ table! {
 table! {
     representation_type_ref (id) {
         id -> Int4,
+        id_lang -> Int4,
         representation_type -> Varchar,
     }
 }
@@ -408,6 +406,7 @@ table! {
 table! {
     role_member_ref (id) {
         id -> Int4,
+        id_lang -> Int4,
         name -> Varchar,
     }
 }
@@ -423,6 +422,7 @@ table! {
 table! {
     spec_ref (id) {
         id -> Int4,
+        id_lang -> Int4,
         spec -> Varchar,
         id_spec_parent -> Int4,
     }
@@ -439,15 +439,6 @@ table! {
     spec_to_component (id_spec, uuid_component) {
         id_spec -> Int4,
         uuid_component -> Uuid,
-    }
-}
-
-table! {
-    spec_translate_list (id) {
-        id -> Int4,
-        id_spec -> Int4,
-        id_lang -> Int4,
-        spec -> Varchar,
     }
 }
 
@@ -495,6 +486,7 @@ table! {
 table! {
     standard_status_ref (id) {
         id -> Int4,
+        id_lang -> Int4,
         name -> Varchar,
     }
 }
@@ -517,6 +509,7 @@ table! {
 table! {
     type_access_ref (id) {
         id -> Int4,
+        id_lang -> Int4,
         name -> Varchar,
     }
 }
@@ -524,6 +517,7 @@ table! {
 table! {
     type_company_ref (id) {
         id -> Int4,
+        id_lang -> Int4,
         name -> Varchar,
         shortname -> Varchar,
     }
@@ -622,6 +616,7 @@ table! {
     }
 }
 
+joinable!(actual_status_ref -> language_ref (id_lang));
 joinable!(company_access_to_component -> company_ref (uuid_company));
 joinable!(company_access_to_component -> component_ref (uuid_component));
 joinable!(company_access_to_component -> type_access_ref (id_type_access));
@@ -657,6 +652,7 @@ joinable!(component_to_keyword -> component_keyword_ref (id_component_keyword));
 joinable!(component_to_keyword -> component_ref (uuid_component));
 joinable!(condition_to_license -> license_condition_ref (id_condition));
 joinable!(condition_to_license -> license_ref (id_license));
+joinable!(degree_importance_ref -> language_ref (id_lang));
 joinable!(discussion_company_ref -> company_ref (uuid_company));
 joinable!(discussion_company_ref -> user_ref (uuid_author));
 joinable!(discussion_component_ref -> component_ref (uuid_component));
@@ -671,6 +667,9 @@ joinable!(file_to_set_modification -> file_ref (uuid_file));
 joinable!(file_to_set_modification -> set_files_for_program (id_set));
 joinable!(file_to_standard -> file_ref (uuid_file));
 joinable!(file_to_standard -> standard_ref (uuid_standard));
+joinable!(license_condition_ref -> language_ref (id_lang));
+joinable!(license_limitation_ref -> language_ref (id_lang));
+joinable!(license_permission_ref -> language_ref (id_lang));
 joinable!(license_to_component -> component_ref (uuid_component));
 joinable!(license_to_component -> license_ref (id_license));
 joinable!(limitation_to_license -> license_limitation_ref (id_limitation));
@@ -678,24 +677,25 @@ joinable!(limitation_to_license -> license_ref (id_license));
 joinable!(notification_ref -> degree_importance_ref (id_degree_importance));
 joinable!(notification_to_user -> notification_ref (id_notification));
 joinable!(notification_to_user -> user_ref (uuid_user));
+joinable!(param_ref -> language_ref (id_lang));
 joinable!(param_to_component -> component_ref (uuid_component));
 joinable!(param_to_component -> param_ref (id_param));
 joinable!(param_to_modification -> component_modification_list (uuid_modification));
 joinable!(param_to_modification -> param_ref (id_param));
-joinable!(param_translate_list -> language_ref (id_lang));
-joinable!(param_translate_list -> param_ref (id_param));
 joinable!(permission_to_license -> license_permission_ref (id_permission));
 joinable!(permission_to_license -> license_ref (id_license));
+joinable!(region_ref -> language_ref (id_lang));
+joinable!(representation_type_ref -> language_ref (id_lang));
 joinable!(role_access -> role_member_ref (id_role));
 joinable!(role_access -> type_access_ref (id_type_access));
+joinable!(role_member_ref -> language_ref (id_lang));
 joinable!(set_files_for_program -> component_modification_list (uuid_modification));
 joinable!(set_files_for_program -> program_ref (id_program));
+joinable!(spec_ref -> language_ref (id_lang));
 joinable!(spec_to_company -> company_ref (uuid_company));
 joinable!(spec_to_company -> spec_ref (id_spec));
 joinable!(spec_to_component -> component_ref (uuid_component));
 joinable!(spec_to_component -> spec_ref (id_spec));
-joinable!(spec_translate_list -> language_ref (id_lang));
-joinable!(spec_translate_list -> spec_ref (id_spec));
 joinable!(standard_fav -> standard_ref (uuid_standard));
 joinable!(standard_fav -> user_ref (uuid_user));
 joinable!(standard_history_list -> standard_ref (uuid_standard));
@@ -705,10 +705,13 @@ joinable!(standard_ref -> region_ref (id_region));
 joinable!(standard_ref -> standard_status_ref (id_standard_status));
 joinable!(standard_ref -> type_access_ref (id_type_access));
 joinable!(standard_ref -> user_ref (uuid_user));
+joinable!(standard_status_ref -> language_ref (id_lang));
 joinable!(standard_to_component -> component_ref (uuid_component));
 joinable!(standard_to_component -> standard_ref (uuid_standard));
 joinable!(supplier_to_component -> company_ref (uuid_company));
 joinable!(supplier_to_component -> component_ref (uuid_component));
+joinable!(type_access_ref -> language_ref (id_lang));
+joinable!(type_company_ref -> language_ref (id_lang));
 joinable!(user_access_to_component -> component_ref (uuid_component));
 joinable!(user_access_to_component -> type_access_ref (id_type_access));
 joinable!(user_access_to_component -> user_ref (uuid_user));
@@ -762,7 +765,6 @@ allow_tables_to_appear_in_same_query!(
     param_ref,
     param_to_component,
     param_to_modification,
-    param_translate_list,
     permission_to_license,
     program_ref,
     region_ref,
@@ -773,7 +775,6 @@ allow_tables_to_appear_in_same_query!(
     spec_ref,
     spec_to_company,
     spec_to_component,
-    spec_translate_list,
     standard_fav,
     standard_history_list,
     standard_ref,

@@ -35,6 +35,10 @@ const paramNameTest = "testparametr";
 const paramNameTest2 = "testparametr2";
 var idParamTest = "";
 
+// language
+const idLang1 = 1;
+const idLang2 = 2;
+
 async function cleanupParamDb() {
   return global.knex.raw('DELETE FROM param_ref WHERE paramname in (?,?)', [
     paramNameTest,
@@ -185,6 +189,7 @@ describe('param', () => {
       .send({
         query: `mutation  {
             registerParam( data: {
+                idLang: ${idLang1},
                 paramname: "${paramNameTest}"
             }) {
               id
@@ -212,9 +217,11 @@ describe('param', () => {
       .send({
         query: `mutation  {
             registerParam( data: {
+                idLang: ${idLang1},
                 paramname: "${paramNameTest}",
             }) {
               id
+              idLang
               paramname
             }
         }`,
@@ -225,9 +232,10 @@ describe('param', () => {
       data: { registerParam },
     } = body;
     expect(registerParam).toContainAllKeys([
-      "id", "paramname"
+      "id", "idLang", "paramname"
     ]);
     expect(registerParam.id).not.toBeNull();
+    expect(registerParam.idLang).toBe(idLang1);
     expect(registerParam.paramname).toBe(paramNameTest);
     idParamTest = registerParam.id;   // <-- save data for test "already param"
     done();
@@ -243,6 +251,7 @@ describe('param', () => {
       .send({
         query: `mutation  {
             registerParam( data: {
+                idLang: ${idLang1},
                 paramname: "${paramNameTest}"
             }) {
               id
@@ -270,6 +279,7 @@ describe('param', () => {
       .send({
         query: `mutation  {
             registerParam( data: {
+                idLang: ${idLang1},
                 paramname: "${paramNameTest2}",
             }) {
               id

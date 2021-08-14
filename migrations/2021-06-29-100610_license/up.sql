@@ -4,7 +4,6 @@ CREATE TABLE license_ref (
   id SERIAL UNIQUE, /* id лицензии */
   name VARCHAR(225) NOT NULL UNIQUE, /* наименование лицензии */
   keyword VARCHAR(50) NOT NULL UNIQUE, /* ключевое слово лицензии */
-  description VARCHAR(450) NOT NULL, /* краткое описание лицензии */
   publication_at TIMESTAMP NOT NULL DEFAULT NOW(), /* дата публикации */
   CONSTRAINT license_ref_pk PRIMARY KEY (id)
 );
@@ -12,7 +11,9 @@ CREATE TABLE license_ref (
 /* разрешения */
 CREATE TABLE license_permission_ref (
   id SERIAL UNIQUE, /* id статуса */
-  permission VARCHAR(225) NOT NULL UNIQUE, /* наименование разрешения */
+  id_lang INTEGER NOT NULL, /* идентификатор языка перевода */
+  permission VARCHAR(225) NOT NULL, /* наименование разрешения */
+  UNIQUE (id_lang, permission),
   CONSTRAINT license_permission_ref_pk PRIMARY KEY (id)
 );
 
@@ -27,7 +28,9 @@ CREATE TABLE permission_to_license (
 /* ограничения */
 CREATE TABLE license_limitation_ref (
   id SERIAL UNIQUE, /* id статуса */
-  limitation VARCHAR(225) NOT NULL UNIQUE, /* наименование разрешения */
+  id_lang INTEGER NOT NULL, /* идентификатор языка перевода */
+  limitation VARCHAR(225) NOT NULL, /* наименование разрешения */
+  UNIQUE (id_lang, limitation),
   CONSTRAINT license_limitation_ref_pk PRIMARY KEY (id)
 );
 
@@ -42,7 +45,9 @@ CREATE TABLE limitation_to_license (
 /* условия */
 CREATE TABLE license_condition_ref (
   id SERIAL UNIQUE, /* id статуса */
-  condition VARCHAR(225) NOT NULL UNIQUE, /* наименование разрешения */
+  id_lang INTEGER NOT NULL, /* идентификатор языка перевода */
+  condition VARCHAR(225) NOT NULL, /* наименование разрешения */
+  UNIQUE (id_lang, condition),
   CONSTRAINT license_condition_ref_pk PRIMARY KEY (id)
 );
 
