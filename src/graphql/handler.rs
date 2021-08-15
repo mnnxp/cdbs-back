@@ -7,9 +7,9 @@ use crate::cli_args::Opt;
 use crate::database::Pool;
 use crate::graphql::{mutations::MutationRoot, queries::QueryRoot};
 use crate::jwt::model::Token;
+use crate::models::language::model::SetLang;
 
 type ActixSchema = Schema<QueryRoot, MutationRoot, EmptySubscription>;
-// pub struct MyToken(pub String);
 
 pub async fn build_schema(pool: Pool) -> ActixSchema {
     Schema::build(QueryRoot, MutationRoot, EmptySubscription)
@@ -30,8 +30,23 @@ pub async fn graphql(
     let mut request = gql_request.into_inner();
 
     let token: Token = req.into();
+
+    // use actix_web::{http::header, HttpRequest};
+    // use regex::Regex;
+    // let re_lang = Regex::new(r"^[1-2]$").expect("Lang regexp failed!");
+    // let result = req
+    //     .headers()
+    //     .get(header::HeaderName::from_lowercase(b"language").unwrap())
+    //     .and_then(|v| v.to_str().ok())
+    //     .and_then(|language| {
+    //         // if two language
+    //         re_lang.find(language).unwrap().range().
+    //     });
+    let lang: SetLang = SetLang { id_lang: 1 };
+
     // println!("match token Ok");
     request = request.data(token);
+    request = request.data(lang);
 
     schema.execute(request).await.into()
 }

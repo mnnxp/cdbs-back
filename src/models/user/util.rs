@@ -1,6 +1,7 @@
 use crate::database::{get_conn, PooledConnection};
 use super::model::User;
 use crate::models::user::service as user;
+use crate::models::language::model::SetLang;
 use crate::errors::ServiceError;
 use async_graphql::Context;
 use argon2rs::argon2i_simple;
@@ -63,6 +64,17 @@ pub(crate) fn get_auth_uuid_user(
                 Err(ServiceError::Unauthorized)
             }
         }
+    }
+}
+
+/// get the id of the language for the user interface
+/// (if not specified in the request, it will be 1)
+pub(crate) fn get_set_language(
+    context: &Context<'_>,
+) -> i32 {
+    match context.data_opt::<SetLang>() {
+        Some(set_lang) => set_lang.id_lang,
+        None => 1, // <-- default language
     }
 }
 

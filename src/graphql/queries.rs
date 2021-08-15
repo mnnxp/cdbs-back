@@ -11,7 +11,7 @@ use crate::models::component::license as component_license;
 use crate::models::component::license::model::{License, LicenseComponent};
 use crate::models::component::model::Component;
 use crate::models::component::model::ShowComponent;
-use crate::models::component::param::model::{Param, ParamComponent};
+use crate::models::component::param::model::{ParamTranslateList, ParamComponent};
 use crate::models::component::param as component_param;
 use crate::models::component::component_modification::param::model::ParamModification;
 use crate::models::component::component_modification::param as component_modification_param;
@@ -26,6 +26,8 @@ use crate::models::file::model::ShowFile;
 use crate::models::file::service as file;
 use crate::models::standard::model::ShowStandard;
 use crate::models::standard as standard;
+use crate::models::language::model::Language;
+use crate::models::language as language;
 use async_graphql::Context;
 // use crate::database::PooledConnection;
 // use diesel::PgConnection;
@@ -302,7 +304,7 @@ impl QueryRoot {
         id_param: Option<Vec<i32>>,
         limit: Option<i32>,
         offset: Option<i32>,
-    ) -> ServiceResult<Vec<Param>> {
+    ) -> ServiceResult<Vec<ParamTranslateList>> {
         // authorization check
         crate::models::user::util::check_authorized(context)?;
 
@@ -466,4 +468,22 @@ impl QueryRoot {
             offset
         )
     }
+
+    async fn language(
+        &self,
+        context: &Context<'_>,
+        id_lang: Option<Vec<i32>>,
+        limit: Option<i32>,
+        offset: Option<i32>,
+    ) -> ServiceResult<Vec<Language>> {
+        // authorization check
+        crate::models::user::util::check_authorized(context)?;
+
+        let id_lang: Vec<i32> = id_lang.unwrap_or_default();
+        let limit: i32 = limit.unwrap_or(100);
+        let offset: i32 = offset.unwrap_or(0);
+
+        language::service::list::get_languages(context, id_lang, limit, offset)
+    }
+
 }

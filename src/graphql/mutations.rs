@@ -18,7 +18,8 @@ use crate::models::component::model::{
     SlimComponent, ComponentData, IptComponentData,
 };
 use crate::models::component::param::model::{
-    Param, ParamData, ParamComponent, IptParamComponentData
+    ParamComponent, IptParamComponentData,
+    ParamTranslateList, IptParamTranslateListData
 };
 use crate::models::component::param as component_param;
 use crate::models::component::component_modification::param::model::{
@@ -156,8 +157,8 @@ impl MutationRoot {
     async fn register_param(
         &self,
         context: &Context<'_>,
-        data: ParamData,
-    ) -> ServiceResult<Param> {
+        data: IptParamTranslateListData,
+    ) -> ServiceResult<ParamTranslateList> {
         use component_param::service::register::create_param;
         let conn: &PooledConnection = &get_conn(context)?;
 
