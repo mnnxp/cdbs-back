@@ -1,4 +1,5 @@
 use crate::schema::*;
+use crate::models::component::actual_status::model::ActualStatusTranslateList;
 use crate::models::component::param::model::ParamComponent;
 use crate::models::component::component_modification::model::ComponentModification;
 use crate::models::component::component_modification::param::model::ParamModification;
@@ -25,16 +26,6 @@ pub struct Component {
     pub is_delete: bool,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
-}
-
-#[derive(Debug, Deserialize, SimpleObject, Description)]
-pub struct ShowComponent {
-    pub component: Component,
-    pub param_component: Vec<ParamComponent>,
-    pub license: Vec<License>,
-    pub file: Vec<ShowFile>,
-    pub component_modification: Vec<ComponentModification>,
-    pub param_modification: Vec<ParamModification>,
 }
 
 #[Object]
@@ -75,6 +66,32 @@ impl Component {
     async fn updated_at(&self) -> &NaiveDateTime {
         &self.updated_at
     }
+}
+
+#[derive(Deserialize, SimpleObject, Debug)]
+pub struct ShowComponentData {
+    pub uuid: Uuid,
+    pub uuid_component_parent: Uuid,
+    pub name: String,
+    pub description: String,
+    pub uuid_user: Uuid,
+    pub id_type_access: i32,
+    pub id_component_type: i32,
+    pub actual_status: ActualStatusTranslateList,
+    pub is_standard: bool,
+    pub is_delete: bool,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
+}
+
+#[derive(Debug, Deserialize, SimpleObject, Description)]
+pub struct ShowComponent {
+    pub component: ShowComponentData,
+    pub param_component: Vec<ParamComponent>,
+    pub license: Vec<License>,
+    pub file: Vec<ShowFile>,
+    pub component_modification: Vec<ComponentModification>,
+    pub param_modification: Vec<ParamModification>,
 }
 
 #[derive(Debug, Insertable)]

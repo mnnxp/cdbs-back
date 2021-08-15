@@ -4,43 +4,47 @@ use crate::errors::{
     ServiceResult
 };
 use crate::models::component::param::model::{
-    InsertableParam,
-    ParamData,
+    InsertableParamTranslateList,
+    IptParamTranslateListData,
+    ParamTranslateList,
     Param
 };
 // use actix_web::web;
 use diesel::prelude::*;
 // use uuid::Uuid;
 
-
-// pub(crate) fn register(
-//     new_param_data: ParamData,
-//     pool: web::Data<Pool>
-// ) -> ServiceResult<Param> {
-//     let conn = &db_connection(&pool)?;
-//     create_param(new_param_data, conn)
-// }
-
 pub(crate) fn create_param(
-    new_param_data: ParamData,
+    new_param_data: IptParamTranslateListData,
     conn: &PgConnection
-) -> ServiceResult<Param> {
-    use crate::schema::param_ref::dsl::*;
-    // use crate::schema::param_to_component::dsl::uuid as uuid_component;
-    // use crate::schema::param_to_modification::dsl::uuid as uuid_modification;
-    // use diesel::dsl::count;
+) -> ServiceResult<ParamTranslateList> {
+    use crate::schema::param_translate_list::dsl::*;
 
-    let flag_found_param = param_ref
+    let flag_found_param = param_translate_list
+        .filter(id_lang.eq(&new_param_data.id_lang))
         .filter(paramname.eq(&new_param_data.paramname))
-        .select(id)
+        .select(id_param)
         .first::<i32>(conn).unwrap_or(0);
 
     // debug!("fn create_param START SEARCH ={:?}", flag_found_param);
 
     match flag_found_param {
         0 => {
-            let new_param_data: InsertableParam = new_param_data.into();
-            let inserted_param_data: Param = diesel::insert_into(param_ref)
+            let new_id_param = {
+                use crate::schema::param_ref::dsl::*;
+
+                let new_param: Param = diesel::insert_into(param_ref)
+                    .default_values()
+                    .get_result(conn)?;
+
+                new_param.id
+            };
+
+            let new_param_data = InsertableParamTranslateList {
+                id_param: new_id_param,
+                id_lang: new_param_data.id_lang,
+                paramname: new_param_data.paramname,
+            };
+            let inserted_param_data: ParamTranslateList = diesel::insert_into(param_translate_list)
                 .values(&new_param_data)
                 .get_result(conn)?;
             Ok(inserted_param_data)

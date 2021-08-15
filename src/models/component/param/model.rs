@@ -1,5 +1,6 @@
 use crate::schema::*;
 use crate::models::component::model::Component;
+use crate::models::language::model::Language;
 use async_graphql::types::ID;
 use async_graphql::*;
 // use chrono::*;
@@ -7,17 +8,42 @@ use uuid::Uuid;
 
 // Param models
 
-#[derive(Debug, Serialize, Deserialize, Queryable)]
+#[derive(Identifiable, Serialize, Deserialize, Associations, Queryable, Debug)]
+#[primary_key(id)]
+#[table_name = "param_ref"]
 pub struct Param {
     pub id: i32,
-    pub id_lang: i32,
-    pub paramname: String,
 }
 
 #[Object]
 impl Param {
     async fn id(&self) -> &i32 {
         &self.id
+    }
+}
+
+#[derive(Debug, Insertable)]
+#[table_name = "param_ref"]
+pub struct InsertableParam {
+    pub id: i32,
+}
+
+// Param translations
+#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, Debug)]
+#[primary_key(id_param, id_lang)]
+#[belongs_to(Param, foreign_key = "id_param")]
+#[belongs_to(Language, foreign_key = "id_lang")]
+#[table_name = "param_translate_list"]
+pub struct ParamTranslateList {
+    pub id_param: i32,
+    pub id_lang: i32,
+    pub paramname: String,
+}
+
+#[Object]
+impl ParamTranslateList {
+    async fn id_param(&self) -> &i32 {
+        &self.id_param
     }
     async fn id_lang(&self) -> &i32 {
         &self.id_lang
@@ -27,47 +53,18 @@ impl Param {
     }
 }
 
+#[derive(Debug, Deserialize, Clone, InputObject)]
+pub struct IptParamTranslateListData {
+    pub id_lang: i32,
+    pub paramname: String,
+}
+
 #[derive(Debug, Insertable)]
-#[table_name = "param_ref"]
-pub struct InsertableParam {
+#[table_name = "param_translate_list"]
+pub struct InsertableParamTranslateList {
+    pub id_param: i32,
     pub id_lang: i32,
     pub paramname: String,
-}
-
-#[derive(Debug, Serialize, Deserialize, Queryable, Clone, InputObject)]
-pub struct ParamData {
-    pub id_lang: i32,
-    pub paramname: String,
-}
-
-impl From<Param> for ParamData {
-    fn from(data: Param) -> Self {
-        let Param {
-            id_lang,
-            paramname,
-            ..
-        } = data;
-
-        Self {
-            id_lang,
-            paramname,
-        }
-    }
-}
-
-impl From<ParamData> for InsertableParam {
-    fn from(ipt_data: ParamData) -> Self {
-        let ParamData {
-            id_lang,
-            paramname,
-            ..
-        } = ipt_data;
-
-        Self {
-            id_lang,
-            paramname,
-        }
-    }
 }
 
 // Param component models
