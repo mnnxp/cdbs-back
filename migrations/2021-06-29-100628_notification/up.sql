@@ -1,7 +1,7 @@
 -- Your SQL goes here
 /* Уведомление */
 CREATE TABLE notification_ref (
-  id SERIAL UNIQUE, /* id уведомления */
+  id SERIAL, /* id уведомления */
   notification VARCHAR(2000) NOT NULL, /* наименование уведомления */
   id_degree_importance INTEGER NOT NULL, /* степень важности уведомления */
   generated_at TIMESTAMP NOT NULL DEFAULT NOW(), /* дата публикации */
@@ -10,9 +10,14 @@ CREATE TABLE notification_ref (
 );
 
 CREATE TABLE degree_importance_ref (
-  id SERIAL UNIQUE, /* id уведомления */
+  id SERIAL, /* id уведомления */
+  CONSTRAINT degree_importance_ref_pk PRIMARY KEY (id)
+);
+
+CREATE TABLE degree_importance_translate_list (
+  id_degree_importance INTEGER NOT NULL, /* id уведомления */
   id_lang INTEGER NOT NULL, /* идентификатор языка перевода */
   degree VARCHAR(50) NOT NULL, /* наименование степени важности в переводе */
   UNIQUE(id_lang, degree),
-  CONSTRAINT degree_importance_ref_pk PRIMARY KEY (id)
+  CONSTRAINT degree_importance_translate_list_pk PRIMARY KEY (id_degree_importance, id_lang)
 );

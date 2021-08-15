@@ -106,128 +106,113 @@ INSERT INTO file_ref (uuid, uuid_file_parent, hash, uuid_user, filename, content
   ('9a227a5d-c54e-496a-a1ef-c5d49d8bd0a2', 'bc1c2151-86d0-4656-9c9d-d016dd584297', E'\\xe3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855', '68b8281a-d19c-4d4b-88eb-6fd4a2afde1b', 'file_child_three.pdd', 'text/plain', 1, 256, '/sholder/file/f1c5a362-55f9-4edb-ad90-a2ea64d586df', now(), now()),
   ('3706d1a1-80ae-4367-be39-af7091373811', 'bc1c2151-86d0-4656-9c9d-d016dd584297', E'\\xe3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855', '68b8281a-d19c-4d4b-88eb-6fd4a2afde1b', 'file_child_four.pdd', 'text/plain', 1, 175, '/sholder/file/f1c5a362-55f9-4edb-ad90-a2ea64d586df', now(), now());
 
-INSERT INTO actual_status_ref (id_lang, name) VALUES
-  (1, 'Developed'),
-  (1, 'Tested'),
-  (1, 'Planned'),
-  (1, 'Launched'),
-  (1, 'Discontinued');
+INSERT INTO actual_status_ref (id) VALUES
+  (1),
+  (2),
+  (3),
+  (4),
+  (5);
 
-INSERT INTO type_access_ref (id_lang, name) VALUES
-  (1, 'Private'),
-  (1, 'Protected'),
-  (1, 'Public');
+INSERT INTO actual_status_translate_list (id_actual_status, id_lang, name) VALUES
+  (1, 1, 'Developed'),
+  (2, 1, 'Tested'),
+  (3, 1, 'Planned'),
+  (4, 1, 'Launched'),
+  (5, 1, 'Discontinued');
 
-INSERT INTO param_ref (id_lang, paramname) VALUES
-  (1, 'Index'),
-  (1, 'Selector'),
-  (1, 'Part Number'),
-  (1, 'Description'),
-  (1, 'E-Shop link'),
-  (1, 'Material'),
-  (1, 'Finish'),
-  (1, 'Article Number'),
-  (1, 'Nominal Ø'),
-  (1, 'Pitch (mm)'),
-  (1, 'Length (mm)'),
-  (1, 'Head height (mm)');
+INSERT INTO type_access_ref (id) VALUES
+  (1),
+  (2),
+  (3);
+
+INSERT INTO type_access_translate_list (id_type_access, id_lang, name) VALUES
+  (1, 1, 'Private'),
+  (2, 1, 'Protected'),
+  (3, 1, 'Public');
+
+INSERT INTO param_ref (id) VALUES
+  (1),
+  (2),
+  (3),
+  (4),
+  (5),
+  (6),
+  (7),
+  (8),
+  (9),
+  (10),
+  (11),
+  (12);
+
+INSERT INTO param_translate_list (id_param, id_lang, paramname) VALUES
+  (1, 1, 'Index'),
+  (2, 1, 'Selector'),
+  (3, 1, 'Part Number'),
+  (4, 1, 'Description'),
+  (5, 1, 'E-Shop link'),
+  (6, 1, 'Material'),
+  (7, 1, 'Finish'),
+  (8, 1, 'Article Number'),
+  (9, 1, 'Nominal Ø'),
+  (10, 1, 'Pitch (mm)'),
+  (11, 1, 'Length (mm)'),
+  (12, 1, 'Head height (mm)');
 
 INSERT INTO language_ref (lang, langshort) VALUES
   ('English', 'EN'),
   ('Russian', 'RU');
 
-INSERT INTO region_ref (id_lang, region) VALUES
-  (1, 'The Republic of Adygea (Adygea)'),
-  (2, 'Республика Адыгея (Адыгея)'),
-  (2, 'Республика Башкортостан'),
-  (2, 'Республика Бурятия'),
-  (2, 'Республика Алтай'),
-  (2, 'Республика Дагестан'),
-  (2, 'Республика Ингушетия'),
-  (2, 'Кабардино-Балкарская Республика'),
-  (2, 'Республика Калмыкия'),
-  (2, 'Карачаево-Черкесская Республика'),
-  (2, 'Республика Карелия'),
-  (2, 'Республика Коми'),
-  (2, 'Республика Марий Эл'),
-  (2, 'Республика Мордовия'),
-  (2, 'Республика Саха (Якутия)'),
-  (2, 'Республика Северная Осетия - Алания'),
-  (2, 'Республика Татарстан (Татарстан)'),
-  (2, 'Республика Тыва'),
-  (2, 'Удмуртская Республика'),
-  (2, 'Республика Хакасия'),
-  (2, 'Чеченская Республика'),
-  (2, 'Чувашская Республика - Чувашия'),
-  (2, 'Алтайский край'),
-  (2, 'Краснодарский край'),
-  (2, 'Красноярский край'),
-  (2, 'Приморский край'),
-  (2, 'Ставропольский край'),
-  (2, 'Хабаровский край'),
-  (2, 'Амурская область'),
-  (2, 'Архангельская область'),
-  (2, 'Астраханская область'),
-  (2, 'Белгородская область'),
-  (2, 'Брянская область'),
-  (2, 'Владимирская область'),
-  (2, 'Волгоградская область'),
-  (2, 'Вологодская область'),
-  (2, 'Воронежская область'),
-  (2, 'Ивановская область'),
-  (2, 'Иркутская область'),
-  (2, 'Калининградская область'),
-  (2, 'Калужская область'),
-  (2, 'Камчатский край'),
-  (2, 'Кемеровская область - Кузбасс'),
-  (2, 'Кировская область'),
-  (2, 'Костромская область'),
-  (2, 'Курганская область'),
-  (2, 'Курская область'),
-  (2, 'Ленинградская область'),
-  (2, 'Липецкая область'),
-  (2, 'Магаданская область'),
-  (2, 'Московская область'),
-  (2, 'Мурманская область'),
-  (2, 'Нижегородская область'),
-  (2, 'Новгородская область'),
-  (2, 'Новосибирская область'),
-  (2, 'Омская область'),
-  (2, 'Оренбургская область'),
-  (2, 'Орловская область'),
-  (2, 'Пензенская область'),
-  (2, 'Пермский край'),
-  (2, 'Псковская область'),
-  (2, 'Ростовская область'),
-  (2, 'Рязанская область'),
-  (2, 'Самарская область'),
-  (2, 'Саратовская область'),
-  (2, 'Сахалинская область'),
-  (2, 'Свердловская область'),
-  (2, 'Смоленская область'),
-  (2, 'Тамбовская область'),
-  (2, 'Тверская область'),
-  (2, 'Томская область'),
-  (2, 'Тульская область'),
-  (2, 'Тюменская область'),
-  (2, 'Ульяновская область'),
-  (2, 'Челябинская область'),
-  (2, 'Забайкальский край'),
-  (2, 'Ярославская область'),
-  (2, 'г. Москва'),
-  (2, 'Санкт-Петербург'),
-  (2, 'Еврейская автономная область'),
-  (2, 'Ненецкий автономный округ'),
-  (2, 'Ханты-Мансийский автономный округ - Югра'),
-  (2, 'Чукотский автономный округ'),
-  (2, 'Ямало-Ненецкий автономный округ'),
-  (2, 'Республика Крым'),
-  (2, 'Севастополь'),
-  (2, 'Иные территории, включая город и космодром Байконур');
+INSERT INTO region_ref (id) VALUES
+  (1),
+  (2),
+  (3),
+  (4),
+  (5),
+  (6),
+  (7),
+  (8),
+  (9),
+  (10),
+  (11),
+  (12),
+  (13);
 
--- TABLE: type_of_change_ref: id (serial), type_of_change (VARCHAR(100))
-INSERT INTO type_of_change_ref (type_of_change) VALUES
-  ('data update');
+INSERT INTO region_translate_list (id_region, id_lang, region) VALUES
+  (1, 1, 'The Republic of Adygea (Adygea)'),
+  (2, 1, 'Republic of Bashkortostan'),
+  (3, 1, 'The Republic of Buryatia'),
+  (4, 1, 'Altai Republic'),
+  (5, 1, 'Republic of Crimea'),
+  (6, 1, 'Chuy valley'),
+  (7, 1, 'IssykKul region'),
+  (8, 1, 'Naryn region'),
+  (9, 1, 'Talas region'),
+  (10, 1, 'JalalAdab region'),
+  (11, 1, 'Osh region'),
+  (12, 1, 'Batken region'),
+  (13, 1, 'Other'),
+  (1, 2, 'Республика Адыгея (Адыгея)'),
+  (2, 2, 'Республика Башкортостан'),
+  (3, 2, 'Республика Бурятия'),
+  (4, 2, 'Республика Алтай'),
+  (5, 2, 'Республика Крым'),
+  (6, 2, 'Чуйская долина'),
+  (7, 2, 'ИссыкКульская область'),
+  (8, 2, 'Нарынская область'),
+  (9, 2, 'Таласская область'),
+  (10, 2, 'ДжалалАдабская область'),
+  (11, 2, 'Ошская область'),
+  (12, 2, 'Баткенская область'),
+  (13, 2, 'Другой');
 
-INSERT INTO spec_ref (id_lang, spec, id_spec_parent) VALUES
-  (1, 'ROOT', 1);
+INSERT INTO type_of_change_ref (id) VALUES
+  (1);
+
+INSERT INTO type_of_change_translate_list (id_type_of_change, id_lang, type_of_change) VALUES
+  (1, 1, 'data update');
+
+INSERT INTO spec_ref (id, id_spec_parent) VALUES
+  (1, 1);
+
+INSERT INTO spec_translate_list (id_spec, id_lang, spec) VALUES
+  (1, 1, 'ROOT');

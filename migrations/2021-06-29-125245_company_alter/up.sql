@@ -36,8 +36,11 @@ ALTER TABLE company_access_to_standard ADD CONSTRAINT company_access_to_standard
 ALTER TABLE company_certificate_ref ADD CONSTRAINT company_certificate_ref_fk0 FOREIGN KEY (uuid_file) REFERENCES file_ref(uuid);
 ALTER TABLE company_certificate_ref ADD CONSTRAINT company_certificate_ref_fk1 FOREIGN KEY (uuid_company) REFERENCES company_ref(uuid);
 
-ALTER TABLE type_company_ref ADD CONSTRAINT type_company_ref_fk0 FOREIGN KEY (id_lang) REFERENCES language_ref(id);
+ALTER TABLE type_company_translate_list ADD CONSTRAINT type_company_translate_list_fk0 FOREIGN KEY (id_type_company) REFERENCES type_company_ref(id);
+ALTER TABLE type_company_translate_list ADD CONSTRAINT type_company_translate_list_fk1 FOREIGN KEY (id_lang) REFERENCES language_ref(id);
 
-ALTER TABLE representation_type_ref ADD CONSTRAINT representation_type_ref_fk0 FOREIGN KEY (id_lang) REFERENCES language_ref(id);
+ALTER TABLE representation_type_translate_list ADD CONSTRAINT representation_type_translate_list_fk0 FOREIGN KEY (id_representation_type) REFERENCES representation_type_ref(id);
+ALTER TABLE representation_type_translate_list ADD CONSTRAINT representation_type_translate_list_fk1 FOREIGN KEY (id_lang) REFERENCES language_ref(id);
 
-ALTER TABLE role_member_ref ADD CONSTRAINT role_member_ref_fk0 FOREIGN KEY (id_lang) REFERENCES language_ref(id);
+ALTER TABLE role_member_translate_list ADD CONSTRAINT role_member_translate_list_fk0 FOREIGN KEY (id_role_member) REFERENCES role_member_ref(id);
+ALTER TABLE role_member_translate_list ADD CONSTRAINT role_member_translate_list_fk1 FOREIGN KEY (id_lang) REFERENCES language_ref(id);

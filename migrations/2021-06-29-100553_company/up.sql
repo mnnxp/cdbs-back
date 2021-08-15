@@ -1,6 +1,5 @@
 -- Your SQL goes here/* компания */
 CREATE TABLE company_ref (
-  -- id SERIAL, /* id компании */
   uuid UUID NOT NULL UNIQUE PRIMARY KEY,
   orgname VARCHAR(255) NOT NULL, /* наименование организации (для юр.лиц) */
   shortname VARCHAR(255) NOT NULL, /* сокращённое наименование организации (для юр.лиц) */
@@ -27,16 +26,20 @@ CREATE TABLE company_ref (
 /* тип компании */
 CREATE TABLE type_company_ref (
   id SERIAL, /* id типа компании */
+  CONSTRAINT type_company_ref_pk PRIMARY KEY (id)
+);
+
+CREATE TABLE type_company_translate_list (
+  id_type_company INTEGER NOT NULL, /* id типа компании */
   id_lang INTEGER NOT NULL, /* идентификатор языка перевода */
   name VARCHAR(255) NOT NULL, /* полное наименование (прим. юридическое лицо) в переводе */
   shortname VARCHAR(50) NOT NULL, /* сокращенное наименование (прим. юр. лицо) в переводе */
   UNIQUE(id_lang, name, shortname),
-  CONSTRAINT type_company_ref_pk PRIMARY KEY (id)
+  CONSTRAINT type_company_translate_list_pk PRIMARY KEY (id_type_company, id_lang)
 );
 
 /* локальное представительство профиля */
 CREATE TABLE company_represent_ref (
-  -- id SERIAL, /* id представительства */
   uuid UUID NOT NULL UNIQUE,
   uuid_company UUID NOT NULL, /* uuid компании (чьё представительства) */
   id_region INTEGER NOT NULL DEFAULT '1', /* регион представительства */
@@ -44,29 +47,24 @@ CREATE TABLE company_represent_ref (
   name VARCHAR(255) NOT NULL, /* наименование представительства */
   address VARCHAR(512) NOT NULL, /* почтовый адрес представительства */
   phone VARCHAR(100) NOT NULL, /* телефон представительства */
-  -- UNIQUE (uuid_company, name),
   CONSTRAINT company_represent_ref_pk PRIMARY KEY (uuid)
 );
 
 /* члены компании и их роли */
 CREATE TABLE company_member_role (
-  -- id SERIAL, /* id записи */
   uuid_company UUID NOT NULL, /* uuid компании */
   uuid_user UUID NOT NULL, /* uuid профиля */
   id_role INTEGER NOT NULL, /* идентификатор роли пользователя */
   is_enabled BOOLEAN NOT NULL DEFAULT 't', /* член компании активен */
   created_at TIMESTAMP NOT NULL DEFAULT NOW(), /* дата создания */
   updated_at TIMESTAMP NOT NULL DEFAULT NOW(), /* дата обновления */
-  -- UNIQUE(uuid_company, uuid_user, id_role), /* совокупоность id не может повторяться */
   CONSTRAINT company_member_role_pk PRIMARY KEY (uuid_company, uuid_user, id_role)
 );
 
 /* связь каталогов с компанией */
 CREATE TABLE spec_to_company (
-  -- id SERIAL, /* id связи */
   id_spec INTEGER NOT NULL, /* связанный с компанией каталог (категория) */
   uuid_company UUID NOT NULL, /* связанная с каталогом (категорией) компания */
-  -- UNIQUE (id_spec, uuid_company),
   CONSTRAINT spec_to_company_pk PRIMARY KEY (id_spec, uuid_company)
 );
 
@@ -96,33 +94,40 @@ CREATE TABLE discussion_company_ref (
 /* тип представительства компании */
 CREATE TABLE representation_type_ref (
   id SERIAL, /* id типа представительства */
+  CONSTRAINT representation_type_ref_pk PRIMARY KEY (id)
+);
+
+CREATE TABLE representation_type_translate_list (
+  id_representation_type INTEGER NOT NULL, /* id типа представительства */
   id_lang INTEGER NOT NULL, /* идентификатор языка перевода */
   representation_type VARCHAR(100) NOT NULL UNIQUE, /* наименование типа представительства в переводе */
   UNIQUE(id_lang, representation_type),
-  CONSTRAINT representation_type_ref_pk PRIMARY KEY (id)
+  CONSTRAINT representation_type_translate_list_pk PRIMARY KEY (id_representation_type, id_lang)
 );
 
 /* роль члена */
 CREATE TABLE role_member_ref (
   id SERIAL, /* id записи */
+  CONSTRAINT role_member_ref_pk PRIMARY KEY (id)
+);
+
+CREATE TABLE role_member_translate_list (
+  id_role_member INTEGER NOT NULL, /* id роли */
   id_lang INTEGER NOT NULL, /* идентификатор языка перевода */
   name VARCHAR(50) NOT NULL, /* наименование роли в переводе */
   UNIQUE(id_lang, name),
-  CONSTRAINT role_member_ref_pk PRIMARY KEY (id)
+  CONSTRAINT role_member_translate_list_pk PRIMARY KEY (id_role_member, id_lang)
 );
 
 /* уровень доступа роли */
 CREATE TABLE role_access (
-  -- id SERIAL, /* id записи */
   id_role INTEGER NOT NULL, /* идентификатор роли пользователя */
   id_type_access INTEGER NOT NULL, /* тип доступа */
-  -- UNIQUE (id_role, id_type_access),
   CONSTRAINT role_access_pk PRIMARY KEY (id_role, id_type_access)
 );
 
 /* доступ к компоненту отдельного компании */
 CREATE TABLE company_access_to_component (
-  -- id SERIAL, /* id доступа */
   uuid_component UUID NOT NULL, /* идентификатор компонента */
   uuid_company UUID NOT NULL, /* идентификатор компании */
   id_type_access INTEGER NOT NULL, /* тип доступа к компоненту */
@@ -135,7 +140,6 @@ CREATE TABLE company_access_to_component (
 
 /* доступ к стандарту отдельной компании */
 CREATE TABLE company_access_to_standard (
-  -- id SERIAL, /* id доступа */
   uuid_standard UUID NOT NULL, /* идентификатор стандарта */
   uuid_company UUID NOT NULL, /* идентификатор компании */
   id_type_access INTEGER NOT NULL, /* тип доступа к стандарту */

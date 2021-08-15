@@ -8,6 +8,9 @@ ALTER TABLE component_ref ADD CONSTRAINT component_ref_fk4 FOREIGN KEY (id_actua
 ALTER TABLE component_history_list ADD CONSTRAINT component_history_list_fk0 FOREIGN KEY (uuid_component) REFERENCES component_ref(uuid);
 ALTER TABLE component_history_list ADD CONSTRAINT standard_history_list_fk1 FOREIGN KEY (id_type_of_change) REFERENCES type_of_change_ref(id);
 
+ALTER TABLE component_type_translate_list ADD CONSTRAINT component_type_translate_list_fk0 FOREIGN KEY (id_component_type) REFERENCES component_type_ref(id);
+ALTER TABLE component_type_translate_list ADD CONSTRAINT component_type_translate_list_fk1 FOREIGN KEY (id_lang) REFERENCES language_ref(id);
+
 ALTER TABLE component_to_keyword ADD CONSTRAINT component_to_keyword_fk0 FOREIGN KEY (uuid_component) REFERENCES component_ref(uuid) ON DELETE CASCADE;
 ALTER TABLE component_to_keyword ADD CONSTRAINT component_to_keyword_fk1 FOREIGN KEY (id_component_keyword) REFERENCES component_keyword_ref(id) ON DELETE CASCADE;
 

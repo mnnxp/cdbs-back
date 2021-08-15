@@ -1,7 +1,6 @@
 -- Your SQL goes here
 /* стандарт */
 CREATE TABLE standard_ref (
-  -- id SERIAL, /* id стандарта */
   uuid UUID NOT NULL UNIQUE,
   uuid_standard_parent UUID NOT NULL, /* родительский стандарт */
   classifier VARCHAR(225) NOT NULL, /* классификатор стандарта */
@@ -19,7 +18,6 @@ CREATE TABLE standard_ref (
   is_delete BOOLEAN NOT NULL DEFAULT 'f', /* флаг удаления стандарта */
   created_at TIMESTAMP NOT NULL DEFAULT NOW(), /* дата создания/загрузки */
   updated_at TIMESTAMP NOT NULL DEFAULT NOW(), /* дата обновления */
-  -- UNIQUE (classifier, uuid_company, is_delete), /* нельзя дублировать стандарт от одного пользователя */
   CONSTRAINT standard_ref_pk PRIMARY KEY (uuid)
 );
 
@@ -36,15 +34,19 @@ CREATE TABLE standard_history_list (
 /* статус стандарта */
 CREATE TABLE standard_status_ref (
   id SERIAL, /* id статуса */
+  CONSTRAINT standard_status_ref_pk PRIMARY KEY (id)
+);
+
+CREATE TABLE standard_status_translate_list (
+  id_standard_status INTEGER NOT NULL, /* id статуса */
   id_lang INTEGER NOT NULL, /* идентификатор языка перевода */
   name VARCHAR(100) NOT NULL, /* наименование в переводе к примеру: «Стандарт опубликован» */
   UNIQUE(id_lang, name),
-  CONSTRAINT standard_status_ref_pk PRIMARY KEY (id)
+  CONSTRAINT standard_status_translate_list_pk PRIMARY KEY (id_standard_status, id_lang)
 );
 
 /* объект/файл стандарта */
 CREATE TABLE file_to_standard (
-  -- id SERIAL, /* id файла стандарта */
   uuid_file UUID NOT NULL, /* идентификатор объекта/файла */
   uuid_standard UUID NOT NULL, /* идентификатор стандарта */
   CONSTRAINT file_to_standard_pk PRIMARY KEY (uuid_file, uuid_standard)

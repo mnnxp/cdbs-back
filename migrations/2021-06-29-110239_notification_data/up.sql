@@ -3,9 +3,16 @@ INSERT INTO notification_ref (notification, id_degree_importance,
   generated_at, is_read) VALUES
   ('warning, this is 1th notification', 5, now(), 'f');
 
-INSERT INTO degree_importance_ref (id_lang, degree) VALUES
-  (1, 'critical'),
-  (1, 'error'),
-  (1, 'warning'),
-  (1, 'success'),
-  (1, 'info');
+INSERT INTO degree_importance_ref (id) VALUES
+  (1),
+  (2),
+  (3),
+  (4),
+  (5);
+
+INSERT INTO degree_importance_translate_list (id_degree_importance, id_lang, degree) VALUES
+  (1, 1, 'critical'),
+  (2, 1, 'error'),
+  (3, 1, 'warning'),
+  (4, 1, 'success'),
+  (5, 1, 'info');

@@ -9,11 +9,17 @@ INSERT INTO standard_ref (
 INSERT INTO standard_history_list (uuid_standard, id_type_of_change, old_data, changed_at) VALUES
   ('303ec2aa-2066-42e3-93fb-de4fb9344bcb', 1, 'Комментарий к изменению', now());
 
-INSERT INTO standard_status_ref (id_lang, name) VALUES
-  (1, 'Published'),
-  (1, 'Development'),
-  (1, 'Withdrawn'),
-  (1, 'Deleted');
+INSERT INTO standard_status_ref (id) VALUES
+  (1),
+  (2),
+  (3),
+  (4);
+
+INSERT INTO standard_status_translate_list (id_standard_status, id_lang, name) VALUES
+  (1, 1, 'Published'),
+  (2, 1, 'Development'),
+  (3, 1, 'Withdrawn'),
+  (4, 1, 'Deleted');
 
 INSERT INTO file_to_standard (uuid_file, uuid_standard) VALUES
   ('bc1c2151-86d0-4656-9c9d-d016dd584297', '303ec2aa-2066-42e3-93fb-de4fb9344bcb');

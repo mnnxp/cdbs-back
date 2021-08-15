@@ -1,5 +1,3 @@
--- Your SQL goes here
-
 INSERT INTO component_ref (uuid, uuid_component_parent, name, description,
   uuid_user, id_type_access, id_component_type, id_actual_status, is_standard,
   is_delete, created_at, updated_at) VALUES
@@ -9,12 +7,16 @@ INSERT INTO component_ref (uuid, uuid_component_parent, name, description,
 INSERT INTO component_history_list (uuid_component, id_type_of_change, old_data, changed_at) VALUES
   ('a5953fd9-7393-4f1e-a899-06b5e159dbf1', 1, 'Комментарий к изменению', now());
 
--- TABLE: component_type_ref: id (SERIAL), component_type (VARCHAR(225))
-INSERT INTO component_type_ref (component_type) VALUES
-  ('базовый'),
-  ('собственный');
+INSERT INTO component_type_ref (id) VALUES
+  (1),
+  (2);
 
--- TABLE: component_keyword_ref: keyword (VARCHAR(10))
+INSERT INTO component_type_translate_list (id_component_type, id_lang, component_type) VALUES
+  (1, 1, 'base'),
+  (2, 1, 'own'),
+  (1, 2, 'базовый'),
+  (2, 2, 'собственный');
+
 INSERT INTO component_keyword_ref (keyword) VALUES
   ('tools'),
   ('bolt'),
@@ -24,15 +26,11 @@ INSERT INTO component_keyword_ref (keyword) VALUES
   ('fusion'),
   ('tech');
 
--- TABLE: component_to_keyword: id (SERIAL), id_component (INTEGER),
--- id_component_keyword (INTEGER)
 INSERT INTO component_to_keyword (uuid_component, id_component_keyword) VALUES
   ('a5953fd9-7393-4f1e-a899-06b5e159dbf1', 1),
   ('a5953fd9-7393-4f1e-a899-06b5e159dbf1', 2),
   ('a5953fd9-7393-4f1e-a899-06b5e159dbf1', 3);
 
--- TABLE: param_to_component: id SERIAL, id_component INTEGER,
--- id_param INTEGER, value VARCHAR(255)
 INSERT INTO param_to_component (uuid_component, id_param, value) VALUES
   ('a5953fd9-7393-4f1e-a899-06b5e159dbf1', 9, '1'),
   ('a5953fd9-7393-4f1e-a899-06b5e159dbf1', 10, '0.5'),
@@ -51,8 +49,6 @@ INSERT INTO component_modification_list (uuid, uuid_component, uuid_modification
   is_delete, created_at, updated_at) VALUES
   ('aba22d59-4f6c-44a4-9a37-2d38f0e577a8', 'a5953fd9-7393-4f1e-a899-06b5e159dbf1', 'aba22d59-4f6c-44a4-9a37-2d38f0e577a8', 'Head style C - Type H', 'main modification', 1, 'f', now(), now());
 
--- TABLE: param_to_modification: id SERIAL, id_modification INTEGER,
--- id_param INTEGER, value VARCHAR(255)
 INSERT INTO param_to_modification (uuid_modification, id_param, value) VALUES
   ('aba22d59-4f6c-44a4-9a37-2d38f0e577a8', 1, '1'),
   ('aba22d59-4f6c-44a4-9a37-2d38f0e577a8', 2, '1'),
@@ -63,13 +59,9 @@ INSERT INTO param_to_modification (uuid_modification, id_param, value) VALUES
   ('aba22d59-4f6c-44a4-9a37-2d38f0e577a8', 7, 'Electrogalvanized'),
   ('aba22d59-4f6c-44a4-9a37-2d38f0e577a8', 8, '187197');
 
--- TABLE: file_to_component: id (SERIAL), id_component (INTEGER),
--- uuid_file (INTEGER)
 INSERT INTO file_to_component (uuid_component, uuid_file) VALUES
   ('a5953fd9-7393-4f1e-a899-06b5e159dbf1', 'bc1c2151-86d0-4656-9c9d-d016dd584297');
 
--- TABLE: file_to_modification: id (SERIAL), id_modification (INTEGER),
--- uuid_file (INTEGER)
 INSERT INTO file_to_modification (uuid_modification, uuid_file) VALUES
   ('aba22d59-4f6c-44a4-9a37-2d38f0e577a8', 'bc1c2151-86d0-4656-9c9d-d016dd584297');
 
@@ -79,8 +71,6 @@ INSERT INTO set_files_for_program (uuid_modification, id_program) VALUES
 INSERT INTO file_to_set_modification (id_set, uuid_file) VALUES
   (1, '3706d1a1-80ae-4367-be39-af7091373811');
 
--- TABLE: spec_to_component: id (SERIAL), id_spec (INTEGER),
--- id_component (INTEGER)
 INSERT INTO spec_to_component (id_spec, uuid_component) VALUES
   (1, 'a5953fd9-7393-4f1e-a899-06b5e159dbf1');
 
