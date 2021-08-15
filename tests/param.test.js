@@ -33,14 +33,22 @@ const paramnameIndex = 2;
 const paramname = "Selector";
 const paramNameTest = "testparametr";
 const paramNameTest2 = "testparametr2";
-var idParamTest = "";
+var idParamTest = 1000000;
+var idParamTest2 = 1000000;
 
 // language
 const idLang1 = 1;
 const idLang2 = 2;
 
 async function cleanupParamDb() {
-  return global.knex.raw('DELETE FROM param_ref WHERE paramname in (?,?)', [
+  return global.knex.raw('DELETE FROM param_ref WHERE id in (?,?)', [
+    idParamTest,
+    idParamTest2,
+  ]);
+}
+
+async function cleanupParamTranslateDb() {
+  return global.knex.raw('DELETE FROM param_translate_list WHERE paramname in (?,?)', [
     paramNameTest,
     paramNameTest2,
   ]);
@@ -60,11 +68,13 @@ async function cleanupUserDb() {
 describe('param', () => {
   beforeAll(() => {
     cleanupParamDb();
+    cleanupParamTranslateDb();
     cleanupTokenDb();
     return cleanupUserDb();
   });
   afterAll(() => {
     cleanupParamDb();
+    cleanupParamTranslateDb();
     cleanupTokenDb();
     return cleanupUserDb();
   });
@@ -192,7 +202,7 @@ describe('param', () => {
                 idLang: ${idLang1},
                 paramname: "${paramNameTest}"
             }) {
-              id
+              idParam
               paramname
             }
         }`,
@@ -220,7 +230,7 @@ describe('param', () => {
                 idLang: ${idLang1},
                 paramname: "${paramNameTest}",
             }) {
-              id
+              idParam
               idLang
               paramname
             }
@@ -232,12 +242,12 @@ describe('param', () => {
       data: { registerParam },
     } = body;
     expect(registerParam).toContainAllKeys([
-      "id", "idLang", "paramname"
+      "idParam", "idLang", "paramname"
     ]);
-    expect(registerParam.id).not.toBeNull();
+    expect(registerParam.idParam).not.toBeNull();
     expect(registerParam.idLang).toBe(idLang1);
     expect(registerParam.paramname).toBe(paramNameTest);
-    idParamTest = registerParam.id;   // <-- save data for test "already param"
+    idParamTest = registerParam.idParam;   // <-- save data for test "already param"
     done();
   });
 
@@ -254,7 +264,7 @@ describe('param', () => {
                 idLang: ${idLang1},
                 paramname: "${paramNameTest}"
             }) {
-              id
+              idParam
               paramname
             }
         }`,
@@ -282,7 +292,7 @@ describe('param', () => {
                 idLang: ${idLang1},
                 paramname: "${paramNameTest2}",
             }) {
-              id
+              idParam
               paramname
             }
         }`,
@@ -293,10 +303,11 @@ describe('param', () => {
       data: { registerParam },
     } = body;
     expect(registerParam).toContainAllKeys([
-      "id", "paramname"
+      "idParam", "paramname"
     ]);
-    expect(registerParam.id).not.toBeNull();
+    expect(registerParam.idParam).not.toBeNull();
     expect(registerParam.paramname).toBe(paramNameTest2);
+    idParamTest2 = registerParam.idParam;
     done();
   });
 
@@ -310,7 +321,7 @@ describe('param', () => {
       .send({
         query: `query ListParam {
             param {
-                id
+                idParam
                 paramname
             }
         }`,
@@ -331,7 +342,7 @@ describe('param', () => {
       .send({
         query: `query ListUserParam {
             param (idParam: ${paramnameIndex}) {
-                id
+                idParam
                 paramname
             }
         }`,
@@ -339,7 +350,7 @@ describe('param', () => {
       .expect(HttpStatus.OK)
     debug('/graphql body=%o', response1.body);
     expect(response1.body.data.param).toBeNonEmptyArray();
-    expect(response1.body.data.param[0].id).toBe(paramnameIndex);
+    expect(response1.body.data.param[0].idParam).toBe(paramnameIndex);
     expect(response1.body.data.param[0].paramname).toBe(paramname);
     done();
   });
@@ -354,7 +365,7 @@ describe('param', () => {
       .send({
         query: `query ListUserParam {
             param (idParam: [1, ${paramnameIndex}]) {
-                id
+                idParam
                 paramname
             }
         }`,
@@ -362,7 +373,7 @@ describe('param', () => {
       .expect(HttpStatus.OK)
     debug('/graphql body=%o', response1.body);
     expect(response1.body.data.param).toBeNonEmptyArray();
-    expect(response1.body.data.param[1].id).toBe(paramnameIndex);
+    expect(response1.body.data.param[1].idParam).toBe(paramnameIndex);
     expect(response1.body.data.param[1].paramname).toBe(paramname);
     done();
   });
@@ -373,7 +384,7 @@ describe('param', () => {
       .send({
         query: `query ListUserParam {
             param (idParam: [1, ${paramnameIndex}]) {
-                id
+                idParam
                 paramname
             }
         }`,

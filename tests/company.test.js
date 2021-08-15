@@ -37,7 +37,7 @@ var uuidCompanyNoSupplier = "";
 var uuidCompanySupplier = "";
 
 // data for represent
-const idRegionRepresentation = 15;
+const idRegionRepresentation = 10;
 const idRepresentationType = 1;
 const nameRepresentationFirst = "test first additional office";
 const nameRepresentationSecond = "test second additional office";
