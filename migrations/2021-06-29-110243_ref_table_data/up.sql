@@ -118,7 +118,12 @@ INSERT INTO actual_status_translate_list (id_actual_status, id_lang, name) VALUE
   (2, 1, 'Tested'),
   (3, 1, 'Planned'),
   (4, 1, 'Launched'),
-  (5, 1, 'Discontinued');
+  (5, 1, 'Discontinued'),
+  (1, 2, 'Разработка'),
+  (2, 2, 'Тестирование'),
+  (3, 2, 'Подготовка'),
+  (4, 2, 'Производство'),
+  (5, 2, 'Снято с производства');
 
 INSERT INTO type_access_ref (id) VALUES
   (1),
@@ -128,7 +133,10 @@ INSERT INTO type_access_ref (id) VALUES
 INSERT INTO type_access_translate_list (id_type_access, id_lang, name) VALUES
   (1, 1, 'Private'),
   (2, 1, 'Protected'),
-  (3, 1, 'Public');
+  (3, 1, 'Public'),
+  (1, 2, 'Закрыт'),
+  (2, 2, 'Частичный'),
+  (3, 2, 'Открыт');
 
 INSERT INTO param_ref (id) VALUES
   (1),
@@ -149,18 +157,30 @@ INSERT INTO param_translate_list (id_param, id_lang, paramname) VALUES
   (2, 1, 'Selector'),
   (3, 1, 'Part Number'),
   (4, 1, 'Description'),
-  (5, 1, 'E-Shop link'),
+  (5, 1, 'E-Link'),
   (6, 1, 'Material'),
   (7, 1, 'Finish'),
   (8, 1, 'Article Number'),
   (9, 1, 'Nominal Ø'),
   (10, 1, 'Pitch (mm)'),
   (11, 1, 'Length (mm)'),
-  (12, 1, 'Head height (mm)');
+  (12, 1, 'Head height (mm)'),
+  (1, 2, 'Индекс'),
+  (2, 2, 'Селектор'),
+  (3, 2, 'Номер части'),
+  (4, 2, 'Описание'),
+  (5, 2, 'Электронная ссылка'),
+  (6, 2, 'Материал'),
+  (7, 2, 'Заканчивать'),
+  (8, 2, 'Номер статьи'),
+  (9, 2, 'Номинальный Ø'),
+  (10, 2, 'Шаг (мм)'),
+  (11, 2, 'Длина (мм)'),
+  (12, 2, 'Высота головки (мм)');
 
 INSERT INTO language_ref (lang, langshort) VALUES
   ('English', 'EN'),
-  ('Russian', 'RU');
+  ('Русский', 'RU');
 
 INSERT INTO region_ref (id) VALUES
   (1),
@@ -209,7 +229,8 @@ INSERT INTO type_of_change_ref (id) VALUES
   (1);
 
 INSERT INTO type_of_change_translate_list (id_type_of_change, id_lang, type_of_change) VALUES
-  (1, 1, 'data update');
+  (1, 1, 'data update'),
+  (1, 2, 'обновление данных');
 
 INSERT INTO spec_ref (id, id_spec_parent) VALUES
   (1, 1);
