@@ -3,7 +3,7 @@ use anyhow::Result;
 use chrono::{Duration, Local};
 use std::convert::TryFrom;
 use uuid::Uuid;
-use actix_web::{http::header, HttpRequest};
+use actix_web::{http::header, http::HeaderMap};
 use regex::Regex;
 
 lazy_static::lazy_static! {
@@ -77,10 +77,9 @@ impl TryFrom<Claims> for SlimUser {
 }
 
 /// get token from request
-impl From<HttpRequest> for Token {
-    fn from(req: HttpRequest) -> Self {
+impl From<&HeaderMap> for Token {
+    fn from(req: &HeaderMap) -> Self {
         let token = req
-            .headers()
             .get(header::AUTHORIZATION)
             .and_then(|v| v.to_str().ok())
             .and_then(|authorization| {

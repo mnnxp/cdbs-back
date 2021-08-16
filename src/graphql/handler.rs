@@ -29,20 +29,13 @@ pub async fn graphql(
 ) -> Response {
     let mut request = gql_request.into_inner();
 
-    let token: Token = req.into();
+    let headers_req = req.headers();
 
-    // use actix_web::{http::header, HttpRequest};
-    // use regex::Regex;
-    // let re_lang = Regex::new(r"^[1-2]$").expect("Lang regexp failed!");
-    // let result = req
-    //     .headers()
-    //     .get(header::HeaderName::from_lowercase(b"language").unwrap())
-    //     .and_then(|v| v.to_str().ok())
-    //     .and_then(|language| {
-    //         // if two language
-    //         re_lang.find(language).unwrap().range().
-    //     });
-    let lang: SetLang = SetLang { id_lang: 1 };
+    // get token from request
+    let token: Token = headers_req.into();
+
+    // set the language for sending responses
+    let lang: SetLang = headers_req.into();
 
     // println!("match token Ok");
     request = request.data(token);
