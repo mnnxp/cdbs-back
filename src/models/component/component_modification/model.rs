@@ -1,4 +1,4 @@
-use crate::models::component::actual_status::model::ActualStatusTranslateList;
+use crate::models::component::relate::actual_status::model::ActualStatusTranslateList;
 use crate::models::component::component_modification::param::model::ParamModification;
 use crate::models::component::model::Component;
 use crate::schema::*;
