@@ -320,17 +320,17 @@ impl MutationRoot {
         Ok(create_standard(standard_data, conn)?)
     }
 
-    async fn add_component_specs(
+    async fn add_component_spec(
         &self,
         context: &Context<'_>,
-        data: Vec<IptSpecComponentData>,
-    ) -> ServiceResult<Vec<SpecComponent>> {
-        use component_spec::service::add::add_component_specs;
+        data: IptSpecComponentData,
+    ) -> ServiceResult<SpecComponent> {
+        use component_spec::service::add::add_component_spec;
         let conn: &PooledConnection = &get_conn(context)?;
 
         crate::models::user::check_authorized(context)?;
 
-        Ok(add_component_specs(data, conn)?)
+        Ok(add_component_spec(data, conn)?)
     }
 
     // Upload images for profile picture
