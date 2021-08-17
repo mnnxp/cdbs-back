@@ -5,4 +5,5 @@ pub(crate) mod license;
 pub(crate) mod param;
 pub(crate) mod file;
 pub(crate) mod service;
+pub(crate) mod spec;
 // pub mod util;
