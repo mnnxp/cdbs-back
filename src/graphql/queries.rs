@@ -10,7 +10,7 @@ use crate::models::component::component_modification::service as component_modif
 use crate::models::component::license as component_license;
 use crate::models::component::license::model::{License, LicenseComponent};
 use crate::models::component::model::Component;
-use crate::models::component::model::ShowComponent;
+use crate::models::component::model::ShowComponentRelatedData;
 use crate::models::component::param::model::{ParamTranslateList, ParamComponent};
 use crate::models::component::param as component_param;
 use crate::models::component::component_modification::param::model::ParamModification;
@@ -28,6 +28,10 @@ use crate::models::standard::model::ShowStandard;
 use crate::models::standard as standard;
 use crate::models::language::model::Language;
 use crate::models::language as language;
+use crate::models::spec::model::SpecTranslateList;
+use crate::models::spec as spec;
+// use crate::models::component::spec::model::SpecComponent;
+use crate::models::component::spec as component_spec;
 use async_graphql::Context;
 // use crate::database::PooledConnection;
 // use diesel::PgConnection;
@@ -220,7 +224,7 @@ impl QueryRoot {
         &self,
         context: &Context<'_>,
         uuid_component: String,
-    ) -> ServiceResult<ShowComponent> {
+    ) -> ServiceResult<ShowComponentRelatedData> {
         // authorization check
         crate::models::user::util::check_authorized(context)?;
 
@@ -484,6 +488,48 @@ impl QueryRoot {
         let offset: i32 = offset.unwrap_or(0);
 
         language::service::list::get_languages(context, id_lang, limit, offset)
+    }
+
+    async fn specs(
+        &self,
+        context: &Context<'_>,
+        id_spec: Option<Vec<i32>>,
+        limit: Option<i32>,
+        offset: Option<i32>,
+    ) -> ServiceResult<Vec<SpecTranslateList>> {
+        // authorization check
+        crate::models::user::util::check_authorized(context)?;
+
+        let id_spec: Vec<i32> = id_spec.unwrap_or_default();
+        let limit: i32 = limit.unwrap_or(100);
+        let offset: i32 = offset.unwrap_or(0);
+
+        spec::service::list::get_specs(context, id_spec, limit, offset)
+    }
+
+    async fn component_specs(
+        &self,
+        context: &Context<'_>,
+        uuid_component: Option<String>,
+        limit: Option<i32>,
+        offset: Option<i32>,
+    ) -> ServiceResult<Vec<SpecTranslateList>> {
+        // authorization check
+        crate::models::user::util::check_authorized(context)?;
+
+        let uuid_component = match uuid_component {
+            None => Uuid::nil(),
+            Some(uuid_component) => Uuid::parse_str(&uuid_component)?,
+        };
+        let limit: i32 = limit.unwrap_or(100);
+        let offset: i32 = offset.unwrap_or(0);
+
+        component_spec::service::list::find_all_component_specs(
+            context,
+            uuid_component,
+            limit,
+            offset,
+        )
     }
 
 }
