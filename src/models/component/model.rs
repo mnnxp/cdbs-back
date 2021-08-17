@@ -74,18 +74,18 @@ pub struct ShowComponentData {
     pub uuid_component_parent: Uuid,
     pub name: String,
     pub description: String,
-    pub uuid_user: Uuid,
-    pub id_type_access: i32,
-    pub id_component_type: i32,
+    pub uuid_user: Uuid, //SlimUser
+    pub id_type_access: i32, //TypeAccess
+    pub id_component_type: i32, //ComponentType
     pub actual_status: ActualStatusTranslateList,
     pub is_standard: bool,
-    pub is_delete: bool,
-    pub created_at: NaiveDateTime,
+    // pub is_delete: bool,
+    // pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
 }
 
 #[derive(Debug, Deserialize, SimpleObject, Description)]
-pub struct ShowComponent {
+pub struct ShowComponentRelatedData {
     pub component: ShowComponentData,
     pub param_component: Vec<ParamComponent>,
     pub license: Vec<License>,

@@ -2,7 +2,7 @@ use crate::database::{get_conn, PooledConnection};
 use crate::errors::ServiceResult;
 use async_graphql::Context;
 use crate::models::component::model::Component;
-use crate::models::component::model::ShowComponent;
+use crate::models::component::model::ShowComponentRelatedData;
 use diesel::prelude::*;
 use uuid::Uuid;
 
@@ -30,7 +30,7 @@ pub(crate) fn find_components(
 pub(crate) fn find_uuid_component(
     context: &Context<'_>,
     target_uuid_component: Uuid,
-) -> ServiceResult<ShowComponent> {
+) -> ServiceResult<ShowComponentRelatedData> {
     use crate::models::component::actual_status::model::ActualStatusTranslateList;
     use crate::models::component::model::ShowComponentData;
     use crate::models::component::param::model::ParamComponent;
@@ -114,11 +114,9 @@ pub(crate) fn find_uuid_component(
         id_component_type: (component.id_component_type),
         actual_status: (actual_status),
         is_standard: (component.is_standard),
-        is_delete: (component.is_delete),
-        created_at: (component.created_at),
         updated_at: (component.updated_at),
     };
-    let result = ShowComponent {
+    let result = ShowComponentRelatedData {
         component: show,
         param_component,
         license,
