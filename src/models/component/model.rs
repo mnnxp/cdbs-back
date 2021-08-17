@@ -1,8 +1,8 @@
 use crate::schema::*;
 use crate::models::component::actual_status::model::ActualStatusTranslateList;
 use crate::models::component::param::model::ParamComponent;
-use crate::models::component::component_modification::model::ComponentModification;
-use crate::models::component::component_modification::param::model::ParamModification;
+use crate::models::component::component_modification::model::ComponentModificationRelatedData;
+// use crate::models::component::component_modification::model::ComponentModification;
 use crate::models::component::license::model::License;
 use crate::models::file::model::ShowFile;
 use async_graphql::types::ID;
@@ -68,8 +68,8 @@ impl Component {
     }
 }
 
-#[derive(Deserialize, SimpleObject, Debug)]
-pub struct ShowComponentData {
+#[derive(Debug, Deserialize, SimpleObject, Description)]
+pub struct ShowComponentRelatedData {
     pub uuid: Uuid,
     pub uuid_component_parent: Uuid,
     pub name: String,
@@ -79,19 +79,12 @@ pub struct ShowComponentData {
     pub id_component_type: i32, //ComponentType
     pub actual_status: ActualStatusTranslateList,
     pub is_standard: bool,
-    // pub is_delete: bool,
-    // pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
-}
-
-#[derive(Debug, Deserialize, SimpleObject, Description)]
-pub struct ShowComponentRelatedData {
-    pub component: ShowComponentData,
-    pub param_component: Vec<ParamComponent>,
     pub license: Vec<License>,
+    pub param_component: Vec<ParamComponent>,
     pub file: Vec<ShowFile>,
-    pub component_modification: Vec<ComponentModification>,
-    pub param_modification: Vec<ParamModification>,
+    pub component_modification: Vec<ComponentModificationRelatedData>,
+    // pub component_modification: Vec<ComponentModification>,
 }
 
 #[derive(Debug, Insertable)]

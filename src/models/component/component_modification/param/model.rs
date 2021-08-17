@@ -5,7 +5,7 @@ use async_graphql::*;
 // use chrono::*;
 use uuid::Uuid;
 
-#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, Debug)]
+#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, PartialEq, Debug)]
 #[primary_key(uuid_modification)]
 #[belongs_to(ComponentModification, foreign_key = "uuid_modification")]
 #[table_name = "param_to_modification"]

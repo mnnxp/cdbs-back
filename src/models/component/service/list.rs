@@ -32,13 +32,16 @@ pub(crate) fn find_uuid_component(
     target_uuid_component: Uuid,
 ) -> ServiceResult<ShowComponentRelatedData> {
     use crate::models::component::actual_status::model::ActualStatusTranslateList;
-    use crate::models::component::model::ShowComponentData;
     use crate::models::component::param::model::ParamComponent;
     use crate::models::component::license::model::LicenseComponent;
     use crate::models::component::license::model::License;
     use crate::models::component::file::model::FileComponent;
     use crate::models::file::model::ShowFile;
-    use crate::models::component::component_modification::model::ComponentModification;
+    use crate::models::component::component_modification::model::{
+        ComponentModification,
+        ComponentModificationRelatedData,
+        ComponentModificationBel
+    };
     use crate::models::component::component_modification::param::model::ParamModification;
     use crate::schema::component_ref::dsl as component_ref;
     use crate::schema::actual_status_translate_list::dsl as actual_status_translate_list;
@@ -53,15 +56,9 @@ pub(crate) fn find_uuid_component(
         .first::<Component>(conn)
         .expect("Error loading component");
     let actual_status = actual_status_translate_list::actual_status_translate_list
-        .filter(actual_status_translate_list::id_actual_status.eq(component.id_actual_status))
-        .filter(actual_status_translate_list::id_lang.eq(set_id_lang))
+        .filter(actual_status_translate_list::id_actual_status.eq(component.id_actual_status)
+        .and(actual_status_translate_list::id_lang.eq(set_id_lang)))
         .first::<ActualStatusTranslateList>(conn)
-        // .unwrap_or(
-        //     actual_status_translate_list::actual_status_translate_list
-        //         .filter(actual_status_translate_list::id_actual_status.eq(component.id_actual_status))
-        //         .filter(actual_status_translate_list::id_lang.eq(1))
-        //         .first::<ActualStatusTranslateList>(conn)
-        // )
         .expect("Error loading actual_status_ref");
     let param_component = ParamComponent::belonging_to(&component)
         .load::<ParamComponent>(conn)
@@ -98,13 +95,54 @@ pub(crate) fn find_uuid_component(
         ))
         .load::<ShowFile>(conn)
         .expect("Error loading files");
+
+    let component_modification_status = ComponentModification::belonging_to(&component)
+        .load::<ComponentModification>(conn)
+        .expect("Error loading component_modification_status");
+
+    let param_modification = ParamModification::belonging_to(&component_modification_status)
+        .load::<ParamModification>(conn).expect("Error loading param_modification")
+        .grouped_by(&component_modification_status);
+
+    let actual_status_modification = actual_status_translate_list::actual_status_translate_list
+        .filter(actual_status_translate_list::id_actual_status.eq_any(&component_modification_status
+            .into_iter()
+            .map(|x| x.id_actual_status)
+            .collect::<Vec<i32>>()
+        )
+        .and(actual_status_translate_list::id_lang.eq(set_id_lang)))
+        .load::<ActualStatusTranslateList>(conn)
+        .expect("Error loading actual_status_ref");
+
     let component_modification = ComponentModification::belonging_to(&component)
         .load::<ComponentModification>(conn)
         .expect("Error loading component_modification");
-    let param_modification = ParamModification::belonging_to(&component_modification)
-        .load::<ParamModification>(conn)
-        .expect("Error loading param_modification");
-    let show = ShowComponentData {
+
+    let data = component_modification
+        .into_iter().zip(actual_status_modification)
+        .collect::<Vec<_>>();
+
+    let data = data
+        .into_iter().zip(param_modification)
+        .collect::<Vec<_>>();
+
+    let data: Vec<ComponentModificationBel> = data
+        .into_iter()
+        .map(|x| ComponentModificationBel{
+            modification: x.0.0,
+            actual_status: x.0.1,
+            params: x.1,
+        })
+        .collect();
+    debug!("Component modification: {:#?}", data);
+    // let component_modification_data  = data
+
+    let component_modification: Vec<ComponentModificationRelatedData> = data
+        .into_iter()
+        .map(|x| x.into())
+        .collect();
+
+    let result = ShowComponentRelatedData {
         uuid: (component.uuid),
         uuid_component_parent: (component.uuid_component_parent),
         name: (component.name),
@@ -115,14 +153,11 @@ pub(crate) fn find_uuid_component(
         actual_status: (actual_status),
         is_standard: (component.is_standard),
         updated_at: (component.updated_at),
-    };
-    let result = ShowComponentRelatedData {
-        component: show,
-        param_component,
-        license,
-        file,
-        component_modification,
-        param_modification
+        param_component: (param_component),
+        license: (license),
+        file: (file),
+        // component_modification: (component_modification),
+        component_modification: (component_modification),
     };
     Ok(result)
 }

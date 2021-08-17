@@ -1,11 +1,13 @@
-use crate::schema::*;
+use crate::models::component::actual_status::model::ActualStatusTranslateList;
+use crate::models::component::component_modification::param::model::ParamModification;
 use crate::models::component::model::Component;
+use crate::schema::*;
 use async_graphql::types::ID;
 use async_graphql::*;
 use chrono::*;
 use uuid::Uuid;
 
-#[derive(Identifiable, Deserialize, Queryable, Associations, Debug)]
+#[derive(Identifiable, Deserialize, Queryable, Associations, PartialEq, Debug)]
 #[primary_key(uuid)]
 #[belongs_to(Component, foreign_key = "uuid_component")]
 #[table_name = "component_modification_list"]
@@ -49,6 +51,46 @@ impl ComponentModification {
     }
     async fn updated_at(&self) -> &NaiveDateTime {
         &self.updated_at
+    }
+}
+
+#[derive(Identifiable, Deserialize, Queryable, Associations, SimpleObject, Description, Debug)]
+#[primary_key(uuid)]
+#[belongs_to(Component, foreign_key = "uuid_component")]
+#[table_name = "component_modification_list"]
+pub struct ComponentModificationRelatedData {
+    pub uuid: Uuid,
+    pub uuid_component: Uuid,
+    pub uuid_modification_parent: Uuid,
+    pub modification_name: String,
+    pub description: String,
+    pub actual_status: ActualStatusTranslateList,
+    // pub id_actual_status: i32,
+    pub updated_at: NaiveDateTime,
+    pub param_modification: Vec<ParamModification>,
+}
+
+// type ComponentModificationBel = (ComponentModification, Vec<ParamModification>);
+#[derive(Deserialize, Debug)]
+pub struct ComponentModificationBel {
+    pub modification: ComponentModification,
+    pub actual_status: ActualStatusTranslateList,
+    pub params: Vec<ParamModification>,
+}
+
+impl From<ComponentModificationBel> for ComponentModificationRelatedData {
+    fn from(data: ComponentModificationBel) -> Self {
+        Self {
+            uuid: data.modification.uuid,
+            uuid_component: data.modification.uuid_component,
+            uuid_modification_parent: data.modification.uuid_modification_parent,
+            modification_name: data.modification.modification_name,
+            description: data.modification.description,
+            actual_status: data.actual_status,
+            // id_actual_status: data.modification.id_actual_status,
+            updated_at: data.modification.updated_at,
+            param_modification: data.params,
+        }
     }
 }
 
@@ -116,7 +158,8 @@ impl From<IptComponentModificationData> for InsertableComponentModification {
         Self {
             uuid: Uuid::new_v4(),
             uuid_component: Uuid::parse_str(&uuid_component.to_string()).unwrap(),
-            uuid_modification_parent: Uuid::parse_str(&uuid_modification_parent.to_string()).unwrap(),
+            uuid_modification_parent: Uuid::parse_str(&uuid_modification_parent.to_string())
+                .unwrap(),
             modification_name,
             description,
             id_actual_status,
