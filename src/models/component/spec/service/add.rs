@@ -10,7 +10,7 @@ use crate::models::component::spec::model::{
 use diesel::prelude::*;
 // use uuid::Uuid;
 
-pub(crate) fn add_component_spec(
+pub(crate) fn add_component_specs(
     data: Vec<IptSpecComponentData>,
     conn: &PgConnection
 ) -> ServiceResult<Vec<SpecComponent>> {
@@ -30,7 +30,7 @@ pub(crate) fn add_component_spec(
         0 => {
             let new_component_spec: Vec<InsertableSpecComponent> = data.into_iter()
                 .map(|f| f.into()).collect();
-        
+
             let inserted_component_spec: Vec<SpecComponent> = diesel::insert_into(spec_to_component)
                 .values(&new_component_spec)
                 .load(conn)?;

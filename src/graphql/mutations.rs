@@ -28,7 +28,10 @@ use crate::models::component::component_modification::param::model::{
 use crate::models::component::component_modification::param as component_modification_param;
 use crate::models::component as component;
 use crate::models::standard::model::{SlimStandard, IptStandardData, StandardData};
-// use crate::models::file::model::{ShowFile, SlimFile};
+use crate::models::component::spec as component_spec;
+use crate::models::component::spec::model::{
+    SpecComponent, IptSpecComponentData
+};// use crate::models::file::model::{ShowFile, SlimFile};
 use async_graphql::Context;
 // use async_graphql::{
 //     dataloader::DataLoader, Context, EmptySubscription, FieldResult, Schema,
@@ -315,6 +318,19 @@ impl MutationRoot {
         };
 
         Ok(create_standard(standard_data, conn)?)
+    }
+
+    async fn add_component_specs(
+        &self,
+        context: &Context<'_>,
+        data: Vec<IptSpecComponentData>,
+    ) -> ServiceResult<Vec<SpecComponent>> {
+        use component_spec::service::add::add_component_specs;
+        let conn: &PooledConnection = &get_conn(context)?;
+
+        crate::models::user::check_authorized(context)?;
+
+        Ok(add_component_specs(data, conn)?)
     }
 
     // Upload images for profile picture
