@@ -502,6 +502,13 @@ table! {
 }
 
 table! {
+    spec_to_standard (id_spec, uuid_standard) {
+        id_spec -> Int4,
+        uuid_standard -> Uuid,
+    }
+}
+
+table! {
     spec_translate_list (id_spec, id_lang) {
         id_spec -> Int4,
         id_lang -> Int4,
@@ -798,6 +805,8 @@ joinable!(spec_to_company -> company_ref (uuid_company));
 joinable!(spec_to_company -> spec_ref (id_spec));
 joinable!(spec_to_component -> component_ref (uuid_component));
 joinable!(spec_to_component -> spec_ref (id_spec));
+joinable!(spec_to_standard -> spec_ref (id_spec));
+joinable!(spec_to_standard -> standard_ref (uuid_standard));
 joinable!(spec_translate_list -> language_ref (id_lang));
 joinable!(spec_translate_list -> spec_ref (id_spec));
 joinable!(standard_fav -> standard_ref (uuid_standard));
@@ -894,6 +903,7 @@ allow_tables_to_appear_in_same_query!(
     spec_ref,
     spec_to_company,
     spec_to_component,
+    spec_to_standard,
     spec_translate_list,
     standard_fav,
     standard_history_list,

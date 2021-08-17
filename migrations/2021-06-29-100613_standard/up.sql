@@ -51,3 +51,10 @@ CREATE TABLE file_to_standard (
   uuid_standard UUID NOT NULL, /* идентификатор стандарта */
   CONSTRAINT file_to_standard_pk PRIMARY KEY (uuid_file, uuid_standard)
 );
+
+/* каталог стандарта */
+CREATE TABLE spec_to_standard (
+  id_spec INTEGER NOT NULL, /* идентификатор позиции в каталоге */
+  uuid_standard UUID NOT NULL, /* идентификатор стандарта */
+  CONSTRAINT spec_to_standard_pk PRIMARY KEY (id_spec, uuid_standard)
+);

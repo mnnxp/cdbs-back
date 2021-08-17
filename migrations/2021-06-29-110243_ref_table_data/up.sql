@@ -236,4 +236,5 @@ INSERT INTO spec_ref (id, id_spec_parent) VALUES
   (1, 1);
 
 INSERT INTO spec_translate_list (id_spec, id_lang, spec) VALUES
-  (1, 1, 'ROOT');
+  (1, 1, 'ROOT'),
+  (1, 2, 'КОРЕНЬ');
