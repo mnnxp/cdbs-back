@@ -1,5 +1,5 @@
 use crate::database::{get_conn, PooledConnection};
-use super::model::User;
+use super::model::{User, SlimUser};
 use crate::models::user::service as user;
 use crate::models::language::model::SetLang;
 use crate::errors::ServiceError;
@@ -76,6 +76,24 @@ pub(crate) fn get_set_language(
         Some(set_lang) => set_lang.id_lang,
         None => 1, // <-- default language
     }
+}
+
+/// get SlimUser data for target uuid user
+pub(crate) fn get_slim_user_from_uuid(
+    target_uuid: &Uuid,
+    conn: &PooledConnection,
+) -> Result<SlimUser, ServiceError> {
+    use diesel::prelude::*;
+    use crate::schema::user_ref::dsl as user_ref;
+
+    Ok(user_ref::user_ref
+        .filter(user_ref::uuid.eq(target_uuid))
+        .select((
+            user_ref::uuid,
+            user_ref::id_program,
+            user_ref::username,
+        ))
+        .first::<SlimUser>(conn)?)
 }
 
 // comparison of the received uuid_user with the uuid_user of the authorized user

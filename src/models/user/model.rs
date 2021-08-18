@@ -258,7 +258,7 @@ impl UserData {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Queryable, Clone)]
 pub struct SlimUser {
     pub uuid: Uuid,
     pub id_program: i32,

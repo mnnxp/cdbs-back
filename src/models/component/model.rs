@@ -1,4 +1,6 @@
 use crate::schema::*;
+use crate::models::user::model::SlimUser;
+use crate::models::component::relate::component_type::model::ComponentTypeTranslateList;
 use crate::models::component::relate::actual_status::model::ActualStatusTranslateList;
 use crate::models::component::param::model::ParamComponent;
 use crate::models::component::component_modification::model::ComponentModificationRelatedData;
@@ -74,9 +76,9 @@ pub struct ShowComponentRelatedData {
     pub uuid_component_parent: Uuid,
     pub name: String,
     pub description: String,
-    pub uuid_user: Uuid, //SlimUser
+    pub slim_user: SlimUser,
     pub id_type_access: i32, //TypeAccess
-    pub id_component_type: i32, //ComponentType
+    pub component_type: ComponentTypeTranslateList,
     pub actual_status: ActualStatusTranslateList,
     pub is_standard: bool,
     pub updated_at: NaiveDateTime,
@@ -84,7 +86,6 @@ pub struct ShowComponentRelatedData {
     pub param_component: Vec<ParamComponent>,
     pub file: Vec<ShowFile>,
     pub component_modification: Vec<ComponentModificationRelatedData>,
-    // pub component_modification: Vec<ComponentModification>,
 }
 
 #[derive(Debug, Insertable)]
