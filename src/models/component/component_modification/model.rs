@@ -1,5 +1,5 @@
 use crate::models::component::relate::actual_status::model::ActualStatusTranslateList;
-use crate::models::component::component_modification::param::model::ParamModification;
+use crate::models::component::component_modification::param::model::ParamModificationRelate;
 use crate::models::component::model::Component;
 use crate::schema::*;
 use async_graphql::types::ID;
@@ -67,32 +67,58 @@ pub struct ComponentModificationRelatedData {
     pub actual_status: ActualStatusTranslateList,
     // pub id_actual_status: i32,
     pub updated_at: NaiveDateTime,
-    pub param_modification: Vec<ParamModification>,
+    pub param_modification: Vec<ParamModificationRelate>,
 }
 
-// type ComponentModificationBel = (ComponentModification, Vec<ParamModification>);
-#[derive(Deserialize, Debug)]
-pub struct ComponentModificationBel {
-    pub modification: ComponentModification,
-    pub actual_status: ActualStatusTranslateList,
-    pub params: Vec<ParamModification>,
-}
-
-impl From<ComponentModificationBel> for ComponentModificationRelatedData {
-    fn from(data: ComponentModificationBel) -> Self {
+impl From<ComponentModificationBelParam> for ComponentModificationRelatedData {
+    fn from(data: ComponentModificationBelParam) -> Self {
         Self {
-            uuid: data.modification.uuid,
-            uuid_component: data.modification.uuid_component,
-            uuid_modification_parent: data.modification.uuid_modification_parent,
-            modification_name: data.modification.modification_name,
-            description: data.modification.description,
-            actual_status: data.actual_status,
-            // id_actual_status: data.modification.id_actual_status,
-            updated_at: data.modification.updated_at,
+            uuid: data.info.modification.uuid,
+            uuid_component: data.info.modification.uuid_component,
+            uuid_modification_parent: data.info.modification.uuid_modification_parent,
+            modification_name: data.info.modification.modification_name,
+            description: data.info.modification.description,
+            actual_status: data.info.actual_status,
+            // id_actual_status: data.info.modification.id_actual_status,
+            updated_at: data.info.modification.updated_at,
             param_modification: data.params,
         }
     }
 }
+
+#[derive(Deserialize, Debug)]
+pub struct ComponentModificationBelParam {
+    pub info: ComponentModificationBel,
+    pub params: Vec<ParamModificationRelate>,
+}
+
+
+impl From<(ComponentModificationBel, Vec<ParamModificationRelate>)> for ComponentModificationBelParam {
+    fn from(data: (ComponentModificationBel, Vec<ParamModificationRelate>)) -> Self {
+        Self {
+            info: data.0,
+            params: data.1,
+        }
+    }
+}
+
+
+#[derive(Deserialize, Debug)]
+pub struct ComponentModificationBel {
+    pub modification: ComponentModification,
+    pub actual_status: ActualStatusTranslateList,
+    // pub params: Vec<ParamModificationRelate>,
+}
+
+impl From<(ComponentModification, ActualStatusTranslateList)> for ComponentModificationBel {
+    fn from(data: (ComponentModification, ActualStatusTranslateList)) -> Self {
+        Self {
+            modification: data.0,
+            actual_status: data.1,
+        }
+    }
+}
+
 
 #[derive(Debug, Insertable)]
 #[table_name = "component_modification_list"]

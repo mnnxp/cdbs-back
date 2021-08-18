@@ -1,5 +1,6 @@
 use crate::schema::*;
 use crate::models::component::model::Component;
+use crate::models::component::component_modification::param::model::ParamModification;
 use crate::models::language::model::Language;
 use async_graphql::types::ID;
 use async_graphql::*;
@@ -32,6 +33,8 @@ pub struct InsertableParam {
 #[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, Debug)]
 #[primary_key(id_param, id_lang)]
 #[belongs_to(Param, foreign_key = "id_param")]
+#[belongs_to(ParamComponent, foreign_key = "id_param")]
+#[belongs_to(ParamModification, foreign_key = "id_param")]
 #[belongs_to(Language, foreign_key = "id_lang")]
 #[table_name = "param_translate_list"]
 pub struct ParamTranslateList {
@@ -71,6 +74,7 @@ pub struct InsertableParamTranslateList {
 #[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, Debug)]
 #[primary_key(uuid_component, id_param)]
 #[belongs_to(Component, foreign_key = "uuid_component")]
+#[belongs_to(ParamTranslateList, foreign_key = "id_param")]
 #[table_name = "param_to_component"]
 pub struct ParamComponent {
     pub uuid_component: Uuid,
@@ -88,6 +92,23 @@ impl ParamComponent {
     }
     async fn value(&self) -> &String {
         &self.value
+    }
+}
+
+#[derive(Debug, Deserialize, SimpleObject, Description)]
+pub struct ParamComponentRelate {
+    pub uuid_component: Uuid,
+    pub param: ParamTranslateList,
+    pub value: String,
+}
+
+impl From<(ParamComponent, ParamTranslateList)> for ParamComponentRelate {
+    fn from(data: (ParamComponent, ParamTranslateList)) -> Self {
+        Self {
+            uuid_component: data.0.uuid_component,
+            param: data.1,
+            value: data.0.value,
+        }
     }
 }
 

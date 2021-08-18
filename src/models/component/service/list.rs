@@ -33,7 +33,9 @@ pub(crate) fn find_uuid_component(
 ) -> ServiceResult<ShowComponentRelatedData> {
     use crate::models::component::relate::actual_status::model::ActualStatusTranslateList;
     use crate::models::component::relate::component_type::model::ComponentTypeTranslateList;
-    use crate::models::component::param::model::ParamComponent;
+    use crate::models::component::param::model::{
+        ParamTranslateList, ParamComponent, ParamComponentRelate
+    };
     use crate::models::component::license::model::LicenseComponent;
     use crate::models::component::license::model::License;
     use crate::models::component::file::model::FileComponent;
@@ -41,10 +43,14 @@ pub(crate) fn find_uuid_component(
     use crate::models::component::component_modification::model::{
         ComponentModification,
         ComponentModificationRelatedData,
-        ComponentModificationBel
+        ComponentModificationBel,
+        ComponentModificationBelParam
     };
-    use crate::models::component::component_modification::param::model::ParamModification;
+    use crate::models::component::component_modification::param::model::{
+        ParamModification, ParamModificationRelate
+    };
     use crate::schema::component_ref::dsl as component_ref;
+    use crate::schema::param_translate_list::dsl as param_translate_list;
     use crate::schema::component_type_translate_list::dsl as component_type_translate_list;
     use crate::schema::actual_status_translate_list::dsl as actual_status_translate_list;
     use crate::schema::license_ref::dsl as license_ref;
@@ -69,9 +75,31 @@ pub(crate) fn find_uuid_component(
         .and(actual_status_translate_list::id_lang.eq(set_id_lang)))
         .first::<ActualStatusTranslateList>(conn)
         .expect("Error loading actual_status_ref");
+
     let param_component = ParamComponent::belonging_to(&component)
         .load::<ParamComponent>(conn)
         .expect("Error loading param_component");
+
+    let param_component_name = ParamComponent::belonging_to(&component)
+        .load::<ParamComponent>(conn)
+        .expect("Error loading param_component");
+
+    let param_translate_list = param_translate_list::param_translate_list
+        .filter(param_translate_list::id_param.eq_any(param_component_name
+            .into_iter()
+            .map(|x| x.id_param)
+            .collect::<Vec<i32>>()
+        )
+        .and(param_translate_list::id_lang.eq(set_id_lang)))
+        .load::<ParamTranslateList>(conn)
+        .expect("Error loading param_translate_list");
+
+    let param_component: Vec<ParamComponentRelate> = param_component
+        .into_iter()
+        .zip(param_translate_list)
+        .map(|x| x.into())
+        .collect();
+
     let license = LicenseComponent::belonging_to(&component)
         .load::<LicenseComponent>(conn)
         .expect("Error loading license to component");
@@ -109,16 +137,12 @@ pub(crate) fn find_uuid_component(
         .load::<ComponentModification>(conn)
         .expect("Error loading component_modification");
 
-    let param_modification = ParamModification::belonging_to(&component_modification)
-        .load::<ParamModification>(conn).expect("Error loading param_modification")
-        .grouped_by(&component_modification);
-
     let component_modification_status = ComponentModification::belonging_to(&component)
         .load::<ComponentModification>(conn)
         .expect("Error loading component_modification_status");
 
     let actual_status_modification = actual_status_translate_list::actual_status_translate_list
-        .filter(actual_status_translate_list::id_actual_status.eq_any(&component_modification_status
+        .filter(actual_status_translate_list::id_actual_status.eq_any(component_modification_status
             .into_iter()
             .map(|x| x.id_actual_status)
             .collect::<Vec<i32>>()
@@ -127,29 +151,73 @@ pub(crate) fn find_uuid_component(
         .load::<ActualStatusTranslateList>(conn)
         .expect("Error loading actual_status_ref");
 
-    let collect_data_mofification = component_modification
-        .into_iter().zip(actual_status_modification)
-        .collect::<Vec<_>>();
-
-    let collect_data_mofification = collect_data_mofification
-        .into_iter().zip(param_modification)
-        .collect::<Vec<_>>();
-
-    let collect_data_mofification: Vec<ComponentModificationBel> = collect_data_mofification
+    let component_modification: Vec<ComponentModificationBel> = component_modification
         .into_iter()
-        .map(|x| ComponentModificationBel{
-            modification: x.0.0,
-            actual_status: x.0.1,
-            params: x.1,
-        })
-        .collect();
+        .zip(actual_status_modification)
+        .map(|x| x.into())
+        .collect::<Vec<_>>();
 
-    // debug!("Component modification: {:#?}", collect_data_mofification);
 
-    let component_modification: Vec<ComponentModificationRelatedData> = collect_data_mofification
+
+
+
+    let component_modification_for_param = ComponentModification::belonging_to(&component)
+        .load::<ComponentModification>(conn)
+        .expect("Error loading component_modification_status");
+
+    let param_modification = ParamModification::belonging_to(&component_modification_for_param)
+        .load::<ParamModification>(conn).expect("Error loading param_modification")
+        .grouped_by(&component_modification_for_param);
+
+    debug!("Component modification param_modification: {:#?}", param_modification);
+
+    let param_modification_name = ParamModification::belonging_to(&component_modification_for_param)
+        .load::<ParamModification>(conn)
+        .expect("Error loading component_modification_for_param");
+
+    debug!("Component modification param_modification_name: {:#?}", param_modification_name);
+
+    let param_translate_list = param_translate_list::param_translate_list
+        .filter(param_translate_list::id_param.eq_any(param_modification_name
+            .into_iter()
+            .map(|x| x.id_param)
+            .collect::<Vec<i32>>()
+        )
+        .and(param_translate_list::id_lang.eq(set_id_lang)))
+        .load::<ParamTranslateList>(conn)
+        .expect("Error loading param_translate_list");
+
+    let param_modification_xxx = ParamModification::belonging_to(&component_modification_for_param)
+        .load::<ParamModification>(conn)
+        .expect("Error loading component_modification_for_param");
+
+    let param_modification_name: Vec<ParamModificationRelate> = param_modification_xxx
+        .into_iter()
+        .zip(param_translate_list)
         .into_iter()
         .map(|x| x.into())
-        .collect();
+        .collect::<Vec<_>>();
+
+    debug!("Component modification param_modification_name: {:#?}", param_modification_name);
+
+    // ComponentModificationBelParam
+    // Vec<(ComponentModificationBel, Vec<ParamModificationRelate>)>
+    // component_modification + param_modification_name
+    // todo!(remove all this code, this is for experiment)
+    let overs = vec![param_modification_name];
+
+    let component_modification: Vec<ComponentModificationBelParam> = component_modification
+        .into_iter()
+        .zip(overs)
+        .map(|x| x.into())
+        .collect::<Vec<_>>();
+
+    let component_modification: Vec<ComponentModificationRelatedData> = component_modification
+        .into_iter()
+        .map(|x| x.into())
+        .collect::<Vec<_>>();
+
+    debug!("Component modification: {:#?}", component_modification);
 
     let result = ShowComponentRelatedData {
         uuid: (component.uuid),
@@ -165,7 +233,6 @@ pub(crate) fn find_uuid_component(
         param_component: (param_component),
         license: (license),
         file: (file),
-        // component_modification: (component_modification),
         component_modification: (component_modification),
     };
     Ok(result)
