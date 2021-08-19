@@ -6,7 +6,7 @@ use async_graphql::*;
 // use chrono::*;
 use uuid::Uuid;
 
-#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, PartialEq, Debug)]
+#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, PartialEq, Clone, Debug)]
 #[primary_key(uuid_modification)]
 #[belongs_to(ComponentModification, foreign_key = "uuid_modification")]
 #[belongs_to(ParamTranslateList, foreign_key = "id_param")]
@@ -30,7 +30,7 @@ impl ParamModification {
     }
 }
 
-#[derive(Debug, Deserialize, SimpleObject, Description)]
+#[derive(Debug, Deserialize, SimpleObject, Clone, Description)]
 pub struct ParamModificationRelate {
     pub uuid_modification: Uuid,
     pub param: ParamTranslateList,

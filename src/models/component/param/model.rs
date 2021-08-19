@@ -71,7 +71,7 @@ pub struct InsertableParamTranslateList {
 }
 
 // Param component models
-#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, Debug)]
+#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, Clone, Debug)]
 #[primary_key(uuid_component, id_param)]
 #[belongs_to(Component, foreign_key = "uuid_component")]
 #[belongs_to(ParamTranslateList, foreign_key = "id_param")]
@@ -95,7 +95,7 @@ impl ParamComponent {
     }
 }
 
-#[derive(Debug, Deserialize, SimpleObject, Description)]
+#[derive(Debug, Deserialize, SimpleObject, Clone, Description)]
 pub struct ComponentParamWithTranslation {
     pub uuid_component: Uuid,
     pub param: ParamTranslateList,

@@ -30,7 +30,7 @@ pub struct IptActualStatusData {
 }
 
 // ActualStatus translations
-#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, Debug)]
+#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, Clone, Debug)]
 #[primary_key(id_actual_status, id_lang)]
 #[belongs_to(Component, foreign_key = "id_actual_status")]
 #[belongs_to(ComponentModification, foreign_key = "id_actual_status")]

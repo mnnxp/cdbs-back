@@ -44,7 +44,7 @@ pub(crate) fn find_uuid_component(
     use crate::models::component::component_modification::model::{
         ComponentModification,
         ComponentModificationWithActualStatus,
-        ComponentModificationRelatedData,
+        ComponentModificationAndRelatedData,
     };
     use crate::models::component::component_modification::param::model::{
         ParamModification, ParamModificationRelate
@@ -84,16 +84,21 @@ pub(crate) fn find_uuid_component(
         .iter()
         .map(|x| x.id_param)
         .collect::<Vec<i32>>();
-    let param_translate_list = param_translate_list::param_translate_list
+    let param_translate_list: Vec<ParamTranslateList> = param_translate_list::param_translate_list
         .filter(param_translate_list::id_param.eq_any(id_param_list)
         .and(param_translate_list::id_lang.eq(set_id_lang)))
         .load::<ParamTranslateList>(conn)
         .expect("Error loading param_translate_list");
-    let param_component_with_translate: Vec<ComponentParamWithTranslation> = param_component
-        .into_iter()
-        .zip(param_translate_list)
-        .map(|x| x.into())
-        .collect();
+
+    let mut param_component_with_translate: Vec<ComponentParamWithTranslation> = Vec::new();
+    for x in param_component.iter() {
+        for y in param_translate_list.iter() {
+            if x.id_param == y.id_param {
+                let res: ComponentParamWithTranslation = (x.to_owned(),y.clone()).into();
+                param_component_with_translate.push(res)
+            }
+        }
+    }
 
     let license_component = LicenseComponent::belonging_to(&component)
         .load::<LicenseComponent>(conn)
@@ -133,9 +138,11 @@ pub(crate) fn find_uuid_component(
 
 
     // collect data for modifications the component
-    let component_modification = ComponentModification::belonging_to(&component)
+    let component_modification: Vec<ComponentModification> = ComponentModification::belonging_to(&component)
         .load::<ComponentModification>(conn)
         .expect("Error loading component_modification");
+
+    // debug!("Component modification component_modification: {:#?}", component_modification);
 
     let id_component_modification: Vec<i32> = component_modification
         .iter()
@@ -148,12 +155,19 @@ pub(crate) fn find_uuid_component(
         .load::<ActualStatusTranslateList>(conn)
         .expect("Error loading actual_status_ref");
 
+    // debug!("Component modification actual_status_modification: {:#?}", actual_status_modification);
+
     let mut component_modification_with_status: Vec<ComponentModificationWithActualStatus> = Vec::new();
-    let _temp_component_modification_with_status = component_modification
-        .iter()
-        .zip(actual_status_modification)
-        .map(|(x,y)| (x.clone(),y).into())
-        .map(|x| component_modification_with_status.push(x));
+    for x in component_modification.iter() {
+        for y in actual_status_modification.iter() {
+            if x.id_actual_status == y.id_actual_status {
+                let res: ComponentModificationWithActualStatus = (x.clone(),y.clone()).into();
+                component_modification_with_status.push(res)
+            }
+        }
+    }
+
+    // debug!("Component modification component_modification_with_status: {:#?}", component_modification_with_status);
 
     let param_component_modification: Vec<Vec<ParamModification>> = ParamModification::belonging_to(&component_modification)
         .load::<ParamModification>(conn)
@@ -162,12 +176,12 @@ pub(crate) fn find_uuid_component(
 
     // debug!("Component modification param_component_modification: {:#?}", param_component_modification);
 
-    let id_param_component_modification: Vec<i32> = param_component_modification
-        .iter()
-        .map(|f| f.iter()
-            .map(|x| x.id_param)
-            .collect::<Vec<i32>>()
-        ).collect::<Vec<Vec<i32>>>().concat();
+    let mut id_param_component_modification: Vec<i32> = Vec::new();
+    for x in param_component_modification.iter() {
+        for y in x.iter() {
+            id_param_component_modification.push(y.id_param);
+        }
+    }
 
     let param_translate_list: Vec<ParamTranslateList> = param_translate_list::param_translate_list
         .filter(param_translate_list::id_param.eq_any(id_param_component_modification)
@@ -176,26 +190,36 @@ pub(crate) fn find_uuid_component(
         .expect("Error loading param_translate_list");
 
     let mut param_component_modification_with_translate: Vec<Vec<ParamModificationRelate>> = Vec::new();
-    let _temp_param_component_modification_with_translate = param_component_modification
-        .into_iter()
-        .map(|f| f.into_iter()
-            .zip(&param_translate_list)
-            .collect::<Vec<_>>()
-        )
-        .map(|f| f.into_iter()
-            .map(|(x,y)| (x, y.clone()).into())
-            .collect::<Vec<_>>()
-        )
-        .map(|value| param_component_modification_with_translate.push(value));
+    for w in param_component_modification.iter() {
+        for x in w.iter() {
+            let mut vec_values: Vec<ParamModificationRelate> = Vec::new();
+            for y in param_translate_list.iter() {
+                if x.id_param == y.id_param {
+                    let res: ParamModificationRelate = (x.to_owned(),y.clone()).into();
+                    vec_values.push(res)
+                }
+            }
+            param_component_modification_with_translate.push(vec_values)
+        }
+    }
 
-    let mut component_modification_with_relate: Vec<ComponentModificationRelatedData> = Vec::new();
-    let _temp_component_modification_with_relate = component_modification_with_status
-        .into_iter()
-        .zip(param_component_modification_with_translate)
-        .map(|x| x.into())
-        .map(|x| component_modification_with_relate.push(x));
+    // debug!("Component modification param_component_modification_with_translate: {:#?}", param_component_modification_with_translate);
 
-    // debug!("Component modification: {:#?}", component_modification_with_relate);
+    let mut component_modification_with_relate: Vec<ComponentModificationAndRelatedData> = Vec::new();
+
+    for w in component_modification_with_status.iter() {
+        let mut vec_values: Vec<ParamModificationRelate> = Vec::new();
+        for x in param_component_modification_with_translate.iter() {
+            for y in x.iter() {
+                if w.modification.uuid == y.uuid_modification {
+                    vec_values.push(y.to_owned())
+                }
+            }
+        }
+        component_modification_with_relate.push((w.clone(), vec_values).into())
+    }
+
+    // debug!("Component component_modification_with_relate: {:#?}", component_modification_with_relate);
 
     let result = ComponentAndRelatedData {
         uuid: (component.uuid),

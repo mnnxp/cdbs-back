@@ -58,7 +58,7 @@ impl ComponentModification {
 #[primary_key(uuid)]
 #[belongs_to(Component, foreign_key = "uuid_component")]
 #[table_name = "component_modification_list"]
-pub struct ComponentModificationRelatedData {
+pub struct ComponentModificationAndRelatedData {
     pub uuid: Uuid,
     pub uuid_component: Uuid,
     pub uuid_modification_parent: Uuid,
@@ -70,7 +70,7 @@ pub struct ComponentModificationRelatedData {
     pub param_modification: Vec<ParamModificationRelate>,
 }
 
-impl From<(ComponentModificationWithActualStatus, Vec<ParamModificationRelate>)> for ComponentModificationRelatedData {
+impl From<(ComponentModificationWithActualStatus, Vec<ParamModificationRelate>)> for ComponentModificationAndRelatedData {
     fn from(data: (ComponentModificationWithActualStatus, Vec<ParamModificationRelate>)) -> Self {
         Self {
             uuid: data.0.modification.uuid,
@@ -103,7 +103,7 @@ impl From<(ComponentModificationWithActualStatus, Vec<ParamModificationRelate>)>
 // }
 
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Clone, Debug)]
 pub struct ComponentModificationWithActualStatus {
     pub modification: ComponentModification,
     pub actual_status: ActualStatusTranslateList,
