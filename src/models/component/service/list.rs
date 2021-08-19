@@ -1,8 +1,7 @@
 use crate::database::{get_conn, PooledConnection};
 use crate::errors::ServiceResult;
 use async_graphql::Context;
-use crate::models::component::model::Component;
-use crate::models::component::model::ComponentAndRelatedData;
+use crate::models::component::model::{Component, ComponentAndRelatedData};
 use diesel::prelude::*;
 use uuid::Uuid;
 
@@ -34,7 +33,9 @@ pub(crate) fn find_uuid_component(
     use crate::models::component::relate::actual_status::model::ActualStatusTranslateList;
     use crate::models::component::relate::component_type::model::ComponentTypeTranslateList;
     use crate::models::component::param::model::{
-        ParamTranslateList, ParamComponent, ComponentParamWithTranslation
+        ParamComponent,
+        ParamTranslateList,
+        ComponentParamWithTranslation,
     };
     use crate::models::component::license::model::LicenseComponent;
     use crate::models::component::license::model::License;
@@ -42,8 +43,8 @@ pub(crate) fn find_uuid_component(
     use crate::models::file::model::ShowFile;
     use crate::models::component::component_modification::model::{
         ComponentModification,
+        ComponentModificationWithActualStatus,
         ComponentModificationRelatedData,
-        ComponentModificationBel
     };
     use crate::models::component::component_modification::param::model::{
         ParamModification, ParamModificationRelate
@@ -147,7 +148,7 @@ pub(crate) fn find_uuid_component(
         .load::<ActualStatusTranslateList>(conn)
         .expect("Error loading actual_status_ref");
 
-    let mut component_modification_with_status: Vec<ComponentModificationBel> = Vec::new();
+    let mut component_modification_with_status: Vec<ComponentModificationWithActualStatus> = Vec::new();
     let _temp_component_modification_with_status = component_modification
         .iter()
         .zip(actual_status_modification)

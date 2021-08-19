@@ -70,8 +70,8 @@ pub struct ComponentModificationRelatedData {
     pub param_modification: Vec<ParamModificationRelate>,
 }
 
-impl From<(ComponentModificationBel, Vec<ParamModificationRelate>)> for ComponentModificationRelatedData {
-    fn from(data: (ComponentModificationBel, Vec<ParamModificationRelate>)) -> Self {
+impl From<(ComponentModificationWithActualStatus, Vec<ParamModificationRelate>)> for ComponentModificationRelatedData {
+    fn from(data: (ComponentModificationWithActualStatus, Vec<ParamModificationRelate>)) -> Self {
         Self {
             uuid: data.0.modification.uuid,
             uuid_component: data.0.modification.uuid_component,
@@ -87,14 +87,14 @@ impl From<(ComponentModificationBel, Vec<ParamModificationRelate>)> for Componen
 }
 
 // #[derive(Deserialize, Debug)]
-// pub struct ComponentModificationBelParam {
-//     pub info: ComponentModificationBel,
+// pub struct ComponentModificationWithParam {
+//     pub info: ComponentModificationWithActualStatus,
 //     pub params: Vec<ParamModificationRelate>,
 // }
 //
 //
-// impl From<(ComponentModificationBel, Vec<ParamModificationRelate>)> for ComponentModificationBelParam {
-//     fn from(data: (ComponentModificationBel, Vec<ParamModificationRelate>)) -> Self {
+// impl From<(ComponentModificationWithActualStatus, Vec<ParamModificationRelate>)> for ComponentModificationWithParam {
+//     fn from(data: (ComponentModificationWithActualStatus, Vec<ParamModificationRelate>)) -> Self {
 //         Self {
 //             info: data.0,
 //             params: data.1,
@@ -104,13 +104,13 @@ impl From<(ComponentModificationBel, Vec<ParamModificationRelate>)> for Componen
 
 
 #[derive(Deserialize, Debug)]
-pub struct ComponentModificationBel {
+pub struct ComponentModificationWithActualStatus {
     pub modification: ComponentModification,
     pub actual_status: ActualStatusTranslateList,
     // pub params: Vec<ParamModificationRelate>,
 }
 
-impl From<(ComponentModification, ActualStatusTranslateList)> for ComponentModificationBel {
+impl From<(ComponentModification, ActualStatusTranslateList)> for ComponentModificationWithActualStatus {
     fn from(data: (ComponentModification, ActualStatusTranslateList)) -> Self {
         Self {
             modification: data.0,
