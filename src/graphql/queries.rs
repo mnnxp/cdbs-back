@@ -10,7 +10,7 @@ use crate::models::component::component_modification::service as component_modif
 use crate::models::component::license as component_license;
 use crate::models::component::license::model::{License, LicenseComponent};
 use crate::models::component::model::Component;
-use crate::models::component::model::ShowComponentRelatedData;
+use crate::models::component::model::ComponentAndRelatedData;
 use crate::models::component::param::model::{ParamTranslateList, ParamComponent};
 use crate::models::component::param as component_param;
 use crate::models::component::component_modification::param::model::ParamModification;
@@ -224,7 +224,7 @@ impl QueryRoot {
         &self,
         context: &Context<'_>,
         uuid_component: String,
-    ) -> ServiceResult<ShowComponentRelatedData> {
+    ) -> ServiceResult<ComponentAndRelatedData> {
         // authorization check
         crate::models::user::util::check_authorized(context)?;
 

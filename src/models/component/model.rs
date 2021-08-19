@@ -2,7 +2,7 @@ use crate::schema::*;
 use crate::models::user::model::SlimUser;
 use crate::models::component::relate::component_type::model::ComponentTypeTranslateList;
 use crate::models::component::relate::actual_status::model::ActualStatusTranslateList;
-use crate::models::component::param::model::ParamComponentRelate;
+use crate::models::component::param::model::ComponentParamWithTranslation;
 use crate::models::component::component_modification::model::ComponentModificationRelatedData;
 // use crate::models::component::component_modification::model::ComponentModification;
 use crate::models::component::license::model::License;
@@ -71,7 +71,7 @@ impl Component {
 }
 
 #[derive(Debug, Deserialize, SimpleObject, Description)]
-pub struct ShowComponentRelatedData {
+pub struct ComponentAndRelatedData {
     pub uuid: Uuid,
     pub uuid_component_parent: Uuid,
     pub name: String,
@@ -83,7 +83,7 @@ pub struct ShowComponentRelatedData {
     pub is_standard: bool,
     pub updated_at: NaiveDateTime,
     pub license: Vec<License>,
-    pub param_component: Vec<ParamComponentRelate>,
+    pub param_component: Vec<ComponentParamWithTranslation>,
     pub file: Vec<ShowFile>,
     pub component_modification: Vec<ComponentModificationRelatedData>,
 }

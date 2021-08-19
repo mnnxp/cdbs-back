@@ -7,7 +7,7 @@ use async_graphql::*;
 use chrono::*;
 use uuid::Uuid;
 
-#[derive(Identifiable, Deserialize, Queryable, Associations, PartialEq, Debug)]
+#[derive(Identifiable, Deserialize, Queryable, Associations, PartialEq, Clone, Debug)]
 #[primary_key(uuid)]
 #[belongs_to(Component, foreign_key = "uuid_component")]
 #[table_name = "component_modification_list"]
@@ -70,37 +70,37 @@ pub struct ComponentModificationRelatedData {
     pub param_modification: Vec<ParamModificationRelate>,
 }
 
-impl From<ComponentModificationBelParam> for ComponentModificationRelatedData {
-    fn from(data: ComponentModificationBelParam) -> Self {
-        Self {
-            uuid: data.info.modification.uuid,
-            uuid_component: data.info.modification.uuid_component,
-            uuid_modification_parent: data.info.modification.uuid_modification_parent,
-            modification_name: data.info.modification.modification_name,
-            description: data.info.modification.description,
-            actual_status: data.info.actual_status,
-            // id_actual_status: data.info.modification.id_actual_status,
-            updated_at: data.info.modification.updated_at,
-            param_modification: data.params,
-        }
-    }
-}
-
-#[derive(Deserialize, Debug)]
-pub struct ComponentModificationBelParam {
-    pub info: ComponentModificationBel,
-    pub params: Vec<ParamModificationRelate>,
-}
-
-
-impl From<(ComponentModificationBel, Vec<ParamModificationRelate>)> for ComponentModificationBelParam {
+impl From<(ComponentModificationBel, Vec<ParamModificationRelate>)> for ComponentModificationRelatedData {
     fn from(data: (ComponentModificationBel, Vec<ParamModificationRelate>)) -> Self {
         Self {
-            info: data.0,
-            params: data.1,
+            uuid: data.0.modification.uuid,
+            uuid_component: data.0.modification.uuid_component,
+            uuid_modification_parent: data.0.modification.uuid_modification_parent,
+            modification_name: data.0.modification.modification_name,
+            description: data.0.modification.description,
+            actual_status: data.0.actual_status,
+            // id_actual_status: data.0.modification.id_actual_status,
+            updated_at: data.0.modification.updated_at,
+            param_modification: data.1,
         }
     }
 }
+
+// #[derive(Deserialize, Debug)]
+// pub struct ComponentModificationBelParam {
+//     pub info: ComponentModificationBel,
+//     pub params: Vec<ParamModificationRelate>,
+// }
+//
+//
+// impl From<(ComponentModificationBel, Vec<ParamModificationRelate>)> for ComponentModificationBelParam {
+//     fn from(data: (ComponentModificationBel, Vec<ParamModificationRelate>)) -> Self {
+//         Self {
+//             info: data.0,
+//             params: data.1,
+//         }
+//     }
+// }
 
 
 #[derive(Deserialize, Debug)]

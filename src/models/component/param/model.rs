@@ -30,7 +30,7 @@ pub struct InsertableParam {
 }
 
 // Param translations
-#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, Debug)]
+#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, Clone, Debug)]
 #[primary_key(id_param, id_lang)]
 #[belongs_to(Param, foreign_key = "id_param")]
 #[belongs_to(ParamComponent, foreign_key = "id_param")]
@@ -96,13 +96,13 @@ impl ParamComponent {
 }
 
 #[derive(Debug, Deserialize, SimpleObject, Description)]
-pub struct ParamComponentRelate {
+pub struct ComponentParamWithTranslation {
     pub uuid_component: Uuid,
     pub param: ParamTranslateList,
     pub value: String,
 }
 
-impl From<(ParamComponent, ParamTranslateList)> for ParamComponentRelate {
+impl From<(ParamComponent, ParamTranslateList)> for ComponentParamWithTranslation {
     fn from(data: (ParamComponent, ParamTranslateList)) -> Self {
         Self {
             uuid_component: data.0.uuid_component,
