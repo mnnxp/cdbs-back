@@ -47,7 +47,8 @@ INSERT INTO discussion_component_ref (id_discussion_parent, uuid_component,
 INSERT INTO component_modification_list (uuid, uuid_component, uuid_modification_parent,
   modification_name, description, id_actual_status,
   is_delete, created_at, updated_at) VALUES
-  ('aba22d59-4f6c-44a4-9a37-2d38f0e577a8', 'a5953fd9-7393-4f1e-a899-06b5e159dbf1', 'aba22d59-4f6c-44a4-9a37-2d38f0e577a8', 'Head style C - Type H', 'main modification', 1, 'f', now(), now());
+  ('aba22d59-4f6c-44a4-9a37-2d38f0e577a8', 'a5953fd9-7393-4f1e-a899-06b5e159dbf1', 'aba22d59-4f6c-44a4-9a37-2d38f0e577a8', 'Head style C - Type H', 'main modification', 1, 'f', now(), now()),
+  ('4ce05051-2d7c-456d-927c-bf84a6b08748', 'a5953fd9-7393-4f1e-a899-06b5e159dbf1', 'aba22d59-4f6c-44a4-9a37-2d38f0e577a8', 'Head VS - Type XW', 'second modification', 1, 'f', now(), now());
 
 INSERT INTO param_to_modification (uuid_modification, id_param, value) VALUES
   ('aba22d59-4f6c-44a4-9a37-2d38f0e577a8', 1, '1'),
@@ -57,7 +58,14 @@ INSERT INTO param_to_modification (uuid_modification, id_param, value) VALUES
   ('aba22d59-4f6c-44a4-9a37-2d38f0e577a8', 5, 'SMS8'),
   ('aba22d59-4f6c-44a4-9a37-2d38f0e577a8', 6, 'Steel'),
   ('aba22d59-4f6c-44a4-9a37-2d38f0e577a8', 7, 'Electrogalvanized'),
-  ('aba22d59-4f6c-44a4-9a37-2d38f0e577a8', 8, '187197');
+  ('aba22d59-4f6c-44a4-9a37-2d38f0e577a8', 8, '187197'),
+  ('4ce05051-2d7c-456d-927c-bf84a6b08748', 1, '2'),
+  ('4ce05051-2d7c-456d-927c-bf84a6b08748', 2, '5'),
+  ('4ce05051-2d7c-456d-927c-bf84a6b08748', 3, 'XV38'),
+  ('4ce05051-2d7c-456d-927c-bf84a6b08748', 5, 'XV38'),
+  ('4ce05051-2d7c-456d-927c-bf84a6b08748', 6, 'Plastic'),
+  ('4ce05051-2d7c-456d-927c-bf84a6b08748', 7, 'Nized'),
+  ('4ce05051-2d7c-456d-927c-bf84a6b08748', 8, '187197');
 
 INSERT INTO file_to_component (uuid_component, uuid_file) VALUES
   ('a5953fd9-7393-4f1e-a899-06b5e159dbf1', 'bc1c2151-86d0-4656-9c9d-d016dd584297');
@@ -72,7 +80,7 @@ INSERT INTO file_to_set_modification (id_set, uuid_file) VALUES
   (1, '3706d1a1-80ae-4367-be39-af7091373811');
 
 INSERT INTO spec_to_component (id_spec, uuid_component) VALUES
-  (1, 'a5953fd9-7393-4f1e-a899-06b5e159dbf1');
+  (487, 'a5953fd9-7393-4f1e-a899-06b5e159dbf1');
 
 INSERT INTO license_to_component (uuid_component, id_license) VALUES
   ('a5953fd9-7393-4f1e-a899-06b5e159dbf1', 1);
