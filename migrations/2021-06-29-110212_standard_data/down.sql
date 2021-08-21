@@ -5,4 +5,4 @@ DROP TABLE standard_status_ref;
 DROP TABLE standard_status_translate_list;
 DROP TABLE file_to_standard;
 DROP TABLE spec_to_standard;
-DROP TABLE standard_to_keyword;
+DROP TABLE keyword_to_standard;

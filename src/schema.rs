@@ -162,13 +162,6 @@ table! {
 }
 
 table! {
-    component_to_keyword (uuid_component, id_keyword) {
-        uuid_component -> Uuid,
-        id_keyword -> Int4,
-    }
-}
-
-table! {
     component_type_ref (id) {
         id -> Int4,
     }
@@ -285,6 +278,20 @@ table! {
     keyword_ref (id) {
         id -> Int4,
         keyword -> Varchar,
+    }
+}
+
+table! {
+    keyword_to_component (uuid_component, id_keyword) {
+        uuid_component -> Uuid,
+        id_keyword -> Int4,
+    }
+}
+
+table! {
+    keyword_to_standard (uuid_standard, id_keyword) {
+        uuid_standard -> Uuid,
+        id_keyword -> Int4,
     }
 }
 
@@ -579,13 +586,6 @@ table! {
 }
 
 table! {
-    standard_to_keyword (uuid_standard, id_keyword) {
-        uuid_standard -> Uuid,
-        id_keyword -> Int4,
-    }
-}
-
-table! {
     supplier_to_component (uuid_component, uuid_company) {
         uuid_component -> Uuid,
         uuid_company -> Uuid,
@@ -755,8 +755,6 @@ joinable!(component_ref -> actual_status_ref (id_actual_status));
 joinable!(component_ref -> component_type_ref (id_component_type));
 joinable!(component_ref -> type_access_ref (id_type_access));
 joinable!(component_ref -> user_ref (uuid_user));
-joinable!(component_to_keyword -> component_ref (uuid_component));
-joinable!(component_to_keyword -> keyword_ref (id_keyword));
 joinable!(component_type_translate_list -> component_type_ref (id_component_type));
 joinable!(component_type_translate_list -> language_ref (id_lang));
 joinable!(condition_to_license -> license_condition_ref (id_condition));
@@ -777,6 +775,10 @@ joinable!(file_to_set_modification -> file_ref (uuid_file));
 joinable!(file_to_set_modification -> set_files_for_program (id_set));
 joinable!(file_to_standard -> file_ref (uuid_file));
 joinable!(file_to_standard -> standard_ref (uuid_standard));
+joinable!(keyword_to_component -> component_ref (uuid_component));
+joinable!(keyword_to_component -> keyword_ref (id_keyword));
+joinable!(keyword_to_standard -> keyword_ref (id_keyword));
+joinable!(keyword_to_standard -> standard_ref (uuid_standard));
 joinable!(license_condition_translate_list -> language_ref (id_lang));
 joinable!(license_condition_translate_list -> license_condition_ref (id_license_condition));
 joinable!(license_limitation_translate_list -> language_ref (id_lang));
@@ -829,8 +831,6 @@ joinable!(standard_status_translate_list -> language_ref (id_lang));
 joinable!(standard_status_translate_list -> standard_status_ref (id_standard_status));
 joinable!(standard_to_component -> component_ref (uuid_component));
 joinable!(standard_to_component -> standard_ref (uuid_standard));
-joinable!(standard_to_keyword -> keyword_ref (id_keyword));
-joinable!(standard_to_keyword -> standard_ref (uuid_standard));
 joinable!(supplier_to_component -> company_ref (uuid_company));
 joinable!(supplier_to_component -> component_ref (uuid_component));
 joinable!(type_access_translate_list -> language_ref (id_lang));
@@ -868,7 +868,6 @@ allow_tables_to_appear_in_same_query!(
     component_history_list,
     component_modification_list,
     component_ref,
-    component_to_keyword,
     component_type_ref,
     component_type_translate_list,
     condition_to_license,
@@ -883,6 +882,8 @@ allow_tables_to_appear_in_same_query!(
     file_to_set_modification,
     file_to_standard,
     keyword_ref,
+    keyword_to_component,
+    keyword_to_standard,
     language_ref,
     license_condition_ref,
     license_condition_translate_list,
@@ -920,7 +921,6 @@ allow_tables_to_appear_in_same_query!(
     standard_status_ref,
     standard_status_translate_list,
     standard_to_component,
-    standard_to_keyword,
     supplier_to_component,
     type_access_ref,
     type_access_translate_list,

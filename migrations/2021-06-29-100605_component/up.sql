@@ -41,10 +41,10 @@ CREATE TABLE component_type_translate_list (
 );
 
 /* ключевые слова связанные с компонентом (тегирование) */
-CREATE TABLE component_to_keyword (
+CREATE TABLE keyword_to_component (
   uuid_component UUID NOT NULL, /* идентификатор компонента */
   id_keyword INTEGER NOT NULL, /* идентификатор ключевого слова (тега) */
-  CONSTRAINT component_to_keyword_pk PRIMARY KEY (uuid_component, id_keyword)
+  CONSTRAINT keyword_to_component_pk PRIMARY KEY (uuid_component, id_keyword)
 );
 
 /* параметр компонента */

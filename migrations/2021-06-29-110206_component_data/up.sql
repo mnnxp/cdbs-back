@@ -17,7 +17,7 @@ INSERT INTO component_type_translate_list (id_component_type, id_lang, component
   (1, 2, 'базовый'),
   (2, 2, 'собственный');
 
-INSERT INTO component_to_keyword (uuid_component, id_keyword) VALUES
+INSERT INTO keyword_to_component (uuid_component, id_keyword) VALUES
   ('a5953fd9-7393-4f1e-a899-06b5e159dbf1', 1),
   ('a5953fd9-7393-4f1e-a899-06b5e159dbf1', 2),
   ('a5953fd9-7393-4f1e-a899-06b5e159dbf1', 3);

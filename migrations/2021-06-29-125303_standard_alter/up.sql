@@ -19,5 +19,5 @@ ALTER TABLE standard_status_translate_list ADD CONSTRAINT standard_status_transl
 ALTER TABLE spec_to_standard ADD CONSTRAINT spec_to_standard_fk0 FOREIGN KEY (id_spec) REFERENCES spec_ref(id) ON DELETE CASCADE;
 ALTER TABLE spec_to_standard ADD CONSTRAINT spec_to_standard_fk1 FOREIGN KEY (uuid_standard) REFERENCES standard_ref(uuid) ON DELETE CASCADE;
 
-ALTER TABLE standard_to_keyword ADD CONSTRAINT standard_to_keyword_fk0 FOREIGN KEY (uuid_standard) REFERENCES standard_ref(uuid) ON DELETE CASCADE;
-ALTER TABLE standard_to_keyword ADD CONSTRAINT standard_to_keyword_fk1 FOREIGN KEY (id_keyword) REFERENCES keyword_ref(id) ON DELETE CASCADE;
+ALTER TABLE keyword_to_standard ADD CONSTRAINT keyword_to_standard_fk0 FOREIGN KEY (uuid_standard) REFERENCES standard_ref(uuid) ON DELETE CASCADE;
+ALTER TABLE keyword_to_standard ADD CONSTRAINT keyword_to_standard_fk1 FOREIGN KEY (id_keyword) REFERENCES keyword_ref(id) ON DELETE CASCADE;
