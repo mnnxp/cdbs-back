@@ -132,6 +132,10 @@ specComponent { \
   } \
   uuidComponent \
 } \
+keywordComponent { \
+  id \
+  keyword \
+} \
 componentModification {  \
   uuid \
   uuidComponent \
@@ -153,6 +157,14 @@ componentModification {  \
     } \
     value \
   } \
+} \
+supplierComponent { \
+  supplier { \
+    uuid \
+    isSupplier \
+    shortname \
+  } \
+  uuidComponent \
 } \
 `;
 var uuidComponentNoStandard = "";
@@ -788,10 +800,13 @@ describe('component', () => {
     expect(response1.body.data.component.paramComponent).toBeNonEmptyArray();
     expect(response1.body.data.component.file).toBeNonEmptyArray();
     expect(response1.body.data.component.specComponent).toBeNonEmptyArray();
+    expect(response1.body.data.component.keywordComponent).toBeNonEmptyArray();
     expect(response1.body.data.component.componentModification[0].uuid).toBeNonEmptyString();
     expect(response1.body.data.component.componentModification[0].uuidComponent).toBe(uuidComponentParent);
     expect(response1.body.data.component.componentModification[0].actualStatus.name).toBeNonEmptyString();
     expect(response1.body.data.component.componentModification[0].paramModification).toBeNonEmptyArray();
+    expect(response1.body.data.component.supplierComponent[0].uuidComponent).toBe(uuidComponentParent);
+    expect(response1.body.data.component.supplierComponent[0].supplier.shortname).toBeNonEmptyString();
     done();
   });
 
