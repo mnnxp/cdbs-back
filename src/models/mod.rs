@@ -1,10 +1,11 @@
 pub(crate) mod company;
 pub(crate) mod component;
-pub(crate) mod file;
-pub(crate) mod language;
-pub(crate) mod spec;
 pub(crate) mod standard;
 pub(crate) mod user;
-// pub(crate) mod user_represent;
-// pub(crate) mod component_modification;
-// pub(crate) mod param;
+pub(crate) mod relate_ref;
+
+// pub(crate) use relate_ref::file;
+// pub(crate) use relate_ref::language;
+// pub(crate) use relate_ref::license;
+// pub(crate) use relate_ref::param;
+// pub(crate) use relate_ref::spec;

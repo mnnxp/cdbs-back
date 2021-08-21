@@ -1,7 +1,7 @@
 use crate::database::{get_conn, PooledConnection};
 use super::model::{User, SlimUser};
 use crate::models::user::service as user;
-use crate::models::language::model::SetLang;
+use crate::models::relate_ref::language::model::SetLang;
 use crate::errors::ServiceError;
 use async_graphql::Context;
 use argon2rs::argon2i_simple;

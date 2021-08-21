@@ -1,37 +1,25 @@
 use crate::errors::ServiceResult;
 use crate::database::{get_conn, PooledConnection};
 use crate::models::user::model::{SlimUser, IptUserData};
-use crate::models::user::notification::model::{
-    Notification, NotificationData, SlimNotification
-};
-use crate::models::company::company_represent::model::{
-    IptCompanyRepresentData, SlimCompanyRepresent,
-};
+use crate::models::user::notification::model::{Notification, NotificationData, SlimNotification};
+use crate::models::company::company_represent::model::{IptCompanyRepresentData, SlimCompanyRepresent};
 use crate::models::company::model::{SlimCompany, CompanyData, IptCompanyData,};
-use crate::models::component::component_modification::model::{
-    SlimComponentModification, IptComponentModificationData,
-};
-use crate::models::component::license::model::{
-    License, LicenseData, LicenseComponent, IptLicenseComponentData,
-};
-use crate::models::component::model::{
-    SlimComponent, ComponentData, IptComponentData,
-};
-use crate::models::component::param::model::{
-    ParamComponent, IptParamComponentData,
-    ParamTranslateList, IptParamTranslateListData
-};
+use crate::models::component::component_modification::model::{SlimComponentModification, IptComponentModificationData};
+use crate::models::relate_ref::license::model::{License, LicenseData};
+use crate::models::relate_ref::license as license;
+use crate::models::component::license::model::{LicenseComponent, IptLicenseComponentData};
+use crate::models::component::model::{SlimComponent, ComponentData, IptComponentData};
+use crate::models::relate_ref::param::model::{ParamTranslateList, IptParamTranslateListData};
+use crate::models::relate_ref::param as param;
+use crate::models::component::param::model::{ParamComponent, IptParamComponentData};
 use crate::models::component::param as component_param;
-use crate::models::component::component_modification::param::model::{
-    ParamModification, IptParamModificationData
-};
+use crate::models::component::component_modification::param::model::{ParamModification, IptParamModificationData};
 use crate::models::component::component_modification::param as component_modification_param;
 use crate::models::component as component;
 use crate::models::standard::model::{SlimStandard, IptStandardData, StandardData};
+use crate::models::component::spec::model::{SpecComponent, IptSpecComponentData};
 use crate::models::component::spec as component_spec;
-use crate::models::component::spec::model::{
-    SpecComponent, IptSpecComponentData
-};// use crate::models::file::model::{ShowFile, SlimFile};
+// use crate::models::relate_ref::file::model::{ShowFile, SlimFile};
 use async_graphql::Context;
 // use async_graphql::{
 //     dataloader::DataLoader, Context, EmptySubscription, FieldResult, Schema,
@@ -95,7 +83,7 @@ impl MutationRoot {
         context: &Context<'_>,
         data: IptComponentData,
     ) -> ServiceResult<SlimComponent> {
-        use crate::models::component::service::register::create_component;
+        use component::service::register::create_component;
         let conn: &PooledConnection = &get_conn(context)?;
 
         // checking authorization and getting user uuid
@@ -122,7 +110,7 @@ impl MutationRoot {
         context: &Context<'_>,
         data: IptComponentModificationData,
     ) -> ServiceResult<SlimComponentModification> {
-        use crate::models::component::component_modification::service::register::create_component_modification;
+        use component::component_modification::service::register::create_component_modification;
         let conn: &PooledConnection = &get_conn(context)?;
 
         let logged_uuid_user = crate::models::user::get_auth_uuid_user(context, true)?;
@@ -135,7 +123,7 @@ impl MutationRoot {
         context: &Context<'_>,
         data: LicenseData,
     ) -> ServiceResult<License> {
-        use component::license::service::register::create_license;
+        use license::service::register::create_license;
         let conn: &PooledConnection = &get_conn(context)?;
 
         // todo!(check owned company)
@@ -149,7 +137,7 @@ impl MutationRoot {
         context: &Context<'_>,
         data: IptLicenseComponentData,
     ) -> ServiceResult<LicenseComponent> {
-        use crate::models::component::license::service::add_component_license::create_license_component;
+        use component::license::service::add::create_license_component;
         let conn: &PooledConnection = &get_conn(context)?;
 
         crate::models::user::check_authorized(context)?;
@@ -162,7 +150,7 @@ impl MutationRoot {
         context: &Context<'_>,
         data: IptParamTranslateListData,
     ) -> ServiceResult<ParamTranslateList> {
-        use component_param::service::register::create_param;
+        use param::service::register::create_param;
         let conn: &PooledConnection = &get_conn(context)?;
 
         crate::models::user::check_authorized(context)?;
@@ -175,7 +163,7 @@ impl MutationRoot {
         context: &Context<'_>,
         data: IptParamComponentData,
     ) -> ServiceResult<ParamComponent> {
-        use component_param::service::add_component_param::create_param_component;
+        use component_param::service::add::create_param_component;
         let conn: &PooledConnection = &get_conn(context)?;
 
         crate::models::user::check_authorized(context)?;
@@ -188,7 +176,7 @@ impl MutationRoot {
         context: &Context<'_>,
         data: IptParamModificationData,
     ) -> ServiceResult<ParamModification> {
-        use component_modification_param::service::register::create_param_modification;
+        use component_modification_param::service::add::create_param_modification;
         let conn: &PooledConnection = &get_conn(context)?;
 
         crate::models::user::check_authorized(context)?;

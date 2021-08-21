@@ -8,10 +8,14 @@ use crate::models::company::service as company;
 use crate::models::component::component_modification::model::ComponentModification;
 use crate::models::component::component_modification::service as component_modification;
 use crate::models::component::license as component_license;
-use crate::models::component::license::model::{License, LicenseComponent};
+use crate::models::relate_ref::license::model::License;
+use crate::models::relate_ref::license as license;
+use crate::models::component::license::model::LicenseComponent;
 use crate::models::component::model::Component;
 use crate::models::component::model::ComponentAndRelatedData;
-use crate::models::component::param::model::{ParamTranslateList, ParamComponent};
+use crate::models::relate_ref::param::model::ParamTranslateList;
+use crate::models::relate_ref::param as param;
+use crate::models::component::param::model::ParamComponent;
 use crate::models::component::param as component_param;
 use crate::models::component::component_modification::param::model::ParamModification;
 use crate::models::component::component_modification::param as component_modification_param;
@@ -21,15 +25,15 @@ use crate::models::user::service::token::model::UserToken;
 use crate::models::user::notification::model::Notification;
 use crate::models::user::notification::service as notification;
 use crate::models::user::service as user;
-// use crate::models::file::model::{ShowFile, FileData, SlimFile};
-use crate::models::file::model::ShowFile;
-use crate::models::file::service as file;
+// use crate::models::relate_ref::file::model::{ShowFile, FileData, SlimFile};
+use crate::models::relate_ref::file::model::ShowFile;
+use crate::models::relate_ref::file::service as file;
 use crate::models::standard::model::ShowStandard;
 use crate::models::standard as standard;
-use crate::models::language::model::Language;
-use crate::models::language as language;
-use crate::models::spec::model::SpecTranslateList;
-use crate::models::spec as spec;
+use crate::models::relate_ref::language::model::Language;
+use crate::models::relate_ref::language as language;
+use crate::models::relate_ref::spec::model::SpecTranslateList;
+use crate::models::relate_ref::spec as spec;
 // use crate::models::component::spec::model::SpecComponent;
 use crate::models::component::spec as component_spec;
 use async_graphql::Context;
@@ -271,7 +275,7 @@ impl QueryRoot {
         let limit: i32 = limit.unwrap_or(100);
         let offset: i32 = offset.unwrap_or(0);
 
-        component_license::service::list::get_licenses(context, id_license, limit, offset)
+        license::service::list::get_licenses(context, id_license, limit, offset)
     }
 
     async fn license_component(
@@ -293,7 +297,7 @@ impl QueryRoot {
         let limit: i32 = limit.unwrap_or(100);
         let offset: i32 = offset.unwrap_or(0);
 
-        component_license::service::list_component_licenses::get_licenses_component(
+        component_license::service::list::get_licenses_component(
             context,
             id_license,
             uuid_component,
@@ -316,7 +320,7 @@ impl QueryRoot {
         let limit: i32 = limit.unwrap_or(100);
         let offset: i32 = offset.unwrap_or(0);
 
-        component_param::service::list::get_params(context, id_param, limit, offset)
+        param::service::list::get_params(context, id_param, limit, offset)
     }
 
     async fn param_component(
@@ -338,7 +342,7 @@ impl QueryRoot {
         let limit: i32 = limit.unwrap_or(100);
         let offset: i32 = offset.unwrap_or(0);
 
-        component_param::service::list_component_params::get_params_component(
+        component_param::service::list::get_params_component(
             context,
             id_param,
             uuid_component,

@@ -1,7 +1,7 @@
 use crate::schema::*;
 use crate::models::component::model::Component;
 use crate::models::component::component_modification::model::ComponentModification;
-use crate::models::language::model::Language;
+use crate::models::relate_ref::language::model::Language;
 use async_graphql::*;
 
 #[derive(Identifiable, Serialize, Deserialize, Associations, Queryable, Debug)]

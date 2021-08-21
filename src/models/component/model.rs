@@ -5,8 +5,8 @@ use crate::models::component::relate::actual_status::model::ActualStatusTranslat
 use crate::models::component::param::model::ComponentParamWithTranslation;
 use crate::models::component::component_modification::model::ComponentModificationAndRelatedData;
 // use crate::models::component::component_modification::model::ComponentModification;
-use crate::models::component::license::model::License;
-use crate::models::file::model::ShowFile;
+use crate::models::relate_ref::license::model::License;
+use crate::models::relate_ref::file::model::ShowFile;
 use async_graphql::types::ID;
 use async_graphql::*;
 use chrono::*;

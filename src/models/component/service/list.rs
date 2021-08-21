@@ -30,17 +30,17 @@ pub(crate) fn find_uuid_component(
     context: &Context<'_>,
     target_uuid_component: Uuid,
 ) -> ServiceResult<ComponentAndRelatedData> {
-    use crate::models::component::relate::actual_status::model::ActualStatusTranslateList;
-    use crate::models::component::relate::component_type::model::ComponentTypeTranslateList;
+    use crate::models::component::actual_status::model::ActualStatusTranslateList;
+    use crate::models::component::component_type::model::ComponentTypeTranslateList;
+    use crate::models::relate_ref::param::model::ParamTranslateList;
     use crate::models::component::param::model::{
         ParamComponent,
-        ParamTranslateList,
         ComponentParamWithTranslation,
     };
     use crate::models::component::license::model::LicenseComponent;
-    use crate::models::component::license::model::License;
+    use crate::models::relate_ref::license::model::License;
     use crate::models::component::file::model::FileComponent;
-    use crate::models::file::model::ShowFile;
+    use crate::models::relate_ref::file::model::ShowFile;
     use crate::models::component::component_modification::model::{
         ComponentModification,
         ComponentModificationWithActualStatus,

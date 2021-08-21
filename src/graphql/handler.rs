@@ -7,7 +7,7 @@ use crate::cli_args::Opt;
 use crate::database::Pool;
 use crate::graphql::{mutations::MutationRoot, queries::QueryRoot};
 use crate::jwt::model::Token;
-use crate::models::language::model::SetLang;
+use crate::models::relate_ref::language::model::SetLang;
 
 type ActixSchema = Schema<QueryRoot, MutationRoot, EmptySubscription>;
 

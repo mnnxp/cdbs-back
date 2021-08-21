@@ -1,6 +1,6 @@
 use crate::schema::*;
 use crate::models::standard::model::Standard;
-use crate::models::file::model::ShowFile;
+use crate::models::relate_ref::file::model::ShowFile;
 use async_graphql::types::ID;
 use async_graphql::*;
 // use chrono::*;
