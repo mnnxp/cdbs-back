@@ -1,8 +1,9 @@
 use crate::schema::*;
 use crate::models::user::model::SlimUser;
-use crate::models::component::relate::component_type::model::ComponentTypeTranslateList;
-use crate::models::component::relate::actual_status::model::ActualStatusTranslateList;
+use crate::models::component::component_type::model::ComponentTypeTranslateList;
+use crate::models::component::actual_status::model::ActualStatusTranslateList;
 use crate::models::component::param::model::ComponentParamWithTranslation;
+use crate::models::component::spec::model::ComponentSpecWithTranslation;
 use crate::models::component::component_modification::model::ComponentModificationAndRelatedData;
 // use crate::models::component::component_modification::model::ComponentModification;
 use crate::models::relate_ref::license::model::License;
@@ -85,6 +86,7 @@ pub struct ComponentAndRelatedData {
     pub license: Vec<License>,
     pub param_component: Vec<ComponentParamWithTranslation>,
     pub file: Vec<ShowFile>,
+    pub spec_component: Vec<ComponentSpecWithTranslation>,
     pub component_modification: Vec<ComponentModificationAndRelatedData>,
 }
 

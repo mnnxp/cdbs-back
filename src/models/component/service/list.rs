@@ -32,15 +32,14 @@ pub(crate) fn find_uuid_component(
 ) -> ServiceResult<ComponentAndRelatedData> {
     use crate::models::component::actual_status::model::ActualStatusTranslateList;
     use crate::models::component::component_type::model::ComponentTypeTranslateList;
+    use crate::models::component::param::model::{ParamComponent, ComponentParamWithTranslation};
     use crate::models::relate_ref::param::model::ParamTranslateList;
-    use crate::models::component::param::model::{
-        ParamComponent,
-        ComponentParamWithTranslation,
-    };
     use crate::models::component::license::model::LicenseComponent;
     use crate::models::relate_ref::license::model::License;
     use crate::models::component::file::model::FileComponent;
     use crate::models::relate_ref::file::model::ShowFile;
+    use crate::models::component::spec::model::{SpecComponent, ComponentSpecWithTranslation};
+    use crate::models::relate_ref::spec::model::SpecTranslateList;
     use crate::models::component::component_modification::model::{
         ComponentModification,
         ComponentModificationWithActualStatus,
@@ -53,6 +52,7 @@ pub(crate) fn find_uuid_component(
     use crate::schema::param_translate_list::dsl as param_translate_list;
     use crate::schema::component_type_translate_list::dsl as component_type_translate_list;
     use crate::schema::actual_status_translate_list::dsl as actual_status_translate_list;
+    use crate::schema::spec_translate_list::dsl as spec_translate_list;
     use crate::schema::license_ref::dsl as license_ref;
     use crate::schema::file_ref::dsl as file_ref;
     let conn: &PooledConnection = &get_conn(context)?;
@@ -119,7 +119,7 @@ pub(crate) fn find_uuid_component(
         .iter()
         .map(|x| x.uuid_file)
         .collect::<Vec<Uuid>>();
-    let file = file_ref::file_ref
+    let component_file = file_ref::file_ref
         .filter(file_ref::uuid.eq_any(file_uuid))
         .select((
             file_ref::uuid,
@@ -136,6 +136,28 @@ pub(crate) fn find_uuid_component(
         .load::<ShowFile>(conn)
         .expect("Error loading files");
 
+    let spec_component: Vec<SpecComponent> = SpecComponent::belonging_to(&component)
+        .load::<SpecComponent>(conn)
+        .expect("Error loading spec_component");
+    let id_spec_list: Vec<i32> = spec_component
+        .iter()
+        .map(|x| x.id_spec)
+        .collect::<Vec<i32>>();
+    let spec_translate_list: Vec<SpecTranslateList> = spec_translate_list::spec_translate_list
+        .filter(spec_translate_list::id_spec.eq_any(id_spec_list)
+        .and(spec_translate_list::id_lang.eq(set_id_lang)))
+        .load::<SpecTranslateList>(conn)
+        .expect("Error loading spec_translate_list");
+
+    let mut spec_component_with_translate: Vec<ComponentSpecWithTranslation> = Vec::new();
+    for x in spec_component.iter() {
+        for y in spec_translate_list.iter() {
+            if x.id_spec == y.id_spec {
+                let res: ComponentSpecWithTranslation = (x.to_owned(),y.clone()).into();
+                spec_component_with_translate.push(res)
+            }
+        }
+    }
 
     // collect data for modifications the component
     let component_modification: Vec<ComponentModification> = ComponentModification::belonging_to(&component)
@@ -234,7 +256,8 @@ pub(crate) fn find_uuid_component(
         updated_at: (component.updated_at),
         param_component: (param_component_with_translate),
         license: (license),
-        file: (file),
+        file: (component_file),
+        spec_component: (spec_component_with_translate),
         component_modification: (component_modification_with_relate),
     };
 

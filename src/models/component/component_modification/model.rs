@@ -54,10 +54,7 @@ impl ComponentModification {
     }
 }
 
-#[derive(Identifiable, Deserialize, Queryable, Associations, SimpleObject, Description, Debug)]
-#[primary_key(uuid)]
-#[belongs_to(Component, foreign_key = "uuid_component")]
-#[table_name = "component_modification_list"]
+#[derive(Deserialize, SimpleObject, Description, Debug)]
 pub struct ComponentModificationAndRelatedData {
     pub uuid: Uuid,
     pub uuid_component: Uuid,

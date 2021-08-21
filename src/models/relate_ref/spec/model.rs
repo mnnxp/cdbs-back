@@ -27,7 +27,7 @@ pub struct InsertableSpec {
 }
 
 // Spec translations
-#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, Debug)]
+#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, Clone, Debug)]
 #[primary_key(id_spec, id_lang)]
 #[belongs_to(Spec, foreign_key = "id_spec")]
 #[belongs_to(Language, foreign_key = "id_lang")]

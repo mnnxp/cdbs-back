@@ -1,5 +1,5 @@
 use crate::schema::*;
-use crate::models::relate_ref::spec::model::Spec;
+use crate::models::relate_ref::spec::model::{Spec, SpecTranslateList};
 use crate::models::component::model::Component;
 use async_graphql::types::ID;
 use async_graphql::*;
@@ -7,7 +7,7 @@ use async_graphql::*;
 use uuid::Uuid;
 
 // Spec component models
-#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, Debug)]
+#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, Clone, Debug)]
 #[primary_key(uuid_component, id_spec)]
 #[belongs_to(Component, foreign_key = "uuid_component")]
 #[belongs_to(Spec, foreign_key = "id_spec")]
@@ -24,6 +24,21 @@ impl SpecComponent {
     }
     async fn uuid_component(&self) -> ID {
         self.uuid_component.into()
+    }
+}
+
+#[derive(Deserialize, SimpleObject, Description, Clone, Debug)]
+pub struct ComponentSpecWithTranslation {
+    pub spec: SpecTranslateList,
+    pub uuid_component: Uuid,
+}
+
+impl From<(SpecComponent, SpecTranslateList)> for ComponentSpecWithTranslation {
+    fn from(data: (SpecComponent, SpecTranslateList)) -> Self {
+        Self {
+            spec: data.1,
+            uuid_component: data.0.uuid_component,
+        }
     }
 }
 
