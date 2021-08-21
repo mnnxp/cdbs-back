@@ -75,6 +75,78 @@ const idComponentType = 2;
 const idActualStatusComponent = 1;
 const isStandardComponent = true;
 const isStandardComponent0 = false;
+const componentFullDataQuery = ` \
+uuid \
+uuidComponentParent \
+name \
+description \
+slimUser { \
+  uuid \
+  idProgram \
+  username
+} \
+idTypeAccess \
+componentType { \
+  idComponentType \
+  idLang \
+  componentType \
+} \
+actualStatus { \
+  idActualStatus \
+  idLang \
+  name \
+} \
+isStandard \
+updatedAt \
+license { \
+  id \
+  name \
+  publicationAt \
+} \
+paramComponent { \
+  uuidComponent \
+  param { \
+    idParam \
+    idLang \
+    paramname \
+  } \
+  value \
+} \
+file { \
+  uuid \
+  uuidFileParent \
+  uuidUser \
+  filename \
+  contentType \
+  idExt \
+  filesize \
+  pathFile \
+  createdAt \
+  updatedAt \
+} \
+componentModification {  \
+  uuid \
+  uuidComponent \
+  uuidModificationParent \
+  modificationName \
+  description \
+  actualStatus { \
+    idActualStatus \
+    idLang \
+    name \
+  } \
+  updatedAt \
+  paramModification { \
+    uuidModification \
+    param { \
+      idParam \
+      idLang \
+      paramname \
+    } \
+    value \
+  } \
+} \
+`;
 var uuidComponentNoStandard = "";
 var uuidComponentStandard = "";
 
@@ -538,6 +610,26 @@ describe('component', () => {
     expect(body.errors[0].path[0]).toBe('registerComponent');
   });
 
+  it('/graphql:Q Get full data Component - BadRequest no token', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .send({
+        query: `query componentQuery{
+          component(uuidComponent: "${uuidComponentParent}") {
+            ${componentFullDataQuery}
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Token not found.'
+    );
+    expect(body.errors[0].path[0]).toBe('component');
+    done();
+  });
+
   it('/graphql:Q List Component - BadRequest no token', async (done) => {
     const { body } = await agent
       .post('/graphql')
@@ -661,6 +753,35 @@ describe('component', () => {
       .expect(HttpStatus.OK)
     debug('/graphql filter components=%o', body.data.components);
     expect(body.data.components).toBeNonEmptyArray();
+    done();
+  });
+
+  it('/graphql:Q Get full data Component - OK with uuidComponent', async (done) => {
+    const response1 = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+          query: `query componentQuery{
+            component(uuidComponent: "${uuidComponentParent}") {
+              ${componentFullDataQuery}
+            }
+          }`,
+        })
+      .expect(HttpStatus.OK)
+    debug('/graphql filter component=%o', response1.body.data.component);
+    expect(response1.body.data.component.uuid).toBe(uuidComponentParent);
+    expect(response1.body.data.component.slimUser.uuid).toBeNonEmptyString();
+    expect(response1.body.data.component.componentType.componentType).toBeNonEmptyString();
+    expect(response1.body.data.component.actualStatus.name).toBeNonEmptyString();
+    expect(response1.body.data.component.license[0].name).toBeNonEmptyString();
+    expect(response1.body.data.component.paramComponent).toBeNonEmptyArray();
+    expect(response1.body.data.component.componentModification[0].uuid).toBeNonEmptyString();
+    expect(response1.body.data.component.componentModification[0].uuidComponent).toBe(uuidComponentParent);
+    expect(response1.body.data.component.componentModification[0].actualStatus.name).toBeNonEmptyString();
+    expect(response1.body.data.component.componentModification[0].paramModification).toBeNonEmptyArray();
     done();
   });
 
