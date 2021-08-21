@@ -124,6 +124,14 @@ file { \
   createdAt \
   updatedAt \
 } \
+specComponent { \
+  spec { \
+    idSpec \
+    idLang \
+    spec \
+  } \
+  uuidComponent \
+} \
 componentModification {  \
   uuid \
   uuidComponent \
@@ -778,6 +786,8 @@ describe('component', () => {
     expect(response1.body.data.component.actualStatus.name).toBeNonEmptyString();
     expect(response1.body.data.component.license[0].name).toBeNonEmptyString();
     expect(response1.body.data.component.paramComponent).toBeNonEmptyArray();
+    expect(response1.body.data.component.file).toBeNonEmptyArray();
+    expect(response1.body.data.component.specComponent).toBeNonEmptyArray();
     expect(response1.body.data.component.componentModification[0].uuid).toBeNonEmptyString();
     expect(response1.body.data.component.componentModification[0].uuidComponent).toBe(uuidComponentParent);
     expect(response1.body.data.component.componentModification[0].actualStatus.name).toBeNonEmptyString();
