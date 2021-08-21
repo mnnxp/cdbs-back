@@ -16,6 +16,8 @@ use crate::models::component::spec::model::{SpecComponent, IptSpecComponentData}
 use crate::models::component::spec as component_spec;
 use crate::models::component::keyword::model::{KeywordComponent, IptKeywordComponentData};
 use crate::models::component::keyword as component_keyword;
+use crate::models::component::supplier::model::{SupplierComponent, IptSupplierComponentData};
+use crate::models::component::supplier as component_supplier;
 use crate::models::standard::model::{SlimStandard, IptStandardData, StandardData};
 use crate::models::relate_ref::license::model::{License, LicenseData};
 use crate::models::relate_ref::license as license;
@@ -349,6 +351,19 @@ impl MutationRoot {
         crate::models::user::check_authorized(context)?;
 
         Ok(add_component_keyword(data, conn)?)
+    }
+
+    async fn register_supplier_component(
+        &self,
+        context: &Context<'_>,
+        data: IptSupplierComponentData,
+    ) -> ServiceResult<SupplierComponent> {
+        use component_supplier::service::add::add_component_supplier;
+        let conn: &PooledConnection = &get_conn(context)?;
+
+        crate::models::user::check_authorized(context)?;
+
+        Ok(add_component_supplier(data, conn)?)
     }
 
     // Upload images for profile picture

@@ -5,5 +5,6 @@ pub(crate) mod keyword;
 pub(crate) mod license;
 pub(crate) mod param;
 pub(crate) mod spec;
+pub(crate) mod supplier;
 
 // use actual_status::*;

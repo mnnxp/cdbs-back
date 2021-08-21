@@ -11,3 +11,4 @@ pub(crate) use relate::keyword;
 pub(crate) use relate::license;
 pub(crate) use relate::param;
 pub(crate) use relate::spec;
+pub(crate) use relate::supplier;

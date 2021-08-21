@@ -37,6 +37,8 @@ pub(crate) fn find_uuid_component(
     use crate::models::component::file::model::FileComponent;
     use crate::models::component::keyword::model::KeywordComponent;
     use crate::models::component::spec::model::{SpecComponent, ComponentSpecWithTranslation};
+    use crate::models::component::supplier::model::{SupplierComponent, ComponentSupplierRelatedData};
+    use crate::models::company::model::SlimCompany;
     use crate::models::component::component_modification::model::{
         ComponentModification,
         ComponentModificationWithActualStatus,
@@ -57,6 +59,7 @@ pub(crate) fn find_uuid_component(
     use crate::schema::spec_translate_list::dsl as spec_translate_list;
     use crate::schema::license_ref::dsl as license_ref;
     use crate::schema::keyword_ref::dsl as keyword_ref;
+    use crate::schema::company_ref::dsl as company_ref;
     use crate::schema::file_ref::dsl as file_ref;
     let conn: &PooledConnection = &get_conn(context)?;
 
@@ -260,6 +263,36 @@ pub(crate) fn find_uuid_component(
 
     // debug!("Component component_modification_with_relate: {:#?}", component_modification_with_relate);
 
+    // collect data for supplier component
+    let supplier_component: Vec<SupplierComponent> = SupplierComponent::belonging_to(&component)
+        .load::<SupplierComponent>(conn)
+        .expect("Error loading supplier_component");
+
+    let uuid_supplier_list: Vec<Uuid> = supplier_component
+        .iter()
+        .map(|x| x.uuid_company)
+        .collect::<Vec<Uuid>>();
+
+    let slim_company_supplier: Vec<SlimCompany> = company_ref::company_ref
+        .filter(company_ref::uuid.eq_any(uuid_supplier_list))
+        .select((
+            company_ref::uuid,
+            company_ref::shortname,
+            company_ref::is_supplier,
+        ))
+        .load::<SlimCompany>(conn)
+        .expect("Error loading supplier_component");
+
+    let mut supplier_component_with_relate: Vec<ComponentSupplierRelatedData> = Vec::new();
+    for x in supplier_component.iter() {
+        for y in slim_company_supplier.iter() {
+            if x.uuid_company == y.uuid {
+                let res: ComponentSupplierRelatedData = (x.clone(),y.clone()).into();
+                supplier_component_with_relate.push(res)
+            }
+        }
+    }
+
     let result = ComponentAndRelatedData {
         uuid: (component.uuid),
         uuid_component_parent: (component.uuid_component_parent),
@@ -277,6 +310,7 @@ pub(crate) fn find_uuid_component(
         spec_component: (spec_component_with_translate),
         keyword_component: (keyword_component),
         component_modification: (component_modification_with_relate),
+        supplier_component: (supplier_component_with_relate),
     };
 
     debug!("Component data: {:#?}", result);

@@ -255,7 +255,7 @@ impl CompanyData {
 }
 
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Queryable, Clone)]
 pub struct SlimCompany {
     pub uuid: Uuid,
     pub shortname: String,

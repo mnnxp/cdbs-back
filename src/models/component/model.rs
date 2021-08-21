@@ -4,6 +4,7 @@ use crate::models::component::component_type::model::ComponentTypeTranslateList;
 use crate::models::component::actual_status::model::ActualStatusTranslateList;
 use crate::models::component::param::model::ComponentParamWithTranslation;
 use crate::models::component::spec::model::ComponentSpecWithTranslation;
+use crate::models::component::supplier::model::ComponentSupplierRelatedData;
 use crate::models::component::component_modification::model::ComponentModificationAndRelatedData;
 // use crate::models::component::component_modification::model::ComponentModification;
 use crate::models::relate_ref::license::model::License;
@@ -90,6 +91,7 @@ pub struct ComponentAndRelatedData {
     pub spec_component: Vec<ComponentSpecWithTranslation>,
     pub keyword_component: Vec<Keyword>,
     pub component_modification: Vec<ComponentModificationAndRelatedData>,
+    pub supplier_component: Vec<ComponentSupplierRelatedData>,
 }
 
 #[derive(Debug, Insertable)]
