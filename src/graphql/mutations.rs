@@ -1,24 +1,28 @@
 use crate::errors::ServiceResult;
 use crate::database::{get_conn, PooledConnection};
-use crate::models::user::model::{SlimUser, IptUserData};
-use crate::models::user::notification::model::{Notification, NotificationData, SlimNotification};
 use crate::models::company::company_represent::model::{IptCompanyRepresentData, SlimCompanyRepresent};
 use crate::models::company::model::{SlimCompany, CompanyData, IptCompanyData,};
+use crate::models::user::model::{SlimUser, IptUserData};
+use crate::models::user::notification::model::{Notification, NotificationData, SlimNotification};
 use crate::models::component::component_modification::model::{SlimComponentModification, IptComponentModificationData};
-use crate::models::relate_ref::license::model::{License, LicenseData};
-use crate::models::relate_ref::license as license;
 use crate::models::component::license::model::{LicenseComponent, IptLicenseComponentData};
 use crate::models::component::model::{SlimComponent, ComponentData, IptComponentData};
-use crate::models::relate_ref::param::model::{ParamTranslateList, IptParamTranslateListData};
-use crate::models::relate_ref::param as param;
 use crate::models::component::param::model::{ParamComponent, IptParamComponentData};
 use crate::models::component::param as component_param;
 use crate::models::component::component_modification::param::model::{ParamModification, IptParamModificationData};
 use crate::models::component::component_modification::param as component_modification_param;
 use crate::models::component as component;
-use crate::models::standard::model::{SlimStandard, IptStandardData, StandardData};
 use crate::models::component::spec::model::{SpecComponent, IptSpecComponentData};
 use crate::models::component::spec as component_spec;
+use crate::models::component::keyword::model::{KeywordComponent, IptKeywordComponentData};
+use crate::models::component::keyword as component_keyword;
+use crate::models::standard::model::{SlimStandard, IptStandardData, StandardData};
+use crate::models::relate_ref::license::model::{License, LicenseData};
+use crate::models::relate_ref::license as license;
+use crate::models::relate_ref::param::model::{ParamTranslateList, IptParamTranslateListData};
+use crate::models::relate_ref::param as param;
+use crate::models::relate_ref::keyword::model::{Keyword, IptKeywordData};
+use crate::models::relate_ref::keyword as keyword;
 // use crate::models::relate_ref::file::model::{ShowFile, SlimFile};
 use async_graphql::Context;
 // use async_graphql::{
@@ -319,6 +323,32 @@ impl MutationRoot {
         crate::models::user::check_authorized(context)?;
 
         Ok(add_component_spec(data, conn)?)
+    }
+
+    async fn register_keyword(
+        &self,
+        context: &Context<'_>,
+        data: IptKeywordData,
+    ) -> ServiceResult<Keyword> {
+        use keyword::service::register::create_keyword;
+        let conn: &PooledConnection = &get_conn(context)?;
+
+        crate::models::user::check_authorized(context)?;
+
+        Ok(create_keyword(data, conn)?)
+    }
+
+    async fn register_keyword_component(
+        &self,
+        context: &Context<'_>,
+        data: IptKeywordComponentData,
+    ) -> ServiceResult<KeywordComponent> {
+        use component_keyword::service::add::add_component_keyword;
+        let conn: &PooledConnection = &get_conn(context)?;
+
+        crate::models::user::check_authorized(context)?;
+
+        Ok(add_component_keyword(data, conn)?)
     }
 
     // Upload images for profile picture
