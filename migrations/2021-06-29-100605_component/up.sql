@@ -40,18 +40,11 @@ CREATE TABLE component_type_translate_list (
   CONSTRAINT component_type_translate_list_pk PRIMARY KEY (id_component_type, id_lang)
 );
 
-/* ключевые слова компонента (тегирование) */
-CREATE TABLE component_keyword_ref (
-  id SERIAL UNIQUE, /* id тега */
-  keyword VARCHAR(10) NOT NULL UNIQUE, /* ключевое слово */
-  CONSTRAINT component_keyword_ref_pk PRIMARY KEY (id)
-);
-
 /* ключевые слова связанные с компонентом (тегирование) */
 CREATE TABLE component_to_keyword (
   uuid_component UUID NOT NULL, /* идентификатор компонента */
-  id_component_keyword INTEGER NOT NULL, /* идентификатор ключевого слова (тега) */
-  CONSTRAINT component_to_keyword_pk PRIMARY KEY (uuid_component, id_component_keyword)
+  id_keyword INTEGER NOT NULL, /* идентификатор ключевого слова (тега) */
+  CONSTRAINT component_to_keyword_pk PRIMARY KEY (uuid_component, id_keyword)
 );
 
 /* параметр компонента */

@@ -2,7 +2,7 @@
 DROP TABLE component_ref;
 DROP TABLE component_history_list;
 -- DROP TABLE component_type_ref;
--- DROP TABLE component_keyword_ref;
+-- DROP TABLE keyword_ref;
 DROP TABLE component_to_keyword;
 DROP TABLE param_to_component;
 DROP TABLE supplier_to_component;

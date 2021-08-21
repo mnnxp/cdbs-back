@@ -58,3 +58,10 @@ CREATE TABLE spec_to_standard (
   uuid_standard UUID NOT NULL, /* идентификатор стандарта */
   CONSTRAINT spec_to_standard_pk PRIMARY KEY (id_spec, uuid_standard)
 );
+
+/* ключевые слова связанные со стандартом (тегирование) */
+CREATE TABLE standard_to_keyword (
+  uuid_standard UUID NOT NULL, /* идентификатор стандарта */
+  id_keyword INTEGER NOT NULL, /* идентификатор ключевого слова (тега) */
+  CONSTRAINT standard_to_keyword_pk PRIMARY KEY (uuid_standard, id_keyword)
+);

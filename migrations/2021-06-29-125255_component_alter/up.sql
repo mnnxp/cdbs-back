@@ -12,7 +12,7 @@ ALTER TABLE component_type_translate_list ADD CONSTRAINT component_type_translat
 ALTER TABLE component_type_translate_list ADD CONSTRAINT component_type_translate_list_fk1 FOREIGN KEY (id_lang) REFERENCES language_ref(id);
 
 ALTER TABLE component_to_keyword ADD CONSTRAINT component_to_keyword_fk0 FOREIGN KEY (uuid_component) REFERENCES component_ref(uuid) ON DELETE CASCADE;
-ALTER TABLE component_to_keyword ADD CONSTRAINT component_to_keyword_fk1 FOREIGN KEY (id_component_keyword) REFERENCES component_keyword_ref(id) ON DELETE CASCADE;
+ALTER TABLE component_to_keyword ADD CONSTRAINT component_to_keyword_fk1 FOREIGN KEY (id_keyword) REFERENCES keyword_ref(id) ON DELETE CASCADE;
 
 ALTER TABLE param_to_component ADD CONSTRAINT param_to_component_fk0 FOREIGN KEY (uuid_component) REFERENCES component_ref(uuid) ON DELETE CASCADE;
 ALTER TABLE param_to_component ADD CONSTRAINT param_to_component_fk1 FOREIGN KEY (id_param) REFERENCES param_ref(id) ON DELETE CASCADE;

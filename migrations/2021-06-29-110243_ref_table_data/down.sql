@@ -15,3 +15,4 @@ DROP TABLE type_of_change_ref;
 DROP TABLE type_of_change_translate_list;
 DROP TABLE spec_ref;
 DROP TABLE spec_translate_list;
+DROP TABLE keyword_ref;

@@ -122,3 +122,10 @@ CREATE TABLE spec_translate_list (
   UNIQUE(id_spec, id_lang, spec),
   CONSTRAINT spec_translate_list_pk PRIMARY KEY (id_spec, id_lang)
 );
+
+/* ключевые слова (тегирование) */
+CREATE TABLE keyword_ref (
+  id SERIAL UNIQUE, /* id тега */
+  keyword VARCHAR(10) NOT NULL UNIQUE, /* ключевое слово */
+  CONSTRAINT keyword_ref_pk PRIMARY KEY (id)
+);

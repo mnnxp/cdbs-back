@@ -26,3 +26,6 @@ INSERT INTO file_to_standard (uuid_file, uuid_standard) VALUES
 
 INSERT INTO spec_to_standard (id_spec, uuid_standard) VALUES
   (1, '303ec2aa-2066-42e3-93fb-de4fb9344bcb');
+
+INSERT INTO standard_to_keyword (uuid_standard, id_keyword) VALUES
+  ('303ec2aa-2066-42e3-93fb-de4fb9344bcb', 8);

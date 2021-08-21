@@ -238,3 +238,14 @@ INSERT INTO spec_ref (id, id_spec_parent) VALUES
 INSERT INTO spec_translate_list (id_spec, id_lang, spec) VALUES
   (1, 1, 'ROOT'),
   (1, 2, 'КОРЕНЬ');
+
+
+INSERT INTO keyword_ref (keyword) VALUES
+  ('tools'),
+  ('bolt'),
+  ('screw'),
+  ('automotive'),
+  ('autodesk'),
+  ('fusion'),
+  ('tech'),
+  ('iso');
