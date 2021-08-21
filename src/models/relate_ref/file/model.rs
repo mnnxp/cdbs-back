@@ -19,7 +19,7 @@ pub struct File {
     pub updated_at: NaiveDateTime,
 }
 
-#[derive(Identifiable, Deserialize, Queryable, Debug)]
+#[derive(Identifiable, Deserialize, Queryable, Clone, Debug)]
 #[primary_key(uuid)]
 #[table_name = "file_ref"]
 pub struct ShowFile {

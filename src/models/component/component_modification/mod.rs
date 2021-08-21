@@ -4,4 +4,4 @@ pub(crate) mod service;
 
 
 // pub(crate) use relate::file;
-pub(crate) use relate::param;
+pub(crate) use relate::*;

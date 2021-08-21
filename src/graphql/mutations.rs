@@ -11,6 +11,10 @@ use crate::models::component::param::model::{ParamComponent, IptParamComponentDa
 use crate::models::component::param as component_param;
 use crate::models::component::component_modification::param::model::{ParamModification, IptParamModificationData};
 use crate::models::component::component_modification::param as component_modification_param;
+use crate::models::component::component_modification::set_of_files_program::model::{SetOfFilesProgram, IptSetOfFilesProgramData};
+use crate::models::component::component_modification::set_of_files_program as component_modification_set_of_files_program;
+use crate::models::component::component_modification::file_to_set_modification::model::{FileToSetModification, IptFileToSetModificationData};
+use crate::models::component::component_modification::file_to_set_modification as component_modification_file_to_set_modification;
 use crate::models::component as component;
 use crate::models::component::spec::model::{SpecComponent, IptSpecComponentData};
 use crate::models::component::spec as component_spec;
@@ -19,10 +23,14 @@ use crate::models::component::keyword as component_keyword;
 use crate::models::component::supplier::model::{SupplierComponent, IptSupplierComponentData};
 use crate::models::component::supplier as component_supplier;
 use crate::models::standard::model::{SlimStandard, IptStandardData, StandardData};
+use crate::models::relate_ref::extension::model::{Extension, IptExtensionData};
+use crate::models::relate_ref::extension as extension;
 use crate::models::relate_ref::license::model::{License, LicenseData};
 use crate::models::relate_ref::license as license;
 use crate::models::relate_ref::param::model::{ParamTranslateList, IptParamTranslateListData};
 use crate::models::relate_ref::param as param;
+use crate::models::relate_ref::program::model::{Program, IptProgramData};
+use crate::models::relate_ref::program as program;
 use crate::models::relate_ref::keyword::model::{Keyword, IptKeywordData};
 use crate::models::relate_ref::keyword as keyword;
 // use crate::models::relate_ref::file::model::{ShowFile, SlimFile};
@@ -340,7 +348,7 @@ impl MutationRoot {
         Ok(create_keyword(data, conn)?)
     }
 
-    async fn register_keyword_component(
+    async fn add_keyword_component(
         &self,
         context: &Context<'_>,
         data: IptKeywordComponentData,
@@ -353,7 +361,7 @@ impl MutationRoot {
         Ok(add_component_keyword(data, conn)?)
     }
 
-    async fn register_supplier_component(
+    async fn add_supplier_component(
         &self,
         context: &Context<'_>,
         data: IptSupplierComponentData,
@@ -364,6 +372,58 @@ impl MutationRoot {
         crate::models::user::check_authorized(context)?;
 
         Ok(add_component_supplier(data, conn)?)
+    }
+
+    async fn register_extension(
+        &self,
+        context: &Context<'_>,
+        data: IptExtensionData,
+    ) -> ServiceResult<Extension> {
+        use extension::service::register::create_extension;
+        let conn: &PooledConnection = &get_conn(context)?;
+
+        crate::models::user::check_authorized(context)?;
+
+        Ok(create_extension(data, conn)?)
+    }
+
+    async fn register_program(
+        &self,
+        context: &Context<'_>,
+        data: IptProgramData,
+    ) -> ServiceResult<Program> {
+        use program::service::register::create_program;
+        let conn: &PooledConnection = &get_conn(context)?;
+
+        crate::models::user::check_authorized(context)?;
+
+        Ok(create_program(data, conn)?)
+    }
+
+    async fn register_set_files_modification(
+        &self,
+        context: &Context<'_>,
+        data: IptSetOfFilesProgramData,
+    ) -> ServiceResult<SetOfFilesProgram> {
+        use component_modification_set_of_files_program::service::add::create_set_file_modification;
+        let conn: &PooledConnection = &get_conn(context)?;
+
+        crate::models::user::check_authorized(context)?;
+
+        Ok(create_set_file_modification(data, conn)?)
+    }
+
+    async fn add_file_to_set_modification(
+        &self,
+        context: &Context<'_>,
+        data: IptFileToSetModificationData,
+    ) -> ServiceResult<FileToSetModification> {
+        use component_modification_file_to_set_modification::service::add::add_file_to_set_modification;
+        let conn: &PooledConnection = &get_conn(context)?;
+
+        crate::models::user::check_authorized(context)?;
+
+        Ok(add_file_to_set_modification(data, conn)?)
     }
 
     // Upload images for profile picture

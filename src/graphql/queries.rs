@@ -15,6 +15,10 @@ use crate::models::component::param::model::ParamComponent;
 use crate::models::component::param as component_param;
 use crate::models::component::component_modification::param::model::ParamModification;
 use crate::models::component::component_modification::param as component_modification_param;
+use crate::models::component::component_modification::set_of_files_program::model::SetOfFilesProgram;
+use crate::models::component::component_modification::set_of_files_program as component_modification_set_of_files_program;
+use crate::models::component::component_modification::file_to_set_modification::model::FileToSetModification;
+use crate::models::component::component_modification::file_to_set_modification as component_modification_file_to_set_modification;
 use crate::models::component::spec as component_spec;
 use crate::models::component::keyword as component_keyword;
 use crate::models::component::supplier::model::SupplierComponent;
@@ -28,6 +32,8 @@ use crate::models::user::service as user;
 use crate::models::standard::model::ShowStandard;
 use crate::models::standard as standard;
 // use crate::models::relate_ref::file::model::{ShowFile, FileData, SlimFile};
+use crate::models::relate_ref::extension::model::Extension;
+use crate::models::relate_ref::extension as extension;
 use crate::models::relate_ref::license::model::License;
 use crate::models::relate_ref::license as license;
 use crate::models::relate_ref::param::model::ParamTranslateList;
@@ -38,6 +44,8 @@ use crate::models::relate_ref::keyword::model::Keyword;
 use crate::models::relate_ref::keyword as keyword;
 use crate::models::relate_ref::language::model::Language;
 use crate::models::relate_ref::language as language;
+use crate::models::relate_ref::program::model::Program;
+use crate::models::relate_ref::program as program;
 use crate::models::relate_ref::spec::model::SpecTranslateList;
 use crate::models::relate_ref::spec as spec;
 use async_graphql::Context;
@@ -585,17 +593,93 @@ impl QueryRoot {
     async fn suppliers(
         &self,
         context: &Context<'_>,
-        uuid_component: Uuid,
+        uuid_component: String,
         limit: Option<i32>,
         offset: Option<i32>,
     ) -> ServiceResult<Vec<SupplierComponent>> {
         // authorization check
         crate::models::user::util::check_authorized(context)?;
 
-        let uuid_component: Uuid = Uuid::parse_str(&uuid_component.to_string()).expect("Bad Uuid.");
+        let uuid_component: Uuid = Uuid::parse_str(&uuid_component.to_string()).unwrap_or_default();
         let limit: i32 = limit.unwrap_or(100);
         let offset: i32 = offset.unwrap_or(0);
 
         component_supplier::service::list::find_all_component_suppliers(context, uuid_component, limit, offset)
+    }
+
+    async fn extensions(
+        &self,
+        context: &Context<'_>,
+        id_extension: Option<Vec<i32>>,
+        limit: Option<i32>,
+        offset: Option<i32>,
+    ) -> ServiceResult<Vec<Extension>> {
+        // authorization check
+        crate::models::user::util::check_authorized(context)?;
+
+        let id_extension: Vec<i32> = id_extension.unwrap_or_default();
+        let limit: i32 = limit.unwrap_or(100);
+        let offset: i32 = offset.unwrap_or(0);
+
+        extension::service::list::get_extensions(context, id_extension, limit, offset)
+    }
+
+    async fn programs(
+        &self,
+        context: &Context<'_>,
+        id_program: Option<Vec<i32>>,
+        limit: Option<i32>,
+        offset: Option<i32>,
+    ) -> ServiceResult<Vec<Program>> {
+        // authorization check
+        crate::models::user::util::check_authorized(context)?;
+
+        let id_program: Vec<i32> = id_program.unwrap_or_default();
+        let limit: i32 = limit.unwrap_or(100);
+        let offset: i32 = offset.unwrap_or(0);
+
+        program::service::list::get_programs(context, id_program, limit, offset)
+    }
+
+    async fn set_of_files_program(
+        &self,
+        context: &Context<'_>,
+        uuid_modification: String,
+        id_program: Option<i32>,
+        // id_set: Option<i32>,
+        limit: Option<i32>,
+        offset: Option<i32>,
+    ) -> ServiceResult<Vec<SetOfFilesProgram>> {
+        use component_modification_set_of_files_program::service::list::get_set_files_modification;
+        // authorization check
+        crate::models::user::util::check_authorized(context)?;
+
+        let uuid_modification = Uuid::parse_str(&uuid_modification.to_string()).unwrap_or_default();
+        let id_program: i32 = id_program.unwrap_or(0);
+        // let id_set: i32 = id_set.unwrap_or_(0);
+        let limit: i32 = limit.unwrap_or(100);
+        let offset: i32 = offset.unwrap_or(0);
+
+        get_set_files_modification(context, uuid_modification, id_program, limit, offset)
+    }
+
+    async fn files_set_modification(
+        &self,
+        context: &Context<'_>,
+        id_set: Option<i32>,
+        // id_set: Option<i32>,
+        limit: Option<i32>,
+        offset: Option<i32>,
+    ) -> ServiceResult<Vec<FileToSetModification>> {
+        use component_modification_file_to_set_modification::service::list::get_files_set_modification;
+        // authorization check
+        crate::models::user::util::check_authorized(context)?;
+
+        let id_set: i32 = id_set.unwrap_or(0);
+        // let id_set: i32 = id_set.unwrap_or_(0);
+        let limit: i32 = limit.unwrap_or(100);
+        let offset: i32 = offset.unwrap_or(0);
+
+        get_files_set_modification(context, id_set, limit, offset)
     }
 }
