@@ -7,6 +7,7 @@ use crate::models::component::spec::model::ComponentSpecWithTranslation;
 use crate::models::component::component_modification::model::ComponentModificationAndRelatedData;
 // use crate::models::component::component_modification::model::ComponentModification;
 use crate::models::relate_ref::license::model::License;
+use crate::models::relate_ref::keyword::model::Keyword;
 use crate::models::relate_ref::file::model::ShowFile;
 use async_graphql::types::ID;
 use async_graphql::*;
@@ -87,6 +88,7 @@ pub struct ComponentAndRelatedData {
     pub param_component: Vec<ComponentParamWithTranslation>,
     pub file: Vec<ShowFile>,
     pub spec_component: Vec<ComponentSpecWithTranslation>,
+    pub keyword_component: Vec<Keyword>,
     pub component_modification: Vec<ComponentModificationAndRelatedData>,
 }
 

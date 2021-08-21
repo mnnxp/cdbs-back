@@ -33,13 +33,10 @@ pub(crate) fn find_uuid_component(
     use crate::models::component::actual_status::model::ActualStatusTranslateList;
     use crate::models::component::component_type::model::ComponentTypeTranslateList;
     use crate::models::component::param::model::{ParamComponent, ComponentParamWithTranslation};
-    use crate::models::relate_ref::param::model::ParamTranslateList;
     use crate::models::component::license::model::LicenseComponent;
-    use crate::models::relate_ref::license::model::License;
     use crate::models::component::file::model::FileComponent;
-    use crate::models::relate_ref::file::model::ShowFile;
+    use crate::models::component::keyword::model::KeywordComponent;
     use crate::models::component::spec::model::{SpecComponent, ComponentSpecWithTranslation};
-    use crate::models::relate_ref::spec::model::SpecTranslateList;
     use crate::models::component::component_modification::model::{
         ComponentModification,
         ComponentModificationWithActualStatus,
@@ -48,12 +45,18 @@ pub(crate) fn find_uuid_component(
     use crate::models::component::component_modification::param::model::{
         ParamModification, ParamModificationRelate
     };
+    use crate::models::relate_ref::param::model::ParamTranslateList;
+    use crate::models::relate_ref::license::model::License;
+    use crate::models::relate_ref::keyword::model::Keyword;
+    use crate::models::relate_ref::file::model::ShowFile;
+    use crate::models::relate_ref::spec::model::SpecTranslateList;
     use crate::schema::component_ref::dsl as component_ref;
     use crate::schema::param_translate_list::dsl as param_translate_list;
     use crate::schema::component_type_translate_list::dsl as component_type_translate_list;
     use crate::schema::actual_status_translate_list::dsl as actual_status_translate_list;
     use crate::schema::spec_translate_list::dsl as spec_translate_list;
     use crate::schema::license_ref::dsl as license_ref;
+    use crate::schema::keyword_ref::dsl as keyword_ref;
     use crate::schema::file_ref::dsl as file_ref;
     let conn: &PooledConnection = &get_conn(context)?;
 
@@ -159,6 +162,20 @@ pub(crate) fn find_uuid_component(
         }
     }
 
+    let keyword_component: Vec<KeywordComponent> = KeywordComponent::belonging_to(&component)
+        .load::<KeywordComponent>(conn)
+        .expect("Error loading keyword_component");
+
+    let id_keyword_list: Vec<i32> = keyword_component
+        .iter()
+        .map(|x| x.id_keyword)
+        .collect::<Vec<i32>>();
+
+    let keyword_component: Vec<Keyword> = keyword_ref::keyword_ref
+        .filter(keyword_ref::id.eq_any(id_keyword_list))
+        .load::<Keyword>(conn)
+        .expect("Error loading spec_translate_list");
+
     // collect data for modifications the component
     let component_modification: Vec<ComponentModification> = ComponentModification::belonging_to(&component)
         .load::<ComponentModification>(conn)
@@ -258,6 +275,7 @@ pub(crate) fn find_uuid_component(
         license: (license),
         file: (component_file),
         spec_component: (spec_component_with_translate),
+        keyword_component: (keyword_component),
         component_modification: (component_modification_with_relate),
     };
 
