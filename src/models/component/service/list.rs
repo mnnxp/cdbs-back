@@ -91,10 +91,12 @@ pub(crate) fn find_uuid_component(
     let param_component: Vec<ParamComponent> = ParamComponent::belonging_to(&component)
         .load::<ParamComponent>(conn)
         .expect("Error loading param_component");
-    let id_param_list: Vec<i32> = param_component
-        .iter()
-        .map(|x| x.id_param)
-        .collect::<Vec<i32>>();
+
+    let mut id_param_list: Vec<i32> = Vec::new();
+    for param in param_component.iter() {
+        id_param_list.push(param.id_param);
+    }
+
     let param_translate_list: Vec<ParamTranslateList> = param_translate_list::param_translate_list
         .filter(param_translate_list::id_param.eq_any(id_param_list)
         .and(param_translate_list::id_lang.eq(set_id_lang)))
@@ -114,10 +116,12 @@ pub(crate) fn find_uuid_component(
     let license_component = LicenseComponent::belonging_to(&component)
         .load::<LicenseComponent>(conn)
         .expect("Error loading license to component");
-    let license_id: Vec<i32> = license_component
-        .iter()
-        .map(|x| x.id_license)
-        .collect::<Vec<i32>>();
+
+    let mut license_id: Vec<i32> = Vec::new();
+    for license in license_component.iter() {
+        license_id.push(license.id_license);
+    }
+
     let license = license_ref::license_ref
         .filter(license_ref::id.eq_any(license_id))
         .load::<License>(conn)
@@ -126,10 +130,12 @@ pub(crate) fn find_uuid_component(
     let file_component = FileComponent::belonging_to(&component)
         .load::<FileComponent>(conn)
         .expect("Error loading file to component");
-    let file_uuid: Vec<Uuid> = file_component
-        .iter()
-        .map(|x| x.uuid_file)
-        .collect::<Vec<Uuid>>();
+
+    let mut file_uuid: Vec<Uuid> = Vec::new();
+    for file in file_component.iter() {
+        file_uuid.push(file.uuid_file);
+    }
+
     let component_file = file_ref::file_ref
         .filter(file_ref::uuid.eq_any(file_uuid))
         .select((
@@ -150,10 +156,12 @@ pub(crate) fn find_uuid_component(
     let spec_component: Vec<SpecComponent> = SpecComponent::belonging_to(&component)
         .load::<SpecComponent>(conn)
         .expect("Error loading spec_component");
-    let id_spec_list: Vec<i32> = spec_component
-        .iter()
-        .map(|x| x.id_spec)
-        .collect::<Vec<i32>>();
+
+    let mut id_spec_list: Vec<i32> = Vec::new();
+    for spec in spec_component.iter() {
+        id_spec_list.push(spec.id_spec);
+    }
+
     let spec_translate_list: Vec<SpecTranslateList> = spec_translate_list::spec_translate_list
         .filter(spec_translate_list::id_spec.eq_any(id_spec_list)
         .and(spec_translate_list::id_lang.eq(set_id_lang)))
@@ -174,10 +182,10 @@ pub(crate) fn find_uuid_component(
         .load::<KeywordComponent>(conn)
         .expect("Error loading keyword_component");
 
-    let id_keyword_list: Vec<i32> = keyword_component
-        .iter()
-        .map(|x| x.id_keyword)
-        .collect::<Vec<i32>>();
+    let mut id_keyword_list: Vec<i32> = Vec::new();
+    for keyword in keyword_component.iter() {
+        id_keyword_list.push(keyword.id_keyword);
+    }
 
     let keyword_component: Vec<Keyword> = keyword_ref::keyword_ref
         .filter(keyword_ref::id.eq_any(id_keyword_list))
@@ -191,13 +199,13 @@ pub(crate) fn find_uuid_component(
 
     // debug!("Component modification component_modification: {:#?}", component_modification);
 
-    let id_component_modification: Vec<i32> = component_modification
-        .iter()
-        .map(|x| x.id_actual_status)
-        .collect::<Vec<i32>>();
+    let mut id_status_modification: Vec<i32> = Vec::new();
+    for modification in component_modification.iter() {
+        id_status_modification.push(modification.id_actual_status);
+    }
 
     let actual_status_modification: Vec<ActualStatusTranslateList> = actual_status_translate_list::actual_status_translate_list
-        .filter(actual_status_translate_list::id_actual_status.eq_any(id_component_modification)
+        .filter(actual_status_translate_list::id_actual_status.eq_any(id_status_modification)
         .and(actual_status_translate_list::id_lang.eq(set_id_lang)))
         .load::<ActualStatusTranslateList>(conn)
         .expect("Error loading actual_status_ref");
@@ -320,10 +328,10 @@ pub(crate) fn find_uuid_component(
         .load::<SupplierComponent>(conn)
         .expect("Error loading supplier_component");
 
-    let uuid_supplier_list: Vec<Uuid> = supplier_component
-        .iter()
-        .map(|x| x.uuid_company)
-        .collect::<Vec<Uuid>>();
+    let mut uuid_supplier_list: Vec<Uuid> = Vec::new();
+    for supplier in supplier_component.iter() {
+        uuid_supplier_list.push(supplier.uuid_company);
+    }
 
     let slim_company_supplier: Vec<SlimCompany> = company_ref::company_ref
         .filter(company_ref::uuid.eq_any(uuid_supplier_list))
