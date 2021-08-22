@@ -47,6 +47,10 @@ pub(crate) fn find_uuid_component(
     use crate::models::component::component_modification::param::model::{
         ParamModification, ParamModificationRelate
     };
+    use crate::models::component::component_modification::set_of_files_program::model::{
+        SetOfFilesProgram, SetOfFilesProgramRelatedData
+    };
+    use crate::models::relate_ref::program::model::Program;
     use crate::models::relate_ref::param::model::ParamTranslateList;
     use crate::models::relate_ref::license::model::License;
     use crate::models::relate_ref::keyword::model::Keyword;
@@ -60,6 +64,7 @@ pub(crate) fn find_uuid_component(
     use crate::schema::license_ref::dsl as license_ref;
     use crate::schema::keyword_ref::dsl as keyword_ref;
     use crate::schema::company_ref::dsl as company_ref;
+    use crate::schema::program_ref::dsl as program_ref;
     use crate::schema::file_ref::dsl as file_ref;
     let conn: &PooledConnection = &get_conn(context)?;
 
@@ -247,18 +252,65 @@ pub(crate) fn find_uuid_component(
 
     // debug!("Component modification param_component_modification_with_translate: {:#?}", param_component_modification_with_translate);
 
+    let set_files_program_for_modification: Vec<Vec<SetOfFilesProgram>> = SetOfFilesProgram::belonging_to(&component_modification)
+        .load::<SetOfFilesProgram>(conn)
+        .expect("Error loading set_files_program_for_modification")
+        .grouped_by(&component_modification);
+
+    // debug!("Component modification set_files_program_for_modification: {:#?}", set_files_program_for_modification);
+
+    let mut id_program_for_set: Vec<i32> = Vec::new();
+    for x in set_files_program_for_modification.iter() {
+        for y in x.iter() {
+            id_program_for_set.push(y.id_program);
+        }
+    }
+
+    let program_for_set_files: Vec<Program> = program_ref::program_ref
+        .filter(program_ref::id.eq_any(id_program_for_set))
+        .load::<Program>(conn)
+        .expect("Error loading program_ref");
+
+    let mut set_files_program_with_relate: Vec<Vec<SetOfFilesProgramRelatedData>> = Vec::new();
+    for w in set_files_program_for_modification.iter() {
+        for x in w.iter() {
+            let mut vec_values: Vec<SetOfFilesProgramRelatedData> = Vec::new();
+            for y in program_for_set_files.iter() {
+                if x.id_program == y.id {
+                    let res: SetOfFilesProgramRelatedData = (x.to_owned(),y.clone()).into();
+                    vec_values.push(res)
+                }
+            }
+            set_files_program_with_relate.push(vec_values)
+        }
+    }
+
+    // debug!("Component modification set_files_program_component_modification: {:#?}", set_files_program_component_modification);
+
     let mut component_modification_with_relate: Vec<ComponentModificationAndRelatedData> = Vec::new();
 
     for w in component_modification_with_status.iter() {
-        let mut vec_values: Vec<ParamModificationRelate> = Vec::new();
-        for x in param_component_modification_with_translate.iter() {
+        let mut vec_values_set: Vec<SetOfFilesProgramRelatedData> = Vec::new();
+        for x in set_files_program_with_relate.iter() {
             for y in x.iter() {
                 if w.modification.uuid == y.uuid_modification {
-                    vec_values.push(y.to_owned())
+                    vec_values_set.push(y.to_owned())
                 }
             }
         }
-        component_modification_with_relate.push((w.clone(), vec_values).into())
+        let mut vec_values_param: Vec<ParamModificationRelate> = Vec::new();
+        for x in param_component_modification_with_translate.iter() {
+            for y in x.iter() {
+                if w.modification.uuid == y.uuid_modification {
+                    vec_values_param.push(y.to_owned())
+                }
+            }
+        }
+        component_modification_with_relate.push((
+            w.clone(),
+            vec_values_set,
+            vec_values_param
+        ).into())
     }
 
     // debug!("Component component_modification_with_relate: {:#?}", component_modification_with_relate);
