@@ -142,6 +142,14 @@ componentModification {  \
   uuidModificationParent \
   modificationName \
   description \
+  setFilesForProgram { \
+    id \
+    uuidModification \
+      program { \
+        id \
+        name \
+      } \
+  } \
   actualStatus { \
     idActualStatus \
     idLang \
@@ -804,6 +812,7 @@ describe('component', () => {
     expect(response1.body.data.component.componentModification[0].uuid).toBeNonEmptyString();
     expect(response1.body.data.component.componentModification[0].uuidComponent).toBe(uuidComponentParent);
     expect(response1.body.data.component.componentModification[0].actualStatus.name).toBeNonEmptyString();
+    expect(response1.body.data.component.componentModification[0].setFilesForProgram[0].program.name).toBeNonEmptyString();
     expect(response1.body.data.component.componentModification[0].paramModification).toBeNonEmptyArray();
     expect(response1.body.data.component.supplierComponent[0].uuidComponent).toBe(uuidComponentParent);
     expect(response1.body.data.component.supplierComponent[0].supplier.shortname).toBeNonEmptyString();
