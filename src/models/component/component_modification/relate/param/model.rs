@@ -31,13 +31,13 @@ impl ParamModification {
 }
 
 #[derive(Debug, Deserialize, SimpleObject, Clone, Description)]
-pub struct ParamModificationRelate {
+pub struct ModificationParamWithTranslation {
     pub uuid_modification: Uuid,
     pub param: ParamTranslateList,
     pub value: String,
 }
 
-impl From<(ParamModification, ParamTranslateList)> for ParamModificationRelate {
+impl From<(ParamModification, ParamTranslateList)> for ModificationParamWithTranslation {
     fn from(data: (ParamModification, ParamTranslateList)) -> Self {
         Self {
             uuid_modification: data.0.uuid_modification,

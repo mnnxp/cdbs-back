@@ -3,6 +3,7 @@ pub mod model;
 pub(crate) mod notification;
 pub(crate) mod service;
 pub(crate) mod certificate;
+pub(crate) mod repository;
 pub(crate) mod util;
 
 use crate::models::user::handler::login;

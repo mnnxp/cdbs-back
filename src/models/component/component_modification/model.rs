@@ -1,5 +1,5 @@
 use crate::models::component::relate::actual_status::model::ActualStatusTranslateList;
-use crate::models::component::component_modification::param::model::ParamModificationRelate;
+use crate::models::component::component_modification::param::model::ModificationParamWithTranslation;
 use crate::models::component::component_modification::set_of_files_program::model::SetOfFilesProgramRelatedData;
 use crate::models::component::model::Component;
 use crate::schema::*;
@@ -66,18 +66,18 @@ pub struct ComponentModificationAndRelatedData {
     // pub id_actual_status: i32,
     pub updated_at: NaiveDateTime,
     pub set_files_for_program: Vec<SetOfFilesProgramRelatedData>,
-    pub param_modification: Vec<ParamModificationRelate>,
+    pub param_modification: Vec<ModificationParamWithTranslation>,
 }
 
 impl From<(
     ComponentModificationWithActualStatus,
     Vec<SetOfFilesProgramRelatedData>,
-    Vec<ParamModificationRelate>
+    Vec<ModificationParamWithTranslation>
 )> for ComponentModificationAndRelatedData {
     fn from(data: (
         ComponentModificationWithActualStatus,
         Vec<SetOfFilesProgramRelatedData>,
-        Vec<ParamModificationRelate>
+        Vec<ModificationParamWithTranslation>
     )) -> Self {
         Self {
             uuid: data.0.modification.uuid,
@@ -97,12 +97,12 @@ impl From<(
 // #[derive(Deserialize, Debug)]
 // pub struct ComponentModificationWithParam {
 //     pub info: ComponentModificationWithActualStatus,
-//     pub params: Vec<ParamModificationRelate>,
+//     pub params: Vec<ModificationParamWithTranslation>,
 // }
 //
 //
-// impl From<(ComponentModificationWithActualStatus, Vec<ParamModificationRelate>)> for ComponentModificationWithParam {
-//     fn from(data: (ComponentModificationWithActualStatus, Vec<ParamModificationRelate>)) -> Self {
+// impl From<(ComponentModificationWithActualStatus, Vec<ModificationParamWithTranslation>)> for ComponentModificationWithParam {
+//     fn from(data: (ComponentModificationWithActualStatus, Vec<ModificationParamWithTranslation>)) -> Self {
 //         Self {
 //             info: data.0,
 //             params: data.1,
@@ -115,7 +115,7 @@ impl From<(
 pub struct ComponentModificationWithActualStatus {
     pub modification: ComponentModification,
     pub actual_status: ActualStatusTranslateList,
-    // pub params: Vec<ParamModificationRelate>,
+    // pub params: Vec<ModificationParamWithTranslation>,
 }
 
 impl From<(ComponentModification, ActualStatusTranslateList)> for ComponentModificationWithActualStatus {
