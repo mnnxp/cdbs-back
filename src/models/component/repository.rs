@@ -17,7 +17,8 @@ use diesel::prelude::*;
 use uuid::Uuid;
 
 impl Component {
-    pub fn from_uuid_component(
+    /// Get component data from component_ref table by uuid
+    pub fn get_component_by_uuid(
         target_uuid_component: &Uuid,
         conn: &PgConnection,
     ) -> ServiceResult<Component> {
@@ -28,13 +29,14 @@ impl Component {
 }
 
 impl ComponentAndRelatedData {
+    /// Collecting component data and related data using uuid
     pub fn collect_related_data(
         target_uuid_component: &Uuid,
         set_id_lang: &i32,
         conn: &PgConnection,
     ) -> ServiceResult<ComponentAndRelatedData> {
         // collect data for component
-        let component: Component = Component::from_uuid_component(
+        let component: Component = Component::get_component_by_uuid(
             target_uuid_component,
             conn
         ).expect("Error loading component");
@@ -44,6 +46,14 @@ impl ComponentAndRelatedData {
             &component.uuid_user,
             conn
         ).expect("Error loading slim_user");
+
+        // todo!(need make access manager)
+        // get component type with translation for component
+        // let type_access: TypeAccessTranslateList = TypeAccessTranslateList::get_component_type_by_id(
+        //     &component.id_type_access,
+        //     set_id_lang,
+        //     conn
+        // ).expect("Error loading type_access");
 
         // get component type with translation for component
         let component_type: ComponentTypeTranslateList = ComponentTypeTranslateList::get_component_type_by_id(
