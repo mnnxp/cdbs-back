@@ -11,8 +11,8 @@ use crate::models::component::component_modification::service as component_modif
 // use crate::models::component::license::model::LicenseComponent;
 use crate::models::component::model::Component;
 use crate::models::component::model::ComponentAndRelatedData;
-use crate::models::component::param::model::ParamComponent;
-use crate::models::component::param as component_param;
+// use crate::models::component::param::model::ParamComponent;
+// use crate::models::component::param as component_param;
 // use crate::models::component::component_fav::model::ComponentFav;
 // use crate::models::component::component_fav as component_fav;
 use crate::models::component::component_modification::param::model::ParamModification;
@@ -337,33 +337,33 @@ impl QueryRoot {
         param::service::list::get_params(context, id_param, limit, offset)
     }
 
-    async fn param_component(
-        &self,
-        context: &Context<'_>,
-        id_param: Option<i32>,
-        uuid_component: Option<String>,
-        limit: Option<i32>,
-        offset: Option<i32>,
-    ) -> ServiceResult<Vec<ParamComponent>> {
-        // authorization check
-        crate::models::user::util::check_authorized(context)?;
-
-        let id_param: i32 = id_param.unwrap_or(0);
-        let uuid_component = match uuid_component {
-            None => Uuid::nil(),
-            Some(uuid_component) => Uuid::parse_str(&uuid_component)?,
-        };
-        let limit: i32 = limit.unwrap_or(100);
-        let offset: i32 = offset.unwrap_or(0);
-
-        component_param::service::list::get_params_component(
-            context,
-            id_param,
-            uuid_component,
-            limit,
-            offset,
-        )
-    }
+    // async fn param_component(
+    //     &self,
+    //     context: &Context<'_>,
+    //     id_param: Option<i32>,
+    //     uuid_component: Option<String>,
+    //     limit: Option<i32>,
+    //     offset: Option<i32>,
+    // ) -> ServiceResult<Vec<ParamComponent>> {
+    //     // authorization check
+    //     crate::models::user::util::check_authorized(context)?;
+    //
+    //     let id_param: i32 = id_param.unwrap_or(0);
+    //     let uuid_component = match uuid_component {
+    //         None => Uuid::nil(),
+    //         Some(uuid_component) => Uuid::parse_str(&uuid_component)?,
+    //     };
+    //     let limit: i32 = limit.unwrap_or(100);
+    //     let offset: i32 = offset.unwrap_or(0);
+    //
+    //     component_param::service::list::get_params_component(
+    //         context,
+    //         id_param,
+    //         uuid_component,
+    //         limit,
+    //         offset,
+    //     )
+    // }
 
     async fn param_modification(
         &self,
