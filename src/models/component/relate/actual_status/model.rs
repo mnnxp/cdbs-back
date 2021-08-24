@@ -58,7 +58,7 @@ impl ActualStatusTranslateList {
 
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub struct IptActualStatusTranslateListData {
-    pub id_actual_status: i32,
+    // pub id_actual_status: i32,
     pub id_lang: i32,
     pub name: String,
 }
@@ -69,21 +69,4 @@ pub struct InsertableActualStatusTranslateList {
     pub id_actual_status: i32,
     pub id_lang: i32,
     pub name: String,
-}
-
-impl From<IptActualStatusTranslateListData> for InsertableActualStatusTranslateList {
-    fn from(ipt_data: IptActualStatusTranslateListData) -> Self {
-        let IptActualStatusTranslateListData {
-            id_actual_status,
-            id_lang,
-            name,
-            ..
-        } = ipt_data;
-
-        Self {
-            id_actual_status,
-            id_lang,
-            name,
-        }
-    }
 }
