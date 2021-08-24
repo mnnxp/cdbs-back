@@ -81,7 +81,7 @@ impl ComponentAndRelatedData {
         ).expect("Error loading param_component_with_translate");
 
         // get licenses for component
-        let license: Vec<License> = License::for_component(
+        let license: Vec<License> = License::get_by_component(
             &component,
             conn
         ).expect("Error loading license");
