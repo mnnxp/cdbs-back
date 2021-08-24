@@ -34,8 +34,8 @@ use crate::models::user::service as user;
 use crate::models::standard::model::ShowStandard;
 use crate::models::standard as standard;
 // use crate::models::relate_ref::file::model::{ShowFile, FileData, SlimFile};
-use crate::models::relate_ref::extension::model::Extension;
-use crate::models::relate_ref::extension as extension;
+// use crate::models::relate_ref::extension::model::Extension;
+// use crate::models::relate_ref::extension as extension;
 use crate::models::relate_ref::license::model::License;
 use crate::models::relate_ref::license as license;
 use crate::models::relate_ref::param::model::ParamTranslateList;
@@ -609,22 +609,22 @@ impl QueryRoot {
     //     component_supplier::service::list::find_all_component_suppliers(context, uuid_component, limit, offset)
     // }
 
-    async fn extensions(
-        &self,
-        context: &Context<'_>,
-        id_extension: Option<Vec<i32>>,
-        limit: Option<i32>,
-        offset: Option<i32>,
-    ) -> ServiceResult<Vec<Extension>> {
-        // authorization check
-        crate::models::user::util::check_authorized(context)?;
-
-        let id_extension: Vec<i32> = id_extension.unwrap_or_default();
-        let limit: i32 = limit.unwrap_or(100);
-        let offset: i32 = offset.unwrap_or(0);
-
-        extension::service::list::get_extensions(context, id_extension, limit, offset)
-    }
+    // async fn extensions(
+    //     &self,
+    //     context: &Context<'_>,
+    //     id_extension: Option<Vec<i32>>,
+    //     limit: Option<i32>,
+    //     offset: Option<i32>,
+    // ) -> ServiceResult<Vec<Extension>> {
+    //     // authorization check
+    //     crate::models::user::util::check_authorized(context)?;
+    //
+    //     let id_extension: Vec<i32> = id_extension.unwrap_or_default();
+    //     let limit: i32 = limit.unwrap_or(100);
+    //     let offset: i32 = offset.unwrap_or(0);
+    //
+    //     extension::service::list::get_extensions(context, id_extension, limit, offset)
+    // }
 
     async fn programs(
         &self,
