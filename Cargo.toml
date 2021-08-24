@@ -40,7 +40,6 @@ jsonwebtoken = "=7.2.0"
 anyhow = "1.0"
 thiserror = "1.0"
 num = "0.4"
-shrinkwraprs = "0.3"
 sanitize-filename = "0.3.0"
 
 structopt = "0.3"

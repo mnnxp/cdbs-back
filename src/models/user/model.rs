@@ -3,12 +3,10 @@ use crate::schema::*;
 use async_graphql::types::ID;
 use async_graphql::*;
 use chrono::*;
-use shrinkwraprs::Shrinkwrap;
 use uuid::Uuid;
 
 #[derive(Debug, Queryable)]
 pub struct User {
-    // pub id: i32,
     pub uuid: Uuid,
     pub email: String,
     pub psw_hash: Vec<u8>,
@@ -277,15 +275,6 @@ impl SlimUser {
 
     async fn username(&self) -> &String {
         &self.username
-    }
-}
-
-#[derive(Shrinkwrap, Clone, Default)]
-pub struct LoggedUser(pub Option<SlimUser>);
-
-impl From<SlimUser> for LoggedUser {
-    fn from(slim_user: SlimUser) -> Self {
-        LoggedUser(Some(slim_user))
     }
 }
 

@@ -1,5 +1,4 @@
 pub(crate) mod handler;
-pub mod model;
 pub mod queries;
 pub mod mutations;
 

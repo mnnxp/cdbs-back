@@ -22,10 +22,6 @@ pub async fn graphql(
     schema: web::Data<ActixSchema>,
     req: HttpRequest,
     gql_request: Request,
-    // user: LoggedUser,
-    // token: DecodedToken,
-    // pool: web::Data<Pool>,
-    // opt: web::Data<Opt>
 ) -> Response {
     let mut request = gql_request.into_inner();
 

@@ -1,6 +1,5 @@
 use crate::database::Pool;
 use crate::errors::ServiceError;
-use crate::models::user::model::LoggedUser;
 // use crate::models::relate_ref::file::model::FileData;
 use crate::models::relate_ref::file::service as file;
 use actix_web::{web, HttpResponse};
@@ -16,7 +15,7 @@ pub struct ParamQuery {
 /// Upload images for profile picture
 pub async fn add_user(
     payload: Multipart,
-    logged_user: LoggedUser,
+    uuid_user: Uuid,
     pool: web::Data<Pool>,
 ) -> Result<HttpResponse, ServiceError> {
     let user_uuid = logged_user.0.as_ref().unwrap().uuid;
@@ -35,7 +34,7 @@ pub async fn add_user(
 pub async fn add_component(
     uuid_component: web::Path<ParamQuery>,
     payload: Multipart,
-    logged_user: LoggedUser,
+    uuid_user: Uuid,
     pool: web::Data<Pool>,
 ) -> Result<HttpResponse, ServiceError> {
     let user_uuid = logged_user.0.as_ref().unwrap().uuid;
@@ -55,7 +54,7 @@ pub async fn add_component(
 pub async fn add_modification(
     uuid_modification: web::Path<ParamQuery>,
     payload: Multipart,
-    logged_user: LoggedUser,
+    uuid_user: Uuid,
     pool: web::Data<Pool>,
 ) -> Result<HttpResponse, ServiceError> {
     let user_uuid = logged_user.0.as_ref().unwrap().uuid;
