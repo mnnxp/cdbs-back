@@ -40,8 +40,8 @@ use crate::models::relate_ref::license::model::License;
 use crate::models::relate_ref::license as license;
 use crate::models::relate_ref::param::model::ParamTranslateList;
 use crate::models::relate_ref::param as param;
-use crate::models::relate_ref::file::model::ShowFile;
-use crate::models::relate_ref::file::service as file;
+// use crate::models::relate_ref::file::model::ShowFile;
+// use crate::models::relate_ref::file::service as file;
 use crate::models::relate_ref::keyword::model::Keyword;
 use crate::models::relate_ref::keyword as keyword;
 use crate::models::relate_ref::language::model::Language;
@@ -178,40 +178,40 @@ impl QueryRoot {
         )
     }
 
-    async fn files(
-        &self,
-        context: &Context<'_>,
-        uuid_user: Option<String>,
-        uuid_component: Option<String>,
-        uuid_component_modification: Option<String>,
-        limit: Option<i32>,
-        offset: Option<i32>,
-    ) -> ServiceResult<Vec<ShowFile>> {
-        let uuid_user_create = match uuid_user {
-            None => Uuid::nil(),
-            Some(uuid) => Uuid::parse_str(&uuid)?,
-        };
-        let uuid_component = match uuid_component {
-            None => Uuid::nil(),
-            Some(uuid) => Uuid::parse_str(&uuid)?,
-        };
-        let uuid_component_modification = match uuid_component_modification {
-            None => Uuid::nil(),
-            Some(uuid) => Uuid::parse_str(&uuid)?,
-        };
-
-        let limit: i32 = limit.unwrap_or(100);
-        let offset: i32 = offset.unwrap_or(0);
-
-        file::list::get_files(
-            context,
-            uuid_user_create,
-            uuid_component,
-            uuid_component_modification,
-            limit,
-            offset,
-        )
-    }
+    // async fn files(
+    //     &self,
+    //     context: &Context<'_>,
+    //     uuid_user: Option<String>,
+    //     uuid_component: Option<String>,
+    //     uuid_component_modification: Option<String>,
+    //     limit: Option<i32>,
+    //     offset: Option<i32>,
+    // ) -> ServiceResult<Vec<ShowFile>> {
+    //     let uuid_user_create = match uuid_user {
+    //         None => Uuid::nil(),
+    //         Some(uuid) => Uuid::parse_str(&uuid)?,
+    //     };
+    //     let uuid_component = match uuid_component {
+    //         None => Uuid::nil(),
+    //         Some(uuid) => Uuid::parse_str(&uuid)?,
+    //     };
+    //     let uuid_component_modification = match uuid_component_modification {
+    //         None => Uuid::nil(),
+    //         Some(uuid) => Uuid::parse_str(&uuid)?,
+    //     };
+    //
+    //     let limit: i32 = limit.unwrap_or(100);
+    //     let offset: i32 = offset.unwrap_or(0);
+    //
+    //     file::list::get_files(
+    //         context,
+    //         uuid_user_create,
+    //         uuid_component,
+    //         uuid_component_modification,
+    //         limit,
+    //         offset,
+    //     )
+    // }
 
     async fn components(
         &self,
