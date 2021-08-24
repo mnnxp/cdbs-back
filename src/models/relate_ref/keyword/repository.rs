@@ -1,9 +1,6 @@
 use crate::errors::ServiceResult;
-use crate::models::component::model::Component;
-use crate::models::component::keyword::model::KeywordComponent;
 use crate::models::relate_ref::keyword::model::Keyword;
 use crate::schema::keyword_ref::dsl as keyword_ref;
-use crate::schema::keyword_to_component::dsl as keyword_to_component;
 use diesel::prelude::*;
 
 impl Keyword {
@@ -22,18 +19,6 @@ impl Keyword {
     ) -> ServiceResult<Vec<Keyword>> {
         Ok(keyword_ref::keyword_ref
             .filter(keyword_ref::id.eq_any(target_vec_id_keyword))
-            .load::<Keyword>(conn)?)
-    }
-
-    pub fn for_component(
-        component: &Component,
-        conn: &PgConnection,
-    ) -> ServiceResult<Vec<Keyword>> {
-        let target_id_keyword: Vec<i32> = KeywordComponent::belonging_to(component)
-            .select(keyword_to_component::id_keyword)
-            .load::<i32>(conn)?;
-        Ok(keyword_ref::keyword_ref
-            .filter(keyword_ref::id.eq_any(target_id_keyword))
             .load::<Keyword>(conn)?)
     }
 }

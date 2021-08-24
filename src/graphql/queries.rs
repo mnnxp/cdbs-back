@@ -22,7 +22,7 @@ use crate::models::component::component_modification::set_of_files_program as co
 use crate::models::component::component_modification::file_to_set_modification::model::FileToSetModification;
 use crate::models::component::component_modification::file_to_set_modification as component_modification_file_to_set_modification;
 use crate::models::component::spec as component_spec;
-use crate::models::component::keyword as component_keyword;
+// use crate::models::component::keyword as component_keyword;
 use crate::models::component::supplier::model::SupplierComponent;
 use crate::models::component::supplier as component_supplier;
 use crate::models::component::service as component;
@@ -567,30 +567,30 @@ impl QueryRoot {
         keyword::service::list::get_keywords(context, id_keyword, limit, offset)
     }
 
-    async fn component_keywords(
-        &self,
-        context: &Context<'_>,
-        uuid_component: Option<String>,
-        limit: Option<i32>,
-        offset: Option<i32>,
-    ) -> ServiceResult<Vec<Keyword>> {
-        // authorization check
-        crate::models::user::util::check_authorized(context)?;
-
-        let uuid_component = match uuid_component {
-            None => Uuid::nil(),
-            Some(uuid_component) => Uuid::parse_str(&uuid_component)?,
-        };
-        let limit: i32 = limit.unwrap_or(100);
-        let offset: i32 = offset.unwrap_or(0);
-
-        component_keyword::service::list::find_all_component_keywords(
-            context,
-            uuid_component,
-            limit,
-            offset,
-        )
-    }
+    // async fn component_keywords(
+    //     &self,
+    //     context: &Context<'_>,
+    //     uuid_component: Option<String>,
+    //     limit: Option<i32>,
+    //     offset: Option<i32>,
+    // ) -> ServiceResult<Vec<Keyword>> {
+    //     // authorization check
+    //     crate::models::user::util::check_authorized(context)?;
+    //
+    //     let uuid_component = match uuid_component {
+    //         None => Uuid::nil(),
+    //         Some(uuid_component) => Uuid::parse_str(&uuid_component)?,
+    //     };
+    //     let limit: i32 = limit.unwrap_or(100);
+    //     let offset: i32 = offset.unwrap_or(0);
+    //
+    //     component_keyword::service::list::find_all_component_keywords(
+    //         context,
+    //         uuid_component,
+    //         limit,
+    //         offset,
+    //     )
+    // }
 
     async fn suppliers(
         &self,

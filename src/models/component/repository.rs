@@ -98,7 +98,7 @@ impl ComponentAndRelatedData {
         ).expect("Error loading spec_component_with_translate");
 
         // get keywords for component
-        let keyword_component: Vec<Keyword> = Keyword::for_component(
+        let keyword_component: Vec<Keyword> = Keyword::get_by_component(
             &component,
             conn
         ).expect("Error loading keyword_component");
