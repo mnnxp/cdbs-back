@@ -17,8 +17,8 @@ use crate::models::component::model::ComponentAndRelatedData;
 // use crate::models::component::component_fav as component_fav;
 use crate::models::component::component_modification::param::model::ParamModification;
 use crate::models::component::component_modification::param as component_modification_param;
-use crate::models::component::component_modification::set_of_files_program::model::SetOfFilesProgram;
-use crate::models::component::component_modification::set_of_files_program as component_modification_set_of_files_program;
+// use crate::models::component::component_modification::set_of_files_program::model::SetOfFilesProgram;
+// use crate::models::component::component_modification::set_of_files_program as component_modification_set_of_files_program;
 use crate::models::component::component_modification::file_to_set_modification::model::FileToSetModification;
 use crate::models::component::component_modification::file_to_set_modification as component_modification_file_to_set_modification;
 // use crate::models::component::spec as component_spec;
@@ -643,27 +643,27 @@ impl QueryRoot {
         program::service::list::get_programs(context, id_program, limit, offset)
     }
 
-    async fn set_of_files_program(
-        &self,
-        context: &Context<'_>,
-        uuid_modification: String,
-        id_program: Option<i32>,
-        // id_set: Option<i32>,
-        limit: Option<i32>,
-        offset: Option<i32>,
-    ) -> ServiceResult<Vec<SetOfFilesProgram>> {
-        use component_modification_set_of_files_program::service::list::get_set_files_modification;
-        // authorization check
-        crate::models::user::util::check_authorized(context)?;
-
-        let uuid_modification = Uuid::parse_str(&uuid_modification.to_string()).unwrap_or_default();
-        let id_program: i32 = id_program.unwrap_or(0);
-        // let id_set: i32 = id_set.unwrap_or_(0);
-        let limit: i32 = limit.unwrap_or(100);
-        let offset: i32 = offset.unwrap_or(0);
-
-        get_set_files_modification(context, uuid_modification, id_program, limit, offset)
-    }
+    // async fn set_of_files_program(
+    //     &self,
+    //     context: &Context<'_>,
+    //     uuid_modification: String,
+    //     id_program: Option<i32>,
+    //     // id_set: Option<i32>,
+    //     limit: Option<i32>,
+    //     offset: Option<i32>,
+    // ) -> ServiceResult<Vec<SetOfFilesProgram>> {
+    //     use component_modification_set_of_files_program::service::list::get_set_files_modification;
+    //     // authorization check
+    //     crate::models::user::util::check_authorized(context)?;
+    //
+    //     let uuid_modification = Uuid::parse_str(&uuid_modification.to_string()).unwrap_or_default();
+    //     let id_program: i32 = id_program.unwrap_or(0);
+    //     // let id_set: i32 = id_set.unwrap_or_(0);
+    //     let limit: i32 = limit.unwrap_or(100);
+    //     let offset: i32 = offset.unwrap_or(0);
+    //
+    //     get_set_files_modification(context, uuid_modification, id_program, limit, offset)
+    // }
 
     async fn files_set_modification(
         &self,

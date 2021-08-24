@@ -5,6 +5,7 @@ use crate::models::relate_ref::program::model::Program;
 use diesel::prelude::*;
 
 impl SetOfFilesProgram {
+    /// Find set of files for programs without list files
     pub fn for_component_modification_list(
         component_modification: &[ComponentModification],
         conn: &PgConnection,
