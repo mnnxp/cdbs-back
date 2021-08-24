@@ -84,6 +84,7 @@ pub struct ComponentAndRelatedData {
     pub component_type: ComponentTypeTranslateList,
     pub actual_status: ActualStatusTranslateList,
     pub is_standard: bool,
+    pub subscribers: i32,
     pub updated_at: NaiveDateTime,
     pub license: Vec<License>,
     pub param_component: Vec<ComponentParamWithTranslation>,

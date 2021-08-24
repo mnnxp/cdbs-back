@@ -3,6 +3,7 @@ use crate::models::component::model::{Component, ComponentAndRelatedData};
 use crate::models::component::actual_status::model::ActualStatusTranslateList;
 use crate::models::component::component_type::model::ComponentTypeTranslateList;
 use crate::models::component::param::model::ComponentParamWithTranslation;
+use crate::models::component::component_fav::model::ComponentFav;
 use crate::models::component::spec::model::ComponentSpecWithTranslation;
 use crate::models::component::supplier::model::ComponentSupplierRelatedData;
 use crate::models::component::component_modification::model::{
@@ -42,7 +43,7 @@ impl ComponentAndRelatedData {
         ).expect("Error loading component");
 
         // get component owner
-        let slim_user = crate::models::user::model::SlimUser::from_uuid_user(
+        let slim_user = crate::models::user::model::SlimUser::get_by_uuid(
             &component.uuid_user,
             conn
         ).expect("Error loading slim_user");
@@ -68,6 +69,9 @@ impl ComponentAndRelatedData {
             set_id_lang,
             conn
         ).expect("Error loading actual_status");
+
+        // count subscribers component
+        let component_subscribers_count: i32 = ComponentFav::get_count_followers_by_uuid(&component.uuid, conn)?;
 
         // get params with translation for component
         let param_component_with_translate: Vec<ComponentParamWithTranslation> = ComponentParamWithTranslation::for_component(
@@ -128,6 +132,7 @@ impl ComponentAndRelatedData {
             component_type: (component_type),
             actual_status: (actual_status),
             is_standard: (component.is_standard),
+            subscribers: component_subscribers_count,
             updated_at: (component.updated_at),
             param_component: (param_component_with_translate),
             license: (license),

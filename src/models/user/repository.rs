@@ -6,7 +6,7 @@ use uuid::Uuid;
 
 impl SlimUser {
     /// get SlimUser data for target uuid user
-    pub fn from_uuid_user(
+    pub fn get_by_uuid(
         target_uuid_user: &Uuid,
         conn: &PgConnection,
     ) -> ServiceResult<SlimUser> {
@@ -19,5 +19,22 @@ impl SlimUser {
             user_ref::username,
         ))
         .first::<SlimUser>(conn)?)
+    }
+
+
+    /// get SlimUser data for target list uuid user
+    pub fn get_list_by_uuids(
+        target_list_uuid_user: &[Uuid],
+        conn: &PgConnection,
+    ) -> ServiceResult<Vec<SlimUser>> {
+
+    Ok(user_ref::user_ref
+        .filter(user_ref::uuid.eq_any(target_list_uuid_user))
+        .select((
+            user_ref::uuid,
+            user_ref::id_program,
+            user_ref::username,
+        ))
+        .load::<SlimUser>(conn)?)
     }
 }

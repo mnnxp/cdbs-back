@@ -9,6 +9,7 @@ use crate::models::component::license::model::{LicenseComponent, IptLicenseCompo
 use crate::models::component::model::{SlimComponent, ComponentData, IptComponentData};
 use crate::models::component::param::model::{ParamComponent, IptParamComponentData};
 use crate::models::component::param as component_param;
+use crate::models::component::component_fav::model::{ComponentFav, IptComponentFavData};
 use crate::models::component::component_modification::param::model::{ParamModification, IptParamModificationData};
 use crate::models::component::component_modification::param as component_modification_param;
 use crate::models::component::component_modification::set_of_files_program::model::{SetOfFilesProgram, IptSetOfFilesProgramData};
@@ -424,6 +425,20 @@ impl MutationRoot {
         crate::models::user::check_authorized(context)?;
 
         Ok(add_file_to_set_modification(data, conn)?)
+    }
+
+
+    async fn add_component_favorite(
+        &self,
+        context: &Context<'_>,
+        data: IptComponentFavData,
+    ) -> ServiceResult<ComponentFav> {
+        use component::component_fav::service::add::add_component_favorite;
+        let conn: &PooledConnection = &get_conn(context)?;
+
+        crate::models::user::check_authorized(context)?;
+
+        Ok(add_component_favorite(data, conn)?)
     }
 
     // Upload images for profile picture
