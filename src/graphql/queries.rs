@@ -23,8 +23,8 @@ use crate::models::component::component_modification::file_to_set_modification::
 use crate::models::component::component_modification::file_to_set_modification as component_modification_file_to_set_modification;
 // use crate::models::component::spec as component_spec;
 // use crate::models::component::keyword as component_keyword;
-use crate::models::component::supplier::model::SupplierComponent;
-use crate::models::component::supplier as component_supplier;
+// use crate::models::component::supplier::model::SupplierComponent;
+// use crate::models::component::supplier as component_supplier;
 use crate::models::component::service as component;
 use crate::models::user::model::{SlimUser, ShowUser};
 use crate::models::user::service::token::model::UserToken;
@@ -592,22 +592,22 @@ impl QueryRoot {
     //     )
     // }
 
-    async fn suppliers(
-        &self,
-        context: &Context<'_>,
-        uuid_component: String,
-        limit: Option<i32>,
-        offset: Option<i32>,
-    ) -> ServiceResult<Vec<SupplierComponent>> {
-        // authorization check
-        crate::models::user::util::check_authorized(context)?;
-
-        let uuid_component: Uuid = Uuid::parse_str(&uuid_component.to_string()).unwrap_or_default();
-        let limit: i32 = limit.unwrap_or(100);
-        let offset: i32 = offset.unwrap_or(0);
-
-        component_supplier::service::list::find_all_component_suppliers(context, uuid_component, limit, offset)
-    }
+    // async fn suppliers(
+    //     &self,
+    //     context: &Context<'_>,
+    //     uuid_component: String,
+    //     limit: Option<i32>,
+    //     offset: Option<i32>,
+    // ) -> ServiceResult<Vec<SupplierComponent>> {
+    //     // authorization check
+    //     crate::models::user::util::check_authorized(context)?;
+    //
+    //     let uuid_component: Uuid = Uuid::parse_str(&uuid_component.to_string()).unwrap_or_default();
+    //     let limit: i32 = limit.unwrap_or(100);
+    //     let offset: i32 = offset.unwrap_or(0);
+    //
+    //     component_supplier::service::list::find_all_component_suppliers(context, uuid_component, limit, offset)
+    // }
 
     async fn extensions(
         &self,
