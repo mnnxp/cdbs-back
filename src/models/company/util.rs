@@ -114,20 +114,20 @@ pub(crate) fn get_companies_owned_by_user(
         .unwrap_or_default()
 }
 
-/// Search for companies the user belongs to
-pub(crate) fn _get_companies_with_member_by_user(
-    target_uuid_user: Uuid,
-    conn: &PgConnection,
-) -> Vec<(Uuid, i32)> {
-    use crate::schema::company_member_role::dsl::*;
-
-    // find id_role user
-    company_member_role
-        .filter(uuid_user.eq(target_uuid_user))
-        .select((
-            uuid_company,
-            id_role
-        ))
-        .load(conn)
-        .unwrap_or_default()
-}
+// Search for companies the user belongs to
+// pub(crate) fn get_companies_with_member_by_user(
+//     target_uuid_user: Uuid,
+//     conn: &PgConnection,
+// ) -> Vec<(Uuid, i32)> {
+//     use crate::schema::company_member_role::dsl::*;
+// 
+//     // find id_role user
+//     company_member_role
+//         .filter(uuid_user.eq(target_uuid_user))
+//         .select((
+//             uuid_company,
+//             id_role
+//         ))
+//         .load(conn)
+//         .unwrap_or_default()
+// }

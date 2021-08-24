@@ -112,24 +112,24 @@ pub(crate) fn recursive_search_availability_access(
     }
 }
 
-/// Search companies that have access to standard
-/// returns uuid companies and id access
-pub(crate) fn _get_companies_access_standard(
-    target_uuid_standard: Uuid,
-    conn: &PgConnection,
-) -> Vec<(Uuid, i32)> {
-    use crate::schema::company_access_to_standard::dsl::*;
-
-    // find companies that have access to standard
-    company_access_to_standard
-        .filter(uuid_standard.eq(target_uuid_standard))
-        .select((
-            uuid_company,
-            id_type_access
-        ))
-        .load::<(Uuid, i32)>(conn)
-        .unwrap_or_default()
-}
+// Search companies that have access to standard
+// returns uuid companies and id access
+// pub(crate) fn get_companies_access_standard(
+//     target_uuid_standard: Uuid,
+//     conn: &PgConnection,
+// ) -> Vec<(Uuid, i32)> {
+//     use crate::schema::company_access_to_standard::dsl::*;
+//
+//     // find companies that have access to standard
+//     company_access_to_standard
+//         .filter(uuid_standard.eq(target_uuid_standard))
+//         .select((
+//             uuid_company,
+//             id_type_access
+//         ))
+//         .load::<(Uuid, i32)>(conn)
+//         .unwrap_or_default()
+// }
 
 /// Search companies that have a need-level access to standard
 /// returns id_type_access
