@@ -15,8 +15,8 @@ use crate::models::component::model::ComponentAndRelatedData;
 // use crate::models::component::param as component_param;
 // use crate::models::component::component_fav::model::ComponentFav;
 // use crate::models::component::component_fav as component_fav;
-use crate::models::component::component_modification::param::model::ParamModification;
-use crate::models::component::component_modification::param as component_modification_param;
+// use crate::models::component::component_modification::param::model::ParamModification;
+// use crate::models::component::component_modification::param as component_modification_param;
 // use crate::models::component::component_modification::set_of_files_program::model::SetOfFilesProgram;
 // use crate::models::component::component_modification::set_of_files_program as component_modification_set_of_files_program;
 use crate::models::component::component_modification::file_to_set_modification::model::FileToSetModification;
@@ -365,33 +365,33 @@ impl QueryRoot {
     //     )
     // }
 
-    async fn param_modification(
-        &self,
-        context: &Context<'_>,
-        id_param: Option<i32>,
-        uuid_modification: Option<String>,
-        limit: Option<i32>,
-        offset: Option<i32>,
-    ) -> ServiceResult<Vec<ParamModification>> {
-        // authorization check
-        crate::models::user::util::check_authorized(context)?;
-
-        let id_param: i32 = id_param.unwrap_or(0);
-        let uuid_modification = match uuid_modification {
-            None => Uuid::nil(),
-            Some(uuid_modification) => Uuid::parse_str(&uuid_modification)?,
-        };
-        let limit: i32 = limit.unwrap_or(100);
-        let offset: i32 = offset.unwrap_or(0);
-
-        component_modification_param::service::list::get_params_modification(
-            context,
-            id_param,
-            uuid_modification,
-            limit,
-            offset,
-        )
-    }
+    // async fn param_modification(
+    //     &self,
+    //     context: &Context<'_>,
+    //     id_param: Option<i32>,
+    //     uuid_modification: Option<String>,
+    //     limit: Option<i32>,
+    //     offset: Option<i32>,
+    // ) -> ServiceResult<Vec<ParamModification>> {
+    //     // authorization check
+    //     crate::models::user::util::check_authorized(context)?;
+    //
+    //     let id_param: i32 = id_param.unwrap_or(0);
+    //     let uuid_modification = match uuid_modification {
+    //         None => Uuid::nil(),
+    //         Some(uuid_modification) => Uuid::parse_str(&uuid_modification)?,
+    //     };
+    //     let limit: i32 = limit.unwrap_or(100);
+    //     let offset: i32 = offset.unwrap_or(0);
+    //
+    //     component_modification_param::service::list::get_params_modification(
+    //         context,
+    //         id_param,
+    //         uuid_modification,
+    //         limit,
+    //         offset,
+    //     )
+    // }
 
     async fn companies(
         &self,
