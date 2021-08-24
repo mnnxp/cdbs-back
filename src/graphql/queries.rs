@@ -21,7 +21,7 @@ use crate::models::component::component_modification::set_of_files_program::mode
 use crate::models::component::component_modification::set_of_files_program as component_modification_set_of_files_program;
 use crate::models::component::component_modification::file_to_set_modification::model::FileToSetModification;
 use crate::models::component::component_modification::file_to_set_modification as component_modification_file_to_set_modification;
-use crate::models::component::spec as component_spec;
+// use crate::models::component::spec as component_spec;
 // use crate::models::component::keyword as component_keyword;
 use crate::models::component::supplier::model::SupplierComponent;
 use crate::models::component::supplier as component_supplier;
@@ -525,30 +525,30 @@ impl QueryRoot {
         spec::service::list::get_specs(context, id_spec, limit, offset)
     }
 
-    async fn component_specs(
-        &self,
-        context: &Context<'_>,
-        uuid_component: Option<String>,
-        limit: Option<i32>,
-        offset: Option<i32>,
-    ) -> ServiceResult<Vec<SpecTranslateList>> {
-        // authorization check
-        crate::models::user::util::check_authorized(context)?;
-
-        let uuid_component = match uuid_component {
-            None => Uuid::nil(),
-            Some(uuid_component) => Uuid::parse_str(&uuid_component)?,
-        };
-        let limit: i32 = limit.unwrap_or(100);
-        let offset: i32 = offset.unwrap_or(0);
-
-        component_spec::service::list::find_all_component_specs(
-            context,
-            uuid_component,
-            limit,
-            offset,
-        )
-    }
+    // async fn component_specs(
+    //     &self,
+    //     context: &Context<'_>,
+    //     uuid_component: Option<String>,
+    //     limit: Option<i32>,
+    //     offset: Option<i32>,
+    // ) -> ServiceResult<Vec<SpecTranslateList>> {
+    //     // authorization check
+    //     crate::models::user::util::check_authorized(context)?;
+    //
+    //     let uuid_component = match uuid_component {
+    //         None => Uuid::nil(),
+    //         Some(uuid_component) => Uuid::parse_str(&uuid_component)?,
+    //     };
+    //     let limit: i32 = limit.unwrap_or(100);
+    //     let offset: i32 = offset.unwrap_or(0);
+    //
+    //     component_spec::service::list::find_all_component_specs(
+    //         context,
+    //         uuid_component,
+    //         limit,
+    //         offset,
+    //     )
+    // }
 
     async fn keywords(
         &self,
