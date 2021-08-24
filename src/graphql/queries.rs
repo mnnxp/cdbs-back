@@ -5,8 +5,7 @@ use crate::models::company::company_represent::model::ShowCompanyRepresent;
 use crate::models::company::company_represent::service as company_represent;
 use crate::models::company::model::ShowCompany;
 use crate::models::company::service as company;
-use crate::models::component::model::Component;
-use crate::models::component::model::ComponentAndRelatedData;
+use crate::models::component::model::{ShowComponentShort, ComponentAndRelatedData};
 use crate::models::component::component_modification::file_to_set_modification::model::FileToSetModification;
 use crate::models::component::component_modification::file_to_set_modification as component_modification_file_to_set_modification;
 use crate::models::component::service as component;
@@ -157,25 +156,23 @@ impl QueryRoot {
         &self,
         context: &Context<'_>,
         uuid_components: Option<Vec<String>>,
-        limit: Option<i32>,
-        offset: Option<i32>,
-    ) -> ServiceResult<Vec<Component>> {
+    ) -> ServiceResult<Vec<ShowComponentShort>> {
         // authorization check
-        crate::models::user::util::check_authorized(context)?;
+        let target_uuid_user: Uuid = crate::models::user::get_auth_uuid_user(context, true)?;
 
-        let target_uuid_components = match uuid_components {
-            Some(vec_uuid) => {
-                vec_uuid.into_iter()
-                    .map(|x| Uuid::parse_str(x.as_str()).unwrap())
-                    .collect()
-            },
-            None => Vec::new(),
+        let mut target_uuids_components: Vec<Uuid> = Vec::new();
+        if let Some(vec_uuid) = uuid_components {
+            for x in vec_uuid.iter() {
+                target_uuids_components.push(
+                    Uuid::parse_str(x.as_str()).unwrap()
+                );
+            }
         };
-
-        let limit: i32 = limit.unwrap_or(100);
-        let offset: i32 = offset.unwrap_or(0);
-
-        component::list::find_components(context, target_uuid_components, limit, offset)
+        component::list::find_components(
+            context,
+            target_uuids_components,
+            target_uuid_user,
+        )
     }
 
     async fn component(

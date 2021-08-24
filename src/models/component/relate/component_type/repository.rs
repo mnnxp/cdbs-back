@@ -4,6 +4,7 @@ use crate::schema::component_type_translate_list::dsl as component_type_translat
 use diesel::prelude::*;
 
 impl ComponentTypeTranslateList {
+    /// Get component type by id
     pub fn get_component_type_by_id(
         target_id_component_type: &i32,
         set_id_lang: &i32,

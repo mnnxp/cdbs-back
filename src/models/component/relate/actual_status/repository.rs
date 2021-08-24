@@ -4,6 +4,7 @@ use crate::schema::actual_status_translate_list::dsl as actual_status_translate_
 use diesel::prelude::*;
 
 impl ActualStatusTranslateList {
+    /// Get actual status by id and set lang
     pub fn get_actual_status_by_id(
         target_id_actual_status: &i32,
         set_id_lang: &i32,
@@ -15,6 +16,7 @@ impl ActualStatusTranslateList {
             .first::<ActualStatusTranslateList>(conn)?)
     }
 
+    /// Get list actual status by vec id and set lang
     pub fn get_actual_status_by_vec_id(
         target_vec_id_actual_status: &[i32],
         set_id_lang: &i32,

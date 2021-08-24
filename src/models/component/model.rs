@@ -95,6 +95,27 @@ pub struct ComponentAndRelatedData {
     pub supplier_component: Vec<ComponentSupplierRelatedData>,
 }
 
+
+#[derive(Debug, Deserialize, SimpleObject, Description)]
+pub struct ShowComponentShort {
+    pub uuid: Uuid,
+    pub name: String,
+    pub description: String,
+    pub owner_user: ShowUserShort,
+    pub id_type_access: i32, //TypeAccess
+    pub component_type: ComponentTypeTranslateList,
+    pub actual_status: ActualStatusTranslateList,
+    // for display the checkbox "favorites"
+    pub is_followed: bool,
+    pub is_standard: bool,
+    pub updated_at: NaiveDateTime,
+    pub license: Vec<License>,
+    // files for show image (models, draw)
+    pub file: Vec<ShowFile>,
+    // show first supplier company
+    pub supplier_component: ComponentSupplierRelatedData,
+}
+
 #[derive(Debug, Insertable)]
 #[table_name = "component_ref"]
 pub struct InsertableComponent {
