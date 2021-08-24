@@ -75,6 +75,7 @@ const idComponentType = 2;
 const idActualStatusComponent = 1;
 const isStandardComponent = true;
 const isStandardComponent0 = false;
+const subscribersCount = 1;
 const componentFullDataQuery = ` \
 uuid \
 uuidComponentParent \
@@ -806,6 +807,7 @@ describe('component', () => {
     expect(response1.body.data.component.componentType.componentType).toBeNonEmptyString();
     expect(response1.body.data.component.actualStatus.name).toBeNonEmptyString();
     expect(response1.body.data.component.license[0].name).toBeNonEmptyString();
+    expect(response1.body.data.component.subscribers).toBe(subscribersCount);
     expect(response1.body.data.component.paramComponent).toBeNonEmptyArray();
     expect(response1.body.data.component.file).toBeNonEmptyArray();
     expect(response1.body.data.component.specComponent).toBeNonEmptyArray();
