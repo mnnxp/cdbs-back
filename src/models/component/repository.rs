@@ -43,7 +43,7 @@ impl ComponentAndRelatedData {
         ).expect("Error loading component");
 
         // get component owner
-        let slim_user = crate::models::user::model::SlimUser::get_by_uuid(
+        let owner_user = crate::models::user::model::ShowUserShort::get_by_uuid(
             &component.uuid_user,
             conn
         ).expect("Error loading slim_user");
@@ -127,7 +127,7 @@ impl ComponentAndRelatedData {
             uuid_component_parent: (component.uuid_component_parent),
             name: (component.name),
             description: (component.description),
-            slim_user: (slim_user),
+            owner_user: (owner_user),
             id_type_access: (component.id_type_access),
             component_type: (component_type),
             actual_status: (actual_status),

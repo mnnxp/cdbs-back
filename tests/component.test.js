@@ -81,10 +81,15 @@ uuid \
 uuidComponentParent \
 name \
 description \
-slimUser { \
+ownerUser { \
   uuid \
-  idProgram \
   username
+  imageFile {
+    uuid \
+    filename \
+    filesize \
+    pathFile \
+  } \
 } \
 idTypeAccess \
 componentType { \
@@ -803,7 +808,8 @@ describe('component', () => {
       .expect(HttpStatus.OK)
     debug('/graphql filter component=%o', response1.body.data.component);
     expect(response1.body.data.component.uuid).toBe(uuidComponentParent);
-    expect(response1.body.data.component.slimUser.uuid).toBeNonEmptyString();
+    expect(response1.body.data.component.ownerUser.uuid).toBeNonEmptyString();
+    expect(response1.body.data.component.ownerUser.imageFile.pathFile).toBeNonEmptyString();
     expect(response1.body.data.component.componentType.componentType).toBeNonEmptyString();
     expect(response1.body.data.component.actualStatus.name).toBeNonEmptyString();
     expect(response1.body.data.component.license[0].name).toBeNonEmptyString();

@@ -109,12 +109,30 @@ pub struct FileData {
     pub path_file: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, Clone, Debug)]
+#[primary_key(uuid)]
+#[table_name = "file_ref"]
 pub struct SlimFile {
     pub uuid: Uuid,
     pub filename: String,
     pub filesize: i32,
     pub path_file: String,
+}
+
+#[Object]
+impl SlimFile {
+    async fn uuid(&self) -> ID {
+        self.uuid.into()
+    }
+    async fn filename(&self) -> &String {
+        &self.filename
+    }
+    async fn filesize(&self) -> &i32 {
+        &self.filesize
+    }
+    async fn path_file(&self) -> &String {
+        &self.path_file
+    }
 }
 
 impl From<FileData> for InsertableFile {

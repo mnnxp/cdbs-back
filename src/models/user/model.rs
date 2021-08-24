@@ -1,3 +1,4 @@
+use crate::models::relate_ref::file::model::SlimFile;
 use crate::models::user::util::{make_hash_salt, make_salt};
 use crate::schema::*;
 use async_graphql::types::ID;
@@ -256,28 +257,6 @@ impl UserData {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, Queryable, Clone)]
-pub struct SlimUser {
-    pub uuid: Uuid,
-    pub id_program: i32,
-    pub username: String,
-}
-
-#[Object]
-impl SlimUser {
-    async fn uuid(&self) -> ID {
-        self.uuid.into()
-    }
-
-    async fn id_program(&self) -> &i32 {
-        &self.id_program
-    }
-
-    async fn username(&self) -> &String {
-        &self.username
-    }
-}
-
 impl From<UserData> for InsertableUser {
     fn from(user_data: UserData) -> Self {
         let UserData {
@@ -327,6 +306,28 @@ impl From<UserData> for InsertableUser {
     }
 }
 
+#[derive(Debug, Serialize, Deserialize, Queryable, Clone)]
+pub struct SlimUser {
+    pub uuid: Uuid,
+    pub id_program: i32,
+    pub username: String,
+}
+
+#[Object]
+impl SlimUser {
+    async fn uuid(&self) -> ID {
+        self.uuid.into()
+    }
+
+    async fn id_program(&self) -> &i32 {
+        &self.id_program
+    }
+
+    async fn username(&self) -> &String {
+        &self.username
+    }
+}
+
 impl From<User> for SlimUser {
     fn from(user: User) -> Self {
         let User {
@@ -340,6 +341,45 @@ impl From<User> for SlimUser {
             uuid,
             id_program,
             username,
+        }
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize, Queryable, Clone)]
+pub struct UserShort {
+    pub uuid: Uuid,
+    pub username: String,
+    pub uuid_image_file: Uuid,
+}
+
+#[derive(Identifiable, Serialize, Deserialize, Associations, Clone, Debug)]
+#[primary_key(uuid)]
+#[table_name = "user_ref"]
+pub struct ShowUserShort {
+    pub uuid: Uuid,
+    pub username: String,
+    pub image_file: SlimFile,
+}
+
+#[Object]
+impl ShowUserShort {
+    async fn uuid(&self) -> ID {
+        self.uuid.into()
+    }
+    async fn username(&self) -> &String {
+        &self.username
+    }
+    async fn image_file(&self) -> &SlimFile {
+        &self.image_file
+    }
+}
+
+impl From<(&UserShort, SlimFile)> for ShowUserShort {
+    fn from(data: (&UserShort, SlimFile)) -> Self {
+        Self {
+            uuid: data.0.uuid,
+            username: data.0.username.to_string(),
+            image_file: data.1,
         }
     }
 }

@@ -1,5 +1,5 @@
 use crate::schema::*;
-use crate::models::user::model::SlimUser;
+use crate::models::user::model::ShowUserShort;
 use crate::models::component::component_type::model::ComponentTypeTranslateList;
 use crate::models::component::actual_status::model::ActualStatusTranslateList;
 use crate::models::component::param::model::ComponentParamWithTranslation;
@@ -79,7 +79,7 @@ pub struct ComponentAndRelatedData {
     pub uuid_component_parent: Uuid,
     pub name: String,
     pub description: String,
-    pub slim_user: SlimUser,
+    pub owner_user: ShowUserShort,
     pub id_type_access: i32, //TypeAccess
     pub component_type: ComponentTypeTranslateList,
     pub actual_status: ActualStatusTranslateList,
