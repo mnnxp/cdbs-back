@@ -97,6 +97,7 @@ actualStatus { \
   name \
 } \
 isStandard \
+subscribers \
 updatedAt \
 license { \
   id \
