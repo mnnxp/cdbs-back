@@ -83,7 +83,7 @@ impl ShowComponentShort {
                 .expect("Error loading component_file");
 
             // collect data for supplier component
-            let supplier_component_with_relate: ComponentSupplierRelatedData = ComponentSupplierRelatedData::get_first_supplier(
+            let supplier_component_with_relate: Vec<ComponentSupplierRelatedData> = ComponentSupplierRelatedData::get_first_supplier(
                 &component,
                 conn
             ).expect("Error loading supplier_component_with_relate");

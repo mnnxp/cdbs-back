@@ -113,7 +113,7 @@ pub struct ShowComponentShort {
     // files for show image (models, draw)
     pub file: Vec<ShowFile>,
     // show first supplier company
-    pub supplier_component: ComponentSupplierRelatedData,
+    pub supplier_component: Vec<ComponentSupplierRelatedData>,
 }
 
 #[derive(Debug, Insertable)]

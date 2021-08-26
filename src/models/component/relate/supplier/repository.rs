@@ -47,22 +47,36 @@ impl ComponentSupplierRelatedData {
     pub fn get_first_supplier(
         component: &Component,
         conn: &PgConnection,
-    ) -> ServiceResult<ComponentSupplierRelatedData> {
-        let supplier_component: SupplierComponent = SupplierComponent::belonging_to(component)
-            .first::<SupplierComponent>(conn)?;
+    ) -> ServiceResult<Vec<ComponentSupplierRelatedData>> {
+        let find_supplier_component: Result<SupplierComponent, _> = SupplierComponent::belonging_to(component)
+            .first(conn);
 
-        let slim_company_supplier: SlimCompany = company_ref::company_ref
-            .filter(company_ref::uuid.eq(&supplier_component.uuid_company))
-            .select((
-                company_ref::uuid,
-                company_ref::shortname,
-                company_ref::is_supplier,
-            ))
-            .first::<SlimCompany>(conn)
-            .expect("Error loading slim_company_supplier");
-        Ok(ComponentSupplierRelatedData::from((
-            supplier_component,
-            slim_company_supplier
-        )))
+        match find_supplier_component {
+            Ok(supplier_component) => {
+                let slim_company_supplier: SlimCompany = company_ref::company_ref
+                    .filter(company_ref::uuid.eq(&supplier_component.uuid_company))
+                    .select((
+                        company_ref::uuid,
+                        company_ref::shortname,
+                        company_ref::is_supplier,
+                    ))
+                    .first::<SlimCompany>(conn)
+                    .expect("Error loading slim_company_supplier");
+
+                match slim_company_supplier.shortname.is_empty() {
+                    false => Ok(vec![ComponentSupplierRelatedData::from((
+                        supplier_component,
+                        slim_company_supplier
+                    ))]),
+                    _ => Ok(Vec::new()),
+                }
+            },
+            Err(e) => {
+                debug!("Error loading supplier_component: {:#?}", e.to_string());
+                Ok(Vec::new())
+            },
+        }
+
+
     }
 }
