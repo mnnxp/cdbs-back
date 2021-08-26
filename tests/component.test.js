@@ -182,6 +182,45 @@ supplierComponent { \
   uuidComponent \
 } \
 `;
+
+const componentsListQuery = ` \
+uuid \
+name \
+description \
+ownerUser { \
+  username \
+  imageFile { \
+    pathFile \
+  } \
+} \
+idTypeAccess \
+componentType { \
+  componentType \
+} \
+actualStatus { \
+  name \
+} \
+isFollowed \
+isStandard \
+updatedAt \
+license { \
+  keyword \
+} \
+file { \
+  uuid \
+  filename \
+  pathFile \
+} \
+supplierComponent { \
+  uuidComponent \
+  supplier { \
+    uuid \
+    isSupplier \
+    shortname \
+  } \
+  description \
+} \
+`;
 var uuidComponentNoStandard = "";
 var uuidComponentStandard = "";
 
@@ -671,18 +710,7 @@ describe('component', () => {
       .send({
         query: `query componentsQuery{
           components {
-            uuid
-            uuidComponentParent
-            name
-            description
-            uuidUser
-            idTypeAccess
-            idComponentType
-            idActualStatus
-            isStandard
-            isDelete
-            createdAt
-            updatedAt
+            ${componentsListQuery}
           }
         }`,
       })
@@ -706,24 +734,13 @@ describe('component', () => {
       .send({
         query: `query componentsQuery{
           components {
-            uuid
-            uuidComponentParent
-            name
-            description
-            uuidUser
-            idTypeAccess
-            idComponentType
-            idActualStatus
-            isStandard
-            isDelete
-            createdAt
-            updatedAt
+            ${componentsListQuery}
           }
         }`,
       })
       .expect(HttpStatus.OK)
     debug('/graphql all components=%o', response1.body.data.components);
-    expect(response1.body.data.components).toBeNonEmptyArray();
+    expect(response1.body.data.components).toBeEmptyArray();
     // expect(response1.body.data.components.pop().valueActualStatus).toBe(value_actual_status);
     done();
   });
@@ -737,19 +754,8 @@ describe('component', () => {
       )
       .send({
         query: `query selectComponentQuery{
-          components (uuidComponents: "${uuidComponentStandard}") {
-            uuid
-            uuidComponentParent
-            name
-            description
-            uuidUser
-            idTypeAccess
-            idComponentType
-            idActualStatus
-            isStandard
-            isDelete
-            createdAt
-            updatedAt
+          components (uuidComponents: ["${uuidComponentStandard}"]) {
+            ${componentsListQuery}
           }
         }`,
       })
@@ -769,30 +775,29 @@ describe('component', () => {
       )
       .send({
         query: `query selectComponentQuery{
-          components (uuidComponents: "${uuidComponentNoStandard}") {
-            uuid
-            uuidComponentParent
-            name
-            description
-            uuidUser
-            idTypeAccess
-            idComponentType
-            idActualStatus
-            isStandard
-            isDelete
-            createdAt
-            updatedAt
+          components (uuidComponents: [
+            "${uuidComponentParent}",
+            "${uuidComponentStandard}",
+            "${uuidComponentNoStandard}",
+          ]) {
+            ${componentsListQuery}
           }
         }`,
       })
       .expect(HttpStatus.OK)
     debug('/graphql filter components=%o', body.data.components);
     expect(body.data.components).toBeNonEmptyArray();
+    expect(body.data.components[0].uuid).toBe(uuidComponentParent);
+    // expect(body.data.components[0].ownerUser.uuid).toBeNonEmptyString();
+    expect(body.data.components[1].uuid).toBe(uuidComponentStandard);
+    expect(body.data.components[1].ownerUser.username).toBe(username);
+    expect(body.data.components[2].uuid).toBe(uuidComponentNoStandard);
+    expect(body.data.components[2].ownerUser.username).toBe(username2);
     done();
   });
 
   it('/graphql:Q Get full data Component - OK with uuidComponent', async (done) => {
-    const response1 = await agent
+    const { body } = await agent
       .post('/graphql')
       .set(
         'Authorization',
@@ -806,25 +811,25 @@ describe('component', () => {
           }`,
         })
       .expect(HttpStatus.OK)
-    debug('/graphql filter component=%o', response1.body.data.component);
-    expect(response1.body.data.component.uuid).toBe(uuidComponentParent);
-    expect(response1.body.data.component.ownerUser.uuid).toBeNonEmptyString();
-    expect(response1.body.data.component.ownerUser.imageFile.pathFile).toBeNonEmptyString();
-    expect(response1.body.data.component.componentType.componentType).toBeNonEmptyString();
-    expect(response1.body.data.component.actualStatus.name).toBeNonEmptyString();
-    expect(response1.body.data.component.license[0].name).toBeNonEmptyString();
-    expect(response1.body.data.component.subscribers).toBe(subscribersCount);
-    expect(response1.body.data.component.paramComponent).toBeNonEmptyArray();
-    expect(response1.body.data.component.file).toBeNonEmptyArray();
-    expect(response1.body.data.component.specComponent).toBeNonEmptyArray();
-    expect(response1.body.data.component.keywordComponent).toBeNonEmptyArray();
-    expect(response1.body.data.component.componentModification[0].uuid).toBeNonEmptyString();
-    expect(response1.body.data.component.componentModification[0].uuidComponent).toBe(uuidComponentParent);
-    expect(response1.body.data.component.componentModification[0].actualStatus.name).toBeNonEmptyString();
-    expect(response1.body.data.component.componentModification[0].setFilesForProgram[0].program.name).toBeNonEmptyString();
-    expect(response1.body.data.component.componentModification[0].paramModification).toBeNonEmptyArray();
-    expect(response1.body.data.component.supplierComponent[0].uuidComponent).toBe(uuidComponentParent);
-    expect(response1.body.data.component.supplierComponent[0].supplier.shortname).toBeNonEmptyString();
+    debug('/graphql filter component=%o', body.data.component);
+    expect(body.data.component.uuid).toBe(uuidComponentParent);
+    expect(body.data.component.ownerUser.uuid).toBeNonEmptyString();
+    expect(body.data.component.ownerUser.imageFile.pathFile).toBeNonEmptyString();
+    expect(body.data.component.componentType.componentType).toBeNonEmptyString();
+    expect(body.data.component.actualStatus.name).toBeNonEmptyString();
+    expect(body.data.component.license[0].name).toBeNonEmptyString();
+    expect(body.data.component.subscribers).toBe(subscribersCount);
+    expect(body.data.component.paramComponent).toBeNonEmptyArray();
+    expect(body.data.component.file).toBeNonEmptyArray();
+    expect(body.data.component.specComponent).toBeNonEmptyArray();
+    expect(body.data.component.keywordComponent).toBeNonEmptyArray();
+    expect(body.data.component.componentModification[0].uuid).toBeNonEmptyString();
+    expect(body.data.component.componentModification[0].uuidComponent).toBe(uuidComponentParent);
+    expect(body.data.component.componentModification[0].actualStatus.name).toBeNonEmptyString();
+    expect(body.data.component.componentModification[0].setFilesForProgram[0].program.name).toBeNonEmptyString();
+    expect(body.data.component.componentModification[0].paramModification).toBeNonEmptyArray();
+    expect(body.data.component.supplierComponent[0].uuidComponent).toBe(uuidComponentParent);
+    expect(body.data.component.supplierComponent[0].supplier.shortname).toBeNonEmptyString();
     done();
   });
 
