@@ -383,3 +383,12 @@ impl From<(&UserShort, SlimFile)> for ShowUserShort {
         }
     }
 }
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
+pub struct TargetUser (pub Uuid);
+
+impl From<&Uuid> for TargetUser {
+    fn from(data: &Uuid) -> Self {
+        Self (data.to_owned())
+    }
+}
