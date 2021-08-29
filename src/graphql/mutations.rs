@@ -1,8 +1,8 @@
 use crate::errors::ServiceResult;
-use crate::database::{get_conn, PooledConnection};
+use crate::database::{get_conn, get_pool, PooledConnection};
 use crate::models::company::company_represent::model::{IptCompanyRepresentData, SlimCompanyRepresent};
 use crate::models::company::model::{SlimCompany, CompanyData, IptCompanyData,};
-use crate::models::user::model::{SlimUser, IptUserData};
+use crate::models::user::model::{SlimUser, IptUserData, TargetUser};
 use crate::models::user::notification::model::{Notification, NotificationData, SlimNotification};
 use crate::models::component::component_modification::model::{SlimComponentModification, IptComponentModificationData};
 use crate::models::component::license::model::{LicenseComponent, IptLicenseComponentData};
@@ -35,6 +35,7 @@ use crate::models::relate_ref::program as program;
 use crate::models::relate_ref::keyword::model::{Keyword, IptKeywordData};
 use crate::models::relate_ref::keyword as keyword;
 // use crate::models::relate_ref::file::model::{ShowFile, SlimFile};
+use crate::storage::backblaze::b2_types::UploadUrlData;
 use async_graphql::Context;
 // use async_graphql::{
 //     dataloader::DataLoader, Context, EmptySubscription, FieldResult, Schema,
@@ -439,6 +440,24 @@ impl MutationRoot {
         crate::models::user::check_authorized(context)?;
 
         Ok(add_component_favorite(data, conn)?)
+    }
+
+    pub async fn upload_favicon(
+        &self,
+        context: &Context<'_>,
+    ) -> ServiceResult<UploadUrlData> {
+        let pool = get_pool(context)?;
+        let target_user = TargetUser::from(&crate::models::user::get_auth_uuid_user(context, true)?);
+
+        let upload_url = crate::storage::wrapper::upload::get_url_upload_file(
+            target_user,
+            pool
+        ).await;
+
+        match upload_url {
+            Ok(data) => Ok(data),
+            Err(e) => Err(e),
+        }
     }
 
     // Upload images for profile picture

@@ -11,11 +11,10 @@ mod errors;
 mod graphql;
 mod jwt;
 mod models;
+mod storage;
 mod schema;
 
 use actix_cors::Cors;
-// use actix_identity::{CookieIdentityPolicy, IdentityService};
-// use actix_web::{App, HttpServer, web};
 use actix_web::middleware::Logger;
 use actix_web::{App, HttpServer};
 
@@ -26,7 +25,7 @@ use actix_web::{App, HttpServer};
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    // Gets enviroment variables from `.env.example`
+    // Gets enviroment variables from `.env`
     dotenv::dotenv().ok();
 
     // Initiates error logger
@@ -40,16 +39,6 @@ async fn main() -> std::io::Result<()> {
 
     // Database
     let pool = database::pool::establish_connection(opt.clone());
-    // let schema = std::sync::Arc::new(crate::graphql::model::create_schema());
-    // let schema = std::sync::Arc::new(crate::graphql::handler::build_schema());
-    // let schema = build_schema().await;
-    // let schema = std::sync::Arc::new(crate::graphql::handler::build_schema());
-
-    // Authorisation
-    // let domain = opt.domain.clone();
-    // let cookie_secret_key = opt.auth_secret_key.clone();
-    // let secure_cookie = opt.secure_cookie;
-    // let auth_duration = time::Duration::hours(i64::from(opt.auth_duration_in_hour));
 
     // Server port
     let port = opt.port;
