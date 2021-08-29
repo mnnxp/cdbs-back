@@ -26,15 +26,30 @@ CREATE TABLE user_ref (
 );
 
 /* токен сессии клиента */
-CREATE TABLE user_tokens_ref (
-  -- id SERIAL, /* id токена */
+CREATE TABLE user_token_ref (
   uuid_user UUID NOT NULL, /* идентификатор пользователя */
   token VARCHAR(4096) NOT NULL, /* токен пользователя */
-  start_at TIMESTAMP NOT NULL DEFAULT NOW(), /* дата создания токена */
-  end_at TIMESTAMP NOT NULL DEFAULT NOW(), /* дата окончания действия токена */
-  -- is_enabled BOOLEAN NOT NULL DEFAULT 't',
-  CHECK(start_at<end_at),
-  CONSTRAINT user_tokens_ref_pk PRIMARY KEY (uuid_user, token)
+  created_at TIMESTAMP NOT NULL DEFAULT NOW(), /* дата создания токена */
+  expiration_at TIMESTAMP NOT NULL DEFAULT NOW(), /* дата окончания действия токена */
+  CHECK(created_at<expiration_at),
+  CONSTRAINT user_token_ref_pk PRIMARY KEY (uuid_user, token)
+);
+
+/* ключи пользователя для доступа к хранилищу */
+CREATE TABLE user_storage_access_ref (
+  uuid_user UUID NOT NULL, /* идентификатор пользователя */
+  application_key_id VARCHAR(512) NOT NULL, /* id ключа пользователя */
+  application_key VARCHAR(512) NOT NULL, /* ключ пользователя */
+  key_expiration_at TIMESTAMP NOT NULL, /* дата окончания действия ключа */
+  bucket_id VARCHAR(512) NOT NULL, /* id корзины в хранилище */
+  api_url VARCHAR(512) NOT NULL, /* url доступа к api */
+  authorization_token VARCHAR(512) NOT NULL, /* токена пользователя */
+  token_expiration_at TIMESTAMP NOT NULL, /* дата окончания действия токена */
+  CONSTRAINT user_storage_access_ref_pk PRIMARY KEY (
+    uuid_user,
+    application_key_id,
+    application_key
+  )
 );
 
 /* запись изменений данных пользователя */

@@ -8,8 +8,15 @@ INSERT INTO user_ref (uuid, email, psw_hash, psw_salt,
   ('e97ea679-4560-4a9b-ad8b-80d2d1912602', 'testemail@testemail.ru', E'\\xc0a6617d8971cac49489078028b6ea4bd6f7929f6e542a1de5cc4c2a0f6fdfce', 'a13%A1r9kCmDHieCl(^Yt$~traAIlnTM(0#vHvjE&tZ@9Cm2OJKCKENu6&a2pTrd*Z%qQyiYXX@fG2j7XeBLx4FYY9tkSK*B^yV)0s$sQ!y)qBL#!RDxcxZLPEKD5@lg', 'testfirstname', 'testlastname', 'testsecondname', 'testingname', '+1234567890', 'testdescription', 'testaddress', 'testposition', 'Europe/Moscow', 'bc1c2151-86d0-4656-9c9d-d016dd584297', 5, 1, 'f', 't', 'f', now(), now()),
   ('c3f5f69c-bb54-45d9-bfa7-1d28cc1afa5a', 'bname@somain.com', E'\\xfdeba1b9304208da90c90ddb6fe0ee49787b085636b26f156d6240869bdb3665', 'ThmlF#HCNEX6%##AFGH(%0Tdo0w$5kh(WA9%@KwHe3mrVlhMIj~NxeiiJyh~Ty1t(J3F#lGDWFFJRZnV1&WFMA%Rl5~8qvfW)5WjL&qm%jSuFx1Uslth^a$64YkJjN)q', 'Xans', 'Gpero', 'Bado', 'testusertext', 'none', 'none', 'noneadress', 'noneposition', 'Europe/Moscow', 'bc1c2151-86d0-4656-9c9d-d016dd584297', 4, 1, 'f', 't', 'f', now(), now());
 
-INSERT INTO user_tokens_ref (uuid_user, token, start_at, end_at) VALUES
+INSERT INTO user_token_ref (uuid_user, token, created_at, expiration_at) VALUES
   ('31ecc6f8-0c09-4a59-a2d5-34b5b833e59b', 'eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpc3MiOiIwLjAuMC4wIiwic3ViIjoiMzFlY2M2ZjgtMGMwOS00YTU5LWEyZDUtMzRiNWI4MzNlNTliIiwiaWF0IjoxNjI3MjE0Njc3LCJleHAiOjE2MjczMDEwNzcsInVzZXJuYW1lIjoidXNlcm5hbWVlZWUiLCJpZF9wcm9ncmFtIjoxfQ.qZXPJTEEJRujUXRcLlrVMp5x1SW2M-2vAEqlGVtzpchIvehgWDtq7MdJLY21WOw5KApOr80MAzGzwTJTAt5XCb__sNv1ufZRqKcK6B_aBYQvq-Ph8cLF7qdQc1y6FI-vPfp5U_wtNNmtdEmp6q04gYpK6n4MP0UeIts9ILDuQgu0NGRYJqkXEyGiztIwd_Rw12mSZ3yanfT34ZQHB-HFjxPHeJ3QtxWXhuE1TcDFCmF_ca-ikrz-ygC7TiYTyOVuRQEkp3GIT7nPlUVpqtmjmAnLNL-U8ioABQj5SEsVCP5EDRPW2RSMJzmTdcArYZ4NlaWGxLWI33L3v2YNn-Kl71sGuwytYjfLQhK9F2SxydYE-C6Z1EUfDMdH2UsqcKwXQLYYPC9MTJR76JqU1SvhDMqAzj0eIIonHJi0YO5U_ZUfzsG04ocmARW8Q2cEws1tPUYxD67AlN_d1OO2Nu4yQQdAEBTH8Ef3Yq7_KANwX4aUrgLEWgOXj3qD2CpWMyarq_JFiobVbVqK549kWgqY2WALw_jyQQQ8IbszeNGpeBjePFI89PdoOXvavGrh-_y1JkW3qGiScO2D1DzzbyZA-Bw41RBJGR9DpYuy6tF4wlIyZvwKhv758Kh5MZLR0PAWC5uiegXokiYuihqTeRAS1IBqadxppIb1WfrEQJIhDW4', now(), now()+interval '1' day);
+
+INSERT INTO user_storage_access_ref (uuid_user, application_key_id, application_key, key_expiration_at, bucket_id, api_url, authorization_token, token_expiration_at) VALUES
+  ('31ecc6f8-0c09-4a59-a2d5-34b5b833e59b', '002cb0e1d5d32050000000002', 'K002F/8X1d6VI1ZyYv5KyFKbEv+V2LY',
+    now()+interval '1000' day, '1c8ba08e816d056d73b20015', 'https://api002.backblazeb2.xcom',
+    '4_002cb0e1d5d32050000000002_019e8cef_cc60fb_acct_UlB8zXtzZNYNoA6BfNFlKQShbbU=',
+    now()
+  );
 
 INSERT INTO user_history_list (uuid_user, id_type_of_change, old_data, changed_at) VALUES
   ('31ecc6f8-0c09-4a59-a2d5-34b5b833e59b', 1, 'Комментарий к изменению', now());

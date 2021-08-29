@@ -714,11 +714,24 @@ table! {
 }
 
 table! {
-    user_tokens_ref (uuid_user, token) {
+    user_storage_access_ref (uuid_user, application_key_id, application_key) {
+        uuid_user -> Uuid,
+        application_key_id -> Varchar,
+        application_key -> Varchar,
+        key_expiration_at -> Timestamp,
+        bucket_id -> Varchar,
+        api_url -> Varchar,
+        authorization_token -> Varchar,
+        token_expiration_at -> Timestamp,
+    }
+}
+
+table! {
+    user_token_ref (uuid_user, token) {
         uuid_user -> Uuid,
         token -> Varchar,
-        start_at -> Timestamp,
-        end_at -> Timestamp,
+        created_at -> Timestamp,
+        expiration_at -> Timestamp,
     }
 }
 
@@ -851,7 +864,8 @@ joinable!(user_history_list -> type_of_change_ref (id_type_of_change));
 joinable!(user_history_list -> user_ref (uuid_user));
 joinable!(user_ref -> program_ref (id_program));
 joinable!(user_ref -> region_ref (id_region));
-joinable!(user_tokens_ref -> user_ref (uuid_user));
+joinable!(user_storage_access_ref -> user_ref (uuid_user));
+joinable!(user_token_ref -> user_ref (uuid_user));
 
 allow_tables_to_appear_in_same_query!(
     actual_status_ref,
@@ -934,5 +948,6 @@ allow_tables_to_appear_in_same_query!(
     user_fav,
     user_history_list,
     user_ref,
-    user_tokens_ref,
+    user_storage_access_ref,
+    user_token_ref,
 );

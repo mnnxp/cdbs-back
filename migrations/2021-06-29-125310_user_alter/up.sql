@@ -3,7 +3,9 @@ ALTER TABLE user_ref ADD CONSTRAINT user_ref_fk0 FOREIGN KEY (uuid_image_file) R
 ALTER TABLE user_ref ADD CONSTRAINT user_ref_fk1 FOREIGN KEY (id_region) REFERENCES region_ref(id);
 ALTER TABLE user_ref ADD CONSTRAINT user_ref_fk2 FOREIGN KEY (id_program) REFERENCES program_ref(id);
 
-ALTER TABLE user_tokens_ref ADD CONSTRAINT user_tokens_ref_fk0 FOREIGN KEY (uuid_user) REFERENCES user_ref(uuid);
+ALTER TABLE user_token_ref ADD CONSTRAINT user_token_ref_fk0 FOREIGN KEY (uuid_user) REFERENCES user_ref(uuid);
+
+ALTER TABLE user_storage_access_ref ADD CONSTRAINT user_storage_access_ref_fk0 FOREIGN KEY (uuid_user) REFERENCES user_ref(uuid);
 
 ALTER TABLE user_history_list ADD CONSTRAINT user_history_list_fk0 FOREIGN KEY (uuid_user) REFERENCES user_ref(uuid);
 ALTER TABLE user_history_list ADD CONSTRAINT user_history_list_fk1 FOREIGN KEY (id_type_of_change) REFERENCES type_of_change_ref(id);
