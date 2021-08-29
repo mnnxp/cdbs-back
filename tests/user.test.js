@@ -479,8 +479,8 @@ describe('users', () => {
           showTokens {
             uuidUser
             token
-            startAt
-            endAt
+            createdAt
+            expirationAt
           }
         }`,
       })
@@ -489,7 +489,7 @@ describe('users', () => {
     const {
       data: { showTokens },
     } = response1.body;
-    expect(showTokens[0]).toContainAllKeys(['uuidUser', 'token', 'startAt', 'endAt']);
+    expect(showTokens[0]).toContainAllKeys(['uuidUser', 'token', 'createdAt', 'expirationAt']);
     uuidUserFirst = showTokens[0].uuidUser;
     done();
   });
@@ -783,8 +783,8 @@ describe('users', () => {
           showTokens {
             uuidUser
             token
-            startAt
-            endAt
+            createdAt
+            expirationAt
           }
         }`,
       })
