@@ -4,6 +4,14 @@ use async_graphql::{ErrorExtensions, FieldError};
 use std::convert::From;
 use thiserror::Error;
 
+#[derive(Error, Debug)]
+pub enum HostingError {
+    #[error("Error whith access to backblaze")]
+    BadRequest(#[from] reqwest::Error),
+    #[error("Backblaze error: {0}")]
+    BackblazeError(String),
+}
+
 #[derive(Debug, Error, Serialize, Clone)]
 pub enum ServiceError {
     #[error("Internal Server Error")]
