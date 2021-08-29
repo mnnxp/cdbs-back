@@ -8,17 +8,17 @@ use uuid::Uuid;
 pub struct UserToken {
     pub uuid_user: Uuid,
     pub token: String,
-    pub start_at: NaiveDateTime,
-    pub end_at: NaiveDateTime,
+    pub created_at: NaiveDateTime,
+    pub expiration_at: NaiveDateTime,
 }
 
 #[derive(Debug, Insertable)]
-#[table_name = "user_tokens_ref"]
+#[table_name = "user_token_ref"]
 pub struct InsertableUserToken {
     pub uuid_user: Uuid,
     pub token: String,
-    pub start_at: NaiveDateTime,
-    pub end_at: NaiveDateTime,
+    pub created_at: NaiveDateTime,
+    pub expiration_at: NaiveDateTime,
 }
 
 #[Object]
@@ -29,11 +29,11 @@ impl UserToken {
     async fn token(&self) -> &String {
         &self.token
     }
-    async fn start_at(&self) -> &NaiveDateTime {
-        &self.start_at
+    async fn created_at(&self) -> &NaiveDateTime {
+        &self.created_at
     }
-    async fn end_at(&self) -> &NaiveDateTime {
-        &self.end_at
+    async fn expiration_at(&self) -> &NaiveDateTime {
+        &self.expiration_at
     }
 }
 
@@ -42,16 +42,16 @@ impl From<UserToken> for InsertableUserToken {
         let UserToken {
             uuid_user,
             token,
-            start_at,
-            end_at,
+            created_at,
+            expiration_at,
             ..
         } = user_data;
 
         Self {
             uuid_user,
             token,
-            start_at,
-            end_at,
+            created_at,
+            expiration_at,
         }
     }
 }

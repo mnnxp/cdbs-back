@@ -28,9 +28,9 @@ pub(crate) fn show_tokens(
     auth_uuid_user: Uuid,
 ) -> Result<Vec<UserToken>, ServiceError> {
     let conn: &PooledConnection = &get_conn(context)?;
-    use crate::schema::user_tokens_ref::dsl::*;
+    use crate::schema::user_token_ref::dsl::*;
 
-    user_tokens_ref
+    user_token_ref
         .filter(uuid_user.eq(auth_uuid_user))
         .load(conn)
         .map_err(|e| ServiceError::BadRequest(e.to_string()))
@@ -74,57 +74,57 @@ pub(crate) fn update(context: &Context<'_>, flag_delete_token: bool) -> Result<T
     }
 }
 
-/// delete token to table user_tokens_ref of database
+/// delete token to table user_token_ref of database
 pub(crate) fn delete_token(target_token: &str, conn: &PooledConnection) -> Result<UserToken, ServiceError> {
-    use crate::schema::user_tokens_ref::dsl::*;
+    use crate::schema::user_token_ref::dsl::*;
 
-    let updated_token: UserToken = diesel::delete(user_tokens_ref)
+    let updated_token: UserToken = diesel::delete(user_token_ref)
         .filter(token.eq(&target_token))
         .get_result(conn)?;
     Ok(updated_token)
 }
 
-/// delete target token to table user_tokens_ref of database
+/// delete target token to table user_token_ref of database
 pub(crate) fn delete_user_token(
     context: &Context<'_>,
     target_token: &str,
     auth_uuid_user: Uuid,
 ) -> Result<i32, ServiceError> {
     let conn: &PooledConnection = &get_conn(context)?;
-    use crate::schema::user_tokens_ref::dsl::*;
+    use crate::schema::user_token_ref::dsl::*;
 
-    let updated_token: usize = diesel::delete(user_tokens_ref)
+    let updated_token: usize = diesel::delete(user_token_ref)
         .filter(uuid_user.eq(&auth_uuid_user))
         .filter(token.eq(&target_token))
         .execute(conn)?;
     Ok(updated_token as i32)
 }
 
-/// delete tokens to table user_tokens_ref of database
+/// delete tokens to table user_token_ref of database
 pub(crate) fn delete_all_tokens(
     context: &Context<'_>,
     target_uuid_user: Uuid,
 ) -> Result<i32, ServiceError> {
     let conn: &PooledConnection = &get_conn(context)?;
-    use crate::schema::user_tokens_ref::dsl::*;
+    use crate::schema::user_token_ref::dsl::*;
 
-    let updated_token: usize = diesel::delete(user_tokens_ref)
+    let updated_token: usize = diesel::delete(user_token_ref)
         .filter(uuid_user.eq_all(&target_uuid_user))
         .execute(conn)?;
     Ok(updated_token as i32)
 }
 
-/// write token to table user_tokens_ref of database
+/// write token to table user_token_ref of database
 pub(crate) fn write_token(
     new_token: &str,
     jwt: Claims,
     conn: &PooledConnection,
 ) -> Result<UserToken, ServiceError> {
-    use crate::schema::user_tokens_ref::dsl::user_tokens_ref;
-    use crate::schema::user_tokens_ref::dsl::token;
+    use crate::schema::user_token_ref::dsl::user_token_ref;
+    use crate::schema::user_token_ref::dsl::token;
 
     // find duplicate token
-    let find_token = user_tokens_ref
+    let find_token = user_token_ref
         .filter(token.eq(new_token))
         .execute(conn).unwrap_or(0);
 
@@ -135,11 +135,11 @@ pub(crate) fn write_token(
             let user_token = InsertableUserToken {
                 uuid_user: Uuid::parse_str(&jwt.sub)?,
                 token: new_token.to_string(),
-                start_at: NaiveDateTime::from_timestamp(jwt.iat, 0),
-                end_at: NaiveDateTime::from_timestamp(jwt.exp, 0),
+                created_at: NaiveDateTime::from_timestamp(jwt.iat, 0),
+                expiration_at: NaiveDateTime::from_timestamp(jwt.exp, 0),
             };
 
-            let inserted_token: UserToken = diesel::insert_into(user_tokens_ref)
+            let inserted_token: UserToken = diesel::insert_into(user_token_ref)
             .values(&user_token)
             .get_result(conn)?;
             Ok(inserted_token)
@@ -154,13 +154,13 @@ pub(crate) fn check_token(
     target_token: &str,
     conn: &PooledConnection,
 ) -> Result<bool, ServiceError> {
-    use crate::schema::user_tokens_ref::dsl::*;
+    use crate::schema::user_token_ref::dsl::*;
 
     let naive_local_now = chrono::Local::now().naive_local();
 
-    let find_token = user_tokens_ref
+    let find_token = user_token_ref
         .filter(token.eq(target_token))
-        .filter(end_at.gt(naive_local_now))
+        .filter(expiration_at.gt(naive_local_now))
         .execute(conn).unwrap();
 
     match find_token as i32 {
@@ -175,9 +175,9 @@ pub(crate) fn whose_token(
     target_token: &str,
     conn: &PooledConnection,
 ) -> Result<Uuid, ServiceError> {
-    use crate::schema::user_tokens_ref::dsl::*;
+    use crate::schema::user_token_ref::dsl::*;
 
-    user_tokens_ref
+    user_token_ref
         .filter(token.eq(target_token))
         .select(uuid_user)
         .first(conn)
