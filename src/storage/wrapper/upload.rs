@@ -15,11 +15,15 @@ pub(crate) async fn get_url_upload_file(
     let conn = pool.get().unwrap();
     let mut user_storage_access = UserStorageAccess::get(&target_user.0, &conn);
 
+    // if not found valid access data in the database,
     if user_storage_access.is_err() {
+        // requested generate new token is  for key
         user_storage_access = get_user_storage_access(target_user.clone(), pool.clone()).await;
     }
 
+    // if the access data could not be found in the database,
     if user_storage_access.is_err() {
+        // is requested new key for user
         user_storage_access = get_new_storage_access(target_user, pool).await;
     }
 
