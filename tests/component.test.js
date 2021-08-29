@@ -277,7 +277,7 @@ async function cleanupCompanyRepresentDb() {
 }
 
 async function cleanupTokenDb() {
-  return global.knex.raw('DELETE FROM user_tokens_ref');
+  return global.knex.raw('DELETE FROM user_token_ref');
 }
 
 async function cleanupUserDb() {
