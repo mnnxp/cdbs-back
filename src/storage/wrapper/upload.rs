@@ -13,6 +13,8 @@ pub(crate) async fn get_url_upload_file(
     pool: PgConn,
 ) -> ServiceResult<UploadUrlData> {
     let conn = pool.get().unwrap();
+
+    // search for the valid token for user in the database
     let mut user_storage_access = UserStorageAccess::get(&target_user.0, &conn);
 
     // if not found valid access data in the database,
