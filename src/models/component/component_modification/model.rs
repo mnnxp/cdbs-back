@@ -65,8 +65,8 @@ pub struct ComponentModificationAndRelatedData {
     pub actual_status: ActualStatusTranslateList,
     // pub id_actual_status: i32,
     pub updated_at: NaiveDateTime,
-    pub set_files_for_program: Vec<SetOfFilesProgramRelatedData>,
-    pub param_modification: Vec<ModificationParamWithTranslation>,
+    pub filesets_for_program: Vec<SetOfFilesProgramRelatedData>,
+    pub modification_params: Vec<ModificationParamWithTranslation>,
 }
 
 impl From<(
@@ -88,34 +88,16 @@ impl From<(
             actual_status: data.0.actual_status,
             // id_actual_status: data.0.modification.id_actual_status,
             updated_at: data.0.modification.updated_at,
-            set_files_for_program: data.1,
-            param_modification: data.2,
+            filesets_for_program: data.1,
+            modification_params: data.2,
         }
     }
 }
-
-// #[derive(Deserialize, Debug)]
-// pub struct ComponentModificationWithParam {
-//     pub info: ComponentModificationWithActualStatus,
-//     pub params: Vec<ModificationParamWithTranslation>,
-// }
-//
-//
-// impl From<(ComponentModificationWithActualStatus, Vec<ModificationParamWithTranslation>)> for ComponentModificationWithParam {
-//     fn from(data: (ComponentModificationWithActualStatus, Vec<ModificationParamWithTranslation>)) -> Self {
-//         Self {
-//             info: data.0,
-//             params: data.1,
-//         }
-//     }
-// }
-
 
 #[derive(Deserialize, Clone, Debug)]
 pub struct ComponentModificationWithActualStatus {
     pub modification: ComponentModification,
     pub actual_status: ActualStatusTranslateList,
-    // pub params: Vec<ModificationParamWithTranslation>,
 }
 
 impl From<(ComponentModification, ActualStatusTranslateList)> for ComponentModificationWithActualStatus {

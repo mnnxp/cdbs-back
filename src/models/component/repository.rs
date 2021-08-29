@@ -73,7 +73,7 @@ impl ShowComponentShort {
             ).expect("Error get is_followed");
 
             // get licenses for component
-            let license: Vec<License> = License::get_by_component(
+            let licenses: Vec<License> = License::get_by_component(
                 &component,
                 conn
             ).expect("Error loading license");
@@ -83,7 +83,7 @@ impl ShowComponentShort {
                 .expect("Error loading component_file");
 
             // collect data for supplier component
-            let supplier_component_with_relate: Vec<ComponentSupplierRelatedData> = ComponentSupplierRelatedData::get_first_supplier(
+            let component_suppliers_with_related_data: Vec<ComponentSupplierRelatedData> = ComponentSupplierRelatedData::get_first_supplier(
                 &component,
                 conn
             ).expect("Error loading supplier_component_with_relate");
@@ -99,9 +99,9 @@ impl ShowComponentShort {
                 is_followed,
                 is_standard: component.is_standard,
                 updated_at: component.updated_at,
-                license,
-                file: component_files,
-                supplier_component: supplier_component_with_relate,
+                licenses,
+                files: component_files,
+                component_suppliers: component_suppliers_with_related_data,
             });
         }
         Ok(result)
@@ -147,59 +147,59 @@ impl ComponentAndRelatedData {
             &component.id_actual_status,
             set_id_lang,
             conn
-        ).expect("Error loading actual_status");
+        ).expect("Error loading actual status");
 
         // count subscribers component
         let component_subscribers_count: i32 = ComponentFav::get_count_followers_by_uuid(&component.uuid, conn)?;
 
         // get params with translation for component
-        let param_component_with_translate: Vec<ComponentParamWithTranslation> = ComponentParamWithTranslation::for_component(
+        let params_component_with_translate: Vec<ComponentParamWithTranslation> = ComponentParamWithTranslation::for_component(
             &component,
             set_id_lang,
             conn
-        ).expect("Error loading param_component_with_translate");
+        ).expect("Error loading params component with translate");
 
         // get licenses for component
-        let license: Vec<License> = License::get_by_component(
+        let licenses: Vec<License> = License::get_by_component(
             &component,
             conn
         ).expect("Error loading license");
 
         // get files for component
-        let component_file = ShowFile::for_component(&component, conn)
-            .expect("Error loading component_file");
+        let component_files = ShowFile::for_component(&component, conn)
+            .expect("Error loading component files");
 
         // get specs with translation for component
-        let spec_component_with_translate: Vec<ComponentSpecWithTranslation> = ComponentSpecWithTranslation::for_component(
+        let component_specs_with_translate: Vec<ComponentSpecWithTranslation> = ComponentSpecWithTranslation::for_component(
             &component,
             set_id_lang,
             conn
-        ).expect("Error loading spec_component_with_translate");
+        ).expect("Error loading spec component with translate");
 
         // get keywords for component
-        let keyword_component: Vec<Keyword> = Keyword::get_by_component(
+        let component_keywords: Vec<Keyword> = Keyword::get_by_component(
             &component,
             conn
-        ).expect("Error loading keyword_component");
+        ).expect("Error loading component keywords");
 
         // collect data for modifications the component
-        let component_modification: Vec<ComponentModification> = ComponentModification::for_component_without_related_data(
+        let component_modifications: Vec<ComponentModification> = ComponentModification::for_component_without_related_data(
             &component,
             conn
-        ).expect("Error loading component_modification");
+        ).expect("Error loading component modifications");
 
         // get list component modifications with related data and translation
-        let component_modification_with_relate: Vec<ComponentModificationAndRelatedData> = ComponentModificationAndRelatedData::for_component_modification_list(
-            &component_modification,
+        let component_modifications_with_related_data: Vec<ComponentModificationAndRelatedData> = ComponentModificationAndRelatedData::for_component_modification_list(
+            &component_modifications,
             set_id_lang,
             conn
-        ).expect("Error loading component_modification_with_relate");
+        ).expect("Error loading component modifications with related data");
 
         // collect data for supplier component
-        let supplier_component_with_relate: Vec<ComponentSupplierRelatedData> = ComponentSupplierRelatedData::for_component(
+        let component_suppliers_with_related_data: Vec<ComponentSupplierRelatedData> = ComponentSupplierRelatedData::for_component(
             &component,
             conn
-        ).expect("Error loading supplier_component_with_relate");
+        ).expect("Error loading supplier component with relate");
 
         let result = ComponentAndRelatedData {
             uuid: (component.uuid),
@@ -213,13 +213,13 @@ impl ComponentAndRelatedData {
             is_standard: (component.is_standard),
             subscribers: component_subscribers_count,
             updated_at: (component.updated_at),
-            param_component: (param_component_with_translate),
-            license: (license),
-            file: (component_file),
-            spec_component: (spec_component_with_translate),
-            keyword_component: (keyword_component),
-            component_modification: (component_modification_with_relate),
-            supplier_component: (supplier_component_with_relate),
+            component_params: (params_component_with_translate),
+            licenses: (licenses),
+            files: (component_files),
+            component_specs: (component_specs_with_translate),
+            component_keywords: (component_keywords),
+            component_modifications: (component_modifications_with_related_data),
+            component_suppliers: (component_suppliers_with_related_data),
         };
 
         Ok(result)

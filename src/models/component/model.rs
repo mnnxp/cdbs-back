@@ -86,13 +86,13 @@ pub struct ComponentAndRelatedData {
     pub is_standard: bool,
     pub subscribers: i32,
     pub updated_at: NaiveDateTime,
-    pub license: Vec<License>,
-    pub param_component: Vec<ComponentParamWithTranslation>,
-    pub file: Vec<ShowFile>,
-    pub spec_component: Vec<ComponentSpecWithTranslation>,
-    pub keyword_component: Vec<Keyword>,
-    pub component_modification: Vec<ComponentModificationAndRelatedData>,
-    pub supplier_component: Vec<ComponentSupplierRelatedData>,
+    pub licenses: Vec<License>,
+    pub component_params: Vec<ComponentParamWithTranslation>,
+    pub files: Vec<ShowFile>,
+    pub component_specs: Vec<ComponentSpecWithTranslation>,
+    pub component_keywords: Vec<Keyword>,
+    pub component_modifications: Vec<ComponentModificationAndRelatedData>,
+    pub component_suppliers: Vec<ComponentSupplierRelatedData>,
 }
 
 
@@ -109,11 +109,11 @@ pub struct ShowComponentShort {
     pub is_followed: bool,
     pub is_standard: bool,
     pub updated_at: NaiveDateTime,
-    pub license: Vec<License>,
+    pub licenses: Vec<License>,
     // files for show image (models, draw)
-    pub file: Vec<ShowFile>,
+    pub files: Vec<ShowFile>,
     // show first supplier company
-    pub supplier_component: Vec<ComponentSupplierRelatedData>,
+    pub component_suppliers: Vec<ComponentSupplierRelatedData>,
 }
 
 #[derive(Debug, Insertable)]

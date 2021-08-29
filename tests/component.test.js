@@ -105,12 +105,12 @@ actualStatus { \
 isStandard \
 subscribers \
 updatedAt \
-license { \
+licenses { \
   id \
   name \
   publicationAt \
 } \
-paramComponent { \
+componentParams { \
   uuidComponent \
   param { \
     idParam \
@@ -119,7 +119,7 @@ paramComponent { \
   } \
   value \
 } \
-file { \
+files { \
   uuid \
   uuidFileParent \
   uuidUser \
@@ -131,7 +131,7 @@ file { \
   createdAt \
   updatedAt \
 } \
-specComponent { \
+componentSpecs { \
   spec { \
     idSpec \
     idLang \
@@ -139,17 +139,17 @@ specComponent { \
   } \
   uuidComponent \
 } \
-keywordComponent { \
+componentKeywords { \
   id \
   keyword \
 } \
-componentModification {  \
+componentModifications {  \
   uuid \
   uuidComponent \
   uuidModificationParent \
   modificationName \
   description \
-  setFilesForProgram { \
+  filesetsForProgram { \
     id \
     uuidModification \
       program { \
@@ -163,7 +163,7 @@ componentModification {  \
     name \
   } \
   updatedAt \
-  paramModification { \
+  modificationParams { \
     uuidModification \
     param { \
       idParam \
@@ -173,7 +173,7 @@ componentModification {  \
     value \
   } \
 } \
-supplierComponent { \
+componentSuppliers { \
   supplier { \
     uuid \
     isSupplier \
@@ -203,15 +203,15 @@ actualStatus { \
 isFollowed \
 isStandard \
 updatedAt \
-license { \
+licenses { \
   keyword \
 } \
-file { \
+files { \
   uuid \
   filename \
   pathFile \
 } \
-supplierComponent { \
+componentSuppliers { \
   uuidComponent \
   supplier { \
     uuid \
@@ -839,19 +839,19 @@ describe('component', () => {
     expect(body.data.component.ownerUser.imageFile.pathFile).toBeNonEmptyString();
     expect(body.data.component.componentType.componentType).toBeNonEmptyString();
     expect(body.data.component.actualStatus.name).toBeNonEmptyString();
-    expect(body.data.component.license[0].name).toBeNonEmptyString();
+    expect(body.data.component.licenses[0].name).toBeNonEmptyString();
     expect(body.data.component.subscribers).toBe(subscribersCount);
-    expect(body.data.component.paramComponent).toBeNonEmptyArray();
-    expect(body.data.component.file).toBeNonEmptyArray();
-    expect(body.data.component.specComponent).toBeNonEmptyArray();
-    expect(body.data.component.keywordComponent).toBeNonEmptyArray();
-    expect(body.data.component.componentModification[0].uuid).toBeNonEmptyString();
-    expect(body.data.component.componentModification[0].uuidComponent).toBe(uuidComponentParent);
-    expect(body.data.component.componentModification[0].actualStatus.name).toBeNonEmptyString();
-    expect(body.data.component.componentModification[0].setFilesForProgram[0].program.name).toBeNonEmptyString();
-    expect(body.data.component.componentModification[0].paramModification).toBeNonEmptyArray();
-    expect(body.data.component.supplierComponent[0].uuidComponent).toBe(uuidComponentParent);
-    expect(body.data.component.supplierComponent[0].supplier.shortname).toBeNonEmptyString();
+    expect(body.data.component.componentParams).toBeNonEmptyArray();
+    expect(body.data.component.files).toBeNonEmptyArray();
+    expect(body.data.component.componentSpecs).toBeNonEmptyArray();
+    expect(body.data.component.componentKeywords).toBeNonEmptyArray();
+    expect(body.data.component.componentModifications[0].uuid).toBeNonEmptyString();
+    expect(body.data.component.componentModifications[0].uuidComponent).toBe(uuidComponentParent);
+    expect(body.data.component.componentModifications[0].actualStatus.name).toBeNonEmptyString();
+    expect(body.data.component.componentModifications[0].filesetsForProgram[0].program.name).toBeNonEmptyString();
+    expect(body.data.component.componentModifications[0].modificationParams).toBeNonEmptyArray();
+    expect(body.data.component.componentSuppliers[0].uuidComponent).toBe(uuidComponentParent);
+    expect(body.data.component.componentSuppliers[0].supplier.shortname).toBeNonEmptyString();
     done();
   });
 
