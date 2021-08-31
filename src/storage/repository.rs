@@ -126,7 +126,7 @@ impl UserStorageAccess {
             },
             Err(e) => {
                 debug!("Failed get storage old access data: {:#?}", e);
-                Err(ServiceError::BadRequest("Failed get storage access data".to_string()))
+                Err(ServiceError::BadRequest("Failed get storage old access data".to_string()))
             },
         }
     }

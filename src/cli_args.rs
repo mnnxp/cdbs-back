@@ -1,4 +1,5 @@
 use structopt::StructOpt;
+use uuid::Uuid;
 
 /// GraphQl API, Diesel PostgreSQL, session authentication and JWT boilerplate server
 #[derive(StructOpt, Debug, Clone)]
@@ -35,18 +36,10 @@ pub struct Opt {
     pub auth_duration_in_hour: u16,
 
     /// Backblaze
-    #[structopt(long, env = "B2_APPLICATION_KEY_ID", default_value = "002cb0e1d5d32050000000002")]
-    pub b2_application_key_id: String,
-    #[structopt(long, env = "B2_APPLICATION_KEY", default_value = "K002F/8X1d6VI1ZyYv5KyFKbEv+V2LY")]
-    pub b2_application_key: String,
-    #[structopt(long, env = "B2_AUTHORIZATION_TOKEN", default_value = "4_002cb0e1d5d32050000000002_019e8cef_cc60fb_acct_UlB8zXtzZNYNoA6BfNFlKQShbbU=")]
-    pub b2_authorization_token: String,
+    #[structopt(long, env = "UUID_MAIN_ACCESS_B2", parse(try_from_str), default_value = "31ecc6f80c094a59a2d534b5b833e59b")]
+    pub uuid_main_access_b2: Uuid, // <-- for storing the master key and token
     #[structopt(long, env = "B2_ACCOUNT_ID", default_value = "cb0e1d5d3205")]
     pub b2_account_id: String,
-    #[structopt(long, env = "B2_BUCKET_ID", default_value = "1c8ba08e816d056d73b20015")]
-    pub b2_bucket_id: String,
-    #[structopt(long, env = "B2_API_URL", default_value = "https://api002.backblazeb2.com")]
-    pub b2_api_url: String,
-    #[structopt(long, env = "B2_CAPABILITIES", default_value = "listFiles, readFiles, shareFiles, writeFiles, deleteFiles")]
+    #[structopt(long, env = "B2_CAPABILITIES", default_value = "listFiles,readFiles,shareFiles,writeFiles,deleteFiles")]
     pub b2_capabilities: String,
 }

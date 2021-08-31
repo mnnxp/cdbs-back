@@ -23,9 +23,16 @@ pub(crate) async fn get_new_storage_access(
         cli_args::Opt::from_args()
     };
 
-    let api_url = opt.b2_api_url;
-    let authorization_token = opt.b2_authorization_token;
+    let main_access = UserStorageAccess::get(
+        &opt.uuid_main_access_b2,
+        &conn
+    ).expect("Failed get access for generate keys");
 
+    let api_url = main_access.api_url;
+
+    let authorization_token = main_access.authorization_token;
+
+    // todo!(make parameters parsing by means of StructOpt)
     let mut capabilities: Vec<String> = Vec::new();
     // parsing B2_CAPABILITIES from .env
     for capability in opt.b2_capabilities.rsplit(',') {
@@ -39,7 +46,7 @@ pub(crate) async fn get_new_storage_access(
         capabilities, // capabilities
         "autogenerate".to_string(), // key_name
         Some(86400_u64), // valid_duration_in_seconds
-        Some(opt.b2_bucket_id.to_string()), // bucket_id
+        Some(main_access.bucket_id.to_string()), // bucket_id
         None, // name_prefix
         None, // options
     );
@@ -69,7 +76,18 @@ pub(crate) async fn get_new_storage_access(
                 Err(e) => Err(ServiceError::BadRequest(e.to_string())),
             }
         },
-        Err(e) => return Err(ServiceError::BadRequest(e.to_string())),
+        Err(e) => {
+            use crate::storage::wrapper::authorize_account::update_user_token;
+
+            // get user uuid with main access to B2
+            let main_user = TargetUser::from(&opt.uuid_main_access_b2);
+
+            // generate new token for main user
+            let new_token = update_user_token(main_user, pool).await;
+            debug!("Result update main access for B2: {:#?}", new_token);
+
+            return Err(ServiceError::BadRequest(e.to_string()))
+        },
     };
 
 
@@ -82,7 +100,7 @@ pub(crate) async fn get_new_storage_access(
 
                 let bucket_id = match key_data.bucket_id {
                     Some(x) => x,
-                    None => opt.b2_bucket_id.to_string(),
+                    None => main_access.bucket_id,
                 };
 
                 debug!("Bucket id: {:#?}", bucket_id);
@@ -106,7 +124,7 @@ pub(crate) async fn get_new_storage_access(
                 Ok(new_storage_access)
             },
             // Failed with new_auth_data (auth_data)
-            Err(e) => Err(ServiceError::BadRequest(e.to_string())),
+            Err(e) => Err(e),
         },
         // Failed with created_key_data (key_data)
         Err(e) => Err(ServiceError::BadRequest(e.to_string())),
