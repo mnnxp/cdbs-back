@@ -4,6 +4,29 @@ use async_graphql::*;
 use chrono::*;
 use uuid::Uuid;
 
+// list for insert data in related tables
+#[derive(Deserialize, Clone, Debug)]
+pub enum ListObject {
+    User(Uuid),
+    Company(Uuid),
+    Component(Uuid),
+    Modification(Uuid),
+    Standard(Uuid),
+}
+
+impl ListObject {
+    /// Clone Uuid from enum
+    pub fn get_uuid(&self) -> Uuid {
+        match &self {
+            ListObject::User(uuid_object) => *uuid_object,
+            ListObject::Company(uuid_object) => *uuid_object,
+            ListObject::Component(uuid_object) => *uuid_object,
+            ListObject::Modification(uuid_object) => *uuid_object,
+            ListObject::Standard(uuid_object) => *uuid_object,
+        }
+    }
+}
+
 #[derive(Debug, Queryable)]
 pub struct File {
     pub uuid: Uuid,
@@ -13,7 +36,7 @@ pub struct File {
     pub filename: String,
     pub content_type: String,
     pub id_ext: i32,
-    pub filesize: i32,
+    pub filesize: i64,
     pub path_file: String,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
@@ -29,7 +52,7 @@ pub struct ShowFile {
     pub filename: String,
     pub content_type: String,
     pub id_ext: i32,
-    pub filesize: i32,
+    pub filesize: i64,
     pub path_file: String,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
@@ -55,7 +78,7 @@ impl ShowFile {
     async fn id_ext(&self) -> &i32 {
         &self.id_ext
     }
-    async fn filesize(&self) -> &i32 {
+    async fn filesize(&self) -> &i64 {
         &self.filesize
     }
     async fn path_file(&self) -> &String {
@@ -79,34 +102,89 @@ pub struct InsertableFile {
     pub filename: String,
     pub content_type: String,
     pub id_ext: i32,
-    pub filesize: i32,
+    pub filesize: i64,
     pub path_file: String,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
 }
 
-// #[derive(Debug, Deserialize, Clone, InputObject)]
-// pub struct IptFileData {
-//     pub uuid_file_parent: ID,
-//     pub hash:  Vec<u8>,
-//     pub uuid_user: ID,
-//     pub filename: String,
-//     pub content_type: String,
-//     pub id_ext: i32,
-//     pub filesize: i32,
-//     pub path_file: String,
-// }
 
-#[derive(Debug, Deserialize)]
-pub struct FileData {
+impl From<PreliminaryFileData> for InsertableFile {
+    fn from(data: PreliminaryFileData) -> Self {
+        let PreliminaryFileData {
+            uuid_file_parent,
+            object,
+            uuid_user,
+            filename,
+            id_ext,
+            content_type,
+            // filesize,
+            ..
+        } = data;
+
+        let new_uuid_file = Uuid::new_v4();
+
+        // creating a filename for the storage
+        let path_file = format!("{}/{}",
+            Uuid::to_simple(object.get_uuid()), // <- maybe uuid from component, modification, standard, user etc.
+            // uuid_user,
+            Uuid::to_simple(new_uuid_file),
+        );
+
+        Self {
+            uuid: new_uuid_file,
+            uuid_file_parent,
+            hash: Vec::new(),
+            uuid_user,
+            filename,
+            content_type,
+            id_ext,
+            filesize: 0_i64,
+            path_file,
+            created_at: chrono::Local::now().naive_local(),
+            updated_at: chrono::Local::now().naive_local(),
+        }
+    }
+}
+
+/// For generate file pre-entry in the database
+#[derive(Deserialize, Debug)]
+pub struct PreliminaryFileData {
     pub uuid_file_parent: Uuid,
-    pub hash:  Vec<u8>,
     pub uuid_user: Uuid,
+    pub object: ListObject, // <-- linked object, to create a new name in the storage (file_path)
+    pub filename: String, // <-- sanitizer filename with sanitize_filename::sanitize(&filename)
+    pub id_ext: i32, // <-- get id for extension with find_id_ext(filename, conn)
+    pub content_type: String,
+    // pub filesize: i64,
+}
+
+/// For information about the file before upload to storage
+#[derive(InputObject, Deserialize, Clone, Debug)]
+pub struct IptPreliminaryFileData {
+    pub sha1: String,
     pub filename: String,
     pub content_type: String,
-    pub id_ext: i32,
-    pub filesize: i32,
-    pub path_file: String,
+    // pub filesize: i64,
+}
+
+// /// For information about the file after upload to storage
+// #[derive(InputObject, Deserialize, Clone, Debug)]
+// pub struct FileUploadCompleted {
+//     pub file_id: String,
+//     // pub path_file: String,
+// }
+
+#[derive(Deserialize, Debug)]
+pub struct FileData {
+    pub uuid_file_parent: Option<Uuid>,
+    pub hash: Option<Vec<u8>>,
+    pub uuid_user: Option<Uuid>,
+    pub filename: Option<String>,
+    pub content_type: Option<String>,
+    pub id_ext: Option<i32>,
+    pub filesize: Option<i64>,
+    pub path_file: Option<String>,
 }
 
 #[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, Clone, Debug)]
@@ -115,7 +193,7 @@ pub struct FileData {
 pub struct SlimFile {
     pub uuid: Uuid,
     pub filename: String,
-    pub filesize: i32,
+    pub filesize: i64,
     pub path_file: String,
 }
 
@@ -127,41 +205,11 @@ impl SlimFile {
     async fn filename(&self) -> &String {
         &self.filename
     }
-    async fn filesize(&self) -> &i32 {
+    async fn filesize(&self) -> &i64 {
         &self.filesize
     }
     async fn path_file(&self) -> &String {
         &self.path_file
-    }
-}
-
-impl From<FileData> for InsertableFile {
-    fn from(date_file: FileData) -> Self {
-        let FileData {
-            uuid_file_parent,
-            hash,
-            uuid_user,
-            filename,
-            content_type,
-            id_ext,
-            filesize,
-            path_file,
-            ..
-        } = date_file;
-
-        Self {
-            uuid: Uuid::new_v4(),
-            uuid_file_parent,
-            hash,
-            uuid_user,
-            filename,
-            content_type,
-            id_ext,
-            filesize,
-            path_file,
-            created_at: chrono::Local::now().naive_local(),
-            updated_at: chrono::Local::now().naive_local(),
-        }
     }
 }
 

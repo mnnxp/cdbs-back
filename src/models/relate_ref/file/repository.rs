@@ -1,5 +1,11 @@
 use crate::errors::ServiceResult;
-use crate::models::relate_ref::file::model::{ShowFile, SlimFile};
+use crate::models::relate_ref::file::model::{
+    ListObject,
+    PreliminaryFileData,
+    IptPreliminaryFileData,
+    ShowFile,
+    SlimFile
+};
 use crate::schema::file_ref::dsl as file_ref;
 use diesel::prelude::*;
 use uuid::Uuid;
@@ -78,5 +84,38 @@ impl SlimFile {
                 file_ref::path_file,
             ))
             .load::<SlimFile>(conn)?)
+    }
+}
+
+impl PreliminaryFileData {
+    pub fn from_ipt_preliminary_file_data(
+        uuid_user: Uuid,
+        uuid_file_parent: Uuid,
+        object: ListObject,
+        file_data: IptPreliminaryFileData,
+        conn: &PgConnection,
+    ) -> ServiceResult<PreliminaryFileData> {
+        let IptPreliminaryFileData {
+            filename,
+            content_type,
+            // filesize,
+            ..
+        } = file_data;
+
+        // getting rid of dangerous names
+        let filename = sanitize_filename::sanitize(&filename);
+
+        // get id for extension
+        let id_ext = super::util::find_id_ext(&filename, conn);
+
+        Ok(Self {
+            uuid_file_parent,
+            object,
+            uuid_user,
+            filename,
+            id_ext,
+            content_type,
+            // filesize,
+        })
     }
 }

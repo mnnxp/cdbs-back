@@ -239,7 +239,7 @@ table! {
         filename -> Varchar,
         content_type -> Varchar,
         id_ext -> Int4,
-        filesize -> Int4,
+        filesize -> Int8,
         path_file -> Varchar,
         created_at -> Timestamp,
         updated_at -> Timestamp,

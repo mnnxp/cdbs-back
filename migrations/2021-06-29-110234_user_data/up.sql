@@ -13,7 +13,7 @@ INSERT INTO user_token_ref (uuid_user, token, created_at, expiration_at) VALUES
 
 INSERT INTO user_storage_access_ref (uuid_user, application_key_id, application_key, key_expiration_at, bucket_id, api_url, authorization_token, token_expiration_at) VALUES
   ('31ecc6f8-0c09-4a59-a2d5-34b5b833e59b', '002cb0e1d5d32050000000002', 'K002F/8X1d6VI1ZyYv5KyFKbEv+V2LY',
-    now()+interval '1000' day, '1c8ba08e816d056d73b20015', 'https://api002.backblazeb2.xcom',
+    now()+interval '1000' day, '1c8ba08e816d056d73b20015', 'https://api002.backblazeb2.com',
     '4_002cb0e1d5d32050000000002_019e8cef_cc60fb_acct_UlB8zXtzZNYNoA6BfNFlKQShbbU=',
     now()
   );

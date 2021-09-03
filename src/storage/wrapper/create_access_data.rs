@@ -12,6 +12,7 @@ pub(crate) async fn get_new_storage_access(
     target_user: TargetUser,
     pool: PgConn,
 ) -> ServiceResult<UserStorageAccess> {
+    let pool = pool.clone();
     let conn = pool.get().unwrap();
 
     // Gets enviroment variables from `.env`
@@ -23,10 +24,22 @@ pub(crate) async fn get_new_storage_access(
         cli_args::Opt::from_args()
     };
 
-    let main_access = UserStorageAccess::get(
+    let get_main_access = UserStorageAccess::get(
         &opt.uuid_main_access_b2,
         &conn
-    ).expect("Failed get access for generate keys");
+    );
+
+    if let Err(access_err) = get_main_access {
+        let update = update_main_access(pool.clone()).await;
+        debug!("Update main access after failed fet: {:#?}", update);
+
+        return Err(access_err)
+    };
+
+    let main_access = match get_main_access {
+        Ok(access) => access,
+        Err(e) => return Err(e),
+    };
 
     let api_url = main_access.api_url;
 
@@ -62,6 +75,13 @@ pub(crate) async fn get_new_storage_access(
 
     debug!("Create key data: {:#?}", created_key_data);
 
+    if let Err(e) = created_key_data {
+        let update = update_main_access(pool.clone()).await;
+        debug!("Update main access after failed fet: {:#?}", update);
+
+        return Err(ServiceError::BadRequest(e.to_string()))
+    };
+
     let new_auth_data = match created_key_data {
         Ok(ref key_data) => {
             // AuthorizeAccountData
@@ -77,19 +97,9 @@ pub(crate) async fn get_new_storage_access(
             }
         },
         Err(e) => {
-            use crate::storage::wrapper::authorize_account::update_user_token;
-
-            // get user uuid with main access to B2
-            let main_user = TargetUser::from(&opt.uuid_main_access_b2);
-
-            // generate new token for main user
-            let new_token = update_user_token(main_user, pool).await;
-            debug!("Result update main access for B2: {:#?}", new_token);
-
             return Err(ServiceError::BadRequest(e.to_string()))
         },
     };
-
 
     debug!("New auth data: {:#?}", new_auth_data);
 
@@ -131,4 +141,27 @@ pub(crate) async fn get_new_storage_access(
     }
 }
 
-// Updates and gets storage account and access for user
+// Updates access storage for main user
+pub(crate) async fn update_main_access(
+    pool: PgConn,
+) -> ServiceResult<UserStorageAccess> {
+    use crate::storage::wrapper::authorize_account::update_user_token;
+
+    // Gets enviroment variables from `.env`
+    dotenv::dotenv().ok();
+
+    // Sets options to enviroment variables
+    let opt = {
+        use structopt::StructOpt;
+        cli_args::Opt::from_args()
+    };
+
+    // get user uuid with main access to B2
+    let main_user = TargetUser::from(&opt.uuid_main_access_b2);
+
+    // generate new token for main user
+    let new_token = update_user_token(main_user, pool).await;
+    debug!("Result update main access for B2: {:#?}", new_token);
+
+    Ok(new_token?)
+}

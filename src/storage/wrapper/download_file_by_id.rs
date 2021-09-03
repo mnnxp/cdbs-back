@@ -4,14 +4,15 @@ use crate::models::user::model::TargetUser;
 use crate::storage::model::UserStorageAccess;
 use crate::storage::wrapper::create_access_data::get_new_storage_access;
 use crate::storage::wrapper::authorize_account::get_user_storage_access;
-use crate::storage::backblaze::b2_get_upload_url::b2_get_upload_url;
-use crate::storage::backblaze::b2_types::UploadUrlData;
+use crate::storage::backblaze::b2_download_file_by_id::b2_headers_file_by_id;
+use crate::storage::backblaze::b2_types::FileHeaders;
 
-/// Gets url for upload file
-pub(crate) async fn get_url_upload_file(
+/// Gets only the headers information of file
+pub(crate) async fn get_header_file_by_id(
     target_user: TargetUser,
+    file_id: String,
     pool: PgConn,
-) -> ServiceResult<UploadUrlData> {
+) -> ServiceResult<FileHeaders> {
     let conn = pool.get().unwrap();
 
     // search for the valid token for user in the database
@@ -38,17 +39,18 @@ pub(crate) async fn get_url_upload_file(
 
     let b2_api_url = user_storage_access.api_url;
     let b2_authorization_token = user_storage_access.authorization_token;
-    let b2_bucket_id = user_storage_access.bucket_id;
 
-    let received_url = b2_get_upload_url(
+    let file_headers = b2_headers_file_by_id(
         &b2_api_url,
         &b2_authorization_token,
-        &b2_bucket_id,
+        &file_id,
     ).await;
 
-    debug!("Upload: {:#?}", received_url);
-    match received_url {
-        Ok(url) => Ok(url),
+    debug!("Headers file: {:#?}", file_headers);
+    match file_headers {
+        Ok(file_h) => {
+            Ok(file_h)
+        },
         Err(e) => Err(ServiceError::BadRequest(e.to_string())),
     }
 }
