@@ -2,37 +2,15 @@ use async_graphql::*;
 use chrono::*;
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
-// #[serde(rename_all = "camelCase")]
+#[serde(rename_all = "camelCase")]
 pub struct UploadUrl  {
-    #[serde(rename = "Authorization")]
     pub authorization: String,
-    #[serde(rename = "X-Bz-File-Name")]
     pub file_name: String,
-    #[serde(rename = "Content-Type")]
     pub content_type: String,
-    #[serde(rename = "X-Bz-Content-Sha1")]
     pub content_sha1: String,
-    #[serde(rename = "X-Bz-Server-Side-Encryption")]
     pub server_side_encryption: String,
-    #[serde(rename = "Upload-URL")]
     pub upload_url: String,
 }
-
-// -H "Authorization: $UPLOAD_AUTHORIZATION_TOKEN" \
-// -H "X-Bz-File-Name: $FILE_TO_UPLOAD" \
-// -H "Content-Type: $MIME_TYPE" \
-// -H "X-Bz-Content-Sha1: $SHA1_OF_FILE" \
-// -H "X-Bz-Info-Author: unknown" \
-// -H "X-Bz-Server-Side-Encryption: AES256" \
-
-// curl \
-// -H "Authorization": "4_002cb0e1d5d32050000000012_019eb445_c58b88_upld_Lkqg_k0sdKRNPGbThnDVncW3ZVg=" \
-// -H "X-Bz-File-Name": "4f5eb24dfc9901db49c929e6aff5164afc7dc3ef" \
-// -H "Content-Type": "b2/x-auto" \
-// -H "X-Bz-Content-Sha1": "0c7c609f-0995-4fc6-adb2-a5a976486e15/0c7c609f-0995-4fc6-adb2-a5a976486e15-a4e678e7-f71d-46c3-a6ba-478efc60b6a0" \
-// -H "X-Bz-Server-Side-Encryption: AES256" \
-// --data-binary "@typing_test.dwg" \
-// "https://pod-000-1162-00.backblaze.com/b2api/v2/b2_upload_file/1c8ba08e816d056d73b20015/c002_v0001162_t0035"
 
 #[Object]
 impl UploadUrl {
@@ -82,16 +60,16 @@ impl UploadUrlData {
 #[derive(Deserialize, Serialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct FileHeaders {
-    pub cache_control: String, // cache-control "max-age=0, no-cache, no-store",
-    pub file_name: String, // x-bz-file-name "0c7c609f09954fc6adb2a5a976486e15/38e478ee191d49dabafeef5453bfeb63",
-    pub file_id: String, // x-bz-file-id "4_z1c8ba08e816d056d73b20015_f1119b4a9c64b7621_d20210902_m162659_c002_v0001152_t0007",
-    pub content_sha1: String, // x-bz-content-sha1 "4f5eb24dfc9901db49c929e6aff5164afc7dc3ef",
-    pub upload_timestamp: String, // x-bz-upload-timestamp "1630600019000",
-    pub accept_ranges: String, // accept-ranges "bytes",
-    pub server_side_encryption: String, // x-bz-server-side-encryption "AES256",
-    pub content_type: String, // content-type "application/octet-stream",
-    pub content_length: String, // content-length "33",
-    pub date: NaiveDateTime, // date "Thu, 02 Sep 2021 19:26:19 GMT",
+    pub cache_control: String, // cache-control
+    pub file_name: String, // x-bz-file-name
+    pub file_id: String, // x-bz-file-id
+    pub content_sha1: String, // x-bz-content-sha1
+    pub upload_timestamp: String, // x-bz-upload-timestamp
+    pub accept_ranges: String, // accept-ranges
+    pub server_side_encryption: String, // x-bz-server-side-encryption
+    pub content_type: String, // content-type
+    pub content_length: String, // content-length
+    pub date: NaiveDateTime, // date
 }
 
 impl Default for FileHeaders {
