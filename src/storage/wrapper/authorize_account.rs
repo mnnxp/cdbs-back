@@ -6,7 +6,7 @@ use crate::storage::backblaze::b2_authorize_account::b2_authorize_account;
 
 /// Gets storage of access data in the database
 /// or authorization and  update storage of access data in the database
-pub(crate) async fn get_user_storage_access(
+pub(crate) async fn update_authorized_storage (
     target_user: TargetUser,
     pool: PgConn,
 ) -> ServiceResult<UserStorageAccess> {

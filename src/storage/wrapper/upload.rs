@@ -3,7 +3,7 @@ use crate::database::PgConn;
 use crate::models::user::model::TargetUser;
 use crate::storage::model::UserStorageAccess;
 use crate::storage::wrapper::create_access_data::get_new_storage_access;
-use crate::storage::wrapper::authorize_account::get_user_storage_access;
+use crate::storage::wrapper::authorize_account::update_authorized_storage ;
 use crate::storage::backblaze::b2_get_upload_url::b2_get_upload_url;
 use crate::storage::backblaze::b2_types::UploadUrlData;
 
@@ -20,7 +20,7 @@ pub(crate) async fn get_url_upload_file(
     // if not found valid access data in the database,
     if user_storage_access.is_err() {
         // requested generate new token is  for key
-        user_storage_access = get_user_storage_access(target_user.clone(), pool.clone()).await;
+        user_storage_access = update_authorized_storage (target_user.clone(), pool.clone()).await;
     }
 
     // if the access data could not be found in the database,

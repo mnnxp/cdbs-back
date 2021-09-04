@@ -73,7 +73,8 @@ pub(crate) fn update_file_data_by_name(
     }
     if let Some(value) = new_file_data.filesize {
         count_update_columns += diesel::update(file_ref::file_ref
-            .filter(file_ref::uuid.eq(&target_file_uuid)))
+            .filter(file_ref::uuid.eq(&target_file_uuid)
+            .and(file_ref::filesize.ne(&value))))
             .set(file_ref::filesize.eq(value))
             .execute(conn).unwrap_or_default() as i32;
     }
@@ -84,11 +85,13 @@ pub(crate) fn update_file_data_by_name(
             .execute(conn).unwrap_or_default() as i32;
     }
 
-    // new date for updated_at in file_ref table
-    count_update_columns += diesel::update(file_ref::file_ref
-        .filter(file_ref::uuid.eq(&target_file_uuid)))
-        .set(file_ref::updated_at.eq(chrono::Local::now().naive_local()))
-        .execute(conn).unwrap_or_default() as i32;
+    // new date for updated_at in file_ref table if update more one column
+    if count_update_columns > 0 {
+        count_update_columns += diesel::update(file_ref::file_ref
+            .filter(file_ref::uuid.eq(&target_file_uuid)))
+            .set(file_ref::updated_at.eq(chrono::Local::now().naive_local()))
+            .execute(conn).unwrap_or_default() as i32;
+    }
 
     debug!("Count update columns: {:?}", count_update_columns);
 

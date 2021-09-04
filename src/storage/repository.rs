@@ -13,10 +13,11 @@ impl UserStorageAccess {
         new_storage_access: &UserStorageAccess,
         conn: &PgConnection,
     ) -> ServiceResult<UserStorageAccess> {
+        // search storage access data for target user
         let check_data = user_storage_access_ref::user_storage_access_ref
-            .filter(user_storage_access_ref::uuid_user.eq(&new_storage_access.uuid_user)
-            .and(user_storage_access_ref::application_key_id.eq(&new_storage_access.application_key_id))
-            .and(user_storage_access_ref::application_key.eq(&new_storage_access.application_key)))
+            .filter(user_storage_access_ref::uuid_user.eq(&new_storage_access.uuid_user))
+            // .and(user_storage_access_ref::application_key_id.eq(&new_storage_access.application_key_id))
+            // .and(user_storage_access_ref::application_key.eq(&new_storage_access.application_key)))
             .execute(conn)
             .expect("Failed check storage access data");
 
@@ -31,10 +32,10 @@ impl UserStorageAccess {
             // there is data: updating api_url, authorization_token, token_expiration_at
             1 => {
                 Ok(diesel::update(user_storage_access_ref::user_storage_access_ref
-                        .filter(user_storage_access_ref::uuid_user.eq(&new_storage_access.uuid_user)
-                        .and(user_storage_access_ref::application_key_id.eq(&new_storage_access.application_key_id))
-                        .and(user_storage_access_ref::application_key.eq(&new_storage_access.application_key)))
+                        .filter(user_storage_access_ref::uuid_user.eq(&new_storage_access.uuid_user))
                     ).set((
+                        user_storage_access_ref::application_key_id.eq(&new_storage_access.application_key_id),
+                        user_storage_access_ref::application_key.eq(&new_storage_access.application_key),
                         user_storage_access_ref::authorization_token.eq(&new_storage_access.authorization_token),
                         user_storage_access_ref::token_expiration_at.eq(&new_storage_access.token_expiration_at)
                     ))
@@ -42,7 +43,13 @@ impl UserStorageAccess {
                     .expect("Failed update storage access data"))
             },
             // more duplicate keys
-            _ => Err(ServiceError::BadRequest("Access storage data broken".to_string())),
+            _ => {
+                diesel::delete(user_storage_access_ref::user_storage_access_ref
+                    .filter(user_storage_access_ref::uuid_user.eq(&new_storage_access.uuid_user)))
+                    .execute(conn)
+                    .expect("Failed delete duplicate storage access data");
+                Err(ServiceError::BadRequest("Access storage data broken".to_string()))
+            },
         }
     }
 
