@@ -49,10 +49,16 @@ regex = "1"
 
 ring = "0.16.20"
 sha2 = "0.9.5"
+hmac = "0.11.0"
+base64 = "0.13.0"
+hex = "0.4.3"
 
 digest = "0.9.0"
 blake3 = "1.0.0"
 bytes = "1"
+
+rusoto_core = "0.47.0"
+rusoto_s3 = "0.47.0"
 
 [dev-dependencies]
 actix-rt = "2.2.0"
