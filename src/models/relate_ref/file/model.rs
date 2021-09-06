@@ -156,7 +156,6 @@ pub struct PreliminaryFileData {
     pub filename: String, // <-- sanitizer filename with sanitize_filename::sanitize(&filename)
     pub id_ext: i32, // <-- get id for extension with find_id_ext(filename, conn)
     pub content_type: String,
-    // pub filesize: i64,
 }
 
 /// For information about the file before upload to storage
@@ -165,15 +164,7 @@ pub struct IptPreliminaryFileData {
     pub sha1: String,
     pub filename: String,
     pub content_type: String,
-    // pub filesize: i64,
 }
-
-// /// For information about the file after upload to storage
-// #[derive(InputObject, Deserialize, Clone, Debug)]
-// pub struct FileUploadCompleted {
-//     pub file_id: String,
-//     // pub path_file: String,
-// }
 
 #[derive(Deserialize, Debug)]
 pub struct FileData {

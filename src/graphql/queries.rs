@@ -1,6 +1,7 @@
 // use crate::cli_args::Opt;
 use crate::errors::ServiceResult;
 use crate::jwt::model::{Claims, Token};
+use crate::database::get_pool;
 use crate::models::company::company_represent::model::ShowCompanyRepresent;
 use crate::models::company::company_represent::service as company_represent;
 use crate::models::company::model::ShowCompany;
@@ -9,7 +10,7 @@ use crate::models::component::model::{ShowComponentShort, ComponentAndRelatedDat
 use crate::models::component::component_modification::file_to_set_modification::model::FileToSetModification;
 use crate::models::component::component_modification::file_to_set_modification as component_modification_file_to_set_modification;
 use crate::models::component::service as component;
-use crate::models::user::model::{SlimUser, ShowUser};
+use crate::models::user::model::{SlimUser, ShowUser, TargetUser};
 use crate::models::user::service::token::model::UserToken;
 use crate::models::user::notification::model::Notification;
 use crate::models::user::notification::service as notification;
@@ -28,6 +29,8 @@ use crate::models::relate_ref::program::model::Program;
 use crate::models::relate_ref::program as program;
 use crate::models::relate_ref::spec::model::SpecTranslateList;
 use crate::models::relate_ref::spec as spec;
+// use crate::models::relate_ref::file::model::SlimFile;
+use crate::models::relate_ref::file as file;
 use async_graphql::Context;
 use uuid::Uuid;
 
@@ -404,5 +407,26 @@ impl QueryRoot {
         let offset: i32 = offset.unwrap_or(0);
 
         get_files_set_modification(context, id_set, limit, offset)
+    }
+
+    async fn presigned_url(
+        &self,
+        context: &Context<'_>,
+        uuid_file: String,
+    ) -> ServiceResult<String> {
+        let pool = get_pool(context)?;
+
+        // authorization check
+        let target_user = TargetUser::from(
+            &crate::models::user::get_auth_uuid_user(context, true)?
+        );
+
+        let target_uuid_file = Uuid::parse_str(&uuid_file).unwrap();
+
+        Ok(file::service::list::get_url_file_by_uuid(
+            target_user,
+            target_uuid_file,
+            pool
+        ).await?)
     }
 }

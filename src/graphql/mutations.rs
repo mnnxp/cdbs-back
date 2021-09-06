@@ -2,7 +2,7 @@ use crate::errors::ServiceResult;
 use crate::database::{get_conn, get_pool, PooledConnection};
 use crate::models::company::company_represent::model::{IptCompanyRepresentData, SlimCompanyRepresent};
 use crate::models::company::model::{SlimCompany, CompanyData, IptCompanyData,};
-use crate::models::user::model::{SlimUser, UserShort, IptUserData, TargetUser};
+use crate::models::user::model::{SlimUser, IptUserData, TargetUser};
 use crate::models::user::notification::model::{Notification, NotificationData, SlimNotification};
 use crate::models::component::component_modification::model::{SlimComponentModification, IptComponentModificationData};
 use crate::models::component::license::model::{LicenseComponent, IptLicenseComponentData};
@@ -34,17 +34,9 @@ use crate::models::relate_ref::program::model::{Program, IptProgramData};
 use crate::models::relate_ref::program as program;
 use crate::models::relate_ref::keyword::model::{Keyword, IptKeywordData};
 use crate::models::relate_ref::keyword as keyword;
-use crate::models::relate_ref::file::model::{
-    ListObject,
-    // ShowFile,
-    // SlimFile,
-    FileData,
-    IptPreliminaryFileData,
-    PreliminaryFileData,
-};
+use crate::models::relate_ref::file::model::IptPreliminaryFileData;
 use crate::models::relate_ref::file as file;
 use crate::storage::backblaze::b2_types::UploadUrl;
-use crate::storage::wrapper::download_file_by_id::get_header_file_by_id;
 use async_graphql::Context;
 // use std::convert::TryFrom;
 
@@ -458,49 +450,18 @@ impl MutationRoot {
         context: &Context<'_>,
         file_data: IptPreliminaryFileData,
     ) -> ServiceResult<UploadUrl> {
+        use crate::models::user::service::upload::favicon::update_favicon;
         let pool = get_pool(context)?;
-        let conn = pool.get().unwrap();
 
         let target_user = TargetUser::from(
             &crate::models::user::get_auth_uuid_user(context, true)?
         );
 
-        let content_sha1: String = file_data.sha1.clone();
-
-        let user_short = UserShort::get_by_uuid(
-            &target_user.0,
-            &conn
-        )?;
-
-        let preliminary_file_data = PreliminaryFileData::from_ipt_preliminary_file_data(
-            target_user.0,
-            user_short.uuid_image_file,
-            ListObject::User(user_short.uuid),
-            file_data,
-            &conn
-        )?;
-
-        let slim_file = file::service::register::register(
-            preliminary_file_data,
-            &conn
-        )?;
-
-        let upload_url_data = crate::storage::wrapper::upload::get_url_upload_file(
+        Ok(update_favicon(
             target_user,
+            file_data,
             pool
-        ).await;
-
-        match upload_url_data {
-            Ok(upload_url_data) => Ok(UploadUrl{
-                authorization: upload_url_data.authorization_token,
-                file_name: slim_file.path_file,
-                content_type: "b2/x-auto".to_string(),
-                content_sha1,
-                server_side_encryption: "AES256".to_string(),
-                upload_url: upload_url_data.upload_url,
-            }),
-            Err(e) => Err(e),
-        }
+        ).await?)
     }
 
     async fn upload_completed(
@@ -509,55 +470,16 @@ impl MutationRoot {
         file_id: String,
     ) -> ServiceResult<i32> {
         let pool = get_pool(context)?;
-        let conn = pool.get().unwrap();
+        // let conn = pool.get().unwrap();
 
         let target_user = TargetUser::from(
             &crate::models::user::get_auth_uuid_user(context, true)?
         );
 
-        // getting metadata  by file id from client for validation
-        let file_headers = get_header_file_by_id(
-            target_user.clone(),
-            file_id,
-            pool,
-        ).await;
-
-        if let Ok(file_h) = &file_headers {
-            // ownership check and data update
-            if file::util::check_write_data(
-                &target_user.0,
-                &file_h.file_name,
-                &conn,
-            ) {
-                let filesize = Some(file_h.content_length.parse::<i64>().unwrap());
-
-                // update file metadata in file_ref table
-                let update_file_data = file::service::update::update_file_data_by_name(
-                    &target_user.0,
-                    &file_h.file_name,
-                    &FileData {
-                        uuid_file_parent: None,
-                        hash: None,
-                        uuid_user: None,
-                        filename: None,
-                        content_type: None,
-                        id_ext: None,
-                        filesize,
-                        path_file: None,
-                    },
-                    true,// <- confirming upload file only by the same user who requested the upload url
-                    &conn,
-                )?;
-
-                debug!("Upload completed: {:?}", update_file_data);
-
-                return Ok(update_file_data)
-            };
-        }
-
-        match file_headers {
-            Ok(_) => Ok(0),
-            Err(e) => Err(e),
-        }
+        Ok(file::service::update::confirm_upload(
+            &target_user,
+            &file_id,
+            pool
+        ).await?)
     }
 }
