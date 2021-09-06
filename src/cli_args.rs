@@ -42,4 +42,12 @@ pub struct Opt {
     pub b2_account_id: String,
     #[structopt(long, env = "B2_CAPABILITIES", default_value = "listFiles,readFiles,shareFiles,writeFiles,deleteFiles")]
     pub b2_capabilities: String,
+    #[structopt(long, env = "B2_BUCKET_ID", default_value = "1c8ba08e816d056d73b20015")]
+    pub b2_bucket_id: String,
+    #[structopt(long, env = "B2_BUCKET", default_value = "cdbs-test")]
+    pub b2_bucket: String,
+    #[structopt(long, env = "S3_REGION", default_value = "s3.us-west-002")]
+    pub s3_region: String,
+    #[structopt(long, env = "S3_ENDPOINT", default_value = "backblazeb2.com")]
+    pub s3_endpoint: String,
 }
