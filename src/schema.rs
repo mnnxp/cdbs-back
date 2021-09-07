@@ -89,7 +89,7 @@ table! {
         uuid_user -> Uuid,
         uuid_image_file -> Uuid,
         id_region -> Int4,
-        id_type_org -> Int4,
+        id_company_type -> Int4,
         is_supplier -> Bool,
         is_email_verified -> Bool,
         is_enabled -> Bool,
@@ -108,6 +108,21 @@ table! {
         name -> Varchar,
         address -> Varchar,
         phone -> Varchar,
+    }
+}
+
+table! {
+    company_type_ref (id) {
+        id -> Int4,
+    }
+}
+
+table! {
+    company_type_translate_list (id_company_type, id_lang) {
+        id_company_type -> Int4,
+        id_lang -> Int4,
+        name -> Varchar,
+        shortname -> Varchar,
     }
 }
 
@@ -608,21 +623,6 @@ table! {
 }
 
 table! {
-    type_company_ref (id) {
-        id -> Int4,
-    }
-}
-
-table! {
-    type_company_translate_list (id_type_company, id_lang) {
-        id_type_company -> Int4,
-        id_lang -> Int4,
-        name -> Varchar,
-        shortname -> Varchar,
-    }
-}
-
-table! {
     type_of_change_ref (id) {
         id -> Int4,
     }
@@ -752,13 +752,15 @@ joinable!(company_history_list -> type_of_change_ref (id_type_of_change));
 joinable!(company_member_role -> company_ref (uuid_company));
 joinable!(company_member_role -> role_member_ref (id_role));
 joinable!(company_member_role -> user_ref (uuid_user));
+joinable!(company_ref -> company_type_ref (id_company_type));
 joinable!(company_ref -> file_ref (uuid_image_file));
 joinable!(company_ref -> region_ref (id_region));
-joinable!(company_ref -> type_company_ref (id_type_org));
 joinable!(company_ref -> user_ref (uuid_user));
 joinable!(company_represent_ref -> company_ref (uuid_company));
 joinable!(company_represent_ref -> region_ref (id_region));
 joinable!(company_represent_ref -> representation_type_ref (id_representation_type));
+joinable!(company_type_translate_list -> company_type_ref (id_company_type));
+joinable!(company_type_translate_list -> language_ref (id_lang));
 joinable!(component_fav -> component_ref (uuid_component));
 joinable!(component_fav -> user_ref (uuid_user));
 joinable!(component_history_list -> component_ref (uuid_component));
@@ -848,8 +850,6 @@ joinable!(supplier_to_component -> company_ref (uuid_company));
 joinable!(supplier_to_component -> component_ref (uuid_component));
 joinable!(type_access_translate_list -> language_ref (id_lang));
 joinable!(type_access_translate_list -> type_access_ref (id_type_access));
-joinable!(type_company_translate_list -> language_ref (id_lang));
-joinable!(type_company_translate_list -> type_company_ref (id_type_company));
 joinable!(type_of_change_translate_list -> language_ref (id_lang));
 joinable!(type_of_change_translate_list -> type_of_change_ref (id_type_of_change));
 joinable!(user_access_to_component -> component_ref (uuid_component));
@@ -878,6 +878,8 @@ allow_tables_to_appear_in_same_query!(
     company_member_role,
     company_ref,
     company_represent_ref,
+    company_type_ref,
+    company_type_translate_list,
     component_fav,
     component_history_list,
     component_modification_list,
@@ -938,8 +940,6 @@ allow_tables_to_appear_in_same_query!(
     supplier_to_component,
     type_access_ref,
     type_access_translate_list,
-    type_company_ref,
-    type_company_translate_list,
     type_of_change_ref,
     type_of_change_translate_list,
     user_access_to_component,
