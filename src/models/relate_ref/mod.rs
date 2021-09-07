@@ -5,4 +5,5 @@ pub(crate) mod language;
 pub(crate) mod license;
 pub(crate) mod param;
 pub(crate) mod program;
+pub(crate) mod region;
 pub(crate) mod spec;
