@@ -1,36 +1,36 @@
 // use crate::cli_args::Opt;
+use crate::database::get_pool;
 use crate::errors::ServiceResult;
 use crate::jwt::model::{Claims, Token};
-use crate::database::get_pool;
-use crate::models::company::company_represent::model::ShowCompanyRepresent;
-use crate::models::company::company_represent::service as company_represent;
-use crate::models::company::model::ShowCompany;
+use crate::models::company::model::{CompanyAndRelatedData, ShowCompanyShort};
 use crate::models::company::service as company;
-use crate::models::component::model::{ShowComponentShort, ComponentAndRelatedData};
-use crate::models::component::component_modification::file_to_set_modification::model::FileToSetModification;
+use crate::models::company::company_represent::model::CompanyRepresentAndRelatedData;
+use crate::models::company::company_represent::service as company_represent;
 use crate::models::component::component_modification::file_to_set_modification as component_modification_file_to_set_modification;
+use crate::models::component::component_modification::file_to_set_modification::model::FileToSetModification;
+use crate::models::component::model::{ComponentAndRelatedData, ShowComponentShort};
 use crate::models::component::service as component;
-use crate::models::user::model::{SlimUser, ShowUser, TargetUser};
-use crate::models::user::service::token::model::UserToken;
+use crate::models::relate_ref::keyword;
+use crate::models::relate_ref::keyword::model::Keyword;
+use crate::models::relate_ref::language;
+use crate::models::relate_ref::language::model::Language;
+use crate::models::relate_ref::license;
+use crate::models::relate_ref::license::model::License;
+use crate::models::relate_ref::param;
+use crate::models::relate_ref::param::model::ParamTranslateList;
+use crate::models::relate_ref::program;
+use crate::models::relate_ref::program::model::Program;
+use crate::models::relate_ref::spec;
+use crate::models::relate_ref::spec::model::SpecTranslateList;
+use crate::models::standard;
+use crate::models::standard::model::ShowStandard;
+use crate::models::user::model::{ShowUser, SlimUser, TargetUser};
 use crate::models::user::notification::model::Notification;
 use crate::models::user::notification::service as notification;
 use crate::models::user::service as user;
-use crate::models::standard::model::ShowStandard;
-use crate::models::standard as standard;
-use crate::models::relate_ref::license::model::License;
-use crate::models::relate_ref::license as license;
-use crate::models::relate_ref::param::model::ParamTranslateList;
-use crate::models::relate_ref::param as param;
-use crate::models::relate_ref::keyword::model::Keyword;
-use crate::models::relate_ref::keyword as keyword;
-use crate::models::relate_ref::language::model::Language;
-use crate::models::relate_ref::language as language;
-use crate::models::relate_ref::program::model::Program;
-use crate::models::relate_ref::program as program;
-use crate::models::relate_ref::spec::model::SpecTranslateList;
-use crate::models::relate_ref::spec as spec;
+use crate::models::user::service::token::model::UserToken;
 // use crate::models::relate_ref::file::model::SlimFile;
-use crate::models::relate_ref::file as file;
+use crate::models::relate_ref::file;
 use async_graphql::Context;
 use uuid::Uuid;
 
@@ -71,15 +71,9 @@ impl QueryRoot {
         user::token::get_slim_user(token_data)
     }
 
-    async fn show_tokens(
-        &self,
-        context: &Context<'_>
-    ) -> ServiceResult<Vec<UserToken>> {
+    async fn show_tokens(&self, context: &Context<'_>) -> ServiceResult<Vec<UserToken>> {
         let auth_uuid_user = crate::models::user::get_auth_uuid_user(context, true)?;
-        user::token::show_tokens(
-            context,
-            auth_uuid_user,
-        )
+        user::token::show_tokens(context, auth_uuid_user)
     }
 
     async fn get_token(&self, context: &Context<'_>) -> ServiceResult<Token> {
@@ -97,20 +91,12 @@ impl QueryRoot {
         user::token::decode(&token)
     }
 
-    async fn delete_token(
-        &self,
-        context: &Context<'_>,
-        token: String,
-    ) -> ServiceResult<String> {
+    async fn delete_token(&self, context: &Context<'_>, token: String) -> ServiceResult<String> {
         let auth_uuid_user = crate::models::user::get_auth_uuid_user(context, true)?;
         let deactivated_tokens = format!(
             "removed {} token.",
             // deactivate all user token
-            user::token::delete_user_token(
-                context,
-                token.as_str(),
-                auth_uuid_user,
-            )?
+            user::token::delete_user_token(context, token.as_str(), auth_uuid_user,)?
         );
         Ok(deactivated_tokens)
     }
@@ -128,7 +114,7 @@ impl QueryRoot {
         Ok(deactivated_tokens)
     }
 
-    async fn logout(&self, context: &Context<'_> ) -> ServiceResult<String> {
+    async fn logout(&self, context: &Context<'_>) -> ServiceResult<String> {
         // removed user token
         user::logout(context)
     }
@@ -164,18 +150,13 @@ impl QueryRoot {
         let target_uuid_user: Uuid = crate::models::user::get_auth_uuid_user(context, true)?;
 
         let mut target_uuids_components: Vec<Uuid> = Vec::new();
-        if let Some(vec_uuid) = uuid_components {
-            for x in vec_uuid.iter() {
-                target_uuids_components.push(
-                    Uuid::parse_str(x.as_str()).unwrap()
-                );
+        if let Some(vec_string) = uuid_components {
+            for x in vec_string.iter() {
+                target_uuids_components.push(Uuid::parse_str(x).unwrap());
             }
         };
-        component::list::find_components(
-            context,
-            target_uuids_components,
-            target_uuid_user,
-        )
+
+        component::list::find_components(context, target_uuids_components, target_uuid_user)
     }
 
     async fn component(
@@ -226,53 +207,80 @@ impl QueryRoot {
     async fn companies(
         &self,
         context: &Context<'_>,
-        uuid_company: Option<String>,
-        limit: Option<i32>,
-        offset: Option<i32>,
-    ) -> ServiceResult<Vec<ShowCompany>> {
+        companies_uuids: Option<Vec<String>>,
+    ) -> ServiceResult<Vec<ShowCompanyShort>> {
         // authorization check
-        crate::models::user::util::check_authorized(context)?;
+        let target_user_uuid = crate::models::user::get_auth_uuid_user(context, true)?;
 
-        let uuid_company = match uuid_company {
-            None => Uuid::nil(),
-            Some(uuid_company) => Uuid::parse_str(&uuid_company)?,
+        let mut target_companies_uuids = Vec::new();
+        if let Some(vec_string) = companies_uuids {
+            for x in vec_string.iter() {
+                target_companies_uuids.push(Uuid::parse_str(x).unwrap());
+            }
         };
 
-        let limit: i32 = limit.unwrap_or(100);
-        let offset: i32 = offset.unwrap_or(0);
+        // todo!(need set check limit length vec)
 
-        company::list::get_companies(
+        company::list::find_companies(
             context,
-            uuid_company,
-            limit,
-            offset
+            &target_companies_uuids,
+            &target_user_uuid,
+        )
+    }
+
+    async fn company(
+        &self,
+        context: &Context<'_>,
+        company_uuid: String,
+    ) -> ServiceResult<CompanyAndRelatedData> {
+        // authorization check
+        let target_user_uuid = crate::models::user::get_auth_uuid_user(context, true)?;
+
+        company::list::find_by_uuid(
+            context,
+            &Uuid::parse_str(&company_uuid)?,
+            &target_user_uuid,
         )
     }
 
     async fn company_represents(
         &self,
         context: &Context<'_>,
-        uuid_company: Option<String>,
-        limit: Option<i32>,
-        offset: Option<i32>,
-    ) -> ServiceResult<Vec<ShowCompanyRepresent>> {
+        company_uuid: Option<String>,
+        represents_uuids: Option<Vec<String>>
+    ) -> ServiceResult<Vec<CompanyRepresentAndRelatedData>> {
         // authorization check
         crate::models::user::util::check_authorized(context)?;
 
-        let uuid_company = match uuid_company {
-            None => Uuid::nil(),
-            Some(uuid_company) => Uuid::parse_str(&uuid_company)?,
-        };
+        // todo!(check access)
 
-        let limit: i32 = limit.unwrap_or(100);
-        let offset: i32 = offset.unwrap_or(0);
+        // Representative offices are selected by company uuid or by representative uuid
+        match (company_uuid, represents_uuids) {
+            (Some(company_uuid), None) => {
+                company_represent::list::get_by_company_uuid(
+                    context,
+                    &Uuid::parse_str(&company_uuid)?,
+                )
+            },
+            (None, Some(represents_uuids)) => {
+                let mut target_represents_uuids = Vec::new();
+                for x in represents_uuids.iter() {
+                    target_represents_uuids.push(
+                        Uuid::parse_str(x).unwrap()
+                    );
+                }
 
-        company_represent::list::get_company_represents(
-            context,
-            uuid_company,
-            limit,
-            offset
-        )
+                company_represent::list::get_represent_by_uuids(
+                    context,
+                    &target_represents_uuids,
+                )
+            },
+            _ => Err(
+                crate::errors::ServiceError::BadRequest(
+                    "You need to choose a company or a representative company".to_string()
+                )
+            ),
+        }
     }
 
     async fn standards(
@@ -296,20 +304,17 @@ impl QueryRoot {
                 let target_uuid_standard = Uuid::parse_str(&uuid_standard)?;
 
                 // access check for user
-                if standard::util::get_default_access_standard(
-                    context,
-                    target_uuid_standard,
-                )? < 3 {
+                if standard::util::get_default_access_standard(context, target_uuid_standard)? < 3 {
                     debug!("start access check for user");
                     standard::util::check_standard_access(
                         context,
                         crate::models::user::get_auth_uuid_user(context, false)?,
                         target_uuid_standard,
-                        2
+                        2,
                     )?;
                 }
                 target_uuid_standard
-            },
+            }
         };
 
         standard::service::list::get_standards(
@@ -317,7 +322,7 @@ impl QueryRoot {
             auth_uuid_user,
             target_uuid_standard,
             limit,
-            offset
+            offset,
         )
     }
 
@@ -417,16 +422,11 @@ impl QueryRoot {
         let pool = get_pool(context)?;
 
         // authorization check
-        let target_user = TargetUser::from(
-            &crate::models::user::get_auth_uuid_user(context, true)?
-        );
+        let target_user =
+            TargetUser::from(&crate::models::user::get_auth_uuid_user(context, true)?);
 
         let target_uuid_file = Uuid::parse_str(&uuid_file).unwrap();
 
-        Ok(file::service::list::get_url_file_by_uuid(
-            target_user,
-            target_uuid_file,
-            pool
-        ).await?)
+        Ok(file::service::list::get_url_file_by_uuid(target_user, target_uuid_file, pool).await?)
     }
 }
