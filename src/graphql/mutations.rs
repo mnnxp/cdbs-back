@@ -230,7 +230,7 @@ impl MutationRoot {
             uuid_user: (logged_uuid_user),
             uuid_image_file: (target_uuid_image_file),
             id_region: (data.id_region),
-            id_type_org: (data.id_type_org),
+            id_company_type: (data.id_company_type),
         };
 
         Ok(create_company(company_data, conn)?)

@@ -13,7 +13,7 @@ CREATE TABLE company_ref (
   uuid_user UUID NOT NULL, /* uuuid профиля - владельца */
   uuid_image_file UUID NOT NULL, /* логотип компании */
   id_region INTEGER NOT NULL, /* регион */
-  id_type_org INTEGER NOT NULL DEFAULT '1', /* тип компании (ао, пао, ооо, ип) */
+  id_company_type INTEGER NOT NULL DEFAULT '1', /* тип компании (ао, пао, ооо, ип) */
   is_supplier BOOLEAN NOT NULL DEFAULT 'f',  /* роль пользователя: поставщик/заказчик */
   is_email_verified BOOLEAN NOT NULL DEFAULT 'f', /* подтверждение email */
   is_enabled BOOLEAN NOT NULL DEFAULT 't', /* флаг активности пользователь */
@@ -24,18 +24,18 @@ CREATE TABLE company_ref (
 );
 
 /* тип компании */
-CREATE TABLE type_company_ref (
+CREATE TABLE company_type_ref (
   id SERIAL, /* id типа компании */
-  CONSTRAINT type_company_ref_pk PRIMARY KEY (id)
+  CONSTRAINT company_type_ref_pk PRIMARY KEY (id)
 );
 
-CREATE TABLE type_company_translate_list (
-  id_type_company INTEGER NOT NULL, /* id типа компании */
+CREATE TABLE company_type_translate_list (
+  id_company_type INTEGER NOT NULL, /* id типа компании */
   id_lang INTEGER NOT NULL, /* идентификатор языка перевода */
   name VARCHAR(255) NOT NULL, /* полное наименование (прим. юридическое лицо) в переводе */
   shortname VARCHAR(50) NOT NULL, /* сокращенное наименование (прим. юр. лицо) в переводе */
   UNIQUE(id_lang, name, shortname),
-  CONSTRAINT type_company_translate_list_pk PRIMARY KEY (id_type_company, id_lang)
+  CONSTRAINT company_type_translate_list_pk PRIMARY KEY (id_company_type, id_lang)
 );
 
 /* локальное представительство профиля */

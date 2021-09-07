@@ -1,7 +1,7 @@
 -- This file should undo anything in `up.sql`
 DROP TABLE company_ref;
-DROP TABLE type_company_ref;
-DROP TABLE type_company_translate_list;
+DROP TABLE company_type_ref;
+DROP TABLE company_type_translate_list;
 DROP TABLE company_represent_ref;
 DROP TABLE company_member_role;
 DROP TABLE spec_to_company;
