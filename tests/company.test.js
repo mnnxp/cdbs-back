@@ -31,10 +31,106 @@ const siteUrl = "example.test";
 const timeZone = "Europe/Moscow";
 const uuidImageFile = "3706d1a1-80ae-4367-be39-af7091373811";
 const idRegionCompany = 5;
-const idTypeOrg = 2;
+const idCompanyType = 2;
 const uuidCompanyBase = "2cd385e1-8f7e-4908-8235-dfe42938b46d";
 var uuidCompanyNoSupplier = "";
 var uuidCompanySupplier = "";
+
+const companyFullDataQuery = ` \
+uuid \
+orgname \
+shortname \
+inn \
+phone \
+email \
+description \
+address \
+siteUrl \
+timeZone \
+ownerUser { \
+  uuid \
+  imageFile { \
+    uuid \
+    filename \
+    filesize \
+    pathFile \
+  } \
+} \
+imageFile { \
+  uuid \
+  filename \
+  filesize \
+  pathFile \
+} \
+region { \
+  idRegion \
+  idLang \
+  region \
+} \
+companyType { \
+  idCompanyType \
+  idLang \
+  name \
+  shortname \
+} \
+companyType { \
+  idCompanyType \
+	idLang \
+  shortname \
+} \
+companyCertificates { \
+  uuidCompany \
+  file { \
+    uuid \
+    filename \
+    filesize \
+    pathFile \
+  } \
+  description \
+} \
+companySpecs { \
+  uuidCompany \
+  spec { \
+    idSpec \
+    idLang \
+    spec \
+  } \
+} \
+isSupplier \
+isEmailVerified \
+subscribers \
+isFollowed \
+isEnabled \
+isDelete \
+createdAt \
+updatedAt \
+`;
+
+const companysListQuery = ` \
+uuid \
+shortname \
+inn \
+description \
+imageFile { \
+  uuid \
+  filesize \
+  pathFile \
+} \
+region { \
+  idRegion \
+  idLang \
+  region \
+} \
+companyType { \
+  idCompanyType \
+  idLang \
+  name \
+  shortname \
+} \
+isSupplier \
+isFollowed \
+updatedAt \
+`;
 
 // data for represent
 const idRegionRepresentation = 10;
@@ -48,6 +144,30 @@ const uuidRepresentArray = [];
 var uuidCompanyFirst = "";
 var uuidRepresentFirst = "";
 var uuidRepresentDelete = "";
+const companyRepresentsListQuery = ` \
+uuid \
+uuidCompany \
+region { \
+  idRegion \
+  idLang \
+  region \
+} \
+representationType { \
+  idRepresentationType \
+  idLang \
+  representationType \
+} \
+name \
+address \
+phone \
+`;
+const companyRepresentQuery = ` \
+uuid \
+uuidCompany \
+name \
+address \
+phone \
+`;
 
 async function cleanupCompanyDb() {
   return global.knex.raw('DELETE FROM company_ref WHERE orgname in (?,?)', [
@@ -225,7 +345,7 @@ describe('company', () => {
             timeZone: "${timeZone}",
             uuidImageFile: "${uuidImageFile}",
             idRegion: ${idRegionCompany},
-            idTypeOrg: ${idTypeOrg}
+            idCompanyType: ${idCompanyType}
           }) {
             uuid
             shortname
@@ -271,7 +391,7 @@ describe('company', () => {
             timeZone: "${timeZone}",
             uuidImageFile: "${uuidImageFile}",
             idRegion: ${idRegionCompany},
-            idTypeOrg: ${idTypeOrg}
+            idCompanyType: ${idCompanyType}
           }) {
             uuid
             shortname
@@ -291,46 +411,27 @@ describe('company', () => {
     done();
   });
 
-  it('/graphql:Q companies - OK Select no supplier company', async (done) => {
-    const { body } = await agent
+  it('/graphql:Q company - UNAUTHORIZED', async (done) => {
+    const response1 = await agent
       .post('/graphql')
-      .set(
-        'Authorization',
-        `Bearer ${authorizationTokenFirst}`
-      )
       .send({
-        query: `query companies {
-        	companies (uuidCompany: "${uuidCompanyNoSupplier}"){
-            uuid
-            orgname
-            shortname
-            inn
-            phone
-            email
-            description
-            address
-            siteUrl
-            timeZone
-            uuidUser
-            uuidImageFile
-            idRegion
-            idTypeOrg
-            isSupplier
+        query: `query company {
+          company (companyUuid: "${uuidCompanySupplier}") {
+            ${companyFullDataQuery}
           }
         }`,
       })
       .expect(HttpStatus.OK)
-    debug('/graphql companies=%o', body);
-    const {
-      data: { companies },
-    } = body;
-    expect(companies[0].uuid).toBe(uuidCompanyNoSupplier);
-    expect(companies[0].orgname).toBe(orgname2);
-    expect(companies[0].isSupplier).toBe(false);
+    debug('/graphql body=%o', response1.body);
+    expect(response1.body.data).toBeNull();
+    expect(response1.body.errors[0].message).toBe(
+      'BadRequest: Token not found.'
+    );
+    expect(response1.body.errors[0].path[0]).toBe('company');
     done();
   });
 
-  it('/graphql:Q companies - OK Select supplier company', async (done) => {
+  it('/graphql:Q company - OK Select no supplier company', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .set(
@@ -338,39 +439,45 @@ describe('company', () => {
         `Bearer ${authorizationTokenFirst}`
       )
       .send({
-        query: `query companies {
-        	companies (uuidCompany: "${uuidCompanySupplier}"){
-            uuid
-            orgname
-            shortname
-            inn
-            phone
-            email
-            description
-            address
-            siteUrl
-            timeZone
-            uuidUser
-            uuidImageFile
-            idRegion
-            idTypeOrg
-            isSupplier
-            isEmailVerified
-            isEnabled
-            isDelete
-            createdAt
-            updatedAt
+        query: `query company {
+        	company (companyUuid: "${uuidCompanyNoSupplier}"){
+            ${companyFullDataQuery}
           }
         }`,
       })
       .expect(HttpStatus.OK)
-    debug('/graphql companies=%o', body);
+    debug('/graphql company=%o', body);
     const {
-      data: { companies },
+      data: { company },
     } = body;
-    expect(companies[0].uuid).toBe(uuidCompanySupplier);
-    expect(companies[0].orgname).toBe(orgname);
-    expect(companies[0].isSupplier).toBe(true);
+    expect(company.uuid).toBe(uuidCompanyNoSupplier);
+    expect(company.orgname).toBe(orgname2);
+    expect(company.isSupplier).toBe(false);
+    done();
+  });
+
+  it('/graphql:Q company - OK Select supplier company', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `query company {
+        	company (companyUuid: "${uuidCompanySupplier}"){
+            ${companyFullDataQuery}
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql company=%o', body);
+    const {
+      data: { company },
+    } = body;
+    expect(company.uuid).toBe(uuidCompanySupplier);
+    expect(company.orgname).toBe(orgname);
+    expect(company.isSupplier).toBe(true);
     done();
   });
 
@@ -379,27 +486,11 @@ describe('company', () => {
       .post('/graphql')
       .send({
         query: `query companies {
-        	companies {
-            uuid
-            orgname
-            shortname
-            inn
-            phone
-            email
-            description
-            address
-            siteUrl
-            timeZone
-            uuidUser
-            uuidImageFile
-            idRegion
-            idTypeOrg
-            isSupplier
-            isEmailVerified
-            isEnabled
-            isDelete
-            createdAt
-            updatedAt
+        	companies (companiesUuids: [
+            "${uuidCompanySupplier}",
+            "${uuidCompanyNoSupplier}"
+          ]) {
+            ${companysListQuery}
           }
         }`,
       })
@@ -422,27 +513,11 @@ describe('company', () => {
       )
       .send({
         query: `query companies {
-        	companies {
-            uuid
-            orgname
-            shortname
-            inn
-            phone
-            email
-            description
-            address
-            siteUrl
-            timeZone
-            uuidUser
-            uuidImageFile
-            idRegion
-            idTypeOrg
-            isSupplier
-            isEmailVerified
-            isEnabled
-            isDelete
-            createdAt
-            updatedAt
+        	companies (companiesUuids: [
+            "${uuidCompanySupplier}",
+            "${uuidCompanyNoSupplier}"
+          ]) {
+            ${companysListQuery}
           }
         }`,
       })
@@ -452,8 +527,8 @@ describe('company', () => {
       data: { companies },
     } = body;
     expect(companies).toBeNonEmptyArray();
-    expect(companies[0].orgname).toBeNonEmptyString();
-    expect(companies[1].orgname).toBeNonEmptyString();
+    expect(companies[0].uuid).toBe(uuidCompanySupplier);
+    expect(companies[1].uuid).toBe(uuidCompanyNoSupplier);
     done();
   });
 
@@ -538,13 +613,10 @@ describe('company', () => {
       .post('/graphql')
       .send({
         query: `query ListcompanyRepresents {
-            companyRepresents {
-                uuid
-                uuidCompany
-                name
-                phone
-                idRegion
-                idRepresentationType
+            companyRepresents (representsUuids: [
+              "${uuidRepresentFirst}"
+            ]){
+                ${companyRepresentsListQuery}
             }
         }`,
       })
@@ -558,7 +630,7 @@ describe('company', () => {
     done();
   });
 
-  it('/graphql:Q List companyRepresents - OK', async (done) => {
+  it('/graphql:Q List companyRepresents - OK company uuid', async (done) => {
     const response1 = await agent
       .post('/graphql')
       .set(
@@ -567,19 +639,38 @@ describe('company', () => {
       )
       .send({
         query: `query ListcompanyRepresents {
-            companyRepresents {
-                uuid
-                uuidCompany
-                name
-                phone
-                idRegion
-                idRepresentationType
+            companyRepresents (companyUuid: "${uuidCompanySupplier}"){
+                ${companyRepresentsListQuery}
             }
         }`,
       })
       .expect(HttpStatus.OK)
     debug('/graphql all body=%o', response1.body);
     expect(response1.body.data.companyRepresents).toBeNonEmptyArray();
+    expect(response1.body.data.companyRepresents[0].uuidCompany).toBe(uuidCompanySupplier);
+    done();
+  });
+
+  it('/graphql:Q List companyRepresents - OK by represent uuid', async (done) => {
+    const response1 = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `query ListcompanyRepresents {
+            companyRepresents (representsUuids: [
+              "${uuidRepresentFirst}"
+            ]){
+                ${companyRepresentsListQuery}
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql all body=%o', response1.body);
+    expect(response1.body.data.companyRepresents).toBeNonEmptyArray();
+    expect(response1.body.data.companyRepresents[0].uuidCompany).toBe(uuidCompanySupplier);
     done();
   });
 
@@ -596,11 +687,7 @@ describe('company', () => {
             uuidCompany: "${uuidCompanySupplier}",
             uuidCompanyRepresent: "${uuidRepresentFirst}"
           ){
-            uuid
-            uuidCompany
-            name
-            address
-            phone
+              ${companyRepresentQuery}
           }
         }`,
       })
@@ -627,11 +714,7 @@ describe('company', () => {
             uuidCompany: "${uuidFake}",
             uuidCompanyRepresent: "${uuidRepresentFirst}"
           ){
-            uuid
-            uuidCompany
-            name
-            address
-            phone
+              ${companyRepresentQuery}
           }
         }`,
       })
@@ -658,11 +741,7 @@ describe('company', () => {
             uuidCompany: "${uuidCompanySupplier}",
             uuidCompanyRepresent: "${uuidFake}"
           ){
-            uuid
-            uuidCompany
-            name
-            address
-            phone
+              ${companyRepresentQuery}
           }
         }`,
       })
@@ -685,13 +764,8 @@ describe('company', () => {
       )
       .send({
         query: `query ListcompanyRepresents {
-            companyRepresents (uuidCompany: "${uuidCompanySupplier}") {
-                uuid
-                uuidCompany
-                idRegion
-                name
-                phone
-                idRepresentationType
+            companyRepresents (companyUuid: "${uuidCompanySupplier}") {
+              ${companyRepresentsListQuery}
             }
         }`,
       })
@@ -716,11 +790,7 @@ describe('company', () => {
             uuidCompany: "${uuidCompanySupplier}",
             uuidCompanyRepresent: "${uuidRepresentFirst}"
           ){
-            uuid
-            uuidCompany
-            name
-            address
-            phone
+              ${companyRepresentQuery}
           }
         }`,
       })
@@ -750,13 +820,8 @@ describe('company', () => {
       )
       .send({
         query: `query ListcompanyRepresents {
-            companyRepresents (uuidCompany: "${uuidCompanySupplier}") {
-                uuid
-                uuidCompany
-                idRegion
-                name
-                phone
-                idRepresentationType
+            companyRepresents (companyUuid: "${uuidCompanySupplier}") {
+              ${companyRepresentsListQuery}
             }
         }`,
       })
