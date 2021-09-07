@@ -1,23 +1,16 @@
 use crate::schema::*;
+use crate::models::company::model::Company;
+use crate::models::company::company_represent::representation_type::model::RepresentationTypeTranslateList;
+use crate::models::relate_ref::region::model::RegionTranslateList;
 use async_graphql::types::ID;
 use async_graphql::*;
-// use chrono::*;
 use uuid::Uuid;
 
-#[derive(Debug, Queryable)]
+#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, Clone, Debug)]
+#[primary_key(uuid)]
+#[belongs_to(Company, foreign_key = "uuid_company")]
+#[table_name = "company_represent_ref"]
 pub struct CompanyRepresent {
-    // pub id: i32,
-    pub uuid: Uuid,
-    pub uuid_company: Uuid,
-    pub id_region: i32,
-    pub id_representation_type: i32,
-    pub name: String,
-    pub address: String,
-    pub phone: String,
-}
-
-#[derive(Debug, Serialize, Deserialize, Queryable)]
-pub struct ShowCompanyRepresent {
     pub uuid: Uuid,
     pub uuid_company: Uuid,
     pub id_region: i32,
@@ -28,7 +21,7 @@ pub struct ShowCompanyRepresent {
 }
 
 #[Object]
-impl ShowCompanyRepresent {
+impl CompanyRepresent {
     async fn uuid(&self) -> ID {
         self.uuid.into()
     }
@@ -50,6 +43,17 @@ impl ShowCompanyRepresent {
     async fn phone(&self) -> &String {
         &self.phone
     }
+}
+
+#[derive(Debug, Deserialize, SimpleObject)]
+pub struct CompanyRepresentAndRelatedData {
+    pub uuid: Uuid,
+    pub uuid_company: Uuid,
+    pub region: RegionTranslateList,
+    pub representation_type: RepresentationTypeTranslateList,
+    pub name: String,
+    pub address: String,
+    pub phone: String,
 }
 
 #[derive(Debug, Insertable)]

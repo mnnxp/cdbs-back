@@ -1,73 +1,49 @@
 use crate::database::{get_conn, PooledConnection};
-use crate::errors::{ServiceError, ServiceResult};
-// use crate::graphql::model::Context;
+use crate::errors::{
+    // ServiceError,
+    ServiceResult,
+};
 use async_graphql::Context;
-use crate::models::company::company_represent::model::ShowCompanyRepresent;
-use diesel::prelude::*;
-// use std::any::Any;
+use crate::models::company::company_represent::model::CompanyRepresentAndRelatedData;
 use uuid::Uuid;
 
-pub(crate) fn get_company_represents(
+/// Search company represents for company by company uuid
+pub(crate) fn get_by_company_uuid(
     context: &Context<'_>,
-    uuid_company_search: Uuid,
-    limit: i32,
-    offset: i32,
-) -> ServiceResult<Vec<ShowCompanyRepresent>> {
-    match uuid_company_search {
-        uuid_company_search if uuid_company_search == Uuid::nil() => {
-            find_all_company_represents(context, limit, offset)
-        }
-        uuid_company_search if uuid_company_search > Uuid::nil() => {
-            find_uuid_company_represents(context, uuid_company_search, limit, offset)
-        }
-        _ => ServiceResult::Err(ServiceError::BadRequest("What?".to_string())),
-    }
-}
-
-fn find_all_company_represents(
-    context: &Context<'_>,
-    limit: i32,
-    offset: i32,
-) -> ServiceResult<Vec<ShowCompanyRepresent>> {
-    use crate::schema::company_represent_ref::dsl::*;
+    target_company_uuid: &Uuid,
+) -> ServiceResult<Vec<CompanyRepresentAndRelatedData>> {
     let conn: &PooledConnection = &get_conn(context)?;
 
-    Ok(company_represent_ref
-        .select((
-            uuid,
-            uuid_company,
-            id_region,
-            id_representation_type,
-            name,
-            address,
-            phone,
-        ))
-        .limit(limit as i64)
-        .offset(offset as i64)
-        .load::<ShowCompanyRepresent>(conn)?)
+    let set_id_lang = crate::models::user::get_set_language(context);
+
+    let result: Vec<CompanyRepresentAndRelatedData> = CompanyRepresentAndRelatedData::get_list_represents_by_company_uuid(
+        target_company_uuid,
+        &set_id_lang,
+        conn
+    ).expect("Error loading list companies and collect short data");
+
+    debug!("Components data: {:#?}", result);
+
+    Ok(result)
 }
 
-fn find_uuid_company_represents(
+/// Search company represents by represent uuid
+pub(crate) fn get_represent_by_uuids(
     context: &Context<'_>,
-    uuid_company_search: Uuid,
-    limit: i32,
-    offset: i32,
-) -> ServiceResult<Vec<ShowCompanyRepresent>> {
-    use crate::schema::company_represent_ref::dsl::*;
+    target_represents_uuids: &[Uuid],
+) -> ServiceResult<Vec<CompanyRepresentAndRelatedData>> {
     let conn: &PooledConnection = &get_conn(context)?;
 
-    Ok(company_represent_ref
-        .filter(uuid_company.eq(uuid_company_search))
-        .select((
-            uuid,
-            uuid_company,
-            id_region,
-            id_representation_type,
-            name,
-            address,
-            phone,
-        ))
-        .limit(limit as i64)
-        .offset(offset as i64)
-        .load::<ShowCompanyRepresent>(conn)?)
+    let set_id_lang = crate::models::user::get_set_language(context);
+
+    // collect data for represent
+    let result: Vec<CompanyRepresentAndRelatedData> = CompanyRepresentAndRelatedData::get_list_represents_by_uuids(
+        target_represents_uuids,
+        &set_id_lang,
+        conn
+    ).expect("Error loading company and collect related data");
+
+    debug!("Component data: {:#?}", result);
+
+    Ok(result)
 }
