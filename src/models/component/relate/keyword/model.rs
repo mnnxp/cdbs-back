@@ -27,7 +27,7 @@ impl KeywordComponent {
     }
 }
 
-#[derive(Deserialize, SimpleObject, Description, Clone, Debug)]
+#[derive(Deserialize, SimpleObject, Clone, Debug)]
 pub struct ComponentKeywordRelatedData {
     pub keyword: Keyword,
     pub uuid_component: Uuid,

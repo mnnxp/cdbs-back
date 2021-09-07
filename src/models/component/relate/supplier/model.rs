@@ -31,7 +31,7 @@ impl SupplierComponent {
     }
 }
 
-#[derive(Deserialize, SimpleObject, Description, Clone, Debug)]
+#[derive(Deserialize, SimpleObject, Clone, Debug)]
 pub struct ComponentSupplierRelatedData {
     pub supplier: SlimCompany,
     pub uuid_component: Uuid,

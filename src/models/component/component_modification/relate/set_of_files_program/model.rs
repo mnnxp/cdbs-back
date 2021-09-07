@@ -30,7 +30,7 @@ impl SetOfFilesProgram {
     }
 }
 
-#[derive(Debug, Deserialize, SimpleObject, Clone, Description)]
+#[derive(Debug, Deserialize, SimpleObject, Clone)]
 pub struct SetOfFilesProgramRelatedData {
     pub id: i32,
     pub uuid_modification: Uuid,

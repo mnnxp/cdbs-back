@@ -27,7 +27,7 @@ impl SpecComponent {
     }
 }
 
-#[derive(Deserialize, SimpleObject, Description, Clone, Debug)]
+#[derive(Deserialize, SimpleObject, Clone, Debug)]
 pub struct ComponentSpecWithTranslation {
     pub spec: SpecTranslateList,
     pub uuid_component: Uuid,

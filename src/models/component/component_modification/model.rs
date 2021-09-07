@@ -55,7 +55,7 @@ impl ComponentModification {
     }
 }
 
-#[derive(Deserialize, SimpleObject, Description, Debug)]
+#[derive(Deserialize, SimpleObject, Debug)]
 pub struct ComponentModificationAndRelatedData {
     pub uuid: Uuid,
     pub uuid_component: Uuid,

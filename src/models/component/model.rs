@@ -73,7 +73,7 @@ impl Component {
     }
 }
 
-#[derive(Debug, Deserialize, SimpleObject, Description)]
+#[derive(Debug, Deserialize, SimpleObject)]
 pub struct ComponentAndRelatedData {
     pub uuid: Uuid,
     pub uuid_component_parent: Uuid,
@@ -96,7 +96,7 @@ pub struct ComponentAndRelatedData {
 }
 
 
-#[derive(Debug, Deserialize, SimpleObject, Description)]
+#[derive(Debug, Deserialize, SimpleObject)]
 pub struct ShowComponentShort {
     pub uuid: Uuid,
     pub name: String,

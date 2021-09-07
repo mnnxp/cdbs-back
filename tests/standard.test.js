@@ -47,7 +47,7 @@ const siteUrl = "example.test";
 const timeZone = "Europe/Moscow";
 const uuidImageFile = "3706d1a1-80ae-4367-be39-af7091373811";
 const idRegionCompany = 5;
-const idTypeOrg = 2;
+const idCompanyType = 2;
 const uuidCompanyBase = "2cd385e1-8f7e-4908-8235-dfe42938b46d";
 var uuidCompanyNoSupplier = "";
 var uuidCompanySupplier = "";
@@ -250,7 +250,7 @@ describe('company', () => {
             timeZone: "${timeZone}",
             uuidImageFile: "${uuidImageFile}",
             idRegion: ${idRegionCompany},
-            idTypeOrg: ${idTypeOrg}
+            idCompanyType: ${idCompanyType}
           }) {
             uuid
             shortname
@@ -296,7 +296,7 @@ describe('company', () => {
             timeZone: "${timeZone}",
             uuidImageFile: "${uuidImageFile}",
             idRegion: ${idRegionCompany},
-            idTypeOrg: ${idTypeOrg}
+            idCompanyType: ${idCompanyType}
           }) {
             uuid
             shortname

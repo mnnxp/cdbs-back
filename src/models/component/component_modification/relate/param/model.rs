@@ -30,7 +30,7 @@ impl ParamModification {
     }
 }
 
-#[derive(Debug, Deserialize, SimpleObject, Clone, Description)]
+#[derive(Debug, Deserialize, SimpleObject, Clone)]
 pub struct ModificationParamWithTranslation {
     pub uuid_modification: Uuid,
     pub param: ParamTranslateList,

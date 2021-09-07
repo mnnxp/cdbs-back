@@ -26,7 +26,7 @@ impl FileToSetModification {
     }
 }
 
-#[derive(Debug, Deserialize, SimpleObject, Clone, Description)]
+#[derive(Debug, Deserialize, SimpleObject, Clone)]
 pub struct FileToSetModificationRelatedData {
     pub id_set: i32,
     pub files: Vec<ShowFile>,

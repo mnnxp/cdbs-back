@@ -31,7 +31,7 @@ impl ParamComponent {
     }
 }
 
-#[derive(Debug, Deserialize, SimpleObject, Clone, Description)]
+#[derive(Debug, Deserialize, SimpleObject, Clone)]
 pub struct ComponentParamWithTranslation {
     pub uuid_component: Uuid,
     pub param: ParamTranslateList,
