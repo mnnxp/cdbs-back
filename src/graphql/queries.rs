@@ -156,7 +156,11 @@ impl QueryRoot {
             }
         };
 
-        component::list::find_components(context, target_uuids_components, target_uuid_user)
+        component::list::find_components(
+            context,
+            &target_uuids_components,
+            &target_uuid_user
+        )
     }
 
     async fn component(
@@ -165,9 +169,13 @@ impl QueryRoot {
         uuid_component: String,
     ) -> ServiceResult<ComponentAndRelatedData> {
         // authorization check
-        crate::models::user::util::check_authorized(context)?;
+        let target_user_uuid: Uuid = crate::models::user::get_auth_uuid_user(context, true)?;
 
-        component::list::find_uuid_component(context, Uuid::parse_str(&uuid_component)?)
+        component::list::find_uuid_component(
+            context,
+            &Uuid::parse_str(&uuid_component)?,
+            &target_user_uuid,
+        )
     }
 
     async fn licenses(
