@@ -104,6 +104,7 @@ actualStatus { \
 } \
 isStandard \
 subscribers \
+isFollowed \
 updatedAt \
 licenses { \
   id \
@@ -704,7 +705,7 @@ describe('component', () => {
     done();
   });
 
-  it('/graphql:Q List Component - BadRequest no token', async (done) => {
+  it('/graphql:Q List components - BadRequest no token', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .send({
@@ -724,7 +725,7 @@ describe('component', () => {
     done();
   });
 
-  it('/graphql:Q List Component - OK', async (done) => {
+  it('/graphql:Q List components - OK', async (done) => {
     const response1 = await agent
       .post('/graphql')
       .set(
@@ -745,7 +746,7 @@ describe('component', () => {
     done();
   });
 
-  it('/graphql:Q List Component - OK with uuidComponent', async (done) => {
+  it('/graphql:Q List components - OK with uuidComponent', async (done) => {
     const response1 = await agent
       .post('/graphql')
       .set(
@@ -766,7 +767,7 @@ describe('component', () => {
     done();
   });
 
-  it('/graphql:Q List Component - OK for 3 uuids', async (done) => {
+  it('/graphql:Q List components - OK for 3 uuids', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .set(
@@ -796,7 +797,7 @@ describe('component', () => {
     done();
   });
 
-  it('/graphql:Q List Component - OK no access', async (done) => {
+  it('/graphql:Q List components - OK no access', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .set(
