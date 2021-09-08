@@ -249,14 +249,14 @@ impl MutationRoot {
         let target_uuid_company = Uuid::parse_str(&data.uuid_company.to_string())?;
 
         crate::models::company::util::check_company_access(
-            logged_uuid_user,
-            target_uuid_company,
+            &logged_uuid_user,
+            &target_uuid_company,
             3,
             conn,
         )?;
 
         crate::models::company::util::check_is_supplier(
-            target_uuid_company,
+            &target_uuid_company,
             conn
         )?;
 
@@ -278,7 +278,10 @@ impl MutationRoot {
         let target_uuid_company_represent = Uuid::parse_str(&uuid_company_represent)?;
 
         crate::models::company::util::check_company_access(
-            logged_uuid_user, target_uuid_company, 3, conn,
+            &logged_uuid_user,
+            &target_uuid_company,
+            3,
+            conn,
         )?;
 
         Ok(delete_company_represent(
@@ -303,10 +306,16 @@ impl MutationRoot {
         let target_uuid_company = Uuid::parse_str(&data.uuid_company.to_string())?;
 
         crate::models::company::util::check_company_access(
-            logged_uuid_user, target_uuid_company, 3, conn,
+            &logged_uuid_user,
+            &target_uuid_company,
+            3,
+            conn,
         )?;
 
-        crate::models::company::util::check_is_supplier(target_uuid_company, conn)?;
+        crate::models::company::util::check_is_supplier(
+            &target_uuid_company, 
+            conn
+        )?;
 
         let standard_data = StandardData {
             uuid_standard_parent: (target_uuid_standard_parent),
