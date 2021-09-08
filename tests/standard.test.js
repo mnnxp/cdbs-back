@@ -34,6 +34,143 @@ const idRegion = 5;
 var uuidStandardFirst = "";
 var uuidStandardSecond = "";
 
+const standardFullDataQuery = ` \
+uuid \
+uuidStandardParent \
+classifier \
+name \
+description \
+specifiedTolerance \
+technicalCommittee \
+publicationAt \
+imageFile { \
+  uuid \
+  filename \
+  filesize \
+  pathFile \
+} \
+ownerUser { \
+  uuid \
+  username \
+  imageFile { \
+    uuid \
+    filename \
+    filesize \
+    pathFile \
+  } \
+} \
+ownerCompany { \
+  uuid \
+  shortname \
+  inn \
+  description \
+  imageFile { \
+    uuid \
+    filename \
+    filesize \
+    pathFile \
+  } \
+  region { \
+    idRegion \
+    idLang \
+    region \
+  } \
+  companyType { \
+    idCompanyType \
+    idLang \
+    name \
+    shortname \
+  } \
+  isSupplier \
+  isFollowed \
+  updatedAt \
+} \
+idTypeAccess \
+standardStatus { \
+  idStandardStatus \
+  idLang \
+  name \
+} \
+region { \
+  idRegion \
+  idLang \
+  region \
+} \
+isDelete \
+createdAt \
+updatedAt \
+standardFiles { \
+  uuid \
+  uuidFileParent \
+  uuidUser \
+  filename \
+  contentType \
+  idExt \
+  filesize \
+  pathFile \
+  createdAt \
+  updatedAt \
+} \
+standardSpecs { \
+  spec { \
+    idSpec \
+    idLang \
+    spec \
+  } \
+	uuidStandard \
+} \
+standardKeywords { \
+  id \
+	keyword \
+} \
+subscribers \
+isFollowed \
+updatedAt \
+isFollowed \
+`;
+
+const standardsListQuery = ` \
+uuid \
+classifier \
+name \
+description \
+specifiedTolerance \
+publicationAt \
+ownerCompany { \
+  uuid \
+  shortname \
+  inn \
+  description \
+  imageFile { \
+    uuid \
+    filename \
+    filesize \
+    pathFile \
+  } \
+  region { \
+    idRegion \
+    idLang \
+    region \
+  } \
+  companyType { \
+    idCompanyType \
+    idLang \
+    name \
+    shortname \
+  } \
+  isSupplier \
+  isFollowed \
+  updatedAt \
+} \
+standardStatus { \
+  idStandardStatus \
+  idLang \
+  name \
+} \
+updatedAt \
+isFollowed  \
+`;
+
 // data for company
 const orgname = "orgname supplier of the test";
 const orgname2 = "orgnametest not supplier of the test";
@@ -528,24 +665,8 @@ describe('company', () => {
       .post('/graphql')
       .send({
         query: `query selectStandardQuery{
-          standards{
-            uuid
-            uuidStandardParent
-            classifier
-            name
-            description
-            specifiedTolerance
-            technicalCommittee
-            publicationAt
-            uuidImageFile
-            uuidUser
-            uuidCompany
-            idTypeAccess
-            idStandardStatus
-            idRegion
-            isDelete
-            createdAt
-            updatedAt
+          standards {
+            ${standardsListQuery}
           }
         }`,
       })
@@ -557,45 +678,29 @@ describe('company', () => {
     done();
   });
 
-  it('/graphql:Q standard - OK Select with fake uuid', async (done) => {
-    const { body } = await agent
-      .post('/graphql')
-      .set(
-        'Authorization',
-        `Bearer ${authorizationTokenFirst}`
-      )
-      .send({
-        query: `query selectStandardQuery{
-          standards (uuidStandard: "${uuidFake}") {
-            uuid
-            uuidStandardParent
-            classifier
-            name
-            description
-            specifiedTolerance
-            technicalCommittee
-            publicationAt
-            uuidImageFile
-            uuidUser
-            uuidCompany
-            idTypeAccess
-            idStandardStatus
-            idRegion
-            isDelete
-            createdAt
-            updatedAt
-          }
-        }`,
-      })
-      .expect(HttpStatus.OK)
-    debug('/graphql - body=%o', body);
-    const { errors, data } = body;
-    expect(data).toBeNull();
-    expect(errors[0].message).toBe("BadRequest: You not have access.");
-    done();
-  });
+  // it('/graphql:Q standard - OK Select with fake uuid', async (done) => {
+  //   const { body } = await agent
+  //     .post('/graphql')
+  //     .set(
+  //       'Authorization',
+  //       `Bearer ${authorizationTokenFirst}`
+  //     )
+  //     .send({
+  //       query: `query selectStandardQuery{
+  //         standard (standardUuid: "${uuidFake}") {
+  //           ${standardFullDataQuery}
+  //         }
+  //       }`,
+  //     })
+  //     .expect(HttpStatus.OK)
+  //   debug('/graphql - body=%o', body);
+  //   const { errors, data } = body;
+  //   expect(data).toBeNull();
+  //   expect(errors[0].message).toBe("BadRequest: You not have access.");
+  //   done();
+  // });
 
-  it('/graphql:Q standard - OK Select with uuid', async (done) => {
+  it('/graphql:Q standard - OK ShowUserShort', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .set(
@@ -604,34 +709,18 @@ describe('company', () => {
       )
       .send({
         query: `query selectStandardQuery{
-          standards (uuidStandard: "${uuidStandardFirst}") {
-            uuid
-            uuidStandardParent
-            classifier
-            name
-            description
-            specifiedTolerance
-            technicalCommittee
-            publicationAt
-            uuidImageFile
-            uuidUser
-            uuidCompany
-            idTypeAccess
-            idStandardStatus
-            idRegion
-            isDelete
-            createdAt
-            updatedAt
+          standard (standardUuid: "${uuidStandardFirst}") {
+            ${standardFullDataQuery}
           }
         }`,
       })
       .expect(HttpStatus.OK)
     debug('/graphql body=%o', body);
     const {
-      data: { standards },
+      data: { standard },
     } = body;
-    expect(standards[0].uuid).toBe(uuidStandardFirst);
-    expect(standards[0].classifier).toBe(classifierStandard);
+    expect(standard.uuid).toBe(uuidStandardFirst);
+    expect(standard.classifier).toBe(classifierStandard);
     done();
   });
 
@@ -644,24 +733,8 @@ describe('company', () => {
       )
       .send({
         query: `query selectStandardQuery{
-          standards (uuidStandard: "${uuidStandardFirst}") {
-            uuid
-            uuidStandardParent
-            classifier
-            name
-            description
-            specifiedTolerance
-            technicalCommittee
-            publicationAt
-            uuidImageFile
-            uuidUser
-            uuidCompany
-            idTypeAccess
-            idStandardStatus
-            idRegion
-            isDelete
-            createdAt
-            updatedAt
+          standards (standardsUuids: ["${uuidStandardFirst}"]) {
+            ${standardsListQuery}
           }
         }`,
       })
@@ -675,7 +748,7 @@ describe('company', () => {
     done();
   });
 
-  it('/graphql:Q standard - OK Select all', async (done) => {
+  it('/graphql:Q standard - OK Not select', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .set(
@@ -685,23 +758,7 @@ describe('company', () => {
       .send({
         query: `query selectStandardQuery{
           standards {
-            uuid
-            uuidStandardParent
-            classifier
-            name
-            description
-            specifiedTolerance
-            technicalCommittee
-            publicationAt
-            uuidImageFile
-            uuidUser
-            uuidCompany
-            idTypeAccess
-            idStandardStatus
-            idRegion
-            isDelete
-            createdAt
-            updatedAt
+            ${standardsListQuery}
           }
         }`,
       })
@@ -710,7 +767,7 @@ describe('company', () => {
     const {
       data: { standards },
     } = body;
-    expect(standards.pop().uuid).toBe(uuidStandardSecond);
+    expect(standards).toBeEmptyArray();
     done();
   });
 
@@ -723,24 +780,8 @@ describe('company', () => {
       )
       .send({
         query: `query selectStandardQuery{
-          standards (uuidStandard: "${uuidStandardSecond}") {
-            uuid
-            uuidStandardParent
-            classifier
-            name
-            description
-            specifiedTolerance
-            technicalCommittee
-            publicationAt
-            uuidImageFile
-            uuidUser
-            uuidCompany
-            idTypeAccess
-            idStandardStatus
-            idRegion
-            isDelete
-            createdAt
-            updatedAt
+          standards (standardsUuids: "${uuidStandardSecond}") {
+            ${standardsListQuery}
           }
         }`,
       })
@@ -766,24 +807,8 @@ describe('company', () => {
       )
       .send({
         query: `query selectStandardQuery{
-          standards (uuidStandard: "${uuidStandardSecond}") {
-            uuid
-            uuidStandardParent
-            classifier
-            name
-            description
-            specifiedTolerance
-            technicalCommittee
-            publicationAt
-            uuidImageFile
-            uuidUser
-            uuidCompany
-            idTypeAccess
-            idStandardStatus
-            idRegion
-            isDelete
-            createdAt
-            updatedAt
+          standards (standardsUuids: "${uuidStandardSecond}") {
+            ${standardsListQuery}
           }
         }`,
       })
