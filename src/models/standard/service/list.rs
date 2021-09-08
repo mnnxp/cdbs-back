@@ -1,80 +1,48 @@
 use crate::database::{get_conn, PooledConnection};
-use crate::errors::{
-    ServiceError,
-    ServiceResult
-};
-// use crate::graphql::model::Context;
+use crate::errors::ServiceResult;
+use crate::models::standard::model::{ShowStandardShort, StandardAndRelatedData};
 use async_graphql::Context;
-use crate::models::standard::model::ShowStandard;
-use diesel::prelude::*;
 use uuid::Uuid;
 
-pub(crate) fn get_standards(
+pub(crate) fn find_by_uuids(
     context: &Context<'_>,
-    target_uuid_user: Uuid,
-    target_uuid_standard: Uuid,
-    limit: i32,
-    offset: i32,
-) -> ServiceResult<Vec<ShowStandard>> {
-    let mut variant_selection: u8 = 0;
-    if target_uuid_standard > Uuid::nil() {
-        variant_selection += 1;
-    }
-
-    match variant_selection {
-        0 => find_all_standards(context, target_uuid_user, limit, offset),
-        1 => find_uuid_standard(context, target_uuid_standard, limit, offset),
-        // 10
-        // 11
-        // 100
-        // 101
-        // 110
-        // 111
-        _ => ServiceResult::Err(ServiceError::BadRequest("What?".to_string()))
-    }
-}
-
-fn find_all_standards(
-    context: &Context<'_>,
-    target_uuid_user: Uuid,
-    limit: i32,
-    offset: i32,
-) -> ServiceResult<Vec<ShowStandard>> {
-    use crate::schema::standard_ref::dsl::*;
+    target_uuids_standards: &[Uuid],
+    target_uuid_user: &Uuid,
+) -> ServiceResult<Vec<ShowStandardShort>> {
     let conn: &PooledConnection = &get_conn(context)?;
 
-    Ok(standard_ref
-        .filter(id_type_access.eq(3)) // 3 - this public standards
-        .or_filter(uuid_user.eq(target_uuid_user))
-        .select((
-            uuid, uuid_standard_parent, classifier, name, description,
-            specified_tolerance, technical_committee, publication_at,
-            uuid_image_file, uuid_user, uuid_company, id_type_access,
-            id_standard_status, id_region, is_delete, created_at, updated_at,
-        ))
-        .limit(limit as i64)
-        .offset(offset as i64)
-        .load::<ShowStandard>(conn)?)
+    let set_id_lang = crate::models::user::get_set_language(context);
+
+    let result: Vec<ShowStandardShort> = ShowStandardShort::get_list_by_uuids(
+        target_uuids_standards,
+        target_uuid_user,
+        &set_id_lang,
+        conn
+    ).expect("Error loading list standards and collect short data");
+
+    debug!("Standards data: {:#?}", result);
+
+    Ok(result)
 }
 
-fn find_uuid_standard(
+pub(crate) fn find_by_uuid(
     context: &Context<'_>,
-    target_uuid_standard: Uuid,
-    limit: i32,
-    offset: i32,
-) -> ServiceResult<Vec<ShowStandard>> {
-    use crate::schema::standard_ref::dsl::*;
+    target_uuid_standard: &Uuid,
+    target_uuid_user: &Uuid,
+) -> ServiceResult<StandardAndRelatedData> {
     let conn: &PooledConnection = &get_conn(context)?;
 
-    Ok(standard_ref
-        .filter(uuid.eq(target_uuid_standard))
-        .select((
-            uuid, uuid_standard_parent, classifier, name, description,
-            specified_tolerance, technical_committee, publication_at,
-            uuid_image_file, uuid_user, uuid_company, id_type_access,
-            id_standard_status, id_region, is_delete, created_at, updated_at,
-        ))
-        .limit(limit as i64)
-        .offset(offset as i64)
-        .load::<ShowStandard>(conn)?)
+    let set_id_lang = crate::models::user::get_set_language(context);
+
+    // collect data for standard
+    let result: StandardAndRelatedData = StandardAndRelatedData::collect_related_data(
+        target_uuid_standard,
+        target_uuid_user,
+        &set_id_lang,
+        conn
+    ).expect("Error loading standard and collect related data");
+
+    debug!("Standard data: {:#?}", result);
+
+    Ok(result)
 }

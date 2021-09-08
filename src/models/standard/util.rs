@@ -5,11 +5,11 @@ use async_graphql::Context;
 use diesel::prelude::*;
 use uuid::Uuid;
 
-/// checking the availability of the required access level
+/// Checking have need access level
 pub(crate) fn check_standard_access(
     context: &Context<'_>,
-    target_uuid_user: Uuid,
-    target_uuid_standard: Uuid,
+    target_user_uuid: &Uuid,
+    target_standard_uuid: &Uuid,
     required_access: i32,
 ) -> Result<bool, ServiceError> {
     let conn: &PooledConnection = &get_conn(context)?;
@@ -18,8 +18,8 @@ pub(crate) fn check_standard_access(
 
     // check user on owner standard
     let user_owner_standard = standard_ref
-        .filter(uuid.eq(target_uuid_standard))
-        .filter(uuid_user.eq(target_uuid_user))
+        .filter(uuid.eq(target_standard_uuid))
+        .filter(uuid_user.eq(target_user_uuid))
         .execute(conn)
         .unwrap_or(0);
 
@@ -29,8 +29,8 @@ pub(crate) fn check_standard_access(
 
     // search user access level to the standard
     let found_id_type_access: i32 = get_user_access_standard(
-        target_uuid_user,
-        target_uuid_standard,
+        target_user_uuid,
+        target_standard_uuid,
         conn,
     );
 
@@ -43,8 +43,8 @@ pub(crate) fn check_standard_access(
 
     // recursive search for access from companies (owner, member) with access
     let find_max_level = recursive_search_availability_access(
-        target_uuid_user,
-        target_uuid_standard,
+        target_user_uuid,
+        target_standard_uuid,
         required_access,
         conn,
     );
@@ -65,16 +65,16 @@ pub(crate) fn check_standard_access(
 
 /// Search and returns the user's personal access level
 pub(crate) fn get_user_access_standard(
-    target_uuid_user: Uuid,
-    target_uuid_standard: Uuid,
+    target_user_uuid: &Uuid,
+    target_standard_uuid: &Uuid,
     conn: &PgConnection,
 ) -> i32 {
     use crate::schema::user_access_to_standard::dsl::*;
 
     // find id_role user
     user_access_to_standard
-        .filter(uuid_standard.eq(target_uuid_standard))
-        .filter(uuid_user.eq(target_uuid_user))
+        .filter(uuid_standard.eq(target_standard_uuid))
+        .filter(uuid_user.eq(target_user_uuid))
         .select(id_type_access)
         .first(conn)
         .unwrap_or(0)
@@ -82,14 +82,14 @@ pub(crate) fn get_user_access_standard(
 
 /// Search and returns the user's personal access level
 pub(crate) fn recursive_search_availability_access(
-    target_uuid_user: Uuid,
-    target_uuid_standard: Uuid,
+    target_user_uuid: &Uuid,
+    target_standard_uuid: &Uuid,
     required_access: i32,
     conn: &PgConnection,
 ) -> i32 {
-    let find_access_of_companies = get_access_from_company_owned_by_user(
-        target_uuid_user,
-        target_uuid_standard,
+    let find_access_of_companies = get_access_from_company(
+        target_user_uuid,
+        target_standard_uuid,
         required_access,
         conn,
     );
@@ -102,9 +102,9 @@ pub(crate) fn recursive_search_availability_access(
         },
         find_access => {
             debug!("not found access in recursive (owned): {:?}", find_access);
-            get_user_access_granted_by_company(
-                target_uuid_user,
-                target_uuid_standard,
+            get_access_granted_company(
+                target_user_uuid,
+                target_standard_uuid,
                 required_access,
                 conn,
             )
@@ -115,14 +115,14 @@ pub(crate) fn recursive_search_availability_access(
 // Search companies that have access to standard
 // returns uuid companies and id access
 // pub(crate) fn get_companies_access_standard(
-//     target_uuid_standard: Uuid,
+//     target_standard_uuid: &Uuid,
 //     conn: &PgConnection,
 // ) -> Vec<(Uuid, i32)> {
 //     use crate::schema::company_access_to_standard::dsl::*;
 //
 //     // find companies that have access to standard
 //     company_access_to_standard
-//         .filter(uuid_standard.eq(target_uuid_standard))
+//         .filter(uuid_standard.eq(target_standard_uuid))
 //         .select((
 //             uuid_company,
 //             id_type_access
@@ -132,10 +132,10 @@ pub(crate) fn recursive_search_availability_access(
 // }
 
 /// Search companies that have a need-level access to standard
-/// returns id_type_access
-pub(crate) fn get_user_access_granted_by_company(
-    target_uuid_user: Uuid,
-    target_uuid_standard: Uuid,
+/// returns found id_type_access
+pub(crate) fn get_access_granted_company(
+    target_user_uuid: &Uuid,
+    target_standard_uuid: &Uuid,
     required_access: i32,
     conn: &PgConnection,
 ) -> i32 {
@@ -147,8 +147,8 @@ pub(crate) fn get_user_access_granted_by_company(
         access_level: i32,
     }
 
-    debug!("target_uuid_user: {:?}", target_uuid_user);
-    debug!("target_uuid_standard: {:?}", target_uuid_standard);
+    debug!("target_user_uuid: {:?}", target_user_uuid);
+    debug!("target_standard_uuid: {:?}", target_standard_uuid);
     debug!("required_access: {:?}", required_access);
 
     let query: &str = "SELECT  \
@@ -168,8 +168,8 @@ pub(crate) fn get_user_access_granted_by_company(
             AND role_access.id_type_access <= $3;";
 
     let find_user_access = diesel::sql_query(query)
-        .bind::<diesel::sql_types::Uuid, _>(&target_uuid_user)
-        .bind::<diesel::sql_types::Uuid, _>(&target_uuid_standard)
+        .bind::<diesel::sql_types::Uuid, _>(target_user_uuid)
+        .bind::<diesel::sql_types::Uuid, _>(target_standard_uuid)
         .bind::<diesel::sql_types::Integer, _>(required_access)
         .get_result::<RoleAccess>(conn);
 
@@ -181,43 +181,43 @@ pub(crate) fn get_user_access_granted_by_company(
     }
 }
 
-/// Get user owned company then have role_access
-pub(crate) fn get_access_from_company_owned_by_user(
-    target_uuid_user: Uuid,
-    target_uuid_standard: Uuid,
+/// Search a company with user owned and have level
+/// returns found access need
+pub(crate) fn get_access_from_company(
+    target_user_uuid: &Uuid,
+    target_standard_uuid: &Uuid,
     required_access: i32,
     conn: &PgConnection,
 ) -> i32 {
     use crate::schema::company_access_to_standard::dsl::*;
 
     // find user companies
-    let target_uuid_company = company::util::get_companies_owned_by_user(
-        target_uuid_user,
+    let target_company_uuid = company::util::get_companies_owned_by_user(
+        target_user_uuid,
         conn
     );
 
     // find companies that have a need-level access to standard
     company_access_to_standard
-        .filter(uuid_standard.eq(target_uuid_standard))
-        .filter(uuid_company.eq_any(target_uuid_company))
+        .filter(uuid_standard.eq(target_standard_uuid))
+        .filter(uuid_company.eq_any(target_company_uuid))
         .filter(id_type_access.gt(required_access))
         .select(id_type_access)
         .first(conn)
         .unwrap_or(0)
 }
 
-/// returns the value of the id_type_access
-/// field set for the standard by default
-pub(crate) fn get_default_access_standard(
+/// Gets the default access for target standard
+pub(crate) fn get_access_set(
     context: &Context<'_>,
-    target_uuid_standard: Uuid,
+    target_standard_uuid: &Uuid,
 ) -> Result<i32, ServiceError> {
     use crate::schema::standard_ref::dsl::*;
     let conn: &PooledConnection = &get_conn(context)?;
 
     // check default access for standard
     Ok(standard_ref
-        .filter(uuid.eq(target_uuid_standard))
+        .filter(uuid.eq(target_standard_uuid))
         .select(id_type_access)
         .first(conn)
         .unwrap_or(0))

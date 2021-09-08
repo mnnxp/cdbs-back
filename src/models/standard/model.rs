@@ -1,33 +1,20 @@
+use super::standard_status::model::StandardStatusTranslateList;
+use super::spec::model::StandardSpecWithTranslation;
+use crate::models::company::model::ShowCompanyShort;
+use crate::models::user::model::ShowUserShort;
+use crate::models::relate_ref::file::model::{ShowFile, SlimFile};
+use crate::models::relate_ref::region::model::RegionTranslateList;
+use crate::models::relate_ref::keyword::model::Keyword;
 use crate::schema::*;
 use async_graphql::types::ID;
 use async_graphql::*;
 use chrono::*;
 use uuid::Uuid;
 
-#[derive(Debug, Queryable)]
+#[derive(Identifiable, Deserialize, Queryable, Debug)]
+#[primary_key(uuid)]
+#[table_name = "standard_ref"]
 pub struct Standard {
-    // pub id: i32,
-    pub uuid: Uuid,
-    pub uuid_standard_parent: Uuid,
-    pub classifier: String,
-    pub name: String,
-    pub description: String,
-    pub specified_tolerance: String,
-    pub technical_committee: String,
-    pub publication_at: NaiveDateTime,
-    pub uuid_image_file: Uuid,
-    pub uuid_user: Uuid,
-    pub uuid_company: Uuid,
-    pub id_type_access: i32,
-    pub id_standard_status: i32,
-    pub id_region: i32,
-    pub is_delete: bool,
-    pub created_at: NaiveDateTime,
-    pub updated_at: NaiveDateTime,
-}
-
-#[derive(Debug, Serialize, Deserialize, Queryable)]
-pub struct ShowStandard {
     pub uuid: Uuid,
     pub uuid_standard_parent: Uuid,
     pub classifier: String,
@@ -48,7 +35,7 @@ pub struct ShowStandard {
 }
 
 #[Object]
-impl ShowStandard {
+impl Standard {
     async fn uuid(&self) -> ID {
         self.uuid.into()
     }
@@ -100,6 +87,50 @@ impl ShowStandard {
     async fn updated_at(&self) -> &NaiveDateTime {
         &self.updated_at
     }
+}
+
+#[derive(Debug, Deserialize, SimpleObject)]
+pub struct StandardAndRelatedData {
+    pub uuid: Uuid,
+    pub uuid_standard_parent: Uuid,
+    pub classifier: String,
+    pub name: String,
+    pub description: String,
+    pub specified_tolerance: String,
+    pub technical_committee: String,
+    pub publication_at: NaiveDateTime,
+    pub image_file: SlimFile,
+    pub owner_user: ShowUserShort,
+    pub owner_company: ShowCompanyShort,
+    pub id_type_access: i32,
+    pub standard_status: StandardStatusTranslateList,
+    pub region: RegionTranslateList,
+    pub is_delete: bool,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
+    // related data
+    pub standard_files: Vec<ShowFile>, // <-- documentation files, etc.
+    pub standard_specs: Vec<StandardSpecWithTranslation>,
+    pub standard_keywords: Vec<Keyword>,
+    // count users to folloded the standard
+    pub subscribers: i32,
+    // for display the checkbox "favorites"
+    pub is_followed: bool,
+}
+
+#[derive(Debug, Deserialize, SimpleObject)]
+pub struct ShowStandardShort {
+    pub uuid: Uuid,
+    pub classifier: String,
+    pub name: String,
+    pub description: String,
+    pub specified_tolerance: String,
+    pub publication_at: NaiveDateTime,
+    pub owner_company: ShowCompanyShort,
+    pub standard_status: StandardStatusTranslateList,
+    pub updated_at: NaiveDateTime,
+    // for display the checkbox "favorites"
+    pub is_followed: bool,
 }
 
 #[derive(Debug, Insertable)]
