@@ -85,7 +85,10 @@ pub struct ComponentAndRelatedData {
     pub actual_status: ActualStatusTranslateList,
     pub is_standard: bool,
     pub subscribers: i32,
+    // for display the checkbox "favorites"
+    pub is_followed: bool,
     pub updated_at: NaiveDateTime,
+    // related data
     pub licenses: Vec<License>,
     pub component_params: Vec<ComponentParamWithTranslation>,
     pub files: Vec<ShowFile>,

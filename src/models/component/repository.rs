@@ -17,11 +17,11 @@ use uuid::Uuid;
 impl Component {
     /// Get component data from component_ref table by uuid
     pub fn get_component_by_uuid(
-        target_uuid_component: &Uuid,
+        target_component_uuid: &Uuid,
         conn: &PgConnection,
     ) -> ServiceResult<Component> {
         Ok(component_ref::component_ref
-            .filter(component_ref::uuid.eq(target_uuid_component))
+            .filter(component_ref::uuid.eq(target_component_uuid))
             .first::<Component>(conn)?)
     }
 }
@@ -29,7 +29,7 @@ impl Component {
 impl ShowComponentShort {
     pub fn get_list_by_uuids(
         target_uuids_components: &[Uuid],
-        target_uuid_user: &Uuid,
+        target_user_uuid: &Uuid,
         set_id_lang: &i32,
         conn: &PgConnection,
     ) -> ServiceResult<Vec<ShowComponentShort>> {
@@ -37,10 +37,10 @@ impl ShowComponentShort {
         let mut result: Vec<ShowComponentShort> = Vec::new();
 
         // collecting data for each component
-        for target_uuid_component in target_uuids_components.iter() {
+        for target_component_uuid in target_uuids_components.iter() {
             // get target component
             let component: Component = Component::get_component_by_uuid(
-                target_uuid_component,
+                target_component_uuid,
                 conn
             )
             .expect("Error loading component");
@@ -67,8 +67,8 @@ impl ShowComponentShort {
 
             // check whether the object is being tracked auth user
             let is_followed = crate::models::component::component_fav::util::check_subscriber_by_uuid(
-                target_uuid_component,
-                target_uuid_user,
+                target_component_uuid,
+                target_user_uuid,
                 conn
             ).expect("Error get is_followed");
 
@@ -83,7 +83,7 @@ impl ShowComponentShort {
                 .expect("Error loading component_file");
 
             // collect data for supplier component
-            let component_suppliers_with_related_data: Vec<ComponentSupplierRelatedData> = ComponentSupplierRelatedData::get_first_supplier(
+            let component_suppliers: Vec<ComponentSupplierRelatedData> = ComponentSupplierRelatedData::get_first_supplier(
                 &component,
                 conn
             ).expect("Error loading supplier_component_with_relate");
@@ -101,7 +101,7 @@ impl ShowComponentShort {
                 updated_at: component.updated_at,
                 licenses,
                 files: component_files,
-                component_suppliers: component_suppliers_with_related_data,
+                component_suppliers,
             });
         }
         Ok(result)
@@ -111,13 +111,14 @@ impl ShowComponentShort {
 impl ComponentAndRelatedData {
     /// Collecting component data and related data using uuid
     pub fn collect_related_data(
-        target_uuid_component: &Uuid,
+        target_component_uuid: &Uuid,
+        target_user_uuid: &Uuid,
         set_id_lang: &i32,
         conn: &PgConnection,
     ) -> ServiceResult<ComponentAndRelatedData> {
         // collect data for component
         let component: Component = Component::get_component_by_uuid(
-            target_uuid_component,
+            target_component_uuid,
             conn
         ).expect("Error loading component");
 
@@ -150,10 +151,17 @@ impl ComponentAndRelatedData {
         ).expect("Error loading actual status");
 
         // count subscribers component
-        let component_subscribers_count: i32 = ComponentFav::get_count_followers_by_uuid(&component.uuid, conn)?;
+        let subscribers: i32 = ComponentFav::get_count_followers_by_uuid(&component.uuid, conn)?;
+
+        // check whether the object is being tracked auth user
+        let is_followed = crate::models::component::component_fav::util::check_subscriber_by_uuid(
+            target_component_uuid,
+            target_user_uuid,
+            conn
+        ).expect("Error get is_followed");
 
         // get params with translation for component
-        let params_component_with_translate: Vec<ComponentParamWithTranslation> = ComponentParamWithTranslation::for_component(
+        let component_params: Vec<ComponentParamWithTranslation> = ComponentParamWithTranslation::for_component(
             &component,
             set_id_lang,
             conn
@@ -170,7 +178,7 @@ impl ComponentAndRelatedData {
             .expect("Error loading component files");
 
         // get specs with translation for component
-        let component_specs_with_translate: Vec<ComponentSpecWithTranslation> = ComponentSpecWithTranslation::for_component(
+        let component_specs: Vec<ComponentSpecWithTranslation> = ComponentSpecWithTranslation::for_component(
             &component,
             set_id_lang,
             conn
@@ -189,37 +197,38 @@ impl ComponentAndRelatedData {
         ).expect("Error loading component modifications");
 
         // get list component modifications with related data and translation
-        let component_modifications_with_related_data: Vec<ComponentModificationAndRelatedData> = ComponentModificationAndRelatedData::for_component_modification_list(
+        let component_modifications: Vec<ComponentModificationAndRelatedData> = ComponentModificationAndRelatedData::for_component_modification_list(
             &component_modifications,
             set_id_lang,
             conn
         ).expect("Error loading component modifications with related data");
 
         // collect data for supplier component
-        let component_suppliers_with_related_data: Vec<ComponentSupplierRelatedData> = ComponentSupplierRelatedData::for_component(
+        let component_suppliers: Vec<ComponentSupplierRelatedData> = ComponentSupplierRelatedData::for_component(
             &component,
             conn
         ).expect("Error loading supplier component with relate");
 
         let result = ComponentAndRelatedData {
-            uuid: (component.uuid),
-            uuid_component_parent: (component.uuid_component_parent),
-            name: (component.name),
-            description: (component.description),
-            owner_user: (owner_user),
-            id_type_access: (component.id_type_access),
-            component_type: (component_type),
-            actual_status: (actual_status),
-            is_standard: (component.is_standard),
-            subscribers: component_subscribers_count,
-            updated_at: (component.updated_at),
-            component_params: (params_component_with_translate),
-            licenses: (licenses),
-            files: (component_files),
-            component_specs: (component_specs_with_translate),
-            component_keywords: (component_keywords),
-            component_modifications: (component_modifications_with_related_data),
-            component_suppliers: (component_suppliers_with_related_data),
+            uuid: component.uuid,
+            uuid_component_parent: component.uuid_component_parent,
+            name: component.name,
+            description: component.description,
+            owner_user,
+            id_type_access: component.id_type_access,
+            component_type,
+            actual_status,
+            is_standard: component.is_standard,
+            subscribers,
+            is_followed,
+            updated_at: component.updated_at,
+            component_params,
+            licenses,
+            files: component_files,
+            component_specs,
+            component_keywords,
+            component_modifications,
+            component_suppliers,
         };
 
         Ok(result)
