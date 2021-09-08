@@ -10,6 +10,8 @@ use crate::models::component::component_modification::file_to_set_modification a
 use crate::models::component::component_modification::file_to_set_modification::model::FileToSetModification;
 use crate::models::component::model::{ComponentAndRelatedData, ShowComponentShort};
 use crate::models::component::service as component;
+use crate::models::standard::model::{StandardAndRelatedData, ShowStandardShort};
+use crate::models::standard as standard;
 use crate::models::relate_ref::keyword;
 use crate::models::relate_ref::keyword::model::Keyword;
 use crate::models::relate_ref::language;
@@ -22,8 +24,6 @@ use crate::models::relate_ref::program;
 use crate::models::relate_ref::program::model::Program;
 use crate::models::relate_ref::spec;
 use crate::models::relate_ref::spec::model::SpecTranslateList;
-use crate::models::standard;
-use crate::models::standard::model::ShowStandard;
 use crate::models::user::model::{ShowUser, SlimUser, TargetUser};
 use crate::models::user::notification::model::Notification;
 use crate::models::user::notification::service as notification;
@@ -286,43 +286,37 @@ impl QueryRoot {
     async fn standards(
         &self,
         context: &Context<'_>,
-        uuid_standard: Option<String>,
-        limit: Option<i32>,
-        offset: Option<i32>,
-    ) -> ServiceResult<Vec<ShowStandard>> {
+        standards_uuids: Option<Vec<String>>,
+    ) -> ServiceResult<Vec<ShowStandardShort>> {
         // authorization check
-        let auth_uuid_user = crate::models::user::get_auth_uuid_user(context, true)?;
+        let target_user_uuid = crate::models::user::get_auth_uuid_user(context, true)?;
 
-        let limit: i32 = limit.unwrap_or(100);
-        let offset: i32 = offset.unwrap_or(0);
-
-        let target_uuid_standard = match uuid_standard {
-            //if no standard is specified, get all standards the user has access
-            None => Uuid::nil(),
-            // if the standard was specified, you need to check the access right
-            Some(uuid_standard) => {
-                let target_uuid_standard = Uuid::parse_str(&uuid_standard)?;
-
-                // access check for user
-                if standard::util::get_default_access_standard(context, target_uuid_standard)? < 3 {
-                    debug!("start access check for user");
-                    standard::util::check_standard_access(
-                        context,
-                        crate::models::user::get_auth_uuid_user(context, false)?,
-                        target_uuid_standard,
-                        2,
-                    )?;
-                }
-                target_uuid_standard
+        let mut target_standards_uuids = Vec::new();
+        if let Some(vec_string) = standards_uuids {
+            for x in vec_string.iter() {
+                target_standards_uuids.push(Uuid::parse_str(x).unwrap());
             }
         };
 
-        standard::service::list::get_standards(
+        standard::service::list::find_by_uuids(
             context,
-            auth_uuid_user,
-            target_uuid_standard,
-            limit,
-            offset,
+            &target_standards_uuids,
+            &target_user_uuid,
+        )
+    }
+
+    async fn standard(
+        &self,
+        context: &Context<'_>,
+        standard_uuid: String,
+    ) -> ServiceResult<StandardAndRelatedData> {
+        // authorization check
+        let target_user_uuid = crate::models::user::get_auth_uuid_user(context, true)?;
+
+        standard::service::list::find_by_uuid(
+            context,
+            &Uuid::parse_str(&standard_uuid)?,
+            &target_user_uuid,
         )
     }
 
