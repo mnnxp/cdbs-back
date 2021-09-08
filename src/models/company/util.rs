@@ -5,7 +5,7 @@ use uuid::Uuid;
 
 /// checking whether the company has a supplier's status
 pub fn check_is_supplier(
-    target_uuid_company: Uuid,
+    target_uuid_company: &Uuid,
     conn: &PgConnection
 ) -> Result<bool, ServiceError> {
     use crate::schema::company_ref::dsl::*;
@@ -27,8 +27,8 @@ pub fn check_is_supplier(
 
 /// checking the availability of the required access level
 pub(crate) fn check_company_access(
-    target_uuid_user: Uuid,
-    target_uuid_company: Uuid,
+    target_uuid_user: &Uuid,
+    target_uuid_company: &Uuid,
     required_access: i32,
     conn: &PgConnection,
 ) -> Result<bool, ServiceError> {
@@ -70,8 +70,8 @@ pub(crate) fn check_company_access(
 }
 
 pub(crate) fn company_member_role(
-    target_uuid_user: Uuid,
-    target_uuid_company: Uuid,
+    target_uuid_user: &Uuid,
+    target_uuid_company: &Uuid,
     conn: &PgConnection,
 ) -> i32 {
     use crate::schema::company_member_role::dsl::*;
@@ -100,27 +100,27 @@ pub(crate) fn get_id_type_access(
         .unwrap_or(0)
 }
 
-/// Search for owned companies
-pub(crate) fn get_companies_owned_by_user(
-    target_uuid_user: Uuid,
-    conn: &PgConnection,
-) -> Vec<Uuid> {
-    use crate::schema::company_ref::dsl::*;
-
-    company_ref
-        .filter(uuid_user.eq(target_uuid_user))
-        .select(uuid)
-        .load(conn)
-        .unwrap_or_default()
-}
+// Search for owned companies
+// pub(crate) fn get_companies_owned_by_user(
+//     target_uuid_user: &Uuid,
+//     conn: &PgConnection,
+// ) -> Vec<Uuid> {
+//     use crate::schema::company_ref::dsl::*;
+//
+//     company_ref
+//         .filter(uuid_user.eq(target_uuid_user))
+//         .select(uuid)
+//         .load(conn)
+//         .unwrap_or_default()
+// }
 
 // Search for companies the user belongs to
 // pub(crate) fn get_companies_with_member_by_user(
-//     target_uuid_user: Uuid,
+//     target_uuid_user: &Uuid,
 //     conn: &PgConnection,
 // ) -> Vec<(Uuid, i32)> {
 //     use crate::schema::company_member_role::dsl::*;
-// 
+//
 //     // find id_role user
 //     company_member_role
 //         .filter(uuid_user.eq(target_uuid_user))
