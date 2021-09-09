@@ -1,10 +1,10 @@
 -- Your SQL goes here
 INSERT INTO company_ref (uuid, orgname, shortname, inn, phone,
   email, description, address, site_url, time_zone, uuid_user,
-  uuid_image_file, id_region, id_company_type, is_supplier, is_email_verified,
+  uuid_image_file, id_region, id_company_type, id_type_access, is_supplier, is_email_verified,
   is_enabled, is_delete, created_at, updated_at) VALUES
-  ('2cd385e1-8f7e-4908-8235-dfe42938b46d', 'romashka', 'rom-ka', '12345678910', '+79991234567', 'email@email.ru', 'description for this company', 'Moscow', 'https://cadbase.ru', 'Europe/Moscow', '31ecc6f8-0c09-4a59-a2d5-34b5b833e59b', 'bc1c2151-86d0-4656-9c9d-d016dd584297', 1, 1, 't', 't', 't', 'f', now(), now()),
-  ('e97ea679-4560-4a9b-ad8b-80d2d191235e', 'testorgname', 'testshortname', 'testinn', '+1234567890', 'testemail@testemail.ru', 'testdescription', 'testaddress', 'testsiteUrl', 'Europe/Moscow', '68b8281a-d19c-4d4b-88eb-6fd4a2afde1b', 'bc1c2151-86d0-4656-9c9d-d016dd584297', 13, 5, 'f', 'f', 't', 'f', now(), now());
+  ('2cd385e1-8f7e-4908-8235-dfe42938b46d', 'romashka', 'rom-ka', '12345678910', '+79991234567', 'email@email.ru', 'description for this company', 'Moscow', 'https://cadbase.ru', 'Europe/Moscow', '31ecc6f8-0c09-4a59-a2d5-34b5b833e59b', 'bc1c2151-86d0-4656-9c9d-d016dd584297', 1, 1, 3, 't', 't', 't', 'f', now(), now()),
+  ('e97ea679-4560-4a9b-ad8b-80d2d191235e', 'testorgname', 'testshortname', 'testinn', '+1234567890', 'testemail@testemail.ru', 'testdescription', 'testaddress', 'testsiteUrl', 'Europe/Moscow', '68b8281a-d19c-4d4b-88eb-6fd4a2afde1b', 'bc1c2151-86d0-4656-9c9d-d016dd584297', 13, 5, 1, 'f', 'f', 't', 'f', now(), now());
 
 INSERT INTO company_type_ref (id) VALUES
   (1),

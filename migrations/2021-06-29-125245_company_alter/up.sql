@@ -3,6 +3,7 @@ ALTER TABLE company_ref ADD CONSTRAINT company_ref_fk0 FOREIGN KEY (uuid_user) R
 ALTER TABLE company_ref ADD CONSTRAINT company_ref_fk1 FOREIGN KEY (uuid_image_file) REFERENCES file_ref(uuid);
 ALTER TABLE company_ref ADD CONSTRAINT company_ref_fk2 FOREIGN KEY (id_region) REFERENCES region_ref(id);
 ALTER TABLE company_ref ADD CONSTRAINT company_ref_fk3 FOREIGN KEY (id_company_type) REFERENCES company_type_ref(id);
+ALTER TABLE company_ref ADD CONSTRAINT company_ref_fk4 FOREIGN KEY (id_type_access) REFERENCES type_access_ref(id);
 
 ALTER TABLE company_represent_ref ADD CONSTRAINT company_represent_ref_fk0 FOREIGN KEY (uuid_company) REFERENCES company_ref(uuid);
 ALTER TABLE company_represent_ref ADD CONSTRAINT company_represent_ref_fk1 FOREIGN KEY (id_representation_type) REFERENCES representation_type_ref(id);

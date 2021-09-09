@@ -29,6 +29,7 @@ pub struct Company {
     pub uuid_image_file: Uuid,
     pub id_region: i32,
     pub id_company_type: i32,
+    pub id_type_access: i32,
     pub is_supplier: bool,
     pub is_email_verified: bool,
     pub is_enabled: bool,

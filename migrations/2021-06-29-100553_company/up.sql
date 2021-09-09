@@ -14,6 +14,7 @@ CREATE TABLE company_ref (
   uuid_image_file UUID NOT NULL, /* логотип компании */
   id_region INTEGER NOT NULL, /* регион */
   id_company_type INTEGER NOT NULL DEFAULT '1', /* тип компании (ао, пао, ооо, ип) */
+  id_type_access INTEGER NOT NULL DEFAULT '1', /* тип доступности */
   is_supplier BOOLEAN NOT NULL DEFAULT 'f',  /* роль пользователя: поставщик/заказчик */
   is_email_verified BOOLEAN NOT NULL DEFAULT 'f', /* подтверждение email */
   is_enabled BOOLEAN NOT NULL DEFAULT 't', /* флаг активности пользователь */

@@ -90,6 +90,7 @@ table! {
         uuid_image_file -> Uuid,
         id_region -> Int4,
         id_company_type -> Int4,
+        id_type_access -> Int4,
         is_supplier -> Bool,
         is_email_verified -> Bool,
         is_enabled -> Bool,
@@ -756,6 +757,7 @@ joinable!(company_member_role -> user_ref (uuid_user));
 joinable!(company_ref -> company_type_ref (id_company_type));
 joinable!(company_ref -> file_ref (uuid_image_file));
 joinable!(company_ref -> region_ref (id_region));
+joinable!(company_ref -> type_access_ref (id_type_access));
 joinable!(company_ref -> user_ref (uuid_user));
 joinable!(company_represent_ref -> company_ref (uuid_company));
 joinable!(company_represent_ref -> region_ref (id_region));
@@ -865,6 +867,7 @@ joinable!(user_history_list -> type_of_change_ref (id_type_of_change));
 joinable!(user_history_list -> user_ref (uuid_user));
 joinable!(user_ref -> program_ref (id_program));
 joinable!(user_ref -> region_ref (id_region));
+joinable!(user_ref -> type_access_ref (id_type_access));
 joinable!(user_storage_access_ref -> user_ref (uuid_user));
 joinable!(user_token_ref -> user_ref (uuid_user));
 
