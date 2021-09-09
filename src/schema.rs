@@ -705,6 +705,7 @@ table! {
         uuid_image_file -> Uuid,
         id_region -> Int4,
         id_program -> Int4,
+        id_type_access -> Int4,
         is_email_verified -> Bool,
         is_enabled -> Bool,
         is_delete -> Bool,

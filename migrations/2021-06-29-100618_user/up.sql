@@ -1,8 +1,7 @@
 -- Your SQL goes here
 /* профиль */
 CREATE TABLE user_ref (
-  -- id SERIAL, /* id профиля */
-  uuid UUID NOT NULL UNIQUE PRIMARY KEY,
+  uuid UUID NOT NULL PRIMARY KEY,
   email VARCHAR(100) NOT NULL, /*email профиля, на один адрес может быть несколько профилей (закос под reddit) */
   psw_hash BYTEA NOT NULL, /* хеш пароля профиля */
   psw_salt VARCHAR(255) NOT NULL, /* соль для пароля профиля */
@@ -18,6 +17,7 @@ CREATE TABLE user_ref (
   uuid_image_file UUID NOT NULL, /* картинка пользователя */
   id_region INTEGER NOT NULL, /* регион */
   id_program INTEGER NOT NULL DEFAULT '1', /* САПР «по умолчанию» (для быстрой загрузки данных) */
+  id_type_access INTEGER NOT NULL DEFAULT '1', /* тип доступности */
   is_email_verified BOOLEAN NOT NULL DEFAULT 'f', /* подтверждение email */
   is_enabled BOOLEAN NOT NULL DEFAULT 't', /* флаг активности пользователь */
   is_delete BOOLEAN NOT NULL DEFAULT 'f', /* флаг удаления пользователя */

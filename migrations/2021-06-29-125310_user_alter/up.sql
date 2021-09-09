@@ -2,6 +2,7 @@
 ALTER TABLE user_ref ADD CONSTRAINT user_ref_fk0 FOREIGN KEY (uuid_image_file) REFERENCES file_ref(uuid);
 ALTER TABLE user_ref ADD CONSTRAINT user_ref_fk1 FOREIGN KEY (id_region) REFERENCES region_ref(id);
 ALTER TABLE user_ref ADD CONSTRAINT user_ref_fk2 FOREIGN KEY (id_program) REFERENCES program_ref(id);
+ALTER TABLE user_ref ADD CONSTRAINT user_ref_fk3 FOREIGN KEY (id_type_access) REFERENCES type_access_ref(id);
 
 ALTER TABLE user_token_ref ADD CONSTRAINT user_token_ref_fk0 FOREIGN KEY (uuid_user) REFERENCES user_ref(uuid);
 

@@ -22,12 +22,12 @@ pub struct User {
     pub phone: String,
     pub description: String,
     pub address: String,
-    pub position: String,
+    pub position: String, // todo!(in future: separate in table with translation)
     pub time_zone: String,
     pub uuid_image_file: Uuid,
-    // pub id_type_access todo!(need add for user)
     pub id_region: i32,
     pub id_program: i32,
+    pub id_type_access: i32,
     pub is_email_verified: bool,
     pub is_enabled: bool,
     pub is_delete: bool,
