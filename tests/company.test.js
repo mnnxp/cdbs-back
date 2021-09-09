@@ -79,7 +79,6 @@ companyType { \
   shortname \
 } \
 companyCertificates { \
-  uuidCompany \
   file { \
     uuid \
     filename \
