@@ -710,7 +710,7 @@ describe('component', () => {
       .post('/graphql')
       .send({
         query: `query componentsQuery{
-          components {
+          components(componentsUuids: "${uuidComponentStandard}") {
             ${componentsListQuery}
           }
         }`,
@@ -725,26 +725,26 @@ describe('component', () => {
     done();
   });
 
-  it('/graphql:Q List components - OK', async (done) => {
-    const response1 = await agent
-      .post('/graphql')
-      .set(
-        'Authorization',
-        `Bearer ${authorizationTokenFirst}`
-      )
-      .send({
-        query: `query componentsQuery{
-          components {
-            ${componentsListQuery}
-          }
-        }`,
-      })
-      .expect(HttpStatus.OK)
-    debug('/graphql all components=%o', response1.body.data.components);
-    expect(response1.body.data.components).toBeEmptyArray();
-    // expect(response1.body.data.components.pop().valueActualStatus).toBe(value_actual_status);
-    done();
-  });
+  // it('/graphql:Q List components - OK Not found', async (done) => {
+  //   const response1 = await agent
+  //     .post('/graphql')
+  //     .set(
+  //       'Authorization',
+  //       `Bearer ${authorizationTokenFirst}`
+  //     )
+  //     .send({
+  //       query: `query componentsQuery{
+  //         components(componentsUuids: "${uuidComponentStandard}") {
+  //           ${componentsListQuery}
+  //         }
+  //       }`,
+  //     })
+  //     .expect(HttpStatus.OK)
+  //   debug('/graphql all components=%o', response1.body.data.components);
+  //   expect(response1.body.data.components).toBeEmptyArray();
+  //   // expect(response1.body.data.components.pop().valueActualStatus).toBe(value_actual_status);
+  //   done();
+  // });
 
   it('/graphql:Q List components - OK with uuidComponent', async (done) => {
     const response1 = await agent
@@ -755,7 +755,7 @@ describe('component', () => {
       )
       .send({
         query: `query selectComponentQuery{
-          components (uuidComponents: ["${uuidComponentStandard}"]) {
+          components(componentsUuids: "${uuidComponentStandard}") {
             ${componentsListQuery}
           }
         }`,
@@ -776,7 +776,7 @@ describe('component', () => {
       )
       .send({
         query: `query selectComponentQuery{
-          components (uuidComponents: [
+          components(componentsUuids: [
             "${uuidComponentParent}",
             "${uuidComponentStandard}",
             "${uuidComponentNoStandard}",
@@ -806,9 +806,7 @@ describe('component', () => {
       )
       .send({
         query: `query selectComponentQuery{
-          components (uuidComponents: [
-            "${uuidComponentNoStandard}",
-          ]) {
+          components(componentsUuids: "${uuidComponentNoStandard}") {
             ${componentsListQuery}
           }
         }`,
