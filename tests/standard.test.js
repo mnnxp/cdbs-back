@@ -665,7 +665,7 @@ describe('company', () => {
       .post('/graphql')
       .send({
         query: `query selectStandardQuery{
-          standards {
+          standards (standardsUuids: "${uuidStandardSecond}") {
             ${standardsListQuery}
           }
         }`,
@@ -745,29 +745,6 @@ describe('company', () => {
     } = body;
     expect(standards[0].uuid).toBe(uuidStandardFirst);
     expect(standards[0].classifier).toBe(classifierStandard);
-    done();
-  });
-
-  it('/graphql:Q standard - OK Not select', async (done) => {
-    const { body } = await agent
-      .post('/graphql')
-      .set(
-        'Authorization',
-        `Bearer ${authorizationTokenFirst}`
-      )
-      .send({
-        query: `query selectStandardQuery{
-          standards {
-            ${standardsListQuery}
-          }
-        }`,
-      })
-      .expect(HttpStatus.OK)
-    debug('/graphql body=%o', body);
-    const {
-      data: { standards },
-    } = body;
-    expect(standards).toBeEmptyArray();
     done();
   });
 
