@@ -39,6 +39,71 @@ const is_delete = false;
 var authorizationTokenFirst = "";
 var authorizationTokenSecond = "";
 var uuidUserFirst = "";
+var uuidUserSecond = "";
+
+const userFullDataQuery = ` \
+uuid \
+email \
+firstname \
+lastname \
+secondname \
+username \
+phone \
+description \
+address \
+position \
+timeZone \
+imageFile { \
+  uuid \
+  filename \
+  filesize \
+  pathFile \
+} \
+region { \
+  idRegion \
+  idLang \
+  region \
+} \
+program { \
+  id \
+  name \
+} \
+isEmailVerified \
+isEnabled \
+isDelete \
+createdAt \
+updatedAt \
+certificates { \
+  uuidUser \
+  file { \
+    uuid \
+    filename \
+    filesize \
+    pathFile \
+  } \
+  description \
+} \
+subscribers \
+isFollowed \
+companiesCount \
+componentsCount \
+standardsCount \
+favCompaniesCount \
+favComponentsCount \
+favStandardsCount \
+favUsersCount \
+`;
+
+const usersListQuery = ` \
+uuid \
+username \
+imageFile { \
+  uuid \
+  filename \
+  filesize \
+  pathFile \
+} \
+`;
 
 async function cleanupTokenDb() {
   return global.knex.raw('DELETE FROM user_token_ref');
@@ -70,26 +135,8 @@ describe('users', () => {
       .post('/graphql')
       .send({
         query: `query ListUsers {
-            users {
-              uuid
-              email
-              firstname
-              lastname
-              secondname
-              username
-              phone
-              description
-              address
-              position
-              timeZone
-              uuidImageFile
-              idRegion
-              idProgram
-              isEmailVerified
-              isEnabled
-              isDelete
-              createdAt
-              updatedAt
+            user(userUuid: "${uuidUserFirst}") {
+              ${userFullDataQuery}
             }
         }`,
       })
@@ -99,7 +146,7 @@ describe('users', () => {
     expect(response1.body.errors[0].message).toBe(
       'BadRequest: Token not found.'
     );
-    expect(response1.body.errors[0].path[0]).toBe('users');
+    expect(response1.body.errors[0].path[0]).toBe('user');
     done();
   });
       // .expect(HttpStatus.BAD_REQUEST)
@@ -140,6 +187,7 @@ describe('users', () => {
     expect(registerUser.uuid).toBeNonEmptyString();
     expect(registerUser.idProgram).toBe(1);
     expect(registerUser.username).toBe(username);
+    uuidUserFirst = registerUser.uuid;
     done();
   });
 
@@ -179,6 +227,7 @@ describe('users', () => {
     expect(registerUser.uuid).toBeNonEmptyString();
     expect(registerUser.idProgram).toBe(1);
     expect(registerUser.username).toBe(username2);
+    uuidUserSecond = registerUser.uuid;
     done();
   });
 
@@ -296,44 +345,6 @@ describe('users', () => {
         // authorizationTokenSecond = body.bearer;
         done();
       });
-  });
-
-  it('/graphql:Q users - OK', async (done) => {
-    const response1 = await agent
-      .post('/graphql')
-      .set(
-        'Authorization',
-        `Bearer ${authorizationTokenFirst}`
-      )
-      .send({
-        query: `query ListUsers {
-            users {
-              uuid
-              email
-              firstname
-              lastname
-              secondname
-              username
-              phone
-              description
-              address
-              position
-              timeZone
-              uuidImageFile
-              idRegion
-              idProgram
-              isEmailVerified
-              isEnabled
-              isDelete
-              createdAt
-              updatedAt
-            }
-        }`,
-      })
-      .expect(HttpStatus.OK)
-    debug('/graphql users=%o', response1.body.data.users);
-    expect(response1.body.data.users).toBeNonEmptyArray();
-    done();
   });
 
   it('/graphql:Q decodeToken - UNAUTHORIZED without token', async (done) => {
@@ -490,7 +501,6 @@ describe('users', () => {
       data: { showTokens },
     } = response1.body;
     expect(showTokens[0]).toContainAllKeys(['uuidUser', 'token', 'createdAt', 'expirationAt']);
-    uuidUserFirst = showTokens[0].uuidUser;
     done();
   });
 
@@ -561,7 +571,7 @@ describe('users', () => {
       done();
   });
 
-  it('/graphql:Q users - OK select uuidUser', async (done) => {
+  it('/graphql:Q users - OK select uuidsUsers', async (done) => {
     const response1 = await agent
       .post('/graphql')
       .set(
@@ -569,14 +579,12 @@ describe('users', () => {
         `Bearer ${authorizationTokenFirst}`
       )
       .send({
-        query: `query SelectUsers {
-            users (uuid: "${uuidUserFirst}") {
-              uuid
-              email
-              firstname
-              lastname
-              secondname
-              username
+        query: `query ListUsers {
+            users(usersUuids: [
+              "${uuidUserFirst}",
+              "${uuidUserSecond}"
+            ]) {
+              ${usersListQuery}
             }
         }`,
       })
@@ -584,10 +592,13 @@ describe('users', () => {
     debug('/graphql users=%o', response1.body);
     expect(response1.body.data.users).toBeNonEmptyArray();
     expect(response1.body.data.users[0].uuid).toBe(uuidUserFirst);
+    expect(response1.body.data.users[0].username).toBe(username);
+    expect(response1.body.data.users[1].uuid).toBe(uuidUserSecond);
+    expect(response1.body.data.users[1].username).toBe(username2);
     done();
   });
 
-  it('/graphql:Q getToken UNAUTHORIZED remoded token', async (done) => {
+  it('/graphql:Q getToken UNAUTHORIZED removed token', async (done) => {
     const response1 = await agent
       .post('/graphql')
       .set(
