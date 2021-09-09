@@ -13,7 +13,7 @@ use uuid::Uuid;
 
 #[derive(Identifiable, Deserialize, Queryable, Debug)]
 #[primary_key(uuid)]
-#[table_name = "component_ref"]
+#[table_name = "company_ref"]
 pub struct Company {
     pub uuid: Uuid,
     pub orgname: String,
