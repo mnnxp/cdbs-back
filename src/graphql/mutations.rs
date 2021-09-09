@@ -75,9 +75,9 @@ impl MutationRoot {
         use crate::models::user::notification::service::register::create_notification;
         let conn: &PooledConnection = &get_conn(context)?;
 
-        let uuid_user = crate::models::user::get_auth_uuid_user(context, true)?;
+        let logged_uuid_user = crate::models::user::get_logged_uuid_user(context, true)?;
 
-        Ok(create_notification(data, uuid_user, conn)?)
+        Ok(create_notification(data, logged_uuid_user, conn)?)
     }
 
     async fn delete_notification(
@@ -88,10 +88,10 @@ impl MutationRoot {
         use crate::models::user::notification::service::delete::delete_notification;
         let conn: &PooledConnection = &get_conn(context)?;
 
-        let uuid_user = crate::models::user::get_auth_uuid_user(context, true)?;
+        let logged_uuid_user = crate::models::user::get_logged_uuid_user(context, true)?;
 
         Ok(delete_notification(
-            uuid_user,
+            logged_uuid_user,
             id_notification,
             conn,
         )?)
@@ -106,7 +106,7 @@ impl MutationRoot {
         let conn: &PooledConnection = &get_conn(context)?;
 
         // checking authorization and getting user uuid
-        let logged_uuid_user = crate::models::user::get_auth_uuid_user(context, true)?;
+        let logged_uuid_user = crate::models::user::get_logged_uuid_user(context, true)?;
 
         let uuid_component_parent = Uuid::parse_str(&data.uuid_component_parent)?;
 
@@ -132,7 +132,7 @@ impl MutationRoot {
         use component::component_modification::service::register::create_component_modification;
         let conn: &PooledConnection = &get_conn(context)?;
 
-        let logged_uuid_user = crate::models::user::get_auth_uuid_user(context, true)?;
+        let logged_uuid_user = crate::models::user::get_logged_uuid_user(context, true)?;
 
         Ok(create_component_modification(data, logged_uuid_user, conn)?)
     }
@@ -213,7 +213,7 @@ impl MutationRoot {
 
         crate::models::user::check_authorized(context)?;
 
-        let logged_uuid_user = crate::models::user::get_auth_uuid_user(context, true)?;
+        let logged_uuid_user = crate::models::user::get_logged_uuid_user(context, true)?;
 
         let target_uuid_image_file = Uuid::parse_str(&data.uuid_image_file)?;
 
@@ -244,7 +244,7 @@ impl MutationRoot {
         use crate::models::company::company_represent::service::register::create_company_represent;
         let conn: &PooledConnection = &get_conn(context)?;
 
-        let logged_uuid_user = crate::models::user::get_auth_uuid_user(context, true)?;
+        let logged_uuid_user = crate::models::user::get_logged_uuid_user(context, true)?;
 
         let target_uuid_company = Uuid::parse_str(&data.uuid_company.to_string())?;
 
@@ -272,7 +272,7 @@ impl MutationRoot {
         use crate::models::company::company_represent::service::delete::delete_company_represent;
         let conn: &PooledConnection = &get_conn(context)?;
 
-        let logged_uuid_user = crate::models::user::get_auth_uuid_user(context, true)?;
+        let logged_uuid_user = crate::models::user::get_logged_uuid_user(context, true)?;
 
         let target_uuid_company = Uuid::parse_str(&uuid_company)?;
         let target_uuid_company_represent = Uuid::parse_str(&uuid_company_represent)?;
@@ -299,7 +299,7 @@ impl MutationRoot {
         use crate::models::standard::service::register::create_standard;
         let conn: &PooledConnection = &get_conn(context)?;
 
-        let logged_uuid_user = crate::models::user::get_auth_uuid_user(context, true)?;
+        let logged_uuid_user = crate::models::user::get_logged_uuid_user(context, true)?;
 
         let target_uuid_standard_parent = Uuid::parse_str(&data.uuid_standard_parent.to_string())?;
         let target_uuid_image_file = Uuid::parse_str(&data.uuid_image_file.to_string())?;
@@ -313,7 +313,7 @@ impl MutationRoot {
         )?;
 
         crate::models::company::util::check_is_supplier(
-            &target_uuid_company, 
+            &target_uuid_company,
             conn
         )?;
 
@@ -463,7 +463,7 @@ impl MutationRoot {
         let pool = get_pool(context)?;
 
         let target_user = TargetUser::from(
-            &crate::models::user::get_auth_uuid_user(context, true)?
+            &crate::models::user::get_logged_uuid_user(context, true)?
         );
 
         Ok(update_favicon(
@@ -482,7 +482,7 @@ impl MutationRoot {
         // let conn = pool.get().unwrap();
 
         let target_user = TargetUser::from(
-            &crate::models::user::get_auth_uuid_user(context, true)?
+            &crate::models::user::get_logged_uuid_user(context, true)?
         );
 
         Ok(file::service::update::confirm_upload(
