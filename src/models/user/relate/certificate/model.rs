@@ -1,6 +1,6 @@
 use crate::schema::*;
-use crate::models::user::model::ShowUser;
-use crate::models::relate_ref::file::model::ShowFile;
+use crate::models::user::model::UserQuery;
+use crate::models::relate_ref::file::model::{ShowFile, SlimFile};
 use async_graphql::types::ID;
 use async_graphql::*;
 // use chrono::*;
@@ -10,7 +10,7 @@ use uuid::Uuid;
 #[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, Debug)]
 #[primary_key(uuid_file, uuid_user)]
 #[belongs_to(ShowFile, foreign_key = "uuid_file")]
-#[belongs_to(ShowUser, foreign_key = "uuid_user")]
+#[belongs_to(UserQuery, foreign_key = "uuid_user")]
 #[table_name = "user_certificate_ref"]
 pub struct UserCertificate {
     pub uuid_file: Uuid,
@@ -26,6 +26,13 @@ impl UserCertificate {
     async fn uuid_user(&self) -> ID {
         self.uuid_user.into()
     }
+}
+
+#[derive(Debug, Deserialize, SimpleObject)]
+pub struct CertificateWithSlimFile {
+    pub file: SlimFile,
+    pub uuid_user: Uuid,
+    pub description: String,
 }
 
 #[derive(Debug, Insertable)]
