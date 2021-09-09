@@ -1,120 +1,44 @@
 use crate::database::{get_conn, PooledConnection};
-use crate::errors::{ServiceError, ServiceResult};
-use crate::models::user::model::ShowUser;
+use crate::errors::ServiceResult;
+use crate::models::user::model::{ShowUserShort, UserAndRelatedData};
 use async_graphql::Context;
-use diesel::prelude::*;
-// use r2d2::PooledConnection;
 use uuid::Uuid;
 
-pub(crate) fn get_users(
+pub(crate) fn find_users_by_uuids(
     context: &Context<'_>,
-    uuid_user_search: Uuid,
-    limit: i32,
-    offset: i32,
-) -> ServiceResult<Vec<ShowUser>> {
-    let mut variant_selection: u8 = 0;
-    if uuid_user_search > Uuid::nil() {
-        variant_selection += 1;
-    }
-
-    match variant_selection {
-        0 => find_all_users(context, limit, offset),
-        1 => find_user(context, uuid_user_search),
-        // 10
-        // 11
-        // 100
-        // 101
-        // 110
-        // 111
-        _ => ServiceResult::Err(ServiceError::BadRequest("What?".to_string())),
-    }
-}
-
-fn find_all_users(context: &Context<'_>, limit: i32, offset: i32) -> ServiceResult<Vec<ShowUser>> {
-    use crate::schema::user_ref::dsl::*;
-    // use crate::schema::type_user_ref::dsl::*;
-    // use crate::schema::name_cad_ref::dsl::*;
-    // use crate::schema::region_ref::dsl::*;
+    target_users_uuids: &[Uuid],
+) -> ServiceResult<Vec<ShowUserShort>> {
     let conn: &PooledConnection = &get_conn(context)?;
 
-    // joinable!(type_user_ref -> user_ref (id));
-    // joinable!(name_cad_ref -> user_ref (id));
-    // joinable!(region_ref -> user_ref (id));
-    // allow_tables_to_appear_in_same_query!(user_ref, type_user_ref, name_cad_ref, region_ref);
+    let result: Vec<ShowUserShort> = ShowUserShort::get_list_by_uuids(
+        target_users_uuids,
+        conn
+    ).expect("Error loading list users and collect short data");
 
-    Ok(user_ref
-        // .inner_join(type_user_ref)
-        // .inner_join(name_cad_ref)
-        // .inner_join(region_ref)
-        .select((
-            uuid,
-            email,
-            firstname,
-            lastname,
-            secondname,
-            username,
-            phone,
-            description,
-            address,
-            position,
-            time_zone,
-            uuid_image_file,
-            id_region,
-            id_program,
-            is_email_verified,
-            is_enabled,
-            is_delete,
-            created_at,
-            updated_at,
-        ))
-        .limit(limit as i64)
-        .offset(offset as i64)
-        .load::<ShowUser>(conn)?)
+    debug!("Users data: {:#?}", result);
+
+    Ok(result)
 }
 
-fn find_user(context: &Context<'_>, uuid_user_search: Uuid) -> ServiceResult<Vec<ShowUser>> {
-    use crate::schema::user_ref::dsl::*;
-    // use crate::schema::type_user_ref::dsl::*;
-    // use crate::schema::name_cad_ref::dsl::*;
-    // use crate::schema::region_ref::dsl::*;
+/// Gets user with related data, with translate by uuid
+pub(crate) fn find_user_by_uuid(
+    context: &Context<'_>,
+    target_user_uuid: &Uuid,
+    logged_user_uuid: &Uuid,
+) -> ServiceResult<UserAndRelatedData> {
     let conn: &PooledConnection = &get_conn(context)?;
 
-    // joinable!(type_user_ref -> user_ref (id));
-    // joinable!(name_cad_ref -> user_ref (id));
-    // joinable!(region_ref -> user_ref (id));
-    // allow_tables_to_appear_in_same_query!(user_ref, type_user_ref, name_cad_ref, region_ref);
+    let set_id_lang = crate::models::user::get_set_language(context);
 
-    Ok(user_ref
-        // .inner_join(type_user_ref)
-        // .inner_join(name_cad_ref)
-        // .inner_join(region_ref)
-        .filter(uuid.eq(uuid_user_search))
-        .select((
-            uuid,
-            email,
-            firstname,
-            lastname,
-            secondname,
-            username,
-            phone,
-            description,
-            address,
-            position,
-            time_zone,
-            uuid_image_file,
-            id_region,
-            id_program,
-            is_email_verified,
-            is_enabled,
-            is_delete,
-            created_at,
-            updated_at,
-        ))
-        .load::<ShowUser>(conn)?)
+    // collect data for user
+    let result: UserAndRelatedData = UserAndRelatedData::collect_related_data(
+        target_user_uuid,
+        logged_user_uuid,
+        &set_id_lang,
+        conn
+    ).expect("Error loading user and collect related data");
+
+    debug!("User data: {:#?}", result);
+
+    Ok(result)
 }
-
-// SELECT * FROM user_ref INNER JOIN type_user_ref
-// ON (user_ref.id_type_user = type_user_ref.typeusershort);
-// id_type_user
-// id_name_cad
-// id_region

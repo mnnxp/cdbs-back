@@ -1,5 +1,8 @@
+use super::util::{make_hash_salt, make_salt};
+use super::certificate::model::CertificateWithSlimFile;
 use crate::models::relate_ref::file::model::SlimFile;
-use crate::models::user::util::{make_hash_salt, make_salt};
+use crate::models::relate_ref::region::model::RegionTranslateList;
+use crate::models::relate_ref::program::model::Program;
 use crate::schema::*;
 use async_graphql::types::ID;
 use async_graphql::*;
@@ -22,6 +25,7 @@ pub struct User {
     pub position: String,
     pub time_zone: String,
     pub uuid_image_file: Uuid,
+    // pub id_type_access todo!(need add for user)
     pub id_region: i32,
     pub id_program: i32,
     pub is_email_verified: bool,
@@ -31,8 +35,10 @@ pub struct User {
     pub updated_at: NaiveDateTime,
 }
 
-#[derive(Debug, Serialize, Deserialize, Queryable)]
-pub struct ShowUser {
+#[derive(Identifiable, Deserialize, Queryable, Debug)]
+#[primary_key(uuid)]
+#[table_name = "user_ref"]
+pub struct UserQuery {
     pub uuid: Uuid,
     pub email: String,
     pub firstname: String,
@@ -54,65 +60,41 @@ pub struct ShowUser {
     pub updated_at: NaiveDateTime,
 }
 
-#[Object]
-impl ShowUser {
-    async fn uuid(&self) -> ID {
-        self.uuid.into()
-    }
-    async fn email(&self) -> &String {
-        &self.email
-    }
-    async fn firstname(&self) -> &String {
-        &self.firstname
-    }
-    async fn lastname(&self) -> &String {
-        &self.lastname
-    }
-    async fn secondname(&self) -> &String {
-        &self.secondname
-    }
-    async fn username(&self) -> &String {
-        &self.username
-    }
-    async fn phone(&self) -> &String {
-        &self.phone
-    }
-    async fn description(&self) -> &String {
-        &self.description
-    }
-    async fn address(&self) -> &String {
-        &self.address
-    }
-    async fn position(&self) -> &String {
-        &self.position
-    }
-    async fn time_zone(&self) -> &String {
-        &self.time_zone
-    }
-    async fn uuid_image_file(&self) -> ID {
-        self.uuid_image_file.into()
-    }
-    async fn id_region(&self) -> &i32 {
-        &self.id_region
-    }
-    async fn id_program(&self) -> &i32 {
-        &self.id_program
-    }
-    async fn is_email_verified(&self) -> &bool {
-        &self.is_email_verified
-    }
-    async fn is_enabled(&self) -> &bool {
-        &self.is_enabled
-    }
-    async fn is_delete(&self) -> &bool {
-        &self.is_delete
-    }
-    async fn created_at(&self) -> &NaiveDateTime {
-        &self.created_at
-    }
-    async fn updated_at(&self) -> &NaiveDateTime {
-        &self.updated_at
-    }
+#[derive(Debug, Deserialize, SimpleObject)]
+pub struct UserAndRelatedData {
+    pub uuid: Uuid,
+    pub email: String,
+    pub firstname: String,
+    pub lastname: String,
+    pub secondname: String,
+    pub username: String,
+    pub phone: String,
+    pub description: String,
+    pub address: String,
+    pub position: String, // <-- todo!(create a separate table with translation)
+    pub time_zone: String,
+    pub image_file: SlimFile,
+    pub region: RegionTranslateList,
+    pub program: Program,
+    pub is_email_verified: bool,
+    pub is_enabled: bool,
+    pub is_delete: bool,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
+    // related data
+    pub certificates: Vec<CertificateWithSlimFile>,
+    pub subscribers: i32,
+    // for display the checkbox "favorites"
+    pub is_followed: bool,
+    // for a quick request just count objects have user
+    pub companies_count: i32,
+    pub components_count: i32,
+    pub standards_count: i32,
+    // for a quick request just count the subscribers
+    pub fav_companies_count: i32,
+    pub fav_components_count: i32,
+    pub fav_standards_count: i32,
+    pub fav_users_count: i32,
 }
 
 #[derive(Debug, Insertable)]

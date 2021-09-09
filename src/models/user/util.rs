@@ -48,7 +48,7 @@ pub(crate) fn check_authorized(context: &Context<'_>) -> Result<bool, ServiceErr
 }
 
 /// get uuid_user of the authorized user with and without checking
-pub(crate) fn get_auth_uuid_user(
+pub(crate) fn get_logged_uuid_user(
     context: &Context<'_>,
     need_check: bool
 ) -> Result<Uuid, ServiceError> {

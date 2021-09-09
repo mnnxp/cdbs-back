@@ -2,9 +2,11 @@ mod handler;
 pub mod model;
 pub(crate) mod notification;
 pub(crate) mod service;
-pub(crate) mod certificate;
+pub(crate) mod relate;
 pub(crate) mod repository;
 pub(crate) mod util;
+
+pub(crate) use relate::*;
 
 use crate::models::user::handler::login;
 use actix_web::web;
