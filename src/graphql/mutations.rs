@@ -38,18 +38,7 @@ use crate::models::relate_ref::file::model::IptPreliminaryFileData;
 use crate::models::relate_ref::file as file;
 use crate::storage::backblaze::b2_types::UploadUrl;
 use async_graphql::Context;
-// use std::convert::TryFrom;
-
-// use async_graphql::{
-//     dataloader::DataLoader, Context, EmptySubscription, FieldResult, Schema,
-// };
-
 use uuid::Uuid;
-
-// use diesel::PgConnection;
-// use diesel::pg::PgConnection;
-
-// use crate::database::Pool;
 
 pub struct MutationRoot;
 
@@ -64,7 +53,7 @@ impl MutationRoot {
         use crate::models::user::service::register::create_user;
         let conn: &PooledConnection = &get_conn(context)?;
 
-        Ok(create_user(data.into(), conn)?)
+        Ok(create_user(data, conn)?)
     }
 
     async fn register_notification(

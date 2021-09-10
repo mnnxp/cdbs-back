@@ -136,7 +136,6 @@ pub struct IptUserData {
     pub address: String,
     pub position: String,
     pub time_zone: String,
-    pub uuid_image_file: ID,
     pub id_region: i32,
     pub id_program: i32,
 }
@@ -157,43 +156,6 @@ pub struct UserData {
     pub uuid_image_file: Uuid,
     pub id_region: i32,
     pub id_program: i32,
-}
-
-impl From<IptUserData> for UserData {
-    fn from(ipt_data: IptUserData) -> Self {
-        let IptUserData {
-            email,
-            password,
-            firstname,
-            lastname,
-            secondname,
-            username,
-            phone,
-            description,
-            address,
-            position,
-            time_zone,
-            uuid_image_file,
-            id_region,
-            id_program,
-        } = ipt_data;
-        UserData {
-            email,
-            password,
-            firstname,
-            lastname,
-            secondname,
-            username,
-            phone,
-            description,
-            address,
-            position,
-            time_zone,
-            uuid_image_file: Uuid::parse_str(&uuid_image_file.to_string()).unwrap(),
-            id_region,
-            id_program,
-        }
-    }
 }
 
 #[Object]
