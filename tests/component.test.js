@@ -650,6 +650,49 @@ describe('component', () => {
     done();
   });
 
+  it('/graphql:M registerComponent - OK not set component parent', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `mutation  {
+            registerComponent( data: {
+                name: "${nameComponent}",
+                description: "${descriptionComponent}",
+                idTypeAccess: ${idTypeAccessComponentPrivate},
+                idComponentType: ${idComponentType},
+                idActualStatus: ${idActualStatusComponent},
+                isStandard: ${isStandardComponent0}
+            }) {
+                uuid
+                name
+                description
+                idActualStatus
+                isStandard
+                updatedAt
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql registerComponent=%o', body);
+    const {
+      data: { registerComponent },
+    } = body;
+    expect(registerComponent).toContainAllKeys([
+      "description", "idActualStatus", "isStandard", "name", "updatedAt", "uuid"
+    ]);
+    expect(registerComponent.uuid).toBeNonEmptyString();
+    expect(registerComponent.name).toBe(nameComponent);
+    expect(registerComponent.description).toBe(descriptionComponent);
+    expect(registerComponent.isStandard).toBe(isStandardComponent0);
+    expect(registerComponent.idActualStatus).toBe(idActualStatusComponent);
+    uuidComponentNoStandard = registerComponent.uuid;
+    done();
+  });
+
   it('/graphql:M registerComponent - BadRequest no access', async (done) => {
     const { body } = await agent
       .post('/graphql')

@@ -6,7 +6,7 @@ use crate::models::user::model::{SlimUser, IptUserData, TargetUser};
 use crate::models::user::notification::model::{Notification, NotificationData, SlimNotification};
 use crate::models::component::component_modification::model::{SlimComponentModification, IptComponentModificationData};
 use crate::models::component::license::model::{LicenseComponent, IptLicenseComponentData};
-use crate::models::component::model::{SlimComponent, ComponentData, IptComponentData};
+use crate::models::component::model::{SlimComponent, IptComponentData};
 use crate::models::component::param::model::{ParamComponent, IptParamComponentData};
 use crate::models::component::param as component_param;
 use crate::models::component::component_fav::model::{ComponentFav, IptComponentFavData};
@@ -108,20 +108,11 @@ impl MutationRoot {
         // checking authorization and getting user uuid
         let logged_uuid_user = crate::models::user::get_logged_uuid_user(context, true)?;
 
-        let uuid_component_parent = Uuid::parse_str(&data.uuid_component_parent)?;
-
-        let component_data = ComponentData {
-            uuid_component_parent: (uuid_component_parent),
-            name: (data.name),
-            description: (data.description),
-            uuid_user: (logged_uuid_user),
-            id_type_access: (data.id_type_access),
-            id_component_type: (data.id_component_type),
-            id_actual_status: (data.id_actual_status),
-            is_standard: (data.is_standard),
-        };
-
-        Ok(create_component(component_data, conn)?)
+        Ok(create_component(
+            logged_uuid_user,
+            data,
+            conn
+        )?)
     }
 
     async fn register_component_modification(
