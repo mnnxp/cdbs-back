@@ -23,7 +23,7 @@ use crate::models::component::keyword::model::{KeywordComponent, IptKeywordCompo
 use crate::models::component::keyword as component_keyword;
 use crate::models::component::supplier::model::{SupplierComponent, IptSupplierComponentData};
 use crate::models::component::supplier as component_supplier;
-use crate::models::standard::model::{SlimStandard, IptStandardData, StandardData};
+use crate::models::standard::model::{SlimStandard, IptStandardData};
 use crate::models::relate_ref::extension::model::{Extension, IptExtensionData};
 use crate::models::relate_ref::extension as extension;
 use crate::models::relate_ref::license::model::{License, LicenseData};
@@ -276,39 +276,11 @@ impl MutationRoot {
 
         let logged_uuid_user = crate::models::user::get_logged_uuid_user(context, true)?;
 
-        let target_uuid_standard_parent = Uuid::parse_str(&data.uuid_standard_parent.to_string())?;
-        let target_uuid_image_file = Uuid::parse_str(&data.uuid_image_file.to_string())?;
-        let target_uuid_company = Uuid::parse_str(&data.uuid_company.to_string())?;
-
-        crate::models::company::util::check_company_access(
-            &logged_uuid_user,
-            &target_uuid_company,
-            3,
-            conn,
-        )?;
-
-        crate::models::company::util::check_is_supplier(
-            &target_uuid_company,
+        Ok(create_standard(
+            logged_uuid_user,
+            data,
             conn
-        )?;
-
-        let standard_data = StandardData {
-            uuid_standard_parent: (target_uuid_standard_parent),
-            classifier: (data.classifier),
-            name: (data.name),
-            description: (data.description),
-            specified_tolerance: (data.specified_tolerance),
-            technical_committee: (data.technical_committee),
-            publication_at: (data.publication_at),
-            uuid_image_file: (target_uuid_image_file),
-            uuid_user: (logged_uuid_user),
-            uuid_company: (target_uuid_company),
-            id_type_access: (data.id_type_access),
-            id_standard_status: (data.id_standard_status),
-            id_region: (data.id_region),
-        };
-
-        Ok(create_standard(standard_data, conn)?)
+        )?)
     }
 
     async fn add_component_spec(

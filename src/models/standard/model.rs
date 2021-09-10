@@ -157,14 +157,13 @@ pub struct InsertableStandard {
 
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub struct IptStandardData {
-    pub uuid_standard_parent: ID,
+    pub uuid_standard_parent: Option<ID>,
     pub classifier: String,
     pub name: String,
     pub description: String,
     pub specified_tolerance: String,
     pub technical_committee: String,
     pub publication_at: NaiveDateTime,
-    pub uuid_image_file: ID,
     pub uuid_company: ID,
     pub id_type_access: i32,
     pub id_standard_status: i32,

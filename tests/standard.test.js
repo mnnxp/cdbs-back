@@ -385,7 +385,6 @@ describe('company', () => {
             address: "${addressCompany}"
             siteUrl: "${siteUrl}",
             timeZone: "${timeZone}",
-            uuidImageFile: "${uuidImageFile}",
             idRegion: ${idRegionCompany},
             idCompanyType: ${idCompanyType}
           }) {
@@ -431,7 +430,6 @@ describe('company', () => {
             address: "${addressCompany}"
             siteUrl: "${siteUrl}",
             timeZone: "${timeZone}",
-            uuidImageFile: "${uuidImageFile}",
             idRegion: ${idRegionCompany},
             idCompanyType: ${idCompanyType}
           }) {
@@ -466,7 +464,6 @@ describe('company', () => {
             specifiedTolerance: "${specifiedTolerance}",
             technicalCommittee: "${technicalCommittee}",
             publicationAt: "${publicationAt}",
-            uuidImageFile: "${uuidImageFile}",
             uuidCompany: "${uuidCompanySupplier}",
             idTypeAccess: ${idTypeAccess3},
             idStandardStatus: ${idStandardStatus},
@@ -507,7 +504,6 @@ describe('company', () => {
             specifiedTolerance: "${specifiedTolerance}",
             technicalCommittee: "${technicalCommittee}",
             publicationAt: "${publicationAt}",
-            uuidImageFile: "${uuidImageFile}",
             uuidCompany: "${uuidCompanySupplier}",
             idTypeAccess: ${idTypeAccess3},
             idStandardStatus: ${idStandardStatus},
@@ -551,7 +547,6 @@ describe('company', () => {
             specifiedTolerance: "${specifiedTolerance}",
             technicalCommittee: "${technicalCommittee}",
             publicationAt: "${publicationAt}",
-            uuidImageFile: "${uuidImageFile}",
             uuidCompany: "${uuidCompanySupplier}",
             idTypeAccess: ${idTypeAccess1},
             idStandardStatus: ${idStandardStatus},
@@ -595,7 +590,6 @@ describe('company', () => {
             specifiedTolerance: "${specifiedTolerance}",
             technicalCommittee: "${technicalCommittee}",
             publicationAt: "${publicationAt}",
-            uuidImageFile: "${uuidImageFile}",
             uuidCompany: "${uuidCompanySupplier}",
             idTypeAccess: ${idTypeAccess3},
             idStandardStatus: ${idStandardStatus},
@@ -636,7 +630,6 @@ describe('company', () => {
             specifiedTolerance: "${specifiedTolerance}",
             technicalCommittee: "${technicalCommittee}",
             publicationAt: "${publicationAt}",
-            uuidImageFile: "${uuidImageFile}",
             uuidCompany: "${uuidCompanyNoSupplier}",
             idTypeAccess: ${idTypeAccess3},
             idStandardStatus: ${idStandardStatus},
