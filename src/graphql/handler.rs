@@ -5,14 +5,18 @@ use async_graphql::{EmptySubscription, Schema};
 use async_graphql_actix_web::{Request, Response};
 use crate::cli_args::Opt;
 use crate::database::Pool;
-use crate::graphql::{mutations::MutationRoot, queries::QueryRoot};
+use crate::graphql::{MutationRoot, QueryRoot};
 use crate::jwt::model::Token;
 use crate::models::relate_ref::language::model::SetLang;
 
 type ActixSchema = Schema<QueryRoot, MutationRoot, EmptySubscription>;
 
 pub async fn build_schema(pool: Pool) -> ActixSchema {
-    Schema::build(QueryRoot, MutationRoot, EmptySubscription)
+    Schema::build(
+        QueryRoot::default(),
+        MutationRoot::default(),
+        EmptySubscription
+    )
         .enable_federation()
         .data(pool)
         .finish()
