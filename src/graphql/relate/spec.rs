@@ -2,9 +2,9 @@ use async_graphql::{self, Context, Object};
 
 use crate::errors::ServiceResult;
 // use crate::database::{get_conn, PooledConnection};
-use crate::models::user as user;
 use crate::models::relate_ref::spec;
 use crate::models::relate_ref::spec::model::SpecTranslateList;
+use crate::models::user;
 
 #[derive(Default)]
 pub struct SpecQuery;
@@ -13,7 +13,6 @@ pub struct SpecQuery;
 
 #[Object]
 impl SpecQuery {
-
     async fn specs(
         &self,
         cxt: &Context<'_>,
@@ -30,7 +29,6 @@ impl SpecQuery {
 
         spec::service::list::get_specs(cxt, id_spec, limit, offset)
     }
-
 }
 
 // #[Object]

@@ -1,10 +1,10 @@
 use async_graphql::{self, Context, Object};
 
-use crate::errors::ServiceResult;
 use crate::database::{get_conn, PooledConnection};
-use crate::models::user as user;
+use crate::errors::ServiceResult;
+use crate::models::relate_ref::license;
 use crate::models::relate_ref::license::model::{License, LicenseData};
-use crate::models::relate_ref::license as license;
+use crate::models::user;
 
 #[derive(Default)]
 pub struct LicenseQuery;
@@ -29,12 +29,10 @@ impl LicenseQuery {
 
         license::service::list::get_licenses(cxt, id_license, limit, offset)
     }
-
 }
 
 #[Object]
 impl LicenseMutation {
-
     async fn register_license(
         &self,
         cxt: &Context<'_>,
@@ -48,5 +46,4 @@ impl LicenseMutation {
 
         Ok(create_license(data, conn)?)
     }
-
 }

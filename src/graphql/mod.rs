@@ -1,35 +1,25 @@
-use async_graphql::{
-    MergedObject,
-    // MergedSubscription,
-    // Object,
-    // Schema,
-    // SimpleObject,
-    // Subscription
-};
+use async_graphql::MergedObject;
 
 pub(crate) mod handler;
 
-mod user;
-mod component;
-mod standard;
 mod company;
+mod component;
 mod relate;
+mod standard;
+mod user;
 
-pub use user::{UserQuery, UserMutation};
-pub use component::{ComponentQuery, ComponentMutation};
-pub use standard::{StandardQuery, StandardMutation};
-pub use company::{CompanyQuery, CompanyMutation};
-// pub use relate::extension::{ExtensionQuery, ExtensionMutation};
+pub use company::{CompanyMutation, CompanyQuery};
+pub use component::{ComponentMutation, ComponentQuery};
+pub use standard::{StandardMutation, StandardQuery};
+pub use user::{UserMutation, UserQuery};
 pub use relate::extension::ExtensionMutation;
-pub use relate::keyword::{KeywordQuery, KeywordMutation};
-// pub use relate::language::{LanguageQuery, LanguageMutation};
+pub use relate::keyword::{KeywordMutation, KeywordQuery};
 pub use relate::language::LanguageQuery;
-pub use relate::license::{LicenseQuery, LicenseMutation};
-pub use relate::param::{ParamQuery, ParamMutation};
-pub use relate::program::{ProgramQuery, ProgramMutation};
-// pub use relate::spec::{SpecQuery, SpecMutation};
+pub use relate::license::{LicenseMutation, LicenseQuery};
+pub use relate::param::{ParamMutation, ParamQuery};
+pub use relate::program::{ProgramMutation, ProgramQuery};
 pub use relate::spec::SpecQuery;
-pub use relate::storage::{StorageQuery, StorageMutation};
+pub use relate::storage::{StorageMutation, StorageQuery};
 
 #[derive(MergedObject, Default)]
 pub struct QueryRoot(
@@ -47,7 +37,6 @@ pub struct QueryRoot(
     StorageQuery,
 );
 
-
 #[derive(MergedObject, Default)]
 pub struct MutationRoot(
     UserMutation,
@@ -64,8 +53,8 @@ pub struct MutationRoot(
     StorageMutation,
 );
 
+use crate::graphql::handler::{graphiql, graphql};
 use actix_web::{guard, web};
-use crate::graphql::handler::{graphql, graphiql};
 
 pub(super) fn route(cfg: &mut web::ServiceConfig) {
     cfg.service(web::resource("/graphql").guard(guard::Post()).to(graphql))

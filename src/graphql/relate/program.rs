@@ -1,10 +1,10 @@
 use async_graphql::{self, Context, Object};
 
-use crate::errors::ServiceResult;
 use crate::database::{get_conn, PooledConnection};
-use crate::models::user as user;
-use crate::models::relate_ref::program::model::{Program, IptProgramData};
-use crate::models::relate_ref::program as program;
+use crate::errors::ServiceResult;
+use crate::models::relate_ref::program;
+use crate::models::relate_ref::program::model::{IptProgramData, Program};
+use crate::models::user;
 
 #[derive(Default)]
 pub struct ProgramQuery;
@@ -29,8 +29,6 @@ impl ProgramQuery {
 
         program::service::list::get_programs(cxt, id_program, limit, offset)
     }
-
-
 }
 
 #[Object]
@@ -47,5 +45,4 @@ impl ProgramMutation {
 
         Ok(create_program(data, conn)?)
     }
-
 }

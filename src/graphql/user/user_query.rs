@@ -3,8 +3,8 @@ use uuid::Uuid;
 
 use crate::errors::ServiceResult;
 use crate::jwt::model::{Claims, Token};
-use crate::models::user::model::{UserAndRelatedData, ShowUserShort, SlimUser};
-use crate::models::user as user;
+use crate::models::user;
+use crate::models::user::model::{ShowUserShort, SlimUser, UserAndRelatedData};
 use crate::models::user::notification::model::Notification;
 use crate::models::user::notification::service as notification;
 use crate::models::user::service::token::model::UserToken;
@@ -28,10 +28,7 @@ impl UserQuery {
             target_users_uuids.push(Uuid::parse_str(x).unwrap());
         }
 
-        user::service::list::find_users_by_uuids(
-            cxt,
-            &target_users_uuids
-        )
+        user::service::list::find_users_by_uuids(cxt, &target_users_uuids)
     }
 
     async fn user(
@@ -97,10 +94,7 @@ impl UserQuery {
         let deactivated_tokens = format!(
             "removed {} tokens.",
             // deactivate all user token
-            user::service::token::delete_all_tokens(
-                cxt,
-                logged_uuid_user,
-            )?
+            user::service::token::delete_all_tokens(cxt, logged_uuid_user,)?
         );
         Ok(deactivated_tokens)
     }
@@ -123,12 +117,6 @@ impl UserQuery {
 
         let logged_uuid_user = user::get_logged_uuid_user(cxt, true)?;
 
-        notification::list::get_notifications(
-            cxt,
-            id_notification,
-            logged_uuid_user,
-            limit,
-            offset,
-        )
+        notification::list::get_notifications(cxt, id_notification, logged_uuid_user, limit, offset)
     }
 }

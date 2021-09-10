@@ -1,8 +1,8 @@
 use async_graphql::{self, Context, Object};
 
-use crate::errors::ServiceResult;
 use crate::database::{get_conn, PooledConnection};
-use crate::models::user::model::{SlimUser, IptUserData};
+use crate::errors::ServiceResult;
+use crate::models::user::model::{IptUserData, SlimUser};
 use crate::models::user::notification::model::{Notification, NotificationData, SlimNotification};
 
 #[derive(Default)]
@@ -11,11 +11,7 @@ pub struct UserMutation;
 #[Object]
 impl UserMutation {
     // Add new user
-    async fn register_user(
-        &self,
-        cxt: &Context<'_>,
-        data: IptUserData,
-    ) -> ServiceResult<SlimUser> {
+    async fn register_user(&self, cxt: &Context<'_>, data: IptUserData) -> ServiceResult<SlimUser> {
         use crate::models::user::service::register::create_user;
         let conn: &PooledConnection = &get_conn(cxt)?;
 

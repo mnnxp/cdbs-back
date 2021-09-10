@@ -1,13 +1,14 @@
-use actix_web::{web, HttpRequest, HttpResponse, Result};
-use async_graphql::http::playground_source;
-use async_graphql::http::GraphQLPlaygroundConfig;
-use async_graphql::{EmptySubscription, Schema};
-use async_graphql_actix_web::{Request, Response};
 use crate::cli_args::Opt;
 use crate::database::Pool;
 use crate::graphql::{MutationRoot, QueryRoot};
 use crate::jwt::model::Token;
 use crate::models::relate_ref::language::model::SetLang;
+
+use actix_web::{web, HttpRequest, HttpResponse, Result};
+use async_graphql::http::playground_source;
+use async_graphql::http::GraphQLPlaygroundConfig;
+use async_graphql::{EmptySubscription, Schema};
+use async_graphql_actix_web::{Request, Response};
 
 type ActixSchema = Schema<QueryRoot, MutationRoot, EmptySubscription>;
 
@@ -15,11 +16,11 @@ pub async fn build_schema(pool: Pool) -> ActixSchema {
     Schema::build(
         QueryRoot::default(),
         MutationRoot::default(),
-        EmptySubscription
+        EmptySubscription,
     )
-        .enable_federation()
-        .data(pool)
-        .finish()
+    .enable_federation()
+    .data(pool)
+    .finish()
 }
 
 pub async fn graphql(

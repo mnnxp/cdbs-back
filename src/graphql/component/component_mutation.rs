@@ -1,33 +1,40 @@
-use async_graphql::{self, Context, Object};
-use crate::errors::ServiceResult;
 use crate::database::{get_conn, PooledConnection};
+use crate::errors::ServiceResult;
+use async_graphql::{self, Context, Object};
 
-use crate::models::component::component_modification::model::{SlimComponentModification, IptComponentModificationData};
-use crate::models::component::license::model::{LicenseComponent, IptLicenseComponentData};
-use crate::models::component::model::{SlimComponent, IptComponentData};
-use crate::models::component::param::model::{ParamComponent, IptParamComponentData};
-use crate::models::component::param as component_param;
+use crate::models::component;
 use crate::models::component::component_fav::model::{ComponentFav, IptComponentFavData};
-use crate::models::component::component_modification::param::model::{ParamModification, IptParamModificationData};
-use crate::models::component::component_modification::param as component_modification_param;
-use crate::models::component::component_modification::set_of_files_program::model::{SetOfFilesProgram, IptSetOfFilesProgramData};
-use crate::models::component::component_modification::set_of_files_program as component_modification_set_of_files_program;
-use crate::models::component::component_modification::file_to_set_modification::model::{FileToSetModification, IptFileToSetModificationData};
 use crate::models::component::component_modification::file_to_set_modification as component_modification_file_to_set_modification;
-use crate::models::component as component;
-use crate::models::component::spec::model::{SpecComponent, IptSpecComponentData};
-use crate::models::component::spec as component_spec;
-use crate::models::component::keyword::model::{KeywordComponent, IptKeywordComponentData};
+use crate::models::component::component_modification::file_to_set_modification::model::{
+    FileToSetModification, IptFileToSetModificationData,
+};
+use crate::models::component::component_modification::model::{
+    IptComponentModificationData, SlimComponentModification,
+};
+use crate::models::component::component_modification::param as component_modification_param;
+use crate::models::component::component_modification::param::model::{
+    IptParamModificationData, ParamModification,
+};
+use crate::models::component::component_modification::set_of_files_program as component_modification_set_of_files_program;
+use crate::models::component::component_modification::set_of_files_program::model::{
+    IptSetOfFilesProgramData, SetOfFilesProgram,
+};
 use crate::models::component::keyword as component_keyword;
-use crate::models::component::supplier::model::{SupplierComponent, IptSupplierComponentData};
+use crate::models::component::keyword::model::{IptKeywordComponentData, KeywordComponent};
+use crate::models::component::license::model::{IptLicenseComponentData, LicenseComponent};
+use crate::models::component::model::{IptComponentData, SlimComponent};
+use crate::models::component::param as component_param;
+use crate::models::component::param::model::{IptParamComponentData, ParamComponent};
+use crate::models::component::spec as component_spec;
+use crate::models::component::spec::model::{IptSpecComponentData, SpecComponent};
 use crate::models::component::supplier as component_supplier;
+use crate::models::component::supplier::model::{IptSupplierComponentData, SupplierComponent};
 
 #[derive(Default)]
 pub struct ComponentMutation;
 
 #[Object]
 impl ComponentMutation {
-
     async fn register_component(
         &self,
         cxt: &Context<'_>,
@@ -39,27 +46,21 @@ impl ComponentMutation {
         // checking authorization and getting user uuid
         let logged_uuid_user = crate::models::user::get_logged_uuid_user(cxt, true)?;
 
-        Ok(create_component(
-            logged_uuid_user,
-            data,
-            conn
-        )?)
+        Ok(create_component(logged_uuid_user, data, conn)?)
     }
 
-        async fn register_param_component(
-            &self,
-            cxt: &Context<'_>,
-            data: IptParamComponentData,
-        ) -> ServiceResult<ParamComponent> {
-            use component_param::service::add::create_param_component;
-            let conn: &PooledConnection = &get_conn(cxt)?;
+    async fn register_param_component(
+        &self,
+        cxt: &Context<'_>,
+        data: IptParamComponentData,
+    ) -> ServiceResult<ParamComponent> {
+        use component_param::service::add::create_param_component;
+        let conn: &PooledConnection = &get_conn(cxt)?;
 
-            crate::models::user::check_authorized(cxt)?;
+        crate::models::user::check_authorized(cxt)?;
 
-            Ok(create_param_component(data, conn)?)
-        }
-
-
+        Ok(create_param_component(data, conn)?)
+    }
 
     async fn register_license_component(
         &self,
@@ -87,18 +88,18 @@ impl ComponentMutation {
         Ok(add_component_spec(data, conn)?)
     }
 
-        async fn add_keyword_component(
-            &self,
-            cxt: &Context<'_>,
-            data: IptKeywordComponentData,
-        ) -> ServiceResult<KeywordComponent> {
-            use component_keyword::service::add::add_component_keyword;
-            let conn: &PooledConnection = &get_conn(cxt)?;
+    async fn add_keyword_component(
+        &self,
+        cxt: &Context<'_>,
+        data: IptKeywordComponentData,
+    ) -> ServiceResult<KeywordComponent> {
+        use component_keyword::service::add::add_component_keyword;
+        let conn: &PooledConnection = &get_conn(cxt)?;
 
-            crate::models::user::check_authorized(cxt)?;
+        crate::models::user::check_authorized(cxt)?;
 
-            Ok(add_component_keyword(data, conn)?)
-        }
+        Ok(add_component_keyword(data, conn)?)
+    }
 
     async fn add_supplier_component(
         &self,
@@ -114,16 +115,16 @@ impl ComponentMutation {
     }
 
     async fn register_component_modification(
-    &self,
-    cxt: &Context<'_>,
-    data: IptComponentModificationData,
+        &self,
+        cxt: &Context<'_>,
+        data: IptComponentModificationData,
     ) -> ServiceResult<SlimComponentModification> {
-    use component::component_modification::service::register::create_component_modification;
-    let conn: &PooledConnection = &get_conn(cxt)?;
+        use component::component_modification::service::register::create_component_modification;
+        let conn: &PooledConnection = &get_conn(cxt)?;
 
-    let logged_uuid_user = crate::models::user::get_logged_uuid_user(cxt, true)?;
+        let logged_uuid_user = crate::models::user::get_logged_uuid_user(cxt, true)?;
 
-    Ok(create_component_modification(data, logged_uuid_user, conn)?)
+        Ok(create_component_modification(data, logged_uuid_user, conn)?)
     }
 
     async fn register_param_modification(
@@ -138,7 +139,6 @@ impl ComponentMutation {
 
         Ok(create_param_modification(data, conn)?)
     }
-
 
     async fn register_set_files_modification(
         &self,
@@ -166,7 +166,6 @@ impl ComponentMutation {
         Ok(add_file_to_set_modification(data, conn)?)
     }
 
-
     async fn add_component_favorite(
         &self,
         cxt: &Context<'_>,
@@ -179,5 +178,4 @@ impl ComponentMutation {
 
         Ok(add_component_favorite(data, conn)?)
     }
-
 }
