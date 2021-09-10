@@ -342,7 +342,6 @@ describe('company', () => {
             address: "${addressCompany}"
             siteUrl: "${siteUrl}",
             timeZone: "${timeZone}",
-            uuidImageFile: "${uuidImageFile}",
             idRegion: ${idRegionCompany},
             idCompanyType: ${idCompanyType}
           }) {
@@ -388,7 +387,6 @@ describe('company', () => {
             address: "${addressCompany}"
             siteUrl: "${siteUrl}",
             timeZone: "${timeZone}",
-            uuidImageFile: "${uuidImageFile}",
             idRegion: ${idRegionCompany},
             idCompanyType: ${idCompanyType}
           }) {

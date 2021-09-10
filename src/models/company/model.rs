@@ -121,7 +121,6 @@ pub struct IptCompanyData {
     pub address: String,
     pub site_url: String,
     pub time_zone: String,
-    pub uuid_image_file: ID,
     pub id_region: i32,
     pub id_company_type: i32,
 }

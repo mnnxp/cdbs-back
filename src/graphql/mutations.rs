@@ -1,7 +1,7 @@
 use crate::errors::ServiceResult;
 use crate::database::{get_conn, get_pool, PooledConnection};
 use crate::models::company::company_represent::model::{IptCompanyRepresentData, SlimCompanyRepresent};
-use crate::models::company::model::{SlimCompany, CompanyData, IptCompanyData,};
+use crate::models::company::model::{SlimCompany, IptCompanyData,};
 use crate::models::user::model::{SlimUser, IptUserData, TargetUser};
 use crate::models::user::notification::model::{Notification, NotificationData, SlimNotification};
 use crate::models::component::component_modification::model::{SlimComponentModification, IptComponentModificationData};
@@ -202,29 +202,13 @@ impl MutationRoot {
         use crate::models::company::service::register::create_company;
         let conn: &PooledConnection = &get_conn(context)?;
 
-        crate::models::user::check_authorized(context)?;
-
         let logged_uuid_user = crate::models::user::get_logged_uuid_user(context, true)?;
 
-        let target_uuid_image_file = Uuid::parse_str(&data.uuid_image_file)?;
-
-        let company_data = CompanyData {
-            orgname: (data.orgname),
-            shortname: (data.shortname),
-            inn: (data.inn),
-            phone: (data.phone),
-            email: (data.email),
-            description: (data.description),
-            address: (data.address),
-            site_url: (data.site_url),
-            time_zone: (data.time_zone),
-            uuid_user: (logged_uuid_user),
-            uuid_image_file: (target_uuid_image_file),
-            id_region: (data.id_region),
-            id_company_type: (data.id_company_type),
-        };
-
-        Ok(create_company(company_data, conn)?)
+        Ok(create_company(
+            logged_uuid_user,
+            data,
+            conn
+        )?)
     }
 
     async fn register_company_represent(
