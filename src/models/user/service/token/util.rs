@@ -11,8 +11,8 @@ use diesel::prelude::*;
 use uuid::Uuid;
 
 /// get token from request
-pub(crate) fn token_from_context(context: &Context<'_>) -> Result<String, ServiceError> {
-    let token = match context.data_opt::<Token>() {
+pub(crate) fn token_from_cxt(cxt: &Context<'_>) -> Result<String, ServiceError> {
+    let token = match cxt.data_opt::<Token>() {
         Some(token) => token.clone(),
         None => Token { bearer: None },
     };
@@ -24,10 +24,10 @@ pub(crate) fn token_from_context(context: &Context<'_>) -> Result<String, Servic
 
 /// show all tokens for uuid_user
 pub(crate) fn show_tokens(
-    context: &Context<'_>,
+    cxt: &Context<'_>,
     auth_uuid_user: Uuid,
 ) -> Result<Vec<UserToken>, ServiceError> {
-    let conn: &PooledConnection = &get_conn(context)?;
+    let conn: &PooledConnection = &get_conn(cxt)?;
     use crate::schema::user_token_ref::dsl::*;
 
     user_token_ref
@@ -43,10 +43,10 @@ pub(crate) fn get_slim_user(jwt: Claims) -> Result<SlimUser, ServiceError> {
 }
 
 /// updating a token with or without removing the old one
-pub(crate) fn update(context: &Context<'_>, flag_delete_token: bool) -> Result<Token, ServiceError> {
-    let conn: &PooledConnection = &get_conn(context)?;
+pub(crate) fn update(cxt: &Context<'_>, flag_delete_token: bool) -> Result<Token, ServiceError> {
+    let conn: &PooledConnection = &get_conn(cxt)?;
     // get old token
-    let old_token = user::token::token_from_context(context)?;
+    let old_token = user::token::token_from_cxt(cxt)?;
     if check_token(old_token.as_str(), conn)? {
         // decrypt old token
         let old_data = user::token::decode(old_token.as_str())?;
@@ -86,11 +86,11 @@ pub(crate) fn delete_token(target_token: &str, conn: &PooledConnection) -> Resul
 
 /// delete target token to table user_token_ref of database
 pub(crate) fn delete_user_token(
-    context: &Context<'_>,
+    cxt: &Context<'_>,
     target_token: &str,
     auth_uuid_user: Uuid,
 ) -> Result<i32, ServiceError> {
-    let conn: &PooledConnection = &get_conn(context)?;
+    let conn: &PooledConnection = &get_conn(cxt)?;
     use crate::schema::user_token_ref::dsl::*;
 
     let updated_token: usize = diesel::delete(user_token_ref)
@@ -102,10 +102,10 @@ pub(crate) fn delete_user_token(
 
 /// delete tokens to table user_token_ref of database
 pub(crate) fn delete_all_tokens(
-    context: &Context<'_>,
+    cxt: &Context<'_>,
     target_uuid_user: Uuid,
 ) -> Result<i32, ServiceError> {
-    let conn: &PooledConnection = &get_conn(context)?;
+    let conn: &PooledConnection = &get_conn(cxt)?;
     use crate::schema::user_token_ref::dsl::*;
 
     let updated_token: usize = diesel::delete(user_token_ref)

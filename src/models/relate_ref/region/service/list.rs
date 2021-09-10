@@ -10,27 +10,27 @@ use diesel::prelude::*;
 
 
 pub(crate) fn get_regions(
-    context: &Context<'_>,
+    cxt: &Context<'_>,
     id_region_search: Vec<i32>,
     limit: i32,
     offset: i32,
 ) -> ServiceResult<Vec<RegionTranslateList>> {
     match id_region_search {
-        id_region_search if id_region_search.is_empty() => find_all_regions(context, limit, offset),
-        id_region_search => find_id_region(context, id_region_search, limit, offset)
+        id_region_search if id_region_search.is_empty() => find_all_regions(cxt, limit, offset),
+        id_region_search => find_id_region(cxt, id_region_search, limit, offset)
         // _ => ServiceResult::Err(ServiceError::BadRequest("What?".to_string()))
     }
 }
 
 fn find_all_regions(
-    context: &Context<'_>,
+    cxt: &Context<'_>,
     limit: i32,
     offset: i32,
 ) -> ServiceResult<Vec<RegionTranslateList>> {
     use crate::schema::region_translate_list::dsl::*;
-    let conn: &PooledConnection = &get_conn(context)?;
+    let conn: &PooledConnection = &get_conn(cxt)?;
 
-    let set_id_lang = crate::models::user::get_set_language(context);
+    let set_id_lang = crate::models::user::get_set_language(cxt);
 
     Ok(region_translate_list
         .filter(id_lang.eq(set_id_lang))
@@ -40,15 +40,15 @@ fn find_all_regions(
 }
 
 fn find_id_region(
-    context: &Context<'_>,
+    cxt: &Context<'_>,
     id_region_search: Vec<i32>,
     limit: i32,
     offset: i32,
 ) -> ServiceResult<Vec<RegionTranslateList>> {
     use crate::schema::region_translate_list::dsl::*;
-    let conn: &PooledConnection = &get_conn(context)?;
+    let conn: &PooledConnection = &get_conn(cxt)?;
 
-    let set_id_lang = crate::models::user::get_set_language(context);
+    let set_id_lang = crate::models::user::get_set_language(cxt);
 
     Ok(region_translate_list
         .filter(id_region.eq_any(id_region_search))

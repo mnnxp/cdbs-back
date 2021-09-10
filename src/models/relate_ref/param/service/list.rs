@@ -10,27 +10,27 @@ use diesel::prelude::*;
 
 
 pub(crate) fn get_params(
-    context: &Context<'_>,
+    cxt: &Context<'_>,
     id_param_search: Vec<i32>,
     limit: i32,
     offset: i32,
 ) -> ServiceResult<Vec<ParamTranslateList>> {
     match id_param_search {
-        id_param_search if id_param_search.is_empty() => find_all_params(context, limit, offset),
-        id_param_search => find_id_param(context, id_param_search, limit, offset)
+        id_param_search if id_param_search.is_empty() => find_all_params(cxt, limit, offset),
+        id_param_search => find_id_param(cxt, id_param_search, limit, offset)
         // _ => ServiceResult::Err(ServiceError::BadRequest("What?".to_string()))
     }
 }
 
 fn find_all_params(
-    context: &Context<'_>,
+    cxt: &Context<'_>,
     limit: i32,
     offset: i32,
 ) -> ServiceResult<Vec<ParamTranslateList>> {
     use crate::schema::param_translate_list::dsl::*;
-    let conn: &PooledConnection = &get_conn(context)?;
+    let conn: &PooledConnection = &get_conn(cxt)?;
 
-    let set_id_lang = crate::models::user::get_set_language(context);
+    let set_id_lang = crate::models::user::get_set_language(cxt);
 
     Ok(param_translate_list
         .filter(id_lang.eq(set_id_lang))
@@ -40,15 +40,15 @@ fn find_all_params(
 }
 
 fn find_id_param(
-    context: &Context<'_>,
+    cxt: &Context<'_>,
     id_param_search: Vec<i32>,
     limit: i32,
     offset: i32,
 ) -> ServiceResult<Vec<ParamTranslateList>> {
     use crate::schema::param_translate_list::dsl::*;
-    let conn: &PooledConnection = &get_conn(context)?;
+    let conn: &PooledConnection = &get_conn(cxt)?;
 
-    let set_id_lang = crate::models::user::get_set_language(context);
+    let set_id_lang = crate::models::user::get_set_language(cxt);
 
     Ok(param_translate_list
         .filter(id_param.eq_any(id_param_search))

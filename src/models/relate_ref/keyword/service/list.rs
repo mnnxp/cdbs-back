@@ -7,25 +7,25 @@ use diesel::prelude::*;
 
 
 pub(crate) fn get_keywords(
-    context: &Context<'_>,
+    cxt: &Context<'_>,
     target_id_keyword: Vec<i32>,
     limit: i32,
     offset: i32,
 ) -> ServiceResult<Vec<Keyword>> {
     match target_id_keyword {
-        target_id_keyword if target_id_keyword.is_empty() => find_all_keywords(context, limit, offset),
-        target_id_keyword => find_id_keywords(context, target_id_keyword, limit, offset)
+        target_id_keyword if target_id_keyword.is_empty() => find_all_keywords(cxt, limit, offset),
+        target_id_keyword => find_id_keywords(cxt, target_id_keyword, limit, offset)
         // _ => ServiceResult::Err(ServiceError::BadRequest("What?".to_string()))
     }
 }
 
 fn find_all_keywords(
-    context: &Context<'_>,
+    cxt: &Context<'_>,
     limit: i32,
     offset: i32,
 ) -> ServiceResult<Vec<Keyword>> {
     use crate::schema::keyword_ref::dsl::*;
-    let conn: &PooledConnection = &get_conn(context)?;
+    let conn: &PooledConnection = &get_conn(cxt)?;
 
     Ok(keyword_ref
         .limit(limit as i64)
@@ -34,13 +34,13 @@ fn find_all_keywords(
 }
 
 fn find_id_keywords(
-    context: &Context<'_>,
+    cxt: &Context<'_>,
     target_id_keyword: Vec<i32>,
     limit: i32,
     offset: i32,
 ) -> ServiceResult<Vec<Keyword>> {
     use crate::schema::keyword_ref::dsl::*;
-    let conn: &PooledConnection = &get_conn(context)?;
+    let conn: &PooledConnection = &get_conn(cxt)?;
 
     Ok(keyword_ref
         .filter(id.eq_any(target_id_keyword))

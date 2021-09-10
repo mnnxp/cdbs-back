@@ -9,12 +9,12 @@ use uuid::Uuid;
 
 /// Search company represents for company by company uuid
 pub(crate) fn get_by_company_uuid(
-    context: &Context<'_>,
+    cxt: &Context<'_>,
     target_company_uuid: &Uuid,
 ) -> ServiceResult<Vec<CompanyRepresentAndRelatedData>> {
-    let conn: &PooledConnection = &get_conn(context)?;
+    let conn: &PooledConnection = &get_conn(cxt)?;
 
-    let set_id_lang = crate::models::user::get_set_language(context);
+    let set_id_lang = crate::models::user::get_set_language(cxt);
 
     let result: Vec<CompanyRepresentAndRelatedData> = CompanyRepresentAndRelatedData::get_list_represents_by_company_uuid(
         target_company_uuid,
@@ -29,12 +29,12 @@ pub(crate) fn get_by_company_uuid(
 
 /// Search company represents by represent uuid
 pub(crate) fn get_represent_by_uuids(
-    context: &Context<'_>,
+    cxt: &Context<'_>,
     target_represents_uuids: &[Uuid],
 ) -> ServiceResult<Vec<CompanyRepresentAndRelatedData>> {
-    let conn: &PooledConnection = &get_conn(context)?;
+    let conn: &PooledConnection = &get_conn(cxt)?;
 
-    let set_id_lang = crate::models::user::get_set_language(context);
+    let set_id_lang = crate::models::user::get_set_language(cxt);
 
     // collect data for represent
     let result: Vec<CompanyRepresentAndRelatedData> = CompanyRepresentAndRelatedData::get_list_represents_by_uuids(

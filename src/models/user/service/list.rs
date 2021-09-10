@@ -5,10 +5,10 @@ use async_graphql::Context;
 use uuid::Uuid;
 
 pub(crate) fn find_users_by_uuids(
-    context: &Context<'_>,
+    cxt: &Context<'_>,
     target_users_uuids: &[Uuid],
 ) -> ServiceResult<Vec<ShowUserShort>> {
-    let conn: &PooledConnection = &get_conn(context)?;
+    let conn: &PooledConnection = &get_conn(cxt)?;
 
     let result: Vec<ShowUserShort> = ShowUserShort::get_list_by_uuids(
         target_users_uuids,
@@ -22,13 +22,13 @@ pub(crate) fn find_users_by_uuids(
 
 /// Gets user with related data, with translate by uuid
 pub(crate) fn find_user_by_uuid(
-    context: &Context<'_>,
+    cxt: &Context<'_>,
     target_user_uuid: &Uuid,
     logged_user_uuid: &Uuid,
 ) -> ServiceResult<UserAndRelatedData> {
-    let conn: &PooledConnection = &get_conn(context)?;
+    let conn: &PooledConnection = &get_conn(cxt)?;
 
-    let set_id_lang = crate::models::user::get_set_language(context);
+    let set_id_lang = crate::models::user::get_set_language(cxt);
 
     // collect data for user
     let result: UserAndRelatedData = UserAndRelatedData::collect_related_data(

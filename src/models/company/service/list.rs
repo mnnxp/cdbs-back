@@ -5,13 +5,13 @@ use async_graphql::Context;
 use uuid::Uuid;
 
 pub(crate) fn find_companies(
-    context: &Context<'_>,
+    cxt: &Context<'_>,
     target_uuids_companies: &[Uuid],
     target_uuid_user: &Uuid,
 ) -> ServiceResult<Vec<ShowCompanyShort>> {
-    let conn: &PooledConnection = &get_conn(context)?;
+    let conn: &PooledConnection = &get_conn(cxt)?;
 
-    let set_id_lang = crate::models::user::get_set_language(context);
+    let set_id_lang = crate::models::user::get_set_language(cxt);
 
     let result: Vec<ShowCompanyShort> = ShowCompanyShort::get_list_by_uuids(
         target_uuids_companies,
@@ -27,13 +27,13 @@ pub(crate) fn find_companies(
 
 /// Gets company with related data, with translate by uuid
 pub(crate) fn find_by_uuid(
-    context: &Context<'_>,
+    cxt: &Context<'_>,
     target_company_uuid: &Uuid,
     target_user_uuid: &Uuid,
 ) -> ServiceResult<CompanyAndRelatedData> {
-    let conn: &PooledConnection = &get_conn(context)?;
+    let conn: &PooledConnection = &get_conn(cxt)?;
 
-    let set_id_lang = crate::models::user::get_set_language(context);
+    let set_id_lang = crate::models::user::get_set_language(cxt);
 
     // collect data for company
     let result: CompanyAndRelatedData = CompanyAndRelatedData::collect_related_data(

@@ -8,7 +8,7 @@ use diesel::prelude::*;
 use uuid::Uuid;
 
 pub(crate) fn get_notifications(
-    context: &Context<'_>,
+    cxt: &Context<'_>,
     id_notification_search: i32,
     target_uuid_user: Uuid,
     limit: i32,
@@ -23,8 +23,8 @@ pub(crate) fn get_notifications(
     // }
 
     match variant_selection {
-        0 => find_all_notifications(context, target_uuid_user, limit, offset),
-        1 => find_id_notification(context, id_notification_search, target_uuid_user),
+        0 => find_all_notifications(cxt, target_uuid_user, limit, offset),
+        1 => find_id_notification(cxt, id_notification_search, target_uuid_user),
         // 10
         // 11
         // 100
@@ -36,7 +36,7 @@ pub(crate) fn get_notifications(
 }
 
 fn find_all_notifications(
-    context: &Context<'_>,
+    cxt: &Context<'_>,
     target_uuid_user: Uuid,
     limit: i32,
     offset: i32,
@@ -44,7 +44,7 @@ fn find_all_notifications(
     use crate::schema::notification_ref::dsl::*;
     use crate::schema::notification_ref::dsl::id as notification_ref_id;
     use crate::schema::notification_to_user::dsl::*;
-    let conn: &PooledConnection = &get_conn(context)?;
+    let conn: &PooledConnection = &get_conn(cxt)?;
 
     Ok(notification_ref
         .inner_join(notification_to_user)
@@ -59,14 +59,14 @@ fn find_all_notifications(
 }
 
 fn find_id_notification(
-    context: &Context<'_>,
+    cxt: &Context<'_>,
     id_notification_search: i32,
     target_uuid_user: Uuid,
 ) -> ServiceResult<Vec<Notification>> {
     use crate::schema::notification_ref::dsl::*;
     use crate::schema::notification_ref::dsl::id as notification_ref_id;
     use crate::schema::notification_to_user::dsl::*;
-    let conn: &PooledConnection = &get_conn(context)?;
+    let conn: &PooledConnection = &get_conn(cxt)?;
 
     Ok(notification_ref
         .inner_join(notification_to_user)

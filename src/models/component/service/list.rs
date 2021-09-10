@@ -5,13 +5,13 @@ use async_graphql::Context;
 use uuid::Uuid;
 
 pub(crate) fn find_components(
-    context: &Context<'_>,
+    cxt: &Context<'_>,
     target_components_uuids: &[Uuid],
     target_user_uuid: &Uuid,
 ) -> ServiceResult<Vec<ShowComponentShort>> {
-    let conn: &PooledConnection = &get_conn(context)?;
+    let conn: &PooledConnection = &get_conn(cxt)?;
 
-    let set_id_lang = crate::models::user::get_set_language(context);
+    let set_id_lang = crate::models::user::get_set_language(cxt);
 
     let result: Vec<ShowComponentShort> = ShowComponentShort::get_list_by_uuids(
         target_components_uuids,
@@ -26,13 +26,13 @@ pub(crate) fn find_components(
 }
 
 pub(crate) fn find_uuid_component(
-    context: &Context<'_>,
+    cxt: &Context<'_>,
     target_component_uuid: &Uuid,
     target_user_uuid: &Uuid,
 ) -> ServiceResult<ComponentAndRelatedData> {
-    let conn: &PooledConnection = &get_conn(context)?;
+    let conn: &PooledConnection = &get_conn(cxt)?;
 
-    let set_id_lang = crate::models::user::get_set_language(context);
+    let set_id_lang = crate::models::user::get_set_language(cxt);
 
     // collect data for component
     let result: ComponentAndRelatedData = ComponentAndRelatedData::collect_related_data(

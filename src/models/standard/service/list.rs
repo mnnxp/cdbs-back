@@ -5,13 +5,13 @@ use async_graphql::Context;
 use uuid::Uuid;
 
 pub(crate) fn find_by_uuids(
-    context: &Context<'_>,
+    cxt: &Context<'_>,
     target_uuids_standards: &[Uuid],
     target_uuid_user: &Uuid,
 ) -> ServiceResult<Vec<ShowStandardShort>> {
-    let conn: &PooledConnection = &get_conn(context)?;
+    let conn: &PooledConnection = &get_conn(cxt)?;
 
-    let set_id_lang = crate::models::user::get_set_language(context);
+    let set_id_lang = crate::models::user::get_set_language(cxt);
 
     let result: Vec<ShowStandardShort> = ShowStandardShort::get_list_by_uuids(
         target_uuids_standards,
@@ -26,13 +26,13 @@ pub(crate) fn find_by_uuids(
 }
 
 pub(crate) fn find_by_uuid(
-    context: &Context<'_>,
+    cxt: &Context<'_>,
     target_uuid_standard: &Uuid,
     target_uuid_user: &Uuid,
 ) -> ServiceResult<StandardAndRelatedData> {
-    let conn: &PooledConnection = &get_conn(context)?;
+    let conn: &PooledConnection = &get_conn(cxt)?;
 
-    let set_id_lang = crate::models::user::get_set_language(context);
+    let set_id_lang = crate::models::user::get_set_language(cxt);
 
     // collect data for standard
     let result: StandardAndRelatedData = StandardAndRelatedData::collect_related_data(

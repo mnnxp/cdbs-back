@@ -7,12 +7,12 @@ use uuid::Uuid;
 
 /// Checking have need access level
 pub(crate) fn check_standard_access(
-    context: &Context<'_>,
+    cxt: &Context<'_>,
     target_user_uuid: &Uuid,
     target_standard_uuid: &Uuid,
     required_access: i32,
 ) -> Result<bool, ServiceError> {
-    let conn: &PooledConnection = &get_conn(context)?;
+    let conn: &PooledConnection = &get_conn(cxt)?;
 
     use crate::schema::standard_ref::dsl::*;
 
@@ -209,11 +209,11 @@ pub(crate) fn get_access_from_company(
 
 /// Gets the default access for target standard
 pub(crate) fn get_access_set(
-    context: &Context<'_>,
+    cxt: &Context<'_>,
     target_standard_uuid: &Uuid,
 ) -> Result<i32, ServiceError> {
     use crate::schema::standard_ref::dsl::*;
-    let conn: &PooledConnection = &get_conn(context)?;
+    let conn: &PooledConnection = &get_conn(cxt)?;
 
     // check default access for standard
     Ok(standard_ref

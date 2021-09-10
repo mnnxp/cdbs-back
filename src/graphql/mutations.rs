@@ -47,37 +47,37 @@ impl MutationRoot {
     // Add new user
     async fn register_user(
         &self,
-        context: &Context<'_>,
+        cxt: &Context<'_>,
         data: IptUserData,
     ) -> ServiceResult<SlimUser> {
         use crate::models::user::service::register::create_user;
-        let conn: &PooledConnection = &get_conn(context)?;
+        let conn: &PooledConnection = &get_conn(cxt)?;
 
         Ok(create_user(data, conn)?)
     }
 
     async fn register_notification(
         &self,
-        context: &Context<'_>,
+        cxt: &Context<'_>,
         data: NotificationData,
     ) -> ServiceResult<SlimNotification> {
         use crate::models::user::notification::service::register::create_notification;
-        let conn: &PooledConnection = &get_conn(context)?;
+        let conn: &PooledConnection = &get_conn(cxt)?;
 
-        let logged_uuid_user = crate::models::user::get_logged_uuid_user(context, true)?;
+        let logged_uuid_user = crate::models::user::get_logged_uuid_user(cxt, true)?;
 
         Ok(create_notification(data, logged_uuid_user, conn)?)
     }
 
     async fn delete_notification(
         &self,
-        context: &Context<'_>,
+        cxt: &Context<'_>,
         id_notification: i32,
     ) -> ServiceResult<Notification> {
         use crate::models::user::notification::service::delete::delete_notification;
-        let conn: &PooledConnection = &get_conn(context)?;
+        let conn: &PooledConnection = &get_conn(cxt)?;
 
-        let logged_uuid_user = crate::models::user::get_logged_uuid_user(context, true)?;
+        let logged_uuid_user = crate::models::user::get_logged_uuid_user(cxt, true)?;
 
         Ok(delete_notification(
             logged_uuid_user,
@@ -88,14 +88,14 @@ impl MutationRoot {
 
     async fn register_component(
         &self,
-        context: &Context<'_>,
+        cxt: &Context<'_>,
         data: IptComponentData,
     ) -> ServiceResult<SlimComponent> {
         use component::service::register::create_component;
-        let conn: &PooledConnection = &get_conn(context)?;
+        let conn: &PooledConnection = &get_conn(cxt)?;
 
         // checking authorization and getting user uuid
-        let logged_uuid_user = crate::models::user::get_logged_uuid_user(context, true)?;
+        let logged_uuid_user = crate::models::user::get_logged_uuid_user(cxt, true)?;
 
         Ok(create_component(
             logged_uuid_user,
@@ -106,92 +106,92 @@ impl MutationRoot {
 
     async fn register_component_modification(
         &self,
-        context: &Context<'_>,
+        cxt: &Context<'_>,
         data: IptComponentModificationData,
     ) -> ServiceResult<SlimComponentModification> {
         use component::component_modification::service::register::create_component_modification;
-        let conn: &PooledConnection = &get_conn(context)?;
+        let conn: &PooledConnection = &get_conn(cxt)?;
 
-        let logged_uuid_user = crate::models::user::get_logged_uuid_user(context, true)?;
+        let logged_uuid_user = crate::models::user::get_logged_uuid_user(cxt, true)?;
 
         Ok(create_component_modification(data, logged_uuid_user, conn)?)
     }
 
     async fn register_license(
         &self,
-        context: &Context<'_>,
+        cxt: &Context<'_>,
         data: LicenseData,
     ) -> ServiceResult<License> {
         use license::service::register::create_license;
-        let conn: &PooledConnection = &get_conn(context)?;
+        let conn: &PooledConnection = &get_conn(cxt)?;
 
         // todo!(check owned company)
-        crate::models::user::check_authorized(context)?;
+        crate::models::user::check_authorized(cxt)?;
 
         Ok(create_license(data, conn)?)
     }
 
     async fn register_license_component(
         &self,
-        context: &Context<'_>,
+        cxt: &Context<'_>,
         data: IptLicenseComponentData,
     ) -> ServiceResult<LicenseComponent> {
         use component::license::service::add::create_license_component;
-        let conn: &PooledConnection = &get_conn(context)?;
+        let conn: &PooledConnection = &get_conn(cxt)?;
 
-        crate::models::user::check_authorized(context)?;
+        crate::models::user::check_authorized(cxt)?;
 
         Ok(create_license_component(data, conn)?)
     }
 
     async fn register_param(
         &self,
-        context: &Context<'_>,
+        cxt: &Context<'_>,
         data: IptParamTranslateListData,
     ) -> ServiceResult<ParamTranslateList> {
         use param::service::register::create_param;
-        let conn: &PooledConnection = &get_conn(context)?;
+        let conn: &PooledConnection = &get_conn(cxt)?;
 
-        crate::models::user::check_authorized(context)?;
+        crate::models::user::check_authorized(cxt)?;
 
         Ok(create_param(data, conn)?)
     }
 
     async fn register_param_component(
         &self,
-        context: &Context<'_>,
+        cxt: &Context<'_>,
         data: IptParamComponentData,
     ) -> ServiceResult<ParamComponent> {
         use component_param::service::add::create_param_component;
-        let conn: &PooledConnection = &get_conn(context)?;
+        let conn: &PooledConnection = &get_conn(cxt)?;
 
-        crate::models::user::check_authorized(context)?;
+        crate::models::user::check_authorized(cxt)?;
 
         Ok(create_param_component(data, conn)?)
     }
 
     async fn register_param_modification(
         &self,
-        context: &Context<'_>,
+        cxt: &Context<'_>,
         data: IptParamModificationData,
     ) -> ServiceResult<ParamModification> {
         use component_modification_param::service::add::create_param_modification;
-        let conn: &PooledConnection = &get_conn(context)?;
+        let conn: &PooledConnection = &get_conn(cxt)?;
 
-        crate::models::user::check_authorized(context)?;
+        crate::models::user::check_authorized(cxt)?;
 
         Ok(create_param_modification(data, conn)?)
     }
 
     async fn register_company(
         &self,
-        context: &Context<'_>,
+        cxt: &Context<'_>,
         data: IptCompanyData,
     ) -> ServiceResult<SlimCompany> {
         use crate::models::company::service::register::create_company;
-        let conn: &PooledConnection = &get_conn(context)?;
+        let conn: &PooledConnection = &get_conn(cxt)?;
 
-        let logged_uuid_user = crate::models::user::get_logged_uuid_user(context, true)?;
+        let logged_uuid_user = crate::models::user::get_logged_uuid_user(cxt, true)?;
 
         Ok(create_company(
             logged_uuid_user,
@@ -202,13 +202,13 @@ impl MutationRoot {
 
     async fn register_company_represent(
         &self,
-        context: &Context<'_>,
+        cxt: &Context<'_>,
         data: IptCompanyRepresentData,
     ) -> ServiceResult<SlimCompanyRepresent> {
         use crate::models::company::company_represent::service::register::create_company_represent;
-        let conn: &PooledConnection = &get_conn(context)?;
+        let conn: &PooledConnection = &get_conn(cxt)?;
 
-        let logged_uuid_user = crate::models::user::get_logged_uuid_user(context, true)?;
+        let logged_uuid_user = crate::models::user::get_logged_uuid_user(cxt, true)?;
 
         let target_uuid_company = Uuid::parse_str(&data.uuid_company.to_string())?;
 
@@ -229,14 +229,14 @@ impl MutationRoot {
 
     async fn delete_company_represent(
         &self,
-        context: &Context<'_>,
+        cxt: &Context<'_>,
         uuid_company: String,
         uuid_company_represent: String,
     ) -> ServiceResult<SlimCompanyRepresent> {
         use crate::models::company::company_represent::service::delete::delete_company_represent;
-        let conn: &PooledConnection = &get_conn(context)?;
+        let conn: &PooledConnection = &get_conn(cxt)?;
 
-        let logged_uuid_user = crate::models::user::get_logged_uuid_user(context, true)?;
+        let logged_uuid_user = crate::models::user::get_logged_uuid_user(cxt, true)?;
 
         let target_uuid_company = Uuid::parse_str(&uuid_company)?;
         let target_uuid_company_represent = Uuid::parse_str(&uuid_company_represent)?;
@@ -257,13 +257,13 @@ impl MutationRoot {
 
     async fn register_standard(
         &self,
-        context: &Context<'_>,
+        cxt: &Context<'_>,
         data: IptStandardData,
     ) -> ServiceResult<SlimStandard> {
         use crate::models::standard::service::register::create_standard;
-        let conn: &PooledConnection = &get_conn(context)?;
+        let conn: &PooledConnection = &get_conn(cxt)?;
 
-        let logged_uuid_user = crate::models::user::get_logged_uuid_user(context, true)?;
+        let logged_uuid_user = crate::models::user::get_logged_uuid_user(cxt, true)?;
 
         Ok(create_standard(
             logged_uuid_user,
@@ -274,104 +274,104 @@ impl MutationRoot {
 
     async fn add_component_spec(
         &self,
-        context: &Context<'_>,
+        cxt: &Context<'_>,
         data: IptSpecComponentData,
     ) -> ServiceResult<SpecComponent> {
         use component_spec::service::add::add_component_spec;
-        let conn: &PooledConnection = &get_conn(context)?;
+        let conn: &PooledConnection = &get_conn(cxt)?;
 
-        crate::models::user::check_authorized(context)?;
+        crate::models::user::check_authorized(cxt)?;
 
         Ok(add_component_spec(data, conn)?)
     }
 
     async fn register_keyword(
         &self,
-        context: &Context<'_>,
+        cxt: &Context<'_>,
         data: IptKeywordData,
     ) -> ServiceResult<Keyword> {
         use keyword::service::register::create_keyword;
-        let conn: &PooledConnection = &get_conn(context)?;
+        let conn: &PooledConnection = &get_conn(cxt)?;
 
-        crate::models::user::check_authorized(context)?;
+        crate::models::user::check_authorized(cxt)?;
 
         Ok(create_keyword(data, conn)?)
     }
 
     async fn add_keyword_component(
         &self,
-        context: &Context<'_>,
+        cxt: &Context<'_>,
         data: IptKeywordComponentData,
     ) -> ServiceResult<KeywordComponent> {
         use component_keyword::service::add::add_component_keyword;
-        let conn: &PooledConnection = &get_conn(context)?;
+        let conn: &PooledConnection = &get_conn(cxt)?;
 
-        crate::models::user::check_authorized(context)?;
+        crate::models::user::check_authorized(cxt)?;
 
         Ok(add_component_keyword(data, conn)?)
     }
 
     async fn add_supplier_component(
         &self,
-        context: &Context<'_>,
+        cxt: &Context<'_>,
         data: IptSupplierComponentData,
     ) -> ServiceResult<SupplierComponent> {
         use component_supplier::service::add::add_component_supplier;
-        let conn: &PooledConnection = &get_conn(context)?;
+        let conn: &PooledConnection = &get_conn(cxt)?;
 
-        crate::models::user::check_authorized(context)?;
+        crate::models::user::check_authorized(cxt)?;
 
         Ok(add_component_supplier(data, conn)?)
     }
 
     async fn register_extension(
         &self,
-        context: &Context<'_>,
+        cxt: &Context<'_>,
         data: IptExtensionData,
     ) -> ServiceResult<Extension> {
         use extension::service::register::create_extension;
-        let conn: &PooledConnection = &get_conn(context)?;
+        let conn: &PooledConnection = &get_conn(cxt)?;
 
-        crate::models::user::check_authorized(context)?;
+        crate::models::user::check_authorized(cxt)?;
 
         Ok(create_extension(data, conn)?)
     }
 
     async fn register_program(
         &self,
-        context: &Context<'_>,
+        cxt: &Context<'_>,
         data: IptProgramData,
     ) -> ServiceResult<Program> {
         use program::service::register::create_program;
-        let conn: &PooledConnection = &get_conn(context)?;
+        let conn: &PooledConnection = &get_conn(cxt)?;
 
-        crate::models::user::check_authorized(context)?;
+        crate::models::user::check_authorized(cxt)?;
 
         Ok(create_program(data, conn)?)
     }
 
     async fn register_set_files_modification(
         &self,
-        context: &Context<'_>,
+        cxt: &Context<'_>,
         data: IptSetOfFilesProgramData,
     ) -> ServiceResult<SetOfFilesProgram> {
         use component_modification_set_of_files_program::service::add::create_set_file_modification;
-        let conn: &PooledConnection = &get_conn(context)?;
+        let conn: &PooledConnection = &get_conn(cxt)?;
 
-        crate::models::user::check_authorized(context)?;
+        crate::models::user::check_authorized(cxt)?;
 
         Ok(create_set_file_modification(data, conn)?)
     }
 
     async fn add_file_to_set_modification(
         &self,
-        context: &Context<'_>,
+        cxt: &Context<'_>,
         data: IptFileToSetModificationData,
     ) -> ServiceResult<FileToSetModification> {
         use component_modification_file_to_set_modification::service::add::add_file_to_set_modification;
-        let conn: &PooledConnection = &get_conn(context)?;
+        let conn: &PooledConnection = &get_conn(cxt)?;
 
-        crate::models::user::check_authorized(context)?;
+        crate::models::user::check_authorized(cxt)?;
 
         Ok(add_file_to_set_modification(data, conn)?)
     }
@@ -379,27 +379,27 @@ impl MutationRoot {
 
     async fn add_component_favorite(
         &self,
-        context: &Context<'_>,
+        cxt: &Context<'_>,
         data: IptComponentFavData,
     ) -> ServiceResult<ComponentFav> {
         use component::component_fav::service::add::add_component_favorite;
-        let conn: &PooledConnection = &get_conn(context)?;
+        let conn: &PooledConnection = &get_conn(cxt)?;
 
-        crate::models::user::check_authorized(context)?;
+        crate::models::user::check_authorized(cxt)?;
 
         Ok(add_component_favorite(data, conn)?)
     }
 
     async fn upload_favicon(
         &self,
-        context: &Context<'_>,
+        cxt: &Context<'_>,
         file_data: IptPreliminaryFileData,
     ) -> ServiceResult<UploadUrl> {
         use crate::models::user::service::upload::favicon::update_favicon;
-        let pool = get_pool(context)?;
+        let pool = get_pool(cxt)?;
 
         let target_user = TargetUser::from(
-            &crate::models::user::get_logged_uuid_user(context, true)?
+            &crate::models::user::get_logged_uuid_user(cxt, true)?
         );
 
         Ok(update_favicon(
@@ -411,14 +411,14 @@ impl MutationRoot {
 
     async fn upload_completed(
         &self,
-        context: &Context<'_>,
+        cxt: &Context<'_>,
         file_id: String,
     ) -> ServiceResult<i32> {
-        let pool = get_pool(context)?;
+        let pool = get_pool(cxt)?;
         // let conn = pool.get().unwrap();
 
         let target_user = TargetUser::from(
-            &crate::models::user::get_logged_uuid_user(context, true)?
+            &crate::models::user::get_logged_uuid_user(cxt, true)?
         );
 
         Ok(file::service::update::confirm_upload(

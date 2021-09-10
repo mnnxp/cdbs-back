@@ -7,28 +7,28 @@ use diesel::prelude::*;
 
 
 pub(crate) fn get_specs(
-    context: &Context<'_>,
+    cxt: &Context<'_>,
     target_id_spec: Vec<i32>,
     limit: i32,
     offset: i32,
 ) -> ServiceResult<Vec<SpecTranslateList>> {
     match target_id_spec {
-        target_id_spec if target_id_spec.is_empty() => find_all_specs(context, limit, offset),
-        target_id_spec => find_id_specs(context, target_id_spec, limit, offset)
+        target_id_spec if target_id_spec.is_empty() => find_all_specs(cxt, limit, offset),
+        target_id_spec => find_id_specs(cxt, target_id_spec, limit, offset)
         // _ => ServiceResult::Err(ServiceError::BadRequest("What?".to_string()))
     }
 }
 
 fn find_all_specs(
-    context: &Context<'_>,
+    cxt: &Context<'_>,
     limit: i32,
     offset: i32,
 ) -> ServiceResult<Vec<SpecTranslateList>> {
     use crate::schema::spec_translate_list::dsl::*;
-    let conn: &PooledConnection = &get_conn(context)?;
-    // let target_id_lang: IdLanguage = context.into();
+    let conn: &PooledConnection = &get_conn(cxt)?;
+    // let target_id_lang: IdLanguage = cxt.into();
 
-    let set_id_lang = crate::models::user::get_set_language(context);
+    let set_id_lang = crate::models::user::get_set_language(cxt);
 
     Ok(spec_translate_list
         .filter(id_lang.eq(set_id_lang))
@@ -38,15 +38,15 @@ fn find_all_specs(
 }
 
 fn find_id_specs(
-    context: &Context<'_>,
+    cxt: &Context<'_>,
     target_id_spec: Vec<i32>,
     limit: i32,
     offset: i32,
 ) -> ServiceResult<Vec<SpecTranslateList>> {
     use crate::schema::spec_translate_list::dsl::*;
-    let conn: &PooledConnection = &get_conn(context)?;
+    let conn: &PooledConnection = &get_conn(cxt)?;
 
-    let set_id_lang = crate::models::user::get_set_language(context);
+    let set_id_lang = crate::models::user::get_set_language(cxt);
 
     Ok(spec_translate_list
         // .filter(id_lang.eq_any(target_id_lang))
