@@ -530,6 +530,47 @@ describe('company', () => {
     done();
   });
 
+  it('/graphql:M registerStandard - OK not set parent', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation standardQuery {
+          registerStandard( data: {
+            classifier: "${classifierStandard}",
+            name: "${nameStandard}",
+            description: "${descriptionStandard}",
+            specifiedTolerance: "${specifiedTolerance}",
+            technicalCommittee: "${technicalCommittee}",
+            publicationAt: "${publicationAt}",
+            uuidCompany: "${uuidCompanySupplier}",
+            idTypeAccess: ${idTypeAccess1},
+            idStandardStatus: ${idStandardStatus},
+            idRegion: ${idRegion}
+          }) {
+            uuid
+            classifier
+            name
+            specifiedTolerance
+            technicalCommittee
+            publicationAt
+            idStandardStatus
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql registerStandard=%o', body);
+    const {
+      data: { registerStandard },
+    } = body;
+    expect(registerStandard.uuid).toBeNonEmptyString();
+    expect(registerStandard.name).toBe(nameStandard);
+    done();
+  });
+
   it('/graphql:M registerStandard - OK', async (done) => {
     const { body } = await agent
       .post('/graphql')
