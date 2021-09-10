@@ -98,7 +98,6 @@ describe('param', () => {
                 address: "test_address",
                 position: "test_position",
                 timeZone: "Europe/Moscow",
-                uuidImageFile: "bc1c2151-86d0-4656-9c9d-d016dd584297",
                 idRegion: 1,
                 idProgram: 1,
             }) {
@@ -154,7 +153,6 @@ describe('param', () => {
                 address: "test_address",
                 position: "test_position",
                 timeZone: "Europe/Moscow",
-                uuidImageFile: "bc1c2151-86d0-4656-9c9d-d016dd584297",
                 idRegion: 1,
                 idProgram: 5,
             }) {
