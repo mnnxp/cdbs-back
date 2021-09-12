@@ -28,7 +28,7 @@ impl CompanyMutation {
         Ok(create_company(logged_uuid_user, data, conn)?)
     }
 
-    async fn upload_certificate(
+    async fn upload_company_certificate(
         &self,
         cxt: &Context<'_>,
         cert_data: IptCompanyCertificateData,
