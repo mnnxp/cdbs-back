@@ -1,8 +1,12 @@
 use async_graphql::{self, Context, Object};
+use uuid::Uuid;
 
 use crate::database::{get_conn, PooledConnection};
 use crate::errors::ServiceResult;
 use crate::models::user::certificate::model::IptUserCertificateData;
+use crate::models::user::company_fav::model::{
+    CompanyFav, IptCompanyFavData,
+};
 use crate::models::user::model::{IptUserData, SlimUser};
 use crate::models::user::notification::model::{Notification, NotificationData, SlimNotification};
 use crate::models::relate_ref::file::model::IptPreliminaryFileData;
@@ -37,6 +41,27 @@ impl UserMutation {
             logged_user_uuid,
             cert_data,
             file_data,
+            conn
+        )?)
+    }
+
+    async fn add_company_fav(
+        &self,
+        cxt: &Context<'_>,
+        company_uuid: String,
+    ) -> ServiceResult<CompanyFav> {
+        use crate::models::user::company_fav::service::add::add_company_fav;
+        let conn: &PooledConnection = &get_conn(cxt)?;
+
+        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+
+        let data = IptCompanyFavData {
+            company_uuid: Uuid::parse_str(&company_uuid)?,
+            user_uuid: logged_user_uuid
+        };
+
+        Ok(add_company_fav(
+            data,
             conn
         )?)
     }
