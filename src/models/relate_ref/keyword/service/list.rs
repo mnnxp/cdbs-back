@@ -8,13 +8,13 @@ use diesel::prelude::*;
 
 pub(crate) fn get_keywords(
     cxt: &Context<'_>,
-    target_id_keyword: Vec<i32>,
+    target_keyword_id: Vec<i32>,
     limit: i32,
     offset: i32,
 ) -> ServiceResult<Vec<Keyword>> {
-    match target_id_keyword {
-        target_id_keyword if target_id_keyword.is_empty() => find_all_keywords(cxt, limit, offset),
-        target_id_keyword => find_id_keywords(cxt, target_id_keyword, limit, offset)
+    match target_keyword_id {
+        target_keyword_id if target_keyword_id.is_empty() => find_all_keywords(cxt, limit, offset),
+        target_keyword_id => find_keyword_ids(cxt, target_keyword_id, limit, offset)
         // _ => ServiceResult::Err(ServiceError::BadRequest("What?".to_string()))
     }
 }
@@ -33,9 +33,9 @@ fn find_all_keywords(
         .load::<Keyword>(conn)?)
 }
 
-fn find_id_keywords(
+fn find_keyword_ids(
     cxt: &Context<'_>,
-    target_id_keyword: Vec<i32>,
+    target_keyword_id: Vec<i32>,
     limit: i32,
     offset: i32,
 ) -> ServiceResult<Vec<Keyword>> {
@@ -43,7 +43,7 @@ fn find_id_keywords(
     let conn: &PooledConnection = &get_conn(cxt)?;
 
     Ok(keyword_ref
-        .filter(id.eq_any(target_id_keyword))
+        .filter(id.eq_any(target_keyword_id))
         .limit(limit as i64)
         .offset(offset as i64)
         .load::<Keyword>(conn)?)

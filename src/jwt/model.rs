@@ -28,7 +28,7 @@ pub struct Claims {
     // user username
     pub username: String,
     // user is supplier
-    pub id_program: i32,
+    pub program_id: i32,
 }
 
 // struct to get converted to token and back
@@ -36,7 +36,7 @@ impl Claims {
     pub(crate) fn new(slim_user: &SlimUser, issuer: String, auth_duration_in_hour: u16) -> Self {
         let SlimUser {
             uuid,
-            id_program,
+            program_id,
             username,
             ..
         } = slim_user;
@@ -47,7 +47,7 @@ impl Claims {
         Claims {
             iss: issuer,
             sub: uuid.to_string(),
-            id_program: *id_program,
+            program_id: *program_id,
             username: username.clone(),
             iat: iat.timestamp(),
             exp: exp.timestamp(),
@@ -65,13 +65,13 @@ impl TryFrom<Claims> for SlimUser {
 
     fn try_from(claims: Claims) -> Result<Self> {
         let Claims {
-            id_program, username, sub, ..
+            program_id, username, sub, ..
         }: Claims = claims;
 
         Ok(SlimUser {
             uuid: Uuid::parse_str(&sub)?,
             username,
-            id_program,
+            program_id,
         })
     }
 }

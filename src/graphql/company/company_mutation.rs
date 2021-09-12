@@ -23,9 +23,9 @@ impl CompanyMutation {
         use crate::models::company::service::register::create_company;
         let conn: &PooledConnection = &get_conn(cxt)?;
 
-        let logged_uuid_user = crate::models::user::get_logged_uuid_user(cxt, true)?;
+        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
 
-        Ok(create_company(logged_uuid_user, data, conn)?)
+        Ok(create_company(logged_user_uuid, data, conn)?)
     }
 
     async fn upload_company_certificate(
@@ -39,10 +39,10 @@ impl CompanyMutation {
         // let conn = pool.get().unwrap();
         let conn: &PooledConnection = &get_conn(cxt)?;
 
-        let logged_uuid_user = crate::models::user::get_logged_uuid_user(cxt, true)?;
+        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
 
         Ok(add_certificate(
-            logged_uuid_user,
+            logged_user_uuid,
             cert_data,
             file_data,
             conn
@@ -57,18 +57,18 @@ impl CompanyMutation {
         use crate::models::company::company_represent::service::register::create_company_represent;
         let conn: &PooledConnection = &get_conn(cxt)?;
 
-        let logged_uuid_user = crate::models::user::get_logged_uuid_user(cxt, true)?;
+        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
 
-        let target_uuid_company = Uuid::parse_str(&data.uuid_company.to_string())?;
+        let target_company_uuid = Uuid::parse_str(&data.company_uuid.to_string())?;
 
         crate::models::company::util::check_company_access(
-            &logged_uuid_user,
-            &target_uuid_company,
+            &logged_user_uuid,
+            &target_company_uuid,
             3,
             conn,
         )?;
 
-        crate::models::company::util::check_is_supplier(&target_uuid_company, conn)?;
+        crate::models::company::util::check_is_supplier(&target_company_uuid, conn)?;
 
         Ok(create_company_represent(data.into(), conn)?)
     }
@@ -76,27 +76,27 @@ impl CompanyMutation {
     async fn delete_company_represent(
         &self,
         cxt: &Context<'_>,
-        uuid_company: String,
-        uuid_company_represent: String,
+        company_uuid: String,
+        company_uuid_represent: String,
     ) -> ServiceResult<SlimCompanyRepresent> {
         use crate::models::company::company_represent::service::delete::delete_company_represent;
         let conn: &PooledConnection = &get_conn(cxt)?;
 
-        let logged_uuid_user = crate::models::user::get_logged_uuid_user(cxt, true)?;
+        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
 
-        let target_uuid_company = Uuid::parse_str(&uuid_company)?;
-        let target_uuid_company_represent = Uuid::parse_str(&uuid_company_represent)?;
+        let target_company_uuid = Uuid::parse_str(&company_uuid)?;
+        let target_company_represent_uuid = Uuid::parse_str(&company_uuid_represent)?;
 
         crate::models::company::util::check_company_access(
-            &logged_uuid_user,
-            &target_uuid_company,
+            &logged_user_uuid,
+            &target_company_uuid,
             3,
             conn,
         )?;
 
         Ok(delete_company_represent(
-            target_uuid_company,
-            target_uuid_company_represent,
+            target_company_uuid,
+            target_company_represent_uuid,
             conn,
         )?)
     }

@@ -8,25 +8,25 @@ use uuid::Uuid;
 impl StandardFav {
     /// get list subscribers for standard
     pub fn get_list_followers_by_uuid(
-        target_uuid_standard: &Uuid,
+        target_standard_uuid: &Uuid,
         conn: &PgConnection,
     ) -> ServiceResult<Vec<ShowUserShort>> {
-        let target_list_uuid_user = standard_fav::standard_fav
-            .filter(standard_fav::uuid_standard.eq(target_uuid_standard))
-            .select(standard_fav::uuid_user)
+        let target_list_user_uuid = standard_fav::standard_fav
+            .filter(standard_fav::standard_uuid.eq(target_standard_uuid))
+            .select(standard_fav::user_uuid)
             .load::<Uuid>(conn)
             .expect("Fail load uuid list target user");
 
-        ShowUserShort::get_list_by_uuids(&target_list_uuid_user, conn)
+        ShowUserShort::get_list_by_uuids(&target_list_user_uuid, conn)
     }
 
     /// Count subscribers for standard
     pub fn get_count_followers_by_uuid(
-        target_uuid_standard: &Uuid,
+        target_standard_uuid: &Uuid,
         conn: &PgConnection,
     ) -> ServiceResult<i32> {
         Ok(standard_fav::standard_fav
-            .filter(standard_fav::uuid_standard.eq(target_uuid_standard))
+            .filter(standard_fav::standard_uuid.eq(target_standard_uuid))
             .execute(conn)? as i32)
     }
 }

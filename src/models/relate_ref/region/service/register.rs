@@ -17,16 +17,16 @@ pub(crate) fn create_region(
     use crate::schema::region_translate_list::dsl::*;
 
     let flag_found_region = region_translate_list
-        .filter(id_lang.eq(&new_region_data.id_lang))
+        .filter(lang_id.eq(&new_region_data.lang_id))
         .filter(region.eq(&new_region_data.region))
-        .select(id_region)
+        .select(region_id)
         .first::<i32>(conn).unwrap_or(0);
 
     // debug!("fn create_region START SEARCH ={:?}", flag_found_region);
 
     match flag_found_region {
         0 => {
-            let new_id_region = {
+            let new_region_id = {
                 use crate::schema::region_ref::dsl::*;
 
                 let new_region: Region = diesel::insert_into(region_ref)
@@ -37,8 +37,8 @@ pub(crate) fn create_region(
             };
 
             let new_region_data = InsertableRegionTranslateList {
-                id_region: new_id_region,
-                id_lang: new_region_data.id_lang,
+                region_id: new_region_id,
+                lang_id: new_region_data.lang_id,
                 region: new_region_data.region,
             };
             let inserted_region_data: RegionTranslateList = diesel::insert_into(region_translate_list)

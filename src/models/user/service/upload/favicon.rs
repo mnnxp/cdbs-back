@@ -25,7 +25,7 @@ pub(crate) async fn update_favicon(
 
     let preliminary_file_data = PreliminaryFileData::from_ipt_preliminary_file_data(
         target_user.0,
-        user_short.uuid_image_file,
+        user_short.image_file_uuid,
         ListObject::User(user_short.uuid),
         file_data,
         &conn

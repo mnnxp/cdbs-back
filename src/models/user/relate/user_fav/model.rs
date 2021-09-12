@@ -7,23 +7,23 @@ use uuid::Uuid;
 
 // Favorites user models
 #[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, Clone, Debug)]
-#[primary_key(uuid_user_favorite, uuid_user_follower)]
-#[belongs_to(UserQuery, foreign_key = "uuid_user_favorite", "uuid_user_follower")]
+#[primary_key(user_favorite_uuid, user_follower_uuid)]
+#[belongs_to(UserQuery, foreign_key = "user_favorite_uuid", "user_follower_uuid")]
 #[table_name = "user_fav"]
 pub struct UserFav {
-    pub uuid_user_favorite: Uuid,
-    pub uuid_user_follower: Uuid,
+    pub user_favorite_uuid: Uuid,
+    pub user_follower_uuid: Uuid,
     pub is_enabled: bool,
     pub created_at: NaiveDateTime,
 }
 
 #[Object]
 impl UserFav {
-    async fn uuid_user_favorite(&self) -> ID {
-        self.uuid_user_favorite.into()
+    async fn user_favorite_uuid(&self) -> ID {
+        self.user_favorite_uuid.into()
     }
-    async fn uuid_user_follower(&self) -> ID {
-        self.uuid_user_follower.into()
+    async fn user_follower_uuid(&self) -> ID {
+        self.user_follower_uuid.into()
     }
     async fn is_enabled(&self) -> &bool {
         &self.is_enabled
@@ -35,8 +35,8 @@ impl UserFav {
 
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub struct IptUserFavData {
-    pub uuid_user_favorite: Uuid,
-    pub uuid_user_follower: Uuid,
+    pub user_favorite_uuid: Uuid,
+    pub user_follower_uuid: Uuid,
     // pub is_enabled: bool,
     // pub created_at: NaiveDateTime,
 }
@@ -44,8 +44,8 @@ pub struct IptUserFavData {
 #[derive(Debug, Insertable)]
 #[table_name = "user_fav"]
 pub struct InsertableUserFav {
-    pub uuid_user_favorite: Uuid,
-    pub uuid_user_follower: Uuid,
+    pub user_favorite_uuid: Uuid,
+    pub user_follower_uuid: Uuid,
     pub is_enabled: bool,
     pub created_at: NaiveDateTime,
 }
@@ -53,16 +53,16 @@ pub struct InsertableUserFav {
 impl From<IptUserFavData> for InsertableUserFav {
     fn from(ipt_data: IptUserFavData) -> Self {
         let IptUserFavData {
-            uuid_user_favorite,
-            uuid_user_follower,
+            user_favorite_uuid,
+            user_follower_uuid,
             // is_enabled,
             // created_at,
             ..
         } = ipt_data;
 
         Self {
-            uuid_user_favorite: Uuid::parse_str(&uuid_user_favorite.to_string()).unwrap(),
-            uuid_user_follower: Uuid::parse_str(&uuid_user_follower.to_string()).unwrap(),
+            user_favorite_uuid: Uuid::parse_str(&user_favorite_uuid.to_string()).unwrap(),
+            user_follower_uuid: Uuid::parse_str(&user_follower_uuid.to_string()).unwrap(),
             is_enabled: true,
             created_at: chrono::Local::now().naive_local(),
         }

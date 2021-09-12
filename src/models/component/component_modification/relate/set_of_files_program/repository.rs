@@ -17,22 +17,22 @@ impl SetOfFilesProgram {
 
         // debug!("Component modification set_files_program_for_modification: {:#?}", set_files_program_for_modification);
 
-        let mut id_program_for_set: Vec<i32> = Vec::new();
+        let mut program_id_for_set: Vec<i32> = Vec::new();
         for x in set_files_program_for_modification.iter() {
             for y in x.iter() {
-                id_program_for_set.push(y.id_program);
+                program_id_for_set.push(y.program_id);
             }
         }
 
         // get program for set files component modification
-        let program_for_set_files: Vec<Program> = Program::get_program_by_vec_id(&id_program_for_set, conn)?;
+        let program_for_set_files: Vec<Program> = Program::get_program_by_vec_id(&program_id_for_set, conn)?;
 
         let mut set_files_program_with_relate: Vec<Vec<SetOfFilesProgramRelatedData>> = Vec::new();
         for w in set_files_program_for_modification.iter() {
             for x in w.iter() {
                 let mut vec_values: Vec<SetOfFilesProgramRelatedData> = Vec::new();
                 for y in program_for_set_files.iter() {
-                    if x.id_program == y.id {
+                    if x.program_id == y.id {
                         let res: SetOfFilesProgramRelatedData = (x.to_owned(),y.clone()).into();
                         vec_values.push(res)
                     }

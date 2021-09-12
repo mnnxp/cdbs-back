@@ -18,20 +18,20 @@ pub(crate) fn create_spec(
     use crate::schema::spec_translate_list::dsl::*;
 
     let flag_found_spec = spec_translate_list
-        .filter(id_lang.eq(&new_spec_data.id_lang))
+        .filter(lang_id.eq(&new_spec_data.lang_id))
         .filter(spec.eq(&new_spec_data.spec))
-        .select(id_spec)
+        .select(spec_id)
         .first::<i32>(conn).unwrap_or(0);
 
     // debug!("fn create_spec START SEARCH ={:?}", flag_found_spec);
 
     match flag_found_spec {
         0 => {
-            let new_id_spec = {
+            let new_spec_id = {
                 use crate::schema::spec_ref::dsl::*;
 
                 let value_spec_data: InsertableSpec = InsertableSpec {
-                    id_spec_parent: new_spec_data.id_spec_parent
+                    spec_id_parent: new_spec_data.spec_id_parent
                 };
                 let new_spec: Spec = diesel::insert_into(spec_ref)
                     .values(&value_spec_data)
@@ -41,8 +41,8 @@ pub(crate) fn create_spec(
             };
 
             let new_spec_data = InsertableSpecTranslateList {
-                id_spec: new_id_spec,
-                id_lang: new_spec_data.id_lang,
+                spec_id: new_spec_id,
+                lang_id: new_spec_data.lang_id,
                 spec: new_spec_data.spec,
             };
             let inserted_spec_data: SpecTranslateList = diesel::insert_into(spec_translate_list)

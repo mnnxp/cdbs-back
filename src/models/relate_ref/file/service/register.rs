@@ -51,7 +51,7 @@ pub(crate) fn write_metadata(
 /// Write information of file to db file_to_component or file_to_modification
 pub(crate) fn write_addiction_data(
     object: ListObject,
-    uuid_file: Uuid,
+    file_uuid: Uuid,
     conn: &PgConnection
 ) -> ServiceResult<bool>{
     // select addiction table for write additional data
@@ -59,12 +59,12 @@ pub(crate) fn write_addiction_data(
         ListObject::User(_) => Ok(false),
         ListObject::UserCertificate(_) => Ok(false),
         ListObject::CompanyCertificate(_) => Ok(false),
-        ListObject::Component(uuid_component) => {   // <- add addiction data in file_to_component
+        ListObject::Component(component_uuid) => {   // <- add addiction data in file_to_component
             use crate::schema::file_to_component::dsl::file_to_component;
 
             let component = InsertableFileComponent {
-                uuid_file,
-                uuid_component,
+                file_uuid,
+                component_uuid,
             };
 
             let inserted_component: FileComponent = diesel::insert_into(file_to_component)
@@ -75,12 +75,12 @@ pub(crate) fn write_addiction_data(
 
             Ok(true)
         },
-        ListObject::Modification(uuid_modification) => {   // <- add addiction data in file_to_modification
+        ListObject::Modification(modification_uuid) => {   // <- add addiction data in file_to_modification
             use crate::schema::file_to_modification::dsl::file_to_modification;
 
             let modification =  InsertableFileModification {
-                uuid_file,
-                uuid_modification,
+                file_uuid,
+                modification_uuid,
             };
             let inserted_modification: FileModification = diesel::insert_into(file_to_modification)
                 .values(&modification)
@@ -90,12 +90,12 @@ pub(crate) fn write_addiction_data(
 
             Ok(true)
         },
-        // ListObject::Standard(uuid_standard) => {   // <- add addiction data in file_to_standard
+        // ListObject::Standard(standard_uuid) => {   // <- add addiction data in file_to_standard
         //     use crate::schema::file_to_standard::dsl::file_to_standard;
         //
         //     let standard =  InsertableFileStandard {
-        //         uuid_file,
-        //         uuid_standard,
+        //         file_uuid,
+        //         standard_uuid,
         //     };
         //     let inserted_standard: FileStandard = diesel::insert_into(file_to_standard)
         //         .values(&standard)

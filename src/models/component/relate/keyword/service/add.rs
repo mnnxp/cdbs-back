@@ -19,8 +19,8 @@ pub(crate) fn add_component_keyword(
     let new_component_keyword: InsertableKeywordComponent = data.into();
 
     let flag_found_keyword = keyword_to_component
-        .filter(uuid_component.eq(&new_component_keyword.uuid_component)
-        .and(id_keyword.eq(&new_component_keyword.id_keyword)))
+        .filter(component_uuid.eq(&new_component_keyword.component_uuid)
+        .and(keyword_id.eq(&new_component_keyword.keyword_id)))
         .execute(conn).unwrap_or(0);
 
     // debug!("fn create_keyword START SEARCH ={:?}", flag_found_keyword);

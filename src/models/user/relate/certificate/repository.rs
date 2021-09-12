@@ -15,11 +15,11 @@ impl SlimFile {
         user: &UserQuery,
         conn: &PgConnection,
     ) -> ServiceResult<Vec<SlimFile>> {
-        let target_vec_uuid_file: Vec<Uuid> = UserCertificate::belonging_to(user)
-            .select(user_certificate_ref::uuid_file)
+        let target_vec_file_uuid: Vec<Uuid> = UserCertificate::belonging_to(user)
+            .select(user_certificate_ref::file_uuid)
             .load::<Uuid>(conn)?;
 
-        SlimFile::get_file_by_vec_uuid(&target_vec_uuid_file, conn)
+        SlimFile::get_file_by_vec_uuid(&target_vec_file_uuid, conn)
     }
 }
 
@@ -40,10 +40,10 @@ impl CertificateWithSlimFile {
         let mut user_certificates = Vec::new();
         for cert in &certificates_user {
             for file in &files_for_certificates {
-                if cert.uuid_file == file.uuid {
+                if cert.file_uuid == file.uuid {
                     user_certificates.push(CertificateWithSlimFile{
                         file: file.to_owned(),
-                        uuid_user: cert.uuid_user.to_owned(),
+                        user_uuid: cert.user_uuid.to_owned(),
                         description: cert.description.to_string(),
                     })
                 }

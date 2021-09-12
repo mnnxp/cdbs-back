@@ -24,10 +24,10 @@ pub struct User {
     pub address: String,
     pub position: String, // todo!(in future: separate in table with translation)
     pub time_zone: String,
-    pub uuid_image_file: Uuid,
-    pub id_region: i32,
-    pub id_program: i32,
-    pub id_type_access: i32,
+    pub image_file_uuid: Uuid,
+    pub region_id: i32,
+    pub program_id: i32,
+    pub type_access_id: i32,
     pub is_email_verified: bool,
     pub is_enabled: bool,
     pub is_delete: bool,
@@ -50,9 +50,9 @@ pub struct UserQuery {
     pub address: String,
     pub position: String,
     pub time_zone: String,
-    pub uuid_image_file: Uuid,
-    pub id_region: i32,
-    pub id_program: i32,
+    pub image_file_uuid: Uuid,
+    pub region_id: i32,
+    pub program_id: i32,
     pub is_email_verified: bool,
     pub is_enabled: bool,
     pub is_delete: bool,
@@ -113,9 +113,9 @@ pub struct InsertableUser {
     pub address: String,
     pub position: String,
     pub time_zone: String,
-    pub uuid_image_file: Uuid,
-    pub id_region: i32,
-    pub id_program: i32,
+    pub image_file_uuid: Uuid,
+    pub region_id: i32,
+    pub program_id: i32,
     pub is_email_verified: bool,
     pub is_enabled: bool,
     pub is_delete: bool,
@@ -136,8 +136,8 @@ pub struct IptUserData {
     pub address: String,
     pub position: String,
     pub time_zone: String,
-    pub id_region: i32,
-    pub id_program: i32,
+    pub region_id: i32,
+    pub program_id: i32,
 }
 
 #[derive(Debug, Deserialize, Clone)]
@@ -153,9 +153,9 @@ pub struct UserData {
     pub address: String,
     pub position: String,
     pub time_zone: String,
-    pub uuid_image_file: Uuid,
-    pub id_region: i32,
-    pub id_program: i32,
+    pub image_file_uuid: Uuid,
+    pub region_id: i32,
+    pub program_id: i32,
 }
 
 #[Object]
@@ -190,14 +190,14 @@ impl UserData {
     async fn time_zone(&self) -> &String {
         &self.time_zone
     }
-    async fn uuid_image_file(&self) -> ID {
-        self.uuid_image_file.into()
+    async fn image_file_uuid(&self) -> ID {
+        self.image_file_uuid.into()
     }
-    async fn id_region(&self) -> &i32 {
-        &self.id_region
+    async fn region_id(&self) -> &i32 {
+        &self.region_id
     }
-    async fn id_program(&self) -> &i32 {
-        &self.id_program
+    async fn program_id(&self) -> &i32 {
+        &self.program_id
     }
 }
 
@@ -215,9 +215,9 @@ impl From<UserData> for InsertableUser {
             address,
             position,
             time_zone,
-            uuid_image_file,
-            id_region,
-            id_program,
+            image_file_uuid,
+            region_id,
+            program_id,
             ..
         } = user_data;
 
@@ -238,9 +238,9 @@ impl From<UserData> for InsertableUser {
             address,
             position,
             time_zone,
-            uuid_image_file,
-            id_region,
-            id_program,
+            image_file_uuid,
+            region_id,
+            program_id,
             is_email_verified: false,
             is_enabled: true,
             is_delete: false,
@@ -253,7 +253,7 @@ impl From<UserData> for InsertableUser {
 #[derive(Debug, Serialize, Deserialize, Queryable, Clone)]
 pub struct SlimUser {
     pub uuid: Uuid,
-    pub id_program: i32,
+    pub program_id: i32,
     pub username: String,
 }
 
@@ -263,8 +263,8 @@ impl SlimUser {
         self.uuid.into()
     }
 
-    async fn id_program(&self) -> &i32 {
-        &self.id_program
+    async fn program_id(&self) -> &i32 {
+        &self.program_id
     }
 
     async fn username(&self) -> &String {
@@ -276,14 +276,14 @@ impl From<User> for SlimUser {
     fn from(user: User) -> Self {
         let User {
             uuid,
-            id_program,
+            program_id,
             username,
             ..
         } = user;
 
         Self {
             uuid,
-            id_program,
+            program_id,
             username,
         }
     }
@@ -293,7 +293,7 @@ impl From<User> for SlimUser {
 pub struct UserShort {
     pub uuid: Uuid,
     pub username: String,
-    pub uuid_image_file: Uuid,
+    pub image_file_uuid: Uuid,
 }
 
 #[derive(Identifiable, Serialize, Deserialize, Associations, Clone, Debug)]

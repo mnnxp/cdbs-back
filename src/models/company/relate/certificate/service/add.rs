@@ -31,7 +31,7 @@ pub(crate) fn add_certificate(
     let preliminary_file_data = PreliminaryFileData::from_ipt_preliminary_file_data(
         target_user,
         Uuid::parse_str("bc1c2151-86d0-4656-9c9d-d016dd584297")?, // <-- todo!(get uuid default file)
-        ListObject::CompanyCertificate(cert_data.uuid_company),
+        ListObject::CompanyCertificate(cert_data.company_uuid),
         file_data,
         conn
     )?;
@@ -45,8 +45,8 @@ pub(crate) fn add_certificate(
     let temp_string = format!("This will be url for upload file {:?}", slim_file.path_file);
 
     let new_company_certificate = InsertableCompanyCertificate{
-        uuid_file: slim_file.uuid,
-        uuid_company: cert_data.uuid_company,
+        file_uuid: slim_file.uuid,
+        company_uuid: cert_data.company_uuid,
         description: cert_data.description,
     };
 

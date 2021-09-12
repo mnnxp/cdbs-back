@@ -15,16 +15,16 @@ pub(crate) fn create_component_type(
     use crate::schema::component_type_translate_list::dsl as component_type_translate_list;
 
     let flag_found_component_type = component_type_translate_list::component_type_translate_list
-        .filter(component_type_translate_list::id_lang.eq(&new_component_type_data.id_lang))
+        .filter(component_type_translate_list::lang_id.eq(&new_component_type_data.lang_id))
         .filter(component_type_translate_list::component_type.eq(&new_component_type_data.component_type))
-        .select(component_type_translate_list::id_component_type)
+        .select(component_type_translate_list::component_type_id)
         .first::<i32>(conn).unwrap_or(0);
 
     // debug!("fn create_component_type START SEARCH ={:?}", flag_found_component_type);
 
     match flag_found_component_type {
         0 => {
-            let new_id_component_type = {
+            let new_component_type_id = {
                 use crate::schema::component_type_ref::dsl as component_type_ref;
 
                 let new_component_type: ComponentType = diesel::insert_into(component_type_ref::component_type_ref)
@@ -35,8 +35,8 @@ pub(crate) fn create_component_type(
             };
 
             let new_component_type_data = InsertableComponentTypeTranslateList {
-                id_component_type: new_id_component_type,
-                id_lang: new_component_type_data.id_lang,
+                component_type_id: new_component_type_id,
+                lang_id: new_component_type_data.lang_id,
                 component_type: new_component_type_data.component_type,
             };
             let inserted_component_type_data: ComponentTypeTranslateList = diesel::insert_into(component_type_translate_list::component_type_translate_list)

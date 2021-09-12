@@ -9,14 +9,14 @@ use uuid::Uuid;
 
 pub(crate) async fn get_url_file_by_uuid(
     target_user: TargetUser,
-    target_uuid_file: Uuid,
+    target_file_uuid: Uuid,
     pool: PgConn,
 ) -> ServiceResult<String> {
     let pool = pool.clone();
     let conn = pool.get().unwrap();
 
     let show_file = SlimFile::get_file_by_uuid(
-        &target_uuid_file,
+        &target_file_uuid,
         &conn,
     ).unwrap();
 

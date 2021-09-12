@@ -31,25 +31,25 @@ pub struct IptActualStatusData {
 
 // ActualStatus translations
 #[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, Clone, Debug)]
-#[primary_key(id_actual_status, id_lang)]
-#[belongs_to(Component, foreign_key = "id_actual_status")]
-#[belongs_to(ComponentModification, foreign_key = "id_actual_status")]
-#[belongs_to(ActualStatus, foreign_key = "id_actual_status")]
-#[belongs_to(Language, foreign_key = "id_lang")]
+#[primary_key(actual_status_id, lang_id)]
+#[belongs_to(Component, foreign_key = "actual_status_id")]
+#[belongs_to(ComponentModification, foreign_key = "actual_status_id")]
+#[belongs_to(ActualStatus, foreign_key = "actual_status_id")]
+#[belongs_to(Language, foreign_key = "lang_id")]
 #[table_name = "actual_status_translate_list"]
 pub struct ActualStatusTranslateList {
-    pub id_actual_status: i32,
-    pub id_lang: i32,
+    pub actual_status_id: i32,
+    pub lang_id: i32,
     pub name: String,
 }
 
 #[Object]
 impl ActualStatusTranslateList {
-    async fn id_actual_status(&self) -> &i32 {
-        &self.id_actual_status
+    async fn actual_status_id(&self) -> &i32 {
+        &self.actual_status_id
     }
-    async fn id_lang(&self) -> &i32 {
-        &self.id_lang
+    async fn lang_id(&self) -> &i32 {
+        &self.lang_id
     }
     async fn name(&self) -> &String {
         &self.name
@@ -58,15 +58,15 @@ impl ActualStatusTranslateList {
 
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub struct IptActualStatusTranslateListData {
-    // pub id_actual_status: i32,
-    pub id_lang: i32,
+    // pub actual_status_id: i32,
+    pub lang_id: i32,
     pub name: String,
 }
 
 #[derive(Debug, Insertable)]
 #[table_name = "actual_status_translate_list"]
 pub struct InsertableActualStatusTranslateList {
-    pub id_actual_status: i32,
-    pub id_lang: i32,
+    pub actual_status_id: i32,
+    pub lang_id: i32,
     pub name: String,
 }

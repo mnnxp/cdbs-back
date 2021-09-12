@@ -20,13 +20,13 @@ use uuid::Uuid;
 #[table_name = "component_ref"]
 pub struct Component {
     pub uuid: Uuid,
-    pub uuid_component_parent: Uuid,
+    pub parent_component_uuid: Uuid,
     pub name: String,
     pub description: String,
-    pub uuid_user: Uuid,
-    pub id_type_access: i32,
-    pub id_component_type: i32,
-    pub id_actual_status: i32,
+    pub user_uuid: Uuid,
+    pub type_access_id: i32,
+    pub component_type_id: i32,
+    pub actual_status_id: i32,
     pub is_standard: bool,
     pub is_delete: bool,
     pub created_at: NaiveDateTime,
@@ -38,8 +38,8 @@ impl Component {
     async fn uuid(&self) -> ID {
         self.uuid.into()
     }
-    async fn uuid_component_parent(&self) -> ID {
-        self.uuid_component_parent.into()
+    async fn parent_component_uuid(&self) -> ID {
+        self.parent_component_uuid.into()
     }
     async fn name(&self) -> &String {
         &self.name
@@ -47,17 +47,17 @@ impl Component {
     async fn description(&self) -> &String {
         &self.description
     }
-    async fn uuid_user(&self) -> ID {
-        self.uuid_user.into()
+    async fn user_uuid(&self) -> ID {
+        self.user_uuid.into()
     }
-    async fn id_type_access(&self) -> &i32 {
-        &self.id_type_access
+    async fn type_access_id(&self) -> &i32 {
+        &self.type_access_id
     }
-    async fn id_component_type(&self) -> &i32 {
-        &self.id_component_type
+    async fn component_type_id(&self) -> &i32 {
+        &self.component_type_id
     }
-    async fn id_actual_status(&self) -> &i32 {
-        &self.id_actual_status
+    async fn actual_status_id(&self) -> &i32 {
+        &self.actual_status_id
     }
     async fn is_standard(&self) -> &bool {
         &self.is_standard
@@ -76,11 +76,11 @@ impl Component {
 #[derive(Debug, Deserialize, SimpleObject)]
 pub struct ComponentAndRelatedData {
     pub uuid: Uuid,
-    pub uuid_component_parent: Uuid,
+    pub parent_component_uuid: Uuid,
     pub name: String,
     pub description: String,
     pub owner_user: ShowUserShort,
-    pub id_type_access: i32, //TypeAccess
+    pub type_access_id: i32, //TypeAccess
     pub component_type: ComponentTypeTranslateList,
     pub actual_status: ActualStatusTranslateList,
     pub is_standard: bool,
@@ -105,7 +105,7 @@ pub struct ShowComponentShort {
     pub name: String,
     pub description: String,
     pub owner_user: ShowUserShort,
-    pub id_type_access: i32, //TypeAccess
+    pub type_access_id: i32, //TypeAccess
     pub component_type: ComponentTypeTranslateList,
     pub actual_status: ActualStatusTranslateList,
     // for display the checkbox "favorites"
@@ -123,13 +123,13 @@ pub struct ShowComponentShort {
 #[table_name = "component_ref"]
 pub struct InsertableComponent {
     pub uuid: Uuid,
-    pub uuid_component_parent: Uuid,
+    pub parent_component_uuid: Uuid,
     pub name: String,
     pub description: String,
-    pub uuid_user: Uuid,
-    pub id_type_access: i32,
-    pub id_component_type: i32,
-    pub id_actual_status: i32,
+    pub user_uuid: Uuid,
+    pub type_access_id: i32,
+    pub component_type_id: i32,
+    pub actual_status_id: i32,
     pub is_standard: bool,
     pub is_delete: bool,
     pub created_at: NaiveDateTime,
@@ -138,24 +138,24 @@ pub struct InsertableComponent {
 
 #[derive(Debug)]
 pub struct ComponentData {
-    pub uuid_component_parent: Uuid,
+    pub parent_component_uuid: Uuid,
     pub name: String,
     pub description: String,
-    pub uuid_user: Uuid,
-    pub id_type_access: i32,
-    pub id_component_type: i32,
-    pub id_actual_status: i32,
+    pub user_uuid: Uuid,
+    pub type_access_id: i32,
+    pub component_type_id: i32,
+    pub actual_status_id: i32,
     pub is_standard: bool,
 }
 
 #[derive(Debug, Deserialize, InputObject)]
 pub struct IptComponentData {
-    pub uuid_component_parent: Option<ID>,
+    pub parent_component_uuid: Option<ID>,
     pub name: String,
     pub description: String,
-    pub id_type_access: i32,
-    pub id_component_type: i32,
-    pub id_actual_status: i32,
+    pub type_access_id: i32,
+    pub component_type_id: i32,
+    pub actual_status_id: i32,
     pub is_standard: bool,
 }
 
@@ -164,9 +164,9 @@ pub struct SlimComponent {
     pub uuid: Uuid,
     pub name: String,
     pub description: String,
-    pub id_type_access: i32,
-    pub id_component_type: i32,
-    pub id_actual_status: i32,
+    pub type_access_id: i32,
+    pub component_type_id: i32,
+    pub actual_status_id: i32,
     pub is_standard: bool,
     pub updated_at: NaiveDateTime,
 }
@@ -182,14 +182,14 @@ impl SlimComponent {
     async fn description(&self) -> &String {
         &self.description
     }
-    async fn id_type_access(&self) -> &i32 {
-         &self.id_type_access
+    async fn type_access_id(&self) -> &i32 {
+         &self.type_access_id
     }
-    async fn id_component_type(&self) -> &i32 {
-        &self.id_component_type
+    async fn component_type_id(&self) -> &i32 {
+        &self.component_type_id
     }
-    async fn id_actual_status(&self) -> &i32 {
-        &self.id_actual_status
+    async fn actual_status_id(&self) -> &i32 {
+        &self.actual_status_id
     }
     async fn is_standard(&self) -> &bool {
         &self.is_standard
@@ -202,26 +202,26 @@ impl SlimComponent {
 impl From<ComponentData> for InsertableComponent {
     fn from(data_component: ComponentData) -> Self {
         let ComponentData {
-            uuid_component_parent,
+            parent_component_uuid,
             name,
             description,
-            uuid_user,
-            id_type_access,
-            id_component_type,
-            id_actual_status,
+            user_uuid,
+            type_access_id,
+            component_type_id,
+            actual_status_id,
             is_standard,
             ..
         } = data_component;
 
         Self {
             uuid: Uuid::new_v4(),
-            uuid_component_parent,
+            parent_component_uuid,
             name,
             description,
-            uuid_user,
-            id_type_access,
-            id_component_type,
-            id_actual_status,
+            user_uuid,
+            type_access_id,
+            component_type_id,
+            actual_status_id,
             is_standard,
             is_delete: false,
             created_at: chrono::Local::now().naive_local(),
@@ -236,9 +236,9 @@ impl From<Component> for SlimComponent {
             uuid,
             name,
             description,
-            id_type_access,
-            id_component_type,
-            id_actual_status,
+            type_access_id,
+            component_type_id,
+            actual_status_id,
             is_standard,
             updated_at,
             ..
@@ -248,9 +248,9 @@ impl From<Component> for SlimComponent {
             uuid,
             name,
             description,
-            id_type_access,
-            id_component_type,
-            id_actual_status,
+            type_access_id,
+            component_type_id,
+            actual_status_id,
             is_standard,
             updated_at,
         }

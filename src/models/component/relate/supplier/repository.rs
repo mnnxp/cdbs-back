@@ -17,7 +17,7 @@ impl ComponentSupplierRelatedData {
 
         let mut uuid_supplier_list: Vec<Uuid> = Vec::new();
         for supplier in supplier_component.iter() {
-            uuid_supplier_list.push(supplier.uuid_company);
+            uuid_supplier_list.push(supplier.company_uuid);
         }
 
         let slim_company_supplier: Vec<SlimCompany> = company_ref::company_ref
@@ -33,7 +33,7 @@ impl ComponentSupplierRelatedData {
         let mut supplier_component_with_relate: Vec<ComponentSupplierRelatedData> = Vec::new();
         for x in supplier_component.iter() {
             for y in slim_company_supplier.iter() {
-                if x.uuid_company == y.uuid {
+                if x.company_uuid == y.uuid {
                     let res: ComponentSupplierRelatedData = (x.clone(),y.clone()).into();
                     supplier_component_with_relate.push(res)
                 }
@@ -54,7 +54,7 @@ impl ComponentSupplierRelatedData {
         match find_supplier_component {
             Ok(supplier_component) => {
                 let slim_company_supplier: SlimCompany = company_ref::company_ref
-                    .filter(company_ref::uuid.eq(&supplier_component.uuid_company))
+                    .filter(company_ref::uuid.eq(&supplier_component.company_uuid))
                     .select((
                         company_ref::uuid,
                         company_ref::shortname,

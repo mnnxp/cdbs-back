@@ -16,18 +16,18 @@ impl KeywordQuery {
     async fn keywords(
         &self,
         cxt: &Context<'_>,
-        id_keyword: Option<Vec<i32>>,
+        keyword_id: Option<Vec<i32>>,
         limit: Option<i32>,
         offset: Option<i32>,
     ) -> ServiceResult<Vec<Keyword>> {
         // authorization check
         user::util::check_authorized(cxt)?;
 
-        let id_keyword: Vec<i32> = id_keyword.unwrap_or_default();
+        let keyword_id: Vec<i32> = keyword_id.unwrap_or_default();
         let limit: i32 = limit.unwrap_or(100);
         let offset: i32 = offset.unwrap_or(0);
 
-        keyword::service::list::get_keywords(cxt, id_keyword, limit, offset)
+        keyword::service::list::get_keywords(cxt, keyword_id, limit, offset)
     }
 }
 

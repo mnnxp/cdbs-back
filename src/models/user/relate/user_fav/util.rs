@@ -5,13 +5,13 @@ use uuid::Uuid;
 
 /// Checking the subscribe for the user
 pub(crate) fn check_subscriber_by_uuid(
-    target_uuid_user: &Uuid,
-    logged_uuid_user: &Uuid,
+    target_user_uuid: &Uuid,
+    logged_user_uuid: &Uuid,
     conn: &PgConnection,
 ) -> ServiceResult<bool> {
     let check_subscriber = user_fav::user_fav
-        .filter(user_fav::uuid_user_favorite.eq(target_uuid_user)
-        .and(user_fav::uuid_user_follower.eq(logged_uuid_user)))
+        .filter(user_fav::user_favorite_uuid.eq(target_user_uuid)
+        .and(user_fav::user_follower_uuid.eq(logged_user_uuid)))
         .execute(conn)
         .expect("Fail load uuid list target user");
 

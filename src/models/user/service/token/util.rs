@@ -22,16 +22,16 @@ pub(crate) fn token_from_cxt(cxt: &Context<'_>) -> Result<String, ServiceError> 
     }
 }
 
-/// show all tokens for uuid_user
+/// show all tokens for user_uuid
 pub(crate) fn show_tokens(
     cxt: &Context<'_>,
-    auth_uuid_user: Uuid,
+    auth_user_uuid: Uuid,
 ) -> Result<Vec<UserToken>, ServiceError> {
     let conn: &PooledConnection = &get_conn(cxt)?;
     use crate::schema::user_token_ref::dsl::*;
 
     user_token_ref
-        .filter(uuid_user.eq(auth_uuid_user))
+        .filter(user_uuid.eq(auth_user_uuid))
         .load(conn)
         .map_err(|e| ServiceError::BadRequest(e.to_string()))
 }
@@ -88,13 +88,13 @@ pub(crate) fn delete_token(target_token: &str, conn: &PooledConnection) -> Resul
 pub(crate) fn delete_user_token(
     cxt: &Context<'_>,
     target_token: &str,
-    auth_uuid_user: Uuid,
+    auth_user_uuid: Uuid,
 ) -> Result<i32, ServiceError> {
     let conn: &PooledConnection = &get_conn(cxt)?;
     use crate::schema::user_token_ref::dsl::*;
 
     let updated_token: usize = diesel::delete(user_token_ref)
-        .filter(uuid_user.eq(&auth_uuid_user))
+        .filter(user_uuid.eq(&auth_user_uuid))
         .filter(token.eq(&target_token))
         .execute(conn)?;
     Ok(updated_token as i32)
@@ -103,13 +103,13 @@ pub(crate) fn delete_user_token(
 /// delete tokens to table user_token_ref of database
 pub(crate) fn delete_all_tokens(
     cxt: &Context<'_>,
-    target_uuid_user: Uuid,
+    target_user_uuid: Uuid,
 ) -> Result<i32, ServiceError> {
     let conn: &PooledConnection = &get_conn(cxt)?;
     use crate::schema::user_token_ref::dsl::*;
 
     let updated_token: usize = diesel::delete(user_token_ref)
-        .filter(uuid_user.eq_all(&target_uuid_user))
+        .filter(user_uuid.eq_all(&target_user_uuid))
         .execute(conn)?;
     Ok(updated_token as i32)
 }
@@ -133,7 +133,7 @@ pub(crate) fn write_token(
         0 => {
             // creating a structure for writing token to a table
             let user_token = InsertableUserToken {
-                uuid_user: Uuid::parse_str(&jwt.sub)?,
+                user_uuid: Uuid::parse_str(&jwt.sub)?,
                 token: new_token.to_string(),
                 created_at: NaiveDateTime::from_timestamp(jwt.iat, 0),
                 expiration_at: NaiveDateTime::from_timestamp(jwt.exp, 0),
@@ -170,7 +170,7 @@ pub(crate) fn check_token(
     }
 }
 
-/// get the uuid_user who owns the token
+/// get the user_uuid who owns the token
 pub(crate) fn whose_token(
     target_token: &str,
     conn: &PooledConnection,
@@ -179,7 +179,7 @@ pub(crate) fn whose_token(
 
     user_token_ref
         .filter(token.eq(target_token))
-        .select(uuid_user)
+        .select(user_uuid)
         .first(conn)
         .map_err(|e| ServiceError::BadRequest(e.to_string()))
 }

@@ -15,28 +15,28 @@ const username2 = "simaco";
 const password = "password";
 
 const uuidFail = "aba22d59-4f6c-24a4-9a37-2d38f0e577a8";
-const uuidUser = "31ecc6f8-0c09-4a59-a2d5-34b5b833e59b";
-const uuidUser2 = "68b8281a-d19c-4d4b-88eb-6fd4a2afde1b";
-var uuidUserSecond = "";
+const userUuid = "31ecc6f8-0c09-4a59-a2d5-34b5b833e59b";
+const userUuid2 = "68b8281a-d19c-4d4b-88eb-6fd4a2afde1b";
+var userUuidSecond = "";
 
 // data for standard
-const uuidStandardParent = "303ec2aa-2066-42e3-93fb-de4fb9344bcb";
+const parentStandardUuid = "303ec2aa-2066-42e3-93fb-de4fb9344bcb";
 const classifierStandard = "GOST-2012-Test";
 const nameStandard = "GOST 2012 Test standard";
 const descriptionStandard = "Test GOST standard";
 const specifiedTolerance = "C";
 const technicalCommittee = "GOST";
 const publicationAt = "2021-07-31T00:00:00";
-const idTypeAccess3 = 3;
-const idTypeAccess1 = 1;
-const idStandardStatus = 1;
-const idRegion = 5;
-var uuidStandardFirst = "";
-var uuidStandardSecond = "";
+const typeAccessId3 = 3;
+const typeAccessId1 = 1;
+const standardStatusId = 1;
+const regionId = 5;
+var standardUuidFirst = "";
+var standardUuidSecond = "";
 
 const standardFullDataQuery = ` \
 uuid \
-uuidStandardParent \
+parentStandardUuid \
 classifier \
 name \
 description \
@@ -71,13 +71,13 @@ ownerCompany { \
     pathFile \
   } \
   region { \
-    idRegion \
-    idLang \
+    regionId \
+    langId \
     region \
   } \
   companyType { \
-    idCompanyType \
-    idLang \
+    companyTypeId \
+    langId \
     name \
     shortname \
   } \
@@ -85,15 +85,15 @@ ownerCompany { \
   isFollowed \
   updatedAt \
 } \
-idTypeAccess \
+typeAccessId \
 standardStatus { \
-  idStandardStatus \
-  idLang \
+  standardStatusId \
+  langId \
   name \
 } \
 region { \
-  idRegion \
-  idLang \
+  regionId \
+  langId \
   region \
 } \
 isDelete \
@@ -101,8 +101,8 @@ createdAt \
 updatedAt \
 standardFiles { \
   uuid \
-  uuidFileParent \
-  uuidUser \
+  parentFileUuid \
+  userUuid \
   filename \
   contentType \
   idExt \
@@ -113,11 +113,11 @@ standardFiles { \
 } \
 standardSpecs { \
   spec { \
-    idSpec \
-    idLang \
+    specId \
+    langId \
     spec \
   } \
-	uuidStandard \
+	standardUuid \
 } \
 standardKeywords { \
   id \
@@ -148,13 +148,13 @@ ownerCompany { \
     pathFile \
   } \
   region { \
-    idRegion \
-    idLang \
+    regionId \
+    langId \
     region \
   } \
   companyType { \
-    idCompanyType \
-    idLang \
+    companyTypeId \
+    langId \
     name \
     shortname \
   } \
@@ -163,8 +163,8 @@ ownerCompany { \
   updatedAt \
 } \
 standardStatus { \
-  idStandardStatus \
-  idLang \
+  standardStatusId \
+  langId \
   name \
 } \
 updatedAt \
@@ -182,23 +182,23 @@ const description = "test company";
 const addressCompany = "China";
 const siteUrl = "example.test";
 const timeZone = "Europe/Moscow";
-const uuidImageFile = "3706d1a1-80ae-4367-be39-af7091373811";
-const idRegionCompany = 5;
-const idCompanyType = 2;
-const uuidCompanyBase = "2cd385e1-8f7e-4908-8235-dfe42938b46d";
-var uuidCompanyNoSupplier = "";
-var uuidCompanySupplier = "";
+const imageFileUuid = "3706d1a1-80ae-4367-be39-af7091373811";
+const regionIdCompany = 5;
+const companyTypeId = 2;
+const companyUuidBase = "2cd385e1-8f7e-4908-8235-dfe42938b46d";
+var companyUuidNoSupplier = "";
+var companyUuidSupplier = "";
 
 // data for represent
-const idRegionRepresentation = 15;
-const idRepresentationType = 1;
+const regionIdRepresentation = 15;
+const representationTypeId = 1;
 const nameRepresentationFirst = "test first additional office";
 const nameRepresentationSecond = "test second additional office";
 const addressRepresentation = "Fake str, Fantom";
 const phoneRepresentation = "+743874487556";
 const uuidFake = "2cd385e1-8f7e-4908-8235-dfe42938b888";
 const uuidRepresentArray = [];
-var uuidCompanyFirst = "";
+var companyUuidFirst = "";
 var uuidRepresentFirst = "";
 var uuidRepresentDelete = "";
 
@@ -270,11 +270,11 @@ describe('company', () => {
                 address: "test_address",
                 position: "test_position",
                 timeZone: "Europe/Moscow",
-                idRegion: 1,
-                idProgram: 1,
+                regionId: 1,
+                programId: 1,
             }) {
                 uuid
-                idProgram
+                programId
                 username
             }
         }`,
@@ -284,9 +284,9 @@ describe('company', () => {
     const {
       data: { registerUser },
     } = body;
-    expect(registerUser).toContainAllKeys(['uuid', 'idProgram', 'username']);
+    expect(registerUser).toContainAllKeys(['uuid', 'programId', 'username']);
     expect(registerUser.uuid).toBeNonEmptyString();
-    expect(registerUser.idProgram).toBe(1);
+    expect(registerUser.programId).toBe(1);
     expect(registerUser.username).toBe(username);
     done();
   });
@@ -325,11 +325,11 @@ describe('company', () => {
                 address: "test_address",
                 position: "test_position",
                 timeZone: "Europe/Moscow",
-                idRegion: 1,
-                idProgram: 5,
+                regionId: 1,
+                programId: 5,
             }) {
                 uuid
-                idProgram
+                programId
                 username
             }
         }`,
@@ -339,11 +339,11 @@ describe('company', () => {
     const {
       data: { registerUser },
     } = body;
-    expect(registerUser).toContainAllKeys(['uuid', 'idProgram', 'username']);
+    expect(registerUser).toContainAllKeys(['uuid', 'programId', 'username']);
     expect(registerUser.uuid).toBeNonEmptyString();
-    expect(registerUser.idProgram).toBe(5);
+    expect(registerUser.programId).toBe(5);
     expect(registerUser.username).toBe(username2);
-    uuidUserSecond = registerUser.uuid;
+    userUuidSecond = registerUser.uuid;
     done();
   });
 
@@ -383,8 +383,8 @@ describe('company', () => {
             address: "${addressCompany}"
             siteUrl: "${siteUrl}",
             timeZone: "${timeZone}",
-            idRegion: ${idRegionCompany},
-            idCompanyType: ${idCompanyType}
+            regionId: ${regionIdCompany},
+            companyTypeId: ${companyTypeId}
           }) {
             uuid
             shortname
@@ -400,7 +400,7 @@ describe('company', () => {
     expect(registerCompany.uuid).toBeNonEmptyString();
     expect(registerCompany.shortname).toBe(shortname);
     expect(registerCompany.isSupplier).toBe(false);
-    uuidCompanySupplier = registerCompany.uuid;
+    companyUuidSupplier = registerCompany.uuid;
     done();
     // change supplier status on 1
     await global.knex.raw('UPDATE company_ref SET is_supplier=? WHERE orgname=?', [
@@ -428,8 +428,8 @@ describe('company', () => {
             address: "${addressCompany}"
             siteUrl: "${siteUrl}",
             timeZone: "${timeZone}",
-            idRegion: ${idRegionCompany},
-            idCompanyType: ${idCompanyType}
+            regionId: ${regionIdCompany},
+            companyTypeId: ${companyTypeId}
           }) {
             uuid
             shortname
@@ -445,7 +445,7 @@ describe('company', () => {
     expect(registerCompany.uuid).toBeNonEmptyString();
     expect(registerCompany.shortname).toBe(shortname);
     expect(registerCompany.isSupplier).toBe(false);
-    uuidCompanyNoSupplier = registerCompany.uuid;
+    companyUuidNoSupplier = registerCompany.uuid;
     done();
   });
 
@@ -455,17 +455,17 @@ describe('company', () => {
       .send({
         query: `mutation standardQuery {
           registerStandard( data: {
-            uuidStandardParent: "${uuidStandardParent}",
+            parentStandardUuid: "${parentStandardUuid}",
             classifier: "${classifierStandard}",
             name: "${nameStandard}",
             description: "${descriptionStandard}",
             specifiedTolerance: "${specifiedTolerance}",
             technicalCommittee: "${technicalCommittee}",
             publicationAt: "${publicationAt}",
-            uuidCompany: "${uuidCompanySupplier}",
-            idTypeAccess: ${idTypeAccess3},
-            idStandardStatus: ${idStandardStatus},
-            idRegion: ${idRegion}
+            companyUuid: "${companyUuidSupplier}",
+            typeAccessId: ${typeAccessId3},
+            standardStatusId: ${standardStatusId},
+            regionId: ${regionId}
           }) {
             uuid
             classifier
@@ -473,7 +473,7 @@ describe('company', () => {
             specifiedTolerance
             technicalCommittee
             publicationAt
-            idStandardStatus
+            standardStatusId
           }
         }`,
       })
@@ -495,17 +495,17 @@ describe('company', () => {
       .send({
         query: `mutation standardQuery {
           registerStandard( data: {
-            uuidStandardParent: "${uuidStandardParent}",
+            parentStandardUuid: "${parentStandardUuid}",
             classifier: "${classifierStandard}",
             name: "${nameStandard}",
             description: "${descriptionStandard}",
             specifiedTolerance: "${specifiedTolerance}",
             technicalCommittee: "${technicalCommittee}",
             publicationAt: "${publicationAt}",
-            uuidCompany: "${uuidCompanySupplier}",
-            idTypeAccess: ${idTypeAccess3},
-            idStandardStatus: ${idStandardStatus},
-            idRegion: ${idRegion}
+            companyUuid: "${companyUuidSupplier}",
+            typeAccessId: ${typeAccessId3},
+            standardStatusId: ${standardStatusId},
+            regionId: ${regionId}
           }) {
             uuid
             classifier
@@ -513,7 +513,7 @@ describe('company', () => {
             specifiedTolerance
             technicalCommittee
             publicationAt
-            idStandardStatus
+            standardStatusId
           }
         }`,
       })
@@ -524,7 +524,7 @@ describe('company', () => {
     } = body;
     expect(registerStandard.uuid).toBeNonEmptyString();
     expect(registerStandard.name).toBe(nameStandard);
-    uuidStandardFirst = registerStandard.uuid;
+    standardUuidFirst = registerStandard.uuid;
     done();
   });
 
@@ -544,10 +544,10 @@ describe('company', () => {
             specifiedTolerance: "${specifiedTolerance}",
             technicalCommittee: "${technicalCommittee}",
             publicationAt: "${publicationAt}",
-            uuidCompany: "${uuidCompanySupplier}",
-            idTypeAccess: ${idTypeAccess1},
-            idStandardStatus: ${idStandardStatus},
-            idRegion: ${idRegion}
+            companyUuid: "${companyUuidSupplier}",
+            typeAccessId: ${typeAccessId1},
+            standardStatusId: ${standardStatusId},
+            regionId: ${regionId}
           }) {
             uuid
             classifier
@@ -555,7 +555,7 @@ describe('company', () => {
             specifiedTolerance
             technicalCommittee
             publicationAt
-            idStandardStatus
+            standardStatusId
           }
         }`,
       })
@@ -579,17 +579,17 @@ describe('company', () => {
       .send({
         query: `mutation standardQuery {
           registerStandard( data: {
-            uuidStandardParent: "${uuidStandardParent}",
+            parentStandardUuid: "${parentStandardUuid}",
             classifier: "${classifierStandard}",
             name: "${nameStandard}",
             description: "${descriptionStandard}",
             specifiedTolerance: "${specifiedTolerance}",
             technicalCommittee: "${technicalCommittee}",
             publicationAt: "${publicationAt}",
-            uuidCompany: "${uuidCompanySupplier}",
-            idTypeAccess: ${idTypeAccess1},
-            idStandardStatus: ${idStandardStatus},
-            idRegion: ${idRegion}
+            companyUuid: "${companyUuidSupplier}",
+            typeAccessId: ${typeAccessId1},
+            standardStatusId: ${standardStatusId},
+            regionId: ${regionId}
           }) {
             uuid
             classifier
@@ -597,7 +597,7 @@ describe('company', () => {
             specifiedTolerance
             technicalCommittee
             publicationAt
-            idStandardStatus
+            standardStatusId
           }
         }`,
       })
@@ -608,7 +608,7 @@ describe('company', () => {
     } = body;
     expect(registerStandard.uuid).toBeNonEmptyString();
     expect(registerStandard.name).toBe(nameStandard);
-    uuidStandardSecond = registerStandard.uuid;
+    standardUuidSecond = registerStandard.uuid;
     done();
   });
 
@@ -622,17 +622,17 @@ describe('company', () => {
       .send({
         query: `mutation standardQuery {
           registerStandard( data: {
-            uuidStandardParent: "${uuidStandardParent}",
+            parentStandardUuid: "${parentStandardUuid}",
             classifier: "${classifierStandard}",
             name: "${nameStandard}",
             description: "${descriptionStandard}",
             specifiedTolerance: "${specifiedTolerance}",
             technicalCommittee: "${technicalCommittee}",
             publicationAt: "${publicationAt}",
-            uuidCompany: "${uuidCompanySupplier}",
-            idTypeAccess: ${idTypeAccess3},
-            idStandardStatus: ${idStandardStatus},
-            idRegion: ${idRegion}
+            companyUuid: "${companyUuidSupplier}",
+            typeAccessId: ${typeAccessId3},
+            standardStatusId: ${standardStatusId},
+            regionId: ${regionId}
           }) {
             uuid
             classifier
@@ -640,7 +640,7 @@ describe('company', () => {
             specifiedTolerance
             technicalCommittee
             publicationAt
-            idStandardStatus
+            standardStatusId
           }
         }`,
       })
@@ -662,17 +662,17 @@ describe('company', () => {
       .send({
         query: `mutation standardQuery {
           registerStandard( data: {
-            uuidStandardParent: "${uuidStandardParent}",
+            parentStandardUuid: "${parentStandardUuid}",
             classifier: "${classifierStandard}",
             name: "${nameStandard}",
             description: "${descriptionStandard}",
             specifiedTolerance: "${specifiedTolerance}",
             technicalCommittee: "${technicalCommittee}",
             publicationAt: "${publicationAt}",
-            uuidCompany: "${uuidCompanyNoSupplier}",
-            idTypeAccess: ${idTypeAccess3},
-            idStandardStatus: ${idStandardStatus},
-            idRegion: ${idRegion}
+            companyUuid: "${companyUuidNoSupplier}",
+            typeAccessId: ${typeAccessId3},
+            standardStatusId: ${standardStatusId},
+            regionId: ${regionId}
           }) {
             uuid
             classifier
@@ -680,7 +680,7 @@ describe('company', () => {
             specifiedTolerance
             technicalCommittee
             publicationAt
-            idStandardStatus
+            standardStatusId
           }
         }`,
       })
@@ -697,7 +697,7 @@ describe('company', () => {
       .post('/graphql')
       .send({
         query: `query selectStandardQuery{
-          standards (standardsUuids: "${uuidStandardSecond}") {
+          standards (standardsUuids: "${standardUuidSecond}") {
             ${standardsListQuery}
           }
         }`,
@@ -732,7 +732,7 @@ describe('company', () => {
   //   done();
   // });
 
-  it('/graphql:Q standard - OK ShowUserShort', async (done) => {
+  it('/graphql:Q standard - OK ShowStandardShort', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .set(
@@ -741,7 +741,7 @@ describe('company', () => {
       )
       .send({
         query: `query selectStandardQuery{
-          standard (standardUuid: "${uuidStandardFirst}") {
+          standard (standardUuid: "${standardUuidFirst}") {
             ${standardFullDataQuery}
           }
         }`,
@@ -751,7 +751,7 @@ describe('company', () => {
     const {
       data: { standard },
     } = body;
-    expect(standard.uuid).toBe(uuidStandardFirst);
+    expect(standard.uuid).toBe(standardUuidFirst);
     expect(standard.classifier).toBe(classifierStandard);
     done();
   });
@@ -765,7 +765,7 @@ describe('company', () => {
       )
       .send({
         query: `query selectStandardQuery{
-          standards (standardsUuids: ["${uuidStandardFirst}"]) {
+          standards (standardsUuids: ["${standardUuidFirst}"]) {
             ${standardsListQuery}
           }
         }`,
@@ -775,7 +775,7 @@ describe('company', () => {
     const {
       data: { standards },
     } = body;
-    expect(standards[0].uuid).toBe(uuidStandardFirst);
+    expect(standards[0].uuid).toBe(standardUuidFirst);
     expect(standards[0].classifier).toBe(classifierStandard);
     done();
   });
@@ -789,7 +789,7 @@ describe('company', () => {
       )
       .send({
         query: `query selectStandardQuery{
-          standards (standardsUuids: "${uuidStandardSecond}") {
+          standards (standardsUuids: "${standardUuidSecond}") {
             ${standardsListQuery}
           }
         }`,
@@ -804,9 +804,9 @@ describe('company', () => {
 
   it('/graphql:Q standard - OK Select with uuid (private access)', async (done) => {
     // add access to the object for the user
-    await global.knex.raw('INSERT INTO user_access_to_standard (uuid_standard, uuid_user, id_type_access, is_enabled, is_delete, created_at, updated_at) VALUES (?, ?, 1, true, false, now(), now());', [
-      uuidStandardSecond,
-      uuidUserSecond,
+    await global.knex.raw('INSERT INTO user_access_to_standard (standard_uuid, user_uuid, type_access_id, is_enabled, is_delete, created_at, updated_at) VALUES (?, ?, 1, true, false, now(), now());', [
+      standardUuidSecond,
+      userUuidSecond,
     ]);
     const { body } = await agent
       .post('/graphql')
@@ -816,7 +816,7 @@ describe('company', () => {
       )
       .send({
         query: `query selectStandardQuery{
-          standards (standardsUuids: "${uuidStandardSecond}") {
+          standards (standardsUuids: "${standardUuidSecond}") {
             ${standardsListQuery}
           }
         }`,
@@ -826,7 +826,7 @@ describe('company', () => {
     const {
       data: { standards },
     } = body;
-    expect(standards[0].uuid).toBe(uuidStandardSecond);
+    expect(standards[0].uuid).toBe(standardUuidSecond);
     expect(standards[0].classifier).toBe(classifierStandard);
     done();
   });

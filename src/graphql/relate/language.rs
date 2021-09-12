@@ -16,18 +16,18 @@ impl LanguageQuery {
     async fn language(
         &self,
         cxt: &Context<'_>,
-        id_lang: Option<Vec<i32>>,
+        lang_id: Option<Vec<i32>>,
         limit: Option<i32>,
         offset: Option<i32>,
     ) -> ServiceResult<Vec<Language>> {
         // authorization check
         user::util::check_authorized(cxt)?;
 
-        let id_lang: Vec<i32> = id_lang.unwrap_or_default();
+        let lang_id: Vec<i32> = lang_id.unwrap_or_default();
         let limit: i32 = limit.unwrap_or(100);
         let offset: i32 = offset.unwrap_or(0);
 
-        language::service::list::get_languages(cxt, id_lang, limit, offset)
+        language::service::list::get_languages(cxt, lang_id, limit, offset)
     }
 }
 

@@ -30,24 +30,24 @@ pub struct IptComponentTypeData {
 
 // ComponentType translations
 #[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, Debug)]
-#[primary_key(id_component_type, id_lang)]
-#[belongs_to(Component, foreign_key = "id_component_type")]
-#[belongs_to(ComponentType, foreign_key = "id_component_type")]
-#[belongs_to(Language, foreign_key = "id_lang")]
+#[primary_key(component_type_id, lang_id)]
+#[belongs_to(Component, foreign_key = "component_type_id")]
+#[belongs_to(ComponentType, foreign_key = "component_type_id")]
+#[belongs_to(Language, foreign_key = "lang_id")]
 #[table_name = "component_type_translate_list"]
 pub struct ComponentTypeTranslateList {
-    pub id_component_type: i32,
-    pub id_lang: i32,
+    pub component_type_id: i32,
+    pub lang_id: i32,
     pub component_type: String,
 }
 
 #[Object]
 impl ComponentTypeTranslateList {
-    async fn id_component_type(&self) -> &i32 {
-        &self.id_component_type
+    async fn component_type_id(&self) -> &i32 {
+        &self.component_type_id
     }
-    async fn id_lang(&self) -> &i32 {
-        &self.id_lang
+    async fn lang_id(&self) -> &i32 {
+        &self.lang_id
     }
     async fn component_type(&self) -> &String {
         &self.component_type
@@ -56,31 +56,31 @@ impl ComponentTypeTranslateList {
 
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub struct IptComponentTypeTranslateListData {
-    pub id_component_type: i32,
-    pub id_lang: i32,
+    pub component_type_id: i32,
+    pub lang_id: i32,
     pub component_type: String,
 }
 
 #[derive(Debug, Insertable)]
 #[table_name = "component_type_translate_list"]
 pub struct InsertableComponentTypeTranslateList {
-    pub id_component_type: i32,
-    pub id_lang: i32,
+    pub component_type_id: i32,
+    pub lang_id: i32,
     pub component_type: String,
 }
 
 impl From<IptComponentTypeTranslateListData> for InsertableComponentTypeTranslateList {
     fn from(ipt_data: IptComponentTypeTranslateListData) -> Self {
         let IptComponentTypeTranslateListData {
-            id_component_type,
-            id_lang,
+            component_type_id,
+            lang_id,
             component_type,
             ..
         } = ipt_data;
 
         Self {
-            id_component_type,
-            id_lang,
+            component_type_id,
+            lang_id,
             component_type,
         }
     }

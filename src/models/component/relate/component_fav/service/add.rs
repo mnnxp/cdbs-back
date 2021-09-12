@@ -19,8 +19,8 @@ pub(crate) fn add_component_favorite(
     let new_component_favorite: InsertableComponentFav = data.into();
 
     let flag_found_favorite = component_fav
-        .filter(uuid_component.eq(&new_component_favorite.uuid_component)
-        .and(uuid_user.eq(&new_component_favorite.uuid_user)))
+        .filter(component_uuid.eq(&new_component_favorite.component_uuid)
+        .and(user_uuid.eq(&new_component_favorite.user_uuid)))
         .execute(conn).unwrap_or(0);
 
     // debug!("fn create_favorite START SEARCH ={:?}", flag_found_favorite);

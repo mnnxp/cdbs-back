@@ -8,24 +8,24 @@ use uuid::Uuid;
 
 // Favorites company models
 #[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, Clone, Debug)]
-#[primary_key(uuid_company, uuid_company)]
-#[belongs_to(Company, foreign_key = "uuid_company")]
-#[belongs_to(User, foreign_key = "uuid_user")]
+#[primary_key(company_uuid, company_uuid)]
+#[belongs_to(Company, foreign_key = "company_uuid")]
+#[belongs_to(User, foreign_key = "user_uuid")]
 #[table_name = "company_fav"]
 pub struct CompanyFav {
-    pub uuid_company: Uuid,
-    pub uuid_user: Uuid,
+    pub company_uuid: Uuid,
+    pub user_uuid: Uuid,
     pub is_enabled: bool,
     pub created_at: NaiveDateTime,
 }
 
 #[Object]
 impl CompanyFav {
-    async fn uuid_company(&self) -> ID {
-        self.uuid_company.into()
+    async fn company_uuid(&self) -> ID {
+        self.company_uuid.into()
     }
-    async fn uuid_user(&self) -> ID {
-        self.uuid_user.into()
+    async fn user_uuid(&self) -> ID {
+        self.user_uuid.into()
     }
     async fn is_enabled(&self) -> &bool {
         &self.is_enabled
@@ -37,8 +37,8 @@ impl CompanyFav {
 
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub struct IptCompanyFavData {
-    pub uuid_company: Uuid,
-    pub uuid_user: Uuid,
+    pub company_uuid: Uuid,
+    pub user_uuid: Uuid,
     // pub is_enabled: bool,
     // pub created_at: NaiveDateTime,
 }
@@ -46,8 +46,8 @@ pub struct IptCompanyFavData {
 #[derive(Debug, Insertable)]
 #[table_name = "company_fav"]
 pub struct InsertableCompanyFav {
-    pub uuid_company: Uuid,
-    pub uuid_user: Uuid,
+    pub company_uuid: Uuid,
+    pub user_uuid: Uuid,
     pub is_enabled: bool,
     pub created_at: NaiveDateTime,
 }
@@ -55,16 +55,16 @@ pub struct InsertableCompanyFav {
 impl From<IptCompanyFavData> for InsertableCompanyFav {
     fn from(ipt_data: IptCompanyFavData) -> Self {
         let IptCompanyFavData {
-            uuid_company,
-            uuid_user,
+            company_uuid,
+            user_uuid,
             // is_enabled,
             // created_at,
             ..
         } = ipt_data;
 
         Self {
-            uuid_company: Uuid::parse_str(&uuid_company.to_string()).unwrap(),
-            uuid_user: Uuid::parse_str(&uuid_user.to_string()).unwrap(),
+            company_uuid: Uuid::parse_str(&company_uuid.to_string()).unwrap(),
+            user_uuid: Uuid::parse_str(&user_uuid.to_string()).unwrap(),
             is_enabled: true,
             created_at: chrono::Local::now().naive_local(),
         }

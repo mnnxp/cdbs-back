@@ -19,7 +19,7 @@ impl CompanyQuery {
         companies_uuids: Vec<String>,
     ) -> ServiceResult<Vec<ShowCompanyShort>> {
         // authorization check
-        let logged_uuid_user = user::get_logged_uuid_user(cxt, true)?;
+        let logged_user_uuid = user::get_logged_user_uuid(cxt, true)?;
 
         let mut target_companies_uuids = Vec::new();
         for x in companies_uuids.iter() {
@@ -28,7 +28,7 @@ impl CompanyQuery {
 
         // todo!(need set check limit length vec)
 
-        company::list::find_companies(cxt, &target_companies_uuids, &logged_uuid_user)
+        company::list::find_companies(cxt, &target_companies_uuids, &logged_user_uuid)
     }
 
     async fn company(
@@ -37,9 +37,9 @@ impl CompanyQuery {
         company_uuid: String,
     ) -> ServiceResult<CompanyAndRelatedData> {
         // authorization check
-        let logged_uuid_user = user::get_logged_uuid_user(cxt, true)?;
+        let logged_user_uuid = user::get_logged_user_uuid(cxt, true)?;
 
-        company::list::find_by_uuid(cxt, &Uuid::parse_str(&company_uuid)?, &logged_uuid_user)
+        company::list::find_by_uuid(cxt, &Uuid::parse_str(&company_uuid)?, &logged_user_uuid)
     }
 
     async fn company_represents(

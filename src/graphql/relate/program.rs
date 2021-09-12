@@ -16,18 +16,18 @@ impl ProgramQuery {
     async fn programs(
         &self,
         cxt: &Context<'_>,
-        id_program: Option<Vec<i32>>,
+        program_id: Option<Vec<i32>>,
         limit: Option<i32>,
         offset: Option<i32>,
     ) -> ServiceResult<Vec<Program>> {
         // authorization check
         user::util::check_authorized(cxt)?;
 
-        let id_program: Vec<i32> = id_program.unwrap_or_default();
+        let program_id: Vec<i32> = program_id.unwrap_or_default();
         let limit: i32 = limit.unwrap_or(100);
         let offset: i32 = offset.unwrap_or(0);
 
-        program::service::list::get_programs(cxt, id_program, limit, offset)
+        program::service::list::get_programs(cxt, program_id, limit, offset)
     }
 }
 

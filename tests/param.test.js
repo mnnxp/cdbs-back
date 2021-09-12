@@ -15,17 +15,17 @@ const username2 = "simaco";
 const password = "password";
 
 const uuidFail = "aba22d59-4f6c-24a4-9a37-2d38f0e577a8";
-const uuidUser = "31ecc6f8-0c09-4a59-a2d5-34b5b833e59b";
-const uuidUser2 = "68b8281a-d19c-4d4b-88eb-6fd4a2afde1b";
+const userUuid = "31ecc6f8-0c09-4a59-a2d5-34b5b833e59b";
+const userUuid2 = "68b8281a-d19c-4d4b-88eb-6fd4a2afde1b";
 
 var authorizationTokenFirst = "";
 var authorizationTokenSecond = "";
 
 // data for component
-const uuidComponentParent = "a5953fd9-7393-4f1e-a899-06b5e159dbf1";
+const parentComponentUuid = "a5953fd9-7393-4f1e-a899-06b5e159dbf1";
 
 // data for component modification
-const uuidModificationParent = "aba22d59-4f6c-44a4-9a37-2d38f0e577a8";
+const parentModificationUuid = "aba22d59-4f6c-44a4-9a37-2d38f0e577a8";
 
 // data for param
 const paramnameIndexFail = 100;
@@ -33,17 +33,17 @@ const paramnameIndex = 2;
 const paramname = "Selector";
 const paramNameTest = "testparametr";
 const paramNameTest2 = "testparametr2";
-var idParamTest = 1000000;
-var idParamTest2 = 1000000;
+var paramIdTest = 1000000;
+var paramIdTest2 = 1000000;
 
 // language
-const idLang1 = 1;
-const idLang2 = 2;
+const langId1 = 1;
+const langId2 = 2;
 
 async function cleanupParamDb() {
   return global.knex.raw('DELETE FROM param_ref WHERE id in (?,?)', [
-    idParamTest,
-    idParamTest2,
+    paramIdTest,
+    paramIdTest2,
   ]);
 }
 
@@ -98,11 +98,11 @@ describe('param', () => {
                 address: "test_address",
                 position: "test_position",
                 timeZone: "Europe/Moscow",
-                idRegion: 1,
-                idProgram: 1,
+                regionId: 1,
+                programId: 1,
             }) {
                 uuid
-                idProgram
+                programId
                 username
             }
         }`,
@@ -112,9 +112,9 @@ describe('param', () => {
     const {
       data: { registerUser },
     } = body;
-    expect(registerUser).toContainAllKeys(['uuid', 'idProgram', 'username']);
+    expect(registerUser).toContainAllKeys(['uuid', 'programId', 'username']);
     expect(registerUser.uuid).toBeNonEmptyString();
-    expect(registerUser.idProgram).toBe(1);
+    expect(registerUser.programId).toBe(1);
     expect(registerUser.username).toBe(username);
     done();
   });
@@ -153,11 +153,11 @@ describe('param', () => {
                 address: "test_address",
                 position: "test_position",
                 timeZone: "Europe/Moscow",
-                idRegion: 1,
-                idProgram: 5,
+                regionId: 1,
+                programId: 5,
             }) {
                 uuid
-                idProgram
+                programId
                 username
             }
         }`,
@@ -167,9 +167,9 @@ describe('param', () => {
     const {
       data: { registerUser },
     } = body;
-    expect(registerUser).toContainAllKeys(['uuid', 'idProgram', 'username']);
+    expect(registerUser).toContainAllKeys(['uuid', 'programId', 'username']);
     expect(registerUser.uuid).toBeNonEmptyString();
-    expect(registerUser.idProgram).toBe(5);
+    expect(registerUser.programId).toBe(5);
     expect(registerUser.username).toBe(username2);
     done();
   });
@@ -197,10 +197,10 @@ describe('param', () => {
       .send({
         query: `mutation  {
             registerParam( data: {
-                idLang: ${idLang1},
+                langId: ${langId1},
                 paramname: "${paramNameTest}"
             }) {
-              idParam
+              paramId
               paramname
             }
         }`,
@@ -225,11 +225,11 @@ describe('param', () => {
       .send({
         query: `mutation  {
             registerParam( data: {
-                idLang: ${idLang1},
+                langId: ${langId1},
                 paramname: "${paramNameTest}",
             }) {
-              idParam
-              idLang
+              paramId
+              langId
               paramname
             }
         }`,
@@ -240,12 +240,12 @@ describe('param', () => {
       data: { registerParam },
     } = body;
     expect(registerParam).toContainAllKeys([
-      "idParam", "idLang", "paramname"
+      "paramId", "langId", "paramname"
     ]);
-    expect(registerParam.idParam).not.toBeNull();
-    expect(registerParam.idLang).toBe(idLang1);
+    expect(registerParam.paramId).not.toBeNull();
+    expect(registerParam.langId).toBe(langId1);
     expect(registerParam.paramname).toBe(paramNameTest);
-    idParamTest = registerParam.idParam;   // <-- save data for test "already param"
+    paramIdTest = registerParam.paramId;   // <-- save data for test "already param"
     done();
   });
 
@@ -259,10 +259,10 @@ describe('param', () => {
       .send({
         query: `mutation  {
             registerParam( data: {
-                idLang: ${idLang1},
+                langId: ${langId1},
                 paramname: "${paramNameTest}"
             }) {
-              idParam
+              paramId
               paramname
             }
         }`,
@@ -272,7 +272,7 @@ describe('param', () => {
     const { errors, data } = body;
     expect(data).toBeNull();
     expect(errors[0].message).toInclude(
-      "This param name is already there. Id: " + idParamTest
+      "This param name is already there. Id: " + paramIdTest
     );
     done();
   });
@@ -287,10 +287,10 @@ describe('param', () => {
       .send({
         query: `mutation  {
             registerParam( data: {
-                idLang: ${idLang1},
+                langId: ${langId1},
                 paramname: "${paramNameTest2}",
             }) {
-              idParam
+              paramId
               paramname
             }
         }`,
@@ -301,11 +301,11 @@ describe('param', () => {
       data: { registerParam },
     } = body;
     expect(registerParam).toContainAllKeys([
-      "idParam", "paramname"
+      "paramId", "paramname"
     ]);
-    expect(registerParam.idParam).not.toBeNull();
+    expect(registerParam.paramId).not.toBeNull();
     expect(registerParam.paramname).toBe(paramNameTest2);
-    idParamTest2 = registerParam.idParam;
+    paramIdTest2 = registerParam.paramId;
     done();
   });
 
@@ -319,7 +319,7 @@ describe('param', () => {
       .send({
         query: `query ListParam {
             param {
-                idParam
+                paramId
                 paramname
             }
         }`,
@@ -330,7 +330,7 @@ describe('param', () => {
     done();
   });
 
-  it('/graphql:Q List param - OK with idParam', async (done) => {
+  it('/graphql:Q List param - OK with paramId', async (done) => {
     const response1 = await agent
       .post('/graphql')
       .set(
@@ -339,8 +339,8 @@ describe('param', () => {
       )
       .send({
         query: `query ListUserParam {
-            param (idParam: ${paramnameIndex}) {
-                idParam
+            param (paramId: ${paramnameIndex}) {
+                paramId
                 paramname
             }
         }`,
@@ -348,12 +348,12 @@ describe('param', () => {
       .expect(HttpStatus.OK)
     debug('/graphql body=%o', response1.body);
     expect(response1.body.data.param).toBeNonEmptyArray();
-    expect(response1.body.data.param[0].idParam).toBe(paramnameIndex);
+    expect(response1.body.data.param[0].paramId).toBe(paramnameIndex);
     expect(response1.body.data.param[0].paramname).toBe(paramname);
     done();
   });
 
-  it('/graphql:Q List param - OK with array idParam', async (done) => {
+  it('/graphql:Q List param - OK with array paramId', async (done) => {
     const response1 = await agent
       .post('/graphql')
       .set(
@@ -362,8 +362,8 @@ describe('param', () => {
       )
       .send({
         query: `query ListUserParam {
-            param (idParam: [1, ${paramnameIndex}]) {
-                idParam
+            param (paramId: [1, ${paramnameIndex}]) {
+                paramId
                 paramname
             }
         }`,
@@ -371,7 +371,7 @@ describe('param', () => {
       .expect(HttpStatus.OK)
     debug('/graphql body=%o', response1.body);
     expect(response1.body.data.param).toBeNonEmptyArray();
-    expect(response1.body.data.param[1].idParam).toBe(paramnameIndex);
+    expect(response1.body.data.param[1].paramId).toBe(paramnameIndex);
     expect(response1.body.data.param[1].paramname).toBe(paramname);
     done();
   });
@@ -381,8 +381,8 @@ describe('param', () => {
       .post('/graphql')
       .send({
         query: `query ListUserParam {
-            param (idParam: [1, ${paramnameIndex}]) {
-                idParam
+            param (paramId: [1, ${paramnameIndex}]) {
+                paramId
                 paramname
             }
         }`,

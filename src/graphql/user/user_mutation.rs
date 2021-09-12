@@ -31,10 +31,10 @@ impl UserMutation {
         // let conn = pool.get().unwrap();
         let conn: &PooledConnection = &get_conn(cxt)?;
 
-        let logged_uuid_user = crate::models::user::get_logged_uuid_user(cxt, true)?;
+        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
 
         Ok(add_certificate(
-            logged_uuid_user,
+            logged_user_uuid,
             cert_data,
             file_data,
             conn
@@ -49,24 +49,24 @@ impl UserMutation {
         use crate::models::user::notification::service::register::create_notification;
         let conn: &PooledConnection = &get_conn(cxt)?;
 
-        let logged_uuid_user = crate::models::user::get_logged_uuid_user(cxt, true)?;
+        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
 
-        Ok(create_notification(data, logged_uuid_user, conn)?)
+        Ok(create_notification(data, logged_user_uuid, conn)?)
     }
 
     async fn delete_notification(
         &self,
         cxt: &Context<'_>,
-        id_notification: i32,
+        notification_id: i32,
     ) -> ServiceResult<Notification> {
         use crate::models::user::notification::service::delete::delete_notification;
         let conn: &PooledConnection = &get_conn(cxt)?;
 
-        let logged_uuid_user = crate::models::user::get_logged_uuid_user(cxt, true)?;
+        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
 
         Ok(delete_notification(
-            logged_uuid_user,
-            id_notification,
+            logged_user_uuid,
+            notification_id,
             conn,
         )?)
     }

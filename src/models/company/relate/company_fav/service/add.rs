@@ -19,8 +19,8 @@ pub(crate) fn add_company_favorite(
     let new_company_favorite: InsertableCompanyFav = data.into();
 
     let flag_found_favorite = company_fav
-        .filter(uuid_company.eq(&new_company_favorite.uuid_company)
-        .and(uuid_user.eq(&new_company_favorite.uuid_user)))
+        .filter(company_uuid.eq(&new_company_favorite.company_uuid)
+        .and(user_uuid.eq(&new_company_favorite.user_uuid)))
         .execute(conn).unwrap_or(0);
 
     // debug!("fn create_favorite START SEARCH ={:?}", flag_found_favorite);

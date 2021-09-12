@@ -42,9 +42,9 @@ pub(crate) async fn confirm_upload(
             &target_user.0,
             &file_h.file_name,
             &FileData {
-                uuid_file_parent: None,
+                parent_file_uuid: None,
                 hash: None,
-                uuid_user: None,
+                user_uuid: None,
                 filename: None,
                 content_type: None,
                 id_ext: None,
@@ -79,7 +79,7 @@ pub(crate) fn update_file_data_by_name(
     // so ownership verification is not always necessary
     if ownership_check {
         target_file_uuid = file_ref::file_ref
-            .filter(file_ref::uuid_user.eq(user_uuid)
+            .filter(file_ref::user_uuid.eq(user_uuid)
             .and(file_ref::path_file.eq(path_file)))
             .select(file_ref::uuid)
             .first(conn).unwrap_or_default();
@@ -96,11 +96,11 @@ pub(crate) fn update_file_data_by_name(
 
     let mut count_update_columns = 0;
 
-    if let Some(value) = new_file_data.uuid_file_parent {
+    if let Some(value) = new_file_data.parent_file_uuid {
         count_update_columns += diesel::update(file_ref::file_ref
             .filter(file_ref::uuid.eq(&target_file_uuid)
-            .and(file_ref::uuid_file_parent.ne(&value))))
-            .set(file_ref::uuid_file_parent.eq(value))
+            .and(file_ref::parent_file_uuid.ne(&value))))
+            .set(file_ref::parent_file_uuid.eq(value))
             .execute(conn).unwrap_or_default() as i32;
     }
     if let Some(value) = &new_file_data.hash {
@@ -110,11 +110,11 @@ pub(crate) fn update_file_data_by_name(
             .set(file_ref::hash.eq(value.to_vec()))
             .execute(conn).unwrap_or_default() as i32;
     }
-    if let Some(value) = new_file_data.uuid_user {
+    if let Some(value) = new_file_data.user_uuid {
         count_update_columns += diesel::update(file_ref::file_ref
             .filter(file_ref::uuid.eq(&target_file_uuid)
-            .and(file_ref::uuid_user.ne(&value))))
-            .set(file_ref::uuid_user.eq(value))
+            .and(file_ref::user_uuid.ne(&value))))
+            .set(file_ref::user_uuid.eq(value))
             .execute(conn).unwrap_or_default() as i32;
     }
     if let Some(value) = &new_file_data.filename {

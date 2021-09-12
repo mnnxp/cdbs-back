@@ -14,11 +14,11 @@ pub(crate) fn get_by_company_uuid(
 ) -> ServiceResult<Vec<CompanyRepresentAndRelatedData>> {
     let conn: &PooledConnection = &get_conn(cxt)?;
 
-    let set_id_lang = crate::models::user::get_set_language(cxt);
+    let set_lang_id = crate::models::user::get_set_language(cxt);
 
     let result: Vec<CompanyRepresentAndRelatedData> = CompanyRepresentAndRelatedData::get_list_represents_by_company_uuid(
         target_company_uuid,
-        &set_id_lang,
+        &set_lang_id,
         conn
     ).expect("Error loading list companies and collect short data");
 
@@ -34,12 +34,12 @@ pub(crate) fn get_represent_by_uuids(
 ) -> ServiceResult<Vec<CompanyRepresentAndRelatedData>> {
     let conn: &PooledConnection = &get_conn(cxt)?;
 
-    let set_id_lang = crate::models::user::get_set_language(cxt);
+    let set_lang_id = crate::models::user::get_set_language(cxt);
 
     // collect data for represent
     let result: Vec<CompanyRepresentAndRelatedData> = CompanyRepresentAndRelatedData::get_list_represents_by_uuids(
         target_represents_uuids,
-        &set_id_lang,
+        &set_lang_id,
         conn
     ).expect("Error loading company and collect related data");
 

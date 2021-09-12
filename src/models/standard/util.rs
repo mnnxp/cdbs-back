@@ -19,7 +19,7 @@ pub(crate) fn check_standard_access(
     // check user on owner standard
     let user_owner_standard = standard_ref
         .filter(uuid.eq(target_standard_uuid))
-        .filter(uuid_user.eq(target_user_uuid))
+        .filter(user_uuid.eq(target_user_uuid))
         .execute(conn)
         .unwrap_or(0);
 
@@ -28,16 +28,16 @@ pub(crate) fn check_standard_access(
     }
 
     // search user access level to the standard
-    let found_id_type_access: i32 = get_user_access_standard(
+    let found_type_access_id: i32 = get_user_access_standard(
         target_user_uuid,
         target_standard_uuid,
         conn,
     );
 
 
-    debug!("0 < found_id_type_access {:?} <= required_access {:?}", found_id_type_access, required_access);
+    debug!("0 < found_type_access_id {:?} <= required_access {:?}", found_type_access_id, required_access);
     // return true if level is equal or higher than required
-    if 0 < found_id_type_access && found_id_type_access <= required_access {
+    if 0 < found_type_access_id && found_type_access_id <= required_access {
         return Ok(true)
     }
 
@@ -51,7 +51,7 @@ pub(crate) fn check_standard_access(
 
     debug!("find_max_level {:?}", find_max_level);
     match find_max_level {
-        1..=i32::MAX if found_id_type_access <= required_access => {
+        1..=i32::MAX if found_type_access_id <= required_access => {
             Ok(true)
         },
         // 1..=i32::MAX => {
@@ -71,11 +71,11 @@ pub(crate) fn get_user_access_standard(
 ) -> i32 {
     use crate::schema::user_access_to_standard::dsl::*;
 
-    // find id_role user
+    // find role_id user
     user_access_to_standard
-        .filter(uuid_standard.eq(target_standard_uuid))
-        .filter(uuid_user.eq(target_user_uuid))
-        .select(id_type_access)
+        .filter(standard_uuid.eq(target_standard_uuid))
+        .filter(user_uuid.eq(target_user_uuid))
+        .select(type_access_id)
         .first(conn)
         .unwrap_or(0)
 }
@@ -122,17 +122,17 @@ pub(crate) fn recursive_search_availability_access(
 //
 //     // find companies that have access to standard
 //     company_access_to_standard
-//         .filter(uuid_standard.eq(target_standard_uuid))
+//         .filter(standard_uuid.eq(target_standard_uuid))
 //         .select((
-//             uuid_company,
-//             id_type_access
+//             company_uuid,
+//             type_access_id
 //         ))
 //         .load::<(Uuid, i32)>(conn)
 //         .unwrap_or_default()
 // }
 
 /// Search companies that have a need-level access to standard
-/// returns found id_type_access
+/// returns found type_access_id
 pub(crate) fn get_access_granted_company(
     target_user_uuid: &Uuid,
     target_standard_uuid: &Uuid,
@@ -153,19 +153,19 @@ pub(crate) fn get_access_granted_company(
 
     let query: &str = "SELECT  \
         CASE \
-            WHEN company_access_to_standard.id_type_access > role_access.id_type_access \
-                THEN company_access_to_standard.id_type_access \
-                ELSE role_access.id_type_access \
+            WHEN company_access_to_standard.type_access_id > role_access.type_access_id \
+                THEN company_access_to_standard.type_access_id \
+                ELSE role_access.type_access_id \
         END access_level \
         FROM company_member_role \
         INNER JOIN company_access_to_standard \
-            ON (company_member_role.uuid_company = company_access_to_standard.uuid_company) \
+            ON (company_member_role.company_uuid = company_access_to_standard.company_uuid) \
         INNER JOIN role_access \
-            ON (company_member_role.id_role = role_access.id_role) \
-        WHERE company_member_role.uuid_user = $1 \
-            AND company_access_to_standard.uuid_standard = $2 \
-            AND company_access_to_standard.id_type_access <= $3 \
-            AND role_access.id_type_access <= $3;";
+            ON (company_member_role.role_id = role_access.role_id) \
+        WHERE company_member_role.user_uuid = $1 \
+            AND company_access_to_standard.standard_uuid = $2 \
+            AND company_access_to_standard.type_access_id <= $3 \
+            AND role_access.type_access_id <= $3;";
 
     let find_user_access = diesel::sql_query(query)
         .bind::<diesel::sql_types::Uuid, _>(target_user_uuid)
@@ -199,10 +199,10 @@ pub(crate) fn get_access_from_company(
 
     // find companies that have a need-level access to standard
     company_access_to_standard
-        .filter(uuid_standard.eq(target_standard_uuid))
-        .filter(uuid_company.eq_any(target_company_uuid))
-        .filter(id_type_access.gt(required_access))
-        .select(id_type_access)
+        .filter(standard_uuid.eq(target_standard_uuid))
+        .filter(company_uuid.eq_any(target_company_uuid))
+        .filter(type_access_id.gt(required_access))
+        .select(type_access_id)
         .first(conn)
         .unwrap_or(0)
 }
@@ -218,7 +218,7 @@ pub(crate) fn get_access_set(
     // check default access for standard
     Ok(standard_ref
         .filter(uuid.eq(target_standard_uuid))
-        .select(id_type_access)
+        .select(type_access_id)
         .first(conn)
         .unwrap_or(0))
 }

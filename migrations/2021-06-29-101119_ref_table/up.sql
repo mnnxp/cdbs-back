@@ -10,16 +10,16 @@ CREATE TABLE program_ref (
 CREATE TABLE extension_ref (
   id SERIAL UNIQUE, /* id соответствия */
   extension VARCHAR(50) NOT NULL, /* расширение файла, одно расширение может быть у нескольких программ */
-  id_program INTEGER NOT NULL, /* соответствующая программа (CAD) */
+  program_id INTEGER NOT NULL, /* соответствующая программа (CAD) */
   CONSTRAINT extension_ref_pk PRIMARY KEY (id)
 );
 
 /* информация о файле (изображении) */
 CREATE TABLE file_ref (
   uuid UUID NOT NULL UNIQUE, /* идентификатор объекта/файла */
-  uuid_file_parent UUID NOT NULL, /* идентификатор объекта/файла родителя */
+  parent_file_uuid UUID NOT NULL, /* идентификатор объекта/файла родителя */
   hash BYTEA NOT NULL, /* хеш значение объекта/файла */
-  uuid_user UUID NOT NULL, /* идентификатор профиля загрузившего файл */
+  user_uuid UUID NOT NULL, /* идентификатор профиля загрузившего файл */
   filename VARCHAR(225) NOT NULL, /* наименование файла */
   content_type VARCHAR(50) NOT NULL, /* тип контента в файле */
   id_ext INTEGER NOT NULL, /* расширение файла (используется для определения CAD) */
@@ -37,11 +37,11 @@ CREATE TABLE actual_status_ref (
 );
 
 CREATE TABLE actual_status_translate_list (
-  id_actual_status INTEGER NOT NULL, /* id статуса */
-  id_lang INTEGER NOT NULL, /* идентификатор языка перевода */
+  actual_status_id INTEGER NOT NULL, /* id статуса */
+  lang_id INTEGER NOT NULL, /* идентификатор языка перевода */
   name VARCHAR(100) NOT NULL UNIQUE, /* к примеру: «актуальный», «архивный», «снято с производства» */
-  UNIQUE(id_lang, name),
-  CONSTRAINT actual_status_translate_list_pk PRIMARY KEY (id_actual_status, id_lang)
+  UNIQUE(lang_id, name),
+  CONSTRAINT actual_status_translate_list_pk PRIMARY KEY (actual_status_id, lang_id)
 );
 
 /* типы доступа */
@@ -51,11 +51,11 @@ CREATE TABLE type_access_ref (
 );
 
 CREATE TABLE type_access_translate_list (
-  id_type_access INTEGER NOT NULL, /* id типа доступа */
-  id_lang INTEGER NOT NULL, /* идентификатор языка перевода */
+  type_access_id INTEGER NOT NULL, /* id типа доступа */
+  lang_id INTEGER NOT NULL, /* идентификатор языка перевода */
   name VARCHAR(100) NOT NULL, /* наименование доступа */
-  UNIQUE(id_lang, name),
-  CONSTRAINT type_access_translate_list_pk PRIMARY KEY (id_type_access, id_lang)
+  UNIQUE(lang_id, name),
+  CONSTRAINT type_access_translate_list_pk PRIMARY KEY (type_access_id, lang_id)
 );
 
 /* языки перевода */
@@ -73,11 +73,11 @@ CREATE TABLE param_ref (
 );
 
 CREATE TABLE param_translate_list (
-  id_param INTEGER NOT NULL, /* id параметра (характеристики) */
-  id_lang INTEGER NOT NULL, /* идентификатор языка перевода */
+  param_id INTEGER NOT NULL, /* id параметра (характеристики) */
+  lang_id INTEGER NOT NULL, /* идентификатор языка перевода */
   paramname VARCHAR(100) NOT NULL, /* наименование парметра модификации в переводе */
-  UNIQUE(id_lang, paramname),
-  CONSTRAINT param_translate_list_pk PRIMARY KEY (id_param, id_lang)
+  UNIQUE(lang_id, paramname),
+  CONSTRAINT param_translate_list_pk PRIMARY KEY (param_id, lang_id)
 );
 
 /* регион */
@@ -87,11 +87,11 @@ CREATE TABLE region_ref (
 );
 
 CREATE TABLE region_translate_list (
-  id_region INTEGER NOT NULL, /* id наименования региона */
-  id_lang INTEGER NOT NULL, /* идентификатор языка перевода */
+  region_id INTEGER NOT NULL, /* id наименования региона */
+  lang_id INTEGER NOT NULL, /* идентификатор языка перевода */
   region VARCHAR(100) NOT NULL, /* наименование региона в переводе */
-  UNIQUE(id_lang, region),
-  CONSTRAINT region_translate_list_pk PRIMARY KEY (id_region, id_lang)
+  UNIQUE(lang_id, region),
+  CONSTRAINT region_translate_list_pk PRIMARY KEY (region_id, lang_id)
 );
 
 /* перечень типов изменений */
@@ -101,26 +101,26 @@ CREATE TABLE type_of_change_ref (
 );
 
 CREATE TABLE type_of_change_translate_list (
-  id_type_of_change INTEGER NOT NULL, /* id типа изменения */
-  id_lang INTEGER NOT NULL, /* идентификатор языка перевода */
+  type_of_change_id INTEGER NOT NULL, /* id типа изменения */
+  lang_id INTEGER NOT NULL, /* идентификатор языка перевода */
   type_of_change VARCHAR(100) NOT NULL, /*наименование изменения */
-  CONSTRAINT type_of_change_translate_list_pk PRIMARY KEY (id_type_of_change, id_lang)
+  CONSTRAINT type_of_change_translate_list_pk PRIMARY KEY (type_of_change_id, lang_id)
 );
 
 /* категории (каталога) */
 CREATE TABLE spec_ref (
   id SERIAL, /* id категории каталога */
-  id_spec_parent INTEGER NOT NULL DEFAULT '1', /* id родительского каталога */
-  UNIQUE(id, id_spec_parent),
+  spec_id_parent INTEGER NOT NULL DEFAULT '1', /* id родительского каталога */
+  UNIQUE(id, spec_id_parent),
   CONSTRAINT spec_ref_pk PRIMARY KEY (id)
 );
 
 CREATE TABLE spec_translate_list (
-  id_spec INTEGER NOT NULL, /* id категории каталога */
-  id_lang INTEGER NOT NULL, /* идентификатор языка перевода */
+  spec_id INTEGER NOT NULL, /* id категории каталога */
+  lang_id INTEGER NOT NULL, /* идентификатор языка перевода */
   spec VARCHAR(225) NOT NULL, /* наименование каталога в переводе */
-  UNIQUE(id_spec, id_lang, spec),
-  CONSTRAINT spec_translate_list_pk PRIMARY KEY (id_spec, id_lang)
+  UNIQUE(spec_id, lang_id, spec),
+  CONSTRAINT spec_translate_list_pk PRIMARY KEY (spec_id, lang_id)
 );
 
 /* ключевые слова (тегирование) */

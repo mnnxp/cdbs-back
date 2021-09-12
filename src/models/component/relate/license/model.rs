@@ -6,48 +6,48 @@ use async_graphql::*;
 use uuid::Uuid;
 
 #[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, Debug)]
-#[primary_key(uuid_component, id_license)]
-#[belongs_to(Component, foreign_key = "uuid_component")]
-#[belongs_to(License, foreign_key = "id_license")]
+#[primary_key(component_uuid, license_id)]
+#[belongs_to(Component, foreign_key = "component_uuid")]
+#[belongs_to(License, foreign_key = "license_id")]
 #[table_name = "license_to_component"]
 pub struct LicenseComponent {
-    pub uuid_component: Uuid,
-    pub id_license: i32,
+    pub component_uuid: Uuid,
+    pub license_id: i32,
 }
 
 #[Object]
 impl LicenseComponent {
-    async fn uuid_component(&self) -> ID {
-        self.uuid_component.into()
+    async fn component_uuid(&self) -> ID {
+        self.component_uuid.into()
     }
-    async fn id_license(&self) -> &i32 {
-        &self.id_license
+    async fn license_id(&self) -> &i32 {
+        &self.license_id
     }
 }
 
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub struct IptLicenseComponentData {
-    pub uuid_component: ID,
-    pub id_license: i32,
+    pub component_uuid: ID,
+    pub license_id: i32,
 }
 
 #[derive(Debug, Insertable)]
 #[table_name = "license_to_component"]
 pub struct InsertableLicenseComponent {
-    pub uuid_component: Uuid,
-    pub id_license: i32,
+    pub component_uuid: Uuid,
+    pub license_id: i32,
 }
 
 impl From<IptLicenseComponentData> for InsertableLicenseComponent {
     fn from(ipt_data: IptLicenseComponentData) -> Self {
         let IptLicenseComponentData {
-            uuid_component,
-            id_license,
+            component_uuid,
+            license_id,
         } = ipt_data;
 
         Self {
-            uuid_component: Uuid::parse_str(&uuid_component.to_string()).unwrap(),
-            id_license,
+            component_uuid: Uuid::parse_str(&component_uuid.to_string()).unwrap(),
+            license_id,
         }
     }
 }

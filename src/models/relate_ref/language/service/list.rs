@@ -11,13 +11,13 @@ use diesel::prelude::*;
 
 pub(crate) fn get_languages(
     cxt: &Context<'_>,
-    target_id_language: Vec<i32>,
+    target_lang_iduage: Vec<i32>,
     limit: i32,
     offset: i32,
 ) -> ServiceResult<Vec<Language>> {
-    match target_id_language {
-        target_id_language if target_id_language.is_empty() => find_all_languages(cxt, limit, offset),
-        target_id_language => find_id_language(cxt, target_id_language, limit, offset)
+    match target_lang_iduage {
+        target_lang_iduage if target_lang_iduage.is_empty() => find_all_languages(cxt, limit, offset),
+        target_lang_iduage => find_lang_iduage(cxt, target_lang_iduage, limit, offset)
         // _ => ServiceResult::Err(ServiceError::BadRequest("What?".to_string()))
     }
 }
@@ -36,9 +36,9 @@ fn find_all_languages(
         .load::<Language>(conn)?)
 }
 
-fn find_id_language(
+fn find_lang_iduage(
     cxt: &Context<'_>,
-    target_id_language: Vec<i32>,
+    target_lang_iduage: Vec<i32>,
     limit: i32,
     offset: i32,
 ) -> ServiceResult<Vec<Language>> {
@@ -46,7 +46,7 @@ fn find_id_language(
     let conn: &PooledConnection = &get_conn(cxt)?;
 
     Ok(language_ref
-        .filter(id.eq_any(target_id_language))
+        .filter(id.eq_any(target_lang_iduage))
         .limit(limit as i64)
         .offset(offset as i64)
         .load::<Language>(conn)?)

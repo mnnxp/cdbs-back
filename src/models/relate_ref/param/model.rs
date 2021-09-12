@@ -27,25 +27,25 @@ pub struct InsertableParam {
 
 // Param translations
 #[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, Clone, Debug)]
-#[primary_key(id_param, id_lang)]
-#[belongs_to(Param, foreign_key = "id_param")]
-#[belongs_to(ParamComponent, foreign_key = "id_param")]
-#[belongs_to(ParamModification, foreign_key = "id_param")]
-#[belongs_to(Language, foreign_key = "id_lang")]
+#[primary_key(param_id, lang_id)]
+#[belongs_to(Param, foreign_key = "param_id")]
+#[belongs_to(ParamComponent, foreign_key = "param_id")]
+#[belongs_to(ParamModification, foreign_key = "param_id")]
+#[belongs_to(Language, foreign_key = "lang_id")]
 #[table_name = "param_translate_list"]
 pub struct ParamTranslateList {
-    pub id_param: i32,
-    pub id_lang: i32,
+    pub param_id: i32,
+    pub lang_id: i32,
     pub paramname: String,
 }
 
 #[Object]
 impl ParamTranslateList {
-    async fn id_param(&self) -> &i32 {
-        &self.id_param
+    async fn param_id(&self) -> &i32 {
+        &self.param_id
     }
-    async fn id_lang(&self) -> &i32 {
-        &self.id_lang
+    async fn lang_id(&self) -> &i32 {
+        &self.lang_id
     }
     async fn paramname(&self) -> &String {
         &self.paramname
@@ -54,14 +54,14 @@ impl ParamTranslateList {
 
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub struct IptParamTranslateListData {
-    pub id_lang: i32,
+    pub lang_id: i32,
     pub paramname: String,
 }
 
 #[derive(Debug, Insertable)]
 #[table_name = "param_translate_list"]
 pub struct InsertableParamTranslateList {
-    pub id_param: i32,
-    pub id_lang: i32,
+    pub param_id: i32,
+    pub lang_id: i32,
     pub paramname: String,
 }

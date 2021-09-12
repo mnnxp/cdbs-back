@@ -8,24 +8,24 @@ use uuid::Uuid;
 
 pub fn create_notification(
     notification_data: NotificationData,
-    uuid_user: Uuid,
+    user_uuid: Uuid,
     conn: &PgConnection,
 ) -> ServiceResult<SlimNotification> {
     use crate::schema::notification_ref::dsl::notification_ref;
     use crate::schema::notification_to_user::dsl::notification_to_user;
 
-    // debug!("fn id_notification_delete = {}", &id_notification_delete);
+    // debug!("fn notification_id_delete = {}", &notification_id_delete);
 
     let notification: InsertableNotification = notification_data.into();
     let inserted_notification: Notification = diesel::insert_into(notification_ref)
         .values(&notification)
         .get_result(conn)?;
-    // debug!("fn input_uuid_user = {}", &input_uuid_user);
+    // debug!("fn input_user_uuid = {}", &input_user_uuid);
 
     // add row to notification_to_user with current user
     let row_notification_to_user: InsertableNotificationToUser = InsertableNotificationToUser{
-        id_notification: (inserted_notification.id),
-        uuid_user: (uuid_user),
+        notification_id: (inserted_notification.id),
+        user_uuid: (user_uuid),
     };
     let row_notification_to_user: NotificationToUser = diesel::insert_into(notification_to_user)
         .values(&row_notification_to_user)

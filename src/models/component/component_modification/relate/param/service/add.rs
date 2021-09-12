@@ -17,8 +17,8 @@ pub(crate) fn create_param_modification(
     let new_param_data: InsertableParamModification = new_param_data.into();
 
     let flag_found_param = param_to_modification
-        .filter(uuid_modification.eq(&new_param_data.uuid_modification))
-        .filter(id_param.eq(&new_param_data.id_param))
+        .filter(modification_uuid.eq(&new_param_data.modification_uuid))
+        .filter(param_id.eq(&new_param_data.param_id))
         .execute(conn).unwrap_or(0);
 
     // debug!("fn create_param START SEARCH ={:?}", flag_found_param);

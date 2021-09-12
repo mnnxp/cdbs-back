@@ -15,16 +15,16 @@ pub(crate) fn create_representation_type(
     use crate::schema::representation_type_translate_list::dsl as representation_type_translate_list;
 
     let flag_found_representation_type = representation_type_translate_list::representation_type_translate_list
-        .filter(representation_type_translate_list::id_lang.eq(&new_representation_type_data.id_lang))
+        .filter(representation_type_translate_list::lang_id.eq(&new_representation_type_data.lang_id))
         .filter(representation_type_translate_list::name.eq(&new_representation_type_data.name))
-        .select(representation_type_translate_list::id_representation_type)
+        .select(representation_type_translate_list::representation_type_id)
         .first::<i32>(conn).unwrap_or(0);
 
     // debug!("fn create_representation_type START SEARCH ={:?}", flag_found_representation_type);
 
     match flag_found_representation_type {
         0 => {
-            let new_id_representation_type = {
+            let new_representation_type_id = {
                 use crate::schema::representation_type_ref::dsl as representation_type_ref;
 
                 let new_representation_type: RepresentationType = diesel::insert_into(representation_type_ref::representation_type_ref)
@@ -35,8 +35,8 @@ pub(crate) fn create_representation_type(
             };
 
             let new_representation_type_data = InsertableRepresentationTypeTranslateList {
-                id_representation_type: new_id_representation_type,
-                id_lang: new_representation_type_data.id_lang,
+                representation_type_id: new_representation_type_id,
+                lang_id: new_representation_type_data.lang_id,
                 representation_type: new_representation_type_data.representation_type,
             };
             let inserted_representation_type_data: RepresentationTypeTranslateList = diesel::insert_into(representation_type_translate_list::representation_type_translate_list)

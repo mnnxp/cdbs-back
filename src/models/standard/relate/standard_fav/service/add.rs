@@ -19,8 +19,8 @@ pub(crate) fn add_standard_favorite(
     let new_standard_favorite: InsertableStandardFav = data.into();
 
     let flag_found_favorite = standard_fav
-        .filter(uuid_standard.eq(&new_standard_favorite.uuid_standard)
-        .and(uuid_user.eq(&new_standard_favorite.uuid_user)))
+        .filter(standard_uuid.eq(&new_standard_favorite.standard_uuid)
+        .and(user_uuid.eq(&new_standard_favorite.user_uuid)))
         .execute(conn).unwrap_or(0);
 
     // debug!("fn create_favorite START SEARCH ={:?}", flag_found_favorite);

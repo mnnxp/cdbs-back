@@ -30,7 +30,7 @@ impl ShowComponentShort {
     pub fn get_list_by_uuids(
         target_uuids_components: &[Uuid],
         target_user_uuid: &Uuid,
-        set_id_lang: &i32,
+        set_lang_id: &i32,
         conn: &PgConnection,
     ) -> ServiceResult<Vec<ShowComponentShort>> {
         // the result for store the result :)
@@ -47,21 +47,21 @@ impl ShowComponentShort {
 
             // get component owner
             let owner_user = crate::models::user::model::ShowUserShort::get_by_uuid(
-                &component.uuid_user,
+                &component.user_uuid,
                 conn
             ).expect("Error loading slim_user");
 
             // get component type with translation for component
             let component_type: ComponentTypeTranslateList = ComponentTypeTranslateList::get_component_type_by_id(
-                &component.id_component_type,
-                set_id_lang,
+                &component.component_type_id,
+                set_lang_id,
                 conn
             ).expect("Error loading component_type");
 
             // get actual status with translation for component
             let actual_status: ActualStatusTranslateList = ActualStatusTranslateList::get_actual_status_by_id(
-                &component.id_actual_status,
-                set_id_lang,
+                &component.actual_status_id,
+                set_lang_id,
                 conn
             ).expect("Error loading actual_status");
 
@@ -93,7 +93,7 @@ impl ShowComponentShort {
                 name: component.name,
                 description: component.description,
                 owner_user,
-                id_type_access: component.id_type_access,
+                type_access_id: component.type_access_id,
                 component_type,
                 actual_status,
                 is_followed,
@@ -113,7 +113,7 @@ impl ComponentAndRelatedData {
     pub fn collect_related_data(
         target_component_uuid: &Uuid,
         target_user_uuid: &Uuid,
-        set_id_lang: &i32,
+        set_lang_id: &i32,
         conn: &PgConnection,
     ) -> ServiceResult<ComponentAndRelatedData> {
         // collect data for component
@@ -124,29 +124,29 @@ impl ComponentAndRelatedData {
 
         // get component owner
         let owner_user = crate::models::user::model::ShowUserShort::get_by_uuid(
-            &component.uuid_user,
+            &component.user_uuid,
             conn
         ).expect("Error loading slim_user");
 
         // todo!(need make access manager)
         // get component type with translation for component
         // let type_access: TypeAccessTranslateList = TypeAccessTranslateList::get_component_type_by_id(
-        //     &component.id_type_access,
-        //     set_id_lang,
+        //     &component.type_access_id,
+        //     set_lang_id,
         //     conn
         // ).expect("Error loading type_access");
 
         // get component type with translation for component
         let component_type: ComponentTypeTranslateList = ComponentTypeTranslateList::get_component_type_by_id(
-            &component.id_component_type,
-            set_id_lang,
+            &component.component_type_id,
+            set_lang_id,
             conn
         ).expect("Error loading component_type");
 
         // get actual status with translation for component
         let actual_status: ActualStatusTranslateList = ActualStatusTranslateList::get_actual_status_by_id(
-            &component.id_actual_status,
-            set_id_lang,
+            &component.actual_status_id,
+            set_lang_id,
             conn
         ).expect("Error loading actual status");
 
@@ -163,7 +163,7 @@ impl ComponentAndRelatedData {
         // get params with translation for component
         let component_params: Vec<ComponentParamWithTranslation> = ComponentParamWithTranslation::for_component(
             &component,
-            set_id_lang,
+            set_lang_id,
             conn
         ).expect("Error loading params component with translate");
 
@@ -180,7 +180,7 @@ impl ComponentAndRelatedData {
         // get specs with translation for component
         let component_specs: Vec<ComponentSpecWithTranslation> = ComponentSpecWithTranslation::for_component(
             &component,
-            set_id_lang,
+            set_lang_id,
             conn
         ).expect("Error loading spec component with translate");
 
@@ -199,7 +199,7 @@ impl ComponentAndRelatedData {
         // get list component modifications with related data and translation
         let component_modifications: Vec<ComponentModificationAndRelatedData> = ComponentModificationAndRelatedData::for_component_modification_list(
             &component_modifications,
-            set_id_lang,
+            set_lang_id,
             conn
         ).expect("Error loading component modifications with related data");
 
@@ -211,11 +211,11 @@ impl ComponentAndRelatedData {
 
         let result = ComponentAndRelatedData {
             uuid: component.uuid,
-            uuid_component_parent: component.uuid_component_parent,
+            parent_component_uuid: component.parent_component_uuid,
             name: component.name,
             description: component.description,
             owner_user,
-            id_type_access: component.id_type_access,
+            type_access_id: component.type_access_id,
             component_type,
             actual_status,
             is_standard: component.is_standard,

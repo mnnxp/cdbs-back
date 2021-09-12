@@ -30,16 +30,16 @@ const description = "test_description";
 const address = "test_address";
 const position = "test_position";
 const time_zone = "Europe/Moscow";
-const uuid_image_file = "test_uuid_image_file";
-const id_region = 1;
-const id_program = 1;
+const image_file_uuid = "test_image_file_uuid";
+const region_id = 1;
+const program_id = 1;
 const is_email_verified = false;
 const is_enabled = true;
 const is_delete = false;
 var authorizationTokenFirst = "";
 var authorizationTokenSecond = "";
-var uuidUserFirst = "";
-var uuidUserSecond = "";
+var userUuidFirst = "";
+var userUuidSecond = "";
 
 const userFullDataQuery = ` \
 uuid \
@@ -60,8 +60,8 @@ imageFile { \
   pathFile \
 } \
 region { \
-  idRegion \
-  idLang \
+  regionId \
+  langId \
   region \
 } \
 program { \
@@ -74,7 +74,7 @@ isDelete \
 createdAt \
 updatedAt \
 certificates { \
-  uuidUser \
+  userUuid \
   file { \
     uuid \
     filename \
@@ -135,7 +135,7 @@ describe('users', () => {
       .post('/graphql')
       .send({
         query: `query ListUsers {
-            user(userUuid: "${uuidUserFirst}") {
+            user(userUuid: "${userUuidFirst}") {
               ${userFullDataQuery}
             }
         }`,
@@ -168,11 +168,11 @@ describe('users', () => {
                 address: "test_address",
                 position: "test_position",
                 timeZone: "Europe/Moscow",
-                idRegion: 1,
-                idProgram: 1,
+                regionId: 1,
+                programId: 1,
             }) {
                 uuid
-                idProgram
+                programId
                 username
             }
         }`,
@@ -182,11 +182,11 @@ describe('users', () => {
     const {
       data: { registerUser },
     } = body;
-    expect(registerUser).toContainAllKeys(['uuid', 'idProgram', 'username']);
+    expect(registerUser).toContainAllKeys(['uuid', 'programId', 'username']);
     expect(registerUser.uuid).toBeNonEmptyString();
-    expect(registerUser.idProgram).toBe(1);
+    expect(registerUser.programId).toBe(1);
     expect(registerUser.username).toBe(username);
-    uuidUserFirst = registerUser.uuid;
+    userUuidFirst = registerUser.uuid;
     done();
   });
 
@@ -207,11 +207,11 @@ describe('users', () => {
                 address: "test_address",
                 position: "test_position",
                 timeZone: "Europe/Moscow",
-                idRegion: 1,
-                idProgram: 1,
+                regionId: 1,
+                programId: 1,
             }) {
                 uuid
-                idProgram
+                programId
                 username
             }
         }`,
@@ -221,11 +221,11 @@ describe('users', () => {
     const {
       data: { registerUser },
     } = body;
-    expect(registerUser).toContainAllKeys(['uuid', 'idProgram', 'username']);
+    expect(registerUser).toContainAllKeys(['uuid', 'programId', 'username']);
     expect(registerUser.uuid).toBeNonEmptyString();
-    expect(registerUser.idProgram).toBe(1);
+    expect(registerUser.programId).toBe(1);
     expect(registerUser.username).toBe(username2);
-    uuidUserSecond = registerUser.uuid;
+    userUuidSecond = registerUser.uuid;
     done();
   });
 
@@ -246,11 +246,11 @@ describe('users', () => {
                 address: "test_address",
                 position: "test_position",
                 timeZone: "Europe/Moscow",
-                idRegion: 1,
-                idProgram: 1,
+                regionId: 1,
+                programId: 1,
             }) {
                 uuid
-                idProgram
+                programId
                 username
             }
         }`,
@@ -485,7 +485,7 @@ describe('users', () => {
       .send({
         query: `query showTokensQuery {
           showTokens {
-            uuidUser
+            userUuid
             token
             createdAt
             expirationAt
@@ -497,7 +497,7 @@ describe('users', () => {
     const {
       data: { showTokens },
     } = response1.body;
-    expect(showTokens[0]).toContainAllKeys(['uuidUser', 'token', 'createdAt', 'expirationAt']);
+    expect(showTokens[0]).toContainAllKeys(['userUuid', 'token', 'createdAt', 'expirationAt']);
     done();
   });
 
@@ -578,8 +578,8 @@ describe('users', () => {
       .send({
         query: `query ListUsers {
             users(usersUuids: [
-              "${uuidUserFirst}",
-              "${uuidUserSecond}"
+              "${userUuidFirst}",
+              "${userUuidSecond}"
             ]) {
               ${usersListQuery}
             }
@@ -588,9 +588,9 @@ describe('users', () => {
       .expect(HttpStatus.OK)
     debug('/graphql users=%o', response1.body);
     expect(response1.body.data.users).toBeNonEmptyArray();
-    expect(response1.body.data.users[0].uuid).toBe(uuidUserFirst);
+    expect(response1.body.data.users[0].uuid).toBe(userUuidFirst);
     expect(response1.body.data.users[0].username).toBe(username);
-    expect(response1.body.data.users[1].uuid).toBe(uuidUserSecond);
+    expect(response1.body.data.users[1].uuid).toBe(userUuidSecond);
     expect(response1.body.data.users[1].username).toBe(username2);
     done();
   });
@@ -672,7 +672,7 @@ describe('users', () => {
       query: `query myselfQuery {
         myself {
           uuid
-          idProgram
+          programId
           username
         }
       }`,
@@ -698,7 +698,7 @@ describe('users', () => {
         query: `query myselfQuery {
           myself {
             uuid
-            idProgram
+            programId
             username
           }
         }`,
@@ -708,7 +708,7 @@ describe('users', () => {
     const {
       data: { myself },
     } = response1.body;
-    expect(myself).toContainAllKeys(['uuid', 'idProgram', 'username']);
+    expect(myself).toContainAllKeys(['uuid', 'programId', 'username']);
     expect(myself.username).toBe(username);
     done();
   });
@@ -742,7 +742,7 @@ describe('users', () => {
       query: `query myselfQuery {
         myself {
           uuid
-          idProgram
+          programId
           username
         }
       }`,
@@ -789,7 +789,7 @@ describe('users', () => {
       .send({
         query: `query showTokensQuery {
           showTokens {
-            uuidUser
+            userUuid
             token
             createdAt
             expirationAt

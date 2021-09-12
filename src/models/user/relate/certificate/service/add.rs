@@ -45,8 +45,8 @@ pub(crate) fn add_certificate(
     let temp_string = format!("This will be url for upload file {:?}", slim_file.path_file);
 
     let new_user_certificate = InsertableUserCertificate{
-        uuid_file: slim_file.uuid,
-        uuid_user: target_user,
+        file_uuid: slim_file.uuid,
+        user_uuid: target_user,
         description: cert_data.description,
     };
 

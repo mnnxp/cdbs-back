@@ -18,8 +18,8 @@ pub(crate) fn add_file_to_set_modification(
     let new_param_data: InsertableFileToSetModification = new_param_data.into();
 
     let flag_found_param = file_to_set_modification
-        .filter(id_set.eq(&new_param_data.id_set))
-        .filter(uuid_file.eq(&new_param_data.uuid_file))
+        .filter(set_id.eq(&new_param_data.set_id))
+        .filter(file_uuid.eq(&new_param_data.file_uuid))
         .execute(conn).unwrap_or(0);
 
     // debug!("fn create_param START SEARCH ={:?}", flag_found_param);

@@ -8,64 +8,64 @@ use uuid::Uuid;
 
 // Keyword standard models
 #[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, Clone, Debug)]
-#[primary_key(uuid_standard, id_keyword)]
-#[belongs_to(Standard, foreign_key = "uuid_standard")]
-#[belongs_to(Keyword, foreign_key = "id_keyword")]
+#[primary_key(standard_uuid, keyword_id)]
+#[belongs_to(Standard, foreign_key = "standard_uuid")]
+#[belongs_to(Keyword, foreign_key = "keyword_id")]
 #[table_name = "keyword_to_standard"]
 pub struct KeywordStandard {
-    pub uuid_standard: Uuid,
-    pub id_keyword: i32,
+    pub standard_uuid: Uuid,
+    pub keyword_id: i32,
 }
 
 #[Object]
 impl KeywordStandard {
-    async fn id_keyword(&self) -> &i32 {
-        &self.id_keyword
+    async fn keyword_id(&self) -> &i32 {
+        &self.keyword_id
     }
-    async fn uuid_standard(&self) -> ID {
-        self.uuid_standard.into()
+    async fn standard_uuid(&self) -> ID {
+        self.standard_uuid.into()
     }
 }
 
 #[derive(Deserialize, SimpleObject, Clone, Debug)]
 pub struct StandardKeywordRelatedData {
     pub keyword: Keyword,
-    pub uuid_standard: Uuid,
+    pub standard_uuid: Uuid,
 }
 
 impl From<(KeywordStandard, Keyword)> for StandardKeywordRelatedData {
     fn from(data: (KeywordStandard, Keyword)) -> Self {
         Self {
             keyword: data.1,
-            uuid_standard: data.0.uuid_standard,
+            standard_uuid: data.0.standard_uuid,
         }
     }
 }
 
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub struct IptKeywordStandardData {
-    pub uuid_standard: ID,
-    pub id_keyword: i32,
+    pub standard_uuid: ID,
+    pub keyword_id: i32,
 }
 
 #[derive(Debug, Insertable)]
 #[table_name = "keyword_to_standard"]
 pub struct InsertableKeywordStandard {
-    pub uuid_standard: Uuid,
-    pub id_keyword: i32,
+    pub standard_uuid: Uuid,
+    pub keyword_id: i32,
 }
 
 impl From<IptKeywordStandardData> for InsertableKeywordStandard {
     fn from(ipt_data: IptKeywordStandardData) -> Self {
         let IptKeywordStandardData {
-            uuid_standard,
-            id_keyword,
+            standard_uuid,
+            keyword_id,
             ..
         } = ipt_data;
 
         Self {
-            uuid_standard: Uuid::parse_str(&uuid_standard.to_string()).unwrap(),
-            id_keyword,
+            standard_uuid: Uuid::parse_str(&standard_uuid.to_string()).unwrap(),
+            keyword_id,
         }
     }
 }

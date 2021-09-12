@@ -8,8 +8,8 @@ pub(crate) fn create_program(
     conn: &PgConnection
 ) -> ServiceResult<Program> {
     use crate::schema::program_ref::dsl::*;
-    // use crate::schema::program_to_component::dsl::uuid as uuid_component;
-    // use crate::schema::program_to_modification::dsl::uuid as uuid_modification;
+    // use crate::schema::program_to_component::dsl::uuid as component_uuid;
+    // use crate::schema::program_to_modification::dsl::uuid as modification_uuid;
     // use diesel::dsl::count;
 
     let flag_found_program = program_ref

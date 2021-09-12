@@ -8,49 +8,49 @@ use uuid::Uuid;
 
 // Certificate for Company
 #[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, Debug)]
-#[primary_key(uuid_file, uuid_company)]
-#[belongs_to(ShowFile, foreign_key = "uuid_file")]
-#[belongs_to(Company, foreign_key = "uuid_company")]
+#[primary_key(file_uuid, company_uuid)]
+#[belongs_to(ShowFile, foreign_key = "file_uuid")]
+#[belongs_to(Company, foreign_key = "company_uuid")]
 #[table_name = "company_certificate_ref"]
 pub struct CompanyCertificate {
-    pub uuid_file: Uuid,
-    pub uuid_company: Uuid,
+    pub file_uuid: Uuid,
+    pub company_uuid: Uuid,
     pub description: String,
 }
 
 #[derive(Debug, Deserialize, SimpleObject)]
 pub struct CertificateWithSlimFile {
     pub file: SlimFile,
-    pub uuid_company: Uuid,
+    pub company_uuid: Uuid,
     pub description: String,
 }
 
 #[derive(Debug, Insertable)]
 #[table_name = "company_certificate_ref"]
 pub struct InsertableCompanyCertificate {
-    pub uuid_file: Uuid,
-    pub uuid_company: Uuid,
+    pub file_uuid: Uuid,
+    pub company_uuid: Uuid,
     pub description: String,
 }
 
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub struct IptCompanyCertificateData {
-    pub uuid_company: Uuid,
+    pub company_uuid: Uuid,
     pub description: String,
 }
 
 impl From<CompanyCertificate> for InsertableCompanyCertificate {
     fn from(ipt_data: CompanyCertificate) -> Self {
         let CompanyCertificate {
-            uuid_file,
-            uuid_company,
+            file_uuid,
+            company_uuid,
             description,
             ..
         } = ipt_data;
 
         Self {
-            uuid_file,
-            uuid_company,
+            file_uuid,
+            company_uuid,
             description,
         }
     }

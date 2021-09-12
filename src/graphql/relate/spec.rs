@@ -16,18 +16,18 @@ impl SpecQuery {
     async fn specs(
         &self,
         cxt: &Context<'_>,
-        id_spec: Option<Vec<i32>>,
+        spec_id: Option<Vec<i32>>,
         limit: Option<i32>,
         offset: Option<i32>,
     ) -> ServiceResult<Vec<SpecTranslateList>> {
         // authorization check
         user::util::check_authorized(cxt)?;
 
-        let id_spec: Vec<i32> = id_spec.unwrap_or_default();
+        let spec_id: Vec<i32> = spec_id.unwrap_or_default();
         let limit: i32 = limit.unwrap_or(100);
         let offset: i32 = offset.unwrap_or(0);
 
-        spec::service::list::get_specs(cxt, id_spec, limit, offset)
+        spec::service::list::get_specs(cxt, spec_id, limit, offset)
     }
 }
 

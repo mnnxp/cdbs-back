@@ -8,8 +8,8 @@ pub(crate) fn create_extension(
     conn: &PgConnection
 ) -> ServiceResult<Extension> {
     use crate::schema::extension_ref::dsl::*;
-    // use crate::schema::extension_to_component::dsl::uuid as uuid_component;
-    // use crate::schema::extension_to_modification::dsl::uuid as uuid_modification;
+    // use crate::schema::extension_to_component::dsl::uuid as component_uuid;
+    // use crate::schema::extension_to_modification::dsl::uuid as modification_uuid;
     // use diesel::dsl::count;
 
     let flag_found_extension = extension_ref

@@ -8,11 +8,11 @@ impl ShowComponentShort {
     /// get list subscribers for component
     pub fn get_by_user_uuid(
         target_user_uuid: &Uuid,
-        set_id_lang: &i32,
+        set_lang_id: &i32,
         conn: &PgConnection,
     ) -> ServiceResult<Vec<ShowComponentShort>> {
         let target_components_uuids = component_ref::component_ref
-            .filter(component_ref::uuid_user.eq(target_user_uuid))
+            .filter(component_ref::user_uuid.eq(target_user_uuid))
             .select(component_ref::uuid)
             .load::<Uuid>(conn)
             .expect("Fail load uuid list target user");
@@ -20,7 +20,7 @@ impl ShowComponentShort {
         ShowComponentShort::get_list_by_uuids(
             &target_components_uuids,
             target_user_uuid,
-            set_id_lang,
+            set_lang_id,
             conn,
         )
     }
@@ -31,7 +31,7 @@ impl ShowComponentShort {
         conn: &PgConnection,
     ) -> ServiceResult<i32> {
         Ok(component_ref::component_ref
-            .filter(component_ref::uuid_user.eq(target_user_uuid))
+            .filter(component_ref::user_uuid.eq(target_user_uuid))
             .execute(conn)? as i32)
     }
 }

@@ -11,25 +11,25 @@ use diesel::prelude::*;
 
 pub(crate) fn get_files_set_modification(
     cxt: &Context<'_>,
-    target_id_set: i32,
+    target_set_id: i32,
     limit: i32,
     offset: i32,
 ) -> ServiceResult<Vec<FileToSetModification>> {
     let mut variant_selection: u8 = 0;
-    if target_id_set > 0 {
+    if target_set_id > 0 {
         variant_selection += 1;
     }
 
     match variant_selection {
         // 0 => find_all_set_files(cxt, limit, offset),
-        1 => find_files_for_set_modification(cxt, target_id_set, limit, offset),
+        1 => find_files_for_set_modification(cxt, target_set_id, limit, offset),
         _ => ServiceResult::Err(ServiceError::BadRequest("What?".to_string()))
     }
 }
 
 fn find_files_for_set_modification(
     cxt: &Context<'_>,
-    target_id_set: i32,
+    target_set_id: i32,
     limit: i32,
     offset: i32,
 ) -> ServiceResult<Vec<FileToSetModification>> {
@@ -37,7 +37,7 @@ fn find_files_for_set_modification(
     let conn: &PooledConnection = &get_conn(cxt)?;
 
     Ok(file_to_set_modification
-        .filter(id_set.eq(target_id_set))
+        .filter(set_id.eq(target_set_id))
         .limit(limit as i64)
         .offset(offset as i64)
         .load::<FileToSetModification>(conn)?)

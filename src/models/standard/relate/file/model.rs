@@ -8,43 +8,43 @@ use uuid::Uuid;
 
 // Structures for Standard
 #[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, Debug)]
-#[primary_key(uuid_file, uuid_standard)]
-#[belongs_to(ShowFile, foreign_key = "uuid_file")]
-#[belongs_to(Standard, foreign_key = "uuid_standard")]
+#[primary_key(file_uuid, standard_uuid)]
+#[belongs_to(ShowFile, foreign_key = "file_uuid")]
+#[belongs_to(Standard, foreign_key = "standard_uuid")]
 #[table_name = "file_to_standard"]
 pub struct FileStandard {
-    pub uuid_file: Uuid,
-    pub uuid_standard: Uuid,
+    pub file_uuid: Uuid,
+    pub standard_uuid: Uuid,
 }
 
 #[Object]
 impl FileStandard {
-    async fn uuid_file(&self) -> ID {
-        self.uuid_file.into()
+    async fn file_uuid(&self) -> ID {
+        self.file_uuid.into()
     }
-    async fn uuid_standard(&self) -> ID {
-        self.uuid_standard.into()
+    async fn standard_uuid(&self) -> ID {
+        self.standard_uuid.into()
     }
 }
 
 #[derive(Debug, Insertable)]
 #[table_name = "file_to_standard"]
 pub struct InsertableFileStandard {
-    pub uuid_file: Uuid,
-    pub uuid_standard: Uuid,
+    pub file_uuid: Uuid,
+    pub standard_uuid: Uuid,
 }
 
 impl From<FileStandard> for InsertableFileStandard {
     fn from(ipt_data: FileStandard) -> Self {
         let FileStandard {
-            uuid_file,
-            uuid_standard,
+            file_uuid,
+            standard_uuid,
             ..
         } = ipt_data;
 
         Self {
-            uuid_file,
-            uuid_standard,
+            file_uuid,
+            standard_uuid,
         }
     }
 }

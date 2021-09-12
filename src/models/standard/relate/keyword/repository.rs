@@ -11,9 +11,9 @@ impl Keyword {
         standard: &Standard,
         conn: &PgConnection,
     ) -> ServiceResult<Vec<Keyword>> {
-        let target_vec_id_keyword: Vec<i32> = KeywordStandard::belonging_to(standard)
-            .select(keyword_to_standard::id_keyword)
+        let target_vec_keyword_id: Vec<i32> = KeywordStandard::belonging_to(standard)
+            .select(keyword_to_standard::keyword_id)
             .load::<i32>(conn)?;
-        Keyword::get_keyword_by_vec_id(&target_vec_id_keyword, conn)
+        Keyword::get_keyword_by_vec_id(&target_vec_keyword_id, conn)
     }
 }

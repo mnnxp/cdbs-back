@@ -11,13 +11,13 @@ impl UserFav {
         target_user_uuid: &Uuid,
         conn: &PgConnection,
     ) -> ServiceResult<Vec<ShowUserShort>> {
-        let target_list_uuid_user = user_fav::user_fav
-            .filter(user_fav::uuid_user_follower.eq(target_user_uuid))
-            .select(user_fav::uuid_user_follower)
+        let target_list_user_uuid = user_fav::user_fav
+            .filter(user_fav::user_follower_uuid.eq(target_user_uuid))
+            .select(user_fav::user_follower_uuid)
             .load::<Uuid>(conn)
             .expect("Fail load uuid list target user");
 
-        ShowUserShort::get_list_by_uuids(&target_list_uuid_user, conn)
+        ShowUserShort::get_list_by_uuids(&target_list_user_uuid, conn)
     }
 
     /// Count subscribers for user
@@ -26,7 +26,7 @@ impl UserFav {
         conn: &PgConnection,
     ) -> ServiceResult<i32> {
         Ok(user_fav::user_fav
-            .filter(user_fav::uuid_user_follower.eq(target_user_uuid))
+            .filter(user_fav::user_follower_uuid.eq(target_user_uuid))
             .execute(conn)? as i32)
     }
 }

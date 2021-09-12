@@ -16,15 +16,15 @@ pub struct StorageMutation;
 
 #[Object]
 impl StorageQuery {
-    async fn presigned_url(&self, cxt: &Context<'_>, uuid_file: String) -> ServiceResult<String> {
+    async fn presigned_url(&self, cxt: &Context<'_>, file_uuid: String) -> ServiceResult<String> {
         let pool = get_pool(cxt)?;
 
         // authorization check
-        let target_user = TargetUser::from(&crate::models::user::get_logged_uuid_user(cxt, true)?);
+        let target_user = TargetUser::from(&crate::models::user::get_logged_user_uuid(cxt, true)?);
 
-        let target_uuid_file = Uuid::parse_str(&uuid_file).unwrap();
+        let target_file_uuid = Uuid::parse_str(&file_uuid).unwrap();
 
-        Ok(file::service::list::get_url_file_by_uuid(target_user, target_uuid_file, pool).await?)
+        Ok(file::service::list::get_url_file_by_uuid(target_user, target_file_uuid, pool).await?)
     }
 }
 
@@ -38,7 +38,7 @@ impl StorageMutation {
         use crate::models::user::service::upload::favicon::update_favicon;
         let pool = get_pool(cxt)?;
 
-        let target_user = TargetUser::from(&crate::models::user::get_logged_uuid_user(cxt, true)?);
+        let target_user = TargetUser::from(&crate::models::user::get_logged_user_uuid(cxt, true)?);
 
         Ok(update_favicon(target_user, file_data, pool).await?)
     }
@@ -47,7 +47,7 @@ impl StorageMutation {
         let pool = get_pool(cxt)?;
         // let conn = pool.get().unwrap();
 
-        let target_user = TargetUser::from(&crate::models::user::get_logged_uuid_user(cxt, true)?);
+        let target_user = TargetUser::from(&crate::models::user::get_logged_user_uuid(cxt, true)?);
 
         Ok(file::service::update::confirm_upload(&target_user, &file_id, pool).await?)
     }

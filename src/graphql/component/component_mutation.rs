@@ -44,9 +44,9 @@ impl ComponentMutation {
         let conn: &PooledConnection = &get_conn(cxt)?;
 
         // checking authorization and getting user uuid
-        let logged_uuid_user = crate::models::user::get_logged_uuid_user(cxt, true)?;
+        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
 
-        Ok(create_component(logged_uuid_user, data, conn)?)
+        Ok(create_component(logged_user_uuid, data, conn)?)
     }
 
     async fn register_param_component(
@@ -122,9 +122,9 @@ impl ComponentMutation {
         use component::component_modification::service::register::create_component_modification;
         let conn: &PooledConnection = &get_conn(cxt)?;
 
-        let logged_uuid_user = crate::models::user::get_logged_uuid_user(cxt, true)?;
+        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
 
-        Ok(create_component_modification(data, logged_uuid_user, conn)?)
+        Ok(create_component_modification(data, logged_user_uuid, conn)?)
     }
 
     async fn register_param_modification(

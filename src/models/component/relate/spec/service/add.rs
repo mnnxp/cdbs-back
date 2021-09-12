@@ -19,8 +19,8 @@ pub(crate) fn add_component_spec(
     let new_component_spec: InsertableSpecComponent = data.into();
 
     let flag_found_spec = spec_to_component
-        .filter(uuid_component.eq(&new_component_spec.uuid_component)
-        .and(id_spec.eq(&new_component_spec.id_spec)))
+        .filter(component_uuid.eq(&new_component_spec.component_uuid)
+        .and(spec_id.eq(&new_component_spec.spec_id)))
         .execute(conn).unwrap_or(0);
 
     // debug!("fn create_spec START SEARCH ={:?}", flag_found_spec);

@@ -40,9 +40,9 @@ impl UserQuery {
                 user_ref::address,
                 user_ref::position,
                 user_ref::time_zone,
-                user_ref::uuid_image_file,
-                user_ref::id_region,
-                user_ref::id_program,
+                user_ref::image_file_uuid,
+                user_ref::region_id,
+                user_ref::program_id,
                 user_ref::is_email_verified,
                 user_ref::is_enabled,
                 user_ref::is_delete,
@@ -56,16 +56,16 @@ impl UserQuery {
 impl UserShort {
     /// get UserShort data for target uuid user
     pub fn get_by_uuid(
-        target_uuid_user: &Uuid,
+        target_user_uuid: &Uuid,
         conn: &PgConnection,
     ) -> ServiceResult<UserShort> {
 
     Ok(user_ref::user_ref
-        .filter(user_ref::uuid.eq(target_uuid_user))
+        .filter(user_ref::uuid.eq(target_user_uuid))
         .select((
             user_ref::uuid,
             user_ref::username,
-            user_ref::uuid_image_file,
+            user_ref::image_file_uuid,
         ))
         .first::<UserShort>(conn)?)
     }
@@ -74,22 +74,22 @@ impl UserShort {
 impl ShowUserShort {
     /// get ShowUserShort data for target uuid user
     pub fn get_by_uuid(
-        target_uuid_user: &Uuid,
+        target_user_uuid: &Uuid,
         conn: &PgConnection,
     ) -> ServiceResult<ShowUserShort> {
         let user_data = user_ref::user_ref
-            .filter(user_ref::uuid.eq(target_uuid_user))
+            .filter(user_ref::uuid.eq(target_user_uuid))
             .select((
                 user_ref::uuid,
                 user_ref::username,
-                user_ref::uuid_image_file,
+                user_ref::image_file_uuid,
             ))
             .first::<UserShort>(conn)
             .expect("Faile get user_data");
 
         Ok(ShowUserShort::from((
             &user_data,
-            SlimFile::get_file_by_uuid(&user_data.uuid_image_file, conn)
+            SlimFile::get_file_by_uuid(&user_data.image_file_uuid, conn)
                 .expect("Failed get SlimFile for ShowUserShort")
         )))
     }
@@ -100,9 +100,9 @@ impl ShowUserShort {
         conn: &PgConnection,
     ) -> ServiceResult<Vec<ShowUserShort>> {
         let mut show_users_short_data: Vec<ShowUserShort> = Vec::new();
-        for target_uuid_user in target_users_uuids.iter() {
+        for target_user_uuid in target_users_uuids.iter() {
             show_users_short_data.push(ShowUserShort::get_by_uuid(
-                target_uuid_user,
+                target_user_uuid,
                 conn
             )?)
         }
@@ -116,7 +116,7 @@ impl UserAndRelatedData {
     pub fn collect_related_data(
         target_user_uuid: &Uuid,
         logged_user_uuid: &Uuid,
-        set_id_lang: &i32,
+        set_lang_id: &i32,
         conn: &PgConnection,
     ) -> ServiceResult<UserAndRelatedData> {
         // collect data for user
@@ -126,19 +126,19 @@ impl UserAndRelatedData {
         ).expect("Error loading user");
 
         // get image file (favicon) for user
-        let image_file = SlimFile::get_file_by_uuid(&user.uuid_image_file, conn)
+        let image_file = SlimFile::get_file_by_uuid(&user.image_file_uuid, conn)
             .expect("Error loading user file");
 
         // get region for user
         let region: RegionTranslateList = RegionTranslateList::get_region_by_id(
-            &user.id_region,
-            set_id_lang,
+            &user.region_id,
+            set_lang_id,
             conn
         ).expect("Error loading user_type");
 
         // get program set default for user
         let program: Program = Program::get_program_by_id(
-            &user.id_program,
+            &user.program_id,
             conn
         ).expect("Error get set program");
 

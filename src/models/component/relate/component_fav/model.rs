@@ -8,24 +8,24 @@ use uuid::Uuid;
 
 // Favorites component models
 #[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, Clone, Debug)]
-#[primary_key(uuid_component, uuid_component)]
-#[belongs_to(Component, foreign_key = "uuid_component")]
-#[belongs_to(User, foreign_key = "uuid_user")]
+#[primary_key(component_uuid, component_uuid)]
+#[belongs_to(Component, foreign_key = "component_uuid")]
+#[belongs_to(User, foreign_key = "user_uuid")]
 #[table_name = "component_fav"]
 pub struct ComponentFav {
-    pub uuid_component: Uuid,
-    pub uuid_user: Uuid,
+    pub component_uuid: Uuid,
+    pub user_uuid: Uuid,
     pub is_enabled: bool,
     pub created_at: NaiveDateTime,
 }
 
 #[Object]
 impl ComponentFav {
-    async fn uuid_component(&self) -> ID {
-        self.uuid_component.into()
+    async fn component_uuid(&self) -> ID {
+        self.component_uuid.into()
     }
-    async fn uuid_user(&self) -> ID {
-        self.uuid_user.into()
+    async fn user_uuid(&self) -> ID {
+        self.user_uuid.into()
     }
     async fn is_enabled(&self) -> &bool {
         &self.is_enabled
@@ -37,8 +37,8 @@ impl ComponentFav {
 
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub struct IptComponentFavData {
-    pub uuid_component: Uuid,
-    pub uuid_user: Uuid,
+    pub component_uuid: Uuid,
+    pub user_uuid: Uuid,
     // pub is_enabled: bool,
     // pub created_at: NaiveDateTime,
 }
@@ -46,8 +46,8 @@ pub struct IptComponentFavData {
 #[derive(Debug, Insertable)]
 #[table_name = "component_fav"]
 pub struct InsertableComponentFav {
-    pub uuid_component: Uuid,
-    pub uuid_user: Uuid,
+    pub component_uuid: Uuid,
+    pub user_uuid: Uuid,
     pub is_enabled: bool,
     pub created_at: NaiveDateTime,
 }
@@ -55,16 +55,16 @@ pub struct InsertableComponentFav {
 impl From<IptComponentFavData> for InsertableComponentFav {
     fn from(ipt_data: IptComponentFavData) -> Self {
         let IptComponentFavData {
-            uuid_component,
-            uuid_user,
+            component_uuid,
+            user_uuid,
             // is_enabled,
             // created_at,
             ..
         } = ipt_data;
 
         Self {
-            uuid_component: Uuid::parse_str(&uuid_component.to_string()).unwrap(),
-            uuid_user: Uuid::parse_str(&uuid_user.to_string()).unwrap(),
+            component_uuid: Uuid::parse_str(&component_uuid.to_string()).unwrap(),
+            user_uuid: Uuid::parse_str(&user_uuid.to_string()).unwrap(),
             is_enabled: true,
             created_at: chrono::Local::now().naive_local(),
         }

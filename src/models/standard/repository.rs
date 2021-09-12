@@ -13,11 +13,11 @@ use uuid::Uuid;
 impl Standard {
     /// Get standard data from standard_ref table by uuid
     pub fn get_standard_by_uuid(
-        target_uuid_standard: &Uuid,
+        target_standard_uuid: &Uuid,
         conn: &PgConnection,
     ) -> ServiceResult<Standard> {
         Ok(standard_ref::standard_ref
-            .filter(standard_ref::uuid.eq(target_uuid_standard))
+            .filter(standard_ref::uuid.eq(target_standard_uuid))
             .first::<Standard>(conn)?)
     }
 }
@@ -25,40 +25,40 @@ impl Standard {
 impl ShowStandardShort {
     pub fn get_list_by_uuids(
         target_uuids_standards: &[Uuid],
-        target_uuid_user: &Uuid,
-        set_id_lang: &i32,
+        target_user_uuid: &Uuid,
+        set_lang_id: &i32,
         conn: &PgConnection,
     ) -> ServiceResult<Vec<ShowStandardShort>> {
         // the for collect the result :)
         let mut result: Vec<ShowStandardShort> = Vec::new();
 
         // collecting data for each standard
-        for target_uuid_standard in target_uuids_standards.iter() {
+        for target_standard_uuid in target_uuids_standards.iter() {
             // get target standard
             let standard: Standard = Standard::get_standard_by_uuid(
-                target_uuid_standard,
+                target_standard_uuid,
                 conn
             ).expect("Error loading standard");
 
             // get standard owner company
             let owner_company = crate::models::company::model::ShowCompanyShort::get_by_uuid(
-                &standard.uuid_company,
-                target_uuid_user,
-                set_id_lang,
+                &standard.company_uuid,
+                target_user_uuid,
+                set_lang_id,
                 conn
             ).expect("Error loading company short data");
 
             // get standard type with translation for standard
             let standard_status: StandardStatusTranslateList = StandardStatusTranslateList::get_standard_status_by_id(
-                &standard.id_standard_status,
-                set_id_lang,
+                &standard.standard_status_id,
+                set_lang_id,
                 conn
             ).expect("Error loading standard_status");
 
             // check whether the object is being tracked auth user
             let is_followed = crate::models::standard::standard_fav::util::check_subscriber_by_uuid(
-                target_uuid_standard,
-                target_uuid_user,
+                target_standard_uuid,
+                target_user_uuid,
                 conn
             ).expect("Error get is_followed");
 
@@ -82,54 +82,54 @@ impl ShowStandardShort {
 impl StandardAndRelatedData {
     /// Collecting standard data and related data using uuid
     pub fn collect_related_data(
-        target_uuid_standard: &Uuid,
-        target_uuid_user: &Uuid,
-        set_id_lang: &i32,
+        target_standard_uuid: &Uuid,
+        target_user_uuid: &Uuid,
+        set_lang_id: &i32,
         conn: &PgConnection,
     ) -> ServiceResult<StandardAndRelatedData> {
         // collect data for standard
         let standard: Standard = Standard::get_standard_by_uuid(
-            target_uuid_standard,
+            target_standard_uuid,
             conn
         ).expect("Error loading standard");
 
         // get image file (favicon) for standard
-        let image_file = SlimFile::get_file_by_uuid(&standard.uuid_image_file, conn)
+        let image_file = SlimFile::get_file_by_uuid(&standard.image_file_uuid, conn)
             .expect("Error loading standard file");
 
         // get standard owner user
         let owner_user = crate::models::user::model::ShowUserShort::get_by_uuid(
-            &standard.uuid_user,
+            &standard.user_uuid,
             conn
         ).expect("Error loading slim_user");
 
         // get standard owner company
         let owner_company = crate::models::company::model::ShowCompanyShort::get_by_uuid(
-            &standard.uuid_company,
-            target_uuid_user,
-            set_id_lang,
+            &standard.company_uuid,
+            target_user_uuid,
+            set_lang_id,
             conn
         ).expect("Error loading company short data");
 
         // todo!(need make access manager)
         // get standard type with translation for standard
         // let type_access: TypeAccessTranslateList = TypeAccessTranslateList::get_standard_status_by_id(
-        //     &standard.id_type_access,
-        //     set_id_lang,
+        //     &standard.type_access_id,
+        //     set_lang_id,
         //     conn
         // ).expect("Error loading type_access");
 
         // get standard type with translation for standard
         let standard_status: StandardStatusTranslateList = StandardStatusTranslateList::get_standard_status_by_id(
-            &standard.id_standard_status,
-            set_id_lang,
+            &standard.standard_status_id,
+            set_lang_id,
             conn
         ).expect("Error loading standard_status");
 
         // get region for company
         let region: RegionTranslateList = RegionTranslateList::get_region_by_id(
-            &standard.id_region,
-            set_id_lang,
+            &standard.region_id,
+            set_lang_id,
             conn
         ).expect("Error loading company_type");
 
@@ -143,14 +143,14 @@ impl StandardAndRelatedData {
         // get specs with translation for standard
         let standard_specs: Vec<StandardSpecWithTranslation> = StandardSpecWithTranslation::for_standard(
             &standard,
-            set_id_lang,
+            set_lang_id,
             conn
         ).expect("Error loading spec standard with translate");
 
         // check whether the object is being tracked auth user
         let is_followed = crate::models::standard::standard_fav::util::check_subscriber_by_uuid(
-            target_uuid_standard,
-            target_uuid_user,
+            target_standard_uuid,
+            target_user_uuid,
             conn
         ).expect("Error get is_followed");
 
@@ -162,7 +162,7 @@ impl StandardAndRelatedData {
 
         let result = StandardAndRelatedData {
             uuid: standard.uuid,
-            uuid_standard_parent: standard.uuid_standard_parent,
+            parent_standard_uuid: standard.parent_standard_uuid,
             classifier: standard.classifier,
             name: standard.name,
             description: standard.description,
@@ -172,7 +172,7 @@ impl StandardAndRelatedData {
             image_file,
             owner_user,
             owner_company,
-            id_type_access: standard.id_type_access,
+            type_access_id: standard.type_access_id,
             standard_status,
             region,
             is_delete: standard.is_delete,

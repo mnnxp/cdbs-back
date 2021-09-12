@@ -25,11 +25,11 @@ pub struct Company {
     pub address: String,
     pub site_url: String,
     pub time_zone: String,
-    pub uuid_user: Uuid,
-    pub uuid_image_file: Uuid,
-    pub id_region: i32,
-    pub id_company_type: i32,
-    pub id_type_access: i32,
+    pub user_uuid: Uuid,
+    pub image_file_uuid: Uuid,
+    pub region_id: i32,
+    pub company_type_id: i32,
+    pub type_access_id: i32,
     pub is_supplier: bool,
     pub is_email_verified: bool,
     pub is_enabled: bool,
@@ -98,10 +98,10 @@ pub struct InsertableCompany {
     pub address: String,
     pub site_url: String,
     pub time_zone: String,
-    pub uuid_user: Uuid,
-    pub uuid_image_file: Uuid,
-    pub id_region: i32,
-    pub id_company_type: i32,
+    pub user_uuid: Uuid,
+    pub image_file_uuid: Uuid,
+    pub region_id: i32,
+    pub company_type_id: i32,
     pub is_supplier: bool,
     pub is_email_verified: bool,
     pub is_enabled: bool,
@@ -121,8 +121,8 @@ pub struct IptCompanyData {
     pub address: String,
     pub site_url: String,
     pub time_zone: String,
-    pub id_region: i32,
-    pub id_company_type: i32,
+    pub region_id: i32,
+    pub company_type_id: i32,
 }
 
 #[derive(Debug, Deserialize, Clone)]
@@ -136,10 +136,10 @@ pub struct CompanyData {
     pub address: String,
     pub site_url: String,
     pub time_zone: String,
-    pub uuid_user: Uuid,
-    pub uuid_image_file: Uuid,
-    pub id_region: i32,
-    pub id_company_type: i32,
+    pub user_uuid: Uuid,
+    pub image_file_uuid: Uuid,
+    pub region_id: i32,
+    pub company_type_id: i32,
 }
 
 #[Object]
@@ -171,17 +171,17 @@ impl CompanyData {
     async fn time_zone(&self) -> &String {
         &self.time_zone
     }
-    async fn uuid_user(&self) -> ID {
-        self.uuid_user.into()
+    async fn user_uuid(&self) -> ID {
+        self.user_uuid.into()
     }
-    async fn uuid_image_file(&self) -> ID {
-        self.uuid_image_file.into()
+    async fn image_file_uuid(&self) -> ID {
+        self.image_file_uuid.into()
     }
-    async fn id_region(&self) -> &i32 {
-        &self.id_region
+    async fn region_id(&self) -> &i32 {
+        &self.region_id
     }
-    async fn id_company_type(&self) -> &i32 {
-        &self.id_company_type
+    async fn company_type_id(&self) -> &i32 {
+        &self.company_type_id
     }
 }
 
@@ -218,10 +218,10 @@ impl From<CompanyData> for InsertableCompany {
             address,
             site_url,
             time_zone,
-            uuid_user,
-            uuid_image_file,
-            id_region,
-            id_company_type,
+            user_uuid,
+            image_file_uuid,
+            region_id,
+            company_type_id,
             ..
         } = company_data;
 
@@ -241,10 +241,10 @@ impl From<CompanyData> for InsertableCompany {
             address,
             site_url,
             time_zone,
-            uuid_user,
-            uuid_image_file,
-            id_region,
-            id_company_type,
+            user_uuid,
+            image_file_uuid,
+            region_id,
+            company_type_id,
             is_supplier,
             is_email_verified,
             is_enabled,

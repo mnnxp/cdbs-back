@@ -5,20 +5,20 @@ use diesel::prelude::*;
 
 impl Keyword {
     pub fn get_keyword_by_id(
-        target_id_keyword: &i32,
+        target_keyword_id: &i32,
         conn: &PgConnection,
     ) -> ServiceResult<Keyword> {
         Ok(keyword_ref::keyword_ref
-            .filter(keyword_ref::id.eq(target_id_keyword))
+            .filter(keyword_ref::id.eq(target_keyword_id))
             .first::<Keyword>(conn)?)
     }
 
     pub fn get_keyword_by_vec_id(
-        target_vec_id_keyword: &[i32],
+        target_vec_keyword_id: &[i32],
         conn: &PgConnection,
     ) -> ServiceResult<Vec<Keyword>> {
         Ok(keyword_ref::keyword_ref
-            .filter(keyword_ref::id.eq_any(target_vec_id_keyword))
+            .filter(keyword_ref::id.eq_any(target_vec_keyword_id))
             .load::<Keyword>(conn)?)
     }
 }

@@ -5,7 +5,7 @@ use uuid::Uuid;
 #[derive(Insertable, Serialize, Deserialize, Queryable, Clone, Debug)]
 #[table_name = "user_storage_access_ref"]
 pub(crate) struct UserStorageAccess {
-    pub(crate) uuid_user: Uuid,
+    pub(crate) user_uuid: Uuid,
     pub(crate) application_key_id: String,
     pub(crate) application_key: String,
     pub(crate) key_expiration_at: NaiveDateTime,

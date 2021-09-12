@@ -17,8 +17,8 @@ impl StandardMutation {
         use crate::models::standard::service::register::create_standard;
         let conn: &PooledConnection = &get_conn(cxt)?;
 
-        let logged_uuid_user = crate::models::user::get_logged_uuid_user(cxt, true)?;
+        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
 
-        Ok(create_standard(logged_uuid_user, data, conn)?)
+        Ok(create_standard(logged_user_uuid, data, conn)?)
     }
 }

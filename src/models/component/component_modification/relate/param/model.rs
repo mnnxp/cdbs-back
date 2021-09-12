@@ -7,23 +7,23 @@ use async_graphql::*;
 use uuid::Uuid;
 
 #[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, PartialEq, Clone, Debug)]
-#[primary_key(uuid_modification)]
-#[belongs_to(ComponentModification, foreign_key = "uuid_modification")]
-#[belongs_to(ParamTranslateList, foreign_key = "id_param")]
+#[primary_key(modification_uuid)]
+#[belongs_to(ComponentModification, foreign_key = "modification_uuid")]
+#[belongs_to(ParamTranslateList, foreign_key = "param_id")]
 #[table_name = "param_to_modification"]
 pub struct ParamModification {
-    pub uuid_modification: Uuid,
-    pub id_param: i32,
+    pub modification_uuid: Uuid,
+    pub param_id: i32,
     pub value: String,
 }
 
 #[Object]
 impl ParamModification {
-    async fn uuid_modification(&self) -> ID {
-        self.uuid_modification.into()
+    async fn modification_uuid(&self) -> ID {
+        self.modification_uuid.into()
     }
-    async fn id_param(&self) -> &i32 {
-        &self.id_param
+    async fn param_id(&self) -> &i32 {
+        &self.param_id
     }
     async fn value(&self) -> &String {
         &self.value
@@ -32,7 +32,7 @@ impl ParamModification {
 
 #[derive(Debug, Deserialize, SimpleObject, Clone)]
 pub struct ModificationParamWithTranslation {
-    pub uuid_modification: Uuid,
+    pub modification_uuid: Uuid,
     pub param: ParamTranslateList,
     pub value: String,
 }
@@ -40,7 +40,7 @@ pub struct ModificationParamWithTranslation {
 impl From<(ParamModification, ParamTranslateList)> for ModificationParamWithTranslation {
     fn from(data: (ParamModification, ParamTranslateList)) -> Self {
         Self {
-            uuid_modification: data.0.uuid_modification,
+            modification_uuid: data.0.modification_uuid,
             param: data.1,
             value: data.0.value,
         }
@@ -49,30 +49,30 @@ impl From<(ParamModification, ParamTranslateList)> for ModificationParamWithTran
 
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub struct IptParamModificationData {
-    pub uuid_modification: ID,
-    pub id_param: i32,
+    pub modification_uuid: ID,
+    pub param_id: i32,
     pub value: String,
 }
 
 #[derive(Debug, Insertable)]
 #[table_name = "param_to_modification"]
 pub struct InsertableParamModification {
-    pub uuid_modification: Uuid,
-    pub id_param: i32,
+    pub modification_uuid: Uuid,
+    pub param_id: i32,
     pub value: String,
 }
 
 impl From<IptParamModificationData> for InsertableParamModification {
     fn from(ipt_data: IptParamModificationData) -> Self {
         let IptParamModificationData {
-            uuid_modification,
-            id_param,
+            modification_uuid,
+            param_id,
             value,
         } = ipt_data;
 
         Self {
-            uuid_modification: Uuid::parse_str(&uuid_modification.to_string()).unwrap(),
-            id_param,
+            modification_uuid: Uuid::parse_str(&modification_uuid.to_string()).unwrap(),
+            param_id,
             value,
         }
     }

@@ -15,16 +15,16 @@ pub(crate) fn create_actual_status(
     use crate::schema::actual_status_translate_list::dsl as actual_status_translate_list;
 
     let flag_found_actual_status = actual_status_translate_list::actual_status_translate_list
-        .filter(actual_status_translate_list::id_lang.eq(&new_actual_status_data.id_lang))
+        .filter(actual_status_translate_list::lang_id.eq(&new_actual_status_data.lang_id))
         .filter(actual_status_translate_list::name.eq(&new_actual_status_data.name))
-        .select(actual_status_translate_list::id_actual_status)
+        .select(actual_status_translate_list::actual_status_id)
         .first::<i32>(conn).unwrap_or(0);
 
     // debug!("fn create_actual_status START SEARCH ={:?}", flag_found_actual_status);
 
     match flag_found_actual_status {
         0 => {
-            let new_id_actual_status = {
+            let new_actual_status_id = {
                 use crate::schema::actual_status_ref::dsl as actual_status_ref;
 
                 let new_actual_status: ActualStatus = diesel::insert_into(actual_status_ref::actual_status_ref)
@@ -35,8 +35,8 @@ pub(crate) fn create_actual_status(
             };
 
             let new_actual_status_data = InsertableActualStatusTranslateList {
-                id_actual_status: new_id_actual_status,
-                id_lang: new_actual_status_data.id_lang,
+                actual_status_id: new_actual_status_id,
+                lang_id: new_actual_status_data.lang_id,
                 name: new_actual_status_data.name,
             };
             let inserted_actual_status_data: ActualStatusTranslateList = diesel::insert_into(actual_status_translate_list::actual_status_translate_list)

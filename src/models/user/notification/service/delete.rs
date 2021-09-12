@@ -4,22 +4,22 @@ use diesel::prelude::*;
 use uuid::Uuid;
 
 pub(crate) fn delete_notification(
-    input_uuid_user: Uuid,
-    id_notification_delete: i32,
+    input_user_uuid: Uuid,
+    notification_id_delete: i32,
     conn: &PgConnection,
 ) -> ServiceResult<Notification> {
     use crate::schema::notification_ref::dsl::*;
     use crate::schema::notification_ref::dsl::id as notification_ref_id;
     use crate::schema::notification_to_user::dsl::*;
 
-    // debug!("fn input_uuid_user = {}", &input_uuid_user);
-    // debug!("fn id_notification_delete = {}", &id_notification_delete);
+    // debug!("fn input_user_uuid = {}", &input_user_uuid);
+    // debug!("fn notification_id_delete = {}", &notification_id_delete);
 
     // find notification and check privileges for delete
     let find_notification: i32 = notification_to_user
-        .filter(uuid_user.eq(input_uuid_user))
-        .filter(id_notification.eq(id_notification_delete))
-        .select(id_notification)
+        .filter(user_uuid.eq(input_user_uuid))
+        .filter(notification_id.eq(notification_id_delete))
+        .select(notification_id)
         .first(conn)
         .unwrap_or(0);
 

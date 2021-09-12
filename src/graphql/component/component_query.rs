@@ -19,36 +19,36 @@ impl ComponentQuery {
         components_uuids: Vec<String>,
     ) -> ServiceResult<Vec<ShowComponentShort>> {
         // authorization check
-        let logged_uuid_user: Uuid = user::get_logged_uuid_user(cxt, true)?;
+        let logged_user_uuid: Uuid = user::get_logged_user_uuid(cxt, true)?;
 
         let mut target_uuids_components: Vec<Uuid> = Vec::new();
         for x in components_uuids.iter() {
             target_uuids_components.push(Uuid::parse_str(x).unwrap());
         }
 
-        component::list::find_components(cxt, &target_uuids_components, &logged_uuid_user)
+        component::list::find_components(cxt, &target_uuids_components, &logged_user_uuid)
     }
 
     async fn component(
         &self,
         cxt: &Context<'_>,
-        uuid_component: String,
+        component_uuid: String,
     ) -> ServiceResult<ComponentAndRelatedData> {
         // authorization check
-        let logged_uuid_user: Uuid = user::get_logged_uuid_user(cxt, true)?;
+        let logged_user_uuid: Uuid = user::get_logged_user_uuid(cxt, true)?;
 
-        component::list::find_uuid_component(
+        component::list::find_component_uuid(
             cxt,
-            &Uuid::parse_str(&uuid_component)?,
-            &logged_uuid_user,
+            &Uuid::parse_str(&component_uuid)?,
+            &logged_user_uuid,
         )
     }
 
     async fn files_set_modification(
         &self,
         cxt: &Context<'_>,
-        id_set: Option<i32>,
-        // id_set: Option<i32>,
+        set_id: Option<i32>,
+        // set_id: Option<i32>,
         limit: Option<i32>,
         offset: Option<i32>,
     ) -> ServiceResult<Vec<FileToSetModification>> {
@@ -56,11 +56,11 @@ impl ComponentQuery {
         // authorization check
         user::util::check_authorized(cxt)?;
 
-        let id_set: i32 = id_set.unwrap_or(0);
-        // let id_set: i32 = id_set.unwrap_or_(0);
+        let set_id: i32 = set_id.unwrap_or(0);
+        // let set_id: i32 = set_id.unwrap_or_(0);
         let limit: i32 = limit.unwrap_or(100);
         let offset: i32 = offset.unwrap_or(0);
 
-        get_files_set_modification(cxt, id_set, limit, offset)
+        get_files_set_modification(cxt, set_id, limit, offset)
     }
 }

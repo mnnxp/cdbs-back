@@ -68,7 +68,7 @@ pub(crate) fn find_id_ext(filename: &str, conn: &PgConnection) -> i32 {
 //     // find component by uuid for user
 //     component_ref
 //         .filter(uuid.eq(component_uuid))
-//         .filter(uuid_user.eq(user_uuid))
+//         .filter(user_uuid.eq(user_uuid))
 //         .execute(conn).unwrap_or(0) as i32
 // }
 
@@ -83,7 +83,7 @@ pub(crate) fn find_id_ext(filename: &str, conn: &PgConnection) -> i32 {
 //     // find component this modification by uuid
 //     let component_uuid = component_modification_list
 //         .filter(uuid.eq(modification_uuid))
-//         .select(uuid_component)
+//         .select(component_uuid)
 //         .first::<Uuid>(conn).unwrap_or_else(|_| Uuid::nil());
 //
 //     // check user for owned the component
@@ -101,7 +101,7 @@ pub(crate) fn check_write_data(
     // find component this modification by uuid
     let search_result = file_ref::file_ref
         .filter(file_ref::path_file.eq(path_file))
-        .filter(file_ref::uuid_user.eq(user_uuid))
+        .filter(file_ref::user_uuid.eq(user_uuid))
         .execute(conn).unwrap_or(0);
 
     matches!(search_result as i32, 1)

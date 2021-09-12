@@ -8,43 +8,43 @@ use uuid::Uuid;
 
 // Structures for ComponentModification
 #[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, Debug)]
-#[primary_key(uuid_file, uuid_modification)]
-#[belongs_to(ShowFile, foreign_key = "uuid_file")]
-#[belongs_to(ComponentModification, foreign_key = "uuid_modification")]
+#[primary_key(file_uuid, modification_uuid)]
+#[belongs_to(ShowFile, foreign_key = "file_uuid")]
+#[belongs_to(ComponentModification, foreign_key = "modification_uuid")]
 #[table_name = "file_to_modification"]
 pub struct FileModification {
-    pub uuid_file: Uuid,
-    pub uuid_modification: Uuid,
+    pub file_uuid: Uuid,
+    pub modification_uuid: Uuid,
 }
 
 #[Object]
 impl FileModification {
-    async fn uuid_file(&self) -> ID {
-        self.uuid_file.into()
+    async fn file_uuid(&self) -> ID {
+        self.file_uuid.into()
     }
-    async fn uuid_modification(&self) -> ID {
-        self.uuid_modification.into()
+    async fn modification_uuid(&self) -> ID {
+        self.modification_uuid.into()
     }
 }
 
 #[derive(Debug, Insertable)]
 #[table_name = "file_to_modification"]
 pub struct InsertableFileModification {
-    pub uuid_file: Uuid,
-    pub uuid_modification: Uuid,
+    pub file_uuid: Uuid,
+    pub modification_uuid: Uuid,
 }
 
 impl From<FileModification> for InsertableFileModification {
     fn from(ipt_data: FileModification) -> Self {
         let FileModification {
-            uuid_file,
-            uuid_modification,
+            file_uuid,
+            modification_uuid,
             ..
         } = ipt_data;
 
         Self {
-            uuid_file,
-            uuid_modification,
+            file_uuid,
+            modification_uuid,
         }
     }
 }

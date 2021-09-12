@@ -16,8 +16,8 @@ CREATE TABLE degree_importance_ref (
 
 CREATE TABLE degree_importance_translate_list (
   id_degree_importance INTEGER NOT NULL, /* id уведомления */
-  id_lang INTEGER NOT NULL, /* идентификатор языка перевода */
+  lang_id INTEGER NOT NULL, /* идентификатор языка перевода */
   degree VARCHAR(50) NOT NULL, /* наименование степени важности в переводе */
-  UNIQUE(id_lang, degree),
-  CONSTRAINT degree_importance_translate_list_pk PRIMARY KEY (id_degree_importance, id_lang)
+  UNIQUE(lang_id, degree),
+  CONSTRAINT degree_importance_translate_list_pk PRIMARY KEY (id_degree_importance, lang_id)
 );

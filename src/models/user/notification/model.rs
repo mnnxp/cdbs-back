@@ -79,15 +79,15 @@ impl SlimNotification {
 #[derive(Debug, Serialize, Deserialize, Queryable)]
 pub struct NotificationToUser {
     pub id: i32,
-    pub id_notification: i32,
-    pub uuid_user: Uuid,
+    pub notification_id: i32,
+    pub user_uuid: Uuid,
 }
 
 #[derive(Debug, Insertable)]
 #[table_name = "notification_to_user"]
 pub struct InsertableNotificationToUser {
-    pub id_notification: i32,
-    pub uuid_user: Uuid,
+    pub notification_id: i32,
+    pub user_uuid: Uuid,
 }
 
 impl From<NotificationData> for InsertableNotification {

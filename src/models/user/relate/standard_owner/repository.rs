@@ -8,11 +8,11 @@ impl ShowStandardShort {
     /// get list subscribers for standard
     pub fn get_by_user_uuid(
         target_user_uuid: &Uuid,
-        set_id_lang: &i32,
+        set_lang_id: &i32,
         conn: &PgConnection,
     ) -> ServiceResult<Vec<ShowStandardShort>> {
         let target_standards_uuids = standard_ref::standard_ref
-            .filter(standard_ref::uuid_user.eq(target_user_uuid))
+            .filter(standard_ref::user_uuid.eq(target_user_uuid))
             .select(standard_ref::uuid)
             .load::<Uuid>(conn)
             .expect("Fail load uuid list target user");
@@ -20,7 +20,7 @@ impl ShowStandardShort {
         ShowStandardShort::get_list_by_uuids(
             &target_standards_uuids,
             target_user_uuid,
-            set_id_lang,
+            set_lang_id,
             conn,
         )
     }
@@ -31,7 +31,7 @@ impl ShowStandardShort {
         conn: &PgConnection,
     ) -> ServiceResult<i32> {
         Ok(standard_ref::standard_ref
-            .filter(standard_ref::uuid_user.eq(target_user_uuid))
+            .filter(standard_ref::user_uuid.eq(target_user_uuid))
             .execute(conn)? as i32)
     }
 }

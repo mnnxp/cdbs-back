@@ -50,7 +50,7 @@ INSERT INTO program_ref (name) VALUES
   ('WMF'),
   ('ZW3D');
 
-INSERT INTO extension_ref (extension, id_program) VALUES
+INSERT INTO extension_ref (extension, program_id) VALUES
   ('3dm', 1),
   ('3ds', 1),
   ('a2c', 2),
@@ -99,7 +99,7 @@ INSERT INTO extension_ref (extension, id_program) VALUES
   ('wm', 1),
   ('wm2d', 1);
 
-INSERT INTO file_ref (uuid, uuid_file_parent, hash, uuid_user, filename, content_type, id_ext, filesize , path_file, created_at, updated_at) VALUES
+INSERT INTO file_ref (uuid, parent_file_uuid, hash, user_uuid, filename, content_type, id_ext, filesize , path_file, created_at, updated_at) VALUES
   ('bc1c2151-86d0-4656-9c9d-d016dd584297', 'bc1c2151-86d0-4656-9c9d-d016dd584297', E'\\000', '31ecc6f8-0c09-4a59-a2d5-34b5b833e59b', 'filename', 'text/plain', 1, 0, 'path/file/file.txt', now(), now()),
   ('ae496786-33f9-4727-a0fb-9c6702a3f30a', 'bc1c2151-86d0-4656-9c9d-d016dd584297', E'\\xe3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855', '68b8281a-d19c-4d4b-88eb-6fd4a2afde1b', 'file_child_one.pdd', 'text/plain', 1, 136, '/sholder/file/f1c5a362-55f9-4edb-ad90-a2ea64d586df', now(), now()),
   ('a7ea73ef-1033-4cc7-b65b-93c1e9464360', 'bc1c2151-86d0-4656-9c9d-d016dd584297', E'\\xe3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855', '68b8281a-d19c-4d4b-88eb-6fd4a2afde1b', 'file_child_two.pdd', 'text/plain', 1, 365, '/sholder/file/f1c5a362-55f9-4edb-ad90-a2ea64d586df', now(), now()),
@@ -113,7 +113,7 @@ INSERT INTO actual_status_ref (id) VALUES
   (4),
   (5);
 
-INSERT INTO actual_status_translate_list (id_actual_status, id_lang, name) VALUES
+INSERT INTO actual_status_translate_list (actual_status_id, lang_id, name) VALUES
   (1, 1, 'Developed'),
   (2, 1, 'Tested'),
   (3, 1, 'Planned'),
@@ -130,7 +130,7 @@ INSERT INTO type_access_ref (id) VALUES
   (2),
   (3);
 
-INSERT INTO type_access_translate_list (id_type_access, id_lang, name) VALUES
+INSERT INTO type_access_translate_list (type_access_id, lang_id, name) VALUES
   (1, 1, 'Private'),
   (2, 1, 'Protected'),
   (3, 1, 'Public'),
@@ -152,7 +152,7 @@ INSERT INTO param_ref (id) VALUES
   (11),
   (12);
 
-INSERT INTO param_translate_list (id_param, id_lang, paramname) VALUES
+INSERT INTO param_translate_list (param_id, lang_id, paramname) VALUES
   (1, 1, 'Index'),
   (2, 1, 'Selector'),
   (3, 1, 'Part Number'),
@@ -197,7 +197,7 @@ INSERT INTO region_ref (id) VALUES
   (12),
   (13);
 
-INSERT INTO region_translate_list (id_region, id_lang, region) VALUES
+INSERT INTO region_translate_list (region_id, lang_id, region) VALUES
   (1, 1, 'The Republic of Adygea (Adygea)'),
   (2, 1, 'Republic of Bashkortostan'),
   (3, 1, 'The Republic of Buryatia'),
@@ -228,14 +228,14 @@ INSERT INTO region_translate_list (id_region, id_lang, region) VALUES
 INSERT INTO type_of_change_ref (id) VALUES
   (1);
 
-INSERT INTO type_of_change_translate_list (id_type_of_change, id_lang, type_of_change) VALUES
+INSERT INTO type_of_change_translate_list (type_of_change_id, lang_id, type_of_change) VALUES
   (1, 1, 'data update'),
   (1, 2, 'обновление данных');
 
-INSERT INTO spec_ref (id, id_spec_parent) VALUES
+INSERT INTO spec_ref (id, spec_id_parent) VALUES
   (1, 1);
 
-INSERT INTO spec_translate_list (id_spec, id_lang, spec) VALUES
+INSERT INTO spec_translate_list (spec_id, lang_id, spec) VALUES
   (1, 1, 'ROOT'),
   (1, 2, 'КОРЕНЬ');
 

@@ -118,7 +118,7 @@ pub(crate) async fn get_new_storage_access(
                 let naive_add_one_day = chrono::Local::now().naive_local()+chrono::Duration::days(1);
 
                 let new_storage_access = UserStorageAccess{
-                    uuid_user: target_user.0,
+                    user_uuid: target_user.0,
                     application_key_id: key_data.application_key_id,
                     application_key: key_data.application_key,
                     key_expiration_at: chrono::NaiveDateTime::from_timestamp(key_expiration_timestamp, 0),

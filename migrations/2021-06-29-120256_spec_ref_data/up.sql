@@ -1,4 +1,4 @@
-INSERT INTO spec_ref (id, id_spec_parent) VALUES
+INSERT INTO spec_ref (id, spec_id_parent) VALUES
   (2, 1),
   (3, 2),
   (4, 3),
@@ -1064,7 +1064,7 @@ INSERT INTO spec_ref (id, id_spec_parent) VALUES
   (1064, 1061),
   (1065, 1061	);
 
-INSERT INTO spec_translate_list (id_spec, id_lang, spec) VALUES
+INSERT INTO spec_translate_list (spec_id, lang_id, spec) VALUES
   (2, 1, 'MECHANICS (DESIGN, MACHINERY)'),
   (3, 1, 'MECHANICAL COMPONENTS'),
   (4, 1, 'Mountings'),

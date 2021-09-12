@@ -8,64 +8,64 @@ use uuid::Uuid;
 
 // Spec company models
 #[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, Clone, Debug)]
-#[primary_key(uuid_company, id_spec)]
-#[belongs_to(Company, foreign_key = "uuid_company")]
-#[belongs_to(Spec, foreign_key = "id_spec")]
+#[primary_key(company_uuid, spec_id)]
+#[belongs_to(Company, foreign_key = "company_uuid")]
+#[belongs_to(Spec, foreign_key = "spec_id")]
 #[table_name = "spec_to_company"]
 pub struct SpecCompany {
-    pub id_spec: i32,
-    pub uuid_company: Uuid,
+    pub spec_id: i32,
+    pub company_uuid: Uuid,
 }
 
 #[Object]
 impl SpecCompany {
-    async fn id_spec(&self) -> &i32 {
-        &self.id_spec
+    async fn spec_id(&self) -> &i32 {
+        &self.spec_id
     }
-    async fn uuid_company(&self) -> ID {
-        self.uuid_company.into()
+    async fn company_uuid(&self) -> ID {
+        self.company_uuid.into()
     }
 }
 
 #[derive(Deserialize, SimpleObject, Clone, Debug)]
 pub struct CompanySpecWithTranslation {
     pub spec: SpecTranslateList,
-    pub uuid_company: Uuid,
+    pub company_uuid: Uuid,
 }
 
 impl From<(SpecCompany, SpecTranslateList)> for CompanySpecWithTranslation {
     fn from(data: (SpecCompany, SpecTranslateList)) -> Self {
         Self {
             spec: data.1,
-            uuid_company: data.0.uuid_company,
+            company_uuid: data.0.company_uuid,
         }
     }
 }
 
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub struct IptSpecCompanyData {
-    pub uuid_company: ID,
-    pub id_spec: i32,
+    pub company_uuid: ID,
+    pub spec_id: i32,
 }
 
 #[derive(Debug, Insertable)]
 #[table_name = "spec_to_company"]
 pub struct InsertableSpecCompany {
-    pub uuid_company: Uuid,
-    pub id_spec: i32,
+    pub company_uuid: Uuid,
+    pub spec_id: i32,
 }
 
 impl From<IptSpecCompanyData> for InsertableSpecCompany {
     fn from(ipt_data: IptSpecCompanyData) -> Self {
         let IptSpecCompanyData {
-            uuid_company,
-            id_spec,
+            company_uuid,
+            spec_id,
             ..
         } = ipt_data;
 
         Self {
-            uuid_company: Uuid::parse_str(&uuid_company.to_string()).unwrap(),
-            id_spec,
+            company_uuid: Uuid::parse_str(&company_uuid.to_string()).unwrap(),
+            spec_id,
         }
     }
 }

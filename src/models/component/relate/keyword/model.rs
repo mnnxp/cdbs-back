@@ -8,64 +8,64 @@ use uuid::Uuid;
 
 // Keyword component models
 #[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, Clone, Debug)]
-#[primary_key(uuid_component, id_keyword)]
-#[belongs_to(Component, foreign_key = "uuid_component")]
-#[belongs_to(Keyword, foreign_key = "id_keyword")]
+#[primary_key(component_uuid, keyword_id)]
+#[belongs_to(Component, foreign_key = "component_uuid")]
+#[belongs_to(Keyword, foreign_key = "keyword_id")]
 #[table_name = "keyword_to_component"]
 pub struct KeywordComponent {
-    pub uuid_component: Uuid,
-    pub id_keyword: i32,
+    pub component_uuid: Uuid,
+    pub keyword_id: i32,
 }
 
 #[Object]
 impl KeywordComponent {
-    async fn id_keyword(&self) -> &i32 {
-        &self.id_keyword
+    async fn keyword_id(&self) -> &i32 {
+        &self.keyword_id
     }
-    async fn uuid_component(&self) -> ID {
-        self.uuid_component.into()
+    async fn component_uuid(&self) -> ID {
+        self.component_uuid.into()
     }
 }
 
 #[derive(Deserialize, SimpleObject, Clone, Debug)]
 pub struct ComponentKeywordRelatedData {
     pub keyword: Keyword,
-    pub uuid_component: Uuid,
+    pub component_uuid: Uuid,
 }
 
 impl From<(KeywordComponent, Keyword)> for ComponentKeywordRelatedData {
     fn from(data: (KeywordComponent, Keyword)) -> Self {
         Self {
             keyword: data.1,
-            uuid_component: data.0.uuid_component,
+            component_uuid: data.0.component_uuid,
         }
     }
 }
 
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub struct IptKeywordComponentData {
-    pub uuid_component: ID,
-    pub id_keyword: i32,
+    pub component_uuid: ID,
+    pub keyword_id: i32,
 }
 
 #[derive(Debug, Insertable)]
 #[table_name = "keyword_to_component"]
 pub struct InsertableKeywordComponent {
-    pub uuid_component: Uuid,
-    pub id_keyword: i32,
+    pub component_uuid: Uuid,
+    pub keyword_id: i32,
 }
 
 impl From<IptKeywordComponentData> for InsertableKeywordComponent {
     fn from(ipt_data: IptKeywordComponentData) -> Self {
         let IptKeywordComponentData {
-            uuid_component,
-            id_keyword,
+            component_uuid,
+            keyword_id,
             ..
         } = ipt_data;
 
         Self {
-            uuid_component: Uuid::parse_str(&uuid_component.to_string()).unwrap(),
-            id_keyword,
+            component_uuid: Uuid::parse_str(&component_uuid.to_string()).unwrap(),
+            keyword_id,
         }
     }
 }

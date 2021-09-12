@@ -21,7 +21,7 @@ impl UserQuery {
         users_uuids: Vec<String>,
     ) -> ServiceResult<Vec<ShowUserShort>> {
         // authorization check
-        user::get_logged_uuid_user(cxt, true)?;
+        user::get_logged_user_uuid(cxt, true)?;
 
         let mut target_users_uuids = Vec::new();
         for x in users_uuids.iter() {
@@ -37,12 +37,12 @@ impl UserQuery {
         user_uuid: String,
     ) -> ServiceResult<UserAndRelatedData> {
         // authorization check
-        let logged_uuid_user: Uuid = user::get_logged_uuid_user(cxt, true)?;
+        let logged_user_uuid: Uuid = user::get_logged_user_uuid(cxt, true)?;
 
         user::service::list::find_user_by_uuid(
             cxt,
             &Uuid::parse_str(&user_uuid)?,
-            &logged_uuid_user,
+            &logged_user_uuid,
         )
     }
 
@@ -60,8 +60,8 @@ impl UserQuery {
 
     async fn show_tokens(&self, cxt: &Context<'_>) -> ServiceResult<Vec<UserToken>> {
         // authorization check
-        let logged_uuid_user = user::get_logged_uuid_user(cxt, true)?;
-        user::service::token::show_tokens(cxt, logged_uuid_user)
+        let logged_user_uuid = user::get_logged_user_uuid(cxt, true)?;
+        user::service::token::show_tokens(cxt, logged_user_uuid)
     }
 
     async fn get_token(&self, cxt: &Context<'_>) -> ServiceResult<Token> {
@@ -80,21 +80,21 @@ impl UserQuery {
     }
 
     async fn delete_token(&self, cxt: &Context<'_>, token: String) -> ServiceResult<String> {
-        let logged_uuid_user = user::get_logged_uuid_user(cxt, true)?;
+        let logged_user_uuid = user::get_logged_user_uuid(cxt, true)?;
         let deactivated_tokens = format!(
             "removed {} token.",
             // deactivate all user token
-            user::service::token::delete_user_token(cxt, token.as_str(), logged_uuid_user,)?
+            user::service::token::delete_user_token(cxt, token.as_str(), logged_user_uuid,)?
         );
         Ok(deactivated_tokens)
     }
 
     async fn delete_all_tokens(&self, cxt: &Context<'_>) -> ServiceResult<String> {
-        let logged_uuid_user = user::get_logged_uuid_user(cxt, true)?;
+        let logged_user_uuid = user::get_logged_user_uuid(cxt, true)?;
         let deactivated_tokens = format!(
             "removed {} tokens.",
             // deactivate all user token
-            user::service::token::delete_all_tokens(cxt, logged_uuid_user,)?
+            user::service::token::delete_all_tokens(cxt, logged_user_uuid,)?
         );
         Ok(deactivated_tokens)
     }
@@ -107,16 +107,16 @@ impl UserQuery {
     async fn notifications(
         &self,
         cxt: &Context<'_>,
-        id_notification: Option<i32>,
+        notification_id: Option<i32>,
         limit: Option<i32>,
         offset: Option<i32>,
     ) -> ServiceResult<Vec<Notification>> {
-        let id_notification: i32 = id_notification.unwrap_or(0);
+        let notification_id: i32 = notification_id.unwrap_or(0);
         let limit: i32 = limit.unwrap_or(100);
         let offset: i32 = offset.unwrap_or(0);
 
-        let logged_uuid_user = user::get_logged_uuid_user(cxt, true)?;
+        let logged_user_uuid = user::get_logged_user_uuid(cxt, true)?;
 
-        notification::list::get_notifications(cxt, id_notification, logged_uuid_user, limit, offset)
+        notification::list::get_notifications(cxt, notification_id, logged_user_uuid, limit, offset)
     }
 }

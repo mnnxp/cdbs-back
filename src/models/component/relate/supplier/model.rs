@@ -8,23 +8,23 @@ use uuid::Uuid;
 
 // Supplier component models
 #[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, Clone, Debug)]
-#[primary_key(uuid_component, uuid_company)]
-#[belongs_to(Component, foreign_key = "uuid_component")]
-#[belongs_to(Company, foreign_key = "uuid_company")]
+#[primary_key(component_uuid, company_uuid)]
+#[belongs_to(Component, foreign_key = "component_uuid")]
+#[belongs_to(Company, foreign_key = "company_uuid")]
 #[table_name = "supplier_to_component"]
 pub struct SupplierComponent {
-    pub uuid_component: Uuid,
-    pub uuid_company: Uuid,
+    pub component_uuid: Uuid,
+    pub company_uuid: Uuid,
     pub description: String,
 }
 
 #[Object]
 impl SupplierComponent {
-    async fn uuid_company(&self) -> ID {
-        self.uuid_company.into()
+    async fn company_uuid(&self) -> ID {
+        self.company_uuid.into()
     }
-    async fn uuid_component(&self) -> ID {
-        self.uuid_component.into()
+    async fn component_uuid(&self) -> ID {
+        self.component_uuid.into()
     }
     async fn description(&self) -> &String {
         &self.description
@@ -34,7 +34,7 @@ impl SupplierComponent {
 #[derive(Deserialize, SimpleObject, Clone, Debug)]
 pub struct ComponentSupplierRelatedData {
     pub supplier: SlimCompany,
-    pub uuid_component: Uuid,
+    pub component_uuid: Uuid,
     pub description: String,
 }
 
@@ -42,7 +42,7 @@ impl From<(SupplierComponent, SlimCompany)> for ComponentSupplierRelatedData {
     fn from(data: (SupplierComponent, SlimCompany)) -> Self {
         Self {
             supplier: data.1,
-            uuid_component: data.0.uuid_component,
+            component_uuid: data.0.component_uuid,
             description: data.0.description,
         }
     }
@@ -50,31 +50,31 @@ impl From<(SupplierComponent, SlimCompany)> for ComponentSupplierRelatedData {
 
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub struct IptSupplierComponentData {
-    pub uuid_component: ID,
-    pub uuid_company: ID,
+    pub component_uuid: ID,
+    pub company_uuid: ID,
     pub description: String,
 }
 
 #[derive(Debug, Insertable)]
 #[table_name = "supplier_to_component"]
 pub struct InsertableSupplierComponent {
-    pub uuid_component: Uuid,
-    pub uuid_company: Uuid,
+    pub component_uuid: Uuid,
+    pub company_uuid: Uuid,
     pub description: String,
 }
 
 impl From<IptSupplierComponentData> for InsertableSupplierComponent {
     fn from(ipt_data: IptSupplierComponentData) -> Self {
         let IptSupplierComponentData {
-            uuid_component,
-            uuid_company,
+            component_uuid,
+            company_uuid,
             description,
             ..
         } = ipt_data;
 
         Self {
-            uuid_component: Uuid::parse_str(&uuid_component.to_string()).unwrap(),
-            uuid_company: Uuid::parse_str(&uuid_company.to_string()).unwrap(),
+            component_uuid: Uuid::parse_str(&component_uuid.to_string()).unwrap(),
+            company_uuid: Uuid::parse_str(&company_uuid.to_string()).unwrap(),
             description,
         }
     }

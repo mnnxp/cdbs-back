@@ -8,13 +8,13 @@ use uuid::Uuid;
 
 #[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, PartialEq, Clone, Debug)]
 #[primary_key(id)]
-#[belongs_to(ComponentModification, foreign_key = "uuid_modification")]
-#[belongs_to(Program, foreign_key = "id_program")]
+#[belongs_to(ComponentModification, foreign_key = "modification_uuid")]
+#[belongs_to(Program, foreign_key = "program_id")]
 #[table_name = "set_files_for_program"]
 pub struct SetOfFilesProgram {
     pub id: i32,
-    pub uuid_modification: Uuid,
-    pub id_program: i32,
+    pub modification_uuid: Uuid,
+    pub program_id: i32,
 }
 
 #[Object]
@@ -22,18 +22,18 @@ impl SetOfFilesProgram {
     async fn id(&self) -> &i32 {
         &self.id
     }
-    async fn uuid_modification(&self) -> ID {
-        self.uuid_modification.into()
+    async fn modification_uuid(&self) -> ID {
+        self.modification_uuid.into()
     }
-    async fn id_program(&self) -> &i32 {
-        &self.id_program
+    async fn program_id(&self) -> &i32 {
+        &self.program_id
     }
 }
 
 #[derive(Debug, Deserialize, SimpleObject, Clone)]
 pub struct SetOfFilesProgramRelatedData {
     pub id: i32,
-    pub uuid_modification: Uuid,
+    pub modification_uuid: Uuid,
     pub program: Program,
 }
 
@@ -41,7 +41,7 @@ impl From<(SetOfFilesProgram, Program)> for SetOfFilesProgramRelatedData {
     fn from(data: (SetOfFilesProgram, Program)) -> Self {
         Self {
             id: data.0.id,
-            uuid_modification: data.0.uuid_modification,
+            modification_uuid: data.0.modification_uuid,
             program: data.1,
         }
     }
@@ -49,27 +49,27 @@ impl From<(SetOfFilesProgram, Program)> for SetOfFilesProgramRelatedData {
 
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub struct IptSetOfFilesProgramData {
-    pub uuid_modification: ID,
-    pub id_program: i32,
+    pub modification_uuid: ID,
+    pub program_id: i32,
 }
 
 #[derive(Debug, Insertable)]
 #[table_name = "set_files_for_program"]
 pub struct InsertableSetOfFilesProgram {
-    pub uuid_modification: Uuid,
-    pub id_program: i32,
+    pub modification_uuid: Uuid,
+    pub program_id: i32,
 }
 
 impl From<IptSetOfFilesProgramData> for InsertableSetOfFilesProgram {
     fn from(ipt_data: IptSetOfFilesProgramData) -> Self {
         let IptSetOfFilesProgramData {
-            uuid_modification,
-            id_program,
+            modification_uuid,
+            program_id,
         } = ipt_data;
 
         Self {
-            uuid_modification: Uuid::parse_str(&uuid_modification.to_string()).unwrap(),
-            id_program,
+            modification_uuid: Uuid::parse_str(&modification_uuid.to_string()).unwrap(),
+            program_id,
         }
     }
 }

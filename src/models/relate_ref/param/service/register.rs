@@ -20,16 +20,16 @@ pub(crate) fn create_param(
     use crate::schema::param_translate_list::dsl::*;
 
     let flag_found_param = param_translate_list
-        .filter(id_lang.eq(&new_param_data.id_lang))
+        .filter(lang_id.eq(&new_param_data.lang_id))
         .filter(paramname.eq(&new_param_data.paramname))
-        .select(id_param)
+        .select(param_id)
         .first::<i32>(conn).unwrap_or(0);
 
     // debug!("fn create_param START SEARCH ={:?}", flag_found_param);
 
     match flag_found_param {
         0 => {
-            let new_id_param = {
+            let new_param_id = {
                 use crate::schema::param_ref::dsl::*;
 
                 let new_param: Param = diesel::insert_into(param_ref)
@@ -40,8 +40,8 @@ pub(crate) fn create_param(
             };
 
             let new_param_data = InsertableParamTranslateList {
-                id_param: new_id_param,
-                id_lang: new_param_data.id_lang,
+                param_id: new_param_id,
+                lang_id: new_param_data.lang_id,
                 paramname: new_param_data.paramname,
             };
             let inserted_param_data: ParamTranslateList = diesel::insert_into(param_translate_list)

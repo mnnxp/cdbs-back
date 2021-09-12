@@ -15,20 +15,20 @@ use uuid::Uuid;
 
 pub(crate) fn create_component_modification(
     new_modification_data: IptComponentModificationData,
-    user_uuid: Uuid,
+    logged_user_uuid: Uuid,
     conn: &PgConnection
 ) -> ServiceResult<SlimComponentModification> {
     use crate::schema::component_ref::dsl::*;
-    use crate::schema::component_ref::dsl::uuid as uuid_component;
+    use crate::schema::component_ref::dsl::uuid as component_uuid;
     use crate::schema::component_modification_list::dsl::*;
     use diesel::dsl::count;
 
     let new_modification_data: InsertableComponentModification = new_modification_data.into();
 
     let flag_found_component: i64 = component_ref
-        .filter(uuid_user.eq(user_uuid))
-        .filter(uuid_component.eq(new_modification_data.uuid_component))
-        .select(count(uuid_component))
+        .filter(user_uuid.eq(logged_user_uuid))
+        .filter(component_uuid.eq(new_modification_data.component_uuid))
+        .select(count(component_uuid))
         .first(conn).unwrap();
 
     // debug!("fn create_component_modification START SEARCH ={:?}", flag_found_component);

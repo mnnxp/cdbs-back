@@ -15,16 +15,16 @@ pub(crate) fn create_company_type(
     use crate::schema::company_type_translate_list::dsl as company_type_translate_list;
 
     let flag_found_company_type = company_type_translate_list::company_type_translate_list
-        .filter(company_type_translate_list::id_lang.eq(&new_company_type_data.id_lang))
+        .filter(company_type_translate_list::lang_id.eq(&new_company_type_data.lang_id))
         .filter(company_type_translate_list::name.eq(&new_company_type_data.name))
-        .select(company_type_translate_list::id_company_type)
+        .select(company_type_translate_list::company_type_id)
         .first::<i32>(conn).unwrap_or(0);
 
     // debug!("fn create_company_type START SEARCH ={:?}", flag_found_company_type);
 
     match flag_found_company_type {
         0 => {
-            let new_id_company_type = {
+            let new_company_type_id = {
                 use crate::schema::company_type_ref::dsl as company_type_ref;
 
                 let new_company_type: CompanyType = diesel::insert_into(company_type_ref::company_type_ref)
@@ -35,8 +35,8 @@ pub(crate) fn create_company_type(
             };
 
             let new_company_type_data = InsertableCompanyTypeTranslateList {
-                id_company_type: new_id_company_type,
-                id_lang: new_company_type_data.id_lang,
+                company_type_id: new_company_type_id,
+                lang_id: new_company_type_data.lang_id,
                 name: new_company_type_data.name,
                 shortname: new_company_type_data.shortname,
             };

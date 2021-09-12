@@ -34,9 +34,9 @@ impl ListObject {
 #[derive(Debug, Queryable)]
 pub struct File {
     pub uuid: Uuid,
-    pub uuid_file_parent: Uuid,
+    pub parent_file_uuid: Uuid,
     pub hash: Vec<u8>,
-    pub uuid_user: Uuid,
+    pub user_uuid: Uuid,
     pub filename: String,
     pub content_type: String,
     pub id_ext: i32,
@@ -51,8 +51,8 @@ pub struct File {
 #[table_name = "file_ref"]
 pub struct ShowFile {
     pub uuid: Uuid,
-    pub uuid_file_parent: Uuid,
-    pub uuid_user: Uuid,
+    pub parent_file_uuid: Uuid,
+    pub user_uuid: Uuid,
     pub filename: String,
     pub content_type: String,
     pub id_ext: i32,
@@ -67,11 +67,11 @@ impl ShowFile {
     async fn uuid(&self) -> ID {
         self.uuid.into()
     }
-    async fn uuid_file_parent(&self) -> ID {
-        self.uuid_file_parent.into()
+    async fn parent_file_uuid(&self) -> ID {
+        self.parent_file_uuid.into()
     }
-    async fn uuid_user(&self) -> ID {
-        self.uuid_user.into()
+    async fn user_uuid(&self) -> ID {
+        self.user_uuid.into()
     }
     async fn filename(&self) -> &String {
         &self.filename
@@ -100,9 +100,9 @@ impl ShowFile {
 #[table_name = "file_ref"]
 pub struct InsertableFile {
     pub uuid: Uuid,
-    pub uuid_file_parent: Uuid,
+    pub parent_file_uuid: Uuid,
     pub hash: Vec<u8>,
-    pub uuid_user: Uuid,
+    pub user_uuid: Uuid,
     pub filename: String,
     pub content_type: String,
     pub id_ext: i32,
@@ -116,9 +116,9 @@ pub struct InsertableFile {
 impl From<PreliminaryFileData> for InsertableFile {
     fn from(data: PreliminaryFileData) -> Self {
         let PreliminaryFileData {
-            uuid_file_parent,
+            parent_file_uuid,
             object,
-            uuid_user,
+            user_uuid,
             filename,
             id_ext,
             content_type,
@@ -126,20 +126,20 @@ impl From<PreliminaryFileData> for InsertableFile {
             ..
         } = data;
 
-        let new_uuid_file = Uuid::new_v4();
+        let new_file_uuid = Uuid::new_v4();
 
         // creating a filename for the storage
         let path_file = format!("{}/{}",
             Uuid::to_simple(object.get_uuid()), // <- maybe uuid from component, modification, standard, user etc.
-            // uuid_user,
-            Uuid::to_simple(new_uuid_file),
+            // user_uuid,
+            Uuid::to_simple(new_file_uuid),
         );
 
         Self {
-            uuid: new_uuid_file,
-            uuid_file_parent,
+            uuid: new_file_uuid,
+            parent_file_uuid,
             hash: Vec::new(),
-            uuid_user,
+            user_uuid,
             filename,
             content_type,
             id_ext,
@@ -154,8 +154,8 @@ impl From<PreliminaryFileData> for InsertableFile {
 /// For generate file pre-entry in the database
 #[derive(Deserialize, Debug)]
 pub struct PreliminaryFileData {
-    pub uuid_file_parent: Uuid,
-    pub uuid_user: Uuid,
+    pub parent_file_uuid: Uuid,
+    pub user_uuid: Uuid,
     pub object: ListObject, // <-- linked object, to create a new name in the storage (file_path)
     pub filename: String, // <-- sanitizer filename with sanitize_filename::sanitize(&filename)
     pub id_ext: i32, // <-- get id for extension with find_id_ext(filename, conn)
@@ -172,9 +172,9 @@ pub struct IptPreliminaryFileData {
 
 #[derive(Deserialize, Debug)]
 pub struct FileData {
-    pub uuid_file_parent: Option<Uuid>,
+    pub parent_file_uuid: Option<Uuid>,
     pub hash: Option<Vec<u8>>,
-    pub uuid_user: Option<Uuid>,
+    pub user_uuid: Option<Uuid>,
     pub filename: Option<String>,
     pub content_type: Option<String>,
     pub id_ext: Option<i32>,

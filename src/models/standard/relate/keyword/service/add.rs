@@ -19,8 +19,8 @@ pub(crate) fn add_standard_keyword(
     let new_standard_keyword: InsertableKeywordStandard = data.into();
 
     let flag_found_keyword = keyword_to_standard
-        .filter(uuid_standard.eq(&new_standard_keyword.uuid_standard)
-        .and(id_keyword.eq(&new_standard_keyword.id_keyword)))
+        .filter(standard_uuid.eq(&new_standard_keyword.standard_uuid)
+        .and(keyword_id.eq(&new_standard_keyword.keyword_id)))
         .execute(conn).unwrap_or(0);
 
     // debug!("fn create_keyword START SEARCH ={:?}", flag_found_keyword);

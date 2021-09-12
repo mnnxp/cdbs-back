@@ -10,18 +10,18 @@ CREATE TABLE company_ref (
   address VARCHAR(512) NOT NULL, /*почтовый адрес */
   site_url VARCHAR(255) NOT NULL, /* URL адрес сайта компании */
   time_zone VARCHAR(50) NOT NULL, /* временная зона компании */
-  uuid_user UUID NOT NULL, /* uuuid профиля - владельца */
-  uuid_image_file UUID NOT NULL, /* логотип компании */
-  id_region INTEGER NOT NULL, /* регион */
-  id_company_type INTEGER NOT NULL DEFAULT '1', /* тип компании (ао, пао, ооо, ип) */
-  id_type_access INTEGER NOT NULL DEFAULT '1', /* тип доступности */
+  user_uuid UUID NOT NULL, /* uuuid профиля - владельца */
+  image_file_uuid UUID NOT NULL, /* логотип компании */
+  region_id INTEGER NOT NULL, /* регион */
+  company_type_id INTEGER NOT NULL DEFAULT '1', /* тип компании (ао, пао, ооо, ип) */
+  type_access_id INTEGER NOT NULL DEFAULT '1', /* тип доступности */
   is_supplier BOOLEAN NOT NULL DEFAULT 'f',  /* роль пользователя: поставщик/заказчик */
   is_email_verified BOOLEAN NOT NULL DEFAULT 'f', /* подтверждение email */
   is_enabled BOOLEAN NOT NULL DEFAULT 't', /* флаг активности пользователь */
   is_delete BOOLEAN NOT NULL DEFAULT 'f', /* флаг удаления пользователя */
   created_at TIMESTAMP NOT NULL DEFAULT NOW(), /* дата создания компании */
   updated_at TIMESTAMP NOT NULL DEFAULT NOW(), /* дата обновления компании */
-  UNIQUE (orgname, inn, uuid_user) /* пользователь не может создавать компании с одним названием и инн */
+  UNIQUE (orgname, inn, user_uuid) /* пользователь не может создавать компании с одним названием и инн */
 );
 
 /* тип компании */
@@ -31,20 +31,20 @@ CREATE TABLE company_type_ref (
 );
 
 CREATE TABLE company_type_translate_list (
-  id_company_type INTEGER NOT NULL, /* id типа компании */
-  id_lang INTEGER NOT NULL, /* идентификатор языка перевода */
+  company_type_id INTEGER NOT NULL, /* id типа компании */
+  lang_id INTEGER NOT NULL, /* идентификатор языка перевода */
   name VARCHAR(255) NOT NULL, /* полное наименование (прим. юридическое лицо) в переводе */
   shortname VARCHAR(50) NOT NULL, /* сокращенное наименование (прим. юр. лицо) в переводе */
-  UNIQUE(id_lang, name, shortname),
-  CONSTRAINT company_type_translate_list_pk PRIMARY KEY (id_company_type, id_lang)
+  UNIQUE(lang_id, name, shortname),
+  CONSTRAINT company_type_translate_list_pk PRIMARY KEY (company_type_id, lang_id)
 );
 
 /* локальное представительство профиля */
 CREATE TABLE company_represent_ref (
   uuid UUID NOT NULL UNIQUE,
-  uuid_company UUID NOT NULL, /* uuid компании (чьё представительства) */
-  id_region INTEGER NOT NULL DEFAULT '1', /* регион представительства */
-  id_representation_type INTEGER NOT NULL DEFAULT '1', /* тип представительства */
+  company_uuid UUID NOT NULL, /* uuid компании (чьё представительства) */
+  region_id INTEGER NOT NULL DEFAULT '1', /* регион представительства */
+  representation_type_id INTEGER NOT NULL DEFAULT '1', /* тип представительства */
   name VARCHAR(255) NOT NULL, /* наименование представительства */
   address VARCHAR(512) NOT NULL, /* почтовый адрес представительства */
   phone VARCHAR(100) NOT NULL, /* телефон представительства */
@@ -53,27 +53,27 @@ CREATE TABLE company_represent_ref (
 
 /* члены компании и их роли */
 CREATE TABLE company_member_role (
-  uuid_company UUID NOT NULL, /* uuid компании */
-  uuid_user UUID NOT NULL, /* uuid профиля */
-  id_role INTEGER NOT NULL, /* идентификатор роли пользователя */
+  company_uuid UUID NOT NULL, /* uuid компании */
+  user_uuid UUID NOT NULL, /* uuid профиля */
+  role_id INTEGER NOT NULL, /* идентификатор роли пользователя */
   is_enabled BOOLEAN NOT NULL DEFAULT 't', /* член компании активен */
   created_at TIMESTAMP NOT NULL DEFAULT NOW(), /* дата создания */
   updated_at TIMESTAMP NOT NULL DEFAULT NOW(), /* дата обновления */
-  CONSTRAINT company_member_role_pk PRIMARY KEY (uuid_company, uuid_user, id_role)
+  CONSTRAINT company_member_role_pk PRIMARY KEY (company_uuid, user_uuid, role_id)
 );
 
 /* связь каталогов с компанией */
 CREATE TABLE spec_to_company (
-  id_spec INTEGER NOT NULL, /* связанный с компанией каталог (категория) */
-  uuid_company UUID NOT NULL, /* связанная с каталогом (категорией) компания */
-  CONSTRAINT spec_to_company_pk PRIMARY KEY (id_spec, uuid_company)
+  spec_id INTEGER NOT NULL, /* связанный с компанией каталог (категория) */
+  company_uuid UUID NOT NULL, /* связанная с каталогом (категорией) компания */
+  CONSTRAINT spec_to_company_pk PRIMARY KEY (spec_id, company_uuid)
 );
 
 /* запись изменений данных компании */
 CREATE TABLE company_history_list (
   id SERIAL, /* id события */
-  uuid_company UUID NOT NULL, /* идентификатор компании к которой относится изменение */
-  id_type_of_change INTEGER NOT NULL, /* id изменения (тип изменения) */
+  company_uuid UUID NOT NULL, /* идентификатор компании к которой относится изменение */
+  type_of_change_id INTEGER NOT NULL, /* id изменения (тип изменения) */
   old_data VARCHAR(2000) NOT NULL, /*  обновляемые данные данные */
   changed_at TIMESTAMP NOT NULL DEFAULT NOW(), /* дата изменения */
   CONSTRAINT company_history_list_pk PRIMARY KEY (id)
@@ -82,9 +82,9 @@ CREATE TABLE company_history_list (
 /* обсуждение компании */
 CREATE TABLE discussion_company_ref (
   id SERIAL, /* id комментария */
-  id_discussion_parent INTEGER NOT NULL, /* id родительского комментария */
-  uuid_company UUID NOT NULL, /* идентификатор обсуждаемой компании */
-  uuid_author UUID NOT NULL, /* идентификатор профиля отправителя */
+  parent_discussion_id INTEGER NOT NULL, /* id родительского комментария */
+  company_uuid UUID NOT NULL, /* идентификатор обсуждаемой компании */
+  author_uuid UUID NOT NULL, /* идентификатор профиля отправителя */
   message_content VARCHAR(4000) NOT NULL, /* сообщение/комментарий */
   is_delete BOOLEAN NOT NULL DEFAULT 'f', /* флаг удаления */
   created_at TIMESTAMP NOT NULL DEFAULT NOW(), /* дата создания/редактирования */
@@ -99,11 +99,11 @@ CREATE TABLE representation_type_ref (
 );
 
 CREATE TABLE representation_type_translate_list (
-  id_representation_type INTEGER NOT NULL, /* id типа представительства */
-  id_lang INTEGER NOT NULL, /* идентификатор языка перевода */
+  representation_type_id INTEGER NOT NULL, /* id типа представительства */
+  lang_id INTEGER NOT NULL, /* идентификатор языка перевода */
   representation_type VARCHAR(100) NOT NULL UNIQUE, /* наименование типа представительства в переводе */
-  UNIQUE(id_lang, representation_type),
-  CONSTRAINT representation_type_translate_list_pk PRIMARY KEY (id_representation_type, id_lang)
+  UNIQUE(lang_id, representation_type),
+  CONSTRAINT representation_type_translate_list_pk PRIMARY KEY (representation_type_id, lang_id)
 );
 
 /* роль члена */
@@ -113,48 +113,48 @@ CREATE TABLE role_member_ref (
 );
 
 CREATE TABLE role_member_translate_list (
-  id_role_member INTEGER NOT NULL, /* id роли */
-  id_lang INTEGER NOT NULL, /* идентификатор языка перевода */
+  role_id_member INTEGER NOT NULL, /* id роли */
+  lang_id INTEGER NOT NULL, /* идентификатор языка перевода */
   name VARCHAR(50) NOT NULL, /* наименование роли в переводе */
-  UNIQUE(id_lang, name),
-  CONSTRAINT role_member_translate_list_pk PRIMARY KEY (id_role_member, id_lang)
+  UNIQUE(lang_id, name),
+  CONSTRAINT role_member_translate_list_pk PRIMARY KEY (role_id_member, lang_id)
 );
 
 /* уровень доступа роли */
 CREATE TABLE role_access (
-  id_role INTEGER NOT NULL, /* идентификатор роли пользователя */
-  id_type_access INTEGER NOT NULL, /* тип доступа */
-  CONSTRAINT role_access_pk PRIMARY KEY (id_role, id_type_access)
+  role_id INTEGER NOT NULL, /* идентификатор роли пользователя */
+  type_access_id INTEGER NOT NULL, /* тип доступа */
+  CONSTRAINT role_access_pk PRIMARY KEY (role_id, type_access_id)
 );
 
 /* доступ к компоненту отдельного компании */
 CREATE TABLE company_access_to_component (
-  uuid_component UUID NOT NULL, /* идентификатор компонента */
-  uuid_company UUID NOT NULL, /* идентификатор компании */
-  id_type_access INTEGER NOT NULL, /* тип доступа к компоненту */
+  component_uuid UUID NOT NULL, /* идентификатор компонента */
+  company_uuid UUID NOT NULL, /* идентификатор компании */
+  type_access_id INTEGER NOT NULL, /* тип доступа к компоненту */
   is_enabled BOOLEAN NOT NULL DEFAULT 't', /* флаг актуальности доступа */
   is_delete BOOLEAN NOT NULL DEFAULT 'f', /* флаг удаления доступа */
   created_at TIMESTAMP NOT NULL DEFAULT NOW(), /* дата создания доступа */
   updated_at TIMESTAMP NOT NULL DEFAULT NOW(), /* дата обновления */
-  CONSTRAINT company_access_to_component_pk PRIMARY KEY (uuid_component, uuid_company)
+  CONSTRAINT company_access_to_component_pk PRIMARY KEY (component_uuid, company_uuid)
 );
 
 /* доступ к стандарту отдельной компании */
 CREATE TABLE company_access_to_standard (
-  uuid_standard UUID NOT NULL, /* идентификатор стандарта */
-  uuid_company UUID NOT NULL, /* идентификатор компании */
-  id_type_access INTEGER NOT NULL, /* тип доступа к стандарту */
+  standard_uuid UUID NOT NULL, /* идентификатор стандарта */
+  company_uuid UUID NOT NULL, /* идентификатор компании */
+  type_access_id INTEGER NOT NULL, /* тип доступа к стандарту */
   is_enabled BOOLEAN NOT NULL DEFAULT 't', /* флаг актуальности доступа */
   is_delete BOOLEAN NOT NULL DEFAULT 'f', /* флаг удаления доступа */
   created_at TIMESTAMP NOT NULL DEFAULT NOW(), /* дата создания доступа */
   updated_at TIMESTAMP NOT NULL DEFAULT NOW(), /* дата обновления */
-  CONSTRAINT company_access_to_standard_pk PRIMARY KEY (uuid_standard, uuid_company)
+  CONSTRAINT company_access_to_standard_pk PRIMARY KEY (standard_uuid, company_uuid)
 );
 
 /* сертификаты компани */
 CREATE TABLE company_certificate_ref (
-  uuid_file UUID NOT NULL, /* файл сертификата */
-  uuid_company UUID NOT NULL, /* компания которой выдан сертификат */
+  file_uuid UUID NOT NULL, /* файл сертификата */
+  company_uuid UUID NOT NULL, /* компания которой выдан сертификат */
   description VARCHAR(100) NOT NULL, /* информация, дополнение */
-  CONSTRAINT company_certificate_ref_pk PRIMARY KEY (uuid_file, uuid_company)
+  CONSTRAINT company_certificate_ref_pk PRIMARY KEY (file_uuid, company_uuid)
 );

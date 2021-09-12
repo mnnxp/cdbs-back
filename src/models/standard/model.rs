@@ -16,19 +16,19 @@ use uuid::Uuid;
 #[table_name = "standard_ref"]
 pub struct Standard {
     pub uuid: Uuid,
-    pub uuid_standard_parent: Uuid,
+    pub parent_standard_uuid: Uuid,
     pub classifier: String,
     pub name: String,
     pub description: String,
     pub specified_tolerance: String,
     pub technical_committee: String,
     pub publication_at: NaiveDateTime,
-    pub uuid_image_file: Uuid,
-    pub uuid_user: Uuid,
-    pub uuid_company: Uuid,
-    pub id_type_access: i32,
-    pub id_standard_status: i32,
-    pub id_region: i32,
+    pub image_file_uuid: Uuid,
+    pub user_uuid: Uuid,
+    pub company_uuid: Uuid,
+    pub type_access_id: i32,
+    pub standard_status_id: i32,
+    pub region_id: i32,
     pub is_delete: bool,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
@@ -39,8 +39,8 @@ impl Standard {
     async fn uuid(&self) -> ID {
         self.uuid.into()
     }
-    async fn uuid_standard_parent(&self) -> ID {
-        self.uuid_standard_parent.into()
+    async fn parent_standard_uuid(&self) -> ID {
+        self.parent_standard_uuid.into()
     }
     async fn classifier(&self) -> &String {
         &self.classifier
@@ -60,23 +60,23 @@ impl Standard {
     async fn publication_at(&self) -> &NaiveDateTime {
         &self.publication_at
     }
-    async fn uuid_image_file(&self) -> ID {
-        self.uuid_image_file.into()
+    async fn image_file_uuid(&self) -> ID {
+        self.image_file_uuid.into()
     }
-    async fn uuid_user(&self) -> ID {
-        self.uuid_user.into()
+    async fn user_uuid(&self) -> ID {
+        self.user_uuid.into()
     }
-    async fn uuid_company(&self) -> ID {
-        self.uuid_company.into()
+    async fn company_uuid(&self) -> ID {
+        self.company_uuid.into()
     }
-    async fn id_type_access(&self) -> &i32 {
-        &self.id_type_access
+    async fn type_access_id(&self) -> &i32 {
+        &self.type_access_id
     }
-    async fn id_standard_status(&self) -> &i32 {
-        &self.id_standard_status
+    async fn standard_status_id(&self) -> &i32 {
+        &self.standard_status_id
     }
-    async fn id_region(&self) -> &i32 {
-        &self.id_region
+    async fn region_id(&self) -> &i32 {
+        &self.region_id
     }
     async fn is_delete(&self) -> &bool {
         &self.is_delete
@@ -92,7 +92,7 @@ impl Standard {
 #[derive(Debug, Deserialize, SimpleObject)]
 pub struct StandardAndRelatedData {
     pub uuid: Uuid,
-    pub uuid_standard_parent: Uuid,
+    pub parent_standard_uuid: Uuid,
     pub classifier: String,
     pub name: String,
     pub description: String,
@@ -102,7 +102,7 @@ pub struct StandardAndRelatedData {
     pub image_file: SlimFile,
     pub owner_user: ShowUserShort,
     pub owner_company: ShowCompanyShort,
-    pub id_type_access: i32,
+    pub type_access_id: i32,
     pub standard_status: StandardStatusTranslateList,
     pub region: RegionTranslateList,
     pub is_delete: bool,
@@ -137,19 +137,19 @@ pub struct ShowStandardShort {
 #[table_name = "standard_ref"]
 pub struct InsertableStandard {
     pub uuid: Uuid,
-    pub uuid_standard_parent: Uuid,
+    pub parent_standard_uuid: Uuid,
     pub classifier: String,
     pub name: String,
     pub description: String,
     pub specified_tolerance: String,
     pub technical_committee: String,
     pub publication_at: NaiveDateTime,
-    pub uuid_image_file: Uuid,
-    pub uuid_user: Uuid,
-    pub uuid_company: Uuid,
-    pub id_type_access: i32,
-    pub id_standard_status: i32,
-    pub id_region: i32,
+    pub image_file_uuid: Uuid,
+    pub user_uuid: Uuid,
+    pub company_uuid: Uuid,
+    pub type_access_id: i32,
+    pub standard_status_id: i32,
+    pub region_id: i32,
     pub is_delete: bool,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
@@ -157,40 +157,40 @@ pub struct InsertableStandard {
 
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub struct IptStandardData {
-    pub uuid_standard_parent: Option<ID>,
+    pub parent_standard_uuid: Option<ID>,
     pub classifier: String,
     pub name: String,
     pub description: String,
     pub specified_tolerance: String,
     pub technical_committee: String,
     pub publication_at: NaiveDateTime,
-    pub uuid_company: ID,
-    pub id_type_access: i32,
-    pub id_standard_status: i32,
-    pub id_region: i32,
+    pub company_uuid: ID,
+    pub type_access_id: i32,
+    pub standard_status_id: i32,
+    pub region_id: i32,
 }
 
 #[derive(Debug, Deserialize, Clone)]
 pub struct StandardData {
-    pub uuid_standard_parent: Uuid,
+    pub parent_standard_uuid: Uuid,
     pub classifier: String,
     pub name: String,
     pub description: String,
     pub specified_tolerance: String,
     pub technical_committee: String,
     pub publication_at: NaiveDateTime,
-    pub uuid_image_file: Uuid,
-    pub uuid_user: Uuid,
-    pub uuid_company: Uuid,
-    pub id_type_access: i32,
-    pub id_standard_status: i32,
-    pub id_region: i32,
+    pub image_file_uuid: Uuid,
+    pub user_uuid: Uuid,
+    pub company_uuid: Uuid,
+    pub type_access_id: i32,
+    pub standard_status_id: i32,
+    pub region_id: i32,
 }
 
 #[Object]
 impl StandardData {
-    async fn uuid_standard_parent(&self) -> ID {
-        self.uuid_standard_parent.into()
+    async fn parent_standard_uuid(&self) -> ID {
+        self.parent_standard_uuid.into()
     }
     async fn classifier(&self) -> &String {
         &self.classifier
@@ -210,20 +210,20 @@ impl StandardData {
     async fn publication_at(&self) -> &NaiveDateTime {
         &self.publication_at
     }
-    async fn uuid_image_file(&self) -> ID {
-        self.uuid_image_file.into()
+    async fn image_file_uuid(&self) -> ID {
+        self.image_file_uuid.into()
     }
-    async fn uuid_company(&self) -> ID {
-        self.uuid_company.into()
+    async fn company_uuid(&self) -> ID {
+        self.company_uuid.into()
     }
-    async fn id_type_access(&self) -> &i32 {
-        &self.id_type_access
+    async fn type_access_id(&self) -> &i32 {
+        &self.type_access_id
     }
-    async fn id_standard_status(&self) -> &i32 {
-        &self.id_standard_status
+    async fn standard_status_id(&self) -> &i32 {
+        &self.standard_status_id
     }
-    async fn id_region(&self) -> &i32 {
-        &self.id_region
+    async fn region_id(&self) -> &i32 {
+        &self.region_id
     }
 }
 
@@ -235,7 +235,7 @@ pub struct SlimStandard {
     pub specified_tolerance: String,
     pub technical_committee: String,
     pub publication_at: NaiveDateTime,
-    pub id_standard_status: i32,
+    pub standard_status_id: i32,
 }
 
 #[Object]
@@ -258,50 +258,50 @@ impl SlimStandard {
     async fn publication_at(&self) -> &NaiveDateTime {
         &self.publication_at
     }
-    async fn id_standard_status(&self) -> &i32 {
-        &self.id_standard_status
+    async fn standard_status_id(&self) -> &i32 {
+        &self.standard_status_id
     }
 }
 
 impl From<StandardData> for InsertableStandard {
     fn from(company_data: StandardData) -> Self {
         let StandardData {
-            uuid_standard_parent,
+            parent_standard_uuid,
             classifier,
             name,
             description,
             specified_tolerance,
             technical_committee,
             publication_at,
-            uuid_image_file,
-            uuid_user,
-            uuid_company,
-            id_type_access,
-            id_standard_status,
-            id_region,
+            image_file_uuid,
+            user_uuid,
+            company_uuid,
+            type_access_id,
+            standard_status_id,
+            region_id,
             ..
         } = company_data;
 
-        // let uuid_standard_parent = Uuid::parse_str(&uuid_standard_parent).unwrap();
-        // let uuid_image_file = Uuid::parse_str(&uuid_image_file).unwrap();
-        // let uuid_user = Uuid::parse_str(&uuid_user).unwrap();
-        // let uuid_company = Uuid::parse_str(&uuid_company).unwrap();
+        // let parent_standard_uuid = Uuid::parse_str(&parent_standard_uuid).unwrap();
+        // let image_file_uuid = Uuid::parse_str(&image_file_uuid).unwrap();
+        // let user_uuid = Uuid::parse_str(&user_uuid).unwrap();
+        // let company_uuid = Uuid::parse_str(&company_uuid).unwrap();
 
         Self {
             uuid: Uuid::new_v4(),
-            uuid_standard_parent,
+            parent_standard_uuid,
             classifier,
             name,
             description,
             specified_tolerance,
             technical_committee,
             publication_at,
-            uuid_image_file,
-            uuid_user,
-            uuid_company,
-            id_type_access,
-            id_standard_status,
-            id_region,
+            image_file_uuid,
+            user_uuid,
+            company_uuid,
+            type_access_id,
+            standard_status_id,
+            region_id,
             is_delete: false,
             created_at: chrono::Local::now().naive_local(),
             updated_at: chrono::Local::now().naive_local(),
@@ -318,7 +318,7 @@ impl From<Standard> for SlimStandard {
             specified_tolerance,
             technical_committee,
             publication_at,
-            id_standard_status,
+            standard_status_id,
             ..
         } = company;
 
@@ -329,7 +329,7 @@ impl From<Standard> for SlimStandard {
             specified_tolerance,
             technical_committee,
             publication_at,
-            id_standard_status,
+            standard_status_id,
         }
     }
 }

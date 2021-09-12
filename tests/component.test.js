@@ -15,23 +15,23 @@ const username2 = "simaco";
 const password = "password";
 
 const uuidFail = "aba22d59-4f6c-24a4-9a37-2d38f0e577a8";
-const uuidUser = "31ecc6f8-0c09-4a59-a2d5-34b5b833e59b";
-const uuidUser2 = "68b8281a-d19c-4d4b-88eb-6fd4a2afde1b";
+const userUuid = "31ecc6f8-0c09-4a59-a2d5-34b5b833e59b";
+const userUuid2 = "68b8281a-d19c-4d4b-88eb-6fd4a2afde1b";
 
 // data for standard
-const uuidStandardParent = "303ec2aa-2066-42e3-93fb-de4fb9344bcb";
+const parentStandardUuid = "303ec2aa-2066-42e3-93fb-de4fb9344bcb";
 const classifierStandard = "GOST-2012-Test";
 const nameStandard = "GOST 2012 Test standard";
 const descriptionStandard = "Test GOST standard";
 const specifiedTolerance = "C";
 const technicalCommittee = "GOST";
 const publicationAt = "2021-07-31T00:00:00";
-const idTypeAccess3 = 3;
-const idTypeAccess1 = 1;
-const idStandardStatus = 1;
-const idRegion = 5;
-var uuidStandardFirst = "";
-var uuidStandardSecond = "";
+const typeAccessId3 = 3;
+const typeAccessId1 = 1;
+const standardStatusId = 1;
+const regionId = 5;
+var standardUuidFirst = "";
+var standardUuidSecond = "";
 
 // data for company
 const orgname = "orgname supplier of the test";
@@ -44,41 +44,41 @@ const description = "test company";
 const addressCompany = "China";
 const siteUrl = "example.test";
 const timeZone = "Europe/Moscow";
-const uuidImageFile = "3706d1a1-80ae-4367-be39-af7091373811";
-const idRegionCompany = 5;
-const idCompanyType = 2;
-const uuidCompanyBase = "2cd385e1-8f7e-4908-8235-dfe42938b46d";
-var uuidCompanyNoSupplier = "";
-var uuidCompanySupplier = "";
+const imageFileUuid = "3706d1a1-80ae-4367-be39-af7091373811";
+const regionIdCompany = 5;
+const companyTypeId = 2;
+const companyUuidBase = "2cd385e1-8f7e-4908-8235-dfe42938b46d";
+var companyUuidNoSupplier = "";
+var companyUuidSupplier = "";
 
 // data for represent
-const idRegionRepresentation = 15;
-const idRepresentationType = 1;
+const regionIdRepresentation = 15;
+const representationTypeId = 1;
 const nameRepresentationFirst = "test first additional office";
 const nameRepresentationSecond = "test second additional office";
 const addressRepresentation = "Fake str, Fantom";
 const phoneRepresentation = "+743874487556";
 const uuidFake = "2cd385e1-8f7e-4908-8235-dfe42938b888";
 const uuidRepresentArray = [];
-var uuidCompanyFirst = "";
+var companyUuidFirst = "";
 var uuidRepresentFirst = "";
 var uuidRepresentDelete = "";
 
 // data for component
-const uuidComponentParent = "a5953fd9-7393-4f1e-a899-06b5e159dbf1";
+const parentComponentUuid = "a5953fd9-7393-4f1e-a899-06b5e159dbf1";
 const nameComponent = "M Series Geared Motor";
 const nameComponent2 = "X Custom Geared Motor";
 const descriptionComponent = "graphqlcomment for component";
-const idTypeAccessComponent = 3;
-const idTypeAccessComponentPrivate = 1;
-const idComponentType = 2;
-const idActualStatusComponent = 1;
+const typeAccessIdComponent = 3;
+const typeAccessIdComponentPrivate = 1;
+const componentTypeId = 2;
+const actualStatusIdComponent = 1;
 const isStandardComponent = true;
 const isStandardComponent0 = false;
 const subscribersCount = 1;
 const componentFullDataQuery = ` \
 uuid \
-uuidComponentParent \
+parentComponentUuid \
 name \
 description \
 ownerUser { \
@@ -91,15 +91,15 @@ ownerUser { \
     pathFile \
   } \
 } \
-idTypeAccess \
+typeAccessId \
 componentType { \
-  idComponentType \
-  idLang \
+  componentTypeId \
+  langId \
   componentType \
 } \
 actualStatus { \
-  idActualStatus \
-  idLang \
+  actualStatusId \
+  langId \
   name \
 } \
 isStandard \
@@ -112,18 +112,18 @@ licenses { \
   publicationAt \
 } \
 componentParams { \
-  uuidComponent \
+  componentUuid \
   param { \
-    idParam \
-    idLang \
+    paramId \
+    langId \
     paramname \
   } \
   value \
 } \
 files { \
   uuid \
-  uuidFileParent \
-  uuidUser \
+  parentFileUuid \
+  userUuid \
   filename \
   contentType \
   idExt \
@@ -134,11 +134,11 @@ files { \
 } \
 componentSpecs { \
   spec { \
-    idSpec \
-    idLang \
+    specId \
+    langId \
     spec \
   } \
-  uuidComponent \
+  componentUuid \
 } \
 componentKeywords { \
   id \
@@ -146,29 +146,29 @@ componentKeywords { \
 } \
 componentModifications {  \
   uuid \
-  uuidComponent \
-  uuidModificationParent \
+  componentUuid \
+  parentModificationUuid \
   modificationName \
   description \
   filesetsForProgram { \
     id \
-    uuidModification \
+    modificationUuid \
       program { \
         id \
         name \
       } \
   } \
   actualStatus { \
-    idActualStatus \
-    idLang \
+    actualStatusId \
+    langId \
     name \
   } \
   updatedAt \
   modificationParams { \
-    uuidModification \
+    modificationUuid \
     param { \
-      idParam \
-      idLang \
+      paramId \
+      langId \
       paramname \
     } \
     value \
@@ -180,7 +180,7 @@ componentSuppliers { \
     isSupplier \
     shortname \
   } \
-  uuidComponent \
+  componentUuid \
 } \
 `;
 
@@ -194,7 +194,7 @@ ownerUser { \
     pathFile \
   } \
 } \
-idTypeAccess \
+typeAccessId \
 componentType { \
   componentType \
 } \
@@ -213,7 +213,7 @@ files { \
   pathFile \
 } \
 componentSuppliers { \
-  uuidComponent \
+  componentUuid \
   supplier { \
     uuid \
     isSupplier \
@@ -222,17 +222,17 @@ componentSuppliers { \
   description \
 } \
 `;
-var uuidComponentNoStandard = "";
-var uuidComponentStandard = "";
+var componentUuidNoStandard = "";
+var componentUuidStandard = "";
 
 // data for component modification
-const uuidModificationParent = "aba22d59-4f6c-44a4-9a37-2d38f0e577a8";
+const parentModificationUuid = "aba22d59-4f6c-44a4-9a37-2d38f0e577a8";
 const modificationName = "testmodificationcomponent";
 const modificationName2 = "test modification component 2";
 const descriptionModification = "commentcomponent";
-const idActualStatusModification = 1;
-var uuidComponentModificationFirst = "";
-var uuidComponentModificationSecond = "";
+const actualStatusIdModification = 1;
+var componentUuidModificationFirst = "";
+var componentUuidModificationSecond = "";
 
 // data for param
 const paramnameIndexFail = 100;
@@ -241,7 +241,7 @@ const paramnameIndex2 = 9;
 const paramname = "Selector";
 const paramValueTest = "testparametr";
 const paramValueTest2 = "testparametr2";
-var idParamTest = "";
+var paramIdTest = "";
 
 async function cleanupParamComponentDb() {
   return global.knex.raw('DELETE FROM param_to_component WHERE value in (?,?)', [
@@ -347,11 +347,11 @@ describe('component', () => {
                 address: "test_address",
                 position: "test_position",
                 timeZone: "Europe/Moscow",
-                idRegion: 1,
-                idProgram: 1,
+                regionId: 1,
+                programId: 1,
             }) {
                 uuid
-                idProgram
+                programId
                 username
             }
         }`,
@@ -361,9 +361,9 @@ describe('component', () => {
     const {
       data: { registerUser },
     } = body;
-    expect(registerUser).toContainAllKeys(['uuid', 'idProgram', 'username']);
+    expect(registerUser).toContainAllKeys(['uuid', 'programId', 'username']);
     expect(registerUser.uuid).toBeNonEmptyString();
-    expect(registerUser.idProgram).toBe(1);
+    expect(registerUser.programId).toBe(1);
     expect(registerUser.username).toBe(username);
     done();
   });
@@ -402,11 +402,11 @@ describe('component', () => {
                 address: "test_address",
                 position: "test_position",
                 timeZone: "Europe/Moscow",
-                idRegion: 1,
-                idProgram: 5,
+                regionId: 1,
+                programId: 5,
             }) {
                 uuid
-                idProgram
+                programId
                 username
             }
         }`,
@@ -416,9 +416,9 @@ describe('component', () => {
     const {
       data: { registerUser },
     } = body;
-    expect(registerUser).toContainAllKeys(['uuid', 'idProgram', 'username']);
+    expect(registerUser).toContainAllKeys(['uuid', 'programId', 'username']);
     expect(registerUser.uuid).toBeNonEmptyString();
-    expect(registerUser.idProgram).toBe(5);
+    expect(registerUser.programId).toBe(5);
     expect(registerUser.username).toBe(username2);
     done();
   });
@@ -459,8 +459,8 @@ describe('component', () => {
             address: "${addressCompany}"
             siteUrl: "${siteUrl}",
             timeZone: "${timeZone}",
-            idRegion: ${idRegionCompany},
-            idCompanyType: ${idCompanyType}
+            regionId: ${regionIdCompany},
+            companyTypeId: ${companyTypeId}
           }) {
             uuid
             shortname
@@ -476,7 +476,7 @@ describe('component', () => {
     expect(registerCompany.uuid).toBeNonEmptyString();
     expect(registerCompany.shortname).toBe(shortname);
     expect(registerCompany.isSupplier).toBe(false);
-    uuidCompanySupplier = registerCompany.uuid;
+    companyUuidSupplier = registerCompany.uuid;
     done();
     // change supplier status on 1
     await global.knex.raw('UPDATE company_ref SET is_supplier=? WHERE orgname=?', [
@@ -504,8 +504,8 @@ describe('component', () => {
             address: "${addressCompany}"
             siteUrl: "${siteUrl}",
             timeZone: "${timeZone}",
-            idRegion: ${idRegionCompany},
-            idCompanyType: ${idCompanyType}
+            regionId: ${regionIdCompany},
+            companyTypeId: ${companyTypeId}
           }) {
             uuid
             shortname
@@ -521,7 +521,7 @@ describe('component', () => {
     expect(registerCompany.uuid).toBeNonEmptyString();
     expect(registerCompany.shortname).toBe(shortname);
     expect(registerCompany.isSupplier).toBe(false);
-    uuidCompanyNoSupplier = registerCompany.uuid;
+    companyUuidNoSupplier = registerCompany.uuid;
     done();
   });
 
@@ -531,18 +531,18 @@ describe('component', () => {
       .send({
         query: `mutation  {
             registerComponent( data: {
-                uuidComponentParent: "${uuidComponentParent}",
+                parentComponentUuid: "${parentComponentUuid}",
                 name: "${nameComponent}",
                 description: "${descriptionComponent}",
-                idTypeAccess: ${idTypeAccessComponent},
-                idComponentType: ${idComponentType},
-                idActualStatus: ${idActualStatusComponent},
+                typeAccessId: ${typeAccessIdComponent},
+                componentTypeId: ${componentTypeId},
+                actualStatusId: ${actualStatusIdComponent},
                 isStandard: ${isStandardComponent}
             }) {
                 uuid
                 name
                 description
-                idActualStatus
+                actualStatusId
                 isStandard
                 updatedAt
             }
@@ -568,18 +568,18 @@ describe('component', () => {
       .send({
         query: `mutation  {
             registerComponent( data: {
-                uuidComponentParent: "${uuidComponentParent}",
+                parentComponentUuid: "${parentComponentUuid}",
                 name: "${nameComponent}",
                 description: "${descriptionComponent}",
-                idTypeAccess: ${idTypeAccessComponent},
-                idComponentType: ${idComponentType},
-                idActualStatus: ${idActualStatusComponent},
+                typeAccessId: ${typeAccessIdComponent},
+                componentTypeId: ${componentTypeId},
+                actualStatusId: ${actualStatusIdComponent},
                 isStandard: ${isStandardComponent}
             }) {
                 uuid
                 name
                 description
-                idActualStatus
+                actualStatusId
                 isStandard
                 updatedAt
             }
@@ -591,14 +591,14 @@ describe('component', () => {
       data: { registerComponent },
     } = body;
     expect(registerComponent).toContainAllKeys([
-      "description", "idActualStatus", "isStandard", "name", "updatedAt", "uuid"
+      "description", "actualStatusId", "isStandard", "name", "updatedAt", "uuid"
     ]);
     expect(registerComponent.uuid).toBeNonEmptyString();
     expect(registerComponent.name).toBe(nameComponent);
     expect(registerComponent.description).toBe(descriptionComponent);
     expect(registerComponent.isStandard).toBe(isStandardComponent);
-    expect(registerComponent.idActualStatus).toBe(idActualStatusComponent);
-    uuidComponentStandard = registerComponent.uuid;
+    expect(registerComponent.actualStatusId).toBe(actualStatusIdComponent);
+    componentUuidStandard = registerComponent.uuid;
     done();
   });
 
@@ -612,18 +612,18 @@ describe('component', () => {
       .send({
         query: `mutation  {
             registerComponent( data: {
-                uuidComponentParent: "${uuidComponentParent}",
+                parentComponentUuid: "${parentComponentUuid}",
                 name: "${nameComponent2}",
                 description: "${descriptionComponent}",
-                idTypeAccess: ${idTypeAccessComponentPrivate},
-                idComponentType: ${idComponentType},
-                idActualStatus: ${idActualStatusComponent},
+                typeAccessId: ${typeAccessIdComponentPrivate},
+                componentTypeId: ${componentTypeId},
+                actualStatusId: ${actualStatusIdComponent},
                 isStandard: ${isStandardComponent0}
             }) {
                 uuid
                 name
                 description
-                idActualStatus
+                actualStatusId
                 isStandard
                 updatedAt
             }
@@ -635,14 +635,14 @@ describe('component', () => {
       data: { registerComponent },
     } = body;
     expect(registerComponent).toContainAllKeys([
-      "description", "idActualStatus", "isStandard", "name", "updatedAt", "uuid"
+      "description", "actualStatusId", "isStandard", "name", "updatedAt", "uuid"
     ]);
     expect(registerComponent.uuid).toBeNonEmptyString();
     expect(registerComponent.name).toBe(nameComponent2);
     expect(registerComponent.description).toBe(descriptionComponent);
     expect(registerComponent.isStandard).toBe(isStandardComponent0);
-    expect(registerComponent.idActualStatus).toBe(idActualStatusComponent);
-    uuidComponentNoStandard = registerComponent.uuid;
+    expect(registerComponent.actualStatusId).toBe(actualStatusIdComponent);
+    componentUuidNoStandard = registerComponent.uuid;
     done();
   });
 
@@ -658,15 +658,15 @@ describe('component', () => {
             registerComponent( data: {
                 name: "${nameComponent}",
                 description: "${descriptionComponent}",
-                idTypeAccess: ${idTypeAccessComponentPrivate},
-                idComponentType: ${idComponentType},
-                idActualStatus: ${idActualStatusComponent},
+                typeAccessId: ${typeAccessIdComponentPrivate},
+                componentTypeId: ${componentTypeId},
+                actualStatusId: ${actualStatusIdComponent},
                 isStandard: ${isStandardComponent0}
             }) {
                 uuid
                 name
                 description
-                idActualStatus
+                actualStatusId
                 isStandard
                 updatedAt
             }
@@ -678,14 +678,14 @@ describe('component', () => {
       data: { registerComponent },
     } = body;
     expect(registerComponent).toContainAllKeys([
-      "description", "idActualStatus", "isStandard", "name", "updatedAt", "uuid"
+      "description", "actualStatusId", "isStandard", "name", "updatedAt", "uuid"
     ]);
     expect(registerComponent.uuid).toBeNonEmptyString();
     expect(registerComponent.name).toBe(nameComponent);
     expect(registerComponent.description).toBe(descriptionComponent);
     expect(registerComponent.isStandard).toBe(isStandardComponent0);
-    expect(registerComponent.idActualStatus).toBe(idActualStatusComponent);
-    uuidComponentNoStandard = registerComponent.uuid;
+    expect(registerComponent.actualStatusId).toBe(actualStatusIdComponent);
+    componentUuidNoStandard = registerComponent.uuid;
     done();
   });
 
@@ -699,18 +699,18 @@ describe('component', () => {
       .send({
         query: `mutation  {
             registerComponent( data: {
-                uuidComponentParent: "${uuidComponentParent}",
+                parentComponentUuid: "${parentComponentUuid}",
                 name: "${nameComponent}",
                 description: "${descriptionComponent}",
-                idTypeAccess: ${idTypeAccessComponent},
-                idComponentType: ${idComponentType},
-                idActualStatus: ${idActualStatusComponent},
+                typeAccessId: ${typeAccessIdComponent},
+                componentTypeId: ${componentTypeId},
+                actualStatusId: ${actualStatusIdComponent},
                 isStandard: ${isStandardComponent}
             }) {
                 uuid
                 name
                 description
-                idActualStatus
+                actualStatusId
                 isStandard
                 updatedAt
             }
@@ -729,7 +729,7 @@ describe('component', () => {
       .post('/graphql')
       .send({
         query: `query componentQuery{
-          component(uuidComponent: "${uuidComponentParent}") {
+          component(componentUuid: "${parentComponentUuid}") {
             ${componentFullDataQuery}
           }
         }`,
@@ -749,7 +749,7 @@ describe('component', () => {
       .post('/graphql')
       .send({
         query: `query componentsQuery{
-          components(componentsUuids: "${uuidComponentStandard}") {
+          components(componentsUuids: "${componentUuidStandard}") {
             ${componentsListQuery}
           }
         }`,
@@ -773,7 +773,7 @@ describe('component', () => {
   //     )
   //     .send({
   //       query: `query componentsQuery{
-  //         components(componentsUuids: "${uuidComponentStandard}") {
+  //         components(componentsUuids: "${componentUuidStandard}") {
   //           ${componentsListQuery}
   //         }
   //       }`,
@@ -785,7 +785,7 @@ describe('component', () => {
   //   done();
   // });
 
-  it('/graphql:Q List components - OK with uuidComponent', async (done) => {
+  it('/graphql:Q List components - OK with componentUuid', async (done) => {
     const response1 = await agent
       .post('/graphql')
       .set(
@@ -794,14 +794,14 @@ describe('component', () => {
       )
       .send({
         query: `query selectComponentQuery{
-          components(componentsUuids: "${uuidComponentStandard}") {
+          components(componentsUuids: "${componentUuidStandard}") {
             ${componentsListQuery}
           }
         }`,
       })
       .expect(HttpStatus.OK)
     debug('/graphql filter components=%o', response1.body.data.components);
-    expect(response1.body.data.components[0].uuid).toBe(uuidComponentStandard);
+    expect(response1.body.data.components[0].uuid).toBe(componentUuidStandard);
     expect(response1.body.data.components[0].name).toBe(nameComponent);
     done();
   });
@@ -816,9 +816,9 @@ describe('component', () => {
       .send({
         query: `query selectComponentQuery{
           components(componentsUuids: [
-            "${uuidComponentParent}",
-            "${uuidComponentStandard}",
-            "${uuidComponentNoStandard}",
+            "${parentComponentUuid}",
+            "${componentUuidStandard}",
+            "${componentUuidNoStandard}",
           ]) {
             ${componentsListQuery}
           }
@@ -827,11 +827,11 @@ describe('component', () => {
       .expect(HttpStatus.OK)
     debug('/graphql filter components=%o', body.data.components);
     expect(body.data.components).toBeNonEmptyArray();
-    expect(body.data.components[0].uuid).toBe(uuidComponentParent);
+    expect(body.data.components[0].uuid).toBe(parentComponentUuid);
     expect(body.data.components[0].ownerUser.username).toBeNonEmptyString();
-    expect(body.data.components[1].uuid).toBe(uuidComponentStandard);
+    expect(body.data.components[1].uuid).toBe(componentUuidStandard);
     expect(body.data.components[1].ownerUser.username).toBe(username);
-    expect(body.data.components[2].uuid).toBe(uuidComponentNoStandard);
+    expect(body.data.components[2].uuid).toBe(componentUuidNoStandard);
     expect(body.data.components[2].ownerUser.username).toBe(username2);
     done();
   });
@@ -845,7 +845,7 @@ describe('component', () => {
       )
       .send({
         query: `query selectComponentQuery{
-          components(componentsUuids: "${uuidComponentNoStandard}") {
+          components(componentsUuids: "${componentUuidNoStandard}") {
             ${componentsListQuery}
           }
         }`,
@@ -856,7 +856,7 @@ describe('component', () => {
     done();
   });
 
-  it('/graphql:Q Get full data Component - OK with uuidComponent', async (done) => {
+  it('/graphql:Q Get full data Component - OK with componentUuid', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .set(
@@ -865,14 +865,14 @@ describe('component', () => {
       )
       .send({
           query: `query componentQuery{
-            component(uuidComponent: "${uuidComponentParent}") {
+            component(componentUuid: "${parentComponentUuid}") {
               ${componentFullDataQuery}
             }
           }`,
         })
       .expect(HttpStatus.OK)
     debug('/graphql filter component=%o', body.data.component);
-    expect(body.data.component.uuid).toBe(uuidComponentParent);
+    expect(body.data.component.uuid).toBe(parentComponentUuid);
     expect(body.data.component.ownerUser.uuid).toBeNonEmptyString();
     expect(body.data.component.ownerUser.imageFile.pathFile).toBeNonEmptyString();
     expect(body.data.component.componentType.componentType).toBeNonEmptyString();
@@ -884,11 +884,11 @@ describe('component', () => {
     expect(body.data.component.componentSpecs).toBeNonEmptyArray();
     expect(body.data.component.componentKeywords).toBeNonEmptyArray();
     expect(body.data.component.componentModifications[0].uuid).toBeNonEmptyString();
-    expect(body.data.component.componentModifications[0].uuidComponent).toBe(uuidComponentParent);
+    expect(body.data.component.componentModifications[0].componentUuid).toBe(parentComponentUuid);
     expect(body.data.component.componentModifications[0].actualStatus.name).toBeNonEmptyString();
     expect(body.data.component.componentModifications[0].filesetsForProgram[0].program.name).toBeNonEmptyString();
     expect(body.data.component.componentModifications[0].modificationParams).toBeNonEmptyArray();
-    expect(body.data.component.componentSuppliers[0].uuidComponent).toBe(uuidComponentParent);
+    expect(body.data.component.componentSuppliers[0].componentUuid).toBe(parentComponentUuid);
     expect(body.data.component.componentSuppliers[0].supplier.shortname).toBeNonEmptyString();
     done();
   });
@@ -900,12 +900,12 @@ describe('component', () => {
       .send({
         query: `mutation  {
             registerParamComponent( data: {
-                uuidComponent: "${uuidComponentStandard}",
-                idParam: ${paramnameIndex},
+                componentUuid: "${componentUuidStandard}",
+                paramId: ${paramnameIndex},
                 value: "${paramValueTest}"
             }) {
-                uuidComponent
-                idParam
+                componentUuid
+                paramId
                 value
             }
         }`,
@@ -930,12 +930,12 @@ describe('component', () => {
       .send({
         query: `mutation  {
             registerParamComponent( data: {
-                uuidComponent: "${uuidComponentStandard}",
-                idParam: ${paramnameIndex},
+                componentUuid: "${componentUuidStandard}",
+                paramId: ${paramnameIndex},
                 value: "${paramValueTest}"
             }) {
-                uuidComponent
-                idParam
+                componentUuid
+                paramId
                 value
             }
         }`,
@@ -946,7 +946,7 @@ describe('component', () => {
       data: { registerParamComponent },
     } = body;
     expect(registerParamComponent).toContainAllKeys([
-      "uuidComponent", "idParam", "value"
+      "componentUuid", "paramId", "value"
     ]);
     expect(registerParamComponent.id).not.toBeNull();
     expect(registerParamComponent.value).toBe(paramValueTest);
@@ -963,12 +963,12 @@ describe('component', () => {
       .send({
         query: `mutation  {
             registerParamComponent( data: {
-                uuidComponent: "${uuidComponentStandard}",
-                idParam: ${paramnameIndex},
+                componentUuid: "${componentUuidStandard}",
+                paramId: ${paramnameIndex},
                 value: "${paramValueTest}"
             }) {
-                uuidComponent
-                idParam
+                componentUuid
+                paramId
                 value
             }
         }`,
@@ -994,12 +994,12 @@ describe('component', () => {
       .send({
         query: `mutation  {
             registerParamComponent( data: {
-                uuidComponent: "${uuidComponentStandard}",
-                idParam: ${paramnameIndex},
+                componentUuid: "${componentUuidStandard}",
+                paramId: ${paramnameIndex},
                 value: "${paramValueTest}"
             }) {
-                uuidComponent
-                idParam
+                componentUuid
+                paramId
                 value
             }
         }`,
@@ -1020,10 +1020,10 @@ describe('component', () => {
         query: `mutation ComponentModificationQuery {
           registerComponentModification( data: {
             modificationName: "${modificationName}",
-            uuidComponent: "${uuidComponentNoStandard}",
-            uuidModificationParent: "${uuidModificationParent}",
+            componentUuid: "${componentUuidNoStandard}",
+            parentModificationUuid: "${parentModificationUuid}",
             description: "${descriptionModification}",
-            idActualStatus: ${idActualStatusModification}
+            actualStatusId: ${actualStatusIdModification}
           }) {
             uuid
             modificationName
@@ -1053,13 +1053,13 @@ describe('component', () => {
         query: `mutation ComponentModificationQuery {
           registerComponentModification( data: {
             modificationName: "${modificationName}",
-            uuidComponent: "${uuidComponentStandard}",
-            uuidModificationParent: "${uuidModificationParent}",
+            componentUuid: "${componentUuidStandard}",
+            parentModificationUuid: "${parentModificationUuid}",
             description: "${descriptionModification}",
-            idActualStatus: ${idActualStatusModification}
+            actualStatusId: ${actualStatusIdModification}
           }) {
             uuid
-            uuidComponent
+            componentUuid
             modificationName
             description
           }
@@ -1071,13 +1071,13 @@ describe('component', () => {
       data: { registerComponentModification },
     } = body;
     expect(registerComponentModification).toContainAllKeys(
-      ["uuid", "uuidComponent", "modificationName", "description"]
+      ["uuid", "componentUuid", "modificationName", "description"]
     );
     expect(registerComponentModification.uuid).not.toBeNull();
-    expect(registerComponentModification.uuidComponent).toBe(uuidComponentStandard);
+    expect(registerComponentModification.componentUuid).toBe(componentUuidStandard);
     expect(registerComponentModification.modificationName).toBe(modificationName);
     expect(registerComponentModification.description).toBe(descriptionModification);
-    uuidComponentModificationFirst = registerComponentModification.uuid;
+    componentUuidModificationFirst = registerComponentModification.uuid;
     done();
   });
 
@@ -1092,13 +1092,13 @@ describe('component', () => {
         query: `mutation ComponentModificationQuery {
           registerComponentModification( data: {
             modificationName: "${modificationName}",
-            uuidComponent: "${uuidComponentNoStandard}",
-            uuidModificationParent: "${uuidModificationParent}",
+            componentUuid: "${componentUuidNoStandard}",
+            parentModificationUuid: "${parentModificationUuid}",
             description: "${descriptionModification}",
-            idActualStatus: ${idActualStatusModification}
+            actualStatusId: ${actualStatusIdModification}
           }) {
             uuid
-            uuidComponent
+            componentUuid
             modificationName
             description
           }
@@ -1110,17 +1110,17 @@ describe('component', () => {
       data: { registerComponentModification },
     } = body;
     expect(registerComponentModification).toContainAllKeys(
-      ["uuid", "uuidComponent", "modificationName", "description"]
+      ["uuid", "componentUuid", "modificationName", "description"]
     );
     expect(registerComponentModification.uuid).not.toBeNull();
-    expect(registerComponentModification.uuidComponent).toBe(uuidComponentNoStandard);
+    expect(registerComponentModification.componentUuid).toBe(componentUuidNoStandard);
     expect(registerComponentModification.modificationName).toBe(modificationName);
     expect(registerComponentModification.description).toBe(descriptionModification);
-    uuidComponentModificationSecond = registerComponentModification.uuid;
+    componentUuidModificationSecond = registerComponentModification.uuid;
     done();
   });
 
-  it('/graphql:M registerComponentModification - OK with parent uuidComponentModificationFirst', async (done) => {
+  it('/graphql:M registerComponentModification - OK with parent componentUuidModificationFirst', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .set(
@@ -1131,13 +1131,13 @@ describe('component', () => {
         query: `mutation ComponentModificationQuery {
           registerComponentModification( data: {
             modificationName: "${modificationName}",
-            uuidComponent: "${uuidComponentStandard}",
-            uuidModificationParent: "${uuidComponentModificationFirst}",
+            componentUuid: "${componentUuidStandard}",
+            parentModificationUuid: "${componentUuidModificationFirst}",
             description: "${descriptionModification}",
-            idActualStatus: ${idActualStatusModification}
+            actualStatusId: ${actualStatusIdModification}
           }) {
             uuid
-            uuidComponent
+            componentUuid
             modificationName
             description
           }
@@ -1149,10 +1149,10 @@ describe('component', () => {
       data: { registerComponentModification },
     } = body;
     expect(registerComponentModification).toContainAllKeys(
-      ["uuid", "uuidComponent", "modificationName", "description"]
+      ["uuid", "componentUuid", "modificationName", "description"]
     );
-    expect(registerComponentModification.uuid).not.toBe(uuidComponentModificationFirst);
-    expect(registerComponentModification.uuidComponent).toBe(uuidComponentStandard);
+    expect(registerComponentModification.uuid).not.toBe(componentUuidModificationFirst);
+    expect(registerComponentModification.componentUuid).toBe(componentUuidStandard);
     expect(registerComponentModification.modificationName).toBe(modificationName);
     expect(registerComponentModification.description).toBe(descriptionModification);
     done();
@@ -1169,13 +1169,13 @@ describe('component', () => {
         query: `mutation ComponentModificationQuery {
           registerComponentModification( data: {
             modificationName: "${modificationName}",
-            uuidComponent: "${uuidComponentNoStandard}",
-            uuidModificationParent: "${uuidModificationParent}",
+            componentUuid: "${componentUuidNoStandard}",
+            parentModificationUuid: "${parentModificationUuid}",
             description: "${descriptionModification}",
-            idActualStatus: ${idActualStatusModification}
+            actualStatusId: ${actualStatusIdModification}
           }) {
             uuid
-            uuidComponent
+            componentUuid
             modificationName
             description
           }
@@ -1197,12 +1197,12 @@ describe('component', () => {
       .send({
         query: `mutation  {
             registerParamModification( data: {
-                uuidModification: "${uuidComponentModificationFirst}",
-                idParam: ${paramnameIndex2},
+                modificationUuid: "${componentUuidModificationFirst}",
+                paramId: ${paramnameIndex2},
                 value: "${paramValueTest}"
             }) {
-                uuidModification
-                idParam
+                modificationUuid
+                paramId
                 value
             }
         }`,
@@ -1227,12 +1227,12 @@ describe('component', () => {
       .send({
         query: `mutation  {
             registerParamModification( data: {
-                uuidModification: "${uuidComponentModificationFirst}",
-                idParam: ${paramnameIndex2},
+                modificationUuid: "${componentUuidModificationFirst}",
+                paramId: ${paramnameIndex2},
                 value: "${paramValueTest}"
             }) {
-                uuidModification
-                idParam
+                modificationUuid
+                paramId
                 value
             }
         }`,
@@ -1243,7 +1243,7 @@ describe('component', () => {
       data: { registerParamModification },
     } = body;
     expect(registerParamModification).toContainAllKeys([
-      "uuidModification", "idParam", "value"
+      "modificationUuid", "paramId", "value"
     ]);
     expect(registerParamModification.value).toBe(paramValueTest);
     done();
@@ -1259,12 +1259,12 @@ describe('component', () => {
       .send({
         query: `mutation  {
             registerParamModification( data: {
-                uuidModification: "${uuidComponentModificationFirst}",
-                idParam: ${paramnameIndex2},
+                modificationUuid: "${componentUuidModificationFirst}",
+                paramId: ${paramnameIndex2},
                 value: "${paramValueTest}"
             }) {
-                uuidModification
-                idParam
+                modificationUuid
+                paramId
                 value
             }
         }`,
@@ -1290,12 +1290,12 @@ describe('component', () => {
       .send({
         query: `mutation  {
             registerParamModification( data: {
-                uuidModification: "${uuidComponentModificationFirst}",
-                idParam: ${paramnameIndex2},
+                modificationUuid: "${componentUuidModificationFirst}",
+                paramId: ${paramnameIndex2},
                 value: "${paramValueTest}"
             }) {
-                uuidModification
-                idParam
+                modificationUuid
+                paramId
                 value
             }
         }`,

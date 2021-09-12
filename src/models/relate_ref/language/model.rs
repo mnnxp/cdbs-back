@@ -40,7 +40,7 @@ pub struct LanguageData {
 
 // for request
 pub struct SetLang {
-    pub id_lang: i32,
+    pub lang_id: i32,
 }
 
 impl From<LanguageData> for InsertableLanguage {
@@ -72,7 +72,7 @@ impl From<&HeaderMap> for SetLang {
             .get(ACCEPT_LANGUAGE.clone())
             .and_then(|v| v.to_str().ok());
 
-        let id_lang = match lang {
+        let lang_id = match lang {
             None => 1,
             Some(str_lang) => {
                 // let str_lang = str_lang.parse::<LanguageTag>()
@@ -90,6 +90,6 @@ impl From<&HeaderMap> for SetLang {
             }
         };
 
-        Self { id_lang }
+        Self { lang_id }
     }
 }

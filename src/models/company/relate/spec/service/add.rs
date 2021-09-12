@@ -19,8 +19,8 @@ pub(crate) fn add_company_spec(
     let new_company_spec: InsertableSpecCompany = data.into();
 
     let flag_found_spec = spec_to_company
-        .filter(uuid_company.eq(&new_company_spec.uuid_company)
-        .and(id_spec.eq(&new_company_spec.id_spec)))
+        .filter(company_uuid.eq(&new_company_spec.company_uuid)
+        .and(spec_id.eq(&new_company_spec.spec_id)))
         .execute(conn).unwrap_or(0);
 
     // debug!("fn create_spec START SEARCH ={:?}", flag_found_spec);

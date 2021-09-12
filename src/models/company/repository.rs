@@ -28,7 +28,7 @@ impl ShowCompanyShort {
     pub fn get_by_uuid(
         target_company_uuid: &Uuid,
         target_user_uuid: &Uuid,
-        set_id_lang: &i32,
+        set_lang_id: &i32,
         conn: &PgConnection,
     ) -> ServiceResult<ShowCompanyShort> {
         // get target company
@@ -39,20 +39,20 @@ impl ShowCompanyShort {
         .expect("Error loading company");
 
         // get image file (favicon) for company
-        let image_file = SlimFile::get_file_by_uuid(&company.uuid_image_file, conn)
+        let image_file = SlimFile::get_file_by_uuid(&company.image_file_uuid, conn)
             .expect("Error loading company file");
 
         // get region for company
         let region_with_translate: RegionTranslateList = RegionTranslateList::get_region_by_id(
-            &company.id_region,
-            set_id_lang,
+            &company.region_id,
+            set_lang_id,
             conn
         ).expect("Error loading company_type");
 
         // get company type with translation for company
         let company_type_with_translate: CompanyTypeTranslateList = CompanyTypeTranslateList::get_company_type_by_id(
-            &company.id_company_type,
-            set_id_lang,
+            &company.company_type_id,
+            set_lang_id,
             conn
         ).expect("Error loading company_type");
 
@@ -81,7 +81,7 @@ impl ShowCompanyShort {
     pub fn get_list_by_uuids(
         target_companies_uuids: &[Uuid],
         target_user_uuid: &Uuid,
-        set_id_lang: &i32,
+        set_lang_id: &i32,
         conn: &PgConnection,
     ) -> ServiceResult<Vec<ShowCompanyShort>> {
         // the result for store the result :)
@@ -92,7 +92,7 @@ impl ShowCompanyShort {
             result.push(ShowCompanyShort::get_by_uuid(
                 target_company_uuid,
                 target_user_uuid,
-                set_id_lang,
+                set_lang_id,
                 conn
             )?);
         }
@@ -105,7 +105,7 @@ impl CompanyAndRelatedData {
     pub fn collect_related_data(
         target_company_uuid: &Uuid,
         target_user_uuid: &Uuid,
-        set_id_lang: &i32,
+        set_lang_id: &i32,
         conn: &PgConnection,
     ) -> ServiceResult<CompanyAndRelatedData> {
         // collect data for company
@@ -116,32 +116,32 @@ impl CompanyAndRelatedData {
 
         // get company owner
         let owner_user = crate::models::user::model::ShowUserShort::get_by_uuid(
-            &company.uuid_user,
+            &company.user_uuid,
             conn
         ).expect("Error loading slim_user");
 
         // get image file (favicon) for company
-        let image_file = SlimFile::get_file_by_uuid(&company.uuid_image_file, conn)
+        let image_file = SlimFile::get_file_by_uuid(&company.image_file_uuid, conn)
             .expect("Error loading company file");
 
         // get company represents for company
         let company_represents_with_related_data = CompanyRepresentAndRelatedData::get_list_represents_by_company_uuid(
             &company.uuid,
-            set_id_lang,
+            set_lang_id,
             conn
         ).expect("Error loading company represents");
 
         // get region for company
         let region_with_translate: RegionTranslateList = RegionTranslateList::get_region_by_id(
-            &company.id_region,
-            set_id_lang,
+            &company.region_id,
+            set_lang_id,
             conn
         ).expect("Error loading company_type");
 
         // get company type with translation for company
         let company_type_with_translate: CompanyTypeTranslateList = CompanyTypeTranslateList::get_company_type_by_id(
-            &company.id_company_type,
-            set_id_lang,
+            &company.company_type_id,
+            set_lang_id,
             conn
         ).expect("Error loading company_type");
 
@@ -164,7 +164,7 @@ impl CompanyAndRelatedData {
         // get specs with translation for company
         let company_specs_with_translate: Vec<CompanySpecWithTranslation> = CompanySpecWithTranslation::for_company(
             &company,
-            set_id_lang,
+            set_lang_id,
             conn
         ).expect("Error loading spec company with translate");
 

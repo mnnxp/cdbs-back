@@ -19,8 +19,8 @@ pub(crate) fn add_standard_spec(
     let new_standard_spec: InsertableSpecStandard = data.into();
 
     let flag_found_spec = spec_to_standard
-        .filter(uuid_standard.eq(&new_standard_spec.uuid_standard)
-        .and(id_spec.eq(&new_standard_spec.id_spec)))
+        .filter(standard_uuid.eq(&new_standard_spec.standard_uuid)
+        .and(spec_id.eq(&new_standard_spec.spec_id)))
         .execute(conn).unwrap_or(0);
 
     // debug!("fn create_spec START SEARCH ={:?}", flag_found_spec);

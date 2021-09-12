@@ -8,8 +8,8 @@ pub(crate) fn create_license(
     conn: &PgConnection
 ) -> ServiceResult<License> {
     use crate::schema::license_ref::dsl::*;
-    // use crate::schema::license_to_component::dsl::uuid as uuid_component;
-    // use crate::schema::license_to_modification::dsl::uuid as uuid_modification;
+    // use crate::schema::license_to_component::dsl::uuid as component_uuid;
+    // use crate::schema::license_to_modification::dsl::uuid as modification_uuid;
     // use diesel::dsl::count;
 
     let flag_found_license = license_ref

@@ -47,8 +47,8 @@ pub(crate) fn check_authorized(cxt: &Context<'_>) -> Result<bool, ServiceError> 
     }
 }
 
-/// get uuid_user of the authorized user with and without checking
-pub(crate) fn get_logged_uuid_user(
+/// get user_uuid of the authorized user with and without checking
+pub(crate) fn get_logged_user_uuid(
     cxt: &Context<'_>,
     need_check: bool
 ) -> Result<Uuid, ServiceError> {
@@ -73,12 +73,12 @@ pub(crate) fn get_set_language(
     cxt: &Context<'_>,
 ) -> i32 {
     match cxt.data_opt::<SetLang>() {
-        Some(set_lang) => set_lang.id_lang,
+        Some(set_lang) => set_lang.lang_id,
         None => 1, // <-- default language
     }
 }
 
-// comparison of the received uuid_user with the uuid_user of the authorized user
-// pub(crate) fn compare_uuid_user(target_auth_uuid_user: Uuid, cxt: &Context<'_>) -> Result<bool, ServiceError> {
-//     Ok(get_auth_uuid_user(cxt, false)? == target_auth_uuid_user)
+// comparison of the received user_uuid with the user_uuid of the authorized user
+// pub(crate) fn compare_user_uuid(target_auth_user_uuid: Uuid, cxt: &Context<'_>) -> Result<bool, ServiceError> {
+//     Ok(get_auth_user_uuid(cxt, false)? == target_auth_user_uuid)
 // }

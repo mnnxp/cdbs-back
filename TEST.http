@@ -27,8 +27,8 @@ Content-Type: application/json
   	"time_zone": 3,
   	"position": "",
   	"site_url": "",
-  	"uuid_file_info_icon": "",
-  	"id_region": 1
+  	"file_uuid_info_icon": "",
+  	"region_id": 1
 }
 
 ###
@@ -47,8 +47,8 @@ POST http://0.0.0.0:3000/represent/register HTTP/1.1
 Content-Type: application/json
 
 {
-  	"id_region": 3,
-  	"id_representation_type": 1,
+  	"region_id": 3,
+  	"representation_type_id": 1,
   	"name": "additional office",
   	"address": "None str, Kiev",
   	"phone": "+380874487556"
@@ -69,7 +69,7 @@ POST http://0.0.0.0:3000/file/add HTTP/1.1
 Content-Type: application/json
 
 {
-  	"uuid_file_parent": "bc1c2151-86d0-4656-9c9d-d016dd584297",
+  	"parent_file_uuid": "bc1c2151-86d0-4656-9c9d-d016dd584297",
   	"hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
   	"filename": "file_child_two.pdd",
   	"id_ext": 1,
@@ -85,10 +85,10 @@ Content-Type: application/json
 {
   	"name": "Fluted Knobs – Tapped (Phenolic), Inch",
   	"comment": "Phenolic Plastic",
-  	"uuid_component_parent": "a5953fd9-7393-4f1e-a899-06b5e159dbf1",
-  	"id_actual_status": 1,
-  	"id_component_type": 1,
-  	"id_type_access": 1,
+  	"parent_component_uuid": "a5953fd9-7393-4f1e-a899-06b5e159dbf1",
+  	"actual_status_id": 1,
+  	"component_type_id": 1,
+  	"type_access_id": 1,
   	"is_standard": 0
 }
 
@@ -98,12 +98,12 @@ POST http://0.0.0.0:3000/modification/add HTTP/1.1
 Content-Type: application/json
 
 {
-  	"uuid_component": "a5953fd9-7393-4f1e-a899-06b5e159dbf1",
+  	"component_uuid": "a5953fd9-7393-4f1e-a899-06b5e159dbf1",
   	"modification_name": "Head style U - Type X",
   	"id_name_cad": 2,
     "comment": "bottom modification",
-  	"uuid_modification_parent": "aba22d59-4f6c-44a4-9a37-2d38f0e577a8",
-  	"id_actual_status": 1
+  	"parent_modification_uuid": "aba22d59-4f6c-44a4-9a37-2d38f0e577a8",
+  	"actual_status_id": 1
 }
 
 ###
@@ -189,7 +189,7 @@ query usersQuery {
     position
     siteUrl
     uuidFileInfoIcon
-    idRegion
+    regionId
     createdAt
   }
 }
@@ -206,10 +206,10 @@ query representQuery {
   userRepresent(limit: -1, offset: 1) {
     uuid
     uuidUser
-    idRegion
+    regionId
     name
     phone
-    idRepresentationType
+    representationTypeId
   }
 }
 
@@ -224,10 +224,10 @@ query selectrepresentQuery {
   userRepresent(uuidUserSearch: "68b8281a-d19c-4d4b-88eb-6fd4a2afde1b", limit: -1, offset: 1) {
     uuid
     uuidUser
-    idRegion
+    regionId
     name
     phone
-    idRepresentationType
+    representationTypeId
   }
 }
 
@@ -265,10 +265,10 @@ query componentsQuery {
     uuidUser
     comment
     uuidComponentParent
-    idActualStatus
-    idComponentType
+    actualStatusId
+    componentTypeId
     isDelete
-    idTypeAccess
+    typeAccessId
     commentchange
     isStandard
     createdAt
@@ -292,7 +292,7 @@ query componentModificationsQuery {
     comment
     uuidModificationParent
     commentchange
-    idActualStatus
+    actualStatusId
     isDelete
   }
 }

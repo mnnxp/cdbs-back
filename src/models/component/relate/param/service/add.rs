@@ -17,8 +17,8 @@ pub(crate) fn create_param_component(
     let new_param_data: InsertableParamComponent = new_param_data.into();
 
     let flag_found_param = param_to_component
-        .filter(uuid_component.eq(&new_param_data.uuid_component))
-        .filter(id_param.eq(&new_param_data.id_param))
+        .filter(component_uuid.eq(&new_param_data.component_uuid))
+        .filter(param_id.eq(&new_param_data.param_id))
         .execute(conn).unwrap_or(0);
 
     // debug!("fn create_param START SEARCH ={:?}", flag_found_param);

@@ -15,16 +15,16 @@ pub(crate) fn create_standard_status(
     use crate::schema::standard_status_translate_list::dsl as standard_status_translate_list;
 
     let flag_found_standard_status = standard_status_translate_list::standard_status_translate_list
-        .filter(standard_status_translate_list::id_lang.eq(&new_standard_status_data.id_lang))
+        .filter(standard_status_translate_list::lang_id.eq(&new_standard_status_data.lang_id))
         .filter(standard_status_translate_list::name.eq(&new_standard_status_data.name))
-        .select(standard_status_translate_list::id_standard_status)
+        .select(standard_status_translate_list::standard_status_id)
         .first::<i32>(conn).unwrap_or(0);
 
     // debug!("fn create_standard_status START SEARCH ={:?}", flag_found_standard_status);
 
     match flag_found_standard_status {
         0 => {
-            let new_id_standard_status = {
+            let new_standard_status_id = {
                 use crate::schema::standard_status_ref::dsl as standard_status_ref;
 
                 let new_standard_status: StandardStatus = diesel::insert_into(standard_status_ref::standard_status_ref)
@@ -35,8 +35,8 @@ pub(crate) fn create_standard_status(
             };
 
             let new_standard_status_data = InsertableStandardStatusTranslateList {
-                id_standard_status: new_id_standard_status,
-                id_lang: new_standard_status_data.id_lang,
+                standard_status_id: new_standard_status_id,
+                lang_id: new_standard_status_data.lang_id,
                 name: new_standard_status_data.name,
                 shortname: new_standard_status_data.shortname,
             };

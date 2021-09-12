@@ -12,15 +12,15 @@ use uuid::Uuid;
 
 impl ShowFile {
     pub fn get_file_by_uuid(
-        target_uuid_file: &Uuid,
+        target_file_uuid: &Uuid,
         conn: &PgConnection,
     ) -> ServiceResult<ShowFile> {
         Ok(file_ref::file_ref
-            .filter(file_ref::uuid.eq(target_uuid_file))
+            .filter(file_ref::uuid.eq(target_file_uuid))
             .select((
                 file_ref::uuid,
-                file_ref::uuid_file_parent,
-                file_ref::uuid_user,
+                file_ref::parent_file_uuid,
+                file_ref::user_uuid,
                 file_ref::filename,
                 file_ref::content_type,
                 file_ref::id_ext,
@@ -33,15 +33,15 @@ impl ShowFile {
     }
 
     pub fn get_file_by_vec_uuid(
-        target_vec_uuid_file: &[Uuid],
+        target_vec_file_uuid: &[Uuid],
         conn: &PgConnection,
     ) -> ServiceResult<Vec<ShowFile>> {
         Ok(file_ref::file_ref
-            .filter(file_ref::uuid.eq_any(target_vec_uuid_file))
+            .filter(file_ref::uuid.eq_any(target_vec_file_uuid))
             .select((
                 file_ref::uuid,
-                file_ref::uuid_file_parent,
-                file_ref::uuid_user,
+                file_ref::parent_file_uuid,
+                file_ref::user_uuid,
                 file_ref::filename,
                 file_ref::content_type,
                 file_ref::id_ext,
@@ -57,11 +57,11 @@ impl ShowFile {
 
 impl SlimFile {
     pub fn get_file_by_uuid(
-        target_uuid_file: &Uuid,
+        target_file_uuid: &Uuid,
         conn: &PgConnection,
     ) -> ServiceResult<SlimFile> {
         Ok(file_ref::file_ref
-            .filter(file_ref::uuid.eq(target_uuid_file))
+            .filter(file_ref::uuid.eq(target_file_uuid))
             .select((
                 file_ref::uuid,
                 file_ref::filename,
@@ -72,11 +72,11 @@ impl SlimFile {
     }
 
     pub fn get_file_by_vec_uuid(
-        target_vec_uuid_file: &[Uuid],
+        target_vec_file_uuid: &[Uuid],
         conn: &PgConnection,
     ) -> ServiceResult<Vec<SlimFile>> {
         Ok(file_ref::file_ref
-            .filter(file_ref::uuid.eq_any(target_vec_uuid_file))
+            .filter(file_ref::uuid.eq_any(target_vec_file_uuid))
             .select((
                 file_ref::uuid,
                 file_ref::filename,
@@ -89,8 +89,8 @@ impl SlimFile {
 
 impl PreliminaryFileData {
     pub fn from_ipt_preliminary_file_data(
-        uuid_user: Uuid,
-        uuid_file_parent: Uuid,
+        user_uuid: Uuid,
+        parent_file_uuid: Uuid,
         object: ListObject,
         file_data: IptPreliminaryFileData,
         conn: &PgConnection,
@@ -109,9 +109,9 @@ impl PreliminaryFileData {
         let id_ext = super::util::find_id_ext(&filename, conn);
 
         Ok(Self {
-            uuid_file_parent,
+            parent_file_uuid,
             object,
-            uuid_user,
+            user_uuid,
             filename,
             id_ext,
             content_type,

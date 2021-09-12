@@ -16,18 +16,18 @@ impl LicenseQuery {
     async fn licenses(
         &self,
         cxt: &Context<'_>,
-        id_license: Option<Vec<i32>>,
+        license_id: Option<Vec<i32>>,
         limit: Option<i32>,
         offset: Option<i32>,
     ) -> ServiceResult<Vec<License>> {
         // authorization check
         user::util::check_authorized(cxt)?;
 
-        let id_license: Vec<i32> = id_license.unwrap_or_default();
+        let license_id: Vec<i32> = license_id.unwrap_or_default();
         let limit: i32 = limit.unwrap_or(100);
         let offset: i32 = offset.unwrap_or(0);
 
-        license::service::list::get_licenses(cxt, id_license, limit, offset)
+        license::service::list::get_licenses(cxt, license_id, limit, offset)
     }
 }
 

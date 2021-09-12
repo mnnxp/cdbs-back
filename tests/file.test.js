@@ -14,13 +14,13 @@ const username2 = "albane";
 const password = "password";
 const password2 = "password1";
 const uuid_fail = "aba22d59-4f6c-24a4-9a37-2d38f0e577a8";
-const uuid_user_create = "31ecc6f8-0c09-4a59-a2d5-34b5b833e59b";
-const uuid_user_create2 = "68b8281a-d19c-4d4b-88eb-6fd4a2afde1b";
-const uuid_component = "a5953fd9-7393-4f1e-a899-06b5e159dbf1";
-const uuid_component2 = "e925833e-f8d3-4ecb-bd67-5aa450f9f0ad";
-const uuid_modification = "aba22d59-4f6c-44a4-9a37-2d38f0e577a8";
-const uuid_file_parent = "bc1c2151-86d0-4656-9c9d-d016dd584297";
-const uuid_file_parent2 = "3706d1a1-80ae-4367-be39-af7091373811";
+const user_uuid_create = "31ecc6f8-0c09-4a59-a2d5-34b5b833e59b";
+const user_uuid_create2 = "68b8281a-d19c-4d4b-88eb-6fd4a2afde1b";
+const component_uuid = "a5953fd9-7393-4f1e-a899-06b5e159dbf1";
+const component_uuid2 = "e925833e-f8d3-4ecb-bd67-5aa450f9f0ad";
+const modification_uuid = "aba22d59-4f6c-44a4-9a37-2d38f0e577a8";
+const parent_file_uuid = "bc1c2151-86d0-4656-9c9d-d016dd584297";
+const parent_file_uuid2 = "3706d1a1-80ae-4367-be39-af7091373811";
 const hash = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855";
 const hash2 = "ac42cb776fd8096feb871a3ae1bcb6ddfc992358210f9d4d79d072102458d4e8";
 const filename = "file_one.3dm";
@@ -170,8 +170,8 @@ describe('files', () => {
         query: `query ListFile {
             files {
                 uuid
-                uuidFileParent
-                uuidUserCreate
+                parentFileUuid
+                userUuidCreate
                 filename
                 idExt
                 valueExt
@@ -188,15 +188,15 @@ describe('files', () => {
     done();
   });
 
-  it('/graphql:Q List files with uuidUser - OK', async (done) => {
+  it('/graphql:Q List files with userUuid - OK', async (done) => {
     const response1 = await agent
       .post('/graphql')
       .send({
         query: `query ListUserFile {
-            files (uuidUser: "${uuid_user_create}") {
+            files (userUuid: "${user_uuid_create}") {
                 uuid
-                uuidFileParent
-                uuidUserCreate
+                parentFileUuid
+                userUuidCreate
                 filename
                 idExt
                 createdAt
@@ -208,20 +208,20 @@ describe('files', () => {
       .expect(HttpStatus.OK);
     debug('/graphql filter files=%o', response1.body.data.files);
     expect(response1.body.data.files).toBeNonEmptyArray();
-    expect(response1.body.data.files[0].uuidUserCreate).toBe(uuid_user_create);
-    expect(response1.body.data.files.pop().uuidUserCreate).toBe(uuid_user_create);
+    expect(response1.body.data.files[0].userUuidCreate).toBe(user_uuid_create);
+    expect(response1.body.data.files.pop().userUuidCreate).toBe(user_uuid_create);
     done();
   });
 
-  it('/graphql:Q List files with uuidComponent - OK', async (done) => {
+  it('/graphql:Q List files with componentUuid - OK', async (done) => {
     const response1 = await agent
       .post('/graphql')
       .send({
         query: `query ListComponentFile {
-            files (uuidComponent: "${uuid_component}") {
+            files (componentUuid: "${component_uuid}") {
                 uuid
-                uuidFileParent
-                uuidUserCreate
+                parentFileUuid
+                userUuidCreate
                 filename
                 idExt
                 createdAt
@@ -233,20 +233,20 @@ describe('files', () => {
       .expect(HttpStatus.OK);
     debug('/graphql filter files=%o', response1.body.data.files);
     expect(response1.body.data.files).toBeNonEmptyArray();
-    // expect(response1.body.data.files[0].uuid).toBe(uuid_component);
-    // expect(response1.body.data.files.pop().uuid).toBe(uuid_component);
+    // expect(response1.body.data.files[0].uuid).toBe(component_uuid);
+    // expect(response1.body.data.files.pop().uuid).toBe(component_uuid);
     done();
   });
 
-  it('/graphql:Q List files with uuidComponent - File not found', async (done) => {
+  it('/graphql:Q List files with componentUuid - File not found', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .send({
         query: `query ListUserFile {
-            files (uuidComponent: "${uuid_fail}") {
+            files (componentUuid: "${uuid_fail}") {
                 uuid
-                uuidFileParent
-                uuidUserCreate
+                parentFileUuid
+                userUuidCreate
                 filename
                 idExt
                 createdAt
@@ -256,22 +256,22 @@ describe('files', () => {
         }`,
       })
       .expect(HttpStatus.OK);
-    debug('/graphql uuidComponent - File not found registerFile=%o', body);
+    debug('/graphql componentUuid - File not found registerFile=%o', body);
     const { errors, data } = body;
     expect(data).toBeNull();
     expect(errors[0].message).toBe("File not found.");
     done();
   });
 
-  it('/graphql:Q List files with uuidComponentModification - OK', async (done) => {
+  it('/graphql:Q List files with componentUuidModification - OK', async (done) => {
     const response1 = await agent
       .post('/graphql')
       .send({
         query: `query ListModificationFile {
-            files (uuidComponentModification: "${uuid_modification}") {
+            files (componentUuidModification: "${modification_uuid}") {
                 uuid
-                uuidFileParent
-                uuidUserCreate
+                parentFileUuid
+                userUuidCreate
                 filename
                 idExt
                 createdAt
@@ -283,20 +283,20 @@ describe('files', () => {
       .expect(HttpStatus.OK);
     debug('/graphql filter files=%o', response1.body.data.files);
     expect(response1.body.data.files).toBeNonEmptyArray();
-    // expect(response1.body.data.files[0].uuid).toBe(uuid_modification);
-    // expect(response1.body.data.files.pop().uuid).toBe(uuid_modification);
+    // expect(response1.body.data.files[0].uuid).toBe(modification_uuid);
+    // expect(response1.body.data.files.pop().uuid).toBe(modification_uuid);
     done();
   });
 
-  it('/graphql:Q List files with uuidComponentModification - File not found', async (done) => {
+  it('/graphql:Q List files with componentUuidModification - File not found', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .send({
         query: `query ListModificationFile {
-            files (uuidComponentModification: "${uuid_fail}") {
+            files (componentUuidModification: "${uuid_fail}") {
                 uuid
-                uuidFileParent
-                uuidUserCreate
+                parentFileUuid
+                userUuidCreate
                 filename
                 idExt
                 createdAt
@@ -306,7 +306,7 @@ describe('files', () => {
         }`,
       })
       .expect(HttpStatus.OK);
-    debug('/graphql uuidComponentModification - File not found registerFile=%o', body);
+    debug('/graphql componentUuidModification - File not found registerFile=%o', body);
     const { errors, data } = body;
     expect(data).toBeNull();
     expect(errors[0].message).toBe("File not found.");

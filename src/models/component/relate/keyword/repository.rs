@@ -11,9 +11,9 @@ impl Keyword {
         component: &Component,
         conn: &PgConnection,
     ) -> ServiceResult<Vec<Keyword>> {
-        let target_vec_id_keyword: Vec<i32> = KeywordComponent::belonging_to(component)
-            .select(keyword_to_component::id_keyword)
+        let target_vec_keyword_id: Vec<i32> = KeywordComponent::belonging_to(component)
+            .select(keyword_to_component::keyword_id)
             .load::<i32>(conn)?;
-        Keyword::get_keyword_by_vec_id(&target_vec_id_keyword, conn)
+        Keyword::get_keyword_by_vec_id(&target_vec_keyword_id, conn)
     }
 }

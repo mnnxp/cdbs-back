@@ -30,23 +30,23 @@ pub struct IptStandardStatusData {
 
 // StandardStatus translations
 #[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, Clone, Debug)]
-#[primary_key(id_standard_status, id_lang)]
-#[belongs_to(Standard, foreign_key = "id_standard_status")]
-#[belongs_to(Language, foreign_key = "id_lang")]
+#[primary_key(standard_status_id, lang_id)]
+#[belongs_to(Standard, foreign_key = "standard_status_id")]
+#[belongs_to(Language, foreign_key = "lang_id")]
 #[table_name = "standard_status_translate_list"]
 pub struct StandardStatusTranslateList {
-    pub id_standard_status: i32,
-    pub id_lang: i32,
+    pub standard_status_id: i32,
+    pub lang_id: i32,
     pub name: String,
 }
 
 #[Object]
 impl StandardStatusTranslateList {
-    async fn id_standard_status(&self) -> &i32 {
-        &self.id_standard_status
+    async fn standard_status_id(&self) -> &i32 {
+        &self.standard_status_id
     }
-    async fn id_lang(&self) -> &i32 {
-        &self.id_lang
+    async fn lang_id(&self) -> &i32 {
+        &self.lang_id
     }
     async fn name(&self) -> &String {
         &self.name
@@ -55,14 +55,14 @@ impl StandardStatusTranslateList {
 
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub struct IptStandardStatusTranslateListData {
-    pub id_lang: i32,
+    pub lang_id: i32,
     pub name: String,
 }
 
 #[derive(Debug, Insertable)]
 #[table_name = "standard_status_translate_list"]
 pub struct InsertableStandardStatusTranslateList {
-    pub id_standard_status: i32,
-    pub id_lang: i32,
+    pub standard_status_id: i32,
+    pub lang_id: i32,
     pub name: String,
 }

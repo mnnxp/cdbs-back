@@ -15,7 +15,7 @@ pub(crate) fn create_user(
 ) -> ServiceResult<SlimUser> {
     use crate::schema::user_ref::dsl::user_ref;
 
-    let uuid_image_file = Uuid::parse_str("bc1c2151-86d0-4656-9c9d-d016dd584297")?; // <-- todo!(get uuid default favicon)
+    let image_file_uuid = Uuid::parse_str("bc1c2151-86d0-4656-9c9d-d016dd584297")?; // <-- todo!(get uuid default favicon)
 
     let new_user = UserData {
         email: data.email,
@@ -29,9 +29,9 @@ pub(crate) fn create_user(
         address: data.address,
         position: data.position,
         time_zone: data.time_zone,
-        uuid_image_file,
-        id_region: data.id_region,
-        id_program: data.id_program,
+        image_file_uuid,
+        region_id: data.region_id,
+        program_id: data.program_id,
     };
 
     let user: InsertableUser = new_user.into();

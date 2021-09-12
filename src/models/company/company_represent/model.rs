@@ -8,13 +8,13 @@ use uuid::Uuid;
 
 #[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, Clone, Debug)]
 #[primary_key(uuid)]
-#[belongs_to(Company, foreign_key = "uuid_company")]
+#[belongs_to(Company, foreign_key = "company_uuid")]
 #[table_name = "company_represent_ref"]
 pub struct CompanyRepresent {
     pub uuid: Uuid,
-    pub uuid_company: Uuid,
-    pub id_region: i32,
-    pub id_representation_type: i32,
+    pub company_uuid: Uuid,
+    pub region_id: i32,
+    pub representation_type_id: i32,
     pub name: String,
     pub address: String,
     pub phone: String,
@@ -25,14 +25,14 @@ impl CompanyRepresent {
     async fn uuid(&self) -> ID {
         self.uuid.into()
     }
-    async fn uuid_company(&self) -> ID {
-        self.uuid_company.into()
+    async fn company_uuid(&self) -> ID {
+        self.company_uuid.into()
     }
-    async fn id_region(&self) -> &i32 {
-        &self.id_region
+    async fn region_id(&self) -> &i32 {
+        &self.region_id
     }
-    async fn id_representation_type(&self) -> &i32 {
-        &self.id_representation_type
+    async fn representation_type_id(&self) -> &i32 {
+        &self.representation_type_id
     }
     async fn name(&self) -> &String {
         &self.name
@@ -48,7 +48,7 @@ impl CompanyRepresent {
 #[derive(Debug, Deserialize, SimpleObject)]
 pub struct CompanyRepresentAndRelatedData {
     pub uuid: Uuid,
-    pub uuid_company: Uuid,
+    pub company_uuid: Uuid,
     pub region: RegionTranslateList,
     pub representation_type: RepresentationTypeTranslateList,
     pub name: String,
@@ -60,9 +60,9 @@ pub struct CompanyRepresentAndRelatedData {
 #[table_name = "company_represent_ref"]
 pub struct InsertableCompanyRepresent {
     pub uuid: Uuid,
-    pub uuid_company: Uuid,
-    pub id_region: i32,
-    pub id_representation_type: i32,
+    pub company_uuid: Uuid,
+    pub region_id: i32,
+    pub representation_type_id: i32,
     pub name: String,
     pub address: String,
     pub phone: String,
@@ -70,9 +70,9 @@ pub struct InsertableCompanyRepresent {
 
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub struct IptCompanyRepresentData {
-    pub uuid_company: ID,
-    pub id_region: i32,
-    pub id_representation_type: i32,
+    pub company_uuid: ID,
+    pub region_id: i32,
+    pub representation_type_id: i32,
     pub name: String,
     pub address: String,
     pub phone: String,
@@ -80,9 +80,9 @@ pub struct IptCompanyRepresentData {
 
 #[derive(Debug, Deserialize, Clone)]
 pub struct CompanyRepresentData {
-    pub uuid_company: Uuid,
-    pub id_region: i32,
-    pub id_representation_type: i32,
+    pub company_uuid: Uuid,
+    pub region_id: i32,
+    pub representation_type_id: i32,
     pub name: String,
     pub address: String,
     pub phone: String,
@@ -91,17 +91,17 @@ pub struct CompanyRepresentData {
 impl From<IptCompanyRepresentData> for CompanyRepresentData {
     fn from(ipt_data: IptCompanyRepresentData) -> Self {
         let IptCompanyRepresentData {
-            uuid_company,
-            id_region,
-            id_representation_type,
+            company_uuid,
+            region_id,
+            representation_type_id,
             name,
             address,
             phone,
         } = ipt_data;
         CompanyRepresentData {
-            uuid_company: Uuid::parse_str(&uuid_company.to_string()).unwrap(),
-            id_region,
-            id_representation_type,
+            company_uuid: Uuid::parse_str(&company_uuid.to_string()).unwrap(),
+            region_id,
+            representation_type_id,
             name,
             address,
             phone,
@@ -111,14 +111,14 @@ impl From<IptCompanyRepresentData> for CompanyRepresentData {
 
 #[Object]
 impl CompanyRepresentData {
-    async fn uuid_company(&self) -> ID {
-        self.uuid_company.into()
+    async fn company_uuid(&self) -> ID {
+        self.company_uuid.into()
     }
-    async fn id_region(&self) -> &i32 {
-        &self.id_region
+    async fn region_id(&self) -> &i32 {
+        &self.region_id
     }
-    async fn id_representation_type(&self) -> &i32 {
-        &self.id_representation_type
+    async fn representation_type_id(&self) -> &i32 {
+        &self.representation_type_id
     }
     async fn name(&self) -> &String {
         &self.name
@@ -134,7 +134,7 @@ impl CompanyRepresentData {
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct SlimCompanyRepresent {
     pub uuid: Uuid,
-    pub uuid_company: Uuid,
+    pub company_uuid: Uuid,
     pub name: String,
     pub address: String,
     pub phone: String,
@@ -145,8 +145,8 @@ impl SlimCompanyRepresent {
     async fn uuid(&self) -> ID {
         self.uuid.into()
     }
-    async fn uuid_company(&self) -> ID {
-        self.uuid_company.into()
+    async fn company_uuid(&self) -> ID {
+        self.company_uuid.into()
     }
     async fn name(&self) -> &String {
         &self.name
@@ -162,22 +162,22 @@ impl SlimCompanyRepresent {
 impl From<CompanyRepresentData> for InsertableCompanyRepresent {
     fn from(company_represent_data: CompanyRepresentData) -> Self {
         let CompanyRepresentData {
-            uuid_company,
-            id_region,
-            id_representation_type,
+            company_uuid,
+            region_id,
+            representation_type_id,
             name,
             address,
             phone,
             ..
         } = company_represent_data;
 
-        // let uuid_company = "31ecc6f8-0c09-4a59-a2d5-34b5b833e59b".parse().unwrap();
+        // let company_uuid = "31ecc6f8-0c09-4a59-a2d5-34b5b833e59b".parse().unwrap();
 
         Self {
             uuid: Uuid::new_v4(),
-            uuid_company,
-            id_region,
-            id_representation_type,
+            company_uuid,
+            region_id,
+            representation_type_id,
             name,
             address,
             phone,
@@ -189,7 +189,7 @@ impl From<CompanyRepresent> for SlimCompanyRepresent {
     fn from(company_represent: CompanyRepresent) -> Self {
         let CompanyRepresent {
             uuid,
-            uuid_company,
+            company_uuid,
             name,
             address,
             phone,
@@ -198,7 +198,7 @@ impl From<CompanyRepresent> for SlimCompanyRepresent {
 
         Self {
             uuid,
-            uuid_company,
+            company_uuid,
             name,
             address,
             phone,

@@ -10,7 +10,7 @@ INSERT INTO degree_importance_ref (id) VALUES
   (4),
   (5);
 
-INSERT INTO degree_importance_translate_list (id_degree_importance, id_lang, degree) VALUES
+INSERT INTO degree_importance_translate_list (id_degree_importance, lang_id, degree) VALUES
   (1, 1, 'critical'),
   (2, 1, 'error'),
   (3, 1, 'warning'),

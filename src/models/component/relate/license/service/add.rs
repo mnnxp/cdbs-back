@@ -17,8 +17,8 @@ pub(crate) fn create_license_component(
     let new_license_data: InsertableLicenseComponent = new_license_data.into();
 
     let flag_found_license = license_to_component
-        .filter(uuid_component.eq(&new_license_data.uuid_component))
-        .filter(id_license.eq(&new_license_data.id_license))
+        .filter(component_uuid.eq(&new_license_data.component_uuid))
+        .filter(license_id.eq(&new_license_data.license_id))
         .execute(conn).unwrap_or(0);
 
     // debug!("fn create_license START SEARCH ={:?}", flag_found_license);

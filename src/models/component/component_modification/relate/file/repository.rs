@@ -11,9 +11,9 @@ impl ShowFile {
         component_modification: &ComponentModification,
         conn: &PgConnection,
     ) -> ServiceResult<Vec<ShowFile>> {
-        let target_vec_uuid_file: Vec<Uuid> = FileModification::belonging_to(component_modification)
-            .select(file_to_modification::uuid_file)
+        let target_vec_file_uuid: Vec<Uuid> = FileModification::belonging_to(component_modification)
+            .select(file_to_modification::file_uuid)
             .load::<Uuid>(conn)?;
-        ShowFile::get_file_by_vec_uuid(&target_vec_uuid_file, conn)
+        ShowFile::get_file_by_vec_uuid(&target_vec_file_uuid, conn)
     }
 }

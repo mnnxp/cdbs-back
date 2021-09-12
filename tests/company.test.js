@@ -15,8 +15,8 @@ const username2 = "simaco";
 const password = "password";
 
 const uuidFail = "aba22d59-4f6c-24a4-9a37-2d38f0e577a8";
-const uuidUser = "31ecc6f8-0c09-4a59-a2d5-34b5b833e59b";
-const uuidUser2 = "68b8281a-d19c-4d4b-88eb-6fd4a2afde1b";
+const userUuid = "31ecc6f8-0c09-4a59-a2d5-34b5b833e59b";
+const userUuid2 = "68b8281a-d19c-4d4b-88eb-6fd4a2afde1b";
 
 // data for company
 const orgname = "orgname supplier of the test";
@@ -29,12 +29,12 @@ const description = "test company";
 const addressCompany = "China";
 const siteUrl = "example.test";
 const timeZone = "Europe/Moscow";
-const uuidImageFile = "3706d1a1-80ae-4367-be39-af7091373811";
-const idRegionCompany = 5;
-const idCompanyType = 2;
-const uuidCompanyBase = "2cd385e1-8f7e-4908-8235-dfe42938b46d";
-var uuidCompanyNoSupplier = "";
-var uuidCompanySupplier = "";
+const imageFileUuid = "3706d1a1-80ae-4367-be39-af7091373811";
+const regionIdCompany = 5;
+const companyTypeId = 2;
+const companyUuidBase = "2cd385e1-8f7e-4908-8235-dfe42938b46d";
+var companyUuidNoSupplier = "";
+var companyUuidSupplier = "";
 
 const companyFullDataQuery = ` \
 uuid \
@@ -63,19 +63,19 @@ imageFile { \
   pathFile \
 } \
 region { \
-  idRegion \
-  idLang \
+  regionId \
+  langId \
   region \
 } \
 companyType { \
-  idCompanyType \
-  idLang \
+  companyTypeId \
+  langId \
   name \
   shortname \
 } \
 companyType { \
-  idCompanyType \
-	idLang \
+  companyTypeId \
+	langId \
   shortname \
 } \
 companyCertificates { \
@@ -88,10 +88,10 @@ companyCertificates { \
   description \
 } \
 companySpecs { \
-  uuidCompany \
+  companyUuid \
   spec { \
-    idSpec \
-    idLang \
+    specId \
+    langId \
     spec \
   } \
 } \
@@ -116,13 +116,13 @@ imageFile { \
   pathFile \
 } \
 region { \
-  idRegion \
-  idLang \
+  regionId \
+  langId \
   region \
 } \
 companyType { \
-  idCompanyType \
-  idLang \
+  companyTypeId \
+  langId \
   name \
   shortname \
 } \
@@ -132,28 +132,28 @@ updatedAt \
 `;
 
 // data for represent
-const idRegionRepresentation = 10;
-const idRepresentationType = 1;
+const regionIdRepresentation = 10;
+const representationTypeId = 1;
 const nameRepresentationFirst = "test first additional office";
 const nameRepresentationSecond = "test second additional office";
 const addressRepresentation = "Fake str, Fantom";
 const phoneRepresentation = "+743874487556";
 const uuidFake = "2cd385e1-8f7e-4908-8235-dfe42938b888";
 const uuidRepresentArray = [];
-var uuidCompanyFirst = "";
+var companyUuidFirst = "";
 var uuidRepresentFirst = "";
 var uuidRepresentDelete = "";
 const companyRepresentsListQuery = ` \
 uuid \
-uuidCompany \
+companyUuid \
 region { \
-  idRegion \
-  idLang \
+  regionId \
+  langId \
   region \
 } \
 representationType { \
-  idRepresentationType \
-  idLang \
+  representationTypeId \
+  langId \
   representationType \
 } \
 name \
@@ -162,7 +162,7 @@ phone \
 `;
 const companyRepresentQuery = ` \
 uuid \
-uuidCompany \
+companyUuid \
 name \
 address \
 phone \
@@ -228,11 +228,11 @@ describe('company', () => {
                 address: "test_address",
                 position: "test_position",
                 timeZone: "Europe/Moscow",
-                idRegion: 1,
-                idProgram: 1,
+                regionId: 1,
+                programId: 1,
             }) {
                 uuid
-                idProgram
+                programId
                 username
             }
         }`,
@@ -242,9 +242,9 @@ describe('company', () => {
     const {
       data: { registerUser },
     } = body;
-    expect(registerUser).toContainAllKeys(['uuid', 'idProgram', 'username']);
+    expect(registerUser).toContainAllKeys(['uuid', 'programId', 'username']);
     expect(registerUser.uuid).toBeNonEmptyString();
-    expect(registerUser.idProgram).toBe(1);
+    expect(registerUser.programId).toBe(1);
     expect(registerUser.username).toBe(username);
     done();
   });
@@ -283,11 +283,11 @@ describe('company', () => {
                 address: "test_address",
                 position: "test_position",
                 timeZone: "Europe/Moscow",
-                idRegion: 1,
-                idProgram: 5,
+                regionId: 1,
+                programId: 5,
             }) {
                 uuid
-                idProgram
+                programId
                 username
             }
         }`,
@@ -297,9 +297,9 @@ describe('company', () => {
     const {
       data: { registerUser },
     } = body;
-    expect(registerUser).toContainAllKeys(['uuid', 'idProgram', 'username']);
+    expect(registerUser).toContainAllKeys(['uuid', 'programId', 'username']);
     expect(registerUser.uuid).toBeNonEmptyString();
-    expect(registerUser.idProgram).toBe(5);
+    expect(registerUser.programId).toBe(5);
     expect(registerUser.username).toBe(username2);
     done();
   });
@@ -340,8 +340,8 @@ describe('company', () => {
             address: "${addressCompany}"
             siteUrl: "${siteUrl}",
             timeZone: "${timeZone}",
-            idRegion: ${idRegionCompany},
-            idCompanyType: ${idCompanyType}
+            regionId: ${regionIdCompany},
+            companyTypeId: ${companyTypeId}
           }) {
             uuid
             shortname
@@ -357,7 +357,7 @@ describe('company', () => {
     expect(registerCompany.uuid).toBeNonEmptyString();
     expect(registerCompany.shortname).toBe(shortname);
     expect(registerCompany.isSupplier).toBe(false);
-    uuidCompanySupplier = registerCompany.uuid;
+    companyUuidSupplier = registerCompany.uuid;
     done();
     // change supplier status on 1
     await global.knex.raw('UPDATE company_ref SET is_supplier=? WHERE orgname=?', [
@@ -385,8 +385,8 @@ describe('company', () => {
             address: "${addressCompany}"
             siteUrl: "${siteUrl}",
             timeZone: "${timeZone}",
-            idRegion: ${idRegionCompany},
-            idCompanyType: ${idCompanyType}
+            regionId: ${regionIdCompany},
+            companyTypeId: ${companyTypeId}
           }) {
             uuid
             shortname
@@ -402,7 +402,7 @@ describe('company', () => {
     expect(registerCompany.uuid).toBeNonEmptyString();
     expect(registerCompany.shortname).toBe(shortname);
     expect(registerCompany.isSupplier).toBe(false);
-    uuidCompanyNoSupplier = registerCompany.uuid;
+    companyUuidNoSupplier = registerCompany.uuid;
     done();
   });
 
@@ -411,7 +411,7 @@ describe('company', () => {
       .post('/graphql')
       .send({
         query: `query company {
-          company (companyUuid: "${uuidCompanySupplier}") {
+          company (companyUuid: "${companyUuidSupplier}") {
             ${companyFullDataQuery}
           }
         }`,
@@ -435,7 +435,7 @@ describe('company', () => {
       )
       .send({
         query: `query company {
-        	company (companyUuid: "${uuidCompanyNoSupplier}"){
+        	company (companyUuid: "${companyUuidNoSupplier}"){
             ${companyFullDataQuery}
           }
         }`,
@@ -445,7 +445,7 @@ describe('company', () => {
     const {
       data: { company },
     } = body;
-    expect(company.uuid).toBe(uuidCompanyNoSupplier);
+    expect(company.uuid).toBe(companyUuidNoSupplier);
     expect(company.orgname).toBe(orgname2);
     expect(company.isSupplier).toBe(false);
     done();
@@ -460,7 +460,7 @@ describe('company', () => {
       )
       .send({
         query: `query company {
-        	company (companyUuid: "${uuidCompanySupplier}"){
+        	company (companyUuid: "${companyUuidSupplier}"){
             ${companyFullDataQuery}
           }
         }`,
@@ -470,7 +470,7 @@ describe('company', () => {
     const {
       data: { company },
     } = body;
-    expect(company.uuid).toBe(uuidCompanySupplier);
+    expect(company.uuid).toBe(companyUuidSupplier);
     expect(company.orgname).toBe(orgname);
     expect(company.isSupplier).toBe(true);
     done();
@@ -482,8 +482,8 @@ describe('company', () => {
       .send({
         query: `query companies {
         	companies (companiesUuids: [
-            "${uuidCompanySupplier}",
-            "${uuidCompanyNoSupplier}"
+            "${companyUuidSupplier}",
+            "${companyUuidNoSupplier}"
           ]) {
             ${companysListQuery}
           }
@@ -509,8 +509,8 @@ describe('company', () => {
       .send({
         query: `query companies {
         	companies (companiesUuids: [
-            "${uuidCompanySupplier}",
-            "${uuidCompanyNoSupplier}"
+            "${companyUuidSupplier}",
+            "${companyUuidNoSupplier}"
           ]) {
             ${companysListQuery}
           }
@@ -522,8 +522,8 @@ describe('company', () => {
       data: { companies },
     } = body;
     expect(companies).toBeNonEmptyArray();
-    expect(companies[0].uuid).toBe(uuidCompanySupplier);
-    expect(companies[1].uuid).toBe(uuidCompanyNoSupplier);
+    expect(companies[0].uuid).toBe(companyUuidSupplier);
+    expect(companies[1].uuid).toBe(companyUuidNoSupplier);
     done();
   });
 
@@ -538,15 +538,15 @@ describe('company', () => {
       .send({
         query: `mutation companyRepresentQuery {
           registerCompanyRepresent( data: {
-            uuidCompany: "${uuidCompanySupplier}",
+            companyUuid: "${companyUuidSupplier}",
             name: "${nameRepresentationFirst}",
             address: "${addressRepresentation}",
             phone: "${phoneRepresentation}",
-            idRegion: ${idRegionRepresentation},
-            idRepresentationType: ${idRepresentationType}
+            regionId: ${regionIdRepresentation},
+            representationTypeId: ${representationTypeId}
           }) {
             uuid
-            uuidCompany
+            companyUuid
             address
             phone
           }
@@ -558,10 +558,10 @@ describe('company', () => {
       data: { registerCompanyRepresent },
     } = body;
     expect(registerCompanyRepresent).toContainAllKeys(
-      ["address", "phone", "uuid", "uuidCompany"]
+      ["address", "phone", "uuid", "companyUuid"]
     );
     expect(registerCompanyRepresent.uuid).toBeNonEmptyString();
-    expect(registerCompanyRepresent.uuidCompany).toBe(uuidCompanySupplier);
+    expect(registerCompanyRepresent.companyUuid).toBe(companyUuidSupplier);
     expect(registerCompanyRepresent.address).toBe(addressRepresentation);
     expect(registerCompanyRepresent.phone).toBe(phoneRepresentation);
     // for test delete represent not owned user
@@ -580,15 +580,15 @@ describe('company', () => {
       .send({
         query: `mutation  {
             registerCompanyRepresent( data: {
-                uuidCompany: "${uuidCompanyNoSupplier}",
+                companyUuid: "${companyUuidNoSupplier}",
                 name: "${nameRepresentationFirst}",
                 address: "${addressRepresentation}",
                 phone: "${phoneRepresentation}",
-                idRegion: ${idRegionRepresentation},
-                idRepresentationType: ${idRepresentationType}
+                regionId: ${regionIdRepresentation},
+                representationTypeId: ${representationTypeId}
             }) {
                 uuid
-                uuidCompany
+                companyUuid
                 name
                 address
                 phone
@@ -634,7 +634,7 @@ describe('company', () => {
       )
       .send({
         query: `query ListcompanyRepresents {
-            companyRepresents (companyUuid: "${uuidCompanySupplier}"){
+            companyRepresents (companyUuid: "${companyUuidSupplier}"){
                 ${companyRepresentsListQuery}
             }
         }`,
@@ -642,7 +642,7 @@ describe('company', () => {
       .expect(HttpStatus.OK)
     debug('/graphql all body=%o', response1.body);
     expect(response1.body.data.companyRepresents).toBeNonEmptyArray();
-    expect(response1.body.data.companyRepresents[0].uuidCompany).toBe(uuidCompanySupplier);
+    expect(response1.body.data.companyRepresents[0].companyUuid).toBe(companyUuidSupplier);
     done();
   });
 
@@ -665,7 +665,7 @@ describe('company', () => {
       .expect(HttpStatus.OK)
     debug('/graphql all body=%o', response1.body);
     expect(response1.body.data.companyRepresents).toBeNonEmptyArray();
-    expect(response1.body.data.companyRepresents[0].uuidCompany).toBe(uuidCompanySupplier);
+    expect(response1.body.data.companyRepresents[0].companyUuid).toBe(companyUuidSupplier);
     done();
   });
 
@@ -679,8 +679,8 @@ describe('company', () => {
       .send({
         query: `mutation deleteCompanyRepresentQuery {
           deleteCompanyRepresent(
-            uuidCompany: "${uuidCompanySupplier}",
-            uuidCompanyRepresent: "${uuidRepresentFirst}"
+            companyUuid: "${companyUuidSupplier}",
+            companyUuidRepresent: "${uuidRepresentFirst}"
           ){
               ${companyRepresentQuery}
           }
@@ -706,8 +706,8 @@ describe('company', () => {
       .send({
         query: `mutation deleteCompanyRepresentQuery {
           deleteCompanyRepresent(
-            uuidCompany: "${uuidFake}",
-            uuidCompanyRepresent: "${uuidRepresentFirst}"
+            companyUuid: "${uuidFake}",
+            companyUuidRepresent: "${uuidRepresentFirst}"
           ){
               ${companyRepresentQuery}
           }
@@ -733,8 +733,8 @@ describe('company', () => {
       .send({
         query: `mutation deleteCompanyRepresentQuery {
           deleteCompanyRepresent(
-            uuidCompany: "${uuidCompanySupplier}",
-            uuidCompanyRepresent: "${uuidFake}"
+            companyUuid: "${companyUuidSupplier}",
+            companyUuidRepresent: "${uuidFake}"
           ){
               ${companyRepresentQuery}
           }
@@ -750,7 +750,7 @@ describe('company', () => {
     done();
   });
 
-  it('/graphql:Q Select companyRepresents with uuidCompany - OK', async (done) => {
+  it('/graphql:Q Select companyRepresents with companyUuid - OK', async (done) => {
     const response1 = await agent
       .post('/graphql')
       .set(
@@ -759,7 +759,7 @@ describe('company', () => {
       )
       .send({
         query: `query ListcompanyRepresents {
-            companyRepresents (companyUuid: "${uuidCompanySupplier}") {
+            companyRepresents (companyUuid: "${companyUuidSupplier}") {
               ${companyRepresentsListQuery}
             }
         }`,
@@ -767,8 +767,8 @@ describe('company', () => {
       .expect(HttpStatus.OK)
     debug('/graphql filter body=%o', response1.body);
     expect(response1.body.data.companyRepresents).toBeNonEmptyArray();
-    expect(response1.body.data.companyRepresents[0].uuidCompany).toBe(uuidCompanySupplier);
-    expect(response1.body.data.companyRepresents.pop().uuidCompany).toBe(uuidCompanySupplier);
+    expect(response1.body.data.companyRepresents[0].companyUuid).toBe(companyUuidSupplier);
+    expect(response1.body.data.companyRepresents.pop().companyUuid).toBe(companyUuidSupplier);
     done();
   });
 
@@ -782,8 +782,8 @@ describe('company', () => {
       .send({
         query: `mutation deleteCompanyRepresentQuery {
           deleteCompanyRepresent(
-            uuidCompany: "${uuidCompanySupplier}",
-            uuidCompanyRepresent: "${uuidRepresentFirst}"
+            companyUuid: "${companyUuidSupplier}",
+            companyUuidRepresent: "${uuidRepresentFirst}"
           ){
               ${companyRepresentQuery}
           }
@@ -795,10 +795,10 @@ describe('company', () => {
       data: { deleteCompanyRepresent },
     } = body;
     expect(deleteCompanyRepresent).toContainAllKeys(
-      ["address", "name", "phone", "uuid", "uuidCompany"]
+      ["address", "name", "phone", "uuid", "companyUuid"]
     );
     expect(deleteCompanyRepresent.uuid).toBe(uuidRepresentFirst);
-    expect(deleteCompanyRepresent.uuidCompany).toBe(uuidCompanySupplier);
+    expect(deleteCompanyRepresent.companyUuid).toBe(companyUuidSupplier);
     expect(deleteCompanyRepresent.address).toBe(addressRepresentation);
     expect(deleteCompanyRepresent.phone).toBe(phoneRepresentation);
     // for test delete represent not owned user
@@ -815,7 +815,7 @@ describe('company', () => {
       )
       .send({
         query: `query ListcompanyRepresents {
-            companyRepresents (companyUuid: "${uuidCompanySupplier}") {
+            companyRepresents (companyUuid: "${companyUuidSupplier}") {
               ${companyRepresentsListQuery}
             }
         }`,

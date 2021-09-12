@@ -8,64 +8,64 @@ use uuid::Uuid;
 
 // Spec component models
 #[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, Clone, Debug)]
-#[primary_key(uuid_component, id_spec)]
-#[belongs_to(Component, foreign_key = "uuid_component")]
-#[belongs_to(Spec, foreign_key = "id_spec")]
+#[primary_key(component_uuid, spec_id)]
+#[belongs_to(Component, foreign_key = "component_uuid")]
+#[belongs_to(Spec, foreign_key = "spec_id")]
 #[table_name = "spec_to_component"]
 pub struct SpecComponent {
-    pub id_spec: i32,
-    pub uuid_component: Uuid,
+    pub spec_id: i32,
+    pub component_uuid: Uuid,
 }
 
 #[Object]
 impl SpecComponent {
-    async fn id_spec(&self) -> &i32 {
-        &self.id_spec
+    async fn spec_id(&self) -> &i32 {
+        &self.spec_id
     }
-    async fn uuid_component(&self) -> ID {
-        self.uuid_component.into()
+    async fn component_uuid(&self) -> ID {
+        self.component_uuid.into()
     }
 }
 
 #[derive(Deserialize, SimpleObject, Clone, Debug)]
 pub struct ComponentSpecWithTranslation {
     pub spec: SpecTranslateList,
-    pub uuid_component: Uuid,
+    pub component_uuid: Uuid,
 }
 
 impl From<(SpecComponent, SpecTranslateList)> for ComponentSpecWithTranslation {
     fn from(data: (SpecComponent, SpecTranslateList)) -> Self {
         Self {
             spec: data.1,
-            uuid_component: data.0.uuid_component,
+            component_uuid: data.0.component_uuid,
         }
     }
 }
 
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub struct IptSpecComponentData {
-    pub uuid_component: ID,
-    pub id_spec: i32,
+    pub component_uuid: ID,
+    pub spec_id: i32,
 }
 
 #[derive(Debug, Insertable)]
 #[table_name = "spec_to_component"]
 pub struct InsertableSpecComponent {
-    pub uuid_component: Uuid,
-    pub id_spec: i32,
+    pub component_uuid: Uuid,
+    pub spec_id: i32,
 }
 
 impl From<IptSpecComponentData> for InsertableSpecComponent {
     fn from(ipt_data: IptSpecComponentData) -> Self {
         let IptSpecComponentData {
-            uuid_component,
-            id_spec,
+            component_uuid,
+            spec_id,
             ..
         } = ipt_data;
 
         Self {
-            uuid_component: Uuid::parse_str(&uuid_component.to_string()).unwrap(),
-            id_spec,
+            component_uuid: Uuid::parse_str(&component_uuid.to_string()).unwrap(),
+            spec_id,
         }
     }
 }

@@ -15,21 +15,21 @@ CREATE TABLE license_permission_ref (
 );
 
 CREATE TABLE license_permission_translate_list (
-  id_license_permission INTEGER NOT NULL, /* id статуса */
-  id_lang INTEGER NOT NULL, /* идентификатор языка перевода */
+  permission_license_id INTEGER NOT NULL, /* id статуса */
+  lang_id INTEGER NOT NULL, /* идентификатор языка перевода */
   permission VARCHAR(225) NOT NULL, /* наименование разрешения */
-  UNIQUE (id_lang, permission),
+  UNIQUE (lang_id, permission),
   CONSTRAINT license_permission_translate_list_pk PRIMARY KEY (
-    id_license_permission,
-    id_lang
+    permission_license_id,
+    lang_id
   )
 );
 
 /* разрешения для лицензии */
 CREATE TABLE permission_to_license (
-  id_permission INTEGER NOT NULL, /* идентификатор разрешения */
-  id_license INTEGER NOT NULL, /* идентификатор лицензии */
-  CONSTRAINT permission_to_license_pk PRIMARY KEY (id_permission, id_license)
+  permission_id INTEGER NOT NULL, /* идентификатор разрешения */
+  license_id INTEGER NOT NULL, /* идентификатор лицензии */
+  CONSTRAINT permission_to_license_pk PRIMARY KEY (permission_id, license_id)
 );
 
 /* ограничения */
@@ -39,21 +39,21 @@ CREATE TABLE license_limitation_ref (
 );
 
 CREATE TABLE license_limitation_translate_list (
-  id_license_limitation INTEGER NOT NULL, /* id статуса */
-  id_lang INTEGER NOT NULL, /* идентификатор языка перевода */
+  limitation_license_id INTEGER NOT NULL, /* id статуса */
+  lang_id INTEGER NOT NULL, /* идентификатор языка перевода */
   limitation VARCHAR(225) NOT NULL, /* наименование разрешения */
-  UNIQUE (id_lang, limitation),
+  UNIQUE (lang_id, limitation),
   CONSTRAINT license_limitation_translate_list_pk PRIMARY KEY (
-    id_license_limitation,
-    id_lang
+    limitation_license_id,
+    lang_id
   )
 );
 
 /* ограничения для лицензии */
 CREATE TABLE limitation_to_license (
-  id_limitation INTEGER NOT NULL, /* идентификатор ограничения */
-  id_license INTEGER NOT NULL, /* идентификатор лицензии */
-  CONSTRAINT limitation_to_license_pk PRIMARY KEY (id_limitation, id_license)
+  limitation_id INTEGER NOT NULL, /* идентификатор ограничения */
+  license_id INTEGER NOT NULL, /* идентификатор лицензии */
+  CONSTRAINT limitation_to_license_pk PRIMARY KEY (limitation_id, license_id)
 );
 
 /* условия */
@@ -63,19 +63,19 @@ CREATE TABLE license_condition_ref (
 );
 
 CREATE TABLE license_condition_translate_list (
-  id_license_condition INTEGER NOT NULL, /* id статуса */
-  id_lang INTEGER NOT NULL, /* идентификатор языка перевода */
+  condition_license_id INTEGER NOT NULL, /* id статуса */
+  lang_id INTEGER NOT NULL, /* идентификатор языка перевода */
   condition VARCHAR(225) NOT NULL, /* наименование разрешения */
-  UNIQUE (id_lang, condition),
+  UNIQUE (lang_id, condition),
   CONSTRAINT license_condition_translate_list_pk PRIMARY KEY (
-    id_license_condition,
-    id_lang
+    condition_license_id,
+    lang_id
   )
 );
 
 /* условия для лицензии */
 CREATE TABLE condition_to_license (
-  id_condition INTEGER NOT NULL, /* идентификатор условия */
-  id_license INTEGER NOT NULL, /* идентификатор лицензии */
-  CONSTRAINT condition_to_license_pk PRIMARY KEY (id_condition, id_license)
+  condition_id INTEGER NOT NULL, /* идентификатор условия */
+  license_id INTEGER NOT NULL, /* идентификатор лицензии */
+  CONSTRAINT condition_to_license_pk PRIMARY KEY (condition_id, license_id)
 );

@@ -7,35 +7,35 @@ use async_graphql::*;
 use uuid::Uuid;
 
 #[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, PartialEq, Clone, Debug)]
-#[primary_key(id_set, uuid_file)]
-#[belongs_to(SetOfFilesProgram, foreign_key = "id_set")]
-#[belongs_to(ShowFile, foreign_key = "uuid_file")]
+#[primary_key(set_id, file_uuid)]
+#[belongs_to(SetOfFilesProgram, foreign_key = "set_id")]
+#[belongs_to(ShowFile, foreign_key = "file_uuid")]
 #[table_name = "file_to_set_modification"]
 pub struct FileToSetModification {
-    pub id_set: i32,
-    pub uuid_file: Uuid,
+    pub set_id: i32,
+    pub file_uuid: Uuid,
 }
 
 #[Object]
 impl FileToSetModification {
-    async fn id_set(&self) -> &i32 {
-        &self.id_set
+    async fn set_id(&self) -> &i32 {
+        &self.set_id
     }
-    async fn uuid_file(&self) -> ID {
-        self.uuid_file.into()
+    async fn file_uuid(&self) -> ID {
+        self.file_uuid.into()
     }
 }
 
 #[derive(Debug, Deserialize, SimpleObject, Clone)]
 pub struct FileToSetModificationRelatedData {
-    pub id_set: i32,
+    pub set_id: i32,
     pub files: Vec<ShowFile>,
 }
 
 impl From<(FileToSetModification, Vec<ShowFile>)> for FileToSetModificationRelatedData {
     fn from(data: (FileToSetModification, Vec<ShowFile>)) -> Self {
         Self {
-            id_set: data.0.id_set,
+            set_id: data.0.set_id,
             files: data.1,
         }
     }
@@ -43,27 +43,27 @@ impl From<(FileToSetModification, Vec<ShowFile>)> for FileToSetModificationRelat
 
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub struct IptFileToSetModificationData {
-    pub id_set: i32,
-    pub uuid_file: ID,
+    pub set_id: i32,
+    pub file_uuid: ID,
 }
 
 #[derive(Debug, Insertable)]
 #[table_name = "file_to_set_modification"]
 pub struct InsertableFileToSetModification {
-    pub id_set: i32,
-    pub uuid_file: Uuid,
+    pub set_id: i32,
+    pub file_uuid: Uuid,
 }
 
 impl From<IptFileToSetModificationData> for InsertableFileToSetModification {
     fn from(ipt_data: IptFileToSetModificationData) -> Self {
         let IptFileToSetModificationData {
-            id_set,
-            uuid_file,
+            set_id,
+            file_uuid,
         } = ipt_data;
 
         Self {
-            id_set,
-            uuid_file: Uuid::parse_str(&uuid_file.to_string()).unwrap(),
+            set_id,
+            file_uuid: Uuid::parse_str(&file_uuid.to_string()).unwrap(),
         }
     }
 }
