@@ -41,6 +41,8 @@ var authorizationTokenSecond = "";
 var userUuidFirst = "";
 var userUuidSecond = "";
 
+const companyUuidBase = "2cd385e1-8f7e-4908-8235-dfe42938b46d";
+
 const userFullDataQuery = ` \
 uuid \
 email \
@@ -149,7 +151,6 @@ describe('users', () => {
     expect(response1.body.errors[0].path[0]).toBe('user');
     done();
   });
-      // .expect(HttpStatus.BAD_REQUEST)
 
   it('/graphql:M register - OK', async (done) => {
     const { body } = await agent
@@ -566,6 +567,81 @@ describe('users', () => {
         'Unauthorized'
       );
       done();
+  });
+
+  it('/graphql:Q user - Ok', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `query ListUsers {
+            user(userUuid: "${userUuidFirst}") {
+              ${userFullDataQuery}
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    expect(body.data.user.uuid).toBe(userUuidFirst);
+    expect(body.data.user.username).toBe(username);
+    expect(body.data.user.favCompaniesCount).toBe(0);
+    expect(body.data.user.favComponentsCount).toBe(0);
+    expect(body.data.user.favStandardsCount).toBe(0);
+    expect(body.data.user.favUsersCount).toBe(0);
+    done();
+  });
+
+  it('/graphql:M user - Ok add company fav', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation addCompanyFavM {
+            addCompanyFav(companyUuid: "${companyUuidBase}") {
+              companyUuid
+              userUuid
+              isEnabled
+              createdAt
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql addCompanyFav body=%o', body);
+    expect(body.data.addCompanyFav.companyUuid).toBe(companyUuidBase);
+    expect(body.data.addCompanyFav.userUuid).toBe(userUuidFirst);
+    expect(body.data.addCompanyFav.isEnabled).toBe(true);
+    done();
+  });
+
+  it('/graphql:Q user - Ok add company fav', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `query ListUsers {
+            user(userUuid: "${userUuidFirst}") {
+              ${userFullDataQuery}
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    expect(body.data.user.uuid).toBe(userUuidFirst);
+    expect(body.data.user.username).toBe(username);
+    expect(body.data.user.favCompaniesCount).toBe(1);
+    expect(body.data.user.favComponentsCount).toBe(0);
+    expect(body.data.user.favStandardsCount).toBe(0);
+    expect(body.data.user.favUsersCount).toBe(0);
+    done();
   });
 
   it('/graphql:Q users - OK select uuidsUsers', async (done) => {
