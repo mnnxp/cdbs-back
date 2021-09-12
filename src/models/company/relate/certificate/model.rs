@@ -1,7 +1,7 @@
 use crate::schema::*;
 use crate::models::company::model::Company;
 use crate::models::relate_ref::file::model::{ShowFile, SlimFile};
-use async_graphql::types::ID;
+// use async_graphql::types::ID;
 use async_graphql::*;
 // use chrono::*;
 use uuid::Uuid;
@@ -18,16 +18,6 @@ pub struct CompanyCertificate {
     pub description: String,
 }
 
-#[Object]
-impl CompanyCertificate {
-    async fn uuid_file(&self) -> ID {
-        self.uuid_file.into()
-    }
-    async fn uuid_company(&self) -> ID {
-        self.uuid_company.into()
-    }
-}
-
 #[derive(Debug, Deserialize, SimpleObject)]
 pub struct CertificateWithSlimFile {
     pub file: SlimFile,
@@ -39,6 +29,12 @@ pub struct CertificateWithSlimFile {
 #[table_name = "company_certificate_ref"]
 pub struct InsertableCompanyCertificate {
     pub uuid_file: Uuid,
+    pub uuid_company: Uuid,
+    pub description: String,
+}
+
+#[derive(Debug, Deserialize, Clone, InputObject)]
+pub struct IptCompanyCertificateData {
     pub uuid_company: Uuid,
     pub description: String,
 }

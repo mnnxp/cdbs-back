@@ -8,7 +8,9 @@ use uuid::Uuid;
 #[derive(Deserialize, Clone, Debug)]
 pub enum ListObject {
     User(Uuid),
+    UserCertificate(Uuid),
     Company(Uuid),
+    CompanyCertificate(Uuid),
     Component(Uuid),
     Modification(Uuid),
     Standard(Uuid),
@@ -19,7 +21,9 @@ impl ListObject {
     pub fn get_uuid(&self) -> Uuid {
         match &self {
             ListObject::User(uuid_object) => *uuid_object,
+            ListObject::UserCertificate(uuid_object) => *uuid_object,
             ListObject::Company(uuid_object) => *uuid_object,
+            ListObject::CompanyCertificate(uuid_object) => *uuid_object,
             ListObject::Component(uuid_object) => *uuid_object,
             ListObject::Modification(uuid_object) => *uuid_object,
             ListObject::Standard(uuid_object) => *uuid_object,

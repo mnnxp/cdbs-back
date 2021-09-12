@@ -57,6 +57,7 @@ pub(crate) fn write_addiction_data(
     // select addiction table for write additional data
     match object {
         ListObject::User(_) => Ok(false),
+        ListObject::CompanyCertificate(_) => Ok(false),
         ListObject::Component(uuid_component) => {   // <- add addiction data in file_to_component
             use crate::schema::file_to_component::dsl::file_to_component;
 
