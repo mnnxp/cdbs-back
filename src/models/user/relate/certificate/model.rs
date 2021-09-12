@@ -1,9 +1,7 @@
 use crate::schema::*;
 use crate::models::user::model::UserQuery;
 use crate::models::relate_ref::file::model::{ShowFile, SlimFile};
-use async_graphql::types::ID;
 use async_graphql::*;
-// use chrono::*;
 use uuid::Uuid;
 
 // Certificate for User
@@ -16,16 +14,6 @@ pub struct UserCertificate {
     pub uuid_file: Uuid,
     pub uuid_user: Uuid,
     pub description: String,
-}
-
-#[Object]
-impl UserCertificate {
-    async fn uuid_file(&self) -> ID {
-        self.uuid_file.into()
-    }
-    async fn uuid_user(&self) -> ID {
-        self.uuid_user.into()
-    }
 }
 
 #[derive(Debug, Deserialize, SimpleObject)]
@@ -43,19 +31,7 @@ pub struct InsertableUserCertificate {
     pub description: String,
 }
 
-impl From<UserCertificate> for InsertableUserCertificate {
-    fn from(ipt_data: UserCertificate) -> Self {
-        let UserCertificate {
-            uuid_file,
-            uuid_user,
-            description,
-            ..
-        } = ipt_data;
-
-        Self {
-            uuid_file,
-            uuid_user,
-            description,
-        }
-    }
+#[derive(Debug, Deserialize, Clone, InputObject)]
+pub struct IptUserCertificateData {
+    pub description: String,
 }
