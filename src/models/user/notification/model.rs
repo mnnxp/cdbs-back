@@ -7,7 +7,7 @@ use uuid::Uuid;
 pub struct Notification {
     pub id: i32,
     pub notification: String,
-    pub id_degree_importance: i32,
+    pub degree_importance_id: i32,
     pub generated_at: NaiveDateTime,
     pub is_read: bool,
 }
@@ -20,8 +20,8 @@ impl Notification {
     async fn notification(&self) -> &String {
         &self.notification
     }
-    async fn id_degree_importance(&self) -> &i32 {
-        &self.id_degree_importance
+    async fn degree_importance_id(&self) -> &i32 {
+        &self.degree_importance_id
     }
     async fn generated_at(&self) -> &NaiveDateTime {
         &self.generated_at
@@ -35,7 +35,7 @@ impl Notification {
 #[table_name = "notification_ref"]
 pub struct InsertableNotification {
     pub notification: String,
-    pub id_degree_importance: i32,
+    pub degree_importance_id: i32,
     pub generated_at: NaiveDateTime,
     pub is_read: bool,
 }
@@ -43,7 +43,7 @@ pub struct InsertableNotification {
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub struct NotificationData {
     pub notification: String,
-    pub id_degree_importance: i32,
+    pub degree_importance_id: i32,
 }
 
 // #[Object]
@@ -51,15 +51,15 @@ pub struct NotificationData {
 //     async fn notification(&self) -> &String {
 //         &self.notification
 //     }
-//     async fn id_degree_importance(&self) -> &i32 {
-//         &self.id_degree_importance
+//     async fn degree_importance_id(&self) -> &i32 {
+//         &self.degree_importance_id
 //     }
 // }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct SlimNotification {
     pub notification: String,
-    pub id_degree_importance: i32,
+    pub degree_importance_id: i32,
     pub is_read: bool,
 }
 
@@ -68,8 +68,8 @@ impl SlimNotification {
     async fn notification(&self) -> &String {
         &self.notification
     }
-    async fn id_degree_importance(&self) -> &i32 {
-        &self.id_degree_importance
+    async fn degree_importance_id(&self) -> &i32 {
+        &self.degree_importance_id
     }
     async fn is_read(&self) -> &bool {
         &self.is_read
@@ -94,13 +94,13 @@ impl From<NotificationData> for InsertableNotification {
     fn from(notification_data: NotificationData) -> Self {
         let NotificationData {
             notification,
-            id_degree_importance,
+            degree_importance_id,
             ..
         } = notification_data;
 
         Self {
             notification,
-            id_degree_importance,
+            degree_importance_id,
             generated_at: chrono::Local::now().naive_local(),
             is_read: false,
         }
@@ -111,14 +111,14 @@ impl From<Notification> for SlimNotification {
     fn from(notification: Notification) -> Self {
         let Notification {
             notification,
-            id_degree_importance,
+            degree_importance_id,
             is_read,
             ..
         } = notification;
 
         Self {
             notification,
-            id_degree_importance,
+            degree_importance_id,
             is_read,
         }
     }

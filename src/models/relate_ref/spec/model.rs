@@ -7,7 +7,7 @@ use async_graphql::*;
 #[table_name = "spec_ref"]
 pub struct Spec {
     pub id: i32,
-    pub spec_id_parent: i32,
+    pub parent_spec_id: i32,
 }
 
 #[Object]
@@ -15,15 +15,15 @@ impl Spec {
     async fn id(&self) -> &i32 {
         &self.id
     }
-    async fn spec_id_parent(&self) -> &i32 {
-        &self.spec_id_parent
+    async fn parent_spec_id(&self) -> &i32 {
+        &self.parent_spec_id
     }
 }
 
 #[derive(Debug, Insertable)]
 #[table_name = "spec_ref"]
 pub struct InsertableSpec {
-    pub spec_id_parent: i32,
+    pub parent_spec_id: i32,
 }
 
 // Spec translations
@@ -54,7 +54,7 @@ impl SpecTranslateList {
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub struct IptSpecTranslateListData {
     pub spec_id: i32,
-    pub spec_id_parent: i32,
+    pub parent_spec_id: i32,
     pub lang_id: i32,
     pub spec: String,
 }
@@ -70,12 +70,12 @@ pub struct InsertableSpecTranslateList {
 impl From<IptSpecTranslateListData> for InsertableSpec {
     fn from(ipt_data: IptSpecTranslateListData) -> Self {
         let IptSpecTranslateListData {
-            spec_id_parent,
+            parent_spec_id,
             ..
         } = ipt_data;
 
         Self {
-            spec_id_parent
+            parent_spec_id
         }
     }
 }

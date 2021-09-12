@@ -43,5 +43,5 @@ ALTER TABLE company_type_translate_list ADD CONSTRAINT company_type_translate_li
 ALTER TABLE representation_type_translate_list ADD CONSTRAINT representation_type_translate_list_fk0 FOREIGN KEY (representation_type_id) REFERENCES representation_type_ref(id) ON DELETE CASCADE;
 ALTER TABLE representation_type_translate_list ADD CONSTRAINT representation_type_translate_list_fk1 FOREIGN KEY (lang_id) REFERENCES language_ref(id);
 
-ALTER TABLE role_member_translate_list ADD CONSTRAINT role_member_translate_list_fk0 FOREIGN KEY (role_id_member) REFERENCES role_member_ref(id) ON DELETE CASCADE;
+ALTER TABLE role_member_translate_list ADD CONSTRAINT role_member_translate_list_fk0 FOREIGN KEY (role_member_id) REFERENCES role_member_ref(id) ON DELETE CASCADE;
 ALTER TABLE role_member_translate_list ADD CONSTRAINT role_member_translate_list_fk1 FOREIGN KEY (lang_id) REFERENCES language_ref(id);

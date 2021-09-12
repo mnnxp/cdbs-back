@@ -17,7 +17,7 @@ ALTER TABLE param_translate_list ADD CONSTRAINT param_translate_list_fk1 FOREIGN
 ALTER TABLE region_translate_list ADD CONSTRAINT region_translate_list_fk0 FOREIGN KEY (region_id) REFERENCES region_ref(id) ON DELETE CASCADE;
 ALTER TABLE region_translate_list ADD CONSTRAINT region_translate_list_fk1 FOREIGN KEY (lang_id) REFERENCES language_ref(id);
 
-ALTER TABLE spec_ref ADD CONSTRAINT spec_ref_fk0 FOREIGN KEY (spec_id_parent) REFERENCES spec_ref(id) ON DELETE CASCADE;
+ALTER TABLE spec_ref ADD CONSTRAINT spec_ref_fk0 FOREIGN KEY (parent_spec_id) REFERENCES spec_ref(id) ON DELETE CASCADE;
 
 ALTER TABLE spec_translate_list ADD CONSTRAINT spec_translate_list_fk0 FOREIGN KEY (spec_id) REFERENCES spec_ref(id) ON DELETE CASCADE;
 ALTER TABLE spec_translate_list ADD CONSTRAINT spec_translate_list_fk1 FOREIGN KEY (lang_id) REFERENCES language_ref(id);

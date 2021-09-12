@@ -113,11 +113,11 @@ CREATE TABLE role_member_ref (
 );
 
 CREATE TABLE role_member_translate_list (
-  role_id_member INTEGER NOT NULL, /* id роли */
+  role_member_id INTEGER NOT NULL, /* id роли */
   lang_id INTEGER NOT NULL, /* идентификатор языка перевода */
   name VARCHAR(50) NOT NULL, /* наименование роли в переводе */
   UNIQUE(lang_id, name),
-  CONSTRAINT role_member_translate_list_pk PRIMARY KEY (role_id_member, lang_id)
+  CONSTRAINT role_member_translate_list_pk PRIMARY KEY (role_member_id, lang_id)
 );
 
 /* уровень доступа роли */

@@ -110,8 +110,8 @@ CREATE TABLE type_of_change_translate_list (
 /* категории (каталога) */
 CREATE TABLE spec_ref (
   id SERIAL, /* id категории каталога */
-  spec_id_parent INTEGER NOT NULL DEFAULT '1', /* id родительского каталога */
-  UNIQUE(id, spec_id_parent),
+  parent_spec_id INTEGER NOT NULL DEFAULT '1', /* id родительского каталога */
+  UNIQUE(id, parent_spec_id),
   CONSTRAINT spec_ref_pk PRIMARY KEY (id)
 );
 

@@ -78,7 +78,7 @@ INSERT INTO role_member_ref (id) VALUES
   (4),
   (5);
 
-INSERT INTO role_member_translate_list (role_id_member, lang_id, name) VALUES
+INSERT INTO role_member_translate_list (role_member_id, lang_id, name) VALUES
   (1, 1, 'Trainee'),
   (2, 1, 'Designer'),
   (3, 1, 'Engineer'),

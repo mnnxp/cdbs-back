@@ -1,4 +1,4 @@
-INSERT INTO spec_ref (id, spec_id_parent) VALUES
+INSERT INTO spec_ref (id, parent_spec_id) VALUES
   (2, 1),
   (3, 2),
   (4, 3),

@@ -31,7 +31,7 @@ pub(crate) fn create_spec(
                 use crate::schema::spec_ref::dsl::*;
 
                 let value_spec_data: InsertableSpec = InsertableSpec {
-                    spec_id_parent: new_spec_data.spec_id_parent
+                    parent_spec_id: new_spec_data.parent_spec_id
                 };
                 let new_spec: Spec = diesel::insert_into(spec_ref)
                     .values(&value_spec_data)

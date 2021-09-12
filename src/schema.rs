@@ -205,8 +205,8 @@ table! {
 }
 
 table! {
-    degree_importance_translate_list (id_degree_importance, lang_id) {
-        id_degree_importance -> Int4,
+    degree_importance_translate_list (degree_importance_id, lang_id) {
+        degree_importance_id -> Int4,
         lang_id -> Int4,
         degree -> Varchar,
     }
@@ -388,7 +388,7 @@ table! {
     notification_ref (id) {
         id -> Int4,
         notification -> Varchar,
-        id_degree_importance -> Int4,
+        degree_importance_id -> Int4,
         generated_at -> Timestamp,
         is_read -> Bool,
     }
@@ -488,8 +488,8 @@ table! {
 }
 
 table! {
-    role_member_translate_list (role_id_member, lang_id) {
-        role_id_member -> Int4,
+    role_member_translate_list (role_member_id, lang_id) {
+        role_member_id -> Int4,
         lang_id -> Int4,
         name -> Varchar,
     }
@@ -506,7 +506,7 @@ table! {
 table! {
     spec_ref (id) {
         id -> Int4,
-        spec_id_parent -> Int4,
+        parent_spec_id -> Int4,
     }
 }
 
@@ -777,7 +777,7 @@ joinable!(component_type_translate_list -> component_type_ref (component_type_id
 joinable!(component_type_translate_list -> language_ref (lang_id));
 joinable!(condition_to_license -> license_condition_ref (condition_id));
 joinable!(condition_to_license -> license_ref (license_id));
-joinable!(degree_importance_translate_list -> degree_importance_ref (id_degree_importance));
+joinable!(degree_importance_translate_list -> degree_importance_ref (degree_importance_id));
 joinable!(degree_importance_translate_list -> language_ref (lang_id));
 joinable!(discussion_company_ref -> company_ref (company_uuid));
 joinable!(discussion_company_ref -> user_ref (author_uuid));
@@ -807,7 +807,7 @@ joinable!(license_to_component -> component_ref (component_uuid));
 joinable!(license_to_component -> license_ref (license_id));
 joinable!(limitation_to_license -> license_limitation_ref (limitation_id));
 joinable!(limitation_to_license -> license_ref (license_id));
-joinable!(notification_ref -> degree_importance_ref (id_degree_importance));
+joinable!(notification_ref -> degree_importance_ref (degree_importance_id));
 joinable!(notification_to_user -> notification_ref (notification_id));
 joinable!(notification_to_user -> user_ref (user_uuid));
 joinable!(param_to_component -> component_ref (component_uuid));
@@ -825,7 +825,7 @@ joinable!(representation_type_translate_list -> representation_type_ref (represe
 joinable!(role_access -> role_member_ref (role_id));
 joinable!(role_access -> type_access_ref (type_access_id));
 joinable!(role_member_translate_list -> language_ref (lang_id));
-joinable!(role_member_translate_list -> role_member_ref (role_id_member));
+joinable!(role_member_translate_list -> role_member_ref (role_member_id));
 joinable!(set_files_for_program -> component_modification_list (modification_uuid));
 joinable!(set_files_for_program -> program_ref (program_id));
 joinable!(spec_to_company -> company_ref (company_uuid));

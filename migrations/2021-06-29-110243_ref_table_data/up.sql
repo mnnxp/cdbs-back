@@ -232,7 +232,7 @@ INSERT INTO type_of_change_translate_list (type_of_change_id, lang_id, type_of_c
   (1, 1, 'data update'),
   (1, 2, 'обновление данных');
 
-INSERT INTO spec_ref (id, spec_id_parent) VALUES
+INSERT INTO spec_ref (id, parent_spec_id) VALUES
   (1, 1);
 
 INSERT INTO spec_translate_list (spec_id, lang_id, spec) VALUES

@@ -50,7 +50,7 @@ fn find_all_notifications(
         .inner_join(notification_to_user)
         .filter(user_uuid.eq(target_user_uuid))
         .select((
-            notification_ref_id, notification, id_degree_importance,
+            notification_ref_id, notification, degree_importance_id,
             generated_at, is_read,
         ))
         .limit(limit as i64)
@@ -73,7 +73,7 @@ fn find_notification_id(
         .filter(user_uuid.eq(target_user_uuid))
         .filter(notification_id.eq(notification_id_search))
         .select((
-            notification_ref_id, notification, id_degree_importance,
+            notification_ref_id, notification, degree_importance_id,
             generated_at, is_read,
         ))
         .load::<Notification>(conn)?)
