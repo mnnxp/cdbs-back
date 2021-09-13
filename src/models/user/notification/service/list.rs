@@ -1,43 +1,28 @@
 use crate::database::{get_conn, PooledConnection};
-use crate::errors::{ServiceError, ServiceResult};
-// use crate::graphql::model::Context;
+use crate::errors::ServiceResult;
 use async_graphql::Context;
 use crate::models::user::notification::model::Notification;
 use diesel::prelude::*;
-// use std::any::Any;
 use uuid::Uuid;
 
 pub(crate) fn get_notifications(
     cxt: &Context<'_>,
-    notification_id_search: i32,
-    target_user_uuid: Uuid,
+    search_ids: &[i32],
+    target_user_uuid: &Uuid,
     limit: i32,
     offset: i32,
 ) -> ServiceResult<Vec<Notification>> {
-    let mut variant_selection: u8 = 0;
-    if notification_id_search > 0 {
-        variant_selection += 1;
-    }
-    // if target_user_uuid > Uuid::nil() {
-    //     variant_selection += 10;
-    // }
-
-    match variant_selection {
-        0 => find_all_notifications(cxt, target_user_uuid, limit, offset),
-        1 => find_notification_id(cxt, notification_id_search, target_user_uuid),
-        // 10
-        // 11
-        // 100
-        // 101
-        // 110
-        // 111
-        _ => ServiceResult::Err(ServiceError::BadRequest("What?".to_string()))
+    if search_ids.is_empty() {
+        get_all(cxt, target_user_uuid, limit, offset)
+    } else {
+        get_by_id(cxt, search_ids, target_user_uuid)
     }
 }
 
-fn find_all_notifications(
+/// Gets all notification for target user
+fn get_all(
     cxt: &Context<'_>,
-    target_user_uuid: Uuid,
+    target_user_uuid: &Uuid,
     limit: i32,
     offset: i32,
 ) -> ServiceResult<Vec<Notification>> {
@@ -58,10 +43,11 @@ fn find_all_notifications(
         .load::<Notification>(conn)?)
 }
 
-fn find_notification_id(
+/// Gets notification for target user by id list
+fn get_by_id(
     cxt: &Context<'_>,
-    notification_id_search: i32,
-    target_user_uuid: Uuid,
+    search_ids: &[i32],
+    target_user_uuid: &Uuid,
 ) -> ServiceResult<Vec<Notification>> {
     use crate::schema::notification_ref::dsl::*;
     use crate::schema::notification_ref::dsl::id as notification_ref_id;
@@ -70,8 +56,8 @@ fn find_notification_id(
 
     Ok(notification_ref
         .inner_join(notification_to_user)
-        .filter(user_uuid.eq(target_user_uuid))
-        .filter(notification_id.eq(notification_id_search))
+        .filter(user_uuid.eq(target_user_uuid)
+        .and(notification_id.eq_any(search_ids)))
         .select((
             notification_ref_id, notification, degree_importance_id,
             generated_at, is_read,

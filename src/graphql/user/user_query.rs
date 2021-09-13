@@ -107,16 +107,22 @@ impl UserQuery {
     async fn notifications(
         &self,
         cxt: &Context<'_>,
-        notification_id: Option<i32>,
+        select_ids: Option<Vec<i32>>,
         limit: Option<i32>,
         offset: Option<i32>,
     ) -> ServiceResult<Vec<Notification>> {
-        let notification_id: i32 = notification_id.unwrap_or(0);
+        let select_ids: Vec<i32>  = select_ids.unwrap_or_default();
         let limit: i32 = limit.unwrap_or(100);
         let offset: i32 = offset.unwrap_or(0);
 
         let logged_user_uuid = user::get_logged_user_uuid(cxt, true)?;
 
-        notification::list::get_notifications(cxt, notification_id, logged_user_uuid, limit, offset)
+        notification::list::get_notifications(
+            cxt,
+            &select_ids, 
+            &logged_user_uuid,
+            limit,
+            offset
+        )
     }
 }
