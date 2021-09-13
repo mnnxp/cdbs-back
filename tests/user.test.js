@@ -42,6 +42,7 @@ var userUuidFirst = "";
 var userUuidSecond = "";
 
 const companyUuidBase = "2cd385e1-8f7e-4908-8235-dfe42938b46d";
+const componentUuidBase = "a5953fd9-7393-4f1e-a899-06b5e159dbf1";
 
 const userFullDataQuery = ` \
 uuid \
@@ -619,7 +620,32 @@ describe('users', () => {
     done();
   });
 
-  it('/graphql:Q user - Ok add company fav', async (done) => {
+  it('/graphql:M ComponentFav - Ok add', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation addComponentFavM {
+            addComponentFav(componentUuid: "${componentUuidBase}") {
+              componentUuid
+              userUuid
+              isEnabled
+              createdAt
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql addComponentFav body=%o', body);
+    expect(body.data.addComponentFav.componentUuid).toBe(componentUuidBase);
+    expect(body.data.addComponentFav.userUuid).toBe(userUuidFirst);
+    expect(body.data.addComponentFav.isEnabled).toBe(true);
+    done();
+  });
+
+  it('/graphql:Q user - Ok fav', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .set(
@@ -638,13 +664,13 @@ describe('users', () => {
     expect(body.data.user.uuid).toBe(userUuidFirst);
     expect(body.data.user.username).toBe(username);
     expect(body.data.user.favCompaniesCount).toBe(1);
-    expect(body.data.user.favComponentsCount).toBe(0);
+    expect(body.data.user.favComponentsCount).toBe(1);
     expect(body.data.user.favStandardsCount).toBe(0);
     expect(body.data.user.favUsersCount).toBe(0);
     done();
   });
 
-  it('/graphql:M CompanyFav - Ok delete company fav', async (done) => {
+  it('/graphql:M CompanyFav - Ok delete', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .set(
@@ -690,6 +716,56 @@ describe('users', () => {
       debug('/graphql body=%o', body);
       expect(body.errors[0].message).toBe(
         'BadRequest: Company not found in favotite list'
+      );
+      done();
+  });
+
+  it('/graphql:M ComponentFav - Ok delete', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation deleteComponentFavM {
+            deleteComponentFav(componentUuid: "${componentUuidBase}") {
+              componentUuid
+              userUuid
+              isEnabled
+              createdAt
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql deleteComponentFav body=%o', body);
+    expect(body.data.deleteComponentFav.componentUuid).toBe(componentUuidBase);
+    expect(body.data.deleteComponentFav.userUuid).toBe(userUuidFirst);
+    expect(body.data.deleteComponentFav.isEnabled).toBe(false);
+    done();
+  });
+
+  it('/graphql:M ComponentFav - BadRequest not found component fav', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation deleteComponentFavM {
+            deleteComponentFav(componentUuid: "${componentUuidBase}") {
+              componentUuid
+              userUuid
+              isEnabled
+              createdAt
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+      debug('/graphql body=%o', body);
+      expect(body.errors[0].message).toBe(
+        'BadRequest: Component not found in favotite list'
       );
       done();
   });
