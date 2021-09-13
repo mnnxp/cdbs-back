@@ -44,6 +44,7 @@ var userUuidSecond = "";
 const companyUuidBase = "2cd385e1-8f7e-4908-8235-dfe42938b46d";
 const componentUuidBase = "a5953fd9-7393-4f1e-a899-06b5e159dbf1";
 const standardUuidBase = "303ec2aa-2066-42e3-93fb-de4fb9344bcb";
+const userUuidBase = "31ecc6f8-0c09-4a59-a2d5-34b5b833e59b";
 
 const userFullDataQuery = ` \
 uuid \
@@ -671,7 +672,32 @@ describe('users', () => {
     done();
   });
 
-  it('/graphql:Q user - Ok fav', async (done) => {
+  it('/graphql:M UserFav - Ok add', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation addUserFavM {
+            addUserFav(userUuid: "${userUuidBase}") {
+              userFavoriteUuid
+              userFollowerUuid
+              isEnabled
+              createdAt
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql addUserFav body=%o', body);
+    expect(body.data.addUserFav.userFavoriteUuid).toBe(userUuidBase);
+    expect(body.data.addUserFav.userFollowerUuid).toBe(userUuidFirst);
+    expect(body.data.addUserFav.isEnabled).toBe(true);
+    done();
+  });
+
+  it('/graphql:Q User - Ok fav', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .set(
@@ -692,7 +718,7 @@ describe('users', () => {
     expect(body.data.user.favCompaniesCount).toBe(1);
     expect(body.data.user.favComponentsCount).toBe(1);
     expect(body.data.user.favStandardsCount).toBe(1);
-    expect(body.data.user.favUsersCount).toBe(0);
+    expect(body.data.user.favUsersCount).toBe(1);
     done();
   });
 
@@ -842,6 +868,56 @@ describe('users', () => {
       debug('/graphql body=%o', body);
       expect(body.errors[0].message).toBe(
         'BadRequest: Standard not found in favotite list'
+      );
+      done();
+  });
+
+  it('/graphql:M UserFav - Ok delete', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation deleteUserFavM {
+            deleteUserFav(userUuid: "${userUuidBase}") {
+              userFavoriteUuid
+              userFollowerUuid
+              isEnabled
+              createdAt
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql deleteUserFav body=%o', body);
+    expect(body.data.deleteUserFav.userFavoriteUuid).toBe(userUuidBase);
+    expect(body.data.deleteUserFav.userFollowerUuid).toBe(userUuidFirst);
+    expect(body.data.deleteUserFav.isEnabled).toBe(false);
+    done();
+  });
+
+  it('/graphql:M UserFav - BadRequest not found user fav', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation deleteUserFavM {
+            deleteUserFav(userUuid: "${userUuidBase}") {
+              userFavoriteUuid
+              userFollowerUuid
+              isEnabled
+              createdAt
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+      debug('/graphql body=%o', body);
+      expect(body.errors[0].message).toBe(
+        'BadRequest: User not found in favotite list'
       );
       done();
   });
