@@ -66,6 +66,27 @@ impl UserMutation {
         )?)
     }
 
+    async fn delete_company_fav(
+        &self,
+        cxt: &Context<'_>,
+        company_uuid: String,
+    ) -> ServiceResult<CompanyFav> {
+        use crate::models::user::company_fav::service::delete::delete_company_fav;
+        let conn: &PooledConnection = &get_conn(cxt)?;
+
+        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+
+        let data = IptCompanyFavData {
+            company_uuid: Uuid::parse_str(&company_uuid)?,
+            user_uuid: logged_user_uuid
+        };
+
+        Ok(delete_company_fav(
+            data,
+            conn
+        )?)
+    }
+
     async fn register_notification(
         &self,
         cxt: &Context<'_>,
