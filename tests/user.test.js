@@ -644,6 +644,56 @@ describe('users', () => {
     done();
   });
 
+  it('/graphql:M user - Ok delete company fav', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation deleteCompanyFavM {
+            deleteCompanyFav(companyUuid: "${companyUuidBase}") {
+              companyUuid
+              userUuid
+              isEnabled
+              createdAt
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql deleteCompanyFav body=%o', body);
+    expect(body.data.deleteCompanyFav.companyUuid).toBe(companyUuidBase);
+    expect(body.data.deleteCompanyFav.userUuid).toBe(userUuidFirst);
+    expect(body.data.deleteCompanyFav.isEnabled).toBe(false);
+    done();
+  });
+
+  it('/graphql:M user - Ok delete company fav', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation deleteCompanyFavM {
+            deleteCompanyFav(companyUuid: "${companyUuidBase}") {
+              companyUuid
+              userUuid
+              isEnabled
+              createdAt
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+      debug('/graphql body=%o', body);
+      expect(body.errors[0].message).toBe(
+        'BadRequest: Company not found in favotite list'
+      );
+      done();
+  });
+
   it('/graphql:Q users - OK select uuidsUsers', async (done) => {
     const response1 = await agent
       .post('/graphql')
