@@ -1,37 +1,40 @@
 use crate::errors::{
-    ServiceError,
+    // ServiceError,
     ServiceResult
 };
+use crate::database::PooledConnection;
 use crate::models::user::user_fav::model::{
     UserFav,
     IptUserFavData,
-    InsertableUserFav
+    InsertableUserFav,
 };
+use crate::schema::user_fav::dsl::*;
 use diesel::prelude::*;
-// use uuid::Uuid;
 
-pub(crate) fn add_user_favorite(
+pub(crate) fn add_user_fav(
     data: IptUserFavData,
-    conn: &PgConnection
+    conn: &PooledConnection,
 ) -> ServiceResult<UserFav> {
-    use crate::schema::user_fav::dsl::*;
+    // if have need row, just update is_enabled to true
+    let check_fav = diesel::update(user_fav)
+        .filter(user_favorite_uuid.eq(&data.user_favorite_uuid)
+        .and(user_follower_uuid.eq(&data.user_follower_uuid)))
+        .set(is_enabled.eq(true))
+        .get_result(conn);
 
-    let new_user_favorite: InsertableUserFav = data.into();
+    let user_user_fav: UserFav = match check_fav {
+        Ok(fav) => fav,
+        Err(_) => {
+            // add flag and date created
+            let insertable_fav: InsertableUserFav = data.into();
 
-    let flag_found_favorite = user_fav
-        .filter(user_uuid.eq(&new_user_favorite.user_uuid)
-        .and(user_uuid.eq(&new_user_favorite.user_uuid)))
-        .execute(conn).unwrap_or(0);
-
-    // debug!("fn create_favorite START SEARCH ={:?}", flag_found_favorite);
-
-    match flag_found_favorite as i32 {
-        0 => {
-            let inserted_user_favorite: UserFav = diesel::insert_into(user_fav)
-                .values(&new_user_favorite)
-                .get_result(conn)?;
-            Ok(inserted_user_favorite)
+            diesel::insert_into(user_fav)
+                .values(insertable_fav)
+                .get_result(conn)?
         },
-        _ => Err(ServiceError::BadRequest("This favorite name is already with the user.".to_string())),
-    }
+    };
+
+    debug!("User favorite user: {:#?}", user_user_fav);
+
+    Ok(user_user_fav)
 }

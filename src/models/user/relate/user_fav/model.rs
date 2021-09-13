@@ -37,8 +37,6 @@ impl UserFav {
 pub struct IptUserFavData {
     pub user_favorite_uuid: Uuid,
     pub user_follower_uuid: Uuid,
-    // pub is_enabled: bool,
-    // pub created_at: NaiveDateTime,
 }
 
 #[derive(Debug, Insertable)]
@@ -61,8 +59,8 @@ impl From<IptUserFavData> for InsertableUserFav {
         } = ipt_data;
 
         Self {
-            user_favorite_uuid: Uuid::parse_str(&user_favorite_uuid.to_string()).unwrap(),
-            user_follower_uuid: Uuid::parse_str(&user_follower_uuid.to_string()).unwrap(),
+            user_favorite_uuid,
+            user_follower_uuid,
             is_enabled: true,
             created_at: chrono::Local::now().naive_local(),
         }

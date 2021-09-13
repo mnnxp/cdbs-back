@@ -13,6 +13,9 @@ use crate::models::user::component_fav::model::{
 use crate::models::user::standard_fav::model::{
     StandardFav, IptStandardFavData,
 };
+use crate::models::user::user_fav::model::{
+    UserFav, IptUserFavData,
+};
 use crate::models::user::model::{IptUserData, SlimUser};
 use crate::models::user::notification::model::{Notification, NotificationData, SlimNotification};
 use crate::models::relate_ref::file::model::IptPreliminaryFileData;
@@ -172,6 +175,48 @@ impl UserMutation {
         };
 
         Ok(delete_standard_fav(
+            data,
+            conn
+        )?)
+    }
+
+    async fn add_user_fav(
+        &self,
+        cxt: &Context<'_>,
+        user_uuid: String,
+    ) -> ServiceResult<UserFav> {
+        use crate::models::user::user_fav::service::add::add_user_fav;
+        let conn: &PooledConnection = &get_conn(cxt)?;
+
+        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+
+        let data = IptUserFavData {
+            user_favorite_uuid: Uuid::parse_str(&user_uuid)?,
+            user_follower_uuid: logged_user_uuid
+        };
+
+        Ok(add_user_fav(
+            data,
+            conn
+        )?)
+    }
+
+    async fn delete_user_fav(
+        &self,
+        cxt: &Context<'_>,
+        user_uuid: String,
+    ) -> ServiceResult<UserFav> {
+        use crate::models::user::user_fav::service::delete::delete_user_fav;
+        let conn: &PooledConnection = &get_conn(cxt)?;
+
+        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+
+        let data = IptUserFavData {
+            user_favorite_uuid: Uuid::parse_str(&user_uuid)?,
+            user_follower_uuid: logged_user_uuid
+        };
+
+        Ok(delete_user_fav(
             data,
             conn
         )?)
