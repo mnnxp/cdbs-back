@@ -594,7 +594,7 @@ describe('users', () => {
     done();
   });
 
-  it('/graphql:M user - Ok add company fav', async (done) => {
+  it('/graphql:M CompanyFav - Ok add', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .set(
@@ -644,7 +644,7 @@ describe('users', () => {
     done();
   });
 
-  it('/graphql:M user - Ok delete company fav', async (done) => {
+  it('/graphql:M CompanyFav - Ok delete company fav', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .set(
@@ -669,7 +669,7 @@ describe('users', () => {
     done();
   });
 
-  it('/graphql:M user - BadRequest not found company fav', async (done) => {
+  it('/graphql:M CompanyFav - BadRequest not found company fav', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .set(
