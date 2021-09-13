@@ -921,6 +921,31 @@ describe('users', () => {
       );
       done();
   });
+  
+  it('/graphql:Q user - Ok no fav', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `query ListUsers {
+            user(userUuid: "${userUuidFirst}") {
+              ${userFullDataQuery}
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    expect(body.data.user.uuid).toBe(userUuidFirst);
+    expect(body.data.user.username).toBe(username);
+    expect(body.data.user.favCompaniesCount).toBe(0);
+    expect(body.data.user.favComponentsCount).toBe(0);
+    expect(body.data.user.favStandardsCount).toBe(0);
+    expect(body.data.user.favUsersCount).toBe(0);
+    done();
+  });
 
   it('/graphql:Q users - OK select uuidsUsers', async (done) => {
     const response1 = await agent
