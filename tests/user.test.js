@@ -43,6 +43,7 @@ var userUuidSecond = "";
 
 const companyUuidBase = "2cd385e1-8f7e-4908-8235-dfe42938b46d";
 const componentUuidBase = "a5953fd9-7393-4f1e-a899-06b5e159dbf1";
+const standardUuidBase = "303ec2aa-2066-42e3-93fb-de4fb9344bcb";
 
 const userFullDataQuery = ` \
 uuid \
@@ -645,6 +646,31 @@ describe('users', () => {
     done();
   });
 
+  it('/graphql:M StandardFav - Ok add', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation addStandardFavM {
+            addStandardFav(standardUuid: "${standardUuidBase}") {
+              standardUuid
+              userUuid
+              isEnabled
+              createdAt
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql addStandardFav body=%o', body);
+    expect(body.data.addStandardFav.standardUuid).toBe(standardUuidBase);
+    expect(body.data.addStandardFav.userUuid).toBe(userUuidFirst);
+    expect(body.data.addStandardFav.isEnabled).toBe(true);
+    done();
+  });
+
   it('/graphql:Q user - Ok fav', async (done) => {
     const { body } = await agent
       .post('/graphql')
@@ -665,7 +691,7 @@ describe('users', () => {
     expect(body.data.user.username).toBe(username);
     expect(body.data.user.favCompaniesCount).toBe(1);
     expect(body.data.user.favComponentsCount).toBe(1);
-    expect(body.data.user.favStandardsCount).toBe(0);
+    expect(body.data.user.favStandardsCount).toBe(1);
     expect(body.data.user.favUsersCount).toBe(0);
     done();
   });
@@ -766,6 +792,56 @@ describe('users', () => {
       debug('/graphql body=%o', body);
       expect(body.errors[0].message).toBe(
         'BadRequest: Component not found in favotite list'
+      );
+      done();
+  });
+
+  it('/graphql:M StandardFav - Ok delete', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation deleteStandardFavM {
+            deleteStandardFav(standardUuid: "${standardUuidBase}") {
+              standardUuid
+              userUuid
+              isEnabled
+              createdAt
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql deleteStandardFav body=%o', body);
+    expect(body.data.deleteStandardFav.standardUuid).toBe(standardUuidBase);
+    expect(body.data.deleteStandardFav.userUuid).toBe(userUuidFirst);
+    expect(body.data.deleteStandardFav.isEnabled).toBe(false);
+    done();
+  });
+
+  it('/graphql:M StandardFav - BadRequest not found standard fav', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation deleteStandardFavM {
+            deleteStandardFav(standardUuid: "${standardUuidBase}") {
+              standardUuid
+              userUuid
+              isEnabled
+              createdAt
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+      debug('/graphql body=%o', body);
+      expect(body.errors[0].message).toBe(
+        'BadRequest: Standard not found in favotite list'
       );
       done();
   });
