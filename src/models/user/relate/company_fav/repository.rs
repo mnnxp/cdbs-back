@@ -13,7 +13,8 @@ impl CompanyFav {
         conn: &PgConnection,
     ) -> ServiceResult<Vec<ShowCompanyShort>> {
         let target_companies_uuids = company_fav::company_fav
-            .filter(company_fav::user_uuid.eq(target_user_uuid))
+            .filter(company_fav::user_uuid.eq(target_user_uuid)
+            .and(company_fav::is_enabled.eq(true)))
             .select(company_fav::company_uuid)
             .load::<Uuid>(conn)
             .expect("Fail load uuid list target user");
@@ -32,7 +33,8 @@ impl CompanyFav {
         conn: &PgConnection,
     ) -> ServiceResult<i32> {
         Ok(company_fav::company_fav
-            .filter(company_fav::user_uuid.eq(target_user_uuid))
+            .filter(company_fav::user_uuid.eq(target_user_uuid)
+            .and(company_fav::is_enabled.eq(true)))
             .execute(conn)? as i32)
     }
 }

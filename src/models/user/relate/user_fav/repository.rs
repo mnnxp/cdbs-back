@@ -12,7 +12,8 @@ impl UserFav {
         conn: &PgConnection,
     ) -> ServiceResult<Vec<ShowUserShort>> {
         let target_list_user_uuid = user_fav::user_fav
-            .filter(user_fav::user_follower_uuid.eq(target_user_uuid))
+            .filter(user_fav::user_follower_uuid.eq(target_user_uuid)
+            .and(user_fav::is_enabled.eq(true)))
             .select(user_fav::user_follower_uuid)
             .load::<Uuid>(conn)
             .expect("Fail load uuid list target user");
@@ -26,7 +27,8 @@ impl UserFav {
         conn: &PgConnection,
     ) -> ServiceResult<i32> {
         Ok(user_fav::user_fav
-            .filter(user_fav::user_follower_uuid.eq(target_user_uuid))
+            .filter(user_fav::user_follower_uuid.eq(target_user_uuid)
+            .and(user_fav::is_enabled.eq(true)))
             .execute(conn)? as i32)
     }
 }

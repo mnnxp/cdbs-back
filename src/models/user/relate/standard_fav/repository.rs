@@ -13,7 +13,8 @@ impl StandardFav {
         conn: &PgConnection,
     ) -> ServiceResult<Vec<ShowStandardShort>> {
         let target_standards_uuids = standard_fav::standard_fav
-            .filter(standard_fav::user_uuid.eq(target_user_uuid))
+            .filter(standard_fav::user_uuid.eq(target_user_uuid)
+            .and(standard_fav::is_enabled.eq(true)))
             .select(standard_fav::standard_uuid)
             .load::<Uuid>(conn)
             .expect("Fail load uuid list target user");
@@ -32,7 +33,8 @@ impl StandardFav {
         conn: &PgConnection,
     ) -> ServiceResult<i32> {
         Ok(standard_fav::standard_fav
-            .filter(standard_fav::user_uuid.eq(target_user_uuid))
+            .filter(standard_fav::user_uuid.eq(target_user_uuid)
+            .and(standard_fav::is_enabled.eq(true)))
             .execute(conn)? as i32)
     }
 }

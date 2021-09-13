@@ -13,7 +13,8 @@ impl ComponentFav {
         conn: &PgConnection,
     ) -> ServiceResult<Vec<ShowComponentShort>> {
         let target_components_uuids = component_fav::component_fav
-            .filter(component_fav::user_uuid.eq(target_user_uuid))
+            .filter(component_fav::user_uuid.eq(target_user_uuid)
+            .and(component_fav::is_enabled.eq(true)))
             .select(component_fav::component_uuid)
             .load::<Uuid>(conn)
             .expect("Fail load uuid list target user");
@@ -32,7 +33,8 @@ impl ComponentFav {
         conn: &PgConnection,
     ) -> ServiceResult<i32> {
         Ok(component_fav::component_fav
-            .filter(component_fav::user_uuid.eq(target_user_uuid))
+            .filter(component_fav::user_uuid.eq(target_user_uuid)
+            .and(component_fav::is_enabled.eq(true)))
             .execute(conn)? as i32)
     }
 }
