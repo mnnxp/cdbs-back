@@ -669,7 +669,7 @@ describe('users', () => {
     done();
   });
 
-  it('/graphql:M user - Ok delete company fav', async (done) => {
+  it('/graphql:M user - BadRequest not found company fav', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .set(
