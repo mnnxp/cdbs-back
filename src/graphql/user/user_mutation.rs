@@ -7,6 +7,9 @@ use crate::models::user::certificate::model::IptUserCertificateData;
 use crate::models::user::company_fav::model::{
     CompanyFav, IptCompanyFavData,
 };
+use crate::models::user::component_fav::model::{
+    ComponentFav, IptComponentFavData,
+};
 use crate::models::user::model::{IptUserData, SlimUser};
 use crate::models::user::notification::model::{Notification, NotificationData, SlimNotification};
 use crate::models::relate_ref::file::model::IptPreliminaryFileData;
@@ -82,6 +85,48 @@ impl UserMutation {
         };
 
         Ok(delete_company_fav(
+            data,
+            conn
+        )?)
+    }
+
+    async fn add_component_fav(
+        &self,
+        cxt: &Context<'_>,
+        component_uuid: String,
+    ) -> ServiceResult<ComponentFav> {
+        use crate::models::user::component_fav::service::add::add_component_fav;
+        let conn: &PooledConnection = &get_conn(cxt)?;
+
+        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+
+        let data = IptComponentFavData {
+            component_uuid: Uuid::parse_str(&component_uuid)?,
+            user_uuid: logged_user_uuid
+        };
+
+        Ok(add_component_fav(
+            data,
+            conn
+        )?)
+    }
+
+    async fn delete_component_fav(
+        &self,
+        cxt: &Context<'_>,
+        component_uuid: String,
+    ) -> ServiceResult<ComponentFav> {
+        use crate::models::user::component_fav::service::delete::delete_component_fav;
+        let conn: &PooledConnection = &get_conn(cxt)?;
+
+        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+
+        let data = IptComponentFavData {
+            component_uuid: Uuid::parse_str(&component_uuid)?,
+            user_uuid: logged_user_uuid
+        };
+
+        Ok(delete_component_fav(
             data,
             conn
         )?)
