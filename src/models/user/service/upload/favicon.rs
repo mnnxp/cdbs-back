@@ -8,7 +8,7 @@ use diesel::PgConnection;
 use uuid::Uuid;
 
 pub(crate) fn update_favicon(
-    target_user: &Uuid,
+    target_user_uuid: &Uuid,
     file_data: &IptPreliminaryFileData,
     conn: &PgConnection,
 ) -> ServiceResult<String> {
@@ -16,12 +16,12 @@ pub(crate) fn update_favicon(
     let content_sha1: String = file_data.sha1.clone();
 
     let user_short = UserShort::get_by_uuid(
-        target_user,
+        target_user_uuid,
         conn
     )?;
 
     let preliminary_file_data = PreliminaryFileData::from_ipt_preliminary_file_data(
-        target_user.to_owned(),
+        target_user_uuid.to_owned(),
         user_short.image_file_uuid,
         ListObject::User(user_short.uuid),
         file_data.to_owned(),
@@ -34,7 +34,7 @@ pub(crate) fn update_favicon(
     )?;
 
     let upload_url_data = crate::storage::wrapper::upload::get_url_upload_file(
-        target_user,
+        target_user_uuid,
         conn
     );
 
