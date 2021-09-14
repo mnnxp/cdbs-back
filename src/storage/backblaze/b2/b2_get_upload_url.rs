@@ -2,6 +2,7 @@ use crate::errors::HostingError;
 use crate::storage::backblaze::b2_types::UploadUrlData;
 
 /// <https://www.backblaze.com/b2/docs/b2_get_upload_url.html>
+#[allow(dead_code)]
 pub(crate) async fn b2_get_upload_url(
     api_url: &str,
     authorization_token: &str,

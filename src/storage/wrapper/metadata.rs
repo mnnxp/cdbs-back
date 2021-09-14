@@ -5,16 +5,13 @@ use crate::storage::backblaze::b2_types::FileHeaders;
 
 /// Gets only the headers information of file
 pub(crate) async fn get_headers_file_by_id(
-    access_storage: UserStorageAccess,
-    file_id: String,
+    access_storage: &UserStorageAccess,
+    file_id: &str,
 ) -> ServiceResult<FileHeaders> {
-    let b2_api_url = access_storage.api_url;
-    let b2_authorization_token = access_storage.authorization_token;
-
     let file_headers = b2_headers_file_by_id(
-        &b2_api_url,
-        &b2_authorization_token,
-        &file_id,
+        &access_storage.api_url,
+        &access_storage.authorization_token,
+        file_id,
     ).await;
 
     debug!("Headers file: {:#?}", file_headers);

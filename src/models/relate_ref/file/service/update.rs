@@ -3,8 +3,8 @@ use crate::database::PgConn;
 use crate::models::user::model::TargetUser;
 use crate::models::relate_ref::file::model::FileData;
 use crate::models::relate_ref::file::util::check_write_data;
+use crate::storage::model::UserStorageAccess;
 use crate::storage::wrapper::metadata::get_headers_file_by_id;
-use crate::storage::wrapper::storage_access::get_user_storage_access;
 use diesel::prelude::*;
 use uuid::Uuid;
 
@@ -19,15 +19,15 @@ pub(crate) async fn confirm_upload(
     let conn = pool.get().unwrap();
 
     // getting storage access data for target user with update if need
-    let storage_access = get_user_storage_access(
-        target_user.clone(),
-        pool
-    ).await?;
+    let storage_access = UserStorageAccess::get(
+        &target_user.0,
+        &conn
+    )?;
 
     // getting metadata  by file id from client for validation
     let file_h = get_headers_file_by_id(
-        storage_access,
-        file_id.to_string(),
+        &storage_access,
+        file_id,
     ).await?;
 
     // ownership check and data update

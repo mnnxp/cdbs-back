@@ -1,35 +1,23 @@
 use crate::errors::ServiceResult;
 use crate::storage::model::UserStorageAccess;
-use crate::storage::s3::Aws;
+// use crate::storage::s3::Aws;
 
 /// Gets presigned url for target file by path
-pub(crate) async fn get_presigned_url(
-    access_storage: UserStorageAccess,
-    path_file: String,
+pub(crate) fn download_presigned_url(
+    _access_storage: UserStorageAccess,
+    _path_file: String,
 ) -> ServiceResult<String> {
 
-    let aws_access = Aws::new(
-        &access_storage.application_key_id,
-        &access_storage.application_key,
-        &access_storage.authorization_token,
-    ).await?;
+    Ok(String::from("Temp string for presigned url for download"))
+}
 
-    // let bucket = user_storage_access.bucket_id;
-    let bucket = "cdbs-test".to_owned(); // todo!(add bucket name in database)
-    let expires = 86400_u64;
 
-    let presigned_url = aws_access.put_download_signed_url(
-        bucket.as_str(),
-        path_file.as_str(),
-        expires,
-    );
+/// Gets presigned url for upload files to storage
+pub(crate) fn upload_presigned_url(
+    _api_url: &str,
+    _authorization_token: &str,
+    _bucket_id: &str,
+) -> ServiceResult<String> {
 
-    debug!("Presigned url: {:#?}", presigned_url);
-
-    match presigned_url {
-        Ok(url) => {
-            Ok(url)
-        },
-        Err(e) => Err(e),
-    }
+    Ok(String::from("Temp string for presigned url for upload"))
 }

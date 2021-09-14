@@ -1,22 +1,9 @@
 use crate::errors::ServiceResult;
-use crate::cli_args;
-use rusoto_core::{
-    Region,
-    credential::{
-        AwsCredentials,
-        EnvironmentProvider,
-        ProvideAwsCredentials
-    }
-};
-use rusoto_s3::util::{
-    PreSignedRequest,
-    PreSignedRequestOption,
-};
 
 #[derive(Clone)]
 pub struct Aws {
-    credentials: AwsCredentials,
-    region: Region
+    credentials: String,
+    region: String
 }
 
 impl Aws {
@@ -24,34 +11,16 @@ impl Aws {
     pub async fn new(
         access_key_id: &str,
         secret_access_key: &str,
-        session_token: &str,
+        aws_region: &str,
     ) -> ServiceResult<Aws> {
-        // Gets enviroment variables from `.env`
-        dotenv::dotenv().ok();
 
-        // Sets options to enviroment variables
-        let opt = {
-            use structopt::StructOpt;
-            cli_args::Opt::from_args()
-        };
-
-        std::env::set_var("S3_CDBS_ACCESS_KEY_ID", access_key_id);
-        std::env::set_var("S3_CDBS_SECRET_ACCESS_KEY", secret_access_key);
-        std::env::set_var("S3_CDBS_SESSION_TOKEN", session_token);
-
-        let credentials = EnvironmentProvider::with_prefix("S3_CDBS").credentials().await.unwrap();
-        debug!("Credentials: {:#?}", credentials);
-
-        let region = Region::Custom {
-            name: opt.s3_region,
-            endpoint: opt.s3_endpoint,
-        };
-
-        debug!("Region: {:#?}", region);
+        std::env::set_var("AWS_ACCESS_KEY_ID", access_key_id);
+        std::env::set_var("AWS_SECRET_ACCESS_KEY", secret_access_key);
+        std::env::set_var("AWS_REGION", aws_region);
 
         Ok(Aws{
-            credentials,
-            region
+            credentials: String::new(),
+            region: String::new()
         })
     }
 

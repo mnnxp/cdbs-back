@@ -33,6 +33,19 @@ impl UserMutation {
         Ok(create_user(data, conn)?)
     }
 
+    async fn upload_favicon(
+        &self,
+        cxt: &Context<'_>,
+        file_data: IptPreliminaryFileData,
+    ) -> ServiceResult<String> {
+        use crate::models::user::service::upload::favicon::update_favicon;
+        let conn: &PooledConnection = &get_conn(cxt)?;
+
+        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+
+        Ok(update_favicon(&logged_user_uuid, &file_data, conn)?)
+    }
+
     async fn upload_user_certificate(
         &self,
         cxt: &Context<'_>,
