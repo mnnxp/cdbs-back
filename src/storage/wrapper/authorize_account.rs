@@ -13,7 +13,10 @@ pub(crate) async fn update_authorized_storage (
     let conn = pool.get().unwrap();
 
     // find data on database
-    let user_storage_access = UserStorageAccess::get(&target_user.0, &conn);
+    let user_storage_access = UserStorageAccess::get(
+        &target_user.0,
+        &conn
+    );
 
     match user_storage_access {
         Ok(db_data) => Ok(db_data),
