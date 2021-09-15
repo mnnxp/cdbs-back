@@ -4,6 +4,8 @@ use crate::models::relate_ref::file::model::{
     ListObject, IptPreliminaryFileData, PreliminaryFileData
 };
 use crate::models::relate_ref::file as file;
+use crate::storage::model::UserStorageAccess;
+use crate::storage::wrapper::presigned_url::upload_presigned_url;
 use diesel::PgConnection;
 use uuid::Uuid;
 
@@ -13,7 +15,7 @@ pub(crate) fn update_favicon(
     conn: &PgConnection,
 ) -> ServiceResult<String> {
 
-    let content_sha1: String = file_data.sha1.clone();
+    // let content_sha1: String = file_data.sha1.clone();
 
     let user_short = UserShort::get_by_uuid(
         target_user_uuid,
@@ -33,21 +35,12 @@ pub(crate) fn update_favicon(
         conn
     )?;
 
-    let upload_url_data = crate::storage::wrapper::upload::get_url_upload_file(
-        target_user_uuid,
-        conn
-    );
-
-    match upload_url_data {
-        Ok(upload_url_data) => Ok(
-            format!("file_name: {:?}, content_type: {:?}, content_sha1: {:?}, server_side_encryption: {:?}, url: {:?}",
-                slim_file.path_file,
-                "b2/x-auto".to_string(),
-                content_sha1,
-                "AES256".to_string(),
-                upload_url_data,
-            )
-        ),
-        Err(e) => Err(e),
-    }
+    upload_presigned_url(
+        &UserStorageAccess::get(
+            target_user_uuid,
+            conn
+        )?,
+        &slim_file.path_file,
+        // &content_sha1,
+    )
 }
