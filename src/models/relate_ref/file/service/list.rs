@@ -6,17 +6,22 @@ use diesel::PgConnection;
 use uuid::Uuid;
 
 pub(crate) fn get_url_file_by_uuid(
+    logged_user_uuid: &Uuid,
     target_file_uuid: &Uuid,
-    storage_access: &UserStorageAccess,
     conn: &PgConnection,
 ) -> ServiceResult<String> {
+    let storage_access = UserStorageAccess::get(
+        logged_user_uuid,
+        conn
+    )?;
+
     let show_file = SlimFile::get_file_by_uuid(
         target_file_uuid,
         conn,
     ).unwrap();
 
     download_presigned_url(
-        storage_access.to_owned(),
-        show_file.path_file,
+        &storage_access,
+        &show_file.path_file,
     )
 }

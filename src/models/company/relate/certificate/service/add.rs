@@ -14,11 +14,13 @@ use crate::models::relate_ref::file::model::{
 };
 use crate::models::relate_ref::file as file;
 use crate::schema::company_certificate_ref::dsl::*;
+use crate::storage::model::UserStorageAccess;
+use crate::storage::wrapper::presigned_url::upload_presigned_url;
 use diesel::prelude::*;
 use uuid::Uuid;
 
 pub(crate) fn add_certificate(
-    target_user: Uuid,
+    target_user_uuid: Uuid,
     cert_data: IptCompanyCertificateData,
     file_data: IptPreliminaryFileData,
     conn: &PooledConnection,
@@ -29,7 +31,7 @@ pub(crate) fn add_certificate(
     // let content_sha1: String = file_data.sha1.clone();
 
     let preliminary_file_data = PreliminaryFileData::from_ipt_preliminary_file_data(
-        target_user,
+        target_user_uuid,
         Uuid::parse_str("bc1c2151-86d0-4656-9c9d-d016dd584297")?, // <-- todo!(get uuid default file)
         ListObject::CompanyCertificate(cert_data.company_uuid),
         file_data,
@@ -42,7 +44,7 @@ pub(crate) fn add_certificate(
     )?;
 
     // workaround until i figure make the pre-url generation
-    let temp_string = format!("This will be url for upload file {:?}", slim_file.path_file);
+    // let temp_string = format!("This will be url for upload file {:?}", slim_file.path_file);
 
     let new_company_certificate = InsertableCompanyCertificate{
         file_uuid: slim_file.uuid,
@@ -59,5 +61,12 @@ pub(crate) fn add_certificate(
     debug!("Company inserted certificate: {:?}", company_inserted_certificate);
 
     // todo!(presigned_url)
-    Ok(temp_string)
+    upload_presigned_url(
+        &UserStorageAccess::get(
+            &target_user_uuid,
+            conn
+        )?,
+        &slim_file.path_file,
+        // &content_sha1,
+    )
 }

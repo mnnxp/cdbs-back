@@ -5,7 +5,6 @@ use crate::database::{get_pool, get_conn, PooledConnection};
 use crate::errors::ServiceResult;
 use crate::models::user::model::TargetUser;
 use crate::models::relate_ref::file;
-use crate::storage::model::UserStorageAccess;
 use crate::storage::wrapper::storage_access::get_user_storage_access;
 
 #[derive(Default)]
@@ -27,15 +26,10 @@ impl StorageQuery {
 
         let target_file_uuid = Uuid::parse_str(&file_uuid).unwrap();
 
-        let user_storage_access = UserStorageAccess::get(
-            &logged_user_uuid,
-            conn
-        )?;
-
         Ok(file::service::list::get_url_file_by_uuid(
+            &logged_user_uuid,
             &target_file_uuid,
-            &user_storage_access,
-            conn
+            conn,
         )?)
     }
 }
@@ -57,15 +51,11 @@ impl StorageMutation {
         let pool = get_pool(cxt)?;
         // let conn = pool.get().unwrap();
 
-        let target_user = TargetUser::from(&crate::models::user::get_logged_user_uuid(cxt, true)?);
-
         // storage access data
-        let storage_access = get_user_storage_access(
-            target_user,
+        match get_user_storage_access(
+            TargetUser::from(&crate::models::user::get_logged_user_uuid(cxt, true)?),
             pool
-        ).await;
-
-        match storage_access {
+        ).await {
             Ok(data) => {
                 debug!("New storage access data: {:?}", data);
                 Ok(true)

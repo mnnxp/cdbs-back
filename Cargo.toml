@@ -57,5 +57,17 @@ digest = "0.9.0"
 blake3 = "1.0.0"
 bytes = "1"
 
+[dependencies.rusoto_core]
+version = "0.47.0"
+path = "../rusoto_s3/core"
+
+[dependencies.rusoto_s3]
+version = "0.47.0"
+path = "../rusoto_s3/services/s3"
+
+[dependencies.rusoto_signature]
+version = "0.47.0"
+path = "../rusoto_s3/signature"
+
 [dev-dependencies]
 actix-rt = "2.2.0"
