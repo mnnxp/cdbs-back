@@ -602,6 +602,18 @@ table! {
 }
 
 table! {
+    storage_access_ref (id) {
+        id -> Int4,
+        application_key_id -> Varchar,
+        application_key -> Varchar,
+        expiration_at -> Timestamp,
+        bucket -> Varchar,
+        region -> Varchar,
+        endpoint -> Varchar,
+    }
+}
+
+table! {
     supplier_to_component (component_uuid, company_uuid) {
         component_uuid -> Uuid,
         company_uuid -> Uuid,
@@ -712,19 +724,6 @@ table! {
         is_delete -> Bool,
         created_at -> Timestamp,
         updated_at -> Timestamp,
-    }
-}
-
-table! {
-    user_storage_access_ref (user_uuid, application_key_id, application_key) {
-        user_uuid -> Uuid,
-        application_key_id -> Varchar,
-        application_key -> Varchar,
-        key_expiration_at -> Timestamp,
-        bucket_id -> Varchar,
-        api_url -> Varchar,
-        authorization_token -> Varchar,
-        token_expiration_at -> Timestamp,
     }
 }
 
@@ -868,7 +867,6 @@ joinable!(user_history_list -> user_ref (user_uuid));
 joinable!(user_ref -> program_ref (program_id));
 joinable!(user_ref -> region_ref (region_id));
 joinable!(user_ref -> type_access_ref (type_access_id));
-joinable!(user_storage_access_ref -> user_ref (user_uuid));
 joinable!(user_token_ref -> user_ref (user_uuid));
 
 allow_tables_to_appear_in_same_query!(
@@ -941,6 +939,7 @@ allow_tables_to_appear_in_same_query!(
     standard_status_ref,
     standard_status_translate_list,
     standard_to_component,
+    storage_access_ref,
     supplier_to_component,
     type_access_ref,
     type_access_translate_list,
@@ -952,6 +951,5 @@ allow_tables_to_appear_in_same_query!(
     user_fav,
     user_history_list,
     user_ref,
-    user_storage_access_ref,
     user_token_ref,
 );
