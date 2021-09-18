@@ -6,8 +6,6 @@ ALTER TABLE user_ref ADD CONSTRAINT user_ref_fk3 FOREIGN KEY (type_access_id) RE
 
 ALTER TABLE user_token_ref ADD CONSTRAINT user_token_ref_fk0 FOREIGN KEY (user_uuid) REFERENCES user_ref(uuid) ON DELETE CASCADE;
 
-ALTER TABLE user_storage_access_ref ADD CONSTRAINT user_storage_access_ref_fk0 FOREIGN KEY (user_uuid) REFERENCES user_ref(uuid) ON DELETE CASCADE;
-
 ALTER TABLE user_history_list ADD CONSTRAINT user_history_list_fk0 FOREIGN KEY (user_uuid) REFERENCES user_ref(uuid) ON DELETE CASCADE;
 ALTER TABLE user_history_list ADD CONSTRAINT user_history_list_fk1 FOREIGN KEY (type_of_change_id) REFERENCES type_of_change_ref(id) ON DELETE CASCADE;
 

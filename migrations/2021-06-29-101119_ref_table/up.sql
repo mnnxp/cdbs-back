@@ -129,3 +129,16 @@ CREATE TABLE keyword_ref (
   keyword VARCHAR(10) NOT NULL UNIQUE, /* ключевое слово */
   CONSTRAINT keyword_ref_pk PRIMARY KEY (id)
 );
+
+/* данные для доступа к хранилищу */
+CREATE TABLE storage_access_ref (
+  id SERIAL, /* id доступа */
+  application_key_id VARCHAR(512) NOT NULL, /* id ключа пользователя */
+  application_key VARCHAR(512) NOT NULL, /* ключ пользователя */
+  expiration_at TIMESTAMP NOT NULL, /* дата окончания действия доступа */
+  bucket VARCHAR(512) NOT NULL, /* наименование корзины в хранилище */
+  region VARCHAR(512) NOT NULL, /* наименование региона в хранилище */
+  endpoint VARCHAR(512) NOT NULL, /* адрес api */
+  UNIQUE (application_key_id, application_key),
+  CONSTRAINT storage_access_ref_pk PRIMARY KEY (id)
+);

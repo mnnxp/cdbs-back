@@ -1,7 +1,6 @@
 -- This file should undo anything in `up.sql`
 DROP TABLE user_ref;
 DROP TABLE user_token_ref;
-DROP TABLE user_storage_access_ref;
 DROP TABLE user_history_list;
 DROP TABLE user_access_to_component;
 DROP TABLE user_access_to_standard;

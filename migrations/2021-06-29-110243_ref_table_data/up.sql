@@ -249,3 +249,13 @@ INSERT INTO keyword_ref (keyword) VALUES
   ('fusion'),
   ('tech'),
   ('iso');
+
+INSERT INTO storage_access_ref (application_key_id, application_key, expiration_at, bucket, region, endpoint) VALUES
+  (
+    'SCWY16N9VEZGBRGWYFHC',
+    '92bfa452-c53f-4afa-b6a4-82e621b34053',
+    now()+interval '1000' day,
+    'cdbs-test',
+    'pl-waw',
+    'https://s3.pl-waw.scw.cloud'
+  );

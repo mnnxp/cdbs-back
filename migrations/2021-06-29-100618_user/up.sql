@@ -35,23 +35,6 @@ CREATE TABLE user_token_ref (
   CONSTRAINT user_token_ref_pk PRIMARY KEY (user_uuid, token)
 );
 
-/* ключи пользователя для доступа к хранилищу */
-CREATE TABLE user_storage_access_ref (
-  user_uuid UUID NOT NULL, /* идентификатор пользователя */
-  application_key_id VARCHAR(512) NOT NULL, /* id ключа пользователя */
-  application_key VARCHAR(512) NOT NULL, /* ключ пользователя */
-  key_expiration_at TIMESTAMP NOT NULL, /* дата окончания действия ключа */
-  bucket_id VARCHAR(512) NOT NULL, /* id корзины в хранилище */
-  api_url VARCHAR(512) NOT NULL, /* url доступа к api */
-  authorization_token VARCHAR(512) NOT NULL, /* токена пользователя */
-  token_expiration_at TIMESTAMP NOT NULL, /* дата окончания действия токена */
-  CONSTRAINT user_storage_access_ref_pk PRIMARY KEY (
-    user_uuid,
-    application_key_id,
-    application_key
-  )
-);
-
 /* запись изменений данных пользователя */
 CREATE TABLE user_history_list (
   id SERIAL UNIQUE, /* id события */
