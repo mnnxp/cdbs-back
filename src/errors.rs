@@ -6,10 +6,8 @@ use thiserror::Error;
 
 #[derive(Error, Debug)]
 pub enum HostingError {
-    #[error("Error whith access to backblaze")]
+    #[error("Error whith access to S3")]
     BadRequest(#[from] reqwest::Error),
-    #[error("Backblaze error: {0}")]
-    BackblazeError(String),
 }
 
 #[derive(Debug, Error, Serialize, Clone)]
