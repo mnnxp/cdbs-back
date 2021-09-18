@@ -162,14 +162,6 @@ pub struct PreliminaryFileData {
     pub content_type: String,
 }
 
-/// For information about the file before upload to storage
-#[derive(InputObject, Deserialize, Clone, Debug)]
-pub struct IptPreliminaryFileData {
-    pub sha1: String,
-    pub filename: String,
-    pub content_type: String,
-}
-
 #[derive(Deserialize, Debug)]
 pub struct FileData {
     pub parent_file_uuid: Option<Uuid>,
