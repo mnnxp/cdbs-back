@@ -25,7 +25,7 @@ pub(crate) fn add_certificate(
         ListObject::UserCertificate(*target_user_uuid),
         &cert_data.filename,
         conn
-    )?;
+    );
 
     let slim_file = file::service::register::register(
         preliminary_file_data,

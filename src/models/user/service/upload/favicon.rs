@@ -24,7 +24,7 @@ pub(crate) fn update_favicon(
         ListObject::User(user_short.uuid),
         filename,
         conn
-    )?;
+    );
 
     let slim_file = file::service::register::register(
         preliminary_file_data,

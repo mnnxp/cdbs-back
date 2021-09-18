@@ -94,20 +94,20 @@ impl PreliminaryFileData {
         object: ListObject,
         filename: &str,
         conn: &PgConnection,
-    ) -> ServiceResult<PreliminaryFileData> {
+    ) -> PreliminaryFileData {
         // getting rid of dangerous names
         let filename = sanitize_filename::sanitize(&filename);
 
         // get id for extension
         let id_ext = super::util::find_id_ext(&filename, conn);
 
-        Ok(Self {
+        Self {
             parent_file_uuid,
             object,
             user_uuid,
             filename,
             id_ext,
             content_type: "application/text".to_string(), // <-- todo!(add parse of filename)
-        })
+        }
     }
 }
