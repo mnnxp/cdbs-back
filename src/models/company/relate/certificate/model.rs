@@ -37,6 +37,7 @@ pub struct InsertableCompanyCertificate {
 pub struct IptCompanyCertificateData {
     pub company_uuid: Uuid,
     pub description: String,
+    pub filename: String,
 }
 
 impl From<CompanyCertificate> for InsertableCompanyCertificate {
