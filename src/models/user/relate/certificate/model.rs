@@ -34,4 +34,5 @@ pub struct InsertableUserCertificate {
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub struct IptUserCertificateData {
     pub description: String,
+    pub filename: String,
 }
