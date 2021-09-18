@@ -9,6 +9,8 @@ edition = "2018"
 [dependencies]
 dotenv = "0.15"
 
+tokio = "1.11.0"
+
 actix-web = "3"
 actix-cors = "0.5.4"
 actix-multipart = "0.3.0"
@@ -60,18 +62,6 @@ bytes = "1"
 rusoto_core = "0.47.0"
 rusoto_s3 = "0.47.0"
 rusoto_signature = "0.47.0"
-
-# [dependencies.rusoto_core]
-# version = "0.47.0"
-# path = "../rusoto_s3/core"
-
-# [dependencies.rusoto_s3]
-# version = "0.47.0"
-# path = "../rusoto_s3/services/s3"
-
-# [dependencies.rusoto_signature]
-# version = "0.47.0"
-# path = "../rusoto_s3/signature"
 
 [dev-dependencies]
 actix-rt = "2.2.0"
