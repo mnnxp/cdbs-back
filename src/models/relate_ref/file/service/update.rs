@@ -1,63 +1,68 @@
 use crate::errors::{ServiceError, ServiceResult};
-use crate::database::PgConn;
-use crate::models::user::model::TargetUser;
+use crate::database::PgPool;
 use crate::models::relate_ref::file::model::FileData;
+use crate::models::relate_ref::file::model::SlimFile;
 use crate::models::relate_ref::file::util::check_write_data;
-use crate::storage::model::UserStorageAccess;
-use crate::storage::wrapper::metadata::get_headers_file_by_id;
+use crate::storage::model::StorageAccess;
+use crate::storage::metadata::object_headers;
 use diesel::prelude::*;
 use uuid::Uuid;
 
 /// Confirm upload file to storage
 /// return number of column changes in database
 pub(crate) async fn confirm_upload(
-    target_user: &TargetUser,
-    file_id: &str,
-    pool: PgConn,
+    target_user_uuid: &Uuid,
+    files_uuids: &[Uuid],
+    pool: PgPool,
 ) -> ServiceResult<i32> {
-    let pool = pool.clone();
     let conn = pool.get().unwrap();
 
-    // getting storage access data for target user with update if need
-    let storage_access = UserStorageAccess::get(
-        &target_user.0,
-        &conn
-    )?;
-
-    // getting metadata  by file id from client for validation
-    let file_h = get_headers_file_by_id(
-        &storage_access,
-        file_id,
-    ).await?;
-
-    // ownership check and data update
-    if check_write_data(
-        &target_user.0,
-        &file_h.file_name,
+    // getting SlimFile data for get files paths
+    let show_file = SlimFile::get_file_by_vec_uuid(
+        files_uuids,
         &conn,
-    ) {
-        let filesize = Some(file_h.content_length.parse::<i64>().unwrap());
-        // update file metadata in file_ref table
-        let update_file_data = update_file_data_by_name(
-            &target_user.0,
-            &file_h.file_name,
-            &FileData {
-                parent_file_uuid: None,
-                hash: None,
-                user_uuid: None,
-                filename: None,
-                content_type: None,
-                id_ext: None,
-                filesize,
-                path_file: None,
-            },
-            true, // <- confirming upload file only by the same user who requested the upload url
+    ).unwrap();
+
+    // getting storage access data for target user
+    let storage_access = StorageAccess::get(&conn)?;
+
+    // getting data for all files in vec
+    for file_d in show_file {
+        // ownership check and data update
+        if check_write_data(
+            target_user_uuid,
+            &file_d.path_file,
             &conn,
-        )?;
+        ) {
+            // todo!(getting metadata  by file id from client for validation)
+            let file_h = object_headers(
+                &storage_access,
+                &file_d.path_file,
+            ).await?;
 
-        debug!("Upload completed: {:?}", update_file_data);
+            // let filesize = Some(file_h.content_length);
+            // update file metadata in file_ref table
+            let update_file_data = update_file_data_by_name(
+                target_user_uuid,
+                &file_d.path_file,
+                &FileData {
+                    parent_file_uuid: None,
+                    hash: None,
+                    user_uuid: None,
+                    filename: None,
+                    content_type: None,
+                    id_ext: None,
+                    filesize: file_h.content_length,
+                    path_file: None,
+                },
+                true, // <- confirming upload file only by the same user who requested the upload url
+                &conn,
+            )?;
 
-        return Ok(update_file_data)
+            debug!("Upload completed: {:?}", update_file_data);
+
+            return Ok(update_file_data)
+        }
     }
 
     Err(ServiceError::BadRequest("Unsuccessful check data".to_string()))

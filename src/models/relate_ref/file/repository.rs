@@ -2,7 +2,6 @@ use crate::errors::ServiceResult;
 use crate::models::relate_ref::file::model::{
     ListObject,
     PreliminaryFileData,
-    IptPreliminaryFileData,
     ShowFile,
     SlimFile
 };
@@ -88,20 +87,14 @@ impl SlimFile {
 }
 
 impl PreliminaryFileData {
-    pub fn from_ipt_preliminary_file_data(
+    /// Creating data for write information about the file before upload to storage
+    pub fn from_ipt_file_data(
         user_uuid: Uuid,
         parent_file_uuid: Uuid,
         object: ListObject,
-        file_data: IptPreliminaryFileData,
+        filename: &str,
         conn: &PgConnection,
     ) -> ServiceResult<PreliminaryFileData> {
-        let IptPreliminaryFileData {
-            filename,
-            content_type,
-            // filesize,
-            ..
-        } = file_data;
-
         // getting rid of dangerous names
         let filename = sanitize_filename::sanitize(&filename);
 
@@ -114,8 +107,7 @@ impl PreliminaryFileData {
             user_uuid,
             filename,
             id_ext,
-            content_type,
-            // filesize,
+            content_type: "application/text".to_string(), // <-- todo!(add parse of filename)
         })
     }
 }
