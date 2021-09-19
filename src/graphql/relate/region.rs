@@ -13,7 +13,7 @@ pub struct RegionMutation;
 
 #[Object]
 impl RegionQuery {
-    async fn region(
+    async fn regions(
         &self,
         cxt: &Context<'_>,
         region_id: Option<Vec<i32>>,

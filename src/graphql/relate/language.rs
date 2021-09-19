@@ -13,7 +13,7 @@ pub struct LanguageQuery;
 
 #[Object]
 impl LanguageQuery {
-    async fn language(
+    async fn languages(
         &self,
         cxt: &Context<'_>,
         lang_id: Option<Vec<i32>>,

@@ -13,7 +13,7 @@ pub struct ParamMutation;
 
 #[Object]
 impl ParamQuery {
-    async fn param(
+    async fn params(
         &self,
         cxt: &Context<'_>,
         param_id: Option<Vec<i32>>,
