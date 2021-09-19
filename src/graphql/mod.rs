@@ -18,6 +18,7 @@ pub use relate::language::LanguageQuery;
 pub use relate::license::{LicenseMutation, LicenseQuery};
 pub use relate::param::{ParamMutation, ParamQuery};
 pub use relate::program::{ProgramMutation, ProgramQuery};
+pub use relate::region::{RegionMutation, RegionQuery};
 pub use relate::spec::SpecQuery;
 pub use relate::storage::{StorageMutation, StorageQuery};
 
@@ -33,6 +34,7 @@ pub struct QueryRoot(
     LicenseQuery,
     ParamQuery,
     ProgramQuery,
+    RegionQuery,
     SpecQuery,
     StorageQuery,
 );
@@ -49,6 +51,7 @@ pub struct MutationRoot(
     LicenseMutation,
     ParamMutation,
     ProgramMutation,
+    RegionMutation,
     // SpecMutation,
     StorageMutation,
 );

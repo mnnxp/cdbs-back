@@ -4,5 +4,6 @@ pub mod language;
 pub mod license;
 pub mod param;
 pub mod program;
+pub mod region;
 pub mod spec;
 pub mod storage;
