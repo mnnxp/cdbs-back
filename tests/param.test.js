@@ -317,8 +317,8 @@ describe('param', () => {
         `Bearer ${authorizationTokenFirst}`
       )
       .send({
-        query: `query ListParam {
-            param {
+        query: `query ListParams {
+            params {
                 paramId
                 paramname
             }
@@ -326,7 +326,7 @@ describe('param', () => {
       })
       .expect(HttpStatus.OK)
     debug('/graphql body=%o', response1.body);
-    expect(response1.body.data.param).toBeNonEmptyArray();
+    expect(response1.body.data.params).toBeNonEmptyArray();
     done();
   });
 
@@ -338,8 +338,8 @@ describe('param', () => {
         `Bearer ${authorizationTokenFirst}`
       )
       .send({
-        query: `query ListUserParam {
-            param (paramId: ${paramnameIndex}) {
+        query: `query ListUserParams {
+            params (paramId: ${paramnameIndex}) {
                 paramId
                 paramname
             }
@@ -347,9 +347,9 @@ describe('param', () => {
       })
       .expect(HttpStatus.OK)
     debug('/graphql body=%o', response1.body);
-    expect(response1.body.data.param).toBeNonEmptyArray();
-    expect(response1.body.data.param[0].paramId).toBe(paramnameIndex);
-    expect(response1.body.data.param[0].paramname).toBe(paramname);
+    expect(response1.body.data.params).toBeNonEmptyArray();
+    expect(response1.body.data.params[0].paramId).toBe(paramnameIndex);
+    expect(response1.body.data.params[0].paramname).toBe(paramname);
     done();
   });
 
@@ -361,8 +361,8 @@ describe('param', () => {
         `Bearer ${authorizationTokenFirst}`
       )
       .send({
-        query: `query ListUserParam {
-            param (paramId: [1, ${paramnameIndex}]) {
+        query: `query ListUserParams {
+            params (paramId: [1, ${paramnameIndex}]) {
                 paramId
                 paramname
             }
@@ -370,9 +370,9 @@ describe('param', () => {
       })
       .expect(HttpStatus.OK)
     debug('/graphql body=%o', response1.body);
-    expect(response1.body.data.param).toBeNonEmptyArray();
-    expect(response1.body.data.param[1].paramId).toBe(paramnameIndex);
-    expect(response1.body.data.param[1].paramname).toBe(paramname);
+    expect(response1.body.data.params).toBeNonEmptyArray();
+    expect(response1.body.data.params[1].paramId).toBe(paramnameIndex);
+    expect(response1.body.data.params[1].paramname).toBe(paramname);
     done();
   });
 
@@ -380,8 +380,8 @@ describe('param', () => {
     const { body } = await agent
       .post('/graphql')
       .send({
-        query: `query ListUserParam {
-            param (paramId: [1, ${paramnameIndex}]) {
+        query: `query ListUserParams {
+            params (paramId: [1, ${paramnameIndex}]) {
                 paramId
                 paramname
             }
@@ -393,7 +393,7 @@ describe('param', () => {
     expect(body.errors[0].message).toBe(
       'BadRequest: Token not found.'
     );
-    expect(body.errors[0].path[0]).toBe('param');
+    expect(body.errors[0].path[0]).toBe('params');
     done();
   });
 });
