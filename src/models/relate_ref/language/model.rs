@@ -58,8 +58,8 @@ impl From<LanguageData> for InsertableLanguage {
     }
 }
 
-// use actix_web::http::{HeaderName, HeaderMap, header::LanguageTag};
-use actix_web::http::{HeaderName, HeaderMap};
+use actix_web::http::{HeaderName, HeaderMap, header::LanguageTag};
+// use actix_web::http::{HeaderName, HeaderMap};
 lazy_static::lazy_static! {
     static ref ACCEPT_LANGUAGE: HeaderName =
         HeaderName::from_lowercase(b"accept-language").unwrap();
@@ -75,17 +75,15 @@ impl From<&HeaderMap> for SetLang {
         let lang_id = match lang {
             None => 1,
             Some(str_lang) => {
-                // let str_lang = str_lang.parse::<LanguageTag>()
-                //     .map_err("failed accept language")
-                //     .canonicalize().language
-                //     .map_err("failed language");
+                let str_lang = str_lang.parse::<LanguageTag>().unwrap_or_default();
 
                 debug!("ACCEPT_LANGUAGE: {:?}", str_lang);
 
-                match str_lang.to_lowercase().as_str() {
-                    "en" => 1,
-                    "ru" => 2,
-                    _ => 1,
+                match str_lang.language {
+                    Some(x) if x == *"en" => 1,
+                    Some(x) if x == *"ru" => 2,
+                    Some(_) => 1,
+                    None => 1,
                 }
             }
         };
