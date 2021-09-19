@@ -21,7 +21,7 @@ impl RegionQuery {
         offset: Option<i32>,
     ) -> ServiceResult<Vec<RegionTranslateList>> {
         // authorization check
-        user::util::check_authorized(cxt)?;
+        // user::util::check_authorized(cxt)?;
 
         let region_id: Vec<i32> = region_id.unwrap_or_default();
         let limit: i32 = limit.unwrap_or(100);
@@ -41,7 +41,7 @@ impl RegionMutation {
         use region::service::register::create_region;
         let conn: &PooledConnection = &get_conn(cxt)?;
 
-        crate::models::user::check_authorized(cxt)?;
+        user::check_authorized(cxt)?;
 
         Ok(create_region(data, conn)?)
     }

@@ -21,7 +21,7 @@ impl ProgramQuery {
         offset: Option<i32>,
     ) -> ServiceResult<Vec<Program>> {
         // authorization check
-        user::util::check_authorized(cxt)?;
+        // user::util::check_authorized(cxt)?;
 
         let program_id: Vec<i32> = program_id.unwrap_or_default();
         let limit: i32 = limit.unwrap_or(100);
@@ -41,7 +41,7 @@ impl ProgramMutation {
         use program::service::register::create_program;
         let conn: &PooledConnection = &get_conn(cxt)?;
 
-        crate::models::user::check_authorized(cxt)?;
+        user::check_authorized(cxt)?;
 
         Ok(create_program(data, conn)?)
     }
