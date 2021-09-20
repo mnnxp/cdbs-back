@@ -101,6 +101,19 @@ impl ComponentMutation {
         Ok(add_component_keywords(data, conn)?)
     }
 
+    async fn delete_component_keywords(
+        &self,
+        cxt: &Context<'_>,
+        data: IptComponentKeywordData,
+    ) -> ServiceResult<i32> {
+        use component_keyword::service::delete::del_component_keywords;
+        let conn: &PooledConnection = &get_conn(cxt)?;
+
+        crate::models::user::check_authorized(cxt)?;
+
+        Ok(del_component_keywords(data, conn)?)
+    }
+
     async fn add_supplier_component(
         &self,
         cxt: &Context<'_>,

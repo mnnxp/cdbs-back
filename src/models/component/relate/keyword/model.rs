@@ -45,7 +45,7 @@ impl From<(ComponentKeyword, Keyword)> for ComponentKeywordRelatedData {
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub struct IptComponentKeywordData {
     pub component_uuid: Uuid,
-    pub keyword_id: Vec<i32>,
+    pub keyword_ids: Vec<i32>,
 }
 
 #[derive(Debug, Insertable)]
@@ -59,7 +59,7 @@ impl From<IptComponentKeywordData> for Vec<InsertableComponentKeyword> {
     fn from(ipt_data: IptComponentKeywordData) -> Vec<InsertableComponentKeyword> {
         let IptComponentKeywordData {
             component_uuid,
-            keyword_id,
+            keyword_ids,
             ..
         } = ipt_data;
 
@@ -67,7 +67,7 @@ impl From<IptComponentKeywordData> for Vec<InsertableComponentKeyword> {
 
         let mut res = Vec::new();
         // create struct for each keyword
-        for kw_id in keyword_id.iter() {
+        for kw_id in keyword_ids.iter() {
             if kw_id > &0 { // <-- additionally we check the correctness of the key
                 res.push(InsertableComponentKeyword {
                     component_uuid,
@@ -76,5 +76,34 @@ impl From<IptComponentKeywordData> for Vec<InsertableComponentKeyword> {
             }
         }
         res
+    }
+}
+
+#[derive(Debug, Deserialize, Clone, InputObject)]
+pub struct DeleteComponentKeyword {
+    pub component_uuid: Uuid,
+    pub keyword_ids: Vec<i32>,
+}
+
+impl From<IptComponentKeywordData> for DeleteComponentKeyword {
+    fn from(ipt_data: IptComponentKeywordData) -> Self {
+        let IptComponentKeywordData {
+            component_uuid,
+            keyword_ids,
+            ..
+        } = ipt_data;
+
+        let mut good_kw_ids: Vec<i32> = Vec::new();
+        // filter bad keyword id
+        for kw_id in keyword_ids.iter() {
+            if kw_id > &0 {
+                good_kw_ids.push(*kw_id)
+            }
+        }
+
+        Self{
+            component_uuid,
+            keyword_ids: good_kw_ids,
+        }
     }
 }
