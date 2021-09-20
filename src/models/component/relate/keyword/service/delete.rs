@@ -29,7 +29,6 @@ pub(crate) fn del_component_keywords(
         .execute(conn) {
         Ok(count) => {
             debug!("Completed, delete {:?} keywords", count);
-
             Ok(count as i32)
         },
         Err(err) => {

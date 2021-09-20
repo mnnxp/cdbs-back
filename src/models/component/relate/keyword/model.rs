@@ -79,7 +79,7 @@ impl From<IptComponentKeywordData> for Vec<InsertableComponentKeyword> {
     }
 }
 
-#[derive(Debug, Deserialize, Clone, InputObject)]
+#[derive(Debug, Clone)]
 pub struct DeleteComponentKeyword {
     pub component_uuid: Uuid,
     pub keyword_ids: Vec<i32>,
