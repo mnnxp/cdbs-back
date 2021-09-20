@@ -705,6 +705,7 @@ describe('component', () => {
     expect(body.errors[0].path[0]).toBe('registerComponent');
   });
 
+  // Testing adding component keywords
   it('/graphql:M addComponentKeywords - BadRequest no token', async (done) => {
     const { body } = await agent
       .post('/graphql')
@@ -849,6 +850,7 @@ describe('component', () => {
     done();
   });
 
+  // Testing delete component keywords
   it('/graphql:M deleteComponentKeywords - BadRequest no token', async (done) => {
     const { body } = await agent
       .post('/graphql')
@@ -1113,7 +1115,7 @@ describe('component', () => {
     done();
   });
 
-  // Test param component
+  // Testing param component
   it('/graphql:M registerParamComponent - BadRequest no token', async (done) => {
     const { body } = await agent
       .post('/graphql')
@@ -1232,7 +1234,7 @@ describe('component', () => {
     expect(body.errors[0].path[0]).toBe('registerParamComponent');
   });
 
-  // Test component modification
+  // Testing component modification
   it('/graphql:M registerComponentModification - BadRequest no token', async (done) => {
     const { body } = await agent
       .post('/graphql')
@@ -1410,7 +1412,7 @@ describe('component', () => {
     done();
   });
 
-  // Test param component modification
+  // Testing param component modification
   it('/graphql:M registerParamModification - BadRequest no token', async (done) => {
     const { body } = await agent
       .post('/graphql')
