@@ -20,7 +20,7 @@ use crate::models::component::component_modification::set_of_files_program::mode
     IptSetOfFilesProgramData, SetOfFilesProgram,
 };
 use crate::models::component::keyword as component_keyword;
-use crate::models::component::keyword::model::{IptKeywordComponentData, KeywordComponent};
+use crate::models::component::keyword::model::IptComponentKeywordData;
 use crate::models::component::license::model::{IptLicenseComponentData, LicenseComponent};
 use crate::models::component::model::{IptComponentData, SlimComponent};
 use crate::models::component::param as component_param;
@@ -88,17 +88,17 @@ impl ComponentMutation {
         Ok(add_component_spec(data, conn)?)
     }
 
-    async fn add_keyword_component(
+    async fn add_component_keywords(
         &self,
         cxt: &Context<'_>,
-        data: IptKeywordComponentData,
-    ) -> ServiceResult<KeywordComponent> {
-        use component_keyword::service::add::add_component_keyword;
+        data: IptComponentKeywordData,
+    ) -> ServiceResult<i32> {
+        use component_keyword::service::add::add_component_keywords;
         let conn: &PooledConnection = &get_conn(cxt)?;
 
         crate::models::user::check_authorized(cxt)?;
 
-        Ok(add_component_keyword(data, conn)?)
+        Ok(add_component_keywords(data, conn)?)
     }
 
     async fn add_supplier_component(

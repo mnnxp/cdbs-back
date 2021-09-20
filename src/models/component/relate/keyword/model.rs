@@ -12,13 +12,13 @@ use uuid::Uuid;
 #[belongs_to(Component, foreign_key = "component_uuid")]
 #[belongs_to(Keyword, foreign_key = "keyword_id")]
 #[table_name = "keyword_to_component"]
-pub struct KeywordComponent {
+pub struct ComponentKeyword {
     pub component_uuid: Uuid,
     pub keyword_id: i32,
 }
 
 #[Object]
-impl KeywordComponent {
+impl ComponentKeyword {
     async fn keyword_id(&self) -> &i32 {
         &self.keyword_id
     }
@@ -33,8 +33,8 @@ pub struct ComponentKeywordRelatedData {
     pub component_uuid: Uuid,
 }
 
-impl From<(KeywordComponent, Keyword)> for ComponentKeywordRelatedData {
-    fn from(data: (KeywordComponent, Keyword)) -> Self {
+impl From<(ComponentKeyword, Keyword)> for ComponentKeywordRelatedData {
+    fn from(data: (ComponentKeyword, Keyword)) -> Self {
         Self {
             keyword: data.1,
             component_uuid: data.0.component_uuid,
@@ -43,29 +43,38 @@ impl From<(KeywordComponent, Keyword)> for ComponentKeywordRelatedData {
 }
 
 #[derive(Debug, Deserialize, Clone, InputObject)]
-pub struct IptKeywordComponentData {
-    pub component_uuid: ID,
-    pub keyword_id: i32,
+pub struct IptComponentKeywordData {
+    pub component_uuid: Uuid,
+    pub keyword_id: Vec<i32>,
 }
 
 #[derive(Debug, Insertable)]
 #[table_name = "keyword_to_component"]
-pub struct InsertableKeywordComponent {
+pub struct InsertableComponentKeyword {
     pub component_uuid: Uuid,
     pub keyword_id: i32,
 }
 
-impl From<IptKeywordComponentData> for InsertableKeywordComponent {
-    fn from(ipt_data: IptKeywordComponentData) -> Self {
-        let IptKeywordComponentData {
+impl From<IptComponentKeywordData> for Vec<InsertableComponentKeyword> {
+    fn from(ipt_data: IptComponentKeywordData) -> Vec<InsertableComponentKeyword> {
+        let IptComponentKeywordData {
             component_uuid,
             keyword_id,
             ..
         } = ipt_data;
 
-        Self {
-            component_uuid: Uuid::parse_str(&component_uuid.to_string()).unwrap(),
-            keyword_id,
+        // let component_uuid = Uuid::parse_str(&component_uuid.to_string()).unwrap();
+
+        let mut res = Vec::new();
+        // create struct for each keyword
+        for kw_id in keyword_id.iter() {
+            if kw_id > &0 { // <-- additionally we check the correctness of the key
+                res.push(InsertableComponentKeyword {
+                    component_uuid,
+                    keyword_id: *kw_id,
+                })
+            }
         }
+        res
     }
 }
