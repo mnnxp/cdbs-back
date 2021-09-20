@@ -10,13 +10,13 @@ use uuid::Uuid;
 #[belongs_to(Component, foreign_key = "component_uuid")]
 #[belongs_to(License, foreign_key = "license_id")]
 #[table_name = "license_to_component"]
-pub struct LicenseComponent {
+pub struct ComponentLicense {
     pub component_uuid: Uuid,
     pub license_id: i32,
 }
 
 #[Object]
-impl LicenseComponent {
+impl ComponentLicense {
     async fn component_uuid(&self) -> ID {
         self.component_uuid.into()
     }
@@ -26,27 +26,27 @@ impl LicenseComponent {
 }
 
 #[derive(Debug, Deserialize, Clone, InputObject)]
-pub struct IptLicenseComponentData {
-    pub component_uuid: ID,
+pub struct IptComponentLicenseData {
+    pub component_uuid: Uuid,
     pub license_id: i32,
 }
 
 #[derive(Debug, Insertable)]
 #[table_name = "license_to_component"]
-pub struct InsertableLicenseComponent {
+pub struct InsertableComponentLicense {
     pub component_uuid: Uuid,
     pub license_id: i32,
 }
 
-impl From<IptLicenseComponentData> for InsertableLicenseComponent {
-    fn from(ipt_data: IptLicenseComponentData) -> Self {
-        let IptLicenseComponentData {
+impl From<IptComponentLicenseData> for InsertableComponentLicense {
+    fn from(ipt_data: IptComponentLicenseData) -> Self {
+        let IptComponentLicenseData {
             component_uuid,
             license_id,
         } = ipt_data;
 
         Self {
-            component_uuid: Uuid::parse_str(&component_uuid.to_string()).unwrap(),
+            component_uuid,
             license_id,
         }
     }

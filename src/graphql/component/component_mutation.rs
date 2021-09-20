@@ -21,7 +21,7 @@ use crate::models::component::component_modification::set_of_files_program::mode
 };
 use crate::models::component::keyword as component_keyword;
 use crate::models::component::keyword::model::IptComponentKeywordData;
-use crate::models::component::license::model::{IptLicenseComponentData, LicenseComponent};
+use crate::models::component::license::model::IptComponentLicenseData;
 use crate::models::component::model::{IptComponentData, SlimComponent};
 use crate::models::component::param as component_param;
 use crate::models::component::param::model::{IptParamComponentData, ParamComponent};
@@ -62,17 +62,30 @@ impl ComponentMutation {
         Ok(create_param_component(data, conn)?)
     }
 
-    async fn register_license_component(
+    async fn add_component_license(
         &self,
         cxt: &Context<'_>,
-        data: IptLicenseComponentData,
-    ) -> ServiceResult<LicenseComponent> {
-        use component::license::service::add::create_license_component;
+        data: IptComponentLicenseData,
+    ) -> ServiceResult<bool> {
+        use component::license::service::add::add_component_license;
         let conn: &PooledConnection = &get_conn(cxt)?;
 
         crate::models::user::check_authorized(cxt)?;
 
-        Ok(create_license_component(data, conn)?)
+        Ok(add_component_license(data, conn)?)
+    }
+
+    async fn delete_component_license(
+        &self,
+        cxt: &Context<'_>,
+        data: IptComponentLicenseData,
+    ) -> ServiceResult<i32> {
+        use component::license::service::delete::del_component_license;
+        let conn: &PooledConnection = &get_conn(cxt)?;
+
+        crate::models::user::check_authorized(cxt)?;
+
+        Ok(del_component_license(data, conn)?)
     }
 
     async fn add_component_spec(
