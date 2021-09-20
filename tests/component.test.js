@@ -65,6 +65,8 @@ const isStandardComponent0 = false;
 const subscribersCount = 1;
 const keywordIdsOk = [1,3,5];
 const keywordIdsDup = [1,2,3,4,5];
+const specIdsOk = [10,30,55];
+const specIdsDup = [10,22,30,44,55];
 const idErr = 0;
 const licenseIdOk = 1;
 const licenseIdErr = 2;
@@ -1207,6 +1209,281 @@ describe('component', () => {
       "BadRequest: Not found acces of the component"
     );
     expect(body.errors[0].path[0]).toBe('deleteComponentLicense');
+    done();
+  });
+
+  // Testing adding component specs
+  it('/graphql:M addComponentSpecs - BadRequest no token', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .send({
+        query: `mutation  {
+          addComponentSpecs(data: {
+            componentUuid: "${componentUuidNoStandard}"
+            specIds: [${specIdsOk}]
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql addComponentSpecs=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Token not found.'
+    );
+    expect(body.errors[0].path[0]).toBe('addComponentSpecs');
+    done();
+  });
+
+  it('/graphql:M addComponentSpecs - OK', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `mutation  {
+          addComponentSpecs(data: {
+            componentUuid: "${componentUuidNoStandard}"
+            specIds: [${specIdsOk}]
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql registerComponent=%o', body);
+    const {
+      data: { addComponentSpecs },
+    } = body;
+    expect(addComponentSpecs).toBe(3);
+    done();
+  });
+
+  it('/graphql:M addComponentSpecs - OK with dublicate', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `mutation  {
+          addComponentSpecs(data: {
+            componentUuid: "${componentUuidNoStandard}"
+            specIds: [${specIdsDup}]
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql registerComponent=%o', body);
+    const {
+      data: { addComponentSpecs },
+    } = body;
+    expect(addComponentSpecs).toBe(2);
+    done();
+  });
+
+  it('/graphql:M addComponentSpecs - BadRequest all duplicates', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `mutation  {
+          addComponentSpecs(data: {
+            componentUuid: "${componentUuidNoStandard}"
+            specIds: [${specIdsOk}]
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql addComponentSpecs=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      "BadRequest: This ids [10, 30, 55] already has"
+    );
+    expect(body.errors[0].path[0]).toBe('addComponentSpecs');
+    done();
+  });
+
+  it('/graphql:M addComponentSpecs - BadRequest not found id', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `mutation  {
+          addComponentSpecs(data: {
+            componentUuid: "${componentUuidNoStandard}"
+            specIds: [${idErr}]
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql addComponentSpecs=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      "BadRequest: Not found specs"
+    );
+    expect(body.errors[0].path[0]).toBe('addComponentSpecs');
+    done();
+  });
+
+  it('/graphql:M addComponentSpecs - BadRequest no access', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation  {
+          addComponentSpecs(data: {
+            componentUuid: "${componentUuidNoStandard}"
+            specIds: [${idErr}]
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql addComponentSpecs=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      "BadRequest: Not found acces of the component"
+    );
+    expect(body.errors[0].path[0]).toBe('addComponentSpecs');
+    done();
+  });
+
+  it('/graphql:Q Get full data Component - OK check add specs', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+          query: `query componentQuery{
+            component(componentUuid: "${componentUuidNoStandard}") {
+              ${componentFullDataQuery}
+            }
+          }`,
+        })
+      .expect(HttpStatus.OK)
+    debug('/graphql filter component=%o', body.data.component);
+    const {
+      component: { componentSpecs },
+    } = body.data;
+    expect(componentSpecs[0].componentUuid).toBe(componentUuidNoStandard);
+    expect(componentSpecs[0].spec.specId).toBe(10);
+    expect(componentSpecs[0].spec.spec).toBeNonEmptyString();
+    expect(componentSpecs[1].spec.specId).toBe(30);
+    expect(componentSpecs[1].spec.spec).toBeNonEmptyString();
+    expect(componentSpecs[2].spec.specId).toBe(55);
+    expect(componentSpecs[2].spec.spec).toBeNonEmptyString();
+    expect(componentSpecs[3].spec.specId).toBe(22);
+    expect(componentSpecs[3].spec.spec).toBeNonEmptyString();
+    expect(componentSpecs[4].componentUuid).toBe(componentUuidNoStandard);
+    expect(componentSpecs[4].spec.specId).toBe(44);
+    expect(componentSpecs[4].spec.spec).toBeNonEmptyString();
+    done();
+  });
+
+  // Testing delete component specs
+  it('/graphql:M deleteComponentSpecs - BadRequest no token', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .send({
+        query: `mutation  {
+          deleteComponentSpecs(data: {
+            componentUuid: "${componentUuidNoStandard}"
+            specIds: [${specIdsOk}]
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql deleteComponentSpecs=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Token not found.'
+    );
+    expect(body.errors[0].path[0]).toBe('deleteComponentSpecs');
+    done();
+  });
+
+  it('/graphql:M deleteComponentSpecs - OK', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `mutation  {
+          deleteComponentSpecs(data: {
+            componentUuid: "${componentUuidNoStandard}"
+            specIds: [${specIdsOk}]
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql deleteComponentSpecs=%o', body);
+    const {
+      data: { deleteComponentSpecs },
+    } = body;
+    expect(deleteComponentSpecs).toBe(3);
+    done();
+  });
+
+  it('/graphql:M deleteComponentSpecs - BadRequest not found id', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `mutation  {
+          deleteComponentSpecs(data: {
+            componentUuid: "${componentUuidNoStandard}"
+            specIds: [${idErr}]
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql deleteComponentSpecs=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      "BadRequest: Not found specs"
+    );
+    expect(body.errors[0].path[0]).toBe('deleteComponentSpecs');
+    done();
+  });
+
+  it('/graphql:M deleteComponentSpecs - BadRequest no access', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation  {
+          deleteComponentSpecs(data: {
+            componentUuid: "${componentUuidNoStandard}"
+            specIds: [${idErr}]
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql deleteComponentSpecs=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      "BadRequest: Not found acces of the component"
+    );
+    expect(body.errors[0].path[0]).toBe('deleteComponentSpecs');
     done();
   });
 
