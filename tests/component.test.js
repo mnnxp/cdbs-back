@@ -51,19 +51,6 @@ const companyUuidBase = "2cd385e1-8f7e-4908-8235-dfe42938b46d";
 var companyUuidNoSupplier = "";
 var companyUuidSupplier = "";
 
-// data for represent
-const regionIdRepresentation = 15;
-const representationTypeId = 1;
-const nameRepresentationFirst = "test first additional office";
-const nameRepresentationSecond = "test second additional office";
-const addressRepresentation = "Fake str, Fantom";
-const phoneRepresentation = "+743874487556";
-const uuidFake = "2cd385e1-8f7e-4908-8235-dfe42938b888";
-const uuidRepresentArray = [];
-var companyUuidFirst = "";
-var uuidRepresentFirst = "";
-var uuidRepresentDelete = "";
-
 // data for component
 const parentComponentUuid = "a5953fd9-7393-4f1e-a899-06b5e159dbf1";
 const nameComponent = "M Series Geared Motor";
@@ -76,6 +63,9 @@ const actualStatusIdComponent = 1;
 const isStandardComponent = true;
 const isStandardComponent0 = false;
 const subscribersCount = 1;
+const keywordIdOk = [1,3,5];
+const keywordIdDup = [1,2,3,4,5];
+const keywordIdErr = 0;
 const componentFullDataQuery = ` \
 uuid \
 parentComponentUuid \
@@ -270,13 +260,6 @@ async function cleanupStandardDb() {
   ]);
 }
 
-async function cleanupCompanyRepresentDb() {
-  return global.knex.raw('DELETE FROM company_represent_ref WHERE name in (?,?)', [
-    nameRepresentationFirst,
-    nameRepresentationSecond,
-  ]);
-}
-
 async function cleanupTokenDb() {
   return global.knex.raw('DELETE FROM user_token_ref');
 }
@@ -311,7 +294,6 @@ describe('component', () => {
     cleanupComponentModificationDb();
     cleanupComponentDb();
     cleanupStandardDb();
-    cleanupCompanyRepresentDb();
     cleanupCompanyDb();
     cleanupTokenDb();
     return cleanupUserDb();
@@ -322,7 +304,6 @@ describe('component', () => {
     cleanupComponentModificationDb();
     cleanupComponentDb();
     cleanupStandardDb();
-    cleanupCompanyRepresentDb();
     cleanupCompanyDb();
     cleanupTokenDb();
     return cleanupUserDb();
@@ -722,6 +703,150 @@ describe('component', () => {
     expect(data).toBeNull();
     expect(errors[0].message).toBe("BadRequest: Not found this component of you.");
     expect(body.errors[0].path[0]).toBe('registerComponent');
+  });
+
+  it('/graphql:M addComponentKeywords - BadRequest no token', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .send({
+        query: `mutation  {
+          addComponentKeywords(data: {
+            componentUuid: "${componentUuidNoStandard}"
+            keywordId: [${keywordIdOk}]
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql addComponentKeywords=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Token not found.'
+    );
+    expect(body.errors[0].path[0]).toBe('addComponentKeywords');
+    done();
+  });
+
+  it('/graphql:M addComponentKeywords - OK', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `mutation  {
+          addComponentKeywords(data: {
+            componentUuid: "${componentUuidNoStandard}"
+            keywordId: [${keywordIdOk}]
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql registerComponent=%o', body);
+    const {
+      data: { addComponentKeywords },
+    } = body;
+    expect(addComponentKeywords).toBe(3);
+    done();
+  });
+
+  it('/graphql:M addComponentKeywords - OK with dublicate', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `mutation  {
+          addComponentKeywords(data: {
+            componentUuid: "${componentUuidNoStandard}"
+            keywordId: [${keywordIdDup}]
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql registerComponent=%o', body);
+    const {
+      data: { addComponentKeywords },
+    } = body;
+    expect(addComponentKeywords).toBe(2);
+    done();
+  });
+
+  it('/graphql:M addComponentKeywords - BadRequest all duplicates', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `mutation  {
+          addComponentKeywords(data: {
+            componentUuid: "${componentUuidNoStandard}"
+            keywordId: [${keywordIdOk}]
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql addComponentKeywords=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      "BadRequest: This ids [1, 3, 5] already has"
+    );
+    expect(body.errors[0].path[0]).toBe('addComponentKeywords');
+    done();
+  });
+
+  it('/graphql:M addComponentKeywords - BadRequest not found id', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `mutation  {
+          addComponentKeywords(data: {
+            componentUuid: "${componentUuidNoStandard}"
+            keywordId: [${keywordIdErr}]
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql addComponentKeywords=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      "BadRequest: Not found keywords"
+    );
+    expect(body.errors[0].path[0]).toBe('addComponentKeywords');
+    done();
+  });
+
+  it('/graphql:M addComponentKeywords - BadRequest no access', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation  {
+          addComponentKeywords(data: {
+            componentUuid: "${componentUuidNoStandard}"
+            keywordId: [${keywordIdErr}]
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql addComponentKeywords=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      "BadRequest: Not found acces of the component"
+    );
+    expect(body.errors[0].path[0]).toBe('addComponentKeywords');
+    done();
   });
 
   it('/graphql:Q Get full data Component - BadRequest no token', async (done) => {
