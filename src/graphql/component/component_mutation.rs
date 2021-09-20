@@ -26,7 +26,7 @@ use crate::models::component::model::{IptComponentData, SlimComponent};
 use crate::models::component::param as component_param;
 use crate::models::component::param::model::{IptParamComponentData, ParamComponent};
 use crate::models::component::spec as component_spec;
-use crate::models::component::spec::model::{IptSpecComponentData, SpecComponent};
+use crate::models::component::spec::model::IptComponentSpecData;
 use crate::models::component::supplier as component_supplier;
 use crate::models::component::supplier::model::{IptSupplierComponentData, SupplierComponent};
 
@@ -88,17 +88,30 @@ impl ComponentMutation {
         Ok(del_component_license(data, conn)?)
     }
 
-    async fn add_component_spec(
+    async fn add_component_specs(
         &self,
         cxt: &Context<'_>,
-        data: IptSpecComponentData,
-    ) -> ServiceResult<SpecComponent> {
-        use component_spec::service::add::add_component_spec;
+        data: IptComponentSpecData,
+    ) -> ServiceResult<i32> {
+        use component_spec::service::add::add_component_specs;
         let conn: &PooledConnection = &get_conn(cxt)?;
 
         crate::models::user::check_authorized(cxt)?;
 
-        Ok(add_component_spec(data, conn)?)
+        Ok(add_component_specs(data, conn)?)
+    }
+
+    async fn delete_component_specs(
+        &self,
+        cxt: &Context<'_>,
+        data: IptComponentSpecData,
+    ) -> ServiceResult<i32> {
+        use component_spec::service::delete::del_component_specs;
+        let conn: &PooledConnection = &get_conn(cxt)?;
+
+        crate::models::user::check_authorized(cxt)?;
+
+        Ok(del_component_specs(data, conn)?)
     }
 
     async fn add_component_keywords(

@@ -12,13 +12,13 @@ use uuid::Uuid;
 #[belongs_to(Component, foreign_key = "component_uuid")]
 #[belongs_to(Spec, foreign_key = "spec_id")]
 #[table_name = "spec_to_component"]
-pub struct SpecComponent {
+pub struct ComponentSpec {
     pub spec_id: i32,
     pub component_uuid: Uuid,
 }
 
 #[Object]
-impl SpecComponent {
+impl ComponentSpec {
     async fn spec_id(&self) -> &i32 {
         &self.spec_id
     }
@@ -33,8 +33,8 @@ pub struct ComponentSpecWithTranslation {
     pub component_uuid: Uuid,
 }
 
-impl From<(SpecComponent, SpecTranslateList)> for ComponentSpecWithTranslation {
-    fn from(data: (SpecComponent, SpecTranslateList)) -> Self {
+impl From<(ComponentSpec, SpecTranslateList)> for ComponentSpecWithTranslation {
+    fn from(data: (ComponentSpec, SpecTranslateList)) -> Self {
         Self {
             spec: data.1,
             component_uuid: data.0.component_uuid,
@@ -43,29 +43,65 @@ impl From<(SpecComponent, SpecTranslateList)> for ComponentSpecWithTranslation {
 }
 
 #[derive(Debug, Deserialize, Clone, InputObject)]
-pub struct IptSpecComponentData {
-    pub component_uuid: ID,
-    pub spec_id: i32,
+pub struct IptComponentSpecData {
+    pub component_uuid: Uuid,
+    pub spec_ids: Vec<i32>,
 }
 
 #[derive(Debug, Insertable)]
 #[table_name = "spec_to_component"]
-pub struct InsertableSpecComponent {
+pub struct InsertableComponentSpec {
     pub component_uuid: Uuid,
     pub spec_id: i32,
 }
 
-impl From<IptSpecComponentData> for InsertableSpecComponent {
-    fn from(ipt_data: IptSpecComponentData) -> Self {
-        let IptSpecComponentData {
+impl From<IptComponentSpecData> for Vec<InsertableComponentSpec> {
+    fn from(ipt_data: IptComponentSpecData) -> Vec<InsertableComponentSpec> {
+        let IptComponentSpecData {
             component_uuid,
-            spec_id,
+            spec_ids,
             ..
         } = ipt_data;
 
-        Self {
-            component_uuid: Uuid::parse_str(&component_uuid.to_string()).unwrap(),
-            spec_id,
+        let mut res = Vec::new();
+        // create struct for each keyword
+        for spec_id in spec_ids.iter() {
+            if spec_id > &0 { // <-- additionally we check the correctness of the key
+                res.push(InsertableComponentSpec {
+                    component_uuid,
+                    spec_id: *spec_id,
+                })
+            }
+        }
+        res
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct DeleteComponentSpec {
+    pub component_uuid: Uuid,
+    pub spec_ids: Vec<i32>,
+}
+
+impl From<IptComponentSpecData> for DeleteComponentSpec {
+    fn from(ipt_data: IptComponentSpecData) -> Self {
+        let IptComponentSpecData {
+            component_uuid,
+            spec_ids,
+            ..
+        } = ipt_data;
+
+        let mut good_spec_ids: Vec<i32> = Vec::new();
+        // filter bad keyword id
+        for spec_id in spec_ids.iter() {
+            if spec_id > &0 {
+                good_spec_ids.push(*spec_id)
+            }
+        }
+
+        Self{
+            component_uuid,
+            spec_ids: good_spec_ids,
         }
     }
 }
