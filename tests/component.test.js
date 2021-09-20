@@ -63,9 +63,9 @@ const actualStatusIdComponent = 1;
 const isStandardComponent = true;
 const isStandardComponent0 = false;
 const subscribersCount = 1;
-const keywordIdOk = [1,3,5];
-const keywordIdDup = [1,2,3,4,5];
-const keywordIdErr = 0;
+const keywordIdsOk = [1,3,5];
+const keywordIdsDup = [1,2,3,4,5];
+const keywordIdsErr = 0;
 const componentFullDataQuery = ` \
 uuid \
 parentComponentUuid \
@@ -712,7 +712,7 @@ describe('component', () => {
         query: `mutation  {
           addComponentKeywords(data: {
             componentUuid: "${componentUuidNoStandard}"
-            keywordId: [${keywordIdOk}]
+            keywordIds: [${keywordIdsOk}]
           })
         }`,
       })
@@ -737,7 +737,7 @@ describe('component', () => {
         query: `mutation  {
           addComponentKeywords(data: {
             componentUuid: "${componentUuidNoStandard}"
-            keywordId: [${keywordIdOk}]
+            keywordIds: [${keywordIdsOk}]
           })
         }`,
       })
@@ -761,7 +761,7 @@ describe('component', () => {
         query: `mutation  {
           addComponentKeywords(data: {
             componentUuid: "${componentUuidNoStandard}"
-            keywordId: [${keywordIdDup}]
+            keywordIds: [${keywordIdsDup}]
           })
         }`,
       })
@@ -785,7 +785,7 @@ describe('component', () => {
         query: `mutation  {
           addComponentKeywords(data: {
             componentUuid: "${componentUuidNoStandard}"
-            keywordId: [${keywordIdOk}]
+            keywordIds: [${keywordIdsOk}]
           })
         }`,
       })
@@ -810,7 +810,7 @@ describe('component', () => {
         query: `mutation  {
           addComponentKeywords(data: {
             componentUuid: "${componentUuidNoStandard}"
-            keywordId: [${keywordIdErr}]
+            keywordIds: [${keywordIdsErr}]
           })
         }`,
       })
@@ -835,7 +835,7 @@ describe('component', () => {
         query: `mutation  {
           addComponentKeywords(data: {
             componentUuid: "${componentUuidNoStandard}"
-            keywordId: [${keywordIdErr}]
+            keywordIds: [${keywordIdsErr}]
           })
         }`,
       })
@@ -846,6 +846,101 @@ describe('component', () => {
       "BadRequest: Not found acces of the component"
     );
     expect(body.errors[0].path[0]).toBe('addComponentKeywords');
+    done();
+  });
+
+  it('/graphql:M deleteComponentKeywords - BadRequest no token', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .send({
+        query: `mutation  {
+          deleteComponentKeywords(data: {
+            componentUuid: "${componentUuidNoStandard}"
+            keywordIds: [${keywordIdsOk}]
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql deleteComponentKeywords=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Token not found.'
+    );
+    expect(body.errors[0].path[0]).toBe('deleteComponentKeywords');
+    done();
+  });
+
+  it('/graphql:M deleteComponentKeywords - OK', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `mutation  {
+          deleteComponentKeywords(data: {
+            componentUuid: "${componentUuidNoStandard}"
+            keywordIds: [${keywordIdsOk}]
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql registerComponent=%o', body);
+    const {
+      data: { deleteComponentKeywords },
+    } = body;
+    expect(deleteComponentKeywords).toBe(3);
+    done();
+  });
+
+  it('/graphql:M deleteComponentKeywords - BadRequest not found id', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `mutation  {
+          deleteComponentKeywords(data: {
+            componentUuid: "${componentUuidNoStandard}"
+            keywordIds: [${keywordIdsErr}]
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql deleteComponentKeywords=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      "BadRequest: Not found keywords"
+    );
+    expect(body.errors[0].path[0]).toBe('deleteComponentKeywords');
+    done();
+  });
+
+  it('/graphql:M deleteComponentKeywords - BadRequest no access', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation  {
+          deleteComponentKeywords(data: {
+            componentUuid: "${componentUuidNoStandard}"
+            keywordIds: [${keywordIdsErr}]
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql deleteComponentKeywords=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      "BadRequest: Not found acces of the component"
+    );
+    expect(body.errors[0].path[0]).toBe('deleteComponentKeywords');
     done();
   });
 
