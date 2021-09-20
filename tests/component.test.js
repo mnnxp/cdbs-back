@@ -65,7 +65,9 @@ const isStandardComponent0 = false;
 const subscribersCount = 1;
 const keywordIdsOk = [1,3,5];
 const keywordIdsDup = [1,2,3,4,5];
-const keywordIdsErr = 0;
+const idErr = 0;
+const licenseIdOk = 1;
+const licenseIdErr = 2;
 const componentFullDataQuery = ` \
 uuid \
 parentComponentUuid \
@@ -811,7 +813,7 @@ describe('component', () => {
         query: `mutation  {
           addComponentKeywords(data: {
             componentUuid: "${componentUuidNoStandard}"
-            keywordIds: [${keywordIdsErr}]
+            keywordIds: [${idErr}]
           })
         }`,
       })
@@ -836,7 +838,7 @@ describe('component', () => {
         query: `mutation  {
           addComponentKeywords(data: {
             componentUuid: "${componentUuidNoStandard}"
-            keywordIds: [${keywordIdsErr}]
+            keywordIds: [${idErr}]
           })
         }`,
       })
@@ -918,7 +920,7 @@ describe('component', () => {
         }`,
       })
       .expect(HttpStatus.OK)
-    debug('/graphql registerComponent=%o', body);
+    debug('/graphql deleteComponentKeywords=%o', body);
     const {
       data: { deleteComponentKeywords },
     } = body;
@@ -937,7 +939,7 @@ describe('component', () => {
         query: `mutation  {
           deleteComponentKeywords(data: {
             componentUuid: "${componentUuidNoStandard}"
-            keywordIds: [${keywordIdsErr}]
+            keywordIds: [${idErr}]
           })
         }`,
       })
@@ -962,7 +964,7 @@ describe('component', () => {
         query: `mutation  {
           deleteComponentKeywords(data: {
             componentUuid: "${componentUuidNoStandard}"
-            keywordIds: [${keywordIdsErr}]
+            keywordIds: [${idErr}]
           })
         }`,
       })
@@ -973,6 +975,238 @@ describe('component', () => {
       "BadRequest: Not found acces of the component"
     );
     expect(body.errors[0].path[0]).toBe('deleteComponentKeywords');
+    done();
+  });
+
+  // Testing adding component license
+  it('/graphql:M addComponentLicense - BadRequest no token', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .send({
+        query: `mutation  {
+          addComponentLicense(data: {
+            componentUuid: "${componentUuidNoStandard}"
+            licenseId: ${licenseIdOk}
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql addComponentLicense=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Token not found.'
+    );
+    expect(body.errors[0].path[0]).toBe('addComponentLicense');
+    done();
+  });
+
+  it('/graphql:M addComponentLicense - OK', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `mutation  {
+          addComponentLicense(data: {
+            componentUuid: "${componentUuidNoStandard}"
+            licenseId: ${licenseIdOk}
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql addComponentLicense=%o', body);
+    const {
+      data: { addComponentLicense },
+    } = body;
+    expect(addComponentLicense).toBe(true);
+    done();
+  });
+
+  it('/graphql:M addComponentLicense - OK with dublicate', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `mutation  {
+          addComponentLicense(data: {
+            componentUuid: "${componentUuidNoStandard}"
+            licenseId: ${licenseIdOk}
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql addComponentLicense=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      "BadRequest: This license for the component is already"
+    );
+    expect(body.errors[0].path[0]).toBe('addComponentLicense');
+    done();
+  });
+
+  it('/graphql:M addComponentLicense - Error incorrect id', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `mutation  {
+          addComponentLicense(data: {
+            componentUuid: "${componentUuidNoStandard}"
+            licenseId: ${idErr}
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql addComponentLicense=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      "Internal Server Error"
+    );
+    expect(body.errors[0].path[0]).toBe('addComponentLicense');
+    done();
+  });
+
+  it('/graphql:M addComponentLicense - BadRequest no access', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation  {
+          addComponentLicense(data: {
+            componentUuid: "${componentUuidNoStandard}"
+            licenseId: ${idErr}
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql addComponentLicense=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      "BadRequest: Not found acces of the component"
+    );
+    expect(body.errors[0].path[0]).toBe('addComponentLicense');
+    done();
+  });
+
+  it('/graphql:Q Get full data Component - OK check add licenses', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+          query: `query componentQuery{
+            component(componentUuid: "${componentUuidNoStandard}") {
+              ${componentFullDataQuery}
+            }
+          }`,
+        })
+      .expect(HttpStatus.OK)
+    debug('/graphql filter component=%o', body.data.component);
+    expect(body.data.component.uuid).toBe(componentUuidNoStandard);
+    expect(body.data.component.licenses).toBeNonEmptyArray();
+    expect(body.data.component.licenses[0].id).toBe(licenseIdOk);
+    done();
+  });
+
+  // Testing delete component license
+  it('/graphql:M deleteComponentLicense - BadRequest no token', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .send({
+        query: `mutation  {
+          deleteComponentLicense(data: {
+            componentUuid: "${componentUuidNoStandard}"
+            licenseId: ${licenseIdOk}
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql deleteComponentLicense=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Token not found.'
+    );
+    expect(body.errors[0].path[0]).toBe('deleteComponentLicense');
+    done();
+  });
+
+  it('/graphql:M deleteComponentLicense - OK', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `mutation  {
+          deleteComponentLicense(data: {
+            componentUuid: "${componentUuidNoStandard}"
+            licenseId: ${licenseIdOk}
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql deleteComponentLicense=%o', body);
+    expect(body.data.deleteComponentLicense).toBe(1);
+    done();
+  });
+
+  it('/graphql:M deleteComponentLicense - BadRequest not found id', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `mutation  {
+          deleteComponentLicense(data: {
+            componentUuid: "${componentUuidNoStandard}"
+            licenseId: ${idErr}
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql deleteComponentLicense=%o', body);
+    expect(body.data.deleteComponentLicense).toBe(0);
+    done();
+  });
+
+  it('/graphql:M deleteComponentLicense - BadRequest no access', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation  {
+          deleteComponentLicense(data: {
+            componentUuid: "${componentUuidNoStandard}"
+            licenseId: ${idErr}
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql deleteComponentLicense=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      "BadRequest: Not found acces of the component"
+    );
+    expect(body.errors[0].path[0]).toBe('deleteComponentLicense');
     done();
   });
 
