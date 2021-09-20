@@ -59,7 +59,6 @@ pub(crate) fn add_component_keywords(
         .get_result::<ComponentKeyword>(conn) {
         Ok(_) => {
             debug!("Completed, add {:?} keywords", count_insert_rows);
-
             Ok(count_insert_rows)
         },
         Err(err) => {
