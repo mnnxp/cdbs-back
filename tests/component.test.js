@@ -850,6 +850,36 @@ describe('component', () => {
     done();
   });
 
+  it('/graphql:Q Get full data Component - OK check add keywords', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+          query: `query componentQuery{
+            component(componentUuid: "${componentUuidNoStandard}") {
+              ${componentFullDataQuery}
+            }
+          }`,
+        })
+      .expect(HttpStatus.OK)
+    debug('/graphql filter component=%o', body.data.component);
+    expect(body.data.component.uuid).toBe(componentUuidNoStandard);
+    expect(body.data.component.componentKeywords[0].id).toBe(1);
+    expect(body.data.component.componentKeywords[0].keyword).toBeNonEmptyString();
+    expect(body.data.component.componentKeywords[1].id).toBe(2);
+    expect(body.data.component.componentKeywords[1].keyword).toBeNonEmptyString();
+    expect(body.data.component.componentKeywords[2].id).toBe(3);
+    expect(body.data.component.componentKeywords[2].keyword).toBeNonEmptyString();
+    expect(body.data.component.componentKeywords[3].id).toBe(4);
+    expect(body.data.component.componentKeywords[3].keyword).toBeNonEmptyString();
+    expect(body.data.component.componentKeywords[4].id).toBe(5);
+    expect(body.data.component.componentKeywords[4].keyword).toBeNonEmptyString();
+    done();
+  });
+
   // Testing delete component keywords
   it('/graphql:M deleteComponentKeywords - BadRequest no token', async (done) => {
     const { body } = await agent
