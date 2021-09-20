@@ -28,7 +28,7 @@ pub(crate) fn del_component_keywords(
         .and(keyword_id.eq_any(&del_keywords.keyword_ids)))
         .execute(conn) {
         Ok(count) => {
-            debug!("Completed, add {:?} keywords", count);
+            debug!("Completed, delete {:?} keywords", count);
 
             Ok(count as i32)
         },
