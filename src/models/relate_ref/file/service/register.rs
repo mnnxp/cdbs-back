@@ -8,8 +8,8 @@ use crate::models::relate_ref::file::model::{
     SlimFile,
 };
 use crate::models::component::relate::file::model::{
-    InsertableFileComponent,
-    FileComponent,
+    InsertableComponentFile,
+    ComponentFile,
 };
 use crate::models::component::component_modification::relate::file::model::{
     InsertableFileModification,
@@ -29,7 +29,13 @@ pub(crate) fn register(
 ) -> ServiceResult<SlimFile> {
     let object = preliminary_file_data.object.clone();
     // register data in file_ref table
-    let value_slim_file_data = write_metadata(preliminary_file_data, conn)?;
+    let value_slim_file_data = match write_metadata(preliminary_file_data, conn) {
+        Ok(value) => value,
+        Err(err) => {
+            debug!("Fail write metadata: {:#?}", err);
+            return Err(ServiceError::BadRequest("Fail write metadata".to_string()))
+        },
+    };
     // register data in addiction table (depends on the request)
     write_addiction_data(object, value_slim_file_data.uuid, conn)?;
 
@@ -62,13 +68,13 @@ pub(crate) fn write_addiction_data(
         ListObject::Component(component_uuid) => {   // <- add addiction data in file_to_component
             use crate::schema::file_to_component::dsl::file_to_component;
 
-            let component = InsertableFileComponent {
+            let component_file = InsertableComponentFile {
                 file_uuid,
                 component_uuid,
             };
 
-            let inserted_component: FileComponent = diesel::insert_into(file_to_component)
-                .values(&component)
+            let inserted_component: ComponentFile = diesel::insert_into(file_to_component)
+                .values(&component_file)
                 .get_result(conn)?;
 
             debug!("Select component table, data: {:?} ", &inserted_component);

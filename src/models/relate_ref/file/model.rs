@@ -218,3 +218,43 @@ impl From<File> for SlimFile {
         }
     }
 }
+
+#[derive(Serialize, Debug)]
+pub struct UploadFile {
+    pub filename: String,
+    pub upload_url: String,
+}
+
+#[Object]
+impl UploadFile {
+    async fn filename(&self) -> &String {
+        &self.filename
+    }
+    async fn upload_url(&self) -> &String {
+        &self.upload_url
+    }
+}
+
+#[derive(Serialize, Debug)]
+pub struct DownloadFile {
+    pub uuid: Uuid,
+    pub filename: String,
+    pub filesize: i64,
+    pub download_url: String,
+}
+
+#[Object]
+impl DownloadFile {
+    async fn uuid(&self) -> ID {
+        self.uuid.into()
+    }
+    async fn filename(&self) -> &String {
+        &self.filename
+    }
+    async fn filesize(&self) -> &i64 {
+        &self.filesize
+    }
+    async fn download_url(&self) -> &String {
+        &self.download_url
+    }
+}
