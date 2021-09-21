@@ -34,7 +34,7 @@ pub(crate) fn create_component_modification(
     // debug!("fn create_component_modification START SEARCH ={:?}", flag_found_component);
 
     match flag_found_component {
-        0 => Err(ServiceError::BadRequest("Not found this component of you.".to_string())),
+        0 => Err(ServiceError::BadRequest("Access denied".to_string())),
         1 => {
             let inserted_modification_data: ComponentModification = diesel::insert_into(
                 component_modification_list)
