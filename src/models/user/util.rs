@@ -47,7 +47,8 @@ pub(crate) fn check_authorized(cxt: &Context<'_>) -> Result<bool, ServiceError> 
     }
 }
 
-/// get user_uuid of the authorized user with and without checking
+/// get user_uuid of the authorized user
+/// with and without checking valid token
 pub(crate) fn get_logged_user_uuid(
     cxt: &Context<'_>,
     need_check: bool
