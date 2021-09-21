@@ -1,6 +1,6 @@
 use crate::errors::ServiceResult;
 use crate::models::component::model::Component;
-use crate::models::component::file::model::FileComponent;
+use crate::models::component::file::model::ComponentFile;
 use crate::models::relate_ref::file::model::ShowFile;
 use crate::schema::file_to_component::dsl as file_to_component;
 use diesel::prelude::*;
@@ -11,7 +11,7 @@ impl ShowFile {
         component: &Component,
         conn: &PgConnection,
     ) -> ServiceResult<Vec<ShowFile>> {
-        let target_vec_file_uuid: Vec<Uuid> = FileComponent::belonging_to(component)
+        let target_vec_file_uuid: Vec<Uuid> = ComponentFile::belonging_to(component)
             .select(file_to_component::file_uuid)
             .load::<Uuid>(conn)?;
 

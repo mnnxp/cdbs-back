@@ -27,8 +27,11 @@ use crate::models::component::param as component_param;
 use crate::models::component::param::model::{IptParamComponentData, ParamComponent};
 use crate::models::component::spec as component_spec;
 use crate::models::component::spec::model::IptComponentSpecData;
+use crate::models::component::file as component_file;
+use crate::models::component::file::model::{IptComponentFileData, DelComponentFileData};
 use crate::models::component::supplier as component_supplier;
 use crate::models::component::supplier::model::{IptSupplierComponentData, SupplierComponent};
+use crate::models::relate_ref::file::model::UploadFile;
 
 #[derive(Default)]
 pub struct ComponentMutation;
@@ -138,6 +141,42 @@ impl ComponentMutation {
         crate::models::user::check_authorized(cxt)?;
 
         Ok(del_component_keywords(data, conn)?)
+    }
+
+    async fn upload_component_files(
+        &self,
+        cxt: &Context<'_>,
+        data: IptComponentFileData,
+    ) -> ServiceResult<Vec<UploadFile>> {
+        use component_file::service::add::add_component_files;
+
+        let conn: &PooledConnection = &get_conn(cxt)?;
+
+        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+
+        add_component_files(
+            &logged_user_uuid,
+            &data,
+            conn
+        )
+    }
+
+    async fn delete_component_file(
+        &self,
+        cxt: &Context<'_>,
+        data: DelComponentFileData,
+    ) -> ServiceResult<bool> {
+        use component_file::service::delete::delete_component_file;
+
+        let conn: &PooledConnection = &get_conn(cxt)?;
+
+        crate::models::user::get_logged_user_uuid(cxt, true)?;
+
+        Ok(delete_component_file(
+            // &logged_user_uuid,
+            &data,
+            conn
+        )?)
     }
 
     async fn add_supplier_component(

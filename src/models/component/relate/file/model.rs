@@ -12,13 +12,13 @@ use uuid::Uuid;
 #[belongs_to(ShowFile, foreign_key = "file_uuid")]
 #[belongs_to(Component, foreign_key = "component_uuid")]
 #[table_name = "file_to_component"]
-pub struct FileComponent {
+pub struct ComponentFile {
     pub file_uuid: Uuid,
     pub component_uuid: Uuid,
 }
 
 #[Object]
-impl FileComponent {
+impl ComponentFile {
     async fn file_uuid(&self) -> ID {
         self.file_uuid.into()
     }
@@ -29,14 +29,14 @@ impl FileComponent {
 
 #[derive(Debug, Insertable)]
 #[table_name = "file_to_component"]
-pub struct InsertableFileComponent {
+pub struct InsertableComponentFile {
     pub file_uuid: Uuid,
     pub component_uuid: Uuid,
 }
 
-impl From<FileComponent> for InsertableFileComponent {
-    fn from(ipt_data: FileComponent) -> Self {
-        let FileComponent {
+impl From<ComponentFile> for InsertableComponentFile {
+    fn from(ipt_data: ComponentFile) -> Self {
+        let ComponentFile {
             file_uuid,
             component_uuid,
             ..
@@ -47,4 +47,16 @@ impl From<FileComponent> for InsertableFileComponent {
             component_uuid,
         }
     }
+}
+
+#[derive(InputObject, Deserialize, Debug)]
+pub struct IptComponentFileData {
+    pub filename: Vec<String>,
+    pub component_uuid: Uuid,
+}
+
+#[derive(InputObject, Deserialize, Debug)]
+pub struct DelComponentFileData {
+    pub file_uuid: Uuid,
+    pub component_uuid: Uuid,
 }
