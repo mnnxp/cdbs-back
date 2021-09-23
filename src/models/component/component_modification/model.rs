@@ -1,6 +1,6 @@
 use crate::models::component::relate::actual_status::model::ActualStatusTranslateList;
 use crate::models::component::component_modification::param::model::ModificationParamWithTranslation;
-use crate::models::component::component_modification::set_of_files_program::model::SetOfFilesProgramRelatedData;
+use crate::models::component::component_modification::fileset_for_program::model::FilesetProgramRelatedData;
 use crate::models::component::model::Component;
 use crate::schema::*;
 use async_graphql::types::ID;
@@ -65,18 +65,18 @@ pub struct ComponentModificationAndRelatedData {
     pub actual_status: ActualStatusTranslateList,
     // pub actual_status_id: i32,
     pub updated_at: NaiveDateTime,
-    pub filesets_for_program: Vec<SetOfFilesProgramRelatedData>,
+    pub filesets_for_program: Vec<FilesetProgramRelatedData>,
     pub modification_params: Vec<ModificationParamWithTranslation>,
 }
 
 impl From<(
     ComponentModificationWithActualStatus,
-    Vec<SetOfFilesProgramRelatedData>,
+    Vec<FilesetProgramRelatedData>,
     Vec<ModificationParamWithTranslation>
 )> for ComponentModificationAndRelatedData {
     fn from(data: (
         ComponentModificationWithActualStatus,
-        Vec<SetOfFilesProgramRelatedData>,
+        Vec<FilesetProgramRelatedData>,
         Vec<ModificationParamWithTranslation>
     )) -> Self {
         Self {
