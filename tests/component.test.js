@@ -127,7 +127,6 @@ files { \
   contentType \
   idExt \
   filesize \
-  pathFile \
   createdAt \
   updatedAt \
 } \
@@ -150,7 +149,7 @@ componentModifications {  \
   modificationName \
   description \
   filesetsForProgram { \
-    id \
+    uuid \
     modificationUuid \
       program { \
         id \
@@ -209,7 +208,6 @@ licenses { \
 files { \
   uuid \
   filename \
-  pathFile \
 } \
 componentSuppliers { \
   componentUuid \
@@ -231,12 +229,15 @@ var fileUuid5 = "";
 
 // data for component modification
 const parentModificationUuid = "aba22d59-4f6c-44a4-9a37-2d38f0e577a8";
+const baseFilesetUuid = "5de37b5d-75af-4323-b5b4-2cf1e849baa2";
 const modificationName = "testmodificationcomponent";
 const modificationName2 = "test modification component 2";
 const descriptionModification = "commentcomponent";
 const actualStatusIdModification = 1;
-var componentUuidModificationFirst = "";
-var componentUuidModificationSecond = "";
+var componentModificationUuidFirst = "";
+var componentModificationUuidSecond = "";
+var filesetForProgramUuid = "";
+var fileOfFilesetUuid = "";
 
 // data for param
 const paramnameIndexFail = 100;
@@ -765,7 +766,7 @@ describe('component', () => {
     done();
   });
 
-  it('/graphql:M addComponentKeywords - OK with dublicate', async (done) => {
+  it('/graphql:M addComponentKeywords - OK with duplicate', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .set(
@@ -1036,7 +1037,7 @@ describe('component', () => {
     done();
   });
 
-  it('/graphql:M addComponentLicense - OK with dublicate', async (done) => {
+  it('/graphql:M addComponentLicense - OK with duplicate', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .set(
@@ -1268,7 +1269,7 @@ describe('component', () => {
     done();
   });
 
-  it('/graphql:M addComponentSpecs - OK with dublicate', async (done) => {
+  it('/graphql:M addComponentSpecs - OK with duplicate', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .set(
@@ -1537,27 +1538,6 @@ describe('component', () => {
     done();
   });
 
-  // it('/graphql:Q List components - OK Not found', async (done) => {
-  //   const response1 = await agent
-  //     .post('/graphql')
-  //     .set(
-  //       'Authorization',
-  //       `Bearer ${authorizationTokenFirst}`
-  //     )
-  //     .send({
-  //       query: `query componentsQuery{
-  //         components(componentsUuids: "${componentUuidStandard}") {
-  //           ${componentsListQuery}
-  //         }
-  //       }`,
-  //     })
-  //     .expect(HttpStatus.OK)
-  //   debug('/graphql all components=%o', response1.body.data.components);
-  //   expect(response1.body.data.components).toBeEmptyArray();
-  //   // expect(response1.body.data.components.pop().valueActualStatus).toBe(value_actual_status);
-  //   done();
-  // });
-
   it('/graphql:Q List components - OK with componentUuid', async (done) => {
     const response1 = await agent
       .post('/graphql')
@@ -1609,7 +1589,7 @@ describe('component', () => {
     done();
   });
 
-  it('/graphql:Q List components - OK no access', async (done) => {
+  it('/graphql:Q List components - BadRequest no access', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .set(
@@ -2162,7 +2142,7 @@ describe('component', () => {
     expect(registerComponentModification.componentUuid).toBe(componentUuidStandard);
     expect(registerComponentModification.modificationName).toBe(modificationName);
     expect(registerComponentModification.description).toBe(descriptionModification);
-    componentUuidModificationFirst = registerComponentModification.uuid;
+    componentModificationUuidFirst = registerComponentModification.uuid;
     done();
   });
 
@@ -2201,11 +2181,11 @@ describe('component', () => {
     expect(registerComponentModification.componentUuid).toBe(componentUuidNoStandard);
     expect(registerComponentModification.modificationName).toBe(modificationName);
     expect(registerComponentModification.description).toBe(descriptionModification);
-    componentUuidModificationSecond = registerComponentModification.uuid;
+    componentModificationUuidSecond = registerComponentModification.uuid;
     done();
   });
 
-  it('/graphql:M registerComponentModification - OK with parent componentUuidModificationFirst', async (done) => {
+  it('/graphql:M registerComponentModification - OK with parent componentModificationUuidFirst', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .set(
@@ -2217,7 +2197,7 @@ describe('component', () => {
           registerComponentModification( data: {
             modificationName: "${modificationName}",
             componentUuid: "${componentUuidStandard}",
-            parentModificationUuid: "${componentUuidModificationFirst}",
+            parentModificationUuid: "${componentModificationUuidFirst}",
             description: "${descriptionModification}",
             actualStatusId: ${actualStatusIdModification}
           }) {
@@ -2236,7 +2216,7 @@ describe('component', () => {
     expect(registerComponentModification).toContainAllKeys(
       ["uuid", "componentUuid", "modificationName", "description"]
     );
-    expect(registerComponentModification.uuid).not.toBe(componentUuidModificationFirst);
+    expect(registerComponentModification.uuid).not.toBe(componentModificationUuidFirst);
     expect(registerComponentModification.componentUuid).toBe(componentUuidStandard);
     expect(registerComponentModification.modificationName).toBe(modificationName);
     expect(registerComponentModification.description).toBe(descriptionModification);
@@ -2282,7 +2262,7 @@ describe('component', () => {
       .send({
         query: `mutation  {
             registerParamModification( data: {
-                modificationUuid: "${componentUuidModificationFirst}",
+                modificationUuid: "${componentModificationUuidFirst}",
                 paramId: ${paramnameIndex2},
                 value: "${paramValueTest}"
             }) {
@@ -2312,7 +2292,7 @@ describe('component', () => {
       .send({
         query: `mutation  {
             registerParamModification( data: {
-                modificationUuid: "${componentUuidModificationFirst}",
+                modificationUuid: "${componentModificationUuidFirst}",
                 paramId: ${paramnameIndex2},
                 value: "${paramValueTest}"
             }) {
@@ -2344,7 +2324,7 @@ describe('component', () => {
       .send({
         query: `mutation  {
             registerParamModification( data: {
-                modificationUuid: "${componentUuidModificationFirst}",
+                modificationUuid: "${componentModificationUuidFirst}",
                 paramId: ${paramnameIndex2},
                 value: "${paramValueTest}"
             }) {
@@ -2375,7 +2355,7 @@ describe('component', () => {
       .send({
         query: `mutation  {
             registerParamModification( data: {
-                modificationUuid: "${componentUuidModificationFirst}",
+                modificationUuid: "${componentModificationUuidFirst}",
                 paramId: ${paramnameIndex2},
                 value: "${paramValueTest}"
             }) {
@@ -2391,5 +2371,774 @@ describe('component', () => {
     expect(data).toBeNull();
     expect(errors[0].message).toBe("BadRequest: Not found this modification of you.");
     expect(body.errors[0].path[0]).toBe('registerParamModification');
+  });
+
+
+  // Testing component modification files
+  it('/graphql:Q ModificationFiles - BadRequest no token', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .send({
+          query: `query {
+            componentModificationFiles(modificationUuid: "${componentModificationUuidSecond}") {
+              uuid
+              filename
+              filesize
+              downloadUrl
+            }
+          }`,
+        })
+      .expect(HttpStatus.OK)
+    debug('/graphql componentModificationFiles=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Token not found.'
+    );
+    expect(body.errors[0].path[0]).toBe('componentModificationFiles');
+    done();
+  });
+
+  it('/graphql:Q ModificationFiles - OK with parentModificationUuid', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+          query: `query {
+            componentModificationFiles(modificationUuid: "${parentModificationUuid}") {
+              uuid
+              filename
+              filesize
+              downloadUrl
+            }
+          }`,
+        })
+      .expect(HttpStatus.OK)
+    debug('/graphql componentModificationFiles=%o', body.data);
+    const {
+      data: { componentModificationFiles },
+    } = body;
+    expect(componentModificationFiles).toBeNonEmptyArray();
+    expect(componentModificationFiles[0].uuid).toBeNonEmptyString();
+    expect(componentModificationFiles[0].filename).toBeNonEmptyString();
+    expect(componentModificationFiles[0].filesize).toBe(0);
+    expect(componentModificationFiles[0].downloadUrl).toBeNonEmptyString();
+    done();
+  });
+
+  it('/graphql:M uploadModificationFiles - OK add files 1-5', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+          query: `mutation {
+            uploadModificationFiles(data: {
+              filename: [
+                "${filename1}",
+                "${filename2}",
+                "${filename3}",
+                "${filename4}",
+                "${filename5}"
+              ]
+              modificationUuid: "${componentModificationUuidSecond}"
+            }){
+              filename
+              uploadUrl
+            }
+          }`,
+        })
+      .expect(HttpStatus.OK)
+    debug('/graphql uploadModificationFiles=%o', body);
+    const {
+      data: { uploadModificationFiles },
+    } = body;
+    expect(uploadModificationFiles).toBeNonEmptyArray();
+    expect(uploadModificationFiles[0].filename).toBe(filename1);
+    expect(uploadModificationFiles[0].uploadUrl).toBeNonEmptyString();
+    expect(uploadModificationFiles[1].filename).toBe(filename2);
+    expect(uploadModificationFiles[1].uploadUrl).toBeNonEmptyString();
+    expect(uploadModificationFiles[2].filename).toBe(filename3);
+    expect(uploadModificationFiles[2].uploadUrl).toBeNonEmptyString();
+    expect(uploadModificationFiles[3].filename).toBe(filename4);
+    expect(uploadModificationFiles[3].uploadUrl).toBeNonEmptyString();
+    expect(uploadModificationFiles[4].filename).toBe(filename5);
+    expect(uploadModificationFiles[4].uploadUrl).toBeNonEmptyString();
+    done();
+  });
+
+  it('/graphql:Q ModificationFiles - OK 5 files', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+          query: `query {
+            componentModificationFiles(modificationUuid: "${componentModificationUuidSecond}") {
+              uuid
+              filename
+              filesize
+              downloadUrl
+            }
+          }`,
+        })
+      .expect(HttpStatus.OK)
+    debug('/graphql componentModificationFiles=%o', body);
+    const {
+      data: { componentModificationFiles },
+    } = body;
+    expect(componentModificationFiles).toBeNonEmptyArray();
+    expect(componentModificationFiles[0].uuid).toBeNonEmptyString();
+    fileUuid1 = componentModificationFiles[0].uuid;
+    expect(componentModificationFiles[0].filename).toBe(filename1);
+    expect(componentModificationFiles[0].filename).toBeNonEmptyString();
+    expect(componentModificationFiles[0].filesize).toBe(0);
+    expect(componentModificationFiles[0].downloadUrl).toBeNonEmptyString();
+    fileUuid2 = componentModificationFiles[1].uuid;
+    expect(componentModificationFiles[1].filename).toBe(filename2);
+    fileUuid3 = componentModificationFiles[2].uuid;
+    expect(componentModificationFiles[2].filename).toBe(filename3);
+    fileUuid4 = componentModificationFiles[3].uuid;
+    expect(componentModificationFiles[3].filename).toBe(filename4);
+    fileUuid5 = componentModificationFiles[4].uuid;
+    expect(componentModificationFiles[4].uuid).toBeNonEmptyString();
+    expect(componentModificationFiles[4].filename).toBe(filename5);
+    expect(componentModificationFiles[4].filesize).toBe(0);
+    expect(componentModificationFiles[4].downloadUrl).toBeNonEmptyString();
+    done();
+  });
+
+  it('/graphql:M deleteModificationFile - OK delete file 1', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+          query: `mutation {
+            deleteModificationFile(data: {
+              fileUuid: "${fileUuid1}"
+              modificationUuid: "${componentModificationUuidSecond}"
+            })
+          }`,
+        })
+      .expect(HttpStatus.OK)
+    debug('/graphql deleteModificationFile=%o', body);
+    const {
+      data: { deleteModificationFile },
+    } = body;
+    expect(deleteModificationFile).toBe(true);
+    done();
+  });
+
+  it('/graphql:M deleteModificationFile - OK delete file 2', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+          query: `mutation {
+            deleteModificationFile(data: {
+              fileUuid: "${fileUuid2}"
+              modificationUuid: "${componentModificationUuidSecond}"
+            })
+          }`,
+        })
+      .expect(HttpStatus.OK)
+    debug('/graphql deleteModificationFile=%o', body);
+    const {
+      data: { deleteModificationFile },
+    } = body;
+    expect(deleteModificationFile).toBe(true);
+    done();
+  });
+
+  it('/graphql:M deleteModificationFile - OK delete file 3', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+          query: `mutation {
+            deleteModificationFile(data: {
+              fileUuid: "${fileUuid3}"
+              modificationUuid: "${componentModificationUuidSecond}"
+            })
+          }`,
+        })
+      .expect(HttpStatus.OK)
+    debug('/graphql deleteModificationFile=%o', body);
+    const {
+      data: { deleteModificationFile },
+    } = body;
+    expect(deleteModificationFile).toBe(true);
+    done();
+  });
+
+  it('/graphql:M deleteModificationFile - OK delete file 4', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+          query: `mutation {
+            deleteModificationFile(data: {
+              fileUuid: "${fileUuid4}"
+              modificationUuid: "${componentModificationUuidSecond}"
+            })
+          }`,
+        })
+      .expect(HttpStatus.OK)
+    debug('/graphql deleteModificationFile=%o', body);
+    const {
+      data: { deleteModificationFile },
+    } = body;
+    expect(deleteModificationFile).toBe(true);
+    done();
+  });
+
+  it('/graphql:M deleteModificationFile - OK delete file 5', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+          query: `mutation {
+            deleteModificationFile(data: {
+              fileUuid: "${fileUuid5}"
+              modificationUuid: "${componentModificationUuidSecond}"
+            })
+          }`,
+        })
+      .expect(HttpStatus.OK)
+    debug('/graphql deleteModificationFile=%o', body);
+    const {
+      data: { deleteModificationFile },
+    } = body;
+    expect(deleteModificationFile).toBe(true);
+    done();
+  });
+
+  it('/graphql:Q ModificationFiles - BadRequest not found files', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+          query: `query {
+            componentModificationFiles(modificationUuid: "${componentModificationUuidSecond}") {
+              uuid
+              filename
+              filesize
+              downloadUrl
+            }
+          }`,
+        })
+      .expect(HttpStatus.OK)
+    debug('/graphql componentModificationFiles=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Not found files'
+    );
+    expect(body.errors[0].path[0]).toBe('componentModificationFiles');
+    done();
+  });
+
+  it('/graphql:Q ModificationFiles - BadRequest no access', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+          query: `query {
+            componentModificationFiles(modificationUuid: "${componentModificationUuidSecond}") {
+              uuid
+              filename
+              filesize
+              downloadUrl
+            }
+          }`,
+        })
+      .expect(HttpStatus.OK)
+    debug('/graphql componentModificationFiles=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe("BadRequest: Access denied");
+    expect(body.errors[0].path[0]).toBe('componentModificationFiles');
+    done();
+  });
+
+  // Testing component modification fileset
+  it('/graphql:Q componentModificationFilesets - BadRequest no token', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .send({
+          query: `query {
+            componentModificationFilesets(
+              modificationUuid: "${componentModificationUuidSecond}"
+            ) {
+              modificationUuid
+              uuid
+              program {
+                id
+                name
+              }
+            }
+          }`,
+        })
+      .expect(HttpStatus.OK)
+    debug('/graphql componentModificationFilesets=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Token not found.'
+    );
+    expect(body.errors[0].path[0]).toBe('componentModificationFilesets');
+    done();
+  });
+
+  it('/graphql:Q componentModificationFilesets - OK with parentModificationUuid', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+          query: `query {
+            componentModificationFilesets(
+              modificationUuid: "${parentModificationUuid}"
+            ) {
+              modificationUuid
+              uuid
+              program {
+                id
+                name
+              }
+            }
+          }`,
+        })
+      .expect(HttpStatus.OK)
+    debug('/graphql componentModificationFilesets=%o', body.data);
+    const {
+      data: { componentModificationFilesets },
+    } = body;
+    expect(componentModificationFilesets[0].modificationUuid).toBe(parentModificationUuid);
+    expect(componentModificationFilesets[0].uuid).toBeNonEmptyString();
+    expect(componentModificationFilesets[0].program.id).toBe(1);
+    expect(componentModificationFilesets[0].program.name).toBe("AutoCAD");
+    done();
+  });
+
+  it('/graphql:M registerModificationFileset - Ok add fileset', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+          query: `mutation {
+            registerModificationFileset(data: {
+              modificationUuid: "${componentModificationUuidSecond}"
+              programId: 7
+            }){
+              modificationUuid
+              uuid
+              programId
+            }
+          }`,
+        })
+      .expect(HttpStatus.OK)
+    debug('/graphql registerModificationFileset=%o', body);
+    const {
+      data: { registerModificationFileset },
+    } = body;
+    filesetForProgramUuid = registerModificationFileset.uuid;
+    expect(registerModificationFileset.modificationUuid).toBe(componentModificationUuidSecond);
+    expect(registerModificationFileset.uuid).toBeNonEmptyString();
+    expect(registerModificationFileset.programId).toBe(7);
+    done();
+  });
+
+  it('/graphql:M registerModificationFileset - BadRequest duplicate fileset', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+          query: `mutation {
+            registerModificationFileset(data: {
+              modificationUuid: "${componentModificationUuidSecond}"
+              programId: 7
+            }){
+              modificationUuid
+              uuid
+              programId
+            }
+          }`,
+        })
+      .expect(HttpStatus.OK)
+    debug('/graphql registerModificationFileset=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      `BadRequest: The modification has a set of files for this program: ${filesetForProgramUuid}`
+    );
+    expect(body.errors[0].path[0]).toBe('registerModificationFileset');
+    done();
+  });
+
+  it('/graphql:M registerModificationFileset - Ok add second fileset', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+          query: `mutation {
+            registerModificationFileset(data: {
+              modificationUuid: "${componentModificationUuidSecond}"
+              programId: 5
+            }){
+              modificationUuid
+              uuid
+              programId
+            }
+          }`,
+        })
+      .expect(HttpStatus.OK)
+    debug('/graphql registerModificationFileset=%o', body);
+    const {
+      data: { registerModificationFileset },
+    } = body;
+    filesetForProgramUuid = registerModificationFileset.uuid;
+    expect(registerModificationFileset.modificationUuid).toBe(componentModificationUuidSecond);
+    expect(registerModificationFileset.uuid).toBeNonEmptyString();
+    expect(registerModificationFileset.programId).toBe(5);
+    done();
+  });
+
+  it('/graphql:Q componentModificationFilesets - OK 2 filesets', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+          query: `query {
+            componentModificationFilesets(
+              modificationUuid: "${componentModificationUuidSecond}"
+            ) {
+              modificationUuid
+              uuid
+              program {
+                id
+                name
+              }
+            }
+          }`,
+        })
+      .expect(HttpStatus.OK)
+    debug('/graphql componentModificationFilesets=%o', body);
+    const {
+      data: { componentModificationFilesets },
+    } = body;
+    expect(componentModificationFilesets[0].modificationUuid).toBe(componentModificationUuidSecond);
+    expect(componentModificationFilesets[0].uuid).toBeNonEmptyString();
+    expect(componentModificationFilesets[0].program.id).toBe(7);
+    expect(componentModificationFilesets[0].program.name).toBeNonEmptyString();
+    done();
+  });
+
+  it('/graphql:Q componentModificationFilesets - Ok select 2 filesets', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+          query: `query {
+            componentModificationFilesets(
+              modificationUuid: "${componentModificationUuidSecond}"
+              programId: [5,7]
+            ) {
+              modificationUuid
+              uuid
+              program {
+                id
+                name
+              }
+            }
+          }`,
+        })
+      .expect(HttpStatus.OK)
+    debug('/graphql componentModificationFilesets=%o', body);
+    const {
+      data: { componentModificationFilesets },
+    } = body;
+    expect(componentModificationFilesets[0].modificationUuid).toBe(componentModificationUuidSecond);
+    expect(componentModificationFilesets[0].uuid).toBeNonEmptyString();
+    expect(componentModificationFilesets[0].program.id).toBe(5);
+    expect(componentModificationFilesets[0].program.name).toBeNonEmptyString();
+    expect(componentModificationFilesets[1].program.id).toBe(7);
+    expect(componentModificationFilesets[1].program.name).toBeNonEmptyString();
+    done();
+  });
+
+  it('/graphql:Q componentModificationFilesets - Ok found 1', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+          query: `query {
+            componentModificationFilesets(
+              modificationUuid: "${componentModificationUuidSecond}"
+              programId: [1,2,5,8]
+            ) {
+              modificationUuid
+              uuid
+              program {
+                id
+                name
+              }
+            }
+          }`,
+        })
+      .expect(HttpStatus.OK)
+    debug('/graphql componentModificationFilesets=%o', body);
+    const {
+      data: { componentModificationFilesets },
+    } = body;
+    expect(componentModificationFilesets[0].modificationUuid).toBe(componentModificationUuidSecond);
+    expect(componentModificationFilesets[0].uuid).toBeNonEmptyString();
+    expect(componentModificationFilesets[0].program.id).toBe(5);
+    expect(componentModificationFilesets[0].program.name).toBeNonEmptyString();
+    expect(componentModificationFilesets.length).toBe(1);
+    done();
+  });
+
+  it('/graphql:Q componentModificationFilesets - Ok not found', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+          query: `query {
+            componentModificationFilesets(
+              modificationUuid: "${componentModificationUuidSecond}"
+              programId: [1,2,3]
+            ) {
+              modificationUuid
+              uuid
+              program {
+                id
+                name
+              }
+            }
+          }`,
+        })
+      .expect(HttpStatus.OK)
+    debug('/graphql componentModificationFilesets=%o', body);
+    const {
+      data: { componentModificationFilesets },
+    } = body;
+    expect(componentModificationFilesets).toBeEmptyArray();
+    done();
+  });
+
+  // Testing component modification file of fileset
+  it('/graphql:Q componentModificationFilesOfFileset - BadRequest no token', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .send({
+          query: `query {
+            componentModificationFilesOfFileset(
+              filesetUuid: "${componentModificationUuidSecond}"
+              fileUuids: []
+            ) {
+              filesetUuid
+              showFile {
+                uuid
+                filename
+                updatedAt
+              }
+            }
+          }`,
+        })
+      .expect(HttpStatus.OK)
+    debug('/graphql componentModificationFilesOfFileset=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Token not found.'
+    );
+    expect(body.errors[0].path[0]).toBe('componentModificationFilesOfFileset');
+    done();
+  });
+
+  it('/graphql:Q componentModificationFilesOfFileset - OK with parentModificationUuid', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+          query: `query {
+            componentModificationFilesOfFileset(
+              filesetUuid: "${baseFilesetUuid}"
+            ) {
+              filesetUuid
+              showFile {
+                uuid
+                filename
+                updatedAt
+              }
+            }
+          }`,
+        })
+      .expect(HttpStatus.OK)
+    debug('/graphql componentModificationFilesOfFileset=%o', body.data);
+    const {
+      data: { componentModificationFilesOfFileset },
+    } = body;
+    expect(componentModificationFilesOfFileset[0].filesetUuid).toBe(baseFilesetUuid);
+    expect(componentModificationFilesOfFileset[0].showFile.uuid).toBeNonEmptyString();
+    expect(componentModificationFilesOfFileset[0].showFile.filename).toBeNonEmptyString();
+    done();
+  });
+
+  it('/graphql:M addFilesToFileset - Ok add file to fileset', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+          query: `mutation {
+            addFilesToFileset(
+              data: {
+                filesetUuid: "${filesetForProgramUuid}"
+                filename: [
+                  "${filename1}",
+                  "${filename2}",
+                  "${filename3}",
+                  "${filename4}"
+                ]
+              }
+            ){
+              filename
+              uploadUrl
+            }
+          }`,
+        })
+      .expect(HttpStatus.OK)
+    debug('/graphql addFilesToFileset=%o', body);
+    const {
+      data: { addFilesToFileset },
+    } = body;
+    expect(addFilesToFileset[0].filename).toBe(filename1);
+    expect(addFilesToFileset[0].uploadUrl).toBeNonEmptyString();
+    expect(addFilesToFileset[1].filename).toBe(filename2);
+    expect(addFilesToFileset[1].uploadUrl).toBeNonEmptyString();
+    expect(addFilesToFileset[2].filename).toBe(filename3);
+    expect(addFilesToFileset[2].uploadUrl).toBeNonEmptyString();
+    expect(addFilesToFileset[3].filename).toBe(filename4);
+    expect(addFilesToFileset[3].uploadUrl).toBeNonEmptyString();
+    done();
+  });
+
+  it('/graphql:Q componentModificationFilesOfFileset - OK ', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+          query: `query {
+            componentModificationFilesOfFileset(
+              filesetUuid: "${filesetForProgramUuid}"
+            ) {
+              filesetUuid
+              showFile {
+                uuid
+                filename
+                updatedAt
+              }
+            }
+          }`,
+        })
+      .expect(HttpStatus.OK)
+    debug('/graphql componentModificationFilesOfFileset=%o', body.data);
+    const {
+      data: { componentModificationFilesOfFileset },
+    } = body;
+    fileOfFilesetUuid = componentModificationFilesOfFileset[0].showFile.uuid;
+    expect(componentModificationFilesOfFileset[0].filesetUuid).toBe(filesetForProgramUuid);
+    expect(componentModificationFilesOfFileset[0].showFile.uuid).toBeNonEmptyString();
+    expect(componentModificationFilesOfFileset[0].showFile.filename).toBeNonEmptyString();
+    done();
+  });
+
+  it('/graphql:Q componentModificationFilesOfFileset - OK filter fileUuid', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+          query: `query {
+            componentModificationFilesOfFileset(
+              filesetUuid: "${filesetForProgramUuid}"
+              fileUuids: ["${fileOfFilesetUuid}"]
+            ) {
+              filesetUuid
+              showFile {
+                uuid
+                filename
+                updatedAt
+              }
+            }
+          }`,
+        })
+      .expect(HttpStatus.OK)
+    debug('/graphql componentModificationFilesOfFileset=%o', body.data);
+    const {
+      data: { componentModificationFilesOfFileset },
+    } = body;
+    fileOfFilesetUuid = componentModificationFilesOfFileset[0].showFile.uuid;
+    expect(componentModificationFilesOfFileset[0].filesetUuid).toBe(filesetForProgramUuid);
+    expect(componentModificationFilesOfFileset[0].showFile.uuid).toBeNonEmptyString();
+    expect(componentModificationFilesOfFileset[0].showFile.filename).toBeNonEmptyString();
+    done();
   });
 });
