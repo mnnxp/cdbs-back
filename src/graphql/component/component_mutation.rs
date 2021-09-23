@@ -4,21 +4,6 @@ use async_graphql::{self, Context, Object};
 
 use crate::models::component;
 use crate::models::component::component_fav::model::{ComponentFav, IptComponentFavData};
-use crate::models::component::component_modification::file_to_set_modification as component_modification_file_to_set_modification;
-use crate::models::component::component_modification::file_to_set_modification::model::{
-    FileToSetModification, IptFileToSetModificationData,
-};
-use crate::models::component::component_modification::model::{
-    IptComponentModificationData, SlimComponentModification,
-};
-use crate::models::component::component_modification::param as component_modification_param;
-use crate::models::component::component_modification::param::model::{
-    IptParamModificationData, ParamModification,
-};
-use crate::models::component::component_modification::set_of_files_program as component_modification_set_of_files_program;
-use crate::models::component::component_modification::set_of_files_program::model::{
-    IptSetOfFilesProgramData, SetOfFilesProgram,
-};
 use crate::models::component::keyword as component_keyword;
 use crate::models::component::keyword::model::IptComponentKeywordData;
 use crate::models::component::license::model::IptComponentLicenseData;
@@ -31,6 +16,21 @@ use crate::models::component::file as component_file;
 use crate::models::component::file::model::{IptComponentFileData, DelComponentFileData};
 use crate::models::component::supplier as component_supplier;
 use crate::models::component::supplier::model::{IptSupplierComponentData, SupplierComponent};
+use crate::models::component::component_modification;
+use crate::models::component::component_modification::modification_file_from_fileset::model::IptModificationFileFromFilesetData;
+use crate::models::component::component_modification::model::{
+    IptComponentModificationData, SlimComponentModification,
+};
+use crate::models::component::component_modification::param::model::{
+    IptParamModificationData, ParamModification,
+};
+use crate::models::component::component_modification::file::model::{
+    IptModificationFileData, DelModificationFileData
+};
+use crate::models::component::component_modification::fileset_for_program as fileset_program;
+use crate::models::component::component_modification::fileset_for_program::model::{
+    IptFilesetProgramData, FilesetProgram,
+};
 use crate::models::relate_ref::file::model::UploadFile;
 
 #[derive(Default)]
@@ -197,7 +197,7 @@ impl ComponentMutation {
         cxt: &Context<'_>,
         data: IptComponentModificationData,
     ) -> ServiceResult<SlimComponentModification> {
-        use component::component_modification::service::register::create_component_modification;
+        use component_modification::service::register::create_component_modification;
         let conn: &PooledConnection = &get_conn(cxt)?;
 
         let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
@@ -210,7 +210,7 @@ impl ComponentMutation {
         cxt: &Context<'_>,
         data: IptParamModificationData,
     ) -> ServiceResult<ParamModification> {
-        use component_modification_param::service::add::create_param_modification;
+        use component_modification::param::service::add::create_param_modification;
         let conn: &PooledConnection = &get_conn(cxt)?;
 
         crate::models::user::check_authorized(cxt)?;
@@ -218,30 +218,70 @@ impl ComponentMutation {
         Ok(create_param_modification(data, conn)?)
     }
 
-    async fn register_set_files_modification(
+    async fn upload_modification_files(
         &self,
         cxt: &Context<'_>,
-        data: IptSetOfFilesProgramData,
-    ) -> ServiceResult<SetOfFilesProgram> {
-        use component_modification_set_of_files_program::service::add::create_set_file_modification;
+        data: IptModificationFileData,
+    ) -> ServiceResult<Vec<UploadFile>> {
+        use component_modification::file::service::add::add_modification_files;
+
         let conn: &PooledConnection = &get_conn(cxt)?;
 
-        crate::models::user::check_authorized(cxt)?;
+        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
 
-        Ok(create_set_file_modification(data, conn)?)
+        add_modification_files(
+            &logged_user_uuid,
+            &data,
+            conn
+        )
     }
 
-    async fn add_file_to_set_modification(
+    async fn delete_modification_file(
         &self,
         cxt: &Context<'_>,
-        data: IptFileToSetModificationData,
-    ) -> ServiceResult<FileToSetModification> {
-        use component_modification_file_to_set_modification::service::add::add_file_to_set_modification;
+        data: DelModificationFileData,
+    ) -> ServiceResult<bool> {
+        use component_modification::file::service::delete::delete_modification_file;
+
+        let conn: &PooledConnection = &get_conn(cxt)?;
+
+        crate::models::user::get_logged_user_uuid(cxt, true)?;
+
+        delete_modification_file(
+            // &logged_user_uuid,
+            &data,
+            conn
+        )
+    }
+
+    async fn register_modification_fileset(
+        &self,
+        cxt: &Context<'_>,
+        data: IptFilesetProgramData,
+    ) -> ServiceResult<FilesetProgram> {
+        use fileset_program::service::add::create_modification_fileset;
         let conn: &PooledConnection = &get_conn(cxt)?;
 
         crate::models::user::check_authorized(cxt)?;
 
-        Ok(add_file_to_set_modification(data, conn)?)
+        Ok(create_modification_fileset(data, conn)?)
+    }
+
+    async fn add_files_to_fileset(
+        &self,
+        cxt: &Context<'_>,
+        data: IptModificationFileFromFilesetData,
+    ) -> ServiceResult<Vec<UploadFile>> {
+        use component_modification::modification_file_from_fileset::service::add::add_files_of_modification_set;
+        let conn: &PooledConnection = &get_conn(cxt)?;
+
+        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+
+        add_files_of_modification_set(
+            &logged_user_uuid,
+            data,
+            conn
+        )
     }
 
     async fn add_component_favorite(
