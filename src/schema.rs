@@ -247,13 +247,6 @@ table! {
 }
 
 table! {
-    file_of_modification_set (fileset_uuid, file_uuid) {
-        fileset_uuid -> Uuid,
-        file_uuid -> Uuid,
-    }
-}
-
-table! {
     file_ref (uuid) {
         uuid -> Uuid,
         parent_file_uuid -> Uuid,
@@ -389,6 +382,13 @@ table! {
     limitation_to_license (limitation_id, license_id) {
         limitation_id -> Int4,
         license_id -> Int4,
+    }
+}
+
+table! {
+    modification_file_from_fileset (fileset_uuid, file_uuid) {
+        fileset_uuid -> Uuid,
+        file_uuid -> Uuid,
     }
 }
 
@@ -783,8 +783,6 @@ joinable!(discussion_company_ref -> user_ref (author_uuid));
 joinable!(discussion_component_ref -> component_ref (component_uuid));
 joinable!(discussion_component_ref -> user_ref (author_uuid));
 joinable!(extension_ref -> program_ref (program_id));
-joinable!(file_of_modification_set -> file_ref (file_uuid));
-joinable!(file_of_modification_set -> fileset_for_program (fileset_uuid));
 joinable!(file_ref -> extension_ref (id_ext));
 joinable!(file_to_component -> component_ref (component_uuid));
 joinable!(file_to_component -> file_ref (file_uuid));
@@ -808,6 +806,8 @@ joinable!(license_to_component -> component_ref (component_uuid));
 joinable!(license_to_component -> license_ref (license_id));
 joinable!(limitation_to_license -> license_limitation_ref (limitation_id));
 joinable!(limitation_to_license -> license_ref (license_id));
+joinable!(modification_file_from_fileset -> file_ref (file_uuid));
+joinable!(modification_file_from_fileset -> fileset_for_program (fileset_uuid));
 joinable!(notification_ref -> degree_importance_ref (degree_importance_id));
 joinable!(notification_to_user -> notification_ref (notification_id));
 joinable!(notification_to_user -> user_ref (user_uuid));
@@ -894,7 +894,6 @@ allow_tables_to_appear_in_same_query!(
     discussion_company_ref,
     discussion_component_ref,
     extension_ref,
-    file_of_modification_set,
     file_ref,
     file_to_component,
     file_to_modification,
@@ -913,6 +912,7 @@ allow_tables_to_appear_in_same_query!(
     license_ref,
     license_to_component,
     limitation_to_license,
+    modification_file_from_fileset,
     notification_ref,
     notification_to_user,
     param_ref,

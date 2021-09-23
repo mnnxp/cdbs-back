@@ -122,10 +122,10 @@ CREATE TABLE fileset_for_program (
 );
 
 /* файлы набора модификации (файлы под САПР) */
-CREATE TABLE file_of_modification_set (
+CREATE TABLE modification_file_from_fileset (
   fileset_uuid UUID NOT NULL, /* идентификатор набора */
   file_uuid UUID NOT NULL, /* идентификатор объекта/файла */
-  CONSTRAINT file_of_modification_set_pk PRIMARY KEY (fileset_uuid, file_uuid)
+  CONSTRAINT modification_file_from_fileset_pk PRIMARY KEY (fileset_uuid, file_uuid)
 );
 
 /* каталог компонента */

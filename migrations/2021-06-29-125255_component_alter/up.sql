@@ -40,8 +40,8 @@ ALTER TABLE file_to_modification ADD CONSTRAINT file_to_modification_fk1 FOREIGN
 ALTER TABLE fileset_for_program ADD CONSTRAINT fileset_for_program_fk0 FOREIGN KEY (modification_uuid) REFERENCES component_modification_list(uuid) ON DELETE CASCADE;
 ALTER TABLE fileset_for_program ADD CONSTRAINT fileset_for_program_fk1 FOREIGN KEY (program_id) REFERENCES program_ref(id) ON DELETE CASCADE;
 
-ALTER TABLE file_of_modification_set ADD CONSTRAINT file_of_modification_set_fk0 FOREIGN KEY (fileset_uuid) REFERENCES fileset_for_program(uuid) ON DELETE CASCADE;
-ALTER TABLE file_of_modification_set ADD CONSTRAINT file_of_modification_set_fk1 FOREIGN KEY (file_uuid) REFERENCES file_ref(uuid) ON DELETE CASCADE;
+ALTER TABLE modification_file_from_fileset ADD CONSTRAINT modification_file_from_fileset_fk0 FOREIGN KEY (fileset_uuid) REFERENCES fileset_for_program(uuid) ON DELETE CASCADE;
+ALTER TABLE modification_file_from_fileset ADD CONSTRAINT modification_file_from_fileset_fk1 FOREIGN KEY (file_uuid) REFERENCES file_ref(uuid) ON DELETE CASCADE;
 
 ALTER TABLE spec_to_component ADD CONSTRAINT spec_to_component_fk0 FOREIGN KEY (spec_id) REFERENCES spec_ref(id) ON DELETE CASCADE;
 ALTER TABLE spec_to_component ADD CONSTRAINT spec_to_component_fk1 FOREIGN KEY (component_uuid) REFERENCES component_ref(uuid) ON DELETE CASCADE;
