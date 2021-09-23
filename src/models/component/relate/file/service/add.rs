@@ -1,5 +1,4 @@
 use crate::errors::{ServiceResult, ServiceError};
-use crate::database::PooledConnection;
 use crate::models::component::relate::file::model::IptComponentFileData;
 use crate::models::relate_ref::file::model::{
     ListObject, PreliminaryFileData, UploadFile
@@ -7,6 +6,7 @@ use crate::models::relate_ref::file::model::{
 use crate::models::relate_ref::file as file;
 use crate::storage::model::StorageAccess;
 use crate::storage::presigned_url::upload_presigned_url;
+use diesel::PgConnection;
 use uuid::Uuid;
 
 /// The return the pre-signed URLs (in wrapper UploadFile) to download the file
@@ -14,7 +14,7 @@ use uuid::Uuid;
 pub(crate) fn add_component_files(
     target_user_uuid: &Uuid,
     data: &IptComponentFileData,
-    conn: &PooledConnection,
+    conn: &PgConnection,
 ) -> ServiceResult<Vec<UploadFile>> {
     // return error if not found correct keywords
     if data.filename.is_empty() {

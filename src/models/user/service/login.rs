@@ -1,4 +1,3 @@
-use crate::database::PooledConnection;
 use crate::errors::{ServiceError, ServiceResult};
 use crate::models::user::model::{SlimUser, User};
 use crate::models::user::util::verify;
@@ -8,7 +7,7 @@ use diesel::prelude::*;
 pub(crate) fn login(
     user_username: &str,
     user_password: &str,
-    conn: &PooledConnection,
+    conn: &PgConnection,
 ) -> ServiceResult<SlimUser> {
     use crate::schema::user_ref::dsl::{username, user_ref};
 

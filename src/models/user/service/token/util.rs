@@ -75,7 +75,7 @@ pub(crate) fn update(cxt: &Context<'_>, flag_delete_token: bool) -> Result<Token
 }
 
 /// delete token to table user_token_ref of database
-pub(crate) fn delete_token(target_token: &str, conn: &PooledConnection) -> Result<UserToken, ServiceError> {
+pub(crate) fn delete_token(target_token: &str, conn: &PgConnection) -> Result<UserToken, ServiceError> {
     use crate::schema::user_token_ref::dsl::*;
 
     let updated_token: UserToken = diesel::delete(user_token_ref)
@@ -118,7 +118,7 @@ pub(crate) fn delete_all_tokens(
 pub(crate) fn write_token(
     new_token: &str,
     jwt: Claims,
-    conn: &PooledConnection,
+    conn: &PgConnection,
 ) -> Result<UserToken, ServiceError> {
     use crate::schema::user_token_ref::dsl::user_token_ref;
     use crate::schema::user_token_ref::dsl::token;
@@ -152,7 +152,7 @@ pub(crate) fn write_token(
 /// check token for validity
 pub(crate) fn check_token(
     target_token: &str,
-    conn: &PooledConnection,
+    conn: &PgConnection,
 ) -> Result<bool, ServiceError> {
     use crate::schema::user_token_ref::dsl::*;
 
@@ -173,7 +173,7 @@ pub(crate) fn check_token(
 /// get the user_uuid who owns the token
 pub(crate) fn whose_token(
     target_token: &str,
-    conn: &PooledConnection,
+    conn: &PgConnection,
 ) -> Result<Uuid, ServiceError> {
     use crate::schema::user_token_ref::dsl::*;
 

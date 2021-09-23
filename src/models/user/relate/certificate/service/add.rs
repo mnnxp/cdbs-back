@@ -1,5 +1,4 @@
 use crate::errors::ServiceResult;
-use crate::database::PooledConnection;
 use crate::models::user::certificate::model::{
     UserCertificate,
     IptUserCertificateData,
@@ -16,7 +15,7 @@ use uuid::Uuid;
 pub(crate) fn add_certificate(
     target_user_uuid: &Uuid,
     cert_data: &IptUserCertificateData,
-    conn: &PooledConnection,
+    conn: &PgConnection,
 ) -> ServiceResult<String> {
     // Get data for write information about the file before upload to storage
     let preliminary_file_data = PreliminaryFileData::from_ipt_file_data(

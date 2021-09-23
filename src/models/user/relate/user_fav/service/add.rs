@@ -1,8 +1,4 @@
-use crate::errors::{
-    // ServiceError,
-    ServiceResult
-};
-use crate::database::PooledConnection;
+use crate::errors::ServiceResult;
 use crate::models::user::user_fav::model::{
     UserFav,
     IptUserFavData,
@@ -13,7 +9,7 @@ use diesel::prelude::*;
 
 pub(crate) fn add_user_fav(
     data: IptUserFavData,
-    conn: &PooledConnection,
+    conn: &PgConnection,
 ) -> ServiceResult<UserFav> {
     // if have need row, just update is_enabled to true
     let check_fav = diesel::update(user_fav)

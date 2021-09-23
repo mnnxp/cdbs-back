@@ -2,7 +2,6 @@ use crate::errors::{
     ServiceError,
     ServiceResult
 };
-use crate::database::PooledConnection;
 use crate::models::user::standard_fav::model::{
     StandardFav,
     IptStandardFavData,
@@ -13,7 +12,7 @@ use diesel::prelude::*;
 // Remove a standard from user favorites standard list
 pub(crate) fn delete_standard_fav(
     data: IptStandardFavData,
-    conn: &PooledConnection,
+    conn: &PgConnection,
 ) -> ServiceResult<StandardFav> {
     // if have need row, just update is_enabled to false
     let check_fav = diesel::update(standard_fav)

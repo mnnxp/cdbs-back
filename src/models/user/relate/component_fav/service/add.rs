@@ -1,8 +1,4 @@
-use crate::errors::{
-    // ServiceError,
-    ServiceResult
-};
-use crate::database::PooledConnection;
+use crate::errors::ServiceResult;
 use crate::models::user::component_fav::model::{
     ComponentFav,
     IptComponentFavData,
@@ -13,7 +9,7 @@ use diesel::prelude::*;
 
 pub(crate) fn add_component_fav(
     data: IptComponentFavData,
-    conn: &PooledConnection,
+    conn: &PgConnection,
 ) -> ServiceResult<ComponentFav> {
     // if have need row, just update is_enabled to true
     let check_fav = diesel::update(component_fav)

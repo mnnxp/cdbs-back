@@ -2,7 +2,6 @@ use crate::errors::{
     ServiceError,
     ServiceResult
 };
-use crate::database::PooledConnection;
 use crate::models::user::component_fav::model::{
     ComponentFav,
     IptComponentFavData,
@@ -13,7 +12,7 @@ use diesel::prelude::*;
 // Remove a component from user favorites component list
 pub(crate) fn delete_component_fav(
     data: IptComponentFavData,
-    conn: &PooledConnection,
+    conn: &PgConnection,
 ) -> ServiceResult<ComponentFav> {
     // if have need row, just update is_enabled to false
     let check_fav = diesel::update(component_fav)

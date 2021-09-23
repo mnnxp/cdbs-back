@@ -1,5 +1,4 @@
 use crate::errors::{ServiceResult, ServiceError};
-use crate::database::PooledConnection;
 use crate::models::component::component_modification::relate::file::model::DelModificationFileData;
 use crate::schema::file_to_modification::dsl::*;
 use diesel::prelude::*;
@@ -10,7 +9,7 @@ use diesel::prelude::*;
 pub(crate) fn delete_modification_file(
     // target_user_uuid: &Uuid, <-- todo!(manager access)
     data: &DelModificationFileData,
-    conn: &PooledConnection,
+    conn: &PgConnection,
 ) -> ServiceResult<bool> {
     // delete only row in file_to_modification table
     match diesel::delete(file_to_modification)

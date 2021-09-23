@@ -1,5 +1,4 @@
 use crate::errors::ServiceResult;
-use crate::database::PooledConnection;
 use crate::models::relate_ref::file::model::DownloadFile;
 use crate::models::relate_ref::file as file;
 use crate::schema::file_to_modification::dsl as file_to_modification;
@@ -10,7 +9,7 @@ use uuid::Uuid;
 pub(crate) fn get_component_modification_files(
     _target_user_uuid: &Uuid, // <-- todo!(access check)
     target_modification_uuid: &Uuid,
-    conn: &PooledConnection,
+    conn: &PgConnection,
 ) -> ServiceResult<Vec<DownloadFile>> {
     let target_file_uuids: Vec<Uuid> = file_to_modification::file_to_modification
         .filter(file_to_modification::modification_uuid.eq(target_modification_uuid))
