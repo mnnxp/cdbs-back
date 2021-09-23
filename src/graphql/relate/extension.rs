@@ -28,6 +28,6 @@ impl ExtensionMutation {
 
         crate::models::user::check_authorized(cxt)?;
 
-        Ok(create_extension(data, conn)?)
+        create_extension(data, conn)
     }
 }

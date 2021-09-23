@@ -53,13 +53,11 @@ impl StorageMutation {
             return Ok(0) // <-- Not found uuids, just return 0
         }
 
-        let res = file::service::update::confirm_upload(
+        file::service::update::confirm_upload(
             &logged_user_uuid,
             &target_file_uuids,
             pool
-        ).await?;
-
-        Ok(res)
+        ).await
     }
 
     /// Delete file in storage
@@ -74,12 +72,10 @@ impl StorageMutation {
 
         let target_file_uuid = Uuid::parse_str(&file_uuid).unwrap();
 
-        let res = file::service::delete::delete_file_by_uuid(
+        file::service::delete::delete_file_by_uuid(
             &logged_user_uuid,
             &target_file_uuid,
             pool
-        ).await?;
-
-        Ok(res)
+        ).await
     }
 }

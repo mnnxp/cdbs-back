@@ -44,6 +44,6 @@ impl LicenseMutation {
         // todo!(check owned company)
         crate::models::user::check_authorized(cxt)?;
 
-        Ok(create_license(data, conn)?)
+        create_license(data, conn)
     }
 }

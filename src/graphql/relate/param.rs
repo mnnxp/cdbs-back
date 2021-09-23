@@ -43,6 +43,6 @@ impl ParamMutation {
 
         crate::models::user::check_authorized(cxt)?;
 
-        Ok(create_param(data, conn)?)
+        create_param(data, conn)
     }
 }

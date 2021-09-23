@@ -19,6 +19,6 @@ impl StandardMutation {
 
         let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
 
-        Ok(create_standard(logged_user_uuid, data, conn)?)
+        create_standard(logged_user_uuid, data, conn)
     }
 }

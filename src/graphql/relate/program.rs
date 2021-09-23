@@ -43,6 +43,6 @@ impl ProgramMutation {
 
         user::check_authorized(cxt)?;
 
-        Ok(create_program(data, conn)?)
+        create_program(data, conn)
     }
 }

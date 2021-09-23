@@ -22,7 +22,7 @@ impl CompanyMutation {
 
         let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
 
-        Ok(create_company(logged_user_uuid, data, conn)?)
+        create_company(logged_user_uuid, data, conn)
     }
 
     async fn upload_company_certificate(
@@ -36,11 +36,11 @@ impl CompanyMutation {
 
         let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
 
-        Ok(add_certificate(
+        add_certificate(
             &logged_user_uuid,
             &cert_data,
             conn
-        )?)
+        )
     }
 
     async fn register_company_represent(
@@ -64,7 +64,7 @@ impl CompanyMutation {
 
         crate::models::company::util::check_is_supplier(&target_company_uuid, conn)?;
 
-        Ok(create_company_represent(data.into(), conn)?)
+        create_company_represent(data.into(), conn)
     }
 
     async fn delete_company_represent(
@@ -88,10 +88,10 @@ impl CompanyMutation {
             conn,
         )?;
 
-        Ok(delete_company_represent(
+        delete_company_represent(
             target_company_uuid,
             target_company_represent_uuid,
             conn,
-        )?)
+        )
     }
 }

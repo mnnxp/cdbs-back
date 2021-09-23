@@ -21,7 +21,7 @@ impl UserMutation {
         use crate::models::user::service::register::create_user;
         let conn: &PooledConnection = &get_conn(cxt)?;
 
-        Ok(create_user(data, conn)?)
+        create_user(data, conn)
     }
 
     async fn upload_favicon(
@@ -34,7 +34,7 @@ impl UserMutation {
 
         let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
 
-        Ok(update_favicon(&logged_user_uuid, &filename, conn)?)
+        update_favicon(&logged_user_uuid, &filename, conn)
     }
 
     async fn upload_user_certificate(
@@ -48,11 +48,11 @@ impl UserMutation {
 
         let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
 
-        Ok(add_certificate(
+        add_certificate(
             &logged_user_uuid,
             &cert_data,
             conn
-        )?)
+        )
     }
 
     async fn add_company_fav(
@@ -70,10 +70,10 @@ impl UserMutation {
             user_uuid: logged_user_uuid
         };
 
-        Ok(add_company_fav(
+        add_company_fav(
             data,
             conn
-        )?)
+        )
     }
 
     async fn delete_company_fav(
@@ -91,10 +91,10 @@ impl UserMutation {
             user_uuid: logged_user_uuid
         };
 
-        Ok(delete_company_fav(
+        delete_company_fav(
             data,
             conn
-        )?)
+        )
     }
 
     async fn add_component_fav(
@@ -112,10 +112,10 @@ impl UserMutation {
             user_uuid: logged_user_uuid
         };
 
-        Ok(add_component_fav(
+        add_component_fav(
             data,
             conn
-        )?)
+        )
     }
 
     async fn delete_component_fav(
@@ -133,10 +133,10 @@ impl UserMutation {
             user_uuid: logged_user_uuid
         };
 
-        Ok(delete_component_fav(
+        delete_component_fav(
             data,
             conn
-        )?)
+        )
     }
 
     async fn add_standard_fav(
@@ -154,10 +154,10 @@ impl UserMutation {
             user_uuid: logged_user_uuid
         };
 
-        Ok(add_standard_fav(
+        add_standard_fav(
             data,
             conn
-        )?)
+        )
     }
 
     async fn delete_standard_fav(
@@ -175,10 +175,10 @@ impl UserMutation {
             user_uuid: logged_user_uuid
         };
 
-        Ok(delete_standard_fav(
+        delete_standard_fav(
             data,
             conn
-        )?)
+        )
     }
 
     async fn add_user_fav(
@@ -196,10 +196,10 @@ impl UserMutation {
             user_follower_uuid: logged_user_uuid
         };
 
-        Ok(add_user_fav(
+        add_user_fav(
             data,
             conn
-        )?)
+        )
     }
 
     async fn delete_user_fav(
@@ -217,10 +217,10 @@ impl UserMutation {
             user_follower_uuid: logged_user_uuid
         };
 
-        Ok(delete_user_fav(
+        delete_user_fav(
             data,
             conn
-        )?)
+        )
     }
 
     async fn register_notification(
@@ -233,7 +233,7 @@ impl UserMutation {
 
         let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
 
-        Ok(create_notification(data, logged_user_uuid, conn)?)
+        create_notification(data, logged_user_uuid, conn)
     }
 
     async fn delete_notification(
@@ -246,10 +246,10 @@ impl UserMutation {
 
         let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
 
-        Ok(delete_notification(
+        delete_notification(
             logged_user_uuid,
             notification_id,
             conn,
-        )?)
+        )
     }
 }

@@ -43,6 +43,6 @@ impl RegionMutation {
 
         user::check_authorized(cxt)?;
 
-        Ok(create_region(data, conn)?)
+        create_region(data, conn)
     }
 }

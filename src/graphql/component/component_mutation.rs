@@ -49,7 +49,7 @@ impl ComponentMutation {
         // checking authorization and getting user uuid
         let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
 
-        Ok(create_component(logged_user_uuid, data, conn)?)
+        create_component(logged_user_uuid, data, conn)
     }
 
     async fn register_param_component(
@@ -62,7 +62,7 @@ impl ComponentMutation {
 
         crate::models::user::check_authorized(cxt)?;
 
-        Ok(create_param_component(data, conn)?)
+        create_param_component(data, conn)
     }
 
     async fn add_component_license(
@@ -75,7 +75,7 @@ impl ComponentMutation {
 
         crate::models::user::check_authorized(cxt)?;
 
-        Ok(add_component_license(data, conn)?)
+        add_component_license(data, conn)
     }
 
     async fn delete_component_license(
@@ -88,7 +88,7 @@ impl ComponentMutation {
 
         crate::models::user::check_authorized(cxt)?;
 
-        Ok(del_component_license(data, conn)?)
+        del_component_license(data, conn)
     }
 
     async fn add_component_specs(
@@ -101,7 +101,7 @@ impl ComponentMutation {
 
         crate::models::user::check_authorized(cxt)?;
 
-        Ok(add_component_specs(data, conn)?)
+        add_component_specs(data, conn)
     }
 
     async fn delete_component_specs(
@@ -114,7 +114,7 @@ impl ComponentMutation {
 
         crate::models::user::check_authorized(cxt)?;
 
-        Ok(del_component_specs(data, conn)?)
+        del_component_specs(data, conn)
     }
 
     async fn add_component_keywords(
@@ -127,7 +127,7 @@ impl ComponentMutation {
 
         crate::models::user::check_authorized(cxt)?;
 
-        Ok(add_component_keywords(data, conn)?)
+        add_component_keywords(data, conn)
     }
 
     async fn delete_component_keywords(
@@ -140,7 +140,7 @@ impl ComponentMutation {
 
         crate::models::user::check_authorized(cxt)?;
 
-        Ok(del_component_keywords(data, conn)?)
+        del_component_keywords(data, conn)
     }
 
     async fn upload_component_files(
@@ -172,11 +172,11 @@ impl ComponentMutation {
 
         crate::models::user::get_logged_user_uuid(cxt, true)?;
 
-        Ok(delete_component_file(
+        delete_component_file(
             // &logged_user_uuid,
             &data,
             conn
-        )?)
+        )
     }
 
     async fn add_supplier_component(
@@ -189,7 +189,7 @@ impl ComponentMutation {
 
         crate::models::user::check_authorized(cxt)?;
 
-        Ok(add_component_supplier(data, conn)?)
+        add_component_supplier(data, conn)
     }
 
     async fn register_component_modification(
@@ -202,7 +202,7 @@ impl ComponentMutation {
 
         let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
 
-        Ok(create_component_modification(data, logged_user_uuid, conn)?)
+        create_component_modification(data, logged_user_uuid, conn)
     }
 
     async fn register_param_modification(
@@ -215,7 +215,7 @@ impl ComponentMutation {
 
         crate::models::user::check_authorized(cxt)?;
 
-        Ok(create_param_modification(data, conn)?)
+        create_param_modification(data, conn)
     }
 
     async fn upload_modification_files(
@@ -264,7 +264,7 @@ impl ComponentMutation {
 
         crate::models::user::check_authorized(cxt)?;
 
-        Ok(create_modification_fileset(data, conn)?)
+        create_modification_fileset(data, conn)
     }
 
     async fn add_files_to_fileset(
@@ -294,6 +294,6 @@ impl ComponentMutation {
 
         crate::models::user::check_authorized(cxt)?;
 
-        Ok(add_component_favorite(data, conn)?)
+        add_component_favorite(data, conn)
     }
 }

@@ -43,6 +43,6 @@ impl KeywordMutation {
 
         crate::models::user::check_authorized(cxt)?;
 
-        Ok(create_keyword(data, conn)?)
+        create_keyword(data, conn)
     }
 }
