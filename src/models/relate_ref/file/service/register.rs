@@ -15,9 +15,9 @@ use crate::models::component::component_modification::relate::file::model::{
     InsertableFileModification,
     FileModification,
 };
-use crate::models::component::component_modification::relate::file_of_modification_set::model::{
-    ModificationFileOfFileset,
-    InsertableModificationFileOfFileset,
+use crate::models::component::component_modification::relate::modification_file_from_fileset::model::{
+    ModificationFileFromFileset,
+    InsertableModificationFileFromFileset,
 };
 // use crate::models::standard::relate::file::model:{
 //     InsertableFileStandard,
@@ -103,14 +103,14 @@ pub(crate) fn write_addiction_data(
 
             Ok(true)
         },
-        ListObject::ComponentModificationSet(fileset_uuid) => {   // <- add addiction data in file_of_modification_set
-            use crate::schema::file_of_modification_set::dsl::file_of_modification_set;
+        ListObject::ComponentModificationSet(fileset_uuid) => {   // <- add addiction data in modification_file_from_fileset
+            use crate::schema::modification_file_from_fileset::dsl::modification_file_from_fileset;
 
-            let modification =  InsertableModificationFileOfFileset {
+            let modification =  InsertableModificationFileFromFileset {
                 fileset_uuid,
                 file_uuid,
             };
-            let inserted_file_to_set: ModificationFileOfFileset = diesel::insert_into(file_of_modification_set)
+            let inserted_file_to_set: ModificationFileFromFileset = diesel::insert_into(modification_file_from_fileset)
                 .values(&modification)
                 .get_result(conn)?;
 
