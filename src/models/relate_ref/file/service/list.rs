@@ -28,11 +28,11 @@ pub(crate) fn get_url_file_by_uuid(
 
 /// Gets presigned urls for target files by uuids
 pub(crate) fn get_urls_files_by_uuid(
-    target_files_uuids: &[Uuid],
+    target_file_uuids: &[Uuid],
     conn: &PgConnection,
 ) -> ServiceResult<Vec<DownloadFile>> {
     // return error if not found files
-    if target_files_uuids.is_empty() {
+    if target_file_uuids.is_empty() {
         return Err(ServiceError::BadRequest("Not found files".to_string()))
     }
 
@@ -40,7 +40,7 @@ pub(crate) fn get_urls_files_by_uuid(
 
     // get files data by uuids, return error if have fail
     let show_files = match SlimFile::get_file_by_vec_uuid(
-        target_files_uuids,
+        target_file_uuids,
         conn,
     ) {
         Ok(data) => data,

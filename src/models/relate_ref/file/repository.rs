@@ -24,7 +24,7 @@ impl ShowFile {
                 file_ref::content_type,
                 file_ref::id_ext,
                 file_ref::filesize,
-                file_ref::path_file,
+                // file_ref::path_file,
                 file_ref::created_at,
                 file_ref::updated_at,
             ))
@@ -45,7 +45,7 @@ impl ShowFile {
                 file_ref::content_type,
                 file_ref::id_ext,
                 file_ref::filesize,
-                file_ref::path_file,
+                // file_ref::path_file,
                 file_ref::created_at,
                 file_ref::updated_at,
             ))

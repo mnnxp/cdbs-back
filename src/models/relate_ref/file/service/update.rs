@@ -12,14 +12,14 @@ use uuid::Uuid;
 /// return number of column changes in database
 pub(crate) async fn confirm_upload(
     target_user_uuid: &Uuid,
-    files_uuids: &[Uuid],
+    file_uuids: &[Uuid],
     pool: PgPool,
 ) -> ServiceResult<i32> {
     let conn = pool.get().unwrap();
 
     // getting SlimFile data for get files paths
     let show_file = SlimFile::get_file_by_vec_uuid(
-        files_uuids,
+        file_uuids,
         &conn,
     ).unwrap();
 

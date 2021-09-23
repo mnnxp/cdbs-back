@@ -4,28 +4,46 @@ use async_graphql::*;
 use chrono::*;
 use uuid::Uuid;
 
+// /// First uuid: object_uuid, second uuid: addiction_uuid
+// #[derive(Deserialize, Clone, Debug)]
+// pub struct DoubleAddiction(Uuid,Uuid);
+//
+// impl DoubleAddiction {
+//     /// Clone object uuid of DoubleAddiction
+//     pub fn get_object_uuid(&self) -> Uuid {
+//         self.0
+//     }
+//
+//     /// Clone addiction uuid of DoubleAddiction
+//     pub fn get_addiction_uuid(&self) -> Uuid {
+//         self.1
+//     }
+// }
+
 // list for insert data in related tables
 #[derive(Deserialize, Clone, Debug)]
 pub enum ListObject {
     User(Uuid),
-    UserCertificate(Uuid),
+    UserCertificate(Uuid), // <-- addiction_uuid auth user
     Company(Uuid),
     CompanyCertificate(Uuid),
     Component(Uuid),
-    Modification(Uuid),
+    ComponentModification(Uuid),
+    ComponentModificationSet(Uuid),
     Standard(Uuid),
 }
 
 impl ListObject {
     /// Clone Uuid from enum
     pub fn get_uuid(&self) -> Uuid {
-        match &self {
+        match self {
             ListObject::User(uuid_object) => *uuid_object,
             ListObject::UserCertificate(uuid_object) => *uuid_object,
             ListObject::Company(uuid_object) => *uuid_object,
             ListObject::CompanyCertificate(uuid_object) => *uuid_object,
             ListObject::Component(uuid_object) => *uuid_object,
-            ListObject::Modification(uuid_object) => *uuid_object,
+            ListObject::ComponentModification(uuid_object) => *uuid_object,
+            ListObject::ComponentModificationSet(uuid_object) => *uuid_object,
             ListObject::Standard(uuid_object) => *uuid_object,
         }
     }
@@ -57,7 +75,7 @@ pub struct ShowFile {
     pub content_type: String,
     pub id_ext: i32,
     pub filesize: i64,
-    pub path_file: String,
+    // pub path_file: String,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
 }
@@ -85,9 +103,9 @@ impl ShowFile {
     async fn filesize(&self) -> &i64 {
         &self.filesize
     }
-    async fn path_file(&self) -> &String {
-        &self.path_file
-    }
+    // async fn path_file(&self) -> &String {
+    //     &self.path_file
+    // }
     async fn created_at(&self) -> &NaiveDateTime {
         &self.created_at
     }

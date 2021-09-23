@@ -12,13 +12,13 @@ pub(crate) fn get_component_files(
     target_component_uuid: &Uuid,
     conn: &PooledConnection,
 ) -> ServiceResult<Vec<DownloadFile>> {
-    let target_files_uuids: Vec<Uuid> = file_to_component::file_to_component
+    let target_file_uuids: Vec<Uuid> = file_to_component::file_to_component
         .filter(file_to_component::component_uuid.eq(target_component_uuid))
         .select(file_to_component::file_uuid)
         .load::<Uuid>(conn)?;
 
     file::service::list::get_urls_files_by_uuid(
-        &target_files_uuids,
+        &target_file_uuids,
         conn
     )
 }

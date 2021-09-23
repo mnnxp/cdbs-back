@@ -9,13 +9,13 @@ use uuid::Uuid;
 
 /// Delete files records in database by uuid
 pub(crate) fn delete_row_by_uuid(
-    delete_files_uuids: &Uuid,
+    delete_file_uuids: &Uuid,
     conn: &PgConnection
 ) -> i32 {
     use crate::schema::file_ref::dsl::*;
 
     diesel::delete(
-        file_ref.filter(uuid.eq(delete_files_uuids))
+        file_ref.filter(uuid.eq(delete_file_uuids))
     ).execute(conn).unwrap_or_default() as i32
 }
 

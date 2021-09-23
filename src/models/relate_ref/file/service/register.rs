@@ -15,6 +15,10 @@ use crate::models::component::component_modification::relate::file::model::{
     InsertableFileModification,
     FileModification,
 };
+use crate::models::component::component_modification::relate::file_of_modification_set::model::{
+    ModificationFileOfFileset,
+    InsertableModificationFileOfFileset,
+};
 // use crate::models::standard::relate::file::model:{
 //     InsertableFileStandard,
 //     FileStandard,
@@ -37,7 +41,10 @@ pub(crate) fn register(
         },
     };
     // register data in addiction table (depends on the request)
-    write_addiction_data(object, value_slim_file_data.uuid, conn)?;
+    if let Err(err) = write_addiction_data(object, value_slim_file_data.uuid, conn) {
+        debug!("Fail write addiction data: {:#?}", err);
+        return Err(ServiceError::BadRequest("Fail write addiction data".to_string()))
+    }
 
     Ok(value_slim_file_data)
 }
@@ -81,7 +88,7 @@ pub(crate) fn write_addiction_data(
 
             Ok(true)
         },
-        ListObject::Modification(modification_uuid) => {   // <- add addiction data in file_to_modification
+        ListObject::ComponentModification(modification_uuid) => {   // <- add addiction data in file_to_modification
             use crate::schema::file_to_modification::dsl::file_to_modification;
 
             let modification =  InsertableFileModification {
@@ -96,6 +103,21 @@ pub(crate) fn write_addiction_data(
 
             Ok(true)
         },
+        ListObject::ComponentModificationSet(fileset_uuid) => {   // <- add addiction data in file_of_modification_set
+            use crate::schema::file_of_modification_set::dsl::file_of_modification_set;
+
+            let modification =  InsertableModificationFileOfFileset {
+                fileset_uuid,
+                file_uuid,
+            };
+            let inserted_file_to_set: ModificationFileOfFileset = diesel::insert_into(file_of_modification_set)
+                .values(&modification)
+                .get_result(conn)?;
+
+            debug!("Select modification table, addiction data: {:?} ", &inserted_file_to_set);
+
+            Ok(true)
+        }
         // ListObject::Standard(standard_uuid) => {   // <- add addiction data in file_to_standard
         //     use crate::schema::file_to_standard::dsl::file_to_standard;
         //
@@ -111,6 +133,6 @@ pub(crate) fn write_addiction_data(
         //
         //     Ok(true)
         // },
-        _ => ServiceResult::Err(ServiceError::BadRequest("Error select addiction_table".to_string()))?
+        _ => ServiceResult::Err(ServiceError::BadRequest("Error select addiction table".to_string()))?
     }
 }
