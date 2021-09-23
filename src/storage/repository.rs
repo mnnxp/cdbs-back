@@ -18,7 +18,7 @@ impl StorageAccess {
 
         match access_data {
             Ok(data) => {
-                debug!("Access data: {:#?}", &data);
+                // debug!("Access data: {:#?}", &data);
                 Ok(data)
             },
             Err(e) => {

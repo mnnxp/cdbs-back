@@ -26,14 +26,14 @@ impl Aws {
             None
         );
 
-        debug!("Credentials: {:#?}", credentials);
+        // debug!("Credentials: {:#?}", credentials);
 
         let region = Region::Custom {
             name: region.to_string(),
             endpoint: endpoint.to_string(),
         };
 
-        debug!("Region: {:#?}", region);
+        // debug!("Region: {:#?}", region);
 
         Aws{
             credentials,
@@ -64,7 +64,7 @@ impl Aws {
             ..Default::default()
         };
 
-        debug!("GetObjectRequest: {:#?}", req);
+        // debug!("GetObjectRequest: {:#?}", req);
 
         Ok(req.get_presigned_url(
             &self.region,
@@ -90,7 +90,7 @@ impl Aws {
             ..Default::default()
         };
 
-        debug!("UploadPartRequest: {:#?}", req);
+        // debug!("UploadPartRequest: {:#?}", req);
 
         Ok(req.get_presigned_url(
             &self.region,
