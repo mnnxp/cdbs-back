@@ -1,22 +1,20 @@
-use crate::database::{get_conn, PooledConnection};
 use crate::errors::ServiceResult;
 use crate::models::component::model::{ShowComponentShort, ComponentAndRelatedData};
-use async_graphql::Context;
+use diesel::PgConnection;
 use uuid::Uuid;
 
 pub(crate) fn find_components(
-    cxt: &Context<'_>,
     target_components_uuids: &[Uuid],
     target_user_uuid: &Uuid,
+    set_lang_id: &i32,
+    conn: &PgConnection,
 ) -> ServiceResult<Vec<ShowComponentShort>> {
-    let conn: &PooledConnection = &get_conn(cxt)?;
 
-    let set_lang_id = crate::models::user::get_set_language(cxt);
 
     let result: Vec<ShowComponentShort> = ShowComponentShort::get_list_by_uuids(
         target_components_uuids,
         target_user_uuid,
-        &set_lang_id,
+        set_lang_id,
         conn
     ).expect("Error loading list components and collect short data");
 
@@ -26,19 +24,18 @@ pub(crate) fn find_components(
 }
 
 pub(crate) fn find_component_uuid(
-    cxt: &Context<'_>,
     target_component_uuid: &Uuid,
     target_user_uuid: &Uuid,
+    set_lang_id: &i32,
+    conn: &PgConnection,
 ) -> ServiceResult<ComponentAndRelatedData> {
-    let conn: &PooledConnection = &get_conn(cxt)?;
 
-    let set_lang_id = crate::models::user::get_set_language(cxt);
 
     // collect data for component
     let result: ComponentAndRelatedData = ComponentAndRelatedData::collect_related_data(
         target_component_uuid,
         target_user_uuid,
-        &set_lang_id,
+        set_lang_id,
         conn
     ).expect("Error loading component and collect related data");
 

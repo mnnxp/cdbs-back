@@ -39,6 +39,7 @@ pub(crate) fn verify(user: &User, password: &str) -> bool {
 /// checking user authorization
 pub(crate) fn check_authorized(cxt: &Context<'_>) -> Result<bool, ServiceError> {
     let conn: &PooledConnection = &get_conn(cxt)?;
+
     let token = user::token::token_from_cxt(cxt)?;
 
     match user::token::check_token(token.as_str(), conn)? {
@@ -53,8 +54,9 @@ pub(crate) fn get_logged_user_uuid(
     cxt: &Context<'_>,
     need_check: bool
 ) -> Result<Uuid, ServiceError> {
-    let conn: &PooledConnection = &get_conn(cxt)?;
     let target_token = user::token::token_from_cxt(cxt)?;
+
+    let conn: &PooledConnection = &get_conn(cxt)?;
 
     match need_check {
         false => user::token::whose_token(target_token.as_str(), conn),

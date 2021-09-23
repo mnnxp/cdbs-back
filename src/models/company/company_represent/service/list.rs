@@ -1,24 +1,19 @@
-use crate::database::{get_conn, PooledConnection};
-use crate::errors::{
-    // ServiceError,
-    ServiceResult,
-};
-use async_graphql::Context;
+use crate::errors::ServiceResult;
 use crate::models::company::company_represent::model::CompanyRepresentAndRelatedData;
+use diesel::PgConnection;
 use uuid::Uuid;
 
 /// Search company represents for company by company uuid
 pub(crate) fn get_by_company_uuid(
-    cxt: &Context<'_>,
     target_company_uuid: &Uuid,
+    set_lang_id: &i32,
+    conn: &PgConnection,
 ) -> ServiceResult<Vec<CompanyRepresentAndRelatedData>> {
-    let conn: &PooledConnection = &get_conn(cxt)?;
 
-    let set_lang_id = crate::models::user::get_set_language(cxt);
 
     let result: Vec<CompanyRepresentAndRelatedData> = CompanyRepresentAndRelatedData::get_list_represents_by_company_uuid(
         target_company_uuid,
-        &set_lang_id,
+        set_lang_id,
         conn
     ).expect("Error loading list companies and collect short data");
 
@@ -29,17 +24,16 @@ pub(crate) fn get_by_company_uuid(
 
 /// Search company represents by represent uuid
 pub(crate) fn get_represent_by_uuids(
-    cxt: &Context<'_>,
     target_represents_uuids: &[Uuid],
+    set_lang_id: &i32,
+    conn: &PgConnection,
 ) -> ServiceResult<Vec<CompanyRepresentAndRelatedData>> {
-    let conn: &PooledConnection = &get_conn(cxt)?;
 
-    let set_lang_id = crate::models::user::get_set_language(cxt);
 
     // collect data for represent
     let result: Vec<CompanyRepresentAndRelatedData> = CompanyRepresentAndRelatedData::get_list_represents_by_uuids(
         target_represents_uuids,
-        &set_lang_id,
+        set_lang_id,
         conn
     ).expect("Error loading company and collect related data");
 

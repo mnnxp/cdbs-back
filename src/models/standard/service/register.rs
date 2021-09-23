@@ -19,10 +19,8 @@ pub(crate) fn create_standard(
     data: IptStandardData,
     conn: &PgConnection
 ) -> ServiceResult<SlimStandard> {
-    let target_company_uuid = Uuid::parse_str(&data.company_uuid.0)?;
-
-    let parent_standard_uuid = match &data.parent_standard_uuid {
-        Some(parent) => Uuid::parse_str(&parent.0)?,
+    let parent_standard_uuid = match data.parent_standard_uuid {
+        Some(parent) => parent,
         None => Uuid::parse_str("303ec2aa-2066-42e3-93fb-de4fb9344bcb")?, // <-- todo!(get uuid root standard)
     };
 
@@ -30,13 +28,13 @@ pub(crate) fn create_standard(
 
     crate::models::company::util::check_company_access(
         &logged_user_uuid,
-        &target_company_uuid,
+        &data.company_uuid,
         3,
         conn,
     )?;
 
     crate::models::company::util::check_is_supplier(
-        &target_company_uuid,
+        &data.company_uuid,
         conn
     )?;
 
@@ -50,7 +48,7 @@ pub(crate) fn create_standard(
         publication_at: data.publication_at,
         image_file_uuid,
         user_uuid: logged_user_uuid,
-        company_uuid: target_company_uuid,
+        company_uuid: data.company_uuid,
         type_access_id: data.type_access_id,
         standard_status_id: data.standard_status_id,
         region_id: data.region_id,

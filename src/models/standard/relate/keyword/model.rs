@@ -44,7 +44,7 @@ impl From<(KeywordStandard, Keyword)> for StandardKeywordRelatedData {
 
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub struct IptKeywordStandardData {
-    pub standard_uuid: ID,
+    pub standard_uuid: Uuid,
     pub keyword_id: i32,
 }
 

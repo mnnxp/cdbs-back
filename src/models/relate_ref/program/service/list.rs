@@ -25,6 +25,7 @@ fn find_all_program(
     offset: i32,
 ) -> ServiceResult<Vec<Program>> {
     use crate::schema::program_ref::dsl::*;
+
     let conn: &PooledConnection = &get_conn(cxt)?;
 
     Ok(program_ref
@@ -40,6 +41,7 @@ fn find_program_id(
     offset: i32,
 ) -> ServiceResult<Vec<Program>> {
     use crate::schema::program_ref::dsl::*;
+
     let conn: &PooledConnection = &get_conn(cxt)?;
 
     Ok(program_ref

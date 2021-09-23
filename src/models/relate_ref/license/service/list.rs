@@ -28,6 +28,7 @@ fn find_all_license(
     offset: i32,
 ) -> ServiceResult<Vec<License>> {
     use crate::schema::license_ref::dsl::*;
+
     let conn: &PooledConnection = &get_conn(cxt)?;
 
     Ok(license_ref
@@ -43,6 +44,7 @@ fn find_license_id(
     offset: i32,
 ) -> ServiceResult<Vec<License>> {
     use crate::schema::license_ref::dsl::*;
+
     let conn: &PooledConnection = &get_conn(cxt)?;
 
     Ok(license_ref

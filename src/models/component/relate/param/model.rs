@@ -50,7 +50,7 @@ impl From<(ParamComponent, ParamTranslateList)> for ComponentParamWithTranslatio
 
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub struct IptParamComponentData {
-    pub component_uuid: ID,
+    pub component_uuid: Uuid,
     pub param_id: i32,
     pub value: String,
 }

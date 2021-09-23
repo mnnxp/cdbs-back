@@ -1,8 +1,8 @@
-use async_graphql::{self, Context, Object};
-
 use crate::database::{get_conn, PooledConnection};
 use crate::errors::ServiceResult;
 use crate::models::standard::model::{IptStandardData, SlimStandard};
+
+use async_graphql::{self, Context, Object};
 
 #[derive(Default)]
 pub struct StandardMutation;
@@ -15,9 +15,10 @@ impl StandardMutation {
         data: IptStandardData,
     ) -> ServiceResult<SlimStandard> {
         use crate::models::standard::service::register::create_standard;
-        let conn: &PooledConnection = &get_conn(cxt)?;
 
         let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+
+        let conn: &PooledConnection = &get_conn(cxt)?;
 
         create_standard(logged_user_uuid, data, conn)
     }

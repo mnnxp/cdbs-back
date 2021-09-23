@@ -12,7 +12,7 @@ pub(crate) fn check_standard_access(
     target_standard_uuid: &Uuid,
     required_access: i32,
 ) -> Result<bool, ServiceError> {
-    let conn: &PooledConnection = &get_conn(cxt)?;
+
 
     use crate::schema::standard_ref::dsl::*;
 
@@ -213,7 +213,7 @@ pub(crate) fn get_access_set(
     target_standard_uuid: &Uuid,
 ) -> Result<i32, ServiceError> {
     use crate::schema::standard_ref::dsl::*;
-    let conn: &PooledConnection = &get_conn(cxt)?;
+
 
     // check default access for standard
     Ok(standard_ref

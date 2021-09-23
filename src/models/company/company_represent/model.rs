@@ -70,7 +70,7 @@ pub struct InsertableCompanyRepresent {
 
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub struct IptCompanyRepresentData {
-    pub company_uuid: ID,
+    pub company_uuid: Uuid,
     pub region_id: i32,
     pub representation_type_id: i32,
     pub name: String,

@@ -50,8 +50,8 @@ impl From<(SupplierComponent, SlimCompany)> for ComponentSupplierRelatedData {
 
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub struct IptSupplierComponentData {
-    pub component_uuid: ID,
-    pub company_uuid: ID,
+    pub component_uuid: Uuid,
+    pub company_uuid: Uuid,
     pub description: String,
 }
 

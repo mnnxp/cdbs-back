@@ -680,7 +680,7 @@ describe('company', () => {
         query: `mutation deleteCompanyRepresentQuery {
           deleteCompanyRepresent(
             companyUuid: "${companyUuidSupplier}",
-            companyUuidRepresent: "${uuidRepresentFirst}"
+            companyRepresentUuid: "${uuidRepresentFirst}"
           ){
               ${companyRepresentQuery}
           }
@@ -707,7 +707,7 @@ describe('company', () => {
         query: `mutation deleteCompanyRepresentQuery {
           deleteCompanyRepresent(
             companyUuid: "${uuidFake}",
-            companyUuidRepresent: "${uuidRepresentFirst}"
+            companyRepresentUuid: "${uuidRepresentFirst}"
           ){
               ${companyRepresentQuery}
           }
@@ -734,7 +734,7 @@ describe('company', () => {
         query: `mutation deleteCompanyRepresentQuery {
           deleteCompanyRepresent(
             companyUuid: "${companyUuidSupplier}",
-            companyUuidRepresent: "${uuidFake}"
+            companyRepresentUuid: "${uuidFake}"
           ){
               ${companyRepresentQuery}
           }
@@ -783,7 +783,7 @@ describe('company', () => {
         query: `mutation deleteCompanyRepresentQuery {
           deleteCompanyRepresent(
             companyUuid: "${companyUuidSupplier}",
-            companyUuidRepresent: "${uuidRepresentFirst}"
+            companyRepresentUuid: "${uuidRepresentFirst}"
           ){
               ${companyRepresentQuery}
           }

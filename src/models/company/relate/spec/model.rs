@@ -44,7 +44,7 @@ impl From<(SpecCompany, SpecTranslateList)> for CompanySpecWithTranslation {
 
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub struct IptSpecCompanyData {
-    pub company_uuid: ID,
+    pub company_uuid: Uuid,
     pub spec_id: i32,
 }
 

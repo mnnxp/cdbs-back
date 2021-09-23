@@ -25,6 +25,7 @@ fn find_all_keywords(
     offset: i32,
 ) -> ServiceResult<Vec<Keyword>> {
     use crate::schema::keyword_ref::dsl::*;
+
     let conn: &PooledConnection = &get_conn(cxt)?;
 
     Ok(keyword_ref
@@ -40,6 +41,7 @@ fn find_keyword_ids(
     offset: i32,
 ) -> ServiceResult<Vec<Keyword>> {
     use crate::schema::keyword_ref::dsl::*;
+
     let conn: &PooledConnection = &get_conn(cxt)?;
 
     Ok(keyword_ref

@@ -1,13 +1,14 @@
-use async_graphql::{self, Context, Object};
-use uuid::Uuid;
-
 use crate::errors::ServiceResult;
+use crate::database::{get_conn, PooledConnection};
 use crate::jwt::model::{Claims, Token};
 use crate::models::user;
 use crate::models::user::model::{ShowUserShort, SlimUser, UserAndRelatedData};
 use crate::models::user::notification::model::Notification;
 use crate::models::user::notification::service as notification;
 use crate::models::user::service::token::model::UserToken;
+
+use async_graphql::{self, Context, Object};
+use uuid::Uuid;
 
 #[derive(Default)]
 pub struct UserQuery;
@@ -18,31 +19,34 @@ impl UserQuery {
     async fn users(
         &self,
         cxt: &Context<'_>,
-        users_uuids: Vec<String>,
+        users_uuids: Vec<Uuid>,
     ) -> ServiceResult<Vec<ShowUserShort>> {
         // authorization check
         user::get_logged_user_uuid(cxt, true)?;
 
-        let mut target_users_uuids = Vec::new();
-        for x in users_uuids.iter() {
-            target_users_uuids.push(Uuid::parse_str(x).unwrap());
-        }
+        let conn: &PooledConnection = &get_conn(cxt)?;
 
-        user::service::list::find_users_by_uuids(cxt, &target_users_uuids)
+        user::service::list::find_users_by_uuids(
+            &users_uuids,
+            conn,
+        )
     }
 
     async fn user(
         &self,
         cxt: &Context<'_>,
-        user_uuid: String,
+        user_uuid: Uuid,
     ) -> ServiceResult<UserAndRelatedData> {
         // authorization check
         let logged_user_uuid: Uuid = user::get_logged_user_uuid(cxt, true)?;
 
+        let conn: &PooledConnection = &get_conn(cxt)?;
+
         user::service::list::find_user_by_uuid(
-            cxt,
-            &Uuid::parse_str(&user_uuid)?,
             &logged_user_uuid,
+            &user_uuid,
+            &crate::models::user::get_set_language(cxt),
+            conn,
         )
     }
 
@@ -119,7 +123,7 @@ impl UserQuery {
 
         notification::list::get_notifications(
             cxt,
-            &select_ids, 
+            &select_ids,
             &logged_user_uuid,
             limit,
             offset

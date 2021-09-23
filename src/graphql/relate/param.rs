@@ -27,7 +27,15 @@ impl ParamQuery {
         let limit: i32 = limit.unwrap_or(100);
         let offset: i32 = offset.unwrap_or(0);
 
-        param::service::list::get_params(cxt, param_id, limit, offset)
+        let conn: &PooledConnection = &get_conn(cxt)?;
+
+        param::service::list::get_params(
+            param_id,
+            limit,
+            offset,
+            &crate::models::user::get_set_language(cxt),
+            conn,
+        )
     }
 }
 

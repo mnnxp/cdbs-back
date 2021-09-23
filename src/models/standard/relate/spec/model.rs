@@ -44,7 +44,7 @@ impl From<(SpecStandard, SpecTranslateList)> for StandardSpecWithTranslation {
 
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub struct IptSpecStandardData {
-    pub standard_uuid: ID,
+    pub standard_uuid: Uuid,
     pub spec_id: i32,
 }
 

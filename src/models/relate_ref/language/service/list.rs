@@ -28,6 +28,7 @@ fn find_all_languages(
     offset: i32,
 ) -> ServiceResult<Vec<Language>> {
     use crate::schema::language_ref::dsl::*;
+
     let conn: &PooledConnection = &get_conn(cxt)?;
 
     Ok(language_ref
@@ -43,6 +44,7 @@ fn find_lang_iduage(
     offset: i32,
 ) -> ServiceResult<Vec<Language>> {
     use crate::schema::language_ref::dsl::*;
+
     let conn: &PooledConnection = &get_conn(cxt)?;
 
     Ok(language_ref

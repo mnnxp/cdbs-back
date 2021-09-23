@@ -126,8 +126,8 @@ pub struct InsertableComponentModification {
 
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub struct IptComponentModificationData {
-    pub component_uuid: ID,
-    pub parent_modification_uuid: ID,
+    pub component_uuid: Uuid,
+    pub parent_modification_uuid: Uuid,
     pub modification_name: String,
     pub description: String,
     pub actual_status_id: i32,

@@ -1,7 +1,7 @@
 use async_graphql::{self, Context, Object};
 
 use crate::errors::ServiceResult;
-// use crate::database::{get_conn, PooledConnection};
+use crate::database::{get_conn, PooledConnection};
 use crate::models::relate_ref::spec;
 use crate::models::relate_ref::spec::model::SpecTranslateList;
 use crate::models::user;
@@ -27,7 +27,15 @@ impl SpecQuery {
         let limit: i32 = limit.unwrap_or(100);
         let offset: i32 = offset.unwrap_or(0);
 
-        spec::service::list::get_specs(cxt, spec_id, limit, offset)
+        let conn: &PooledConnection = &get_conn(cxt)?;
+
+        spec::service::list::get_specs(
+            spec_id,
+            limit,
+            offset,
+            &crate::models::user::get_set_language(cxt),
+            conn,
+        )
     }
 }
 

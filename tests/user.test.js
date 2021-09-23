@@ -15,7 +15,7 @@ const loginData = [ { "user": {
     }
   }
 ];
-const uuid = "31ecc6f8-0c09-4a59-a2d5-34b5b833e59b";
+const baseUserUuid = "31ecc6f8-0c09-4a59-a2d5-34b5b833e59b";
 const email = "testemail@mail.ru";
 const psw_hash = "test_psw_hash";
 const psw_salt = "test_psw_salt";
@@ -140,7 +140,7 @@ describe('users', () => {
       .post('/graphql')
       .send({
         query: `query ListUsers {
-            user(userUuid: "${userUuidFirst}") {
+            user(userUuid: "${baseUserUuid}") {
               ${userFullDataQuery}
             }
         }`,
@@ -921,7 +921,7 @@ describe('users', () => {
       );
       done();
   });
-  
+
   it('/graphql:Q user - Ok no fav', async (done) => {
     const { body } = await agent
       .post('/graphql')

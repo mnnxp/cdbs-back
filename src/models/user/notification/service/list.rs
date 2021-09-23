@@ -29,6 +29,7 @@ fn get_all(
     use crate::schema::notification_ref::dsl::*;
     use crate::schema::notification_ref::dsl::id as notification_ref_id;
     use crate::schema::notification_to_user::dsl::*;
+
     let conn: &PooledConnection = &get_conn(cxt)?;
 
     Ok(notification_ref
@@ -52,6 +53,7 @@ fn get_by_id(
     use crate::schema::notification_ref::dsl::*;
     use crate::schema::notification_ref::dsl::id as notification_ref_id;
     use crate::schema::notification_to_user::dsl::*;
+
     let conn: &PooledConnection = &get_conn(cxt)?;
 
     Ok(notification_ref

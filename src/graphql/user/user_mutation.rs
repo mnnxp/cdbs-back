@@ -30,9 +30,10 @@ impl UserMutation {
         filename: String,
     ) -> ServiceResult<String> {
         use crate::models::user::service::upload::favicon::update_favicon;
-        let conn: &PooledConnection = &get_conn(cxt)?;
 
         let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+
+        let conn: &PooledConnection = &get_conn(cxt)?;
 
         update_favicon(&logged_user_uuid, &filename, conn)
     }
@@ -44,9 +45,9 @@ impl UserMutation {
     ) -> ServiceResult<String> {
         use crate::models::user::certificate::service::add::add_certificate;
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
-
         let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+
+        let conn: &PooledConnection = &get_conn(cxt)?;
 
         add_certificate(
             &logged_user_uuid,
@@ -58,168 +59,160 @@ impl UserMutation {
     async fn add_company_fav(
         &self,
         cxt: &Context<'_>,
-        company_uuid: String,
+        company_uuid: Uuid,
     ) -> ServiceResult<CompanyFav> {
         use crate::models::user::company_fav::service::add::add_company_fav;
-        let conn: &PooledConnection = &get_conn(cxt)?;
 
         let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
 
-        let data = IptCompanyFavData {
-            company_uuid: Uuid::parse_str(&company_uuid)?,
-            user_uuid: logged_user_uuid
-        };
+        let conn: &PooledConnection = &get_conn(cxt)?;
 
         add_company_fav(
-            data,
-            conn
+            IptCompanyFavData {
+                company_uuid,
+                user_uuid: logged_user_uuid
+            },
+            conn,
         )
     }
 
     async fn delete_company_fav(
         &self,
         cxt: &Context<'_>,
-        company_uuid: String,
+        company_uuid: Uuid,
     ) -> ServiceResult<CompanyFav> {
         use crate::models::user::company_fav::service::delete::delete_company_fav;
-        let conn: &PooledConnection = &get_conn(cxt)?;
 
         let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
 
-        let data = IptCompanyFavData {
-            company_uuid: Uuid::parse_str(&company_uuid)?,
-            user_uuid: logged_user_uuid
-        };
+        let conn: &PooledConnection = &get_conn(cxt)?;
 
         delete_company_fav(
-            data,
-            conn
+            IptCompanyFavData {
+                company_uuid,
+                user_uuid: logged_user_uuid
+            },
+            conn,
         )
     }
 
     async fn add_component_fav(
         &self,
         cxt: &Context<'_>,
-        component_uuid: String,
+        component_uuid: Uuid,
     ) -> ServiceResult<ComponentFav> {
         use crate::models::user::component_fav::service::add::add_component_fav;
-        let conn: &PooledConnection = &get_conn(cxt)?;
 
         let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
 
-        let data = IptComponentFavData {
-            component_uuid: Uuid::parse_str(&component_uuid)?,
-            user_uuid: logged_user_uuid
-        };
+        let conn: &PooledConnection = &get_conn(cxt)?;
 
         add_component_fav(
-            data,
-            conn
+            IptComponentFavData {
+                component_uuid,
+                user_uuid: logged_user_uuid
+            },
+            conn,
         )
     }
 
     async fn delete_component_fav(
         &self,
         cxt: &Context<'_>,
-        component_uuid: String,
+        component_uuid: Uuid,
     ) -> ServiceResult<ComponentFav> {
         use crate::models::user::component_fav::service::delete::delete_component_fav;
-        let conn: &PooledConnection = &get_conn(cxt)?;
 
         let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
 
-        let data = IptComponentFavData {
-            component_uuid: Uuid::parse_str(&component_uuid)?,
-            user_uuid: logged_user_uuid
-        };
+        let conn: &PooledConnection = &get_conn(cxt)?;
 
         delete_component_fav(
-            data,
-            conn
+            IptComponentFavData {
+                component_uuid,
+                user_uuid: logged_user_uuid
+            },
+            conn,
         )
     }
 
     async fn add_standard_fav(
         &self,
         cxt: &Context<'_>,
-        standard_uuid: String,
+        standard_uuid: Uuid,
     ) -> ServiceResult<StandardFav> {
         use crate::models::user::standard_fav::service::add::add_standard_fav;
-        let conn: &PooledConnection = &get_conn(cxt)?;
 
         let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
 
-        let data = IptStandardFavData {
-            standard_uuid: Uuid::parse_str(&standard_uuid)?,
-            user_uuid: logged_user_uuid
-        };
+        let conn: &PooledConnection = &get_conn(cxt)?;
 
         add_standard_fav(
-            data,
-            conn
+            IptStandardFavData {
+                standard_uuid,
+                user_uuid: logged_user_uuid
+            },
+            conn,
         )
     }
 
     async fn delete_standard_fav(
         &self,
         cxt: &Context<'_>,
-        standard_uuid: String,
+        standard_uuid: Uuid,
     ) -> ServiceResult<StandardFav> {
         use crate::models::user::standard_fav::service::delete::delete_standard_fav;
-        let conn: &PooledConnection = &get_conn(cxt)?;
 
         let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
 
-        let data = IptStandardFavData {
-            standard_uuid: Uuid::parse_str(&standard_uuid)?,
-            user_uuid: logged_user_uuid
-        };
+        let conn: &PooledConnection = &get_conn(cxt)?;
 
         delete_standard_fav(
-            data,
-            conn
+            IptStandardFavData {
+                standard_uuid,
+                user_uuid: logged_user_uuid
+            },
+            conn,
         )
     }
 
     async fn add_user_fav(
         &self,
         cxt: &Context<'_>,
-        user_uuid: String,
+        user_uuid: Uuid,
     ) -> ServiceResult<UserFav> {
         use crate::models::user::user_fav::service::add::add_user_fav;
-        let conn: &PooledConnection = &get_conn(cxt)?;
 
         let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
 
-        let data = IptUserFavData {
-            user_favorite_uuid: Uuid::parse_str(&user_uuid)?,
-            user_follower_uuid: logged_user_uuid
-        };
+        let conn: &PooledConnection = &get_conn(cxt)?;
 
         add_user_fav(
-            data,
-            conn
+            IptUserFavData {
+                user_favorite_uuid: user_uuid,
+                user_follower_uuid: logged_user_uuid
+            },
+            conn,
         )
     }
 
     async fn delete_user_fav(
         &self,
         cxt: &Context<'_>,
-        user_uuid: String,
+        user_uuid: Uuid,
     ) -> ServiceResult<UserFav> {
         use crate::models::user::user_fav::service::delete::delete_user_fav;
-        let conn: &PooledConnection = &get_conn(cxt)?;
 
         let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
 
-        let data = IptUserFavData {
-            user_favorite_uuid: Uuid::parse_str(&user_uuid)?,
-            user_follower_uuid: logged_user_uuid
-        };
+        let conn: &PooledConnection = &get_conn(cxt)?;
 
         delete_user_fav(
-            data,
-            conn
+            IptUserFavData {
+                user_favorite_uuid: user_uuid,
+                user_follower_uuid: logged_user_uuid
+            },
+            conn,
         )
     }
 
@@ -229,9 +222,10 @@ impl UserMutation {
         data: NotificationData,
     ) -> ServiceResult<SlimNotification> {
         use crate::models::user::notification::service::register::create_notification;
-        let conn: &PooledConnection = &get_conn(cxt)?;
 
         let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+
+        let conn: &PooledConnection = &get_conn(cxt)?;
 
         create_notification(data, logged_user_uuid, conn)
     }
@@ -242,9 +236,10 @@ impl UserMutation {
         notification_id: i32,
     ) -> ServiceResult<Notification> {
         use crate::models::user::notification::service::delete::delete_notification;
-        let conn: &PooledConnection = &get_conn(cxt)?;
 
         let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+
+        let conn: &PooledConnection = &get_conn(cxt)?;
 
         delete_notification(
             logged_user_uuid,

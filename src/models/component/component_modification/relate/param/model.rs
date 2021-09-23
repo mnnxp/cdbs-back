@@ -49,7 +49,7 @@ impl From<(ParamModification, ParamTranslateList)> for ModificationParamWithTran
 
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub struct IptParamModificationData {
-    pub modification_uuid: ID,
+    pub modification_uuid: Uuid,
     pub param_id: i32,
     pub value: String,
 }

@@ -19,47 +19,53 @@ impl ComponentQuery {
     async fn components(
         &self,
         cxt: &Context<'_>,
-        components_uuids: Vec<String>,
+        components_uuids: Vec<Uuid>,
     ) -> ServiceResult<Vec<ShowComponentShort>> {
         // authorization check
         let logged_user_uuid: Uuid = user::get_logged_user_uuid(cxt, true)?;
 
-        let mut target_uuids_components: Vec<Uuid> = Vec::new();
-        for x in components_uuids.iter() {
-            target_uuids_components.push(Uuid::parse_str(x).unwrap());
-        }
+        let conn: &PooledConnection = &get_conn(cxt)?;
 
-        component::service::list::find_components(cxt, &target_uuids_components, &logged_user_uuid)
+        component::service::list::find_components(
+            &components_uuids,
+            &logged_user_uuid,
+            &crate::models::user::get_set_language(cxt),
+            conn,
+        )
     }
 
     async fn component(
         &self,
         cxt: &Context<'_>,
-        component_uuid: String,
+        component_uuid: Uuid,
     ) -> ServiceResult<ComponentAndRelatedData> {
         // authorization check
         let logged_user_uuid: Uuid = user::get_logged_user_uuid(cxt, true)?;
 
+        let conn: &PooledConnection = &get_conn(cxt)?;
+
         component::service::list::find_component_uuid(
-            cxt,
-            &Uuid::parse_str(&component_uuid)?,
+            &component_uuid,
             &logged_user_uuid,
+            &crate::models::user::get_set_language(cxt),
+            conn,
         )
     }
 
     async fn component_files(
         &self,
         cxt: &Context<'_>,
-        component_uuid: String,
+        component_uuid: Uuid,
     ) -> ServiceResult<Vec<DownloadFile>> {
-        let conn: &PooledConnection = &get_conn(cxt)?;
 
         // authorization check
         let logged_user_uuid: Uuid = user::get_logged_user_uuid(cxt, true)?;
 
+        let conn: &PooledConnection = &get_conn(cxt)?;
+
         component::file::service::list::get_component_files(
             &logged_user_uuid,
-            &Uuid::parse_str(&component_uuid)?,
+            &component_uuid,
             conn
         )
     }
@@ -67,18 +73,18 @@ impl ComponentQuery {
     async fn component_modification_files(
         &self,
         cxt: &Context<'_>,
-        modification_uuid: String,
+        modification_uuid: Uuid,
     ) -> ServiceResult<Vec<DownloadFile>> {
         use component_modification::file::service::list::get_component_modification_files;
-
-        let conn: &PooledConnection = &get_conn(cxt)?;
 
         // authorization check
         let logged_user_uuid: Uuid = user::get_logged_user_uuid(cxt, true)?;
 
+        let conn: &PooledConnection = &get_conn(cxt)?;
+
         get_component_modification_files(
             &logged_user_uuid,
-            &Uuid::parse_str(&modification_uuid)?,
+            &modification_uuid,
             conn
         )
     }
@@ -92,8 +98,10 @@ impl ComponentQuery {
         offset: Option<i32>,
     ) -> ServiceResult<Vec<FilesetProgramRelatedData>> {
         use component_modification::fileset_for_program::service::list::get_modification_filesets;
+
         // authorization check
         user::util::check_authorized(cxt)?;
+
         let conn: &PooledConnection = &get_conn(cxt)?;
 
         let limit: i32 = limit.unwrap_or(100);
@@ -117,8 +125,10 @@ impl ComponentQuery {
         offset: Option<i32>,
     ) -> ServiceResult<Vec<ShowFileOfFileset>> {
         use component_modification::modification_file_from_fileset::service::list::get_files_of_fileset;
+
         // authorization check
         user::util::check_authorized(cxt)?;
+
         let conn: &PooledConnection = &get_conn(cxt)?;
 
         let limit: i32 = limit.unwrap_or(100);
