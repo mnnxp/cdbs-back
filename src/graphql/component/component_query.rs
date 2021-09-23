@@ -3,11 +3,12 @@ use uuid::Uuid;
 
 use crate::errors::ServiceResult;
 use crate::database::{get_conn, PooledConnection};
-use crate::models::component::component_modification::file_to_set_modification as component_modification_file_to_set_modification;
-use crate::models::component::component_modification::file_to_set_modification::model::FileToSetModification;
-use crate::models::component::model::{ComponentAndRelatedData, ShowComponentShort};
-use crate::models::component;
 use crate::models::user;
+use crate::models::component;
+use crate::models::component::component_modification;
+use crate::models::component::component_modification::fileset_for_program::model::FilesetProgramRelatedData;
+use crate::models::component::component_modification::modification_file_from_fileset::model::ShowFileOfFileset;
+use crate::models::component::model::{ComponentAndRelatedData, ShowComponentShort};
 use crate::models::relate_ref::file::model::DownloadFile;
 
 #[derive(Default)]
@@ -63,23 +64,72 @@ impl ComponentQuery {
         )
     }
 
-    async fn files_set_modification(
+    async fn component_modification_files(
         &self,
         cxt: &Context<'_>,
-        set_id: Option<i32>,
-        // set_id: Option<i32>,
+        modification_uuid: String,
+    ) -> ServiceResult<Vec<DownloadFile>> {
+        use component_modification::file::service::list::get_component_modification_files;
+
+        let conn: &PooledConnection = &get_conn(cxt)?;
+
+        // authorization check
+        let logged_user_uuid: Uuid = user::get_logged_user_uuid(cxt, true)?;
+
+        get_component_modification_files(
+            &logged_user_uuid,
+            &Uuid::parse_str(&modification_uuid)?,
+            conn
+        )
+    }
+
+    async fn component_modification_filesets(
+        &self,
+        cxt: &Context<'_>,
+        modification_uuid: Uuid,
+        program_id: Option<Vec<i32>>,
         limit: Option<i32>,
         offset: Option<i32>,
-    ) -> ServiceResult<Vec<FileToSetModification>> {
-        use component_modification_file_to_set_modification::service::list::get_files_set_modification;
+    ) -> ServiceResult<Vec<FilesetProgramRelatedData>> {
+        use component_modification::fileset_for_program::service::list::get_modification_filesets;
         // authorization check
         user::util::check_authorized(cxt)?;
+        let conn: &PooledConnection = &get_conn(cxt)?;
 
-        let set_id: i32 = set_id.unwrap_or(0);
-        // let set_id: i32 = set_id.unwrap_or_(0);
         let limit: i32 = limit.unwrap_or(100);
         let offset: i32 = offset.unwrap_or(0);
 
-        get_files_set_modification(cxt, set_id, limit, offset)
+        get_modification_filesets(
+            &modification_uuid,
+            &program_id,
+            &limit,
+            &offset,
+            conn
+        )
+    }
+
+    async fn component_modification_files_of_fileset(
+        &self,
+        cxt: &Context<'_>,
+        fileset_uuid: Uuid,
+        file_uuids: Option<Vec<Uuid>>,
+        limit: Option<i32>,
+        offset: Option<i32>,
+    ) -> ServiceResult<Vec<ShowFileOfFileset>> {
+        use component_modification::modification_file_from_fileset::service::list::get_files_of_fileset;
+        // authorization check
+        user::util::check_authorized(cxt)?;
+        let conn: &PooledConnection = &get_conn(cxt)?;
+
+        let limit: i32 = limit.unwrap_or(100);
+        let offset: i32 = offset.unwrap_or(0);
+
+        get_files_of_fileset(
+            &fileset_uuid,
+            &file_uuids,
+            &limit,
+            &offset,
+            conn
+        )
     }
 }
