@@ -55,10 +55,7 @@ impl ComponentModificationAndRelatedData {
         conn: &PgConnection,
     ) -> ServiceResult<Vec<ComponentModificationAndRelatedData>> {
         use crate::models::component::component_modification::param::model::ModificationParamWithTranslation;
-        use crate::models::component::component_modification::set_of_files_program::model::{
-            SetOfFilesProgram,
-            SetOfFilesProgramRelatedData,
-        };
+        use crate::models::component::component_modification::fileset_for_program::model::FilesetProgramRelatedData;
 
         // get actual status with translation for list component modification
         let component_modification_with_status: Vec<ComponentModificationWithActualStatus> = ComponentModificationWithActualStatus::for_component_modification_list(
@@ -77,17 +74,17 @@ impl ComponentModificationAndRelatedData {
         // debug!("Component modification param_component_modification_with_translate: {:#?}", param_component_modification_with_translate);
 
         // get sets of files for programs for component modification list
-        let set_files_program_with_relate: Vec<Vec<SetOfFilesProgramRelatedData>> = SetOfFilesProgram::for_component_modification_list(
+        let filesets_program_with_relate: Vec<Vec<FilesetProgramRelatedData>> = FilesetProgramRelatedData::for_component_modification_list(
             component_modification,
             conn
-        ).expect("Error load set_files_program_with_relate");
+        ).expect("Error load filesets_program_with_relate");
 
-        // debug!("Component modification set_files_program_component_modification: {:#?}", set_files_program_component_modification);
+        // debug!("Component modification filesets_program_component_modification: {:#?}", filesets_program_component_modification);
 
         let mut component_modification_with_relate: Vec<ComponentModificationAndRelatedData> = Vec::new();
         for w in component_modification_with_status.iter() {
-            let mut vec_values_set: Vec<SetOfFilesProgramRelatedData> = Vec::new();
-            for x in set_files_program_with_relate.iter() {
+            let mut vec_values_set: Vec<FilesetProgramRelatedData> = Vec::new();
+            for x in filesets_program_with_relate.iter() {
                 for y in x.iter() {
                     if w.modification.uuid == y.modification_uuid {
                         vec_values_set.push(y.to_owned())

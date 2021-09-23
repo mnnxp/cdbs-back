@@ -1,4 +1,4 @@
 pub(crate) mod file;
-pub(crate) mod file_to_set_modification;
+pub(crate) mod file_of_modification_set;
+pub(crate) mod fileset_for_program;
 pub(crate) mod param;
-pub(crate) mod set_of_files_program;
