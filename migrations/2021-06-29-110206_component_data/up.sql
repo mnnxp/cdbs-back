@@ -64,11 +64,11 @@ INSERT INTO file_to_component (component_uuid, file_uuid) VALUES
 INSERT INTO file_to_modification (modification_uuid, file_uuid) VALUES
   ('aba22d59-4f6c-44a4-9a37-2d38f0e577a8', 'bc1c2151-86d0-4656-9c9d-d016dd584297');
 
-INSERT INTO set_files_for_program (modification_uuid, program_id) VALUES
-  ('aba22d59-4f6c-44a4-9a37-2d38f0e577a8', 1);
+INSERT INTO fileset_for_program (uuid, modification_uuid, program_id) VALUES
+  ('5de37b5d-75af-4323-b5b4-2cf1e849baa2', 'aba22d59-4f6c-44a4-9a37-2d38f0e577a8', 1);
 
-INSERT INTO file_to_set_modification (set_id, file_uuid) VALUES
-  (1, '3706d1a1-80ae-4367-be39-af7091373811');
+INSERT INTO file_of_modification_set (fileset_uuid, file_uuid) VALUES
+  ('5de37b5d-75af-4323-b5b4-2cf1e849baa2', '3706d1a1-80ae-4367-be39-af7091373811');
 
 INSERT INTO spec_to_component (spec_id, component_uuid) VALUES
   (487, 'a5953fd9-7393-4f1e-a899-06b5e159dbf1');

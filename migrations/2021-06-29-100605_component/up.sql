@@ -113,19 +113,19 @@ CREATE TABLE file_to_modification (
 );
 
 /* набор файлов модификации (файлы под САПР) */
-CREATE TABLE set_files_for_program (
-  id SERIAL UNIQUE, /* идентификатор набора объектов/файлов */
+CREATE TABLE fileset_for_program (
+  uuid UUID, /* идентификатор набора объектов/файлов */
   modification_uuid UUID NOT NULL, /* идентификатор модификации */
   program_id INTEGER NOT NULL, /* САПР (для быстрой загрузки данных) */
   UNIQUE (modification_uuid, program_id), /* один набор файлов модификации для одного САПРа */
-  CONSTRAINT set_files_for_program_pk PRIMARY KEY (id)
+  CONSTRAINT fileset_for_program_pk PRIMARY KEY (uuid)
 );
 
 /* файлы набора модификации (файлы под САПР) */
-CREATE TABLE file_to_set_modification (
-  set_id INTEGER NOT NULL, /* идентификатор набора */
+CREATE TABLE file_of_modification_set (
+  fileset_uuid UUID NOT NULL, /* идентификатор набора */
   file_uuid UUID NOT NULL, /* идентификатор объекта/файла */
-  CONSTRAINT file_to_set_modification_pk PRIMARY KEY (set_id, file_uuid)
+  CONSTRAINT file_of_modification_set_pk PRIMARY KEY (fileset_uuid, file_uuid)
 );
 
 /* каталог компонента */

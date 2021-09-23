@@ -247,6 +247,13 @@ table! {
 }
 
 table! {
+    file_of_modification_set (fileset_uuid, file_uuid) {
+        fileset_uuid -> Uuid,
+        file_uuid -> Uuid,
+    }
+}
+
+table! {
     file_ref (uuid) {
         uuid -> Uuid,
         parent_file_uuid -> Uuid,
@@ -277,16 +284,17 @@ table! {
 }
 
 table! {
-    file_to_set_modification (set_id, file_uuid) {
-        set_id -> Int4,
+    file_to_standard (file_uuid, standard_uuid) {
         file_uuid -> Uuid,
+        standard_uuid -> Uuid,
     }
 }
 
 table! {
-    file_to_standard (file_uuid, standard_uuid) {
-        file_uuid -> Uuid,
-        standard_uuid -> Uuid,
+    fileset_for_program (uuid) {
+        uuid -> Uuid,
+        modification_uuid -> Uuid,
+        program_id -> Int4,
     }
 }
 
@@ -492,14 +500,6 @@ table! {
         role_member_id -> Int4,
         lang_id -> Int4,
         name -> Varchar,
-    }
-}
-
-table! {
-    set_files_for_program (id) {
-        id -> Int4,
-        modification_uuid -> Uuid,
-        program_id -> Int4,
     }
 }
 
@@ -783,15 +783,17 @@ joinable!(discussion_company_ref -> user_ref (author_uuid));
 joinable!(discussion_component_ref -> component_ref (component_uuid));
 joinable!(discussion_component_ref -> user_ref (author_uuid));
 joinable!(extension_ref -> program_ref (program_id));
+joinable!(file_of_modification_set -> file_ref (file_uuid));
+joinable!(file_of_modification_set -> fileset_for_program (fileset_uuid));
 joinable!(file_ref -> extension_ref (id_ext));
 joinable!(file_to_component -> component_ref (component_uuid));
 joinable!(file_to_component -> file_ref (file_uuid));
 joinable!(file_to_modification -> component_modification_list (modification_uuid));
 joinable!(file_to_modification -> file_ref (file_uuid));
-joinable!(file_to_set_modification -> file_ref (file_uuid));
-joinable!(file_to_set_modification -> set_files_for_program (set_id));
 joinable!(file_to_standard -> file_ref (file_uuid));
 joinable!(file_to_standard -> standard_ref (standard_uuid));
+joinable!(fileset_for_program -> component_modification_list (modification_uuid));
+joinable!(fileset_for_program -> program_ref (program_id));
 joinable!(keyword_to_component -> component_ref (component_uuid));
 joinable!(keyword_to_component -> keyword_ref (keyword_id));
 joinable!(keyword_to_standard -> keyword_ref (keyword_id));
@@ -825,8 +827,6 @@ joinable!(role_access -> role_member_ref (role_id));
 joinable!(role_access -> type_access_ref (type_access_id));
 joinable!(role_member_translate_list -> language_ref (lang_id));
 joinable!(role_member_translate_list -> role_member_ref (role_member_id));
-joinable!(set_files_for_program -> component_modification_list (modification_uuid));
-joinable!(set_files_for_program -> program_ref (program_id));
 joinable!(spec_to_company -> company_ref (company_uuid));
 joinable!(spec_to_company -> spec_ref (spec_id));
 joinable!(spec_to_component -> component_ref (component_uuid));
@@ -894,11 +894,12 @@ allow_tables_to_appear_in_same_query!(
     discussion_company_ref,
     discussion_component_ref,
     extension_ref,
+    file_of_modification_set,
     file_ref,
     file_to_component,
     file_to_modification,
-    file_to_set_modification,
     file_to_standard,
+    fileset_for_program,
     keyword_ref,
     keyword_to_component,
     keyword_to_standard,
@@ -927,7 +928,6 @@ allow_tables_to_appear_in_same_query!(
     role_access,
     role_member_ref,
     role_member_translate_list,
-    set_files_for_program,
     spec_ref,
     spec_to_company,
     spec_to_component,
