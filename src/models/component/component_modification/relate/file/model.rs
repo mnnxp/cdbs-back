@@ -48,3 +48,15 @@ impl From<FileModification> for InsertableFileModification {
         }
     }
 }
+
+#[derive(InputObject, Deserialize, Debug)]
+pub struct IptModificationFileData {
+    pub filename: Vec<String>,
+    pub modification_uuid: Uuid,
+}
+
+#[derive(InputObject, Deserialize, Debug)]
+pub struct DelModificationFileData {
+    pub file_uuid: Uuid,
+    pub modification_uuid: Uuid,
+}
