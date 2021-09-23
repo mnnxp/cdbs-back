@@ -38,24 +38,24 @@ impl StorageMutation {
     async fn upload_completed(
         &self,
         cxt: &Context<'_>,
-        files_uuids: Vec<String>,
+        file_uuids: Vec<String>,
     ) -> ServiceResult<i32> {
         let pool = get_pool(cxt)?;
 
         let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
 
-        let mut target_files_uuids = Vec::new();
-        for x in files_uuids.iter() {
-            target_files_uuids.push(Uuid::parse_str(x).unwrap());
+        let mut target_file_uuids = Vec::new();
+        for x in file_uuids.iter() {
+            target_file_uuids.push(Uuid::parse_str(x).unwrap());
         }
 
-        if target_files_uuids.is_empty() {
+        if target_file_uuids.is_empty() {
             return Ok(0) // <-- Not found uuids, just return 0
         }
 
         let res = file::service::update::confirm_upload(
             &logged_user_uuid,
-            &target_files_uuids,
+            &target_file_uuids,
             pool
         ).await?;
 
