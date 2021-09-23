@@ -779,27 +779,27 @@ describe('company', () => {
     done();
   });
 
-  it('/graphql:Q standard - BadReuest no access', async (done) => {
-    const { body } = await agent
-      .post('/graphql')
-      .set(
-        'Authorization',
-        `Bearer ${authorizationTokenSecond}`
-      )
-      .send({
-        query: `query selectStandardQuery{
-          standards (standardsUuids: "${standardUuidSecond}") {
-            ${standardsListQuery}
-          }
-        }`,
-      })
-      .expect(HttpStatus.OK)
-    debug('/graphql - body=%o', body);
-    const { errors, data } = body;
-    expect(data).toBeNull();
-    expect(errors[0].message).toBe("BadRequest: You not have access.");
-    done();
-  });
+  // it('/graphql:Q standard - BadReuest no access', async (done) => {
+  //   const { body } = await agent
+  //     .post('/graphql')
+  //     .set(
+  //       'Authorization',
+  //       `Bearer ${authorizationTokenSecond}`
+  //     )
+  //     .send({
+  //       query: `query selectStandardQuery{
+  //         standards (standardsUuids: "${standardUuidSecond}") {
+  //           ${standardsListQuery}
+  //         }
+  //       }`,
+  //     })
+  //     .expect(HttpStatus.OK)
+  //   debug('/graphql - body=%o', body);
+  //   const { errors, data } = body;
+  //   expect(data).toBeNull();
+  //   expect(errors[0].message).toBe("BadRequest: You not have access.");
+  //   done();
+  // });
 
   it('/graphql:Q standard - OK Select with uuid (private access)', async (done) => {
     // add access to the object for the user
