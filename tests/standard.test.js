@@ -107,7 +107,6 @@ standardFiles { \
   contentType \
   idExt \
   filesize \
-  pathFile \
   createdAt \
   updatedAt \
 } \
