@@ -1720,6 +1720,7 @@ describe('component', () => {
               ]
               componentUuid: "${componentUuidNoStandard}"
             }){
+              fileUuid
               filename
               uploadUrl
             }
@@ -1731,14 +1732,19 @@ describe('component', () => {
       data: { uploadComponentFiles },
     } = body;
     expect(uploadComponentFiles).toBeNonEmptyArray();
+    expect(uploadComponentFiles[0].fileUuid).toBeNonEmptyString();
     expect(uploadComponentFiles[0].filename).toBe(filename1);
     expect(uploadComponentFiles[0].uploadUrl).toBeNonEmptyString();
+    expect(uploadComponentFiles[1].fileUuid).toBeNonEmptyString();
     expect(uploadComponentFiles[1].filename).toBe(filename2);
     expect(uploadComponentFiles[1].uploadUrl).toBeNonEmptyString();
+    expect(uploadComponentFiles[2].fileUuid).toBeNonEmptyString();
     expect(uploadComponentFiles[2].filename).toBe(filename3);
     expect(uploadComponentFiles[2].uploadUrl).toBeNonEmptyString();
+    expect(uploadComponentFiles[3].fileUuid).toBeNonEmptyString();
     expect(uploadComponentFiles[3].filename).toBe(filename4);
     expect(uploadComponentFiles[3].uploadUrl).toBeNonEmptyString();
+    expect(uploadComponentFiles[4].fileUuid).toBeNonEmptyString();
     expect(uploadComponentFiles[4].filename).toBe(filename5);
     expect(uploadComponentFiles[4].uploadUrl).toBeNonEmptyString();
     done();
@@ -2901,9 +2907,10 @@ describe('component', () => {
     } = body;
     expect(componentModificationFilesets[0].modificationUuid).toBe(componentModificationUuidSecond);
     expect(componentModificationFilesets[0].uuid).toBeNonEmptyString();
-    expect(componentModificationFilesets[0].program.id).toBe(5);
+    // expect(componentModificationFilesets[0].program.id).toBe(5);
     expect(componentModificationFilesets[0].program.name).toBeNonEmptyString();
-    expect(componentModificationFilesets[1].program.id).toBe(7);
+    expect(componentModificationFilesets[1].uuid).toBeNonEmptyString();
+    // expect(componentModificationFilesets[1].program.id).toBe(7);
     expect(componentModificationFilesets[1].program.name).toBeNonEmptyString();
     done();
   });

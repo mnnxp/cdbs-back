@@ -42,7 +42,8 @@ var userUuidFirst = "";
 var userUuidSecond = "";
 
 const descriptionCertificateTest = "test desctiption for certificate";
-const filenameCertificateTest = "name file certificate.pdf";
+const badFilenameCertificateTest = "name* file/ certificate.pdf";
+const goodFilenameCertificateTest = "name file certificate.pdf";
 
 const companyUuidBase = "2cd385e1-8f7e-4908-8235-dfe42938b46d";
 const componentUuidBase = "a5953fd9-7393-4f1e-a899-06b5e159dbf1";
@@ -625,8 +626,12 @@ describe('users', () => {
         query: `mutation {
           uploadUserCertificate(certData: {
             description: "${descriptionCertificateTest}"
-        		filename: "${filenameCertificateTest}"
-          })
+        		filename: "${badFilenameCertificateTest}"
+          }) {
+            fileUuid
+            filename
+            uploadUrl
+          }
         }`,
       })
       .expect(HttpStatus.OK)
@@ -650,13 +655,19 @@ describe('users', () => {
         query: `mutation {
           uploadUserCertificate(certData: {
             description: "${descriptionCertificateTest}"
-        		filename: "${filenameCertificateTest}"
-          })
+        		filename: "${badFilenameCertificateTest}"
+          }) {
+            fileUuid
+            filename
+            uploadUrl
+          }
         }`,
       })
       .expect(HttpStatus.OK)
     debug('/graphql UserCertificate=%o', body);
-    expect(body.data.uploadUserCertificate).toBeNonEmptyString();
+    expect(body.data.uploadUserCertificate.fileUuid).toBeNonEmptyString();
+    expect(body.data.uploadUserCertificate.filename).toBe(goodFilenameCertificateTest);
+    expect(body.data.uploadUserCertificate.uploadUrl).toBeNonEmptyString();
     done();
   });
 
@@ -684,7 +695,7 @@ describe('users', () => {
       })
       .expect(HttpStatus.OK)
     debug('/graphql UserCertificate=%o', body);
-    expect(body.data.user.certificates[0].file.filename).toBe(filenameCertificateTest);
+    expect(body.data.user.certificates[0].file.filename).toBe(goodFilenameCertificateTest);
     expect(body.data.user.certificates[0].description).toBe(descriptionCertificateTest);
     done();
   });

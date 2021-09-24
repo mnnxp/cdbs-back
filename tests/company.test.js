@@ -37,7 +37,8 @@ var companyUuidNoSupplier = "";
 var companyUuidSupplier = "";
 
 const descriptionCertificateTest = "test desctiption for certificate";
-const filenameCertificateTest = "name file certificate.pdf";
+const badFilenameCertificateTest = "name* file/ certificate.pdf";
+const goodFilenameCertificateTest = "name file certificate.pdf";
 
 const companyFullDataQuery = ` \
 uuid \
@@ -562,8 +563,12 @@ describe('company', () => {
           uploadCompanyCertificate(certData: {
             companyUuid: "${companyUuidNoSupplier}"
             description: "${descriptionCertificateTest}"
-        		filename: "${filenameCertificateTest}"
-          })
+        		filename: "${badFilenameCertificateTest}"
+          }) {
+            fileUuid
+            filename
+            uploadUrl
+          }
         }`,
       })
       .expect(HttpStatus.OK)
@@ -588,13 +593,19 @@ describe('company', () => {
           uploadCompanyCertificate(certData: {
             companyUuid: "${companyUuidNoSupplier}"
             description: "${descriptionCertificateTest}"
-        		filename: "${filenameCertificateTest}"
-          })
+        		filename: "${badFilenameCertificateTest}"
+          }) {
+            fileUuid
+            filename
+            uploadUrl
+          }
         }`,
       })
       .expect(HttpStatus.OK)
     debug('/graphql CompanyCertificate=%o', body);
-    expect(body.data.uploadCompanyCertificate).toBeNonEmptyString();
+    expect(body.data.uploadCompanyCertificate.fileUuid).toBeNonEmptyString();
+    expect(body.data.uploadCompanyCertificate.filename).toBe(goodFilenameCertificateTest);
+    expect(body.data.uploadCompanyCertificate.uploadUrl).toBeNonEmptyString();
     done();
   });
 
@@ -621,7 +632,7 @@ describe('company', () => {
       })
       .expect(HttpStatus.OK)
     debug('/graphql CompanyCertificate=%o', body);
-    expect(body.data.company.companyCertificates[0].file.filename).toBe(filenameCertificateTest);
+    expect(body.data.company.companyCertificates[0].file.filename).toBe(goodFilenameCertificateTest);
     expect(body.data.company.companyCertificates[0].description).toBe(descriptionCertificateTest);
     done();
   });
