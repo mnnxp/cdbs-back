@@ -17,7 +17,9 @@ use crate::models::component::file::model::{IptComponentFileData, DelComponentFi
 use crate::models::component::supplier as component_supplier;
 use crate::models::component::supplier::model::{IptSupplierComponentData, SupplierComponent};
 use crate::models::component::component_modification;
-use crate::models::component::component_modification::modification_file_from_fileset::model::IptModificationFileFromFilesetData;
+use crate::models::component::component_modification::modification_file_from_fileset::model::{
+    IptModificationFileFromFilesetData, DelModificationFileFromFilesetData,
+};
 use crate::models::component::component_modification::model::{
     IptComponentModificationData, SlimComponentModification,
 };
@@ -29,7 +31,7 @@ use crate::models::component::component_modification::file::model::{
 };
 use crate::models::component::component_modification::fileset_for_program as fileset_program;
 use crate::models::component::component_modification::fileset_for_program::model::{
-    IptFilesetProgramData, FilesetProgram,
+    IptFilesetProgramData, FilesetProgram, DelFilesetProgramData,
 };
 use crate::models::relate_ref::file::model::UploadFile;
 
@@ -267,6 +269,23 @@ impl ComponentMutation {
         create_modification_fileset(data, conn)
     }
 
+    async fn delete_modification_fileset(
+        &self,
+        cxt: &Context<'_>,
+        data: DelFilesetProgramData,
+    ) -> ServiceResult<bool> {
+        use fileset_program::service::delete::del_modification_fileset;
+        let conn: &PooledConnection = &get_conn(cxt)?;
+
+        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+
+        del_modification_fileset(
+            &logged_user_uuid,
+            &data,
+            conn
+        )
+    }
+
     async fn upload_files_to_fileset(
         &self,
         cxt: &Context<'_>,
@@ -280,6 +299,23 @@ impl ComponentMutation {
         add_files_of_modification_set(
             &logged_user_uuid,
             data,
+            conn
+        )
+    }
+
+    async fn delete_files_from_fileset(
+        &self,
+        cxt: &Context<'_>,
+        data: DelModificationFileFromFilesetData,
+    ) -> ServiceResult<bool> {
+        use component_modification::modification_file_from_fileset::service::delete::del_file_from_fileset;
+        let conn: &PooledConnection = &get_conn(cxt)?;
+
+        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+
+        del_file_from_fileset(
+            &logged_user_uuid,
+            &data,
             conn
         )
     }

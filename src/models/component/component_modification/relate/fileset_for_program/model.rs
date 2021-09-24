@@ -53,6 +53,12 @@ pub struct IptFilesetProgramData {
     pub program_id: i32,
 }
 
+#[derive(Debug, Deserialize, Clone, InputObject)]
+pub struct DelFilesetProgramData {
+    pub modification_uuid: Uuid,
+    pub fileset_uuid: Uuid,
+}
+
 #[derive(Debug, Insertable)]
 #[table_name = "fileset_for_program"]
 pub struct InsertableFilesetProgram {

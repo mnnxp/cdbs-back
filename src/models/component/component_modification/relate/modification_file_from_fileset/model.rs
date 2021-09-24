@@ -37,6 +37,12 @@ pub struct IptModificationFileFromFilesetData {
     pub filename: Vec<String>,
 }
 
+#[derive(Debug, Deserialize, Clone, InputObject)]
+pub struct DelModificationFileFromFilesetData {
+    pub fileset_uuid: Uuid,
+    pub file_uuids: Vec<Uuid>,
+}
+
 #[derive(Debug, Insertable)]
 #[table_name = "modification_file_from_fileset"]
 pub struct InsertableModificationFileFromFileset {

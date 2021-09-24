@@ -19,8 +19,8 @@ pub(crate) fn create_modification_fileset(
     use crate::schema::fileset_for_program::dsl::*;
 
     let find_fileset = &fileset_for_program
-        .filter(modification_uuid.eq(&data.modification_uuid))
-        .filter(program_id.eq(&data.program_id))
+        .filter(modification_uuid.eq(&data.modification_uuid)
+        .and(program_id.eq(&data.program_id)))
         .select(uuid)
         .limit(1)
         .load::<Uuid>(conn);

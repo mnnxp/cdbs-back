@@ -7,17 +7,29 @@ use crate::storage::delete::delete_object;
 use diesel::prelude::*;
 use uuid::Uuid;
 
-/// Delete files records in database by uuid
+/// Delete file record in database by uuid
 pub(crate) fn delete_row_by_uuid(
-    delete_file_uuids: &Uuid,
+    delete_file_uuid: &Uuid,
     conn: &PgConnection
 ) -> i32 {
     use crate::schema::file_ref::dsl::*;
 
     diesel::delete(
-        file_ref.filter(uuid.eq(delete_file_uuids))
+        file_ref.filter(uuid.eq(delete_file_uuid))
     ).execute(conn).unwrap_or_default() as i32
 }
+
+// /// Delete files records in database by uuid
+// pub(crate) fn delete_rows_by_uuids(
+//     delete_files_uuids: &[Uuid],
+//     conn: &PgConnection
+// ) -> i32 {
+//     use crate::schema::file_ref::dsl::*;
+//
+//     diesel::delete(
+//         file_ref.filter(uuid.eq_any(delete_files_uuids))
+//     ).execute(conn).unwrap_or_default() as i32
+// }
 
 /// Delete file to storage and row in database
 pub(crate) async fn delete_file_by_uuid(

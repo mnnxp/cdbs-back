@@ -2754,6 +2754,31 @@ describe('component', () => {
     done();
   });
 
+  it('/graphql:M registerModificationFileset - BadRequest not token', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .send({
+          query: `mutation {
+            registerModificationFileset(data: {
+              modificationUuid: "${componentModificationUuidSecond}"
+              programId: 7
+            }){
+              modificationUuid
+              uuid
+              programId
+            }
+          }`,
+        })
+      .expect(HttpStatus.OK)
+    debug('/graphql registerModificationFileset=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Token not found.'
+    );
+    expect(body.errors[0].path[0]).toBe('registerModificationFileset');
+    done();
+  });
+
   it('/graphql:M registerModificationFileset - Ok add fileset', async (done) => {
     const { body } = await agent
       .post('/graphql')
@@ -3062,6 +3087,7 @@ describe('component', () => {
                 ]
               }
             ){
+              fileUuid
               filename
               uploadUrl
             }
@@ -3072,12 +3098,20 @@ describe('component', () => {
     const {
       data: { uploadFilesToFileset },
     } = body;
+    fileUuid1 = uploadFilesToFileset[0].fileUuid;
+    fileUuid2 = uploadFilesToFileset[1].fileUuid;
+    fileUuid3 = uploadFilesToFileset[2].fileUuid;
+    fileUuid4 = uploadFilesToFileset[3].fileUuid;
+    expect(uploadFilesToFileset[0].fileUuid).toBeNonEmptyString();
     expect(uploadFilesToFileset[0].filename).toBe(filename1);
     expect(uploadFilesToFileset[0].uploadUrl).toBeNonEmptyString();
+    expect(uploadFilesToFileset[1].fileUuid).toBeNonEmptyString();
     expect(uploadFilesToFileset[1].filename).toBe(filename2);
     expect(uploadFilesToFileset[1].uploadUrl).toBeNonEmptyString();
+    expect(uploadFilesToFileset[2].fileUuid).toBeNonEmptyString();
     expect(uploadFilesToFileset[2].filename).toBe(filename3);
     expect(uploadFilesToFileset[2].uploadUrl).toBeNonEmptyString();
+    expect(uploadFilesToFileset[3].fileUuid).toBeNonEmptyString();
     expect(uploadFilesToFileset[3].filename).toBe(filename4);
     expect(uploadFilesToFileset[3].uploadUrl).toBeNonEmptyString();
     done();
@@ -3147,6 +3181,225 @@ describe('component', () => {
     expect(componentModificationFilesOfFileset[0].filesetUuid).toBe(filesetForProgramUuid);
     expect(componentModificationFilesOfFileset[0].showFile.uuid).toBeNonEmptyString();
     expect(componentModificationFilesOfFileset[0].showFile.filename).toBeNonEmptyString();
+    done();
+  });
+
+  // Testing component modification file of fileset for delete
+  it('/graphql:M deleteFilesFromFileset - BadRequest not token', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .send({
+          query: `mutation {
+            deleteFilesFromFileset(
+              data: {
+                filesetUuid: "${filesetForProgramUuid}"
+                fileUuids: [
+                  "${fileUuid1}",
+                  "${fileUuid2}",
+                  "${fileUuid3}",
+                  "${fileUuid4}"
+                ]
+              }
+            )
+          }`,
+        })
+      .expect(HttpStatus.OK)
+    debug('/graphql deleteFilesFromFileset=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Token not found.'
+    );
+    expect(body.errors[0].path[0]).toBe('deleteFilesFromFileset');
+    done();
+  });
+
+  it('/graphql:M deleteFilesFromFileset - Ok delete 2 files to fileset', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+          query: `mutation {
+            deleteFilesFromFileset(
+              data: {
+                filesetUuid: "${filesetForProgramUuid}"
+                fileUuids: [
+                  "${fileUuid1}",
+                  "${fileUuid4}"
+                ]
+              }
+            )
+          }`,
+        })
+      .expect(HttpStatus.OK)
+    debug('/graphql deleteFilesFromFileset=%o', body);
+    const {
+      data: { deleteFilesFromFileset },
+    } = body;
+    expect(deleteFilesFromFileset).toBe(true);
+    done();
+  });
+
+  it('/graphql:M deleteFilesFromFileset - BadRequest delete non-existent files', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+          query: `mutation {
+            deleteFilesFromFileset(
+              data: {
+                filesetUuid: "${filesetForProgramUuid}"
+                fileUuids: [
+                  "${fileUuid1}",
+                  "${fileUuid4}"
+                ]
+              }
+            )
+          }`,
+        })
+      .expect(HttpStatus.OK)
+    debug('/graphql deleteFilesFromFileset=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Error with delete files of fileset data'
+    );
+    expect(body.errors[0].path[0]).toBe('deleteFilesFromFileset');
+    done();
+  });
+
+  it('/graphql:Q componentModificationFilesOfFileset - OK with parentModificationUuid', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+          query: `query {
+            componentModificationFilesOfFileset(
+              filesetUuid: "${filesetForProgramUuid}"
+            ) {
+              filesetUuid
+              showFile {
+                uuid
+                filename
+                updatedAt
+              }
+            }
+          }`,
+        })
+      .expect(HttpStatus.OK)
+    debug('/graphql componentModificationFilesOfFileset=%o', body.data);
+    const {
+      data: { componentModificationFilesOfFileset },
+    } = body;
+    expect(componentModificationFilesOfFileset[0].filesetUuid).toBe(filesetForProgramUuid);
+    expect(componentModificationFilesOfFileset.length).toBe(2);
+    done();
+  });
+
+  // Testing component modification fileset for delete
+  it('/graphql:M deleteModificationFileset - BadRequest not token', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .send({
+          query: `mutation {
+            deleteModificationFileset(data: {
+              modificationUuid: "${componentModificationUuidSecond}"
+              filesetUuid: "${filesetForProgramUuid}"
+            })
+          }`,
+        })
+      .expect(HttpStatus.OK)
+    debug('/graphql deleteModificationFileset=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Token not found.'
+    );
+    expect(body.errors[0].path[0]).toBe('deleteModificationFileset');
+    done();
+  });
+
+  it('/graphql:M deleteModificationFileset - Ok delete fileset', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+          query: `mutation {
+            deleteModificationFileset(data: {
+              modificationUuid: "${componentModificationUuidSecond}"
+              filesetUuid: "${filesetForProgramUuid}"
+            })
+          }`,
+        })
+      .expect(HttpStatus.OK)
+    debug('/graphql deleteModificationFileset=%o', body);
+    const {
+      data: { deleteModificationFileset },
+    } = body;
+    expect(deleteModificationFileset).toBe(true);
+    done();
+  });
+
+  it('/graphql:M deleteModificationFileset - Ok delete non-existent fileset', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+          query: `mutation {
+            deleteModificationFileset(data: {
+              modificationUuid: "${componentModificationUuidSecond}"
+              filesetUuid: "${filesetForProgramUuid}"
+            })
+          }`,
+        })
+      .expect(HttpStatus.OK)
+    debug('/graphql deleteModificationFileset=%o', body);
+    const {
+      data: { deleteModificationFileset },
+    } = body;
+    expect(deleteModificationFileset).toBe(false);
+    done();
+  });
+
+  it('/graphql:Q componentModificationFilesOfFileset - OK not found fileset', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+          query: `query {
+            componentModificationFilesOfFileset(
+              filesetUuid: "${filesetForProgramUuid}"
+            ) {
+              filesetUuid
+              showFile {
+                uuid
+                filename
+                updatedAt
+              }
+            }
+          }`,
+        })
+      .expect(HttpStatus.OK)
+    debug('/graphql componentModificationFilesOfFileset=%o', body.data);
+    const {
+      data: { componentModificationFilesOfFileset },
+    } = body;
+    expect(componentModificationFilesOfFileset).toBeEmptyArray();
     done();
   });
 });
