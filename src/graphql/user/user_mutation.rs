@@ -1,6 +1,3 @@
-use async_graphql::{self, Context, Object};
-use uuid::Uuid;
-
 use crate::database::{get_conn, PooledConnection};
 use crate::errors::ServiceResult;
 use crate::models::user::certificate::model::IptUserCertificateData;
@@ -10,6 +7,10 @@ use crate::models::user::standard_fav::model::{StandardFav, IptStandardFavData};
 use crate::models::user::user_fav::model::{UserFav, IptUserFavData};
 use crate::models::user::model::{IptUserData, SlimUser};
 use crate::models::user::notification::model::{Notification, NotificationData, SlimNotification};
+use crate::models::relate_ref::file::model::UploadFile;
+
+use async_graphql::{self, Context, Object};
+use uuid::Uuid;
 
 #[derive(Default)]
 pub struct UserMutation;
@@ -42,7 +43,7 @@ impl UserMutation {
         &self,
         cxt: &Context<'_>,
         cert_data: IptUserCertificateData,
-    ) -> ServiceResult<String> {
+    ) -> ServiceResult<UploadFile> {
         use crate::models::user::certificate::service::add::add_certificate;
 
         let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;

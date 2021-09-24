@@ -223,12 +223,16 @@ impl From<File> for SlimFile {
 
 #[derive(Serialize, Debug)]
 pub struct UploadFile {
+    pub file_uuid: Uuid,
     pub filename: String,
     pub upload_url: String,
 }
 
 #[Object]
 impl UploadFile {
+    async fn file_uuid(&self) -> ID {
+        self.file_uuid.into()
+    }
     async fn filename(&self) -> &String {
         &self.filename
     }

@@ -6,6 +6,7 @@ use crate::errors::ServiceResult;
 use crate::models::company::certificate::model::IptCompanyCertificateData;
 use crate::models::company::company_represent::model::{IptCompanyRepresentData, SlimCompanyRepresent};
 use crate::models::company::model::{IptCompanyData, SlimCompany};
+use crate::models::relate_ref::file::model::UploadFile;
 
 #[derive(Default)]
 pub struct CompanyMutation;
@@ -29,7 +30,7 @@ impl CompanyMutation {
         &self,
         cxt: &Context<'_>,
         cert_data: IptCompanyCertificateData,
-    ) -> ServiceResult<String> {
+    ) -> ServiceResult<UploadFile> {
         use crate::models::company::certificate::service::add::add_certificate;
 
         let conn: &PooledConnection = &get_conn(cxt)?;

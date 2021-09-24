@@ -4,7 +4,9 @@ use crate::models::user::certificate::model::{
     IptUserCertificateData,
     InsertableUserCertificate,
 };
-use crate::models::relate_ref::file::model::{ListObject, PreliminaryFileData};
+use crate::models::relate_ref::file::model::{
+    ListObject, PreliminaryFileData, UploadFile
+};
 use crate::models::relate_ref::file as file;
 use crate::schema::user_certificate_ref::dsl::*;
 use crate::storage::model::StorageAccess;
@@ -16,7 +18,7 @@ pub(crate) fn add_certificate(
     target_user_uuid: &Uuid,
     cert_data: &IptUserCertificateData,
     conn: &PgConnection,
-) -> ServiceResult<String> {
+) -> ServiceResult<UploadFile> {
     // Get data for write information about the file before upload to storage
     let preliminary_file_data = PreliminaryFileData::from_ipt_file_data(
         *target_user_uuid,
@@ -45,9 +47,14 @@ pub(crate) fn add_certificate(
 
     debug!("User inserted certificate: {:?}", user_inserted_certificate);
 
-    // todo!(presigned_url)
-    upload_presigned_url(
+    let upload_url = upload_presigned_url(
         &StorageAccess::get(conn)?,
         &slim_file.path_file,
-    )
+    )?;
+
+    Ok(UploadFile {
+        file_uuid: slim_file.uuid,
+        filename: slim_file.filename,
+        upload_url,
+    })
 }

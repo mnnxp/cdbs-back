@@ -38,12 +38,15 @@ pub(crate) fn add_files_of_modification_set(
 
         debug!("New modification file: {:?}", slim_file);
 
-        up_files.push(UploadFile{
-            filename: filename.to_string(),
-            upload_url: upload_presigned_url(
-                &StorageAccess::get(conn)?,
-                &slim_file.path_file,
-            )?,
+        let upload_url = upload_presigned_url(
+            &StorageAccess::get(conn)?,
+            &slim_file.path_file,
+        )?;
+
+        up_files.push(UploadFile {
+            file_uuid: slim_file.uuid,
+            filename: slim_file.filename,
+            upload_url,
         });
     }
 
