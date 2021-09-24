@@ -41,6 +41,9 @@ var authorizationTokenSecond = "";
 var userUuidFirst = "";
 var userUuidSecond = "";
 
+const descriptionCertificateTest = "test desctiption for certificate";
+const filenameCertificateTest = "name file certificate.pdf";
+
 const companyUuidBase = "2cd385e1-8f7e-4908-8235-dfe42938b46d";
 const componentUuidBase = "a5953fd9-7393-4f1e-a899-06b5e159dbf1";
 const standardUuidBase = "303ec2aa-2066-42e3-93fb-de4fb9344bcb";
@@ -597,6 +600,99 @@ describe('users', () => {
     done();
   });
 
+  // Testing user certificates
+  it('/graphql:Q UserCertificate - BadRequest not token', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .send({
+        query: `query {
+            user(userUuid: "${userUuidFirst}") {
+              ${userFullDataQuery}
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql UserCertificate=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Token not found.'
+    );
+    expect(body.errors[0].path[0]).toBe('user');
+    done();
+  });
+
+  it('/graphql:M UserCertificate - BadRequest not token', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .send({
+        query: `mutation {
+          uploadUserCertificate(certData: {
+            description: "${descriptionCertificateTest}"
+        		filename: "${filenameCertificateTest}"
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql UserCertificate=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Token not found.'
+    );
+    expect(body.errors[0].path[0]).toBe('uploadUserCertificate');
+    done();
+  });
+
+  it('/graphql:M UserCertificate - Ok', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation {
+          uploadUserCertificate(certData: {
+            description: "${descriptionCertificateTest}"
+        		filename: "${filenameCertificateTest}"
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql UserCertificate=%o', body);
+    expect(body.data.uploadUserCertificate).toBeNonEmptyString();
+    done();
+  });
+
+  it('/graphql:Q UserCertificate - Ok', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `query {
+            user(userUuid: "${userUuidFirst}") {
+              certificates { \
+                userUuid \
+                file { \
+                  uuid \
+                  filename \
+                  filesize \
+                  pathFile \
+                } \
+                description \
+              } \
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql UserCertificate=%o', body);
+    expect(body.data.user.certificates[0].file.filename).toBe(filenameCertificateTest);
+    expect(body.data.user.certificates[0].description).toBe(descriptionCertificateTest);
+    done();
+  });
+
   it('/graphql:M CompanyFav - Ok add', async (done) => {
     const { body } = await agent
       .post('/graphql')
@@ -944,6 +1040,29 @@ describe('users', () => {
     expect(body.data.user.favComponentsCount).toBe(0);
     expect(body.data.user.favStandardsCount).toBe(0);
     expect(body.data.user.favUsersCount).toBe(0);
+    done();
+  });
+
+  it('/graphql:Q users - BadRequest not token', async (done) => {
+    const response1 = await agent
+      .post('/graphql')
+      .send({
+        query: `query ListUsers {
+            users(usersUuids: [
+              "${userUuidFirst}",
+              "${userUuidSecond}"
+            ]) {
+              ${usersListQuery}
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql users=%o', response1.body);
+    expect(response1.body.data).toBeNull();
+    expect(response1.body.errors[0].message).toBe(
+      'BadRequest: Token not found.'
+    );
+    expect(response1.body.errors[0].path[0]).toBe('users');
     done();
   });
 
