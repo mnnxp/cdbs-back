@@ -18,7 +18,7 @@ pub(crate) async fn confirm_upload(
     let conn = pool.get().unwrap();
 
     // getting SlimFile data for get files paths
-    let show_file = SlimFile::get_file_by_vec_uuid(
+    let slim_file = SlimFile::get_file_by_vec_uuid(
         file_uuids,
         &conn,
     ).unwrap();
@@ -27,7 +27,7 @@ pub(crate) async fn confirm_upload(
     let storage_access = StorageAccess::get(&conn)?;
 
     // getting data for all files in vec
-    for file_d in show_file {
+    for file_d in slim_file {
         // ownership check and data update
         if check_write_data(
             target_user_uuid,

@@ -28,7 +28,7 @@ pub(crate) async fn delete_file_by_uuid(
     let conn = pool.get().unwrap();
 
     // getting SlimFile data for get file path
-    let show_file = SlimFile::get_file_by_uuid(
+    let slim_file = SlimFile::get_file_by_uuid(
         file_uuid,
         &conn,
     )?;
@@ -39,18 +39,18 @@ pub(crate) async fn delete_file_by_uuid(
     // ownership check and data update
     if check_file_owner(
         target_user_uuid,
-        &show_file.uuid,
+        &slim_file.uuid,
         &conn,
     ) == 1 {
         // delete file in storage
         let del_on_storage = delete_object(
             &storage_access,
-            &show_file.path_file,
+            &slim_file.path_file,
         ).await;
 
         if del_on_storage {
             let result_del_row = delete_row_by_uuid(
-                &show_file.uuid,
+                &slim_file.uuid,
                 &conn
             );
 
@@ -58,7 +58,7 @@ pub(crate) async fn delete_file_by_uuid(
 
             return Ok(result_del_row)
         } else {
-            debug!("Removing failed: {:?}", show_file);
+            debug!("Removing failed: {:?}", slim_file);
         }
     }
 

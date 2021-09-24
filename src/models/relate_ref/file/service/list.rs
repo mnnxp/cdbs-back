@@ -15,14 +15,14 @@ pub(crate) fn get_url_file_by_uuid(
 ) -> ServiceResult<String> {
     let storage_access = StorageAccess::get(conn)?;
 
-    let show_file = SlimFile::get_file_by_uuid(
+    let slim_file = SlimFile::get_file_by_uuid(
         target_file_uuid,
         conn,
     ).unwrap();
 
     download_presigned_url(
         &storage_access,
-        &show_file.path_file,
+        &slim_file.path_file,
     )
 }
 
@@ -39,7 +39,7 @@ pub(crate) fn get_urls_files_by_uuid(
     let storage_access = StorageAccess::get(conn)?;
 
     // get files data by uuids, return error if have fail
-    let show_files = match SlimFile::get_file_by_vec_uuid(
+    let slim_files = match SlimFile::get_file_by_vec_uuid(
         target_file_uuids,
         conn,
     ) {
@@ -51,7 +51,7 @@ pub(crate) fn get_urls_files_by_uuid(
     };
 
     let mut res_down_urls: Vec<DownloadFile> = Vec::new();
-    for sf in show_files {
+    for sf in slim_files {
         match download_presigned_url(
             &storage_access,
             &sf.path_file,

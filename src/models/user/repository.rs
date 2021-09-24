@@ -4,7 +4,7 @@ use super::model::{
     ShowUserShort,
     UserAndRelatedData
 };
-use super::certificate::model::CertificateWithSlimFile;
+use super::certificate::model::CertificateWithShowFile;
 use super::user_fav::model::UserFav;
 use crate::models::company::model::ShowCompanyShort;
 use crate::models::component::model::ShowComponentShort;
@@ -12,7 +12,7 @@ use crate::models::standard::model::ShowStandardShort;
 use crate::models::company::company_fav::model::CompanyFav;
 use crate::models::component::component_fav::model::ComponentFav;
 use crate::models::standard::standard_fav::model::StandardFav;
-use crate::models::relate_ref::file::model::SlimFile;
+use crate::models::relate_ref::file::model::ShowFile;
 use crate::models::relate_ref::program::model::Program;
 use crate::models::relate_ref::region::model::RegionTranslateList;
 use crate::errors::ServiceResult;
@@ -89,8 +89,8 @@ impl ShowUserShort {
 
         Ok(ShowUserShort::from((
             &user_data,
-            SlimFile::get_file_by_uuid(&user_data.image_file_uuid, conn)
-                .expect("Failed get SlimFile for ShowUserShort")
+            ShowFile::get_file_by_uuid(&user_data.image_file_uuid, conn)
+                .expect("Failed get CertificateWithShowFile for ShowUserShort")
         )))
     }
 
@@ -126,7 +126,7 @@ impl UserAndRelatedData {
         ).expect("Error loading user");
 
         // get image file (favicon) for user
-        let image_file = SlimFile::get_file_by_uuid(&user.image_file_uuid, conn)
+        let image_file = ShowFile::get_file_by_uuid(&user.image_file_uuid, conn)
             .expect("Error loading user file");
 
         // get region for user
@@ -153,7 +153,7 @@ impl UserAndRelatedData {
         let subscribers: i32 = UserFav::get_count_followers_by_uuid(&user.uuid, conn)?;
 
         // get certificates with slimfile for user
-        let certificates: Vec<CertificateWithSlimFile> = CertificateWithSlimFile::for_user(
+        let certificates: Vec<CertificateWithShowFile> = CertificateWithShowFile::for_user(
             &user,
             conn
         ).expect("Error loading spec user with translate");

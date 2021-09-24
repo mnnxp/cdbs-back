@@ -56,14 +56,12 @@ ownerUser { \
     uuid \
     filename \
     filesize \
-    pathFile \
   } \
 } \
 imageFile { \
   uuid \
   filename \
   filesize \
-  pathFile \
 } \
 region { \
   regionId \
@@ -86,7 +84,6 @@ companyCertificates { \
     uuid \
     filename \
     filesize \
-    pathFile \
   } \
   description \
 } \
@@ -116,7 +113,6 @@ description \
 imageFile { \
   uuid \
   filesize \
-  pathFile \
 } \
 region { \
   regionId \
@@ -542,7 +538,6 @@ describe('company', () => {
                   uuid \
                   filename \
                   filesize \
-                  pathFile \
                 } \
                 description \
               } \
@@ -618,7 +613,6 @@ describe('company', () => {
                   uuid \
                   filename \
                   filesize \
-                  pathFile \
                 } \
                 description \
               } \

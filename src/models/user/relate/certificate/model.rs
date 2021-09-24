@@ -1,6 +1,6 @@
 use crate::schema::*;
 use crate::models::user::model::UserQuery;
-use crate::models::relate_ref::file::model::{ShowFile, SlimFile};
+use crate::models::relate_ref::file::model::ShowFile;
 use async_graphql::*;
 use uuid::Uuid;
 
@@ -17,8 +17,8 @@ pub struct UserCertificate {
 }
 
 #[derive(Debug, Deserialize, SimpleObject)]
-pub struct CertificateWithSlimFile {
-    pub file: SlimFile,
+pub struct CertificateWithShowFile {
+    pub file: ShowFile,
     pub user_uuid: Uuid,
     pub description: String,
 }

@@ -65,7 +65,6 @@ imageFile { \
   uuid \
   filename \
   filesize \
-  pathFile \
 } \
 region { \
   regionId \
@@ -87,7 +86,6 @@ certificates { \
     uuid \
     filename \
     filesize \
-    pathFile \
   } \
   description \
 } \
@@ -109,7 +107,6 @@ imageFile { \
   uuid \
   filename \
   filesize \
-  pathFile \
 } \
 `;
 
@@ -679,7 +676,6 @@ describe('users', () => {
                   uuid \
                   filename \
                   filesize \
-                  pathFile \
                 } \
                 description \
               } \

@@ -1,6 +1,6 @@
 use super::util::{make_hash_salt, make_salt};
-use super::certificate::model::CertificateWithSlimFile;
-use crate::models::relate_ref::file::model::SlimFile;
+use super::certificate::model::CertificateWithShowFile;
+use crate::models::relate_ref::file::model::ShowFile;
 use crate::models::relate_ref::region::model::RegionTranslateList;
 use crate::models::relate_ref::program::model::Program;
 use crate::schema::*;
@@ -73,7 +73,7 @@ pub struct UserAndRelatedData {
     pub address: String,
     pub position: String, // <-- todo!(create a separate table with translation)
     pub time_zone: String,
-    pub image_file: SlimFile,
+    pub image_file: ShowFile,
     pub region: RegionTranslateList,
     pub program: Program,
     pub is_email_verified: bool,
@@ -82,7 +82,7 @@ pub struct UserAndRelatedData {
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
     // related data
-    pub certificates: Vec<CertificateWithSlimFile>,
+    pub certificates: Vec<CertificateWithShowFile>,
     pub subscribers: i32,
     // for display the checkbox "favorites"
     pub is_followed: bool,
@@ -302,7 +302,7 @@ pub struct UserShort {
 pub struct ShowUserShort {
     pub uuid: Uuid,
     pub username: String,
-    pub image_file: SlimFile,
+    pub image_file: ShowFile,
 }
 
 #[Object]
@@ -313,13 +313,13 @@ impl ShowUserShort {
     async fn username(&self) -> &String {
         &self.username
     }
-    async fn image_file(&self) -> &SlimFile {
+    async fn image_file(&self) -> &ShowFile {
         &self.image_file
     }
 }
 
-impl From<(&UserShort, SlimFile)> for ShowUserShort {
-    fn from(data: (&UserShort, SlimFile)) -> Self {
+impl From<(&UserShort, ShowFile)> for ShowUserShort {
+    fn from(data: (&UserShort, ShowFile)) -> Self {
         Self {
             uuid: data.0.uuid,
             username: data.0.username.to_string(),

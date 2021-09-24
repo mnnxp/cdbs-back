@@ -1,6 +1,6 @@
 use crate::schema::*;
 use crate::models::company::model::Company;
-use crate::models::relate_ref::file::model::{ShowFile, SlimFile};
+use crate::models::relate_ref::file::model::ShowFile;
 // use async_graphql::types::ID;
 use async_graphql::*;
 // use chrono::*;
@@ -19,8 +19,8 @@ pub struct CompanyCertificate {
 }
 
 #[derive(Debug, Deserialize, SimpleObject)]
-pub struct CertificateWithSlimFile {
-    pub file: SlimFile,
+pub struct CertificateWithShowFile {
+    pub file: ShowFile,
     pub company_uuid: Uuid,
     pub description: String,
 }

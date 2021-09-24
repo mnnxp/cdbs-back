@@ -64,7 +64,7 @@ pub struct File {
     pub updated_at: NaiveDateTime,
 }
 
-#[derive(Identifiable, Deserialize, Queryable, Clone, Debug)]
+#[derive(Identifiable, Serialize, Deserialize, Queryable, Clone, Debug)]
 #[primary_key(uuid)]
 #[table_name = "file_ref"]
 pub struct ShowFile {
@@ -192,7 +192,7 @@ pub struct FileData {
     pub path_file: Option<String>,
 }
 
-#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, Clone, Debug)]
+#[derive(Identifiable, Queryable, Associations, Clone, Debug)]
 #[primary_key(uuid)]
 #[table_name = "file_ref"]
 pub struct SlimFile {
@@ -200,22 +200,6 @@ pub struct SlimFile {
     pub filename: String,
     pub filesize: i64,
     pub path_file: String,
-}
-
-#[Object]
-impl SlimFile {
-    async fn uuid(&self) -> ID {
-        self.uuid.into()
-    }
-    async fn filename(&self) -> &String {
-        &self.filename
-    }
-    async fn filesize(&self) -> &i64 {
-        &self.filesize
-    }
-    async fn path_file(&self) -> &String {
-        &self.path_file
-    }
 }
 
 impl From<File> for SlimFile {

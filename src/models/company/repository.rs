@@ -1,12 +1,12 @@
 use crate::errors::ServiceResult;
 use crate::models::company::model::{Company, ShowCompanyShort, CompanyAndRelatedData};
 use crate::models::company::company_represent::model::CompanyRepresentAndRelatedData;
-use crate::models::company::certificate::model::CertificateWithSlimFile;
+use crate::models::company::certificate::model::CertificateWithShowFile;
 use crate::models::company::company_type::model::CompanyTypeTranslateList;
 use crate::models::company::company_fav::model::CompanyFav;
 use crate::models::company::spec::model::CompanySpecWithTranslation;
 use crate::models::relate_ref::region::model::RegionTranslateList;
-use crate::models::relate_ref::file::model::SlimFile;
+use crate::models::relate_ref::file::model::ShowFile;
 use crate::schema::company_ref::dsl as company_ref;
 use diesel::prelude::*;
 use uuid::Uuid;
@@ -39,7 +39,7 @@ impl ShowCompanyShort {
         .expect("Error loading company");
 
         // get image file (favicon) for company
-        let image_file = SlimFile::get_file_by_uuid(&company.image_file_uuid, conn)
+        let image_file = ShowFile::get_file_by_uuid(&company.image_file_uuid, conn)
             .expect("Error loading company file");
 
         // get region for company
@@ -121,7 +121,7 @@ impl CompanyAndRelatedData {
         ).expect("Error loading slim_user");
 
         // get image file (favicon) for company
-        let image_file = SlimFile::get_file_by_uuid(&company.image_file_uuid, conn)
+        let image_file = ShowFile::get_file_by_uuid(&company.image_file_uuid, conn)
             .expect("Error loading company file");
 
         // get company represents for company
@@ -156,7 +156,7 @@ impl CompanyAndRelatedData {
         let company_subscribers_count: i32 = CompanyFav::get_count_followers_by_uuid(&company.uuid, conn)?;
 
         // get certificates with slimfile for company
-        let certificates_with_slimfile: Vec<CertificateWithSlimFile> = CertificateWithSlimFile::for_company(
+        let certificates_with_slimfile: Vec<CertificateWithShowFile> = CertificateWithShowFile::for_company(
             &company,
             conn
         ).expect("Error loading spec company with translate");

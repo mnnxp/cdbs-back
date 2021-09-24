@@ -47,7 +47,6 @@ imageFile { \
   uuid \
   filename \
   filesize \
-  pathFile \
 } \
 ownerUser { \
   uuid \
@@ -56,7 +55,6 @@ ownerUser { \
     uuid \
     filename \
     filesize \
-    pathFile \
   } \
 } \
 ownerCompany { \
@@ -68,7 +66,6 @@ ownerCompany { \
     uuid \
     filename \
     filesize \
-    pathFile \
   } \
   region { \
     regionId \
@@ -144,7 +141,6 @@ ownerCompany { \
     uuid \
     filename \
     filesize \
-    pathFile \
   } \
   region { \
     regionId \

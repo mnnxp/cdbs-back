@@ -87,7 +87,6 @@ ownerUser { \
     uuid \
     filename \
     filesize \
-    pathFile \
   } \
 } \
 typeAccessId \
@@ -189,7 +188,9 @@ description \
 ownerUser { \
   username \
   imageFile { \
-    pathFile \
+    uuid \
+    filename \
+    filesize \
   } \
 } \
 typeAccessId \
@@ -1627,7 +1628,7 @@ describe('component', () => {
     debug('/graphql filter component=%o', body.data.component);
     expect(body.data.component.uuid).toBe(parentComponentUuid);
     expect(body.data.component.ownerUser.uuid).toBeNonEmptyString();
-    expect(body.data.component.ownerUser.imageFile.pathFile).toBeNonEmptyString();
+    expect(body.data.component.ownerUser.imageFile.uuid).toBeNonEmptyString();
     expect(body.data.component.componentType.componentType).toBeNonEmptyString();
     expect(body.data.component.actualStatus.name).toBeNonEmptyString();
     expect(body.data.component.licenses[0].name).toBeNonEmptyString();

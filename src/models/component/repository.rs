@@ -79,7 +79,7 @@ impl ShowComponentShort {
             ).expect("Error loading license");
 
             // get files for component
-            let component_files = ShowFile::for_component(&component, conn)
+            let files = ShowFile::for_component(&component, conn)
                 .expect("Error loading component_file");
 
             // collect data for supplier component
@@ -100,7 +100,7 @@ impl ShowComponentShort {
                 is_standard: component.is_standard,
                 updated_at: component.updated_at,
                 licenses,
-                files: component_files,
+                files,
                 component_suppliers,
             });
         }
@@ -174,7 +174,7 @@ impl ComponentAndRelatedData {
         ).expect("Error loading license");
 
         // get files for component
-        let component_files = ShowFile::for_component(&component, conn)
+        let files = ShowFile::for_component(&component, conn)
             .expect("Error loading component files");
 
         // get specs with translation for component
@@ -224,7 +224,7 @@ impl ComponentAndRelatedData {
             updated_at: component.updated_at,
             component_params,
             licenses,
-            files: component_files,
+            files,
             component_specs,
             component_keywords,
             component_modifications,

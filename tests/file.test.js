@@ -177,7 +177,6 @@ describe('files', () => {
                 valueExt
                 createdAt
                 filesize
-                pathFile
             }
         }`,
       })
@@ -201,7 +200,6 @@ describe('files', () => {
                 idExt
                 createdAt
                 filesize
-                pathFile
             }
         }`,
       })
@@ -226,7 +224,6 @@ describe('files', () => {
                 idExt
                 createdAt
                 filesize
-                pathFile
             }
         }`,
       })
@@ -251,7 +248,6 @@ describe('files', () => {
                 idExt
                 createdAt
                 filesize
-                pathFile
             }
         }`,
       })
@@ -276,7 +272,6 @@ describe('files', () => {
                 idExt
                 createdAt
                 filesize
-                pathFile
             }
         }`,
       })
@@ -301,7 +296,6 @@ describe('files', () => {
                 idExt
                 createdAt
                 filesize
-                pathFile
             }
         }`,
       })
