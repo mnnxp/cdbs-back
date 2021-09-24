@@ -3035,7 +3035,7 @@ describe('component', () => {
     done();
   });
 
-  it('/graphql:M addFilesToFileset - Ok add file to fileset', async (done) => {
+  it('/graphql:M uploadFilesToFileset - Ok add file to fileset', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .set(
@@ -3044,7 +3044,7 @@ describe('component', () => {
       )
       .send({
           query: `mutation {
-            addFilesToFileset(
+            uploadFilesToFileset(
               data: {
                 filesetUuid: "${filesetForProgramUuid}"
                 filename: [
@@ -3061,18 +3061,18 @@ describe('component', () => {
           }`,
         })
       .expect(HttpStatus.OK)
-    debug('/graphql addFilesToFileset=%o', body);
+    debug('/graphql uploadFilesToFileset=%o', body);
     const {
-      data: { addFilesToFileset },
+      data: { uploadFilesToFileset },
     } = body;
-    expect(addFilesToFileset[0].filename).toBe(filename1);
-    expect(addFilesToFileset[0].uploadUrl).toBeNonEmptyString();
-    expect(addFilesToFileset[1].filename).toBe(filename2);
-    expect(addFilesToFileset[1].uploadUrl).toBeNonEmptyString();
-    expect(addFilesToFileset[2].filename).toBe(filename3);
-    expect(addFilesToFileset[2].uploadUrl).toBeNonEmptyString();
-    expect(addFilesToFileset[3].filename).toBe(filename4);
-    expect(addFilesToFileset[3].uploadUrl).toBeNonEmptyString();
+    expect(uploadFilesToFileset[0].filename).toBe(filename1);
+    expect(uploadFilesToFileset[0].uploadUrl).toBeNonEmptyString();
+    expect(uploadFilesToFileset[1].filename).toBe(filename2);
+    expect(uploadFilesToFileset[1].uploadUrl).toBeNonEmptyString();
+    expect(uploadFilesToFileset[2].filename).toBe(filename3);
+    expect(uploadFilesToFileset[2].uploadUrl).toBeNonEmptyString();
+    expect(uploadFilesToFileset[3].filename).toBe(filename4);
+    expect(uploadFilesToFileset[3].uploadUrl).toBeNonEmptyString();
     done();
   });
 

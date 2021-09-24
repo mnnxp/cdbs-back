@@ -267,7 +267,7 @@ impl ComponentMutation {
         create_modification_fileset(data, conn)
     }
 
-    async fn add_files_to_fileset(
+    async fn upload_files_to_fileset(
         &self,
         cxt: &Context<'_>,
         data: IptModificationFileFromFilesetData,
