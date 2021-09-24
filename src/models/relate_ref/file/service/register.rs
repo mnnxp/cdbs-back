@@ -70,9 +70,11 @@ pub(crate) fn write_addiction_data(
     // select addiction table for write additional data
     match object {
         ListObject::User(_) => Ok(false),
+        // adding a record to user_certificate_ref table is done in fn add_certificate (../user/../certificate/../add.rs)
         ListObject::UserCertificate(_) => Ok(false),
+        // adding a record to company_certificate_ref table is done in fn add_certificate (../company/../certificate/../add.rs)
         ListObject::CompanyCertificate(_) => Ok(false),
-        ListObject::Component(component_uuid) => {   // <- add addiction data in file_to_component
+        ListObject::Component(component_uuid) => {   // <-- add addiction data in file_to_component
             use crate::schema::file_to_component::dsl::file_to_component;
 
             let component_file = InsertableComponentFile {
