@@ -133,7 +133,7 @@ pub struct IptComponentModificationData {
     pub actual_status_id: i32,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Queryable, Clone)]
 pub struct SlimComponentModification {
     pub uuid: Uuid,
     pub component_uuid: Uuid,
@@ -205,4 +205,10 @@ impl From<ComponentModification> for SlimComponentModification {
             updated_at,
         }
     }
+}
+
+#[derive(Debug, Deserialize, Clone, InputObject)]
+pub struct DelComponentModificationData {
+    pub component_uuid: Uuid,
+    pub modification_uuid: Uuid,
 }

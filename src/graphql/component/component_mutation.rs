@@ -25,7 +25,7 @@ use crate::models::component::component_modification::modification_file_from_fil
     IptModificationFileFromFilesetData, DelModificationFileFromFilesetData,
 };
 use crate::models::component::component_modification::model::{
-    IptComponentModificationData, SlimComponentModification,
+    IptComponentModificationData, SlimComponentModification, DelComponentModificationData
 };
 use crate::models::component::component_modification::param::model::{
     IptModificationParamData, DelModificationParamData,
@@ -298,6 +298,25 @@ impl ComponentMutation {
         let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
 
         create_component_modification(data, logged_user_uuid, conn)
+    }
+
+    async fn delete_component_modification(
+        &self,
+        cxt: &Context<'_>,
+        data: DelComponentModificationData,
+    ) -> ServiceResult<SlimComponentModification> {
+        use component_modification::service::delete::del_component_modification;
+
+        // checking authorization and getting user uuid
+        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+
+        let conn: &PooledConnection = &get_conn(cxt)?;
+
+        del_component_modification(
+            &logged_user_uuid,
+            &data,
+            conn
+        )
     }
 
     async fn put_modification_params(

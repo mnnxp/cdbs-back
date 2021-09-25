@@ -4230,6 +4230,132 @@ describe('component', () => {
     done();
   });
 
+  // Testing delete component modification
+  it('/graphql:M deleteComponentModification - BadRequest no token', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .send({
+        query: `mutation  {
+            deleteComponentModification(data: {
+              componentUuid: "${componentUuidStandard}"
+              modificationUuid: "${componentModificationUuidFirst}"
+            }) {
+              uuid
+              componentUuid
+              modificationName
+              description
+              updatedAt
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Token not found.'
+    );
+    expect(body.errors[0].path[0]).toBe('deleteComponentModification');
+    done();
+  });
+
+  it('/graphql:M deleteComponentModification - BadRequest not owner user', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `mutation  {
+            deleteComponentModification(data: {
+              componentUuid: "${componentUuidStandard}"
+              modificationUuid: "${componentModificationUuidFirst}"
+            }) {
+              uuid
+              componentUuid
+              modificationName
+              description
+              updatedAt
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Access denied'
+    );
+    expect(body.errors[0].path[0]).toBe('deleteComponentModification');
+    done();
+  });
+
+  it('/graphql:M deleteComponentModification - OK standard', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation  {
+            deleteComponentModification(data: {
+              componentUuid: "${componentUuidStandard}"
+              modificationUuid: "${componentModificationUuidFirst}"
+            }) {
+              uuid
+              componentUuid
+              modificationName
+              description
+              updatedAt
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql deleteComponentModification=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { deleteComponentModification },
+    } = body;
+    expect(deleteComponentModification).toContainAllKeys([
+      "componentUuid", "description", "modificationName", "updatedAt", "uuid"
+    ]);
+    expect(deleteComponentModification.uuid).toBe(componentModificationUuidFirst);
+    expect(deleteComponentModification.modificationName).toBe(modificationName);
+    expect(deleteComponentModification.description).toBe(descriptionModification);
+    done();
+  });
+
+  it('/graphql:M deleteComponentModification - BadRequest not found component', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation  {
+            deleteComponentModification(data: {
+              componentUuid: "${componentUuidStandard}"
+              modificationUuid: "${componentModificationUuidFirst}"
+            }) {
+              uuid
+              componentUuid
+              modificationName
+              description
+              updatedAt
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Failed delete component modification'
+    );
+    expect(body.errors[0].path[0]).toBe('deleteComponentModification');
+    done();
+  });
+
   // Testing delete component
   it('/graphql:M deleteComponent - BadRequest no token', async (done) => {
     const { body } = await agent
