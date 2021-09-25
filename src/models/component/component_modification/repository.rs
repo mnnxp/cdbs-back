@@ -65,13 +65,13 @@ impl ComponentModificationAndRelatedData {
         ).expect("Error load component_modification_with_status");
 
         // get param with translation for component modification
-        let param_component_modification_with_translate: Vec<Vec<ModificationParamWithTranslation>> = ModificationParamWithTranslation::for_component_modification_list(
+        let component_modification_param_with_translate: Vec<Vec<ModificationParamWithTranslation>> = ModificationParamWithTranslation::for_component_modification_list(
             component_modification,
             set_lang_id,
             conn
-        ).expect("Error load param_component_modification_with_translate");
+        ).expect("Error load component_modification_param_with_translate");
 
-        // debug!("Component modification param_component_modification_with_translate: {:#?}", param_component_modification_with_translate);
+        // debug!("Component modification component_modification_param_with_translate: {:#?}", component_modification_param_with_translate);
 
         // get sets of files for programs for component modification list
         let filesets_program_with_relate: Vec<Vec<FilesetProgramRelatedData>> = FilesetProgramRelatedData::for_component_modification_list(
@@ -92,7 +92,7 @@ impl ComponentModificationAndRelatedData {
                 }
             }
             let mut vec_values_param: Vec<ModificationParamWithTranslation> = Vec::new();
-            for x in param_component_modification_with_translate.iter() {
+            for x in component_modification_param_with_translate.iter() {
                 for y in x.iter() {
                     if w.modification.uuid == y.modification_uuid {
                         vec_values_param.push(y.to_owned())

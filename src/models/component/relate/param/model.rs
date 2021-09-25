@@ -1,6 +1,8 @@
 use crate::schema::*;
 use crate::models::component::model::Component;
-use crate::models::relate_ref::param::model::ParamTranslateList;
+use crate::models::relate_ref::param::model::{
+    ParamTranslateList, IptParamData
+};
 use async_graphql::types::ID;
 use async_graphql::*;
 // use chrono::*;
@@ -12,14 +14,14 @@ use uuid::Uuid;
 #[belongs_to(Component, foreign_key = "component_uuid")]
 #[belongs_to(ParamTranslateList, foreign_key = "param_id")]
 #[table_name = "param_to_component"]
-pub struct ParamComponent {
+pub struct ComponentParam {
     pub component_uuid: Uuid,
     pub param_id: i32,
     pub value: String,
 }
 
 #[Object]
-impl ParamComponent {
+impl ComponentParam {
     async fn component_uuid(&self) -> ID {
         self.component_uuid.into()
     }
@@ -38,8 +40,8 @@ pub struct ComponentParamWithTranslation {
     pub value: String,
 }
 
-impl From<(ParamComponent, ParamTranslateList)> for ComponentParamWithTranslation {
-    fn from(data: (ParamComponent, ParamTranslateList)) -> Self {
+impl From<(ComponentParam, ParamTranslateList)> for ComponentParamWithTranslation {
+    fn from(data: (ComponentParam, ParamTranslateList)) -> Self {
         Self {
             component_uuid: data.0.component_uuid,
             param: data.1,
@@ -48,34 +50,45 @@ impl From<(ParamComponent, ParamTranslateList)> for ComponentParamWithTranslatio
     }
 }
 
-#[derive(Debug, Deserialize, Clone, InputObject)]
-pub struct IptParamComponentData {
-    pub component_uuid: Uuid,
-    pub param_id: i32,
-    pub value: String,
-}
-
 #[derive(Debug, Insertable)]
 #[table_name = "param_to_component"]
-pub struct InsertableParamComponent {
+pub struct InsertableComponentParam {
     pub component_uuid: Uuid,
     pub param_id: i32,
     pub value: String,
 }
 
-impl From<IptParamComponentData> for InsertableParamComponent {
-    fn from(ipt_data: IptParamComponentData) -> Self {
-        let IptParamComponentData {
+#[derive(Debug, Deserialize, Clone, InputObject)]
+pub struct IptComponentParamData {
+    pub component_uuid: Uuid,
+    pub params: Vec<IptParamData>,
+}
+
+impl From<IptComponentParamData> for Vec<InsertableComponentParam> {
+    fn from(ipt_data: IptComponentParamData) -> Vec<InsertableComponentParam> {
+        let IptComponentParamData {
             component_uuid,
-            param_id,
-            value,
-            ..
+            params,
         } = ipt_data;
 
-        Self {
-            component_uuid: Uuid::parse_str(&component_uuid.to_string()).unwrap(),
-            param_id,
-            value,
+        let mut res = Vec::new();
+        // create struct for each param
+        for param_d in params {
+            // now off checking, check the before
+            // if param_d.param_id > 0 { // <-- additionally we check the correctness of the id
+                res.push(InsertableComponentParam {
+                    component_uuid,
+                    param_id: param_d.param_id,
+                    value: param_d.value,
+                })
+            // }
         }
+        res
     }
+}
+
+#[derive(Debug, Deserialize, Clone, InputObject)]
+pub struct DelComponentParamData {
+    pub component_uuid: Uuid,
+    pub param_ids: Vec<i32>,
 }

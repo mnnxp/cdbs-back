@@ -9,7 +9,7 @@ use crate::models::component::keyword::model::IptComponentKeywordData;
 use crate::models::component::license::model::IptComponentLicenseData;
 use crate::models::component::model::{IptComponentData, SlimComponent};
 use crate::models::component::param as component_param;
-use crate::models::component::param::model::{IptParamComponentData, ParamComponent};
+use crate::models::component::param::model::{IptComponentParamData, DelComponentParamData};
 use crate::models::component::spec as component_spec;
 use crate::models::component::spec::model::IptComponentSpecData;
 use crate::models::component::file as component_file;
@@ -54,17 +54,42 @@ impl ComponentMutation {
         create_component(logged_user_uuid, data, conn)
     }
 
-    async fn register_param_component(
+    async fn put_component_params(
         &self,
         cxt: &Context<'_>,
-        data: IptParamComponentData,
-    ) -> ServiceResult<ParamComponent> {
-        use component_param::service::add::create_param_component;
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        data: IptComponentParamData,
+    ) -> ServiceResult<i32> {
+        use component_param::service::change::put_component_params;
 
         crate::models::user::check_authorized(cxt)?;
+        // let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
 
-        create_param_component(data, conn)
+        let conn: &PooledConnection = &get_conn(cxt)?;
+
+        put_component_params(
+            // &logged_user_uuid,
+            &data,
+            conn
+        )
+    }
+
+    async fn delete_component_params(
+        &self,
+        cxt: &Context<'_>,
+        data: DelComponentParamData,
+    ) -> ServiceResult<i32> {
+        use component_param::service::delete::del_component_params;
+
+        crate::models::user::check_authorized(cxt)?;
+        // let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+
+        let conn: &PooledConnection = &get_conn(cxt)?;
+
+        del_component_params(
+            // &logged_user_uuid,
+            &data,
+            conn
+        )
     }
 
     async fn add_component_license(

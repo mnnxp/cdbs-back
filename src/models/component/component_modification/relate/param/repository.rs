@@ -11,15 +11,15 @@ impl ModificationParamWithTranslation {
         conn: &PgConnection,
     ) -> ServiceResult<Vec<Vec<ModificationParamWithTranslation>>> {
         // get params with grouped by modification
-        let param_component_modification: Vec<Vec<ParamModification>> = ParamModification::belonging_to(component_modification)
+        let component_modification_param: Vec<Vec<ParamModification>> = ParamModification::belonging_to(component_modification)
             .load::<ParamModification>(conn)
-            .expect("Error loading param_component_modification")
+            .expect("Error loading component_modification_param")
             .grouped_by(component_modification);
 
 
         // parsing list of id param for component modification
         let mut param_ids_component_modification: Vec<i32> = Vec::new();
-        for x in param_component_modification.iter() {
+        for x in component_modification_param.iter() {
             for y in x.iter() {
                 param_ids_component_modification.push(y.param_id);
             }
@@ -28,8 +28,8 @@ impl ModificationParamWithTranslation {
         // get param with translation for component modification
         let param_translate_list: Vec<ParamTranslateList> = ParamTranslateList::get_param_by_vec_id(&param_ids_component_modification, set_lang_id, conn)?;
 
-        let mut param_component_modification_with_translate: Vec<Vec<ModificationParamWithTranslation>> = Vec::new();
-        for w in param_component_modification.iter() {
+        let mut component_modification_param_with_translate: Vec<Vec<ModificationParamWithTranslation>> = Vec::new();
+        for w in component_modification_param.iter() {
             for x in w.iter() {
                 let mut vec_values: Vec<ModificationParamWithTranslation> = Vec::new();
                 for y in param_translate_list.iter() {
@@ -38,10 +38,10 @@ impl ModificationParamWithTranslation {
                         vec_values.push(res)
                     }
                 }
-                param_component_modification_with_translate.push(vec_values)
+                component_modification_param_with_translate.push(vec_values)
             }
         }
 
-        Ok(param_component_modification_with_translate)
+        Ok(component_modification_param_with_translate)
     }
 }

@@ -1,5 +1,5 @@
 use crate::schema::*;
-use crate::models::component::param::model::ParamComponent;
+use crate::models::component::param::model::ComponentParam;
 use crate::models::component::component_modification::param::model::ParamModification;
 use crate::models::relate_ref::language::model::Language;
 use async_graphql::*;
@@ -29,7 +29,7 @@ pub struct InsertableParam {
 #[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, Clone, Debug)]
 #[primary_key(param_id, lang_id)]
 #[belongs_to(Param, foreign_key = "param_id")]
-#[belongs_to(ParamComponent, foreign_key = "param_id")]
+#[belongs_to(ComponentParam, foreign_key = "param_id")]
 #[belongs_to(ParamModification, foreign_key = "param_id")]
 #[belongs_to(Language, foreign_key = "lang_id")]
 #[table_name = "param_translate_list"]
@@ -64,4 +64,10 @@ pub struct InsertableParamTranslateList {
     pub param_id: i32,
     pub lang_id: i32,
     pub paramname: String,
+}
+
+#[derive(Debug, Deserialize, Clone, InputObject)]
+pub struct IptParamData {
+    pub param_id: i32,
+    pub value: String,
 }
