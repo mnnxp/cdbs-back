@@ -1,5 +1,5 @@
 use crate::database::{get_conn, PooledConnection};
-use crate::errors::ServiceError;
+use crate::errors::{ServiceResult, ServiceError};
 use crate::models::company as company;
 use async_graphql::Context;
 use diesel::prelude::*;
@@ -11,7 +11,7 @@ pub(crate) fn check_standard_access(
     target_user_uuid: &Uuid,
     target_standard_uuid: &Uuid,
     required_access: i32,
-) -> Result<bool, ServiceError> {
+) -> ServiceResult<bool> {
 
 
     use crate::schema::standard_ref::dsl::*;
@@ -211,14 +211,13 @@ pub(crate) fn get_access_from_company(
 pub(crate) fn get_access_set(
     cxt: &Context<'_>,
     target_standard_uuid: &Uuid,
-) -> Result<i32, ServiceError> {
+) -> i32 {
     use crate::schema::standard_ref::dsl::*;
 
-
     // check default access for standard
-    Ok(standard_ref
+    standard_ref
         .filter(uuid.eq(target_standard_uuid))
         .select(type_access_id)
         .first(conn)
-        .unwrap_or(0))
+        .unwrap_or(0)
 }
