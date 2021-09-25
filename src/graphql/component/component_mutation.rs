@@ -1,7 +1,5 @@
 use crate::database::{get_conn, PooledConnection};
 use crate::errors::ServiceResult;
-use async_graphql::{self, Context, Object};
-
 use crate::models::component;
 use crate::models::component::component_fav::model::{ComponentFav, IptComponentFavData};
 use crate::models::component::keyword as component_keyword;
@@ -41,6 +39,9 @@ use crate::models::component::component_modification::fileset_for_program::model
 };
 use crate::models::relate_ref::file::model::UploadFile;
 
+use async_graphql::{self, Context, Object};
+use uuid::Uuid;
+
 #[derive(Default)]
 pub struct ComponentMutation;
 
@@ -58,6 +59,25 @@ impl ComponentMutation {
         let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
 
         create_component(logged_user_uuid, data, conn)
+    }
+
+    async fn delete_component(
+        &self,
+        cxt: &Context<'_>,
+        component_uuid: Uuid,
+    ) -> ServiceResult<SlimComponent> {
+        use component::service::delete::del_component;
+
+        // checking authorization and getting user uuid
+        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+
+        let conn: &PooledConnection = &get_conn(cxt)?;
+
+        del_component(
+            &logged_user_uuid,
+            &component_uuid,
+            conn
+        )
     }
 
     async fn put_component_params(

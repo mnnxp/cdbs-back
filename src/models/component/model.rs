@@ -161,7 +161,7 @@ pub struct IptComponentData {
     pub is_standard: bool,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Queryable)]
 pub struct SlimComponent {
     pub uuid: Uuid,
     pub name: String,

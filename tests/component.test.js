@@ -4229,4 +4229,124 @@ describe('component', () => {
     expect(componentModificationFilesOfFileset).toBeEmptyArray();
     done();
   });
+
+  // Testing delete component
+  it('/graphql:M deleteComponent - BadRequest no token', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .send({
+        query: `mutation  {
+            deleteComponent( componentUuid: "${componentUuidStandard}") {
+                uuid
+                name
+                description
+                actualStatusId
+                isStandard
+                updatedAt
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Token not found.'
+    );
+    expect(body.errors[0].path[0]).toBe('deleteComponent');
+    done();
+  });
+
+  it('/graphql:M deleteComponent - BadRequest not owner user', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `mutation  {
+            deleteComponent( componentUuid: "${componentUuidStandard}") {
+                uuid
+                name
+                description
+                actualStatusId
+                isStandard
+                updatedAt
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Failed delete component'
+    );
+    expect(body.errors[0].path[0]).toBe('deleteComponent');
+    done();
+  });
+
+  it('/graphql:M deleteComponent - OK standard', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation  {
+            deleteComponent( componentUuid: "${componentUuidStandard}") {
+                uuid
+                name
+                description
+                actualStatusId
+                isStandard
+                updatedAt
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql deleteComponent=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { deleteComponent },
+    } = body;
+    expect(deleteComponent).toContainAllKeys([
+      "description", "actualStatusId", "isStandard", "name", "updatedAt", "uuid"
+    ]);
+    expect(deleteComponent.uuid).toBeNonEmptyString();
+    expect(deleteComponent.name).toBe(nameComponent);
+    expect(deleteComponent.description).toBe(descriptionComponent);
+    expect(deleteComponent.isStandard).toBe(isStandardComponent);
+    expect(deleteComponent.actualStatusId).toBe(actualStatusIdComponent);
+    done();
+  });
+
+  it('/graphql:M deleteComponent - BadRequest not found component', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation  {
+            deleteComponent( componentUuid: "${componentUuidStandard}") {
+                uuid
+                name
+                description
+                actualStatusId
+                isStandard
+                updatedAt
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Failed delete component'
+    );
+    expect(body.errors[0].path[0]).toBe('deleteComponent');
+    done();
+  });
 });
