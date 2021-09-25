@@ -179,6 +179,52 @@ componentSuppliers { \
   } \
   componentUuid \
 } \
+componentStandards { \
+ 	uuid \
+  classifier \
+  name \
+  description \
+  specifiedTolerance \
+  publicationAt \
+  ownerCompany { \
+    uuid \
+    shortname \
+    inn \
+    description \
+    imageFile { \
+      uuid \
+      parentFileUuid \
+      userUuid \
+      filename \
+      contentType \
+      idExt \
+      filesize \
+      createdAt \
+      updatedAt \
+    } \
+    region { \
+      regionId \
+      langId \
+      region \
+    } \
+    companyType { \
+      companyTypeId \
+      langId \
+      name \
+      shortname \
+    } \
+    isSupplier \
+    isFollowed \
+    updatedAt \
+  } \
+  standardStatus { \
+    standardStatusId \
+    langId \
+    name \
+  } \
+  updatedAt \
+  isFollowed \
+} \
 `;
 
 const componentsListQuery = ` \
@@ -1627,6 +1673,7 @@ describe('component', () => {
         })
       .expect(HttpStatus.OK)
     debug('/graphql filter component=%o', body.data.component);
+    // expect(body).toBe(0);
     expect(body.data.component.uuid).toBe(parentComponentUuid);
     expect(body.data.component.ownerUser.uuid).toBeNonEmptyString();
     expect(body.data.component.ownerUser.imageFile.uuid).toBeNonEmptyString();
@@ -1645,8 +1692,274 @@ describe('component', () => {
     expect(body.data.component.componentModifications[0].modificationParams).toBeNonEmptyArray();
     expect(body.data.component.componentSuppliers[0].componentUuid).toBe(parentComponentUuid);
     expect(body.data.component.componentSuppliers[0].supplier.shortname).toBeNonEmptyString();
+    expect(body.data.component.componentStandards[0].description).toBeNonEmptyString();
+    expect(body.data.component.componentStandards[0].ownerCompany.uuid).toBeNonEmptyString();
+    expect(body.data.component.componentStandards[0].standardStatus.name).toBeNonEmptyString();
     done();
   });
+
+  // Testing add supplier component
+  it('/graphql:M addSupplierComponent - BadRequest no token', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .send({
+        query: `mutation  {
+            addSupplierComponent( data: {
+                componentUuid: "${componentUuidStandard}",
+                companyUuid: "${companyUuidSupplier}",
+                description: "description for supplier component",
+            })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Token not found.'
+    );
+    expect(body.errors[0].path[0]).toBe('addSupplierComponent');
+    done();
+  });
+
+  it('/graphql:M addSupplierComponent - OK', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `mutation  {
+            addSupplierComponent( data: {
+                componentUuid: "${componentUuidStandard}",
+                companyUuid: "${companyUuidSupplier}",
+                description: "description for supplier component",
+            })
+        }`,
+      })
+      .expect(HttpStatus.OK);
+    debug('/graphql addSupplierComponent=%o', body);
+    const {
+      data: { addSupplierComponent },
+    } = body;
+    expect(addSupplierComponent).toBe(true);
+    done();
+  });
+
+  it('/graphql:M addSupplierComponent - BadRequest is not supplier', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `mutation  {
+            addSupplierComponent( data: {
+                componentUuid: "${componentUuidStandard}",
+                companyUuid: "${companyUuidNoSupplier}",
+                description: "description for supplier component",
+            })
+        }`,
+      })
+      .expect(HttpStatus.OK);
+    debug('/graphql - body =%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: The company is not supplier.'
+    );
+    expect(body.errors[0].path[0]).toBe('addSupplierComponent');
+    done();
+  });
+
+  it('/graphql:M addSupplierComponent - BadRequest not standard component', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `mutation  {
+            addSupplierComponent( data: {
+                componentUuid: "${componentUuidNoStandard}",
+                companyUuid: "${companyUuidSupplier}",
+                description: "description for supplier component",
+            })
+        }`,
+      })
+      .expect(HttpStatus.OK);
+    debug('/graphql - body =%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: The component is not standard.'
+    );
+    expect(body.errors[0].path[0]).toBe('addSupplierComponent');
+    done();
+  });
+
+  it('/graphql:M addSupplierComponent - BadRequest supplier already exists', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `mutation  {
+            addSupplierComponent( data: {
+                componentUuid: "${componentUuidStandard}",
+                companyUuid: "${companyUuidSupplier}",
+                description: "description for supplier component",
+            })
+        }`,
+      })
+      .expect(HttpStatus.OK);
+    debug('/graphql - body =%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: This supplier is already with the component'
+    );
+    expect(body.errors[0].path[0]).toBe('addSupplierComponent');
+    done();
+  });
+
+  it('/graphql:Q Get full data Component - OK check update modification param', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+          query: `query componentQuery{
+            component(componentUuid: "${componentUuidStandard}") {
+              uuid \
+              componentSuppliers { \
+                supplier { \
+                  uuid \
+                  isSupplier \
+                  shortname \
+                } \
+                description \
+                componentUuid \
+              } \
+            } \
+          }`,
+        })
+      .expect(HttpStatus.OK)
+    debug('/graphql filter component=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { component },
+    } = body;
+    expect(component.uuid).toBe(componentUuidStandard);
+    expect(component.componentSuppliers[0].componentUuid).toBe(componentUuidStandard);
+    expect(component.componentSuppliers[0].supplier.uuid).toBeNonEmptyString();
+    expect(component.componentSuppliers[0].supplier.isSupplier).toBe(true);
+    expect(component.componentSuppliers[0].supplier.shortname).toBeNonEmptyString();
+    done();
+  });
+
+  // Testing delete suppliers component
+  it('/graphql:M deleteSuppliersComponent - BadRequest no token', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .send({
+        query: `mutation  {
+            deleteSuppliersComponent( data: {
+                componentUuid: "${componentUuidStandard}",
+                companiesUuids: "${companyUuidNoSupplier}"
+            })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Token not found.'
+    );
+    expect(body.errors[0].path[0]).toBe('deleteSuppliersComponent');
+    done();
+  });
+
+  it('/graphql:M deleteSuppliersComponent - Ok', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `mutation  {
+            deleteSuppliersComponent( data: {
+                componentUuid: "${componentUuidStandard}",
+                companiesUuids: "${companyUuidSupplier}"
+            })
+        }`,
+      })
+      .expect(HttpStatus.OK);
+    debug('/graphql deleteSuppliersComponent=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { deleteSuppliersComponent },
+    } = body;
+    expect(deleteSuppliersComponent).toBe(1);
+    done();
+  });
+
+  it('/graphql:M deleteSuppliersComponent - Ok not found row', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `mutation  {
+            deleteSuppliersComponent( data: {
+                componentUuid: "${componentUuidStandard}",
+                companiesUuids: [
+                  "${companyUuidSupplier}",
+                  "${companyUuidSupplier}"
+                ]
+            })
+        }`,
+      })
+      .expect(HttpStatus.OK);
+    debug('/graphql - body =%o', body);
+    const {
+      data: { deleteSuppliersComponent },
+    } = body;
+    expect(deleteSuppliersComponent).toBe(0);
+    done();
+  });
+
+  // it('/graphql:M addSupplierComponent - BadRequest no access', async (done) => {
+  //   const { body } = await agent
+  //     .post('/graphql')
+  //     .set(
+  //       'Authorization',
+  //       `Bearer ${authorizationTokenSecond}`
+  //     )
+  //     .send({
+  //       query: `mutation  {
+  //           addSupplierComponent( data: {
+  //               componentUuid: "${componentUuidStandard}",
+  //               companyUuid: "${companyUuidSupplier}"
+  //           }) {
+  //               componentUuid
+  //               companyUuid
+  //           }
+  //       }`,
+  //     })
+  //     .expect(HttpStatus.OK)
+  //   debug('/graphql  body=%o', body);
+  //   const { errors, data } = body;
+  //   expect(data).toBeNull();
+  //   expect(errors[0].message).toBe("BadRequest: Access denied");
+  //   expect(body.errors[0].path[0]).toBe('addSupplierComponent');
+  // });
 
   // Testing component files
   it('/graphql:Q ComponentFiles - BadRequest no token', async (done) => {
