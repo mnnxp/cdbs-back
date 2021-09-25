@@ -281,7 +281,7 @@ describe('users', () => {
       .expect(HttpStatus.UNAUTHORIZED)
       .then(({ body, text, error, headers }) => {
         debug(
-          '/users/login body=%o text=%o error=%o headers=%o ',
+          '/login body=%o text=%o error=%o headers=%o ',
           body,
           text,
           error,
@@ -304,7 +304,7 @@ describe('users', () => {
       .expect(HttpStatus.UNAUTHORIZED)
       .then(({ body, text, error, headers }) => {
         debug(
-          '/users/login body=%o text=%o error=%o headers=%o ',
+          '/login body=%o text=%o error=%o headers=%o ',
           body,
           text,
           error,

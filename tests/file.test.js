@@ -57,9 +57,9 @@ describe('files', () => {
 
   const agent = request.agent(url);
 
-  it('/users/login - OK is supplier', (done) => {
+  it('/login - OK is supplier', (done) => {
     agent
-      .post('/users/login')
+      .post('/login')
       .send({ username, password })
       .expect(HttpStatus.OK)
       .then(({ body, headers }) => {
@@ -311,9 +311,9 @@ describe('files', () => {
     agent.get('/users/logout').expect(HttpStatus.OK, done);
   });
 
-  it('/users/login - OK is not supplier', (done) => {
+  it('/login - OK is not supplier', (done) => {
     agent
-      .post('/users/login')
+      .post('/login')
       .send({ username: username2, password: password2 })
       .expect(HttpStatus.OK)
       .then(({ body, headers }) => {
