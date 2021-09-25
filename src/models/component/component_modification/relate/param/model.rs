@@ -1,9 +1,11 @@
-use crate::schema::*;
 use crate::models::component::component_modification::model::ComponentModification;
-use crate::models::relate_ref::param::model::ParamTranslateList;
+use crate::models::relate_ref::param::model::{
+    ParamTranslateList, IptParamData
+};
+use crate::schema::*;
+
 use async_graphql::types::ID;
 use async_graphql::*;
-// use chrono::*;
 use uuid::Uuid;
 
 #[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, PartialEq, Clone, Debug)]
@@ -11,14 +13,14 @@ use uuid::Uuid;
 #[belongs_to(ComponentModification, foreign_key = "modification_uuid")]
 #[belongs_to(ParamTranslateList, foreign_key = "param_id")]
 #[table_name = "param_to_modification"]
-pub struct ParamModification {
+pub struct ModificationParam {
     pub modification_uuid: Uuid,
     pub param_id: i32,
     pub value: String,
 }
 
 #[Object]
-impl ParamModification {
+impl ModificationParam {
     async fn modification_uuid(&self) -> ID {
         self.modification_uuid.into()
     }
@@ -37,8 +39,8 @@ pub struct ModificationParamWithTranslation {
     pub value: String,
 }
 
-impl From<(ParamModification, ParamTranslateList)> for ModificationParamWithTranslation {
-    fn from(data: (ParamModification, ParamTranslateList)) -> Self {
+impl From<(ModificationParam, ParamTranslateList)> for ModificationParamWithTranslation {
+    fn from(data: (ModificationParam, ParamTranslateList)) -> Self {
         Self {
             modification_uuid: data.0.modification_uuid,
             param: data.1,
@@ -47,33 +49,43 @@ impl From<(ParamModification, ParamTranslateList)> for ModificationParamWithTran
     }
 }
 
-#[derive(Debug, Deserialize, Clone, InputObject)]
-pub struct IptParamModificationData {
-    pub modification_uuid: Uuid,
-    pub param_id: i32,
-    pub value: String,
-}
-
 #[derive(Debug, Insertable)]
 #[table_name = "param_to_modification"]
-pub struct InsertableParamModification {
+pub struct InsertableModificationParam {
     pub modification_uuid: Uuid,
     pub param_id: i32,
     pub value: String,
 }
 
-impl From<IptParamModificationData> for InsertableParamModification {
-    fn from(ipt_data: IptParamModificationData) -> Self {
-        let IptParamModificationData {
+#[derive(Debug, Deserialize, Clone, InputObject)]
+pub struct IptModificationParamData {
+    pub modification_uuid: Uuid,
+    pub params: Vec<IptParamData>,
+}
+
+impl From<IptModificationParamData> for Vec<InsertableModificationParam> {
+    fn from(ipt_data: IptModificationParamData) -> Vec<InsertableModificationParam> {
+        let IptModificationParamData {
             modification_uuid,
-            param_id,
-            value,
+            params,
         } = ipt_data;
 
-        Self {
-            modification_uuid: Uuid::parse_str(&modification_uuid.to_string()).unwrap(),
-            param_id,
-            value,
+        let mut res = Vec::new();
+        // create struct for each param
+        for param_d in params {
+            // now off checking, check the before
+            res.push(InsertableModificationParam {
+                modification_uuid,
+                param_id: param_d.param_id,
+                value: param_d.value,
+            })
         }
+        res
     }
+}
+
+#[derive(Debug, Deserialize, Clone, InputObject)]
+pub struct DelModificationParamData {
+    pub modification_uuid: Uuid,
+    pub param_ids: Vec<i32>,
 }

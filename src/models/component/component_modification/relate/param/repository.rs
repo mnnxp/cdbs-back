@@ -1,6 +1,6 @@
 use crate::errors::ServiceResult;
 use crate::models::component::component_modification::model::ComponentModification;
-use crate::models::component::component_modification::param::model::{ParamModification, ModificationParamWithTranslation};
+use crate::models::component::component_modification::param::model::{ModificationParam, ModificationParamWithTranslation};
 use crate::models::relate_ref::param::model::ParamTranslateList;
 use diesel::prelude::*;
 
@@ -11,8 +11,8 @@ impl ModificationParamWithTranslation {
         conn: &PgConnection,
     ) -> ServiceResult<Vec<Vec<ModificationParamWithTranslation>>> {
         // get params with grouped by modification
-        let component_modification_param: Vec<Vec<ParamModification>> = ParamModification::belonging_to(component_modification)
-            .load::<ParamModification>(conn)
+        let component_modification_param: Vec<Vec<ModificationParam>> = ModificationParam::belonging_to(component_modification)
+            .load::<ModificationParam>(conn)
             .expect("Error loading component_modification_param")
             .grouped_by(component_modification);
 

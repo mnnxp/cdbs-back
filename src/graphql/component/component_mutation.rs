@@ -24,7 +24,7 @@ use crate::models::component::component_modification::model::{
     IptComponentModificationData, SlimComponentModification,
 };
 use crate::models::component::component_modification::param::model::{
-    IptParamModificationData, ParamModification,
+    IptModificationParamData, DelModificationParamData,
 };
 use crate::models::component::component_modification::file::model::{
     IptModificationFileData, DelModificationFileData
@@ -232,17 +232,41 @@ impl ComponentMutation {
         create_component_modification(data, logged_user_uuid, conn)
     }
 
-    async fn register_param_modification(
+    async fn put_modification_params(
         &self,
         cxt: &Context<'_>,
-        data: IptParamModificationData,
-    ) -> ServiceResult<ParamModification> {
-        use component_modification::param::service::add::create_param_modification;
+        data: IptModificationParamData,
+    ) -> ServiceResult<i32> {
+        use component_modification::param::service::change::put_modification_params;
         let conn: &PooledConnection = &get_conn(cxt)?;
 
         crate::models::user::check_authorized(cxt)?;
+        // let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
 
-        create_param_modification(data, conn)
+        put_modification_params(
+            // &logged_user_uuid,
+            &data,
+            conn
+        )
+    }
+
+    async fn delete_modification_params(
+        &self,
+        cxt: &Context<'_>,
+        data: DelModificationParamData,
+    ) -> ServiceResult<i32> {
+        use component_modification::param::service::delete::del_modification_params;
+
+        crate::models::user::check_authorized(cxt)?;
+        // let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+
+        let conn: &PooledConnection = &get_conn(cxt)?;
+
+        del_modification_params(
+            // &logged_user_uuid,
+            &data,
+            conn
+        )
     }
 
     async fn upload_modification_files(

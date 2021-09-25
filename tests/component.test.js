@@ -257,7 +257,7 @@ async function cleanupComponentParamDb() {
   ]);
 }
 
-async function cleanupParamModificationDb() {
+async function cleanupModificationParamDb() {
   return global.knex.raw('DELETE FROM param_to_modification WHERE value in (?,?)', [
     paramValueTest,
     paramValueTest2,
@@ -307,7 +307,7 @@ async function cleanupComponentModificationDb() {
 describe('component', () => {
   beforeAll(() => {
     cleanupComponentParamDb();
-    cleanupParamModificationDb();
+    cleanupModificationParamDb();
     cleanupComponentModificationDb();
     cleanupComponentDb();
     cleanupStandardDb();
@@ -317,7 +317,7 @@ describe('component', () => {
   });
   afterAll(() => {
     cleanupComponentParamDb();
-    cleanupParamModificationDb();
+    cleanupModificationParamDb();
     cleanupComponentModificationDb();
     cleanupComponentDb();
     cleanupStandardDb();
@@ -2074,7 +2074,7 @@ describe('component', () => {
     done();
   });
 
-  it('/graphql:Q Get full data Component - OK check add param', async (done) => {
+  it('/graphql:Q Get full data Component - OK check update component param', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .set(
@@ -2384,21 +2384,19 @@ describe('component', () => {
     done();
   });
 
-  // Testing param component modification
-  it('/graphql:M registerParamModification - BadRequest no token', async (done) => {
+  // Testing add and update param component
+  it('/graphql:M putModificationParams - BadRequest no token', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .send({
         query: `mutation  {
-            registerParamModification( data: {
-                modificationUuid: "${componentModificationUuidFirst}",
-                paramId: ${paramnameIndex2},
-                value: "${paramValueTest}"
-            }) {
-                modificationUuid
-                paramId
-                value
-            }
+            putModificationParams( data: {
+                modificationUuid: "${componentModificationUuidSecond}",
+                params: {
+                  paramId: ${paramnameIndex}
+                  value: "${paramValueTest}"
+                }
+            })
         }`,
       })
       .expect(HttpStatus.OK)
@@ -2407,11 +2405,11 @@ describe('component', () => {
     expect(body.errors[0].message).toBe(
       'BadRequest: Token not found.'
     );
-    expect(body.errors[0].path[0]).toBe('registerParamModification');
+    expect(body.errors[0].path[0]).toBe('putModificationParams');
     done();
   });
 
-  it('/graphql:M registerParamModification - OK', async (done) => {
+  it('/graphql:M putModificationParams - OK', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .set(
@@ -2420,61 +2418,192 @@ describe('component', () => {
       )
       .send({
         query: `mutation  {
-            registerParamModification( data: {
-                modificationUuid: "${componentModificationUuidFirst}",
-                paramId: ${paramnameIndex2},
-                value: "${paramValueTest}"
-            }) {
-                modificationUuid
-                paramId
-                value
-            }
+            putModificationParams( data: {
+                modificationUuid: "${componentModificationUuidSecond}",
+                params: {
+                  paramId: ${paramnameIndex}
+                  value: "${paramValueTest}"
+                }
+            })
         }`,
       })
       .expect(HttpStatus.OK);
-    debug('/graphql body=%o', body);
+    debug('/graphql putModificationParams=%o', body);
     const {
-      data: { registerParamModification },
+      data: { putModificationParams },
     } = body;
-    expect(registerParamModification).toContainAllKeys([
-      "modificationUuid", "paramId", "value"
-    ]);
-    expect(registerParamModification.value).toBe(paramValueTest);
+    expect(putModificationParams).toBe(1);
     done();
   });
 
-  it('/graphql:M registerParamModification - BadRequest duplicate param', async (done) => {
+  it('/graphql:M putModificationParams - BadRequest duplicate param_id and value', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .set(
         'Authorization',
-        `Bearer ${authorizationTokenFirst}`
+        `Bearer ${authorizationTokenSecond}`
       )
       .send({
         query: `mutation  {
-            registerParamModification( data: {
-                modificationUuid: "${componentModificationUuidFirst}",
-                paramId: ${paramnameIndex2},
-                value: "${paramValueTest}"
-            }) {
-                modificationUuid
-                paramId
-                value
-            }
+            putModificationParams( data: {
+                modificationUuid: "${componentModificationUuidSecond}",
+                params: {
+                  paramId: ${paramnameIndex}
+                  value: "${paramValueTest}"
+                }
+            })
         }`,
       })
       .expect(HttpStatus.OK);
-    debug('/graphql body =%o', body);
-    const { errors, data } = body;
-    expect(data).toBeNull();
-    expect(errors[0].message).toBe(
-      "BadRequest: This param name is already with the modification."
+    debug('/graphql - body =%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Duplication of existing data detected'
     );
-    expect(body.errors[0].path[0]).toBe('registerParamModification');
+    expect(body.errors[0].path[0]).toBe('putModificationParams');
     done();
   });
 
-  // it('/graphql:M registerParamModification - BadRequest no access', async (done) => {
+  it('/graphql:M putModificationParams - OK update value', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `mutation  {
+            putModificationParams( data: {
+                modificationUuid: "${componentModificationUuidSecond}",
+                params: {
+                  paramId: ${paramnameIndex}
+                  value: "${paramValueTest2}"
+                }
+            })
+        }`,
+      })
+      .expect(HttpStatus.OK);
+    debug('/graphql putModificationParams=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { putModificationParams },
+    } = body;
+    expect(putModificationParams).toBe(1);
+    done();
+  });
+
+  it('/graphql:Q Get full data Component - OK check update modification param', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+          query: `query componentQuery{
+            component(componentUuid: "${componentUuidNoStandard}") {
+              uuid \
+              componentModifications { \
+                modificationParams { \
+                  modificationUuid \
+                  param { \
+                    paramId \
+                    langId \
+                    paramname \
+                  } \
+                  value \
+                } \
+              } \
+            } \
+          }`,
+        })
+      .expect(HttpStatus.OK)
+    debug('/graphql filter component=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { component },
+    } = body;
+    expect(component.uuid).toBe(componentUuidNoStandard);
+    expect(component.componentModifications[0].modificationParams[0].modificationUuid).toBe(componentModificationUuidSecond);
+    expect(component.componentModifications[0].modificationParams[0].param.paramId).toBe(paramnameIndex);
+    expect(component.componentModifications[0].modificationParams[0].param.paramname).toBeNonEmptyString();
+    expect(component.componentModifications[0].modificationParams[0].value).toBe(paramValueTest2);
+    done();
+  });
+
+  // Testing delete param component modification
+  it('/graphql:M deleteModificationParams - BadRequest no token', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .send({
+        query: `mutation  {
+            deleteModificationParams( data: {
+                modificationUuid: "${componentModificationUuidSecond}",
+                paramIds: [${paramIdsTest}]
+            })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Token not found.'
+    );
+    expect(body.errors[0].path[0]).toBe('deleteModificationParams');
+    done();
+  });
+
+  it('/graphql:M deleteModificationParams - OK', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `mutation  {
+            deleteModificationParams( data: {
+                modificationUuid: "${componentModificationUuidSecond}",
+                paramIds: ${paramnameIndex}
+            })
+        }`,
+      })
+      .expect(HttpStatus.OK);
+    debug('/graphql deleteModificationParams=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { deleteModificationParams },
+    } = body;
+    expect(deleteModificationParams).toBe(1);
+    done();
+  });
+
+  it('/graphql:M deleteModificationParams - BadRequest not found row for delete', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `mutation  {
+            deleteModificationParams( data: {
+                modificationUuid: "${componentModificationUuidSecond}",
+                paramIds: [${paramIdsTest}]
+            })
+        }`,
+      })
+      .expect(HttpStatus.OK);
+    debug('/graphql - body =%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Fail delete rows'
+    );
+    expect(body.errors[0].path[0]).toBe('deleteModificationParams');
+    done();
+  });
+
+  // it('/graphql:M putModificationParams - BadRequest no access', async (done) => {
   //   const { body } = await agent
   //     .post('/graphql')
   //     .set(
@@ -2483,12 +2612,12 @@ describe('component', () => {
   //     )
   //     .send({
   //       query: `mutation  {
-  //           registerParamModification( data: {
-  //               modificationUuid: "${componentModificationUuidFirst}",
-  //               paramId: ${paramnameIndex2},
+  //           putModificationParams( data: {
+  //               modificationUuid: "${componentModificationUuidSecond}",
+  //               paramId: ${paramnameIndex},
   //               value: "${paramValueTest}"
   //           }) {
-  //               modificationUuid
+  //               componentUuid
   //               paramId
   //               value
   //           }
@@ -2498,10 +2627,9 @@ describe('component', () => {
   //   debug('/graphql  body=%o', body);
   //   const { errors, data } = body;
   //   expect(data).toBeNull();
-  //   expect(errors[0].message).toBe("BadRequest: Not found this modification of you.");
-  //   expect(body.errors[0].path[0]).toBe('registerParamModification');
+  //   expect(errors[0].message).toBe("BadRequest: Access denied");
+  //   expect(body.errors[0].path[0]).toBe('putModificationParams');
   // });
-
 
   // Testing component modification files
   it('/graphql:Q ModificationFiles - BadRequest no token', async (done) => {
