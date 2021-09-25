@@ -9,10 +9,21 @@ impl RegionTranslateList {
         set_lang_id: &i32,
         conn: &PgConnection,
     ) -> ServiceResult<RegionTranslateList> {
-        Ok(region_translate_list::region_translate_list
+        let region = region_translate_list::region_translate_list
             .filter(region_translate_list::region_id.eq(target_region_id)
             .and(region_translate_list::lang_id.eq(set_lang_id)))
-            .first::<RegionTranslateList>(conn)?)
+            .first::<RegionTranslateList>(conn);
+
+        // if not found data for set lang
+        match region {
+            Ok(rn) => Ok(rn),
+            Err(err) => {
+                debug!("Not found set lang for region: {:?}", err);
+                Ok(region_translate_list::region_translate_list
+                    .filter(region_translate_list::region_id.eq(target_region_id))
+                    .first::<RegionTranslateList>(conn)?)
+            },
+        }
     }
 
     pub fn get_region_by_vec_id(
@@ -20,9 +31,20 @@ impl RegionTranslateList {
         set_lang_id: &i32,
         conn: &PgConnection,
     ) -> ServiceResult<Vec<RegionTranslateList>> {
-        Ok(region_translate_list::region_translate_list
+        let regions = region_translate_list::region_translate_list
             .filter(region_translate_list::region_id.eq_any(target_vec_region_id)
             .and(region_translate_list::lang_id.eq(set_lang_id)))
-            .load::<RegionTranslateList>(conn)?)
+            .load::<RegionTranslateList>(conn);
+
+        // if not found data for set lang
+        match regions {
+            Ok(rns) => Ok(rns),
+            Err(err) => {
+                debug!("Not found set lang for regions: {:?}", err);
+                Ok(region_translate_list::region_translate_list
+                    .filter(region_translate_list::region_id.eq_any(target_vec_region_id))
+                    .load::<RegionTranslateList>(conn)?)
+            },
+        }
     }
 }

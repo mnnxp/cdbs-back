@@ -10,10 +10,21 @@ impl ActualStatusTranslateList {
         set_lang_id: &i32,
         conn: &PgConnection,
     ) -> ServiceResult<ActualStatusTranslateList> {
-        Ok(actual_status_translate_list::actual_status_translate_list
+        let actual_status = actual_status_translate_list::actual_status_translate_list
             .filter(actual_status_translate_list::actual_status_id.eq(target_actual_status_id)
             .and(actual_status_translate_list::lang_id.eq(set_lang_id)))
-            .first::<ActualStatusTranslateList>(conn)?)
+            .first::<ActualStatusTranslateList>(conn);
+
+        // if not found data for set lang
+        match actual_status {
+            Ok(at_status) => Ok(at_status),
+            Err(err) => {
+                debug!("Not found set lang for actual status: {:?}", err);
+                Ok(actual_status_translate_list::actual_status_translate_list
+                    .filter(actual_status_translate_list::actual_status_id.eq(target_actual_status_id))
+                    .first::<ActualStatusTranslateList>(conn)?)
+            },
+        }
     }
 
     /// Get list actual status by vec id and set lang
@@ -22,9 +33,20 @@ impl ActualStatusTranslateList {
         set_lang_id: &i32,
         conn: &PgConnection,
     ) -> ServiceResult<Vec<ActualStatusTranslateList>> {
-        Ok(actual_status_translate_list::actual_status_translate_list
+        let actuals_status = actual_status_translate_list::actual_status_translate_list
             .filter(actual_status_translate_list::actual_status_id.eq_any(target_vec_actual_status_id)
             .and(actual_status_translate_list::lang_id.eq(set_lang_id)))
-            .load::<ActualStatusTranslateList>(conn)?)
+            .load::<ActualStatusTranslateList>(conn);
+
+        // if not found data for set lang
+        match actuals_status {
+            Ok(ats_status) => Ok(ats_status),
+            Err(err) => {
+                debug!("Not found set lang for actuals status: {:?}", err);
+                Ok(actual_status_translate_list::actual_status_translate_list
+                    .filter(actual_status_translate_list::actual_status_id.eq_any(target_vec_actual_status_id))
+                    .load::<ActualStatusTranslateList>(conn)?)
+            },
+        }
     }
 }

@@ -10,9 +10,20 @@ impl ComponentTypeTranslateList {
         set_lang_id: &i32,
         conn: &PgConnection,
     ) -> ServiceResult<ComponentTypeTranslateList> {
-        Ok(component_type_translate_list::component_type_translate_list
+        let component_type = component_type_translate_list::component_type_translate_list
             .filter(component_type_translate_list::component_type_id.eq(target_component_type_id)
             .and(component_type_translate_list::lang_id.eq(set_lang_id)))
-            .first::<ComponentTypeTranslateList>(conn)?)
+            .first::<ComponentTypeTranslateList>(conn);
+
+        // if not found data for set lang
+        match component_type {
+            Ok(ct_type) => Ok(ct_type),
+            Err(err) => {
+                debug!("Not found set lang for component type: {:?}", err);
+                Ok(component_type_translate_list::component_type_translate_list
+                    .filter(component_type_translate_list::component_type_id.eq(target_component_type_id))
+                    .first::<ComponentTypeTranslateList>(conn)?)
+            },
+        }
     }
 }
