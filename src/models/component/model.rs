@@ -152,7 +152,7 @@ pub struct ComponentData {
 
 #[derive(Debug, Deserialize, InputObject)]
 pub struct IptComponentData {
-    pub parent_component_uuid: Option<ID>,
+    pub parent_component_uuid: Option<Uuid>,
     pub name: String,
     pub description: String,
     pub type_access_id: i32,
