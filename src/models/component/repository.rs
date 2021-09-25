@@ -7,6 +7,7 @@ use crate::models::component::component_fav::model::ComponentFav;
 use crate::models::component::spec::model::ComponentSpecWithTranslation;
 use crate::models::component::supplier::model::ComponentSupplierRelatedData;
 use crate::models::component::component_modification::model::{ComponentModification, ComponentModificationAndRelatedData};
+use crate::models::standard::model::ShowStandardShort;
 use crate::models::relate_ref::license::model::License;
 use crate::models::relate_ref::keyword::model::Keyword;
 use crate::models::relate_ref::file::model::ShowFile;
@@ -209,6 +210,15 @@ impl ComponentAndRelatedData {
             conn
         ).expect("Error loading supplier component with relate");
 
+        // collect data for component standards
+        let component_standards: Vec<ShowStandardShort> = ShowStandardShort::for_component(
+            target_component_uuid,
+            target_user_uuid,
+            set_lang_id, 
+            conn
+        ).expect("Error loading supplier component with relate");
+
+
         let result = ComponentAndRelatedData {
             uuid: component.uuid,
             parent_component_uuid: component.parent_component_uuid,
@@ -229,6 +239,7 @@ impl ComponentAndRelatedData {
             component_keywords,
             component_modifications,
             component_suppliers,
+            component_standards,
         };
 
         Ok(result)

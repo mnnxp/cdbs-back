@@ -24,7 +24,7 @@ impl Standard {
 
 impl ShowStandardShort {
     pub fn get_list_by_uuids(
-        target_uuids_standards: &[Uuid],
+        target_standards_uuids: &[Uuid],
         target_user_uuid: &Uuid,
         set_lang_id: &i32,
         conn: &PgConnection,
@@ -33,7 +33,7 @@ impl ShowStandardShort {
         let mut result: Vec<ShowStandardShort> = Vec::new();
 
         // collecting data for each standard
-        for target_standard_uuid in target_uuids_standards.iter() {
+        for target_standard_uuid in target_standards_uuids.iter() {
             // get target standard
             let standard: Standard = Standard::get_standard_by_uuid(
                 target_standard_uuid,
