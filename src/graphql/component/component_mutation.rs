@@ -15,7 +15,13 @@ use crate::models::component::spec::model::IptComponentSpecData;
 use crate::models::component::file as component_file;
 use crate::models::component::file::model::{IptComponentFileData, DelComponentFileData};
 use crate::models::component::supplier as component_supplier;
-use crate::models::component::supplier::model::{IptSupplierComponentData, SupplierComponent};
+use crate::models::component::supplier::model::{
+    IptSupplierComponentData, DelSupplierToComponentData
+};
+use crate::models::component::standard as component_standard;
+use crate::models::component::standard::model::{
+    IptStandardToComponentData, DelStandardToComponentData
+};
 use crate::models::component::component_modification;
 use crate::models::component::component_modification::modification_file_from_fileset::model::{
     IptModificationFileFromFilesetData, DelModificationFileFromFilesetData,
@@ -210,13 +216,55 @@ impl ComponentMutation {
         &self,
         cxt: &Context<'_>,
         data: IptSupplierComponentData,
-    ) -> ServiceResult<SupplierComponent> {
+    ) -> ServiceResult<bool> {
         use component_supplier::service::add::add_component_supplier;
         let conn: &PooledConnection = &get_conn(cxt)?;
 
         crate::models::user::check_authorized(cxt)?;
 
-        add_component_supplier(data, conn)
+        add_component_supplier(&data, conn)
+    }
+
+    async fn delete_suppliers_component(
+        &self,
+        cxt: &Context<'_>,
+        data: DelSupplierToComponentData,
+    ) -> ServiceResult<i32> {
+        use component_supplier::service::delete::del_suppliers_component;
+
+        crate::models::user::check_authorized(cxt)?;
+
+        let conn: &PooledConnection = &get_conn(cxt)?;
+
+        del_suppliers_component(&data,conn)
+    }
+
+    async fn add_standard_to_component(
+        &self,
+        cxt: &Context<'_>,
+        data: IptStandardToComponentData,
+    ) -> ServiceResult<bool> {
+        use component_standard::service::add::add_standard_to_component;
+
+        crate::models::user::check_authorized(cxt)?;
+
+        let conn: &PooledConnection = &get_conn(cxt)?;
+
+        add_standard_to_component(&data,conn)
+    }
+
+    async fn delete_standards_component(
+        &self,
+        cxt: &Context<'_>,
+        data: DelStandardToComponentData,
+    ) -> ServiceResult<i32> {
+        use component_standard::service::delete::del_standards_component;
+
+        crate::models::user::check_authorized(cxt)?;
+
+        let conn: &PooledConnection = &get_conn(cxt)?;
+
+        del_standards_component(&data,conn)
     }
 
     async fn register_component_modification(

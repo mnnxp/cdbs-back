@@ -63,8 +63,8 @@ pub struct InsertableSupplierComponent {
     pub description: String,
 }
 
-impl From<IptSupplierComponentData> for InsertableSupplierComponent {
-    fn from(ipt_data: IptSupplierComponentData) -> Self {
+impl From<&IptSupplierComponentData> for InsertableSupplierComponent {
+    fn from(ipt_data: &IptSupplierComponentData) -> Self {
         let IptSupplierComponentData {
             component_uuid,
             company_uuid,
@@ -73,9 +73,15 @@ impl From<IptSupplierComponentData> for InsertableSupplierComponent {
         } = ipt_data;
 
         Self {
-            component_uuid: Uuid::parse_str(&component_uuid.to_string()).unwrap(),
-            company_uuid: Uuid::parse_str(&company_uuid.to_string()).unwrap(),
-            description,
+            component_uuid: *component_uuid,
+            company_uuid: *company_uuid,
+            description: description.to_string(),
         }
     }
+}
+
+#[derive(Debug, Deserialize, Clone, InputObject)]
+pub struct DelSupplierToComponentData {
+    pub component_uuid: Uuid,
+    pub companies_uuids: Vec<Uuid>,
 }

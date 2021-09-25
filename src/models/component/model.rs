@@ -6,7 +6,7 @@ use crate::models::component::param::model::ComponentParamWithTranslation;
 use crate::models::component::spec::model::ComponentSpecWithTranslation;
 use crate::models::component::supplier::model::ComponentSupplierRelatedData;
 use crate::models::component::component_modification::model::ComponentModificationAndRelatedData;
-// use crate::models::component::component_modification::model::ComponentModification;
+use crate::models::standard::model::ShowStandardShort;
 use crate::models::relate_ref::license::model::License;
 use crate::models::relate_ref::keyword::model::Keyword;
 use crate::models::relate_ref::file::model::ShowFile;
@@ -96,6 +96,8 @@ pub struct ComponentAndRelatedData {
     pub component_keywords: Vec<Keyword>,
     pub component_modifications: Vec<ComponentModificationAndRelatedData>,
     pub component_suppliers: Vec<ComponentSupplierRelatedData>,
+    // show the standards that fit the object
+    pub component_standards: Vec<ShowStandardShort>,
 }
 
 

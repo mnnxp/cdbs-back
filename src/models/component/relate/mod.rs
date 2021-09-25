@@ -7,5 +7,6 @@ pub(crate) mod license;
 pub(crate) mod param;
 pub(crate) mod spec;
 pub(crate) mod supplier;
+pub(crate) mod standard;
 
 // use actual_status::*;
