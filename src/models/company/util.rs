@@ -1,4 +1,4 @@
-use crate::errors::ServiceError;
+use crate::errors::{ServiceResult, ServiceError};
 // use crate::models::company::model::Company;
 use diesel::prelude::*;
 use uuid::Uuid;
@@ -101,6 +101,60 @@ pub(crate) fn get_type_access_id(
         .first(conn)
         .unwrap_or(0)
 }
+
+/// Get role IDs for desired level access
+pub(crate) fn get_roles_ids_for_access(
+    need_level_access: &i32,
+    conn: &PgConnection
+) -> ServiceResult<Vec<i32>> {
+    use crate::schema::role_access::dsl::*;
+    // 3.3 получить список ролей с подходящим доступом role_access
+
+    let roles_ids = role_access
+        .filter(type_access_id.le(need_level_access)) // <-- filter access < or = need_level_access
+        .select(role_id)
+        .load(conn);
+
+    match roles_ids {
+        Ok(rs_ids) => Ok(rs_ids),
+        Err(err) => {
+            debug!("Failed get data: {:?}", err);
+            Err(ServiceError::BadRequest(
+                "Failed get data".to_string()
+            ))
+        },
+    }
+}
+
+/// Check have user among companies employees with a suitable role
+pub(crate) fn check_clerk_with_suitable_role(
+    target_user_uuid: &Uuid,
+    target_companis_uuids: &[Uuid],
+    need_roles_ids: &[i32],
+    conn: &PgConnection
+) -> bool {
+    use crate::schema::company_member_role::dsl::*;
+    // 3.4 поиск пользователя среди сотрудников компаний в company_member_role с подходящей ролью:
+    // фильтр пользователя, список компаний, список ролей)
+
+    let find_provided_role = company_member_role
+        .filter(user_uuid.eq(target_user_uuid)
+        .and(company_uuid.eq_any(target_companis_uuids)
+        .and(role_id.eq_any(need_roles_ids))))
+        .limit(1)
+        .execute(conn);
+
+    match find_provided_role {
+        Ok(provided_role) if provided_role == 1 => true,
+        Ok(_) => false,
+        Err(err) => {
+            debug!("Failed get data: {:?}", err);
+            false
+        },
+    }
+
+}
+
 
 // Search for owned companies
 // pub(crate) fn get_companies_owned_by_user(

@@ -258,3 +258,13 @@ impl From<Component> for SlimComponent {
         }
     }
 }
+
+#[derive(InputObject, Deserialize, Debug)]
+pub struct IptUpdateComponentData {
+    pub parent_component_uuid: Option<Uuid>,
+    pub name: Option<String>,
+    pub description: Option<String>,
+    pub type_access_id: Option<i32>,
+    pub component_type_id: Option<i32>,
+    pub actual_status_id: Option<i32>,
+}

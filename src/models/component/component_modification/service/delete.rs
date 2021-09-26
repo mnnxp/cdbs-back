@@ -2,7 +2,7 @@ use crate::errors::{ServiceResult, ServiceError};
 use crate::models::component::component_modification::model::{
     SlimComponentModification, DelComponentModificationData
 };
-use crate::models::component::util::check_is_owned;
+use crate::models::component::util::check_is_owner_with_err;
 use diesel::prelude::*;
 use uuid::Uuid;
 
@@ -13,7 +13,7 @@ pub(crate) fn del_component_modification(
 ) -> ServiceResult<SlimComponentModification> {
     use crate::schema::component_modification_list::dsl::*;
 
-    check_is_owned(
+    check_is_owner_with_err(
         logged_user_uuid,
         &data.component_uuid,
         conn

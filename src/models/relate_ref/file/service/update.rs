@@ -42,9 +42,9 @@ pub(crate) async fn confirm_upload(
 
             // let filesize = Some(file_h.content_length);
             // update file metadata in file_ref table
-            let update_file_data = update_file_data_by_name(
+            let update_file_data = update_file_data_by_uuid(
                 target_user_uuid,
-                &file_d.path_file,
+                &file_d.uuid,
                 &FileData {
                     parent_file_uuid: None,
                     hash: None,
@@ -68,10 +68,11 @@ pub(crate) async fn confirm_upload(
     Err(ServiceError::BadRequest("Unsuccessful check data".to_string()))
 }
 
-
-pub(crate) fn update_file_data_by_name(
+/// Update file data by uuid
+/// without check access but with check owned
+pub(crate) fn update_file_data_by_uuid(
     user_uuid: &Uuid,
-    path_file: &str,
+    file_uuid: &Uuid,
     new_file_data: &FileData,
     ownership_check: bool,
     conn: &PgConnection,
@@ -85,12 +86,12 @@ pub(crate) fn update_file_data_by_name(
     if ownership_check {
         target_file_uuid = file_ref::file_ref
             .filter(file_ref::user_uuid.eq(user_uuid)
-            .and(file_ref::path_file.eq(path_file)))
+            .and(file_ref::uuid.eq(file_uuid)))
             .select(file_ref::uuid)
             .first(conn).unwrap_or_default();
     } else {
         target_file_uuid = file_ref::file_ref
-            .filter(file_ref::path_file.eq(path_file))
+            .filter(file_ref::uuid.eq(file_uuid))
             .select(file_ref::uuid)
             .first(conn).unwrap_or_default();
     }

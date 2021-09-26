@@ -1,11 +1,11 @@
 use crate::database::{get_conn, PooledConnection};
 use crate::errors::ServiceResult;
 use crate::models::component;
+use crate::models::component::model::{IptComponentData, SlimComponent, IptUpdateComponentData};
 use crate::models::component::component_fav::model::{ComponentFav, IptComponentFavData};
 use crate::models::component::keyword as component_keyword;
 use crate::models::component::keyword::model::IptComponentKeywordData;
 use crate::models::component::license::model::IptComponentLicenseData;
-use crate::models::component::model::{IptComponentData, SlimComponent};
 use crate::models::component::param as component_param;
 use crate::models::component::param::model::{IptComponentParamData, DelComponentParamData};
 use crate::models::component::spec as component_spec;
@@ -60,6 +60,27 @@ impl ComponentMutation {
         let conn: &PooledConnection = &get_conn(cxt)?;
 
         create_component(logged_user_uuid, data, conn)
+    }
+
+    async fn put_component_update(
+        &self,
+        cxt: &Context<'_>,
+        component_uuid: Uuid,
+        data: IptUpdateComponentData,
+    ) -> ServiceResult<i32> {
+        use component::service::update::update_component_by_uuid;
+
+        // checking authorization and getting user uuid
+        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+
+        let conn: &PooledConnection = &get_conn(cxt)?;
+
+        update_component_by_uuid(
+            &logged_user_uuid,
+            &component_uuid,
+            &data,
+            conn
+        )
     }
 
     async fn delete_component(

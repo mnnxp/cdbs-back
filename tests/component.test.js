@@ -274,6 +274,12 @@ var fileUuid3 = "";
 var fileUuid4 = "";
 var fileUuid5 = "";
 
+var nameForUpdate = "new name";
+var descriptionForUpdate = "new description";
+var typeAccessIdForUpdate = 2;
+var componentTypeIdForUpdate = 2;
+var actualStatusIdForUpdate = 2;
+
 // data for component modification
 const parentModificationUuid = "aba22d59-4f6c-44a4-9a37-2d38f0e577a8";
 const baseFilesetUuid = "5de37b5d-75af-4323-b5b4-2cf1e849baa2";
@@ -4227,6 +4233,173 @@ describe('component', () => {
       data: { componentModificationFilesOfFileset },
     } = body;
     expect(componentModificationFilesOfFileset).toBeEmptyArray();
+    done();
+  });
+
+  // Testing component data  update
+  it('/graphql:M putComponentUpdate - BadRequest no token', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .send({
+        query: `mutation  {
+            putComponentUpdate(
+              componentUuid: "${componentUuidNoStandard}"
+              data: {
+                parentComponentUuid: "${componentUuidStandard}"
+                name: "${nameForUpdate}"
+                description: "${descriptionForUpdate}"
+                typeAccessId: ${typeAccessIdForUpdate}
+                componentTypeId: ${componentTypeIdForUpdate}
+                actualStatusId: ${actualStatusIdForUpdate}
+              }
+            )
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Token not found.'
+    );
+    expect(body.errors[0].path[0]).toBe('putComponentUpdate');
+    done();
+  });
+
+  it('/graphql:M putComponentUpdate - BadRequest no access', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `mutation  {
+            putComponentUpdate(
+              componentUuid: "${componentUuidStandard}"
+              data: {
+                parentComponentUuid: "${componentUuidStandard}"
+                name: "${nameForUpdate}"
+                description: "${descriptionForUpdate}"
+                typeAccessId: ${typeAccessIdForUpdate}
+                componentTypeId: ${componentTypeIdForUpdate}
+                actualStatusId: ${actualStatusIdForUpdate}
+              }
+            )
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Access denied'
+    );
+    expect(body.errors[0].path[0]).toBe('putComponentUpdate');
+    done();
+  });
+
+  it('/graphql:M putComponentUpdate - OK', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation  {
+            putComponentUpdate(
+              componentUuid: "${componentUuidStandard}"
+              data: {
+                parentComponentUuid: "${componentUuidStandard}"
+                name: "${nameForUpdate}"
+                description: "${descriptionForUpdate}"
+                typeAccessId: ${typeAccessIdForUpdate}
+                componentTypeId: ${componentTypeIdForUpdate}
+                actualStatusId: ${actualStatusIdForUpdate}
+              }
+            )
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql putComponentUpdate=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { putComponentUpdate },
+    } = body;
+    expect(putComponentUpdate).toBe(6);
+    done();
+  });
+
+  it('/graphql:M putComponentUpdate - BadRequest data has already', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation  {
+            putComponentUpdate(
+              componentUuid: "${componentUuidStandard}"
+              data: {
+                parentComponentUuid: "${componentUuidStandard}"
+                name: "${nameForUpdate}"
+                description: "${descriptionForUpdate}"
+                typeAccessId: ${typeAccessIdForUpdate}
+                componentTypeId: ${componentTypeIdForUpdate}
+                actualStatusId: ${actualStatusIdForUpdate}
+              }
+            )
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: The data has already'
+    );
+    expect(body.errors[0].path[0]).toBe('putComponentUpdate');
+    done();
+  });
+
+  // add access for authorizationTokenSecond
+
+
+  // delete access for authorizationTokenSecond
+
+  // add access for company with authorizationTokenSecond
+
+
+  // delete access for company with authorizationTokenSecond
+
+  it('/graphql:M putComponentUpdate - BadRequest not have access', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `mutation  {
+            putComponentUpdate(
+              componentUuid: "${componentUuidStandard}"
+              data: {
+                parentComponentUuid: "${componentUuidStandard}"
+                name: "${nameForUpdate}"
+                description: "${descriptionForUpdate}"
+                typeAccessId: ${typeAccessIdForUpdate}
+                componentTypeId: ${componentTypeIdForUpdate}
+                actualStatusId: ${actualStatusIdForUpdate}
+              }
+            )
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Access denied'
+    );
+    expect(body.errors[0].path[0]).toBe('putComponentUpdate');
     done();
   });
 
