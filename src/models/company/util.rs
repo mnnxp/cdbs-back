@@ -3,6 +3,32 @@ use crate::errors::{ServiceResult, ServiceError};
 use diesel::prelude::*;
 use uuid::Uuid;
 
+/// Checking companies for user owner,
+/// return true if user owner any of companies
+pub fn check_is_owner(
+    target_user_uuid: &Uuid,
+    target_companies_uuids: &[Uuid],
+    conn: &PgConnection
+) -> bool {
+    use crate::schema::company_ref::dsl::*;
+
+    let check_owner_companies = company_ref
+        .filter(user_uuid.eq(target_user_uuid)
+        .and(uuid.eq_any(target_companies_uuids)))
+        .limit(1)
+        .execute(conn);
+
+    match check_owner_companies {
+        Ok(count) if count == 1 => true,
+        Ok(_) => false,
+        Err(err) => {
+            debug!("Failed check data: {:?}", err);
+            // Err(ServiceError::BadRequest("Failed check data".to_string()))
+            false
+        },
+    }
+}
+
 /// checking whether the company has a supplier's status
 pub fn check_is_supplier(
     target_company_uuid: &Uuid,
@@ -129,17 +155,23 @@ pub(crate) fn get_roles_ids_for_access(
 /// Check have user among companies employees with a suitable role
 pub(crate) fn check_clerk_with_suitable_role(
     target_user_uuid: &Uuid,
-    target_companis_uuids: &[Uuid],
+    target_companies_uuids: &[Uuid],
     need_roles_ids: &[i32],
     conn: &PgConnection
 ) -> bool {
     use crate::schema::company_member_role::dsl::*;
+
+    // if user owner any of companies
+    if check_is_owner(target_user_uuid, target_companies_uuids, conn) {
+        return true
+    }
+
     // 3.4 поиск пользователя среди сотрудников компаний в company_member_role с подходящей ролью:
     // фильтр пользователя, список компаний, список ролей)
 
     let find_provided_role = company_member_role
         .filter(user_uuid.eq(target_user_uuid)
-        .and(company_uuid.eq_any(target_companis_uuids)
+        .and(company_uuid.eq_any(target_companies_uuids)
         .and(role_id.eq_any(need_roles_ids))))
         .limit(1)
         .execute(conn);
