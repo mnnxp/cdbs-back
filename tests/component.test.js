@@ -60,8 +60,8 @@ const typeAccessIdComponent = 3;
 const typeAccessIdComponentPrivate = 1;
 const componentTypeId = 2;
 const actualStatusIdComponent = 1;
-const isStandardComponent = true;
-const isStandardComponent0 = false;
+const isBaseComponent = true;
+const isBaseComponent0 = false;
 const subscribersCount = 1;
 const keywordIdsOk = [1,3,5];
 const keywordIdsDup = [1,2,3,4,5];
@@ -100,7 +100,7 @@ actualStatus { \
   langId \
   name \
 } \
-isStandard \
+isBase \
 subscribers \
 isFollowed \
 updatedAt \
@@ -247,7 +247,7 @@ actualStatus { \
   name \
 } \
 isFollowed \
-isStandard \
+isBase \
 updatedAt \
 licenses { \
   keyword \
@@ -273,6 +273,9 @@ var fileUuid2 = "";
 var fileUuid3 = "";
 var fileUuid4 = "";
 var fileUuid5 = "";
+
+var firstAccess = 1;
+var secondAccess = 2;
 
 var nameForUpdate = "new name";
 var descriptionForUpdate = "new description";
@@ -411,6 +414,7 @@ describe('component', () => {
     const {
       data: { registerUser },
     } = body;
+    authorizationUserFirst = registerUser.uuid;
     expect(registerUser).toContainAllKeys(['uuid', 'programId', 'username']);
     expect(registerUser.uuid).toBeNonEmptyString();
     expect(registerUser.programId).toBe(1);
@@ -466,6 +470,7 @@ describe('component', () => {
     const {
       data: { registerUser },
     } = body;
+    authorizationUserSecond = registerUser.uuid;
     expect(registerUser).toContainAllKeys(['uuid', 'programId', 'username']);
     expect(registerUser.uuid).toBeNonEmptyString();
     expect(registerUser.programId).toBe(5);
@@ -587,13 +592,13 @@ describe('component', () => {
                 typeAccessId: ${typeAccessIdComponent},
                 componentTypeId: ${componentTypeId},
                 actualStatusId: ${actualStatusIdComponent},
-                isStandard: ${isStandardComponent}
+                isBase: ${isBaseComponent}
             }) {
                 uuid
                 name
                 description
                 actualStatusId
-                isStandard
+                isBase
                 updatedAt
             }
         }`,
@@ -624,13 +629,13 @@ describe('component', () => {
                 typeAccessId: ${typeAccessIdComponent},
                 componentTypeId: ${componentTypeId},
                 actualStatusId: ${actualStatusIdComponent},
-                isStandard: ${isStandardComponent}
+                isBase: ${isBaseComponent}
             }) {
                 uuid
                 name
                 description
                 actualStatusId
-                isStandard
+                isBase
                 updatedAt
             }
         }`,
@@ -641,12 +646,12 @@ describe('component', () => {
       data: { registerComponent },
     } = body;
     expect(registerComponent).toContainAllKeys([
-      "description", "actualStatusId", "isStandard", "name", "updatedAt", "uuid"
+      "description", "actualStatusId", "isBase", "name", "updatedAt", "uuid"
     ]);
     expect(registerComponent.uuid).toBeNonEmptyString();
     expect(registerComponent.name).toBe(nameComponent);
     expect(registerComponent.description).toBe(descriptionComponent);
-    expect(registerComponent.isStandard).toBe(isStandardComponent);
+    expect(registerComponent.isBase).toBe(isBaseComponent);
     expect(registerComponent.actualStatusId).toBe(actualStatusIdComponent);
     componentUuidStandard = registerComponent.uuid;
     done();
@@ -668,13 +673,13 @@ describe('component', () => {
                 typeAccessId: ${typeAccessIdComponentPrivate},
                 componentTypeId: ${componentTypeId},
                 actualStatusId: ${actualStatusIdComponent},
-                isStandard: ${isStandardComponent0}
+                isBase: ${isBaseComponent0}
             }) {
                 uuid
                 name
                 description
                 actualStatusId
-                isStandard
+                isBase
                 updatedAt
             }
         }`,
@@ -685,12 +690,12 @@ describe('component', () => {
       data: { registerComponent },
     } = body;
     expect(registerComponent).toContainAllKeys([
-      "description", "actualStatusId", "isStandard", "name", "updatedAt", "uuid"
+      "description", "actualStatusId", "isBase", "name", "updatedAt", "uuid"
     ]);
     expect(registerComponent.uuid).toBeNonEmptyString();
     expect(registerComponent.name).toBe(nameComponent2);
     expect(registerComponent.description).toBe(descriptionComponent);
-    expect(registerComponent.isStandard).toBe(isStandardComponent0);
+    expect(registerComponent.isBase).toBe(isBaseComponent0);
     expect(registerComponent.actualStatusId).toBe(actualStatusIdComponent);
     componentUuidNoStandard = registerComponent.uuid;
     done();
@@ -711,13 +716,13 @@ describe('component', () => {
                 typeAccessId: ${typeAccessIdComponentPrivate},
                 componentTypeId: ${componentTypeId},
                 actualStatusId: ${actualStatusIdComponent},
-                isStandard: ${isStandardComponent0}
+                isBase: ${isBaseComponent0}
             }) {
                 uuid
                 name
                 description
                 actualStatusId
-                isStandard
+                isBase
                 updatedAt
             }
         }`,
@@ -728,12 +733,12 @@ describe('component', () => {
       data: { registerComponent },
     } = body;
     expect(registerComponent).toContainAllKeys([
-      "description", "actualStatusId", "isStandard", "name", "updatedAt", "uuid"
+      "description", "actualStatusId", "isBase", "name", "updatedAt", "uuid"
     ]);
     expect(registerComponent.uuid).toBeNonEmptyString();
     expect(registerComponent.name).toBe(nameComponent);
     expect(registerComponent.description).toBe(descriptionComponent);
-    expect(registerComponent.isStandard).toBe(isStandardComponent0);
+    expect(registerComponent.isBase).toBe(isBaseComponent0);
     expect(registerComponent.actualStatusId).toBe(actualStatusIdComponent);
     componentUuidNoStandard = registerComponent.uuid;
     done();
@@ -755,13 +760,13 @@ describe('component', () => {
   //               typeAccessId: ${typeAccessIdComponent},
   //               componentTypeId: ${componentTypeId},
   //               actualStatusId: ${actualStatusIdComponent},
-  //               isStandard: ${isStandardComponent}
+  //               isBase: ${isBaseComponent}
   //           }) {
   //               uuid
   //               name
   //               description
   //               actualStatusId
-  //               isStandard
+  //               isBase
   //               updatedAt
   //           }
   //       }`,
@@ -4362,14 +4367,231 @@ describe('component', () => {
   });
 
   // add access for authorizationTokenSecond
+  it('/graphql:M setUserAccessComponent - OK add low access user', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation  {
+            setUserAccessComponent(
+              data: {
+                componentUuid: "${componentUuidStandard}"
+                userUuid: "${authorizationUserSecond}"
+                typeAccessId: ${secondAccess}
+              }
+            )
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql setUserAccessComponent=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { setUserAccessComponent },
+    } = body;
+    expect(setUserAccessComponent).toBe(true);
+    done();
+  });
 
+  it('/graphql:M putComponentUpdate - BadRequest need higher access', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `mutation  {
+            putComponentUpdate(
+              componentUuid: "${componentUuidStandard}"
+              data: {
+                parentComponentUuid: "${componentUuidStandard}"
+                name: "${nameForUpdate}"
+                description: "${descriptionForUpdate}"
+                typeAccessId: ${typeAccessIdForUpdate}
+                componentTypeId: ${componentTypeIdForUpdate}
+                actualStatusId: ${actualStatusIdForUpdate}
+              }
+            )
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Access denied'
+    );
+    expect(body.errors[0].path[0]).toBe('putComponentUpdate');
+    done();
+  });
+
+  it('/graphql:M setUserAccessComponent - OK add access user', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation  {
+            setUserAccessComponent(
+              data: {
+                componentUuid: "${componentUuidStandard}"
+                userUuid: "${authorizationUserSecond}"
+                typeAccessId: ${firstAccess}
+              }
+            )
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql setUserAccessComponent=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { setUserAccessComponent },
+    } = body;
+    expect(setUserAccessComponent).toBe(true);
+    done();
+  });
+
+  it('/graphql:M putComponentUpdate - OK with access user', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `mutation  {
+            putComponentUpdate(
+              componentUuid: "${componentUuidStandard}"
+              data: {
+                name: "rand"
+                description: "rand rand rand"
+                typeAccessId: 3
+                componentTypeId: 1
+                actualStatusId: 2
+              }
+            )
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql putComponentUpdate=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { putComponentUpdate },
+    } = body;
+    expect(putComponentUpdate).toBe(5);
+    done();
+  });
+
+  // disable access for authorizationTokenSecond
+  it('/graphql:M deleteUserAccessComponent - OK delete access user', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation  {
+            deleteUserAccessComponent(
+              data: {
+                componentUuid: "${componentUuidStandard}"
+                userUuid: "${authorizationUserSecond}"
+              }
+            )
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql deleteUserAccessComponent=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { deleteUserAccessComponent },
+    } = body;
+    expect(deleteUserAccessComponent).toBe(true);
+    done();
+  });
+
+  it('/graphql:M deleteUserAccessComponent - BadRequest not found access', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation  {
+            deleteUserAccessComponent(
+              data: {
+                componentUuid: "${componentUuidStandard}"
+                userUuid: "${authorizationUserSecond}"
+              }
+            )
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql deleteUserAccessComponent=%o', body);
+    // expect(body).toBe(0);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Access not found for user'
+    );
+    expect(body.errors[0].path[0]).toBe('deleteUserAccessComponent');
+    done();
+  });
+
+  it('/graphql:M putComponentUpdate - BadRequest access denied', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `mutation  {
+            putComponentUpdate(
+              componentUuid: "${componentUuidStandard}"
+              data: {
+                parentComponentUuid: "${componentUuidStandard}"
+                name: "${nameForUpdate}"
+                description: "${descriptionForUpdate}"
+                typeAccessId: ${typeAccessIdForUpdate}
+                componentTypeId: ${componentTypeIdForUpdate}
+                actualStatusId: ${actualStatusIdForUpdate}
+              }
+            )
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Access denied'
+    );
+    expect(body.errors[0].path[0]).toBe('putComponentUpdate');
+    done();
+  });
+
+  // enable access for authorizationTokenSecond
+  // enable_component_user_access
+
+  // update ok
 
   // delete access for authorizationTokenSecond
+  // delete_component_user_access
 
-  // add access for company with authorizationTokenSecond
+  // update err
 
 
-  // delete access for company with authorizationTokenSecond
+  // parentComponentUuid: "${parentComponentUuid}",
+  // name: "${nameComponent}",
+  // description: "${descriptionComponent}",
+  // typeAccessId: ${typeAccessIdComponent},
+  // componentTypeId: ${componentTypeId},
+  // actualStatusId: ${actualStatusIdComponent},
+  // isBase: ${isBaseComponent}
 
   it('/graphql:M putComponentUpdate - BadRequest not have access', async (done) => {
     const { body } = await agent
@@ -4540,7 +4762,7 @@ describe('component', () => {
                 name
                 description
                 actualStatusId
-                isStandard
+                isBase
                 updatedAt
             }
         }`,
@@ -4569,7 +4791,7 @@ describe('component', () => {
                 name
                 description
                 actualStatusId
-                isStandard
+                isBase
                 updatedAt
             }
         }`,
@@ -4598,7 +4820,7 @@ describe('component', () => {
                 name
                 description
                 actualStatusId
-                isStandard
+                isBase
                 updatedAt
             }
         }`,
@@ -4610,12 +4832,12 @@ describe('component', () => {
       data: { deleteComponent },
     } = body;
     expect(deleteComponent).toContainAllKeys([
-      "description", "actualStatusId", "isStandard", "name", "updatedAt", "uuid"
+      "description", "actualStatusId", "isBase", "name", "updatedAt", "uuid"
     ]);
     expect(deleteComponent.uuid).toBeNonEmptyString();
     expect(deleteComponent.name).toBe(nameComponent);
     expect(deleteComponent.description).toBe(descriptionComponent);
-    expect(deleteComponent.isStandard).toBe(isStandardComponent);
+    expect(deleteComponent.isBase).toBe(isBaseComponent);
     expect(deleteComponent.actualStatusId).toBe(actualStatusIdComponent);
     done();
   });
@@ -4634,7 +4856,7 @@ describe('component', () => {
                 name
                 description
                 actualStatusId
-                isStandard
+                isBase
                 updatedAt
             }
         }`,
