@@ -4455,6 +4455,78 @@ describe('component', () => {
     done();
   });
 
+  it('/graphql:Q getUsersListAccessComponent - BadRequest access denied', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `query {
+            getUsersListAccessComponent(
+              componentUuid: "${componentUuidStandard}"
+            ) {
+              componentUuid
+              userUuid
+              typeAccess {
+                typeAccessId
+                langId
+                name
+              }
+              isEnabled
+              createdAt
+              updatedAt
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql getUsersListAccessComponent=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Access denied'
+    );
+    expect(body.errors[0].path[0]).toBe('getUsersListAccessComponent');
+    done();
+  });
+
+  it('/graphql:Q getUsersListAccessComponent - OK', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `query {
+            getUsersListAccessComponent(
+              componentUuid: "${componentUuidStandard}"
+            ) {
+              componentUuid
+              userUuid
+              typeAccess {
+                typeAccessId
+                langId
+                name
+              }
+              isEnabled
+              createdAt
+              updatedAt
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql getUsersListAccessComponent=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { getUsersListAccessComponent },
+    } = body;
+    expect(getUsersListAccessComponent[0].componentUuid).toBe(componentUuidStandard);
+    expect(getUsersListAccessComponent[0].userUuid).toBe(authorizationUserSecond);
+    expect(getUsersListAccessComponent[0].typeAccess.typeAccessId).toBe(firstAccess);
+    done();
+  });
+
   it('/graphql:M putComponentUpdate - OK with access user', async (done) => {
     const { body } = await agent
       .post('/graphql')
@@ -4573,17 +4645,6 @@ describe('component', () => {
     expect(body.errors[0].path[0]).toBe('putComponentUpdate');
     done();
   });
-
-  // enable access for authorizationTokenSecond
-  // enable_component_user_access
-
-  // update ok
-
-  // delete access for authorizationTokenSecond
-  // delete_component_user_access
-
-  // update err
-
 
   // parentComponentUuid: "${parentComponentUuid}",
   // name: "${nameComponent}",

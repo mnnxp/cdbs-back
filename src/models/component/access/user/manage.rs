@@ -1,6 +1,7 @@
 use crate::errors::{ServiceError, ServiceResult};
 use crate::models::component::access::user::model::{
     UserAccessComponent,
+    UserAccessComponentAndRelatedData,
     IptUserAccessComponentData,
     InsertableUserAccessComponent,
     DelUserAccessComponentData,
@@ -9,6 +10,39 @@ use crate::models::component::util::check_is_owner;
 use crate::schema::user_access_to_component::dsl::*;
 use diesel::prelude::*;
 use uuid::Uuid;
+
+/// Get users list have access to component
+pub(crate) fn get_users_list_access_component(
+    logged_user_uuid: &Uuid,
+    target_component_uuid: &Uuid,
+    set_lang_id: &i32,
+    conn: &PgConnection,
+) -> ServiceResult<Vec<UserAccessComponentAndRelatedData>> {
+    // 1. проверить пользователя на владение компонентом
+    if !check_is_owner(logged_user_uuid, target_component_uuid, conn) {
+        return Err(ServiceError::BadRequest("Access denied".to_string()))
+    }
+
+    // 2. получить список пользователей с доступом к компоненту
+    let list_users_with_access = UserAccessComponentAndRelatedData::from_component_by_uuid(
+        target_component_uuid,
+        set_lang_id,
+        conn
+    );
+
+    match list_users_with_access {
+        Ok(res) => {
+            debug!("Get users have access: {:?}", res);
+            Ok(res)
+        },
+        Err(err) => {
+            debug!("Failed get users list have access to component: {:?}", err);
+            Err(ServiceError::BadRequest(
+                "Failed get users list have access to component".to_string()
+            ))
+        },
+    }
+}
 
 /// Manage component access for user
 pub(crate) fn set_user_access_component(

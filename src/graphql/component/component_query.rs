@@ -5,6 +5,7 @@ use crate::errors::ServiceResult;
 use crate::database::{get_conn, PooledConnection};
 use crate::models::user;
 use crate::models::component;
+use crate::models::component::access::user::model::UserAccessComponentAndRelatedData;
 use crate::models::component::component_modification;
 use crate::models::component::component_modification::fileset_for_program::model::FilesetProgramRelatedData;
 use crate::models::component::component_modification::modification_file_from_fileset::model::ShowFileOfFileset;
@@ -49,6 +50,26 @@ impl ComponentQuery {
             &logged_user_uuid,
             &crate::models::user::get_set_language(cxt),
             conn,
+        )
+    }
+
+    async fn get_users_list_access_component(
+        &self,
+        cxt: &Context<'_>,
+        component_uuid: Uuid,
+    ) -> ServiceResult<Vec<UserAccessComponentAndRelatedData>> {
+        use component::access::user::manage::get_users_list_access_component;
+
+        // checking authorization and getting user uuid
+        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+
+        let conn: &PooledConnection = &get_conn(cxt)?;
+
+        get_users_list_access_component(
+            &logged_user_uuid,
+            &component_uuid,
+            &crate::models::user::get_set_language(cxt),
+            conn
         )
     }
 

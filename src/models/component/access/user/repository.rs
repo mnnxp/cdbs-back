@@ -1,0 +1,52 @@
+use crate::errors::ServiceResult;
+use crate::models::component::access::user::model::{
+    UserAccessComponent, UserAccessComponentAndRelatedData
+};
+use crate::models::relate_ref::type_access::model::TypeAccessTranslateList;
+use crate::schema::user_access_to_component::dsl::*;
+use diesel::prelude::*;
+use uuid::Uuid;
+
+impl UserAccessComponentAndRelatedData {
+    /// Collect related data for users lits access component
+    pub(crate) fn from_component_by_uuid(
+        target_component_uuid: &Uuid,
+        set_lang_id: &i32,
+        conn: &PgConnection,
+    ) -> ServiceResult<Vec<UserAccessComponentAndRelatedData>> {
+        let list_users_with_access = user_access_to_component
+            .filter(component_uuid.eq(target_component_uuid))
+            .load::<UserAccessComponent>(conn)?;
+
+        let mut target_vec_type_access_id: Vec<i32> = Vec::new();
+        for x in list_users_with_access.iter() {
+            target_vec_type_access_id.push(x.type_access_id.to_owned());
+        }
+
+        let type_access_with_relate = TypeAccessTranslateList::get_type_access_by_vec_id(
+            &target_vec_type_access_id,
+            set_lang_id,
+            conn
+        )?;
+
+        let mut res: Vec<UserAccessComponentAndRelatedData> = Vec::new();
+        for x in list_users_with_access {
+            for type_access in &type_access_with_relate {
+                if x.type_access_id == type_access.type_access_id {
+                    res.push(
+                        UserAccessComponentAndRelatedData{
+                            component_uuid: x.component_uuid,
+                            user_uuid: x.user_uuid,
+                            type_access: type_access.clone(),
+                            is_enabled: x.is_enabled,
+                            created_at: x.created_at,
+                            updated_at: x.updated_at,
+                        }
+                    )
+                }
+            }
+        }
+
+        Ok(res)
+    }
+}

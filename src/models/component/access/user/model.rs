@@ -1,3 +1,4 @@
+use crate::models::relate_ref::type_access::model::TypeAccessTranslateList;
 use crate::schema::*;
 use async_graphql::{InputObject, SimpleObject};
 use chrono::*;
@@ -19,7 +20,7 @@ pub struct UserAccessComponent {
 pub struct UserAccessComponentAndRelatedData {
     pub component_uuid: Uuid,
     pub user_uuid: Uuid,
-    pub type_access_id: i32, //TypeAccess
+    pub type_access: TypeAccessTranslateList,
     pub is_enabled: bool,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
@@ -30,7 +31,7 @@ pub struct UserAccessComponentAndRelatedData {
 pub struct InsertableUserAccessComponent {
     pub component_uuid: Uuid,
     pub user_uuid: Uuid,
-    pub type_access_id: i32, //TypeAccess
+    pub type_access_id: i32,
     pub is_enabled: bool,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
