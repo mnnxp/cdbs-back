@@ -24,7 +24,7 @@ pub(crate) fn create_component(
         type_access_id: data.type_access_id,
         component_type_id: data.component_type_id,
         actual_status_id: data.actual_status_id,
-        is_standard: data.is_standard,
+        is_base: data.is_base,
     };
 
     let component: InsertableComponent = component_data.into();

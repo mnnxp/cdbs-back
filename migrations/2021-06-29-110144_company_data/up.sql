@@ -93,12 +93,12 @@ INSERT INTO role_access (role_id, type_access_id) VALUES
   (5, 1);
 
 INSERT INTO company_access_to_component (component_uuid, company_uuid, type_access_id,
-is_enabled, is_delete, created_at, updated_at) VALUES
-  ('a5953fd9-7393-4f1e-a899-06b5e159dbf1', '2cd385e1-8f7e-4908-8235-dfe42938b46d', 1, 't', 'f', now(), now());
+is_enabled, created_at, updated_at) VALUES
+  ('a5953fd9-7393-4f1e-a899-06b5e159dbf1', '2cd385e1-8f7e-4908-8235-dfe42938b46d', 1, 't', now(), now());
 
 INSERT INTO company_access_to_standard (standard_uuid, company_uuid, type_access_id,
-  is_enabled, is_delete, created_at, updated_at) VALUES
-  ('303ec2aa-2066-42e3-93fb-de4fb9344bcb', '2cd385e1-8f7e-4908-8235-dfe42938b46d', 1, 't', 'f', now(), now());
+  is_enabled, created_at, updated_at) VALUES
+  ('303ec2aa-2066-42e3-93fb-de4fb9344bcb', '2cd385e1-8f7e-4908-8235-dfe42938b46d', 1, 't', now(), now());
 
 INSERT INTO company_certificate_ref (file_uuid, company_uuid, description) VALUES
   ('9a227a5d-c54e-496a-a1ef-c5d49d8bd0a2', '2cd385e1-8f7e-4908-8235-dfe42938b46d', 'company certificate');

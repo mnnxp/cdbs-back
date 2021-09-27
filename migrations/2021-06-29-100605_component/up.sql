@@ -9,7 +9,7 @@ CREATE TABLE component_ref (
   type_access_id INTEGER NOT NULL, /* доступност к компоненту по умолчанию */
   component_type_id INTEGER NOT NULL, /* тип компонента */
   actual_status_id INTEGER NOT NULL, /* номер статуса, к примеру: «актуальный», «архивный», «снято с производства» */
-  is_standard BOOLEAN NOT NULL DEFAULT 'f', /* компонент соответствует стандарту */
+  is_base BOOLEAN NOT NULL DEFAULT 'f', /* компонент соответствует стандарту */
   is_delete BOOLEAN NOT NULL DEFAULT 'f', /* флаг удаления компонента */
   created_at TIMESTAMP NOT NULL DEFAULT NOW(), /* дата создания/загрузки */
   updated_at TIMESTAMP NOT NULL DEFAULT NOW(), /* дата обновления */

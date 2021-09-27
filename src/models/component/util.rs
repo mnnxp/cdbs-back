@@ -2,8 +2,8 @@ use crate::errors::{ServiceResult, ServiceError};
 use diesel::prelude::*;
 use uuid::Uuid;
 
-/// checking whether the component has flag is_standard
-pub fn check_is_standard(
+/// checking whether the component has flag is_base
+pub fn check_is_base(
     target_component_uuid: &Uuid,
     conn: &PgConnection
 ) -> ServiceResult<bool> {
@@ -11,7 +11,7 @@ pub fn check_is_standard(
 
     let get_component_status = component_ref
         .filter(uuid.eq(target_component_uuid)
-        .and(is_standard.eq(true)))
+        .and(is_base.eq(true)))
         .limit(1)
         .execute(conn);
 

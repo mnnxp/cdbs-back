@@ -52,7 +52,6 @@ CREATE TABLE user_access_to_component (
   user_uuid UUID NOT NULL, /* идентификатор профиля */
   type_access_id INTEGER NOT NULL, /* тип доступа к компоненту */
   is_enabled BOOLEAN NOT NULL DEFAULT 't', /* флаг актуальности доступа */
-  is_delete BOOLEAN NOT NULL DEFAULT 'f', /* флаг удаления доступа */
   created_at TIMESTAMP NOT NULL DEFAULT NOW(), /* дата создания доступа */
   updated_at TIMESTAMP NOT NULL DEFAULT NOW(), /* дата обновления */
   CONSTRAINT user_access_to_component_pk PRIMARY KEY (component_uuid, user_uuid)
@@ -65,7 +64,6 @@ CREATE TABLE user_access_to_standard (
   user_uuid UUID NOT NULL, /* идентификатор профиля */
   type_access_id INTEGER NOT NULL, /* тип доступа к стандарту */
   is_enabled BOOLEAN NOT NULL DEFAULT 't', /* флаг актуальности доступа */
-  is_delete BOOLEAN NOT NULL DEFAULT 'f', /* флаг удаления доступа */
   created_at TIMESTAMP NOT NULL DEFAULT NOW(), /* дата создания доступа */
   updated_at TIMESTAMP NOT NULL DEFAULT NOW(), /* дата обновления */
   CONSTRAINT user_access_to_standard_pk PRIMARY KEY (standard_uuid, user_uuid)

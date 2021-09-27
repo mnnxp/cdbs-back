@@ -21,7 +21,7 @@ pub(crate) fn del_component(
             type_access_id,
             component_type_id,
             actual_status_id,
-            is_standard,
+            is_base,
             updated_at,
         ))
         .get_result::<SlimComponent>(conn);
@@ -36,3 +36,19 @@ pub(crate) fn del_component(
         }
     }
 }
+
+// /// Delete component
+// pub(crate) fn delete_component(
+//     target_user_uuid: &Uuid,
+//     target_component_uuid: &Uuid,
+//     conn: &PgConnection,
+// ) -> ServiceResult<bool> {
+//
+//     // todo!(make this function)
+//
+//     // 1. проверить пользователя на владение компонентом
+//     // 2. установить новый флаг
+//     // 3. через 30 дней удалить все данные компонента
+//
+//     Err(ServiceError::BadRequest("Make this soon".to_string()))
+// }

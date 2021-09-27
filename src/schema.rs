@@ -18,7 +18,6 @@ table! {
         company_uuid -> Uuid,
         type_access_id -> Int4,
         is_enabled -> Bool,
-        is_delete -> Bool,
         created_at -> Timestamp,
         updated_at -> Timestamp,
     }
@@ -30,7 +29,6 @@ table! {
         company_uuid -> Uuid,
         type_access_id -> Int4,
         is_enabled -> Bool,
-        is_delete -> Bool,
         created_at -> Timestamp,
         updated_at -> Timestamp,
     }
@@ -170,7 +168,7 @@ table! {
         type_access_id -> Int4,
         component_type_id -> Int4,
         actual_status_id -> Int4,
-        is_standard -> Bool,
+        is_base -> Bool,
         is_delete -> Bool,
         created_at -> Timestamp,
         updated_at -> Timestamp,
@@ -655,7 +653,6 @@ table! {
         user_uuid -> Uuid,
         type_access_id -> Int4,
         is_enabled -> Bool,
-        is_delete -> Bool,
         created_at -> Timestamp,
         updated_at -> Timestamp,
     }
@@ -667,7 +664,6 @@ table! {
         user_uuid -> Uuid,
         type_access_id -> Int4,
         is_enabled -> Bool,
-        is_delete -> Bool,
         created_at -> Timestamp,
         updated_at -> Timestamp,
     }

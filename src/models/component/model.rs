@@ -27,7 +27,7 @@ pub struct Component {
     pub type_access_id: i32,
     pub component_type_id: i32,
     pub actual_status_id: i32,
-    pub is_standard: bool,
+    pub is_base: bool,
     pub is_delete: bool,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
@@ -59,8 +59,8 @@ impl Component {
     async fn actual_status_id(&self) -> &i32 {
         &self.actual_status_id
     }
-    async fn is_standard(&self) -> &bool {
-        &self.is_standard
+    async fn is_base(&self) -> &bool {
+        &self.is_base
     }
     async fn is_delete(&self) -> &bool {
         &self.is_delete
@@ -83,7 +83,7 @@ pub struct ComponentAndRelatedData {
     pub type_access_id: i32, //TypeAccess
     pub component_type: ComponentTypeTranslateList,
     pub actual_status: ActualStatusTranslateList,
-    pub is_standard: bool,
+    pub is_base: bool,
     pub subscribers: i32,
     // for display the checkbox "favorites"
     pub is_followed: bool,
@@ -112,7 +112,7 @@ pub struct ShowComponentShort {
     pub actual_status: ActualStatusTranslateList,
     // for display the checkbox "favorites"
     pub is_followed: bool,
-    pub is_standard: bool,
+    pub is_base: bool,
     pub updated_at: NaiveDateTime,
     pub licenses: Vec<License>,
     // files for show image (models, draw)
@@ -132,7 +132,7 @@ pub struct InsertableComponent {
     pub type_access_id: i32,
     pub component_type_id: i32,
     pub actual_status_id: i32,
-    pub is_standard: bool,
+    pub is_base: bool,
     pub is_delete: bool,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
@@ -147,7 +147,7 @@ pub struct ComponentData {
     pub type_access_id: i32,
     pub component_type_id: i32,
     pub actual_status_id: i32,
-    pub is_standard: bool,
+    pub is_base: bool,
 }
 
 #[derive(Debug, Deserialize, InputObject)]
@@ -158,7 +158,7 @@ pub struct IptComponentData {
     pub type_access_id: i32,
     pub component_type_id: i32,
     pub actual_status_id: i32,
-    pub is_standard: bool,
+    pub is_base: bool,
 }
 
 #[derive(Debug, Serialize, Queryable)]
@@ -169,7 +169,7 @@ pub struct SlimComponent {
     pub type_access_id: i32,
     pub component_type_id: i32,
     pub actual_status_id: i32,
-    pub is_standard: bool,
+    pub is_base: bool,
     pub updated_at: NaiveDateTime,
 }
 
@@ -193,8 +193,8 @@ impl SlimComponent {
     async fn actual_status_id(&self) -> &i32 {
         &self.actual_status_id
     }
-    async fn is_standard(&self) -> &bool {
-        &self.is_standard
+    async fn is_base(&self) -> &bool {
+        &self.is_base
     }
     async fn updated_at(&self) -> &NaiveDateTime {
         &self.updated_at
@@ -211,7 +211,7 @@ impl From<ComponentData> for InsertableComponent {
             type_access_id,
             component_type_id,
             actual_status_id,
-            is_standard,
+            is_base,
             ..
         } = data_component;
 
@@ -224,7 +224,7 @@ impl From<ComponentData> for InsertableComponent {
             type_access_id,
             component_type_id,
             actual_status_id,
-            is_standard,
+            is_base,
             is_delete: false,
             created_at: chrono::Local::now().naive_local(),
             updated_at: chrono::Local::now().naive_local(),
@@ -241,7 +241,7 @@ impl From<Component> for SlimComponent {
             type_access_id,
             component_type_id,
             actual_status_id,
-            is_standard,
+            is_base,
             updated_at,
             ..
         } = component;
@@ -253,7 +253,7 @@ impl From<Component> for SlimComponent {
             type_access_id,
             component_type_id,
             actual_status_id,
-            is_standard,
+            is_base,
             updated_at,
         }
     }

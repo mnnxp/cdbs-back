@@ -15,12 +15,12 @@ INSERT INTO user_history_list (user_uuid, type_of_change_id, old_data, changed_a
   ('31ecc6f8-0c09-4a59-a2d5-34b5b833e59b', 1, 'Комментарий к изменению', now());
 
 INSERT INTO user_access_to_component (component_uuid, user_uuid, type_access_id,
-  is_enabled, is_delete, created_at, updated_at) VALUES
-  ('a5953fd9-7393-4f1e-a899-06b5e159dbf1', '31ecc6f8-0c09-4a59-a2d5-34b5b833e59b', 1, 't', 'f', now(), now());
+  is_enabled, created_at, updated_at) VALUES
+  ('a5953fd9-7393-4f1e-a899-06b5e159dbf1', '31ecc6f8-0c09-4a59-a2d5-34b5b833e59b', 1, 't', now(), now());
 
 INSERT INTO user_access_to_standard (standard_uuid, user_uuid, type_access_id,
-  is_enabled, is_delete, created_at, updated_at) VALUES
-  ('303ec2aa-2066-42e3-93fb-de4fb9344bcb', '31ecc6f8-0c09-4a59-a2d5-34b5b833e59b', 1, 't', 'f', now(), now());
+  is_enabled, created_at, updated_at) VALUES
+  ('303ec2aa-2066-42e3-93fb-de4fb9344bcb', '31ecc6f8-0c09-4a59-a2d5-34b5b833e59b', 1, 't', now(), now());
 
 INSERT INTO user_fav (user_favorite_uuid, user_follower_uuid) VALUES
   ('68b8281a-d19c-4d4b-88eb-6fd4a2afde1b', '31ecc6f8-0c09-4a59-a2d5-34b5b833e59b');

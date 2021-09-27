@@ -133,7 +133,6 @@ CREATE TABLE company_access_to_component (
   company_uuid UUID NOT NULL, /* идентификатор компании */
   type_access_id INTEGER NOT NULL, /* тип доступа к компоненту */
   is_enabled BOOLEAN NOT NULL DEFAULT 't', /* флаг актуальности доступа */
-  is_delete BOOLEAN NOT NULL DEFAULT 'f', /* флаг удаления доступа */
   created_at TIMESTAMP NOT NULL DEFAULT NOW(), /* дата создания доступа */
   updated_at TIMESTAMP NOT NULL DEFAULT NOW(), /* дата обновления */
   CONSTRAINT company_access_to_component_pk PRIMARY KEY (component_uuid, company_uuid)
@@ -145,7 +144,6 @@ CREATE TABLE company_access_to_standard (
   company_uuid UUID NOT NULL, /* идентификатор компании */
   type_access_id INTEGER NOT NULL, /* тип доступа к стандарту */
   is_enabled BOOLEAN NOT NULL DEFAULT 't', /* флаг актуальности доступа */
-  is_delete BOOLEAN NOT NULL DEFAULT 'f', /* флаг удаления доступа */
   created_at TIMESTAMP NOT NULL DEFAULT NOW(), /* дата создания доступа */
   updated_at TIMESTAMP NOT NULL DEFAULT NOW(), /* дата обновления */
   CONSTRAINT company_access_to_standard_pk PRIMARY KEY (standard_uuid, company_uuid)

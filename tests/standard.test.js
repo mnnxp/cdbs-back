@@ -799,7 +799,7 @@ describe('company', () => {
 
   it('/graphql:Q standard - OK Select with uuid (private access)', async (done) => {
     // add access to the object for the user
-    await global.knex.raw('INSERT INTO user_access_to_standard (standard_uuid, user_uuid, type_access_id, is_enabled, is_delete, created_at, updated_at) VALUES (?, ?, 1, true, false, now(), now());', [
+    await global.knex.raw('INSERT INTO user_access_to_standard (standard_uuid, user_uuid, type_access_id, is_enabled, created_at, updated_at) VALUES (?, ?, 1, true, now(), now());', [
       standardUuidSecond,
       userUuidSecond,
     ]);

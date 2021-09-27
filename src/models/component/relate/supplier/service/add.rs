@@ -2,7 +2,7 @@ use crate::errors::{ServiceError, ServiceResult};
 use crate::models::component::supplier::model::{
     SupplierComponent, IptSupplierComponentData, InsertableSupplierComponent
 };
-use crate::models::component::util::check_is_standard;
+use crate::models::component::util::check_is_base;
 use crate::models::company::util::check_is_supplier;
 use diesel::prelude::*;
 // use uuid::Uuid;
@@ -16,7 +16,7 @@ pub(crate) fn add_component_supplier(
     use crate::schema::supplier_to_component::dsl::*;
 
     // checking if a component is basic
-    check_is_standard(&data.component_uuid, conn)?;
+    check_is_base(&data.component_uuid, conn)?;
 
     // checking if the company is a supplier
     check_is_supplier(&data.company_uuid, conn)?;
