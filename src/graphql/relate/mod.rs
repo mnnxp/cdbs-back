@@ -7,3 +7,4 @@ pub mod program;
 pub mod region;
 pub mod spec;
 pub mod storage;
+pub mod type_access;

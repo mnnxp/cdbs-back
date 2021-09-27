@@ -7,3 +7,4 @@ pub(crate) mod param;
 pub(crate) mod program;
 pub(crate) mod region;
 pub(crate) mod spec;
+pub(crate) mod type_access;
