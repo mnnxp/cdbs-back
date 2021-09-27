@@ -2,7 +2,7 @@ use crate::errors::{ServiceResult, ServiceError};
 use crate::models::component::component_modification::model::{
     SlimComponentModification, DelComponentModificationData
 };
-use crate::models::component::util::check_is_owner_with_err;
+use crate::models::component::access::util::check_is_owner_with_err;
 use diesel::prelude::*;
 use uuid::Uuid;
 

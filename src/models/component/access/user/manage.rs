@@ -6,7 +6,7 @@ use crate::models::component::access::user::model::{
     InsertableUserAccessComponent,
     DelUserAccessComponentData,
 };
-use crate::models::component::util::check_is_owner;
+use crate::models::component::access::util::check_is_owner;
 use crate::schema::user_access_to_component::dsl::*;
 use diesel::prelude::*;
 use uuid::Uuid;

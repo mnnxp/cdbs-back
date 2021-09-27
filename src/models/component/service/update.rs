@@ -1,6 +1,6 @@
 use crate::errors::{ServiceError, ServiceResult};
 use crate::models::component::model::IptUpdateComponentData;
-use crate::models::component::util::{
+use crate::models::component::access::util::{
     check_is_owner, check_access_component_for_user
 };
 use diesel::prelude::*;
