@@ -107,9 +107,10 @@ CREATE TABLE representation_type_translate_list (
 );
 
 /* роль члена */
-CREATE TABLE role_member_ref (
+CREATE TABLE role_member_list (
   id SERIAL, /* id записи */
-  CONSTRAINT role_member_ref_pk PRIMARY KEY (id)
+  company_uuid UUID NOT NULL, /* идентификатор для которой создана роль */
+  CONSTRAINT role_member_list_pk PRIMARY KEY (id)
 );
 
 CREATE TABLE role_member_translate_list (

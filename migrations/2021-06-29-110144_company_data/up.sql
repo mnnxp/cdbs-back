@@ -71,12 +71,12 @@ INSERT INTO representation_type_translate_list (representation_type_id, lang_id,
   (1, 1, 'Office'),
   (2, 1, 'Branch');
 
-INSERT INTO role_member_ref (id) VALUES
-  (1),
-  (2),
-  (3),
-  (4),
-  (5);
+INSERT INTO role_member_list (id, company_uuid) VALUES
+  (1,'2cd385e1-8f7e-4908-8235-dfe42938b46d'),
+  (2,'2cd385e1-8f7e-4908-8235-dfe42938b46d'),
+  (3,'e97ea679-4560-4a9b-ad8b-80d2d191235e'),
+  (4,'e97ea679-4560-4a9b-ad8b-80d2d191235e'),
+  (5,'e97ea679-4560-4a9b-ad8b-80d2d191235e');
 
 INSERT INTO role_member_translate_list (role_member_id, lang_id, name) VALUES
   (1, 1, 'Trainee'),
