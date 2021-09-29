@@ -17,8 +17,8 @@ pub(crate) fn create_region(
     use crate::schema::region_translate_list::dsl::*;
 
     let flag_found_region = region_translate_list
-        .filter(lang_id.eq(&new_region_data.lang_id))
-        .filter(region.eq(&new_region_data.region))
+        .filter(lang_id.eq(&new_region_data.lang_id)
+        .and(region.eq(&new_region_data.region)))
         .select(region_id)
         .first::<i32>(conn).unwrap_or(0);
 

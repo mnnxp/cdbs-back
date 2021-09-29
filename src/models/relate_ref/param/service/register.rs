@@ -20,8 +20,8 @@ pub(crate) fn create_param(
     use crate::schema::param_translate_list::dsl::*;
 
     let flag_found_param = param_translate_list
-        .filter(lang_id.eq(&new_param_data.lang_id))
-        .filter(paramname.eq(&new_param_data.paramname))
+        .filter(lang_id.eq(&new_param_data.lang_id)
+        .and(paramname.eq(&new_param_data.paramname)))
         .select(param_id)
         .first::<i32>(conn).unwrap_or(0);
 

@@ -17,8 +17,8 @@ pub(crate) fn create_type_access(
     use crate::schema::type_access_translate_list::dsl::*;
 
     let flag_found_type_access = type_access_translate_list
-        .filter(lang_id.eq(&data.lang_id))
-        .filter(name.eq(&data.name))
+        .filter(lang_id.eq(&data.lang_id)
+        .and(name.eq(&data.name)))
         .select(type_access_id)
         .first::<i32>(conn).unwrap_or(0);
 

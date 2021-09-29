@@ -18,8 +18,8 @@ pub(crate) fn create_spec(
     use crate::schema::spec_translate_list::dsl::*;
 
     let flag_found_spec = spec_translate_list
-        .filter(lang_id.eq(&new_spec_data.lang_id))
-        .filter(spec.eq(&new_spec_data.spec))
+        .filter(lang_id.eq(&new_spec_data.lang_id)
+        .and(spec.eq(&new_spec_data.spec)))
         .select(spec_id)
         .first::<i32>(conn).unwrap_or(0);
 
