@@ -109,26 +109,6 @@ pub(crate) fn update_component_by_uuid(
         }
     }
 
-    // update column type_access_id
-    if let Some(value) = &data.type_access_id {
-        let res = diesel::update(component_ref::component_ref
-            .filter(component_ref::uuid.eq(target_component_uuid)
-            .and(component_ref::type_access_id.ne(&value))))
-            .set(component_ref::type_access_id.eq(value))
-            .execute(conn);
-
-        match res {
-            Ok(up_item) => count_update_columns += up_item,
-            Err(err) => {
-                debug!("Failed update data: {:?}", err);
-
-                return Err(ServiceError::BadRequest(
-                    "Failed update data".to_string()
-                ))
-            },
-        }
-    }
-
     // update column component_type_id
     if let Some(value) = &data.component_type_id {
         let res = diesel::update(component_ref::component_ref

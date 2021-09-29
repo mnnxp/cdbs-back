@@ -4253,7 +4253,6 @@ describe('component', () => {
                 parentComponentUuid: "${componentUuidStandard}"
                 name: "${nameForUpdate}"
                 description: "${descriptionForUpdate}"
-                typeAccessId: ${typeAccessIdForUpdate}
                 componentTypeId: ${componentTypeIdForUpdate}
                 actualStatusId: ${actualStatusIdForUpdate}
               }
@@ -4285,7 +4284,6 @@ describe('component', () => {
                 parentComponentUuid: "${componentUuidStandard}"
                 name: "${nameForUpdate}"
                 description: "${descriptionForUpdate}"
-                typeAccessId: ${typeAccessIdForUpdate}
                 componentTypeId: ${componentTypeIdForUpdate}
                 actualStatusId: ${actualStatusIdForUpdate}
               }
@@ -4317,7 +4315,6 @@ describe('component', () => {
                 parentComponentUuid: "${componentUuidStandard}"
                 name: "${nameForUpdate}"
                 description: "${descriptionForUpdate}"
-                typeAccessId: ${typeAccessIdForUpdate}
                 componentTypeId: ${componentTypeIdForUpdate}
                 actualStatusId: ${actualStatusIdForUpdate}
               }
@@ -4330,7 +4327,7 @@ describe('component', () => {
     const {
       data: { putComponentUpdate },
     } = body;
-    expect(putComponentUpdate).toBe(6);
+    expect(putComponentUpdate).toBe(5);
     done();
   });
 
@@ -4349,7 +4346,6 @@ describe('component', () => {
                 parentComponentUuid: "${componentUuidStandard}"
                 name: "${nameForUpdate}"
                 description: "${descriptionForUpdate}"
-                typeAccessId: ${typeAccessIdForUpdate}
                 componentTypeId: ${componentTypeIdForUpdate}
                 actualStatusId: ${actualStatusIdForUpdate}
               }
@@ -4410,7 +4406,6 @@ describe('component', () => {
                 parentComponentUuid: "${componentUuidStandard}"
                 name: "${nameForUpdate}"
                 description: "${descriptionForUpdate}"
-                typeAccessId: ${typeAccessIdForUpdate}
                 componentTypeId: ${componentTypeIdForUpdate}
                 actualStatusId: ${actualStatusIdForUpdate}
               }
@@ -4541,7 +4536,6 @@ describe('component', () => {
               data: {
                 name: "rand"
                 description: "rand rand rand"
-                typeAccessId: 3
                 componentTypeId: 1
                 actualStatusId: 2
               }
@@ -4554,7 +4548,7 @@ describe('component', () => {
     const {
       data: { putComponentUpdate },
     } = body;
-    expect(putComponentUpdate).toBe(5);
+    expect(putComponentUpdate).toBe(4);
     done();
   });
 
@@ -4629,7 +4623,6 @@ describe('component', () => {
                 parentComponentUuid: "${componentUuidStandard}"
                 name: "${nameForUpdate}"
                 description: "${descriptionForUpdate}"
-                typeAccessId: ${typeAccessIdForUpdate}
                 componentTypeId: ${componentTypeIdForUpdate}
                 actualStatusId: ${actualStatusIdForUpdate}
               }
@@ -4669,7 +4662,6 @@ describe('component', () => {
                 parentComponentUuid: "${componentUuidStandard}"
                 name: "${nameForUpdate}"
                 description: "${descriptionForUpdate}"
-                typeAccessId: ${typeAccessIdForUpdate}
                 componentTypeId: ${componentTypeIdForUpdate}
                 actualStatusId: ${actualStatusIdForUpdate}
               }
