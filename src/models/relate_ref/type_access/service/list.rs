@@ -2,7 +2,7 @@ use crate::errors::ServiceResult;
 use crate::models::relate_ref::type_access::model::TypeAccessTranslateList;
 use diesel::{PgConnection, prelude::*};
 
-pub(crate) fn get_type_accesss(
+pub(crate) fn get_type_access(
     type_access_id_search: Vec<i32>,
     limit: i32,
     offset: i32,
@@ -10,13 +10,13 @@ pub(crate) fn get_type_accesss(
     conn: &PgConnection,
 ) -> ServiceResult<Vec<TypeAccessTranslateList>> {
     match type_access_id_search {
-        type_access_id_search if type_access_id_search.is_empty() => find_all_type_accesss(
+        type_access_id_search if type_access_id_search.is_empty() => find_all_type_access(
             limit,
             offset,
             set_lang_id,
             conn,
         ),
-        type_access_id_search => find_type_access_id(
+        type_access_id_search => find_type_access_ids(
             type_access_id_search,
             limit,
             offset,
@@ -27,7 +27,7 @@ pub(crate) fn get_type_accesss(
     }
 }
 
-fn find_all_type_accesss(
+fn find_all_type_access(
     limit: i32,
     offset: i32,
     set_lang_id: &i32,
@@ -42,7 +42,7 @@ fn find_all_type_accesss(
         .load::<TypeAccessTranslateList>(conn)?)
 }
 
-fn find_type_access_id(
+fn find_type_access_ids(
     type_access_id_search: Vec<i32>,
     limit: i32,
     offset: i32,

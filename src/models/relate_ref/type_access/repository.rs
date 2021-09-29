@@ -31,16 +31,16 @@ impl TypeAccessTranslateList {
         set_lang_id: &i32,
         conn: &PgConnection,
     ) -> ServiceResult<Vec<TypeAccessTranslateList>> {
-        let type_accesss = type_access_translate_list::type_access_translate_list
+        let type_access = type_access_translate_list::type_access_translate_list
             .filter(type_access_translate_list::type_access_id.eq_any(target_vec_type_access_id)
             .and(type_access_translate_list::lang_id.eq(set_lang_id)))
             .load::<TypeAccessTranslateList>(conn);
 
         // if not found data for set lang
-        match type_accesss {
+        match type_access {
             Ok(rns) => Ok(rns),
             Err(err) => {
-                debug!("Not found set lang for type_accesss: {:?}", err);
+                debug!("Not found set lang for type_access: {:?}", err);
                 Ok(type_access_translate_list::type_access_translate_list
                     .filter(type_access_translate_list::type_access_id.eq_any(target_vec_type_access_id))
                     .load::<TypeAccessTranslateList>(conn)?)

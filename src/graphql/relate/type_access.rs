@@ -13,7 +13,7 @@ pub struct TypeAccessMutation;
 
 #[Object]
 impl TypeAccessQuery {
-    async fn type_accesss(
+    async fn type_access(
         &self,
         cxt: &Context<'_>,
         type_access_id: Option<Vec<i32>>,
@@ -29,7 +29,7 @@ impl TypeAccessQuery {
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
-        type_access::service::list::get_type_accesss(
+        type_access::service::list::get_type_access(
             type_access_id,
             limit,
             offset,
