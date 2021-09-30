@@ -11,9 +11,9 @@ ALTER TABLE company_represent_ref ADD CONSTRAINT company_represent_ref_fk2 FOREI
 
 ALTER TABLE role_member_list ADD CONSTRAINT role_member_list_fk0 FOREIGN KEY (company_uuid) REFERENCES company_ref(uuid) ON DELETE CASCADE;
 
-ALTER TABLE company_member_role ADD CONSTRAINT company_member_role_fk0 FOREIGN KEY (company_uuid) REFERENCES company_ref(uuid) ON DELETE CASCADE;
-ALTER TABLE company_member_role ADD CONSTRAINT company_member_role_fk1 FOREIGN KEY (user_uuid) REFERENCES user_ref(uuid) ON DELETE CASCADE;
-ALTER TABLE company_member_role ADD CONSTRAINT company_member_role_fk2 FOREIGN KEY (role_id) REFERENCES role_member_list(id) ON DELETE CASCADE;
+ALTER TABLE company_member_list ADD CONSTRAINT company_member_list_fk0 FOREIGN KEY (company_uuid) REFERENCES company_ref(uuid) ON DELETE CASCADE;
+ALTER TABLE company_member_list ADD CONSTRAINT company_member_list_fk1 FOREIGN KEY (user_uuid) REFERENCES user_ref(uuid) ON DELETE CASCADE;
+ALTER TABLE company_member_list ADD CONSTRAINT company_member_list_fk2 FOREIGN KEY (role_id) REFERENCES role_member_list(id) ON DELETE CASCADE;
 
 ALTER TABLE spec_to_company ADD CONSTRAINT spec_to_company_fk0 FOREIGN KEY (spec_id) REFERENCES spec_ref(id) ON DELETE CASCADE;
 ALTER TABLE spec_to_company ADD CONSTRAINT spec_to_company_fk1 FOREIGN KEY (company_uuid) REFERENCES company_ref(uuid) ON DELETE CASCADE;

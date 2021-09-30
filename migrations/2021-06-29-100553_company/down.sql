@@ -3,7 +3,7 @@ DROP TABLE company_ref;
 DROP TABLE company_type_ref;
 DROP TABLE company_type_translate_list;
 DROP TABLE company_represent_ref;
-DROP TABLE company_member_role;
+DROP TABLE company_member_list;
 DROP TABLE spec_to_company;
 DROP TABLE company_history_list;
 DROP TABLE discussion_company_ref;

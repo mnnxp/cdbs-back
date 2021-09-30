@@ -62,7 +62,7 @@ table! {
 }
 
 table! {
-    company_member_role (company_uuid, user_uuid, role_id) {
+    company_member_list (company_uuid, user_uuid, role_id) {
         company_uuid -> Uuid,
         user_uuid -> Uuid,
         role_id -> Int4,
@@ -488,8 +488,9 @@ table! {
 }
 
 table! {
-    role_member_ref (id) {
+    role_member_list (id) {
         id -> Int4,
+        company_uuid -> Uuid,
     }
 }
 
@@ -746,9 +747,9 @@ joinable!(company_fav -> company_ref (company_uuid));
 joinable!(company_fav -> user_ref (user_uuid));
 joinable!(company_history_list -> company_ref (company_uuid));
 joinable!(company_history_list -> type_of_change_ref (type_of_change_id));
-joinable!(company_member_role -> company_ref (company_uuid));
-joinable!(company_member_role -> role_member_ref (role_id));
-joinable!(company_member_role -> user_ref (user_uuid));
+joinable!(company_member_list -> company_ref (company_uuid));
+joinable!(company_member_list -> role_member_list (role_id));
+joinable!(company_member_list -> user_ref (user_uuid));
 joinable!(company_ref -> company_type_ref (company_type_id));
 joinable!(company_ref -> file_ref (image_file_uuid));
 joinable!(company_ref -> region_ref (region_id));
@@ -819,10 +820,11 @@ joinable!(region_translate_list -> language_ref (lang_id));
 joinable!(region_translate_list -> region_ref (region_id));
 joinable!(representation_type_translate_list -> language_ref (lang_id));
 joinable!(representation_type_translate_list -> representation_type_ref (representation_type_id));
-joinable!(role_access -> role_member_ref (role_id));
+joinable!(role_access -> role_member_list (role_id));
 joinable!(role_access -> type_access_ref (type_access_id));
+joinable!(role_member_list -> company_ref (company_uuid));
 joinable!(role_member_translate_list -> language_ref (lang_id));
-joinable!(role_member_translate_list -> role_member_ref (role_member_id));
+joinable!(role_member_translate_list -> role_member_list (role_member_id));
 joinable!(spec_to_company -> company_ref (company_uuid));
 joinable!(spec_to_company -> spec_ref (spec_id));
 joinable!(spec_to_component -> component_ref (component_uuid));
@@ -873,7 +875,7 @@ allow_tables_to_appear_in_same_query!(
     company_certificate_ref,
     company_fav,
     company_history_list,
-    company_member_role,
+    company_member_list,
     company_ref,
     company_represent_ref,
     company_type_ref,
@@ -922,7 +924,7 @@ allow_tables_to_appear_in_same_query!(
     representation_type_ref,
     representation_type_translate_list,
     role_access,
-    role_member_ref,
+    role_member_list,
     role_member_translate_list,
     spec_ref,
     spec_to_company,

@@ -45,7 +45,7 @@ INSERT INTO company_represent_ref (uuid, company_uuid, region_id, representation
   ('297e44b3-d36c-4ab5-be16-e2a955aabf13', 'e97ea679-4560-4a9b-ad8b-80d2d191235e', 2, 1, 'additional office', 'Batkov District, Minsk', '+375548418789'),
   ('96df6359-a31e-40ad-aa06-9355abc2cc58', 'e97ea679-4560-4a9b-ad8b-80d2d191235e', 3, 1, 'additional office', 'None str, Kiev', '+380874487556');
 
-INSERT INTO company_member_role (company_uuid, user_uuid, role_id, is_enabled, created_at, updated_at) VALUES
+INSERT INTO company_member_list (company_uuid, user_uuid, role_id, is_enabled, created_at, updated_at) VALUES
   ('2cd385e1-8f7e-4908-8235-dfe42938b46d', '31ecc6f8-0c09-4a59-a2d5-34b5b833e59b', 5, 't', now(), now()),
   ('2cd385e1-8f7e-4908-8235-dfe42938b46d', 'c3f5f69c-bb54-45d9-bfa7-1d28cc1afa5a', 1, 't', now(), now()),
   ('2cd385e1-8f7e-4908-8235-dfe42938b46d', '68b8281a-d19c-4d4b-88eb-6fd4a2afde1b', 3, 't', now(), now()),

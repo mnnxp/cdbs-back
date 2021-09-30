@@ -52,14 +52,14 @@ CREATE TABLE company_represent_ref (
 );
 
 /* члены компании и их роли */
-CREATE TABLE company_member_role (
+CREATE TABLE company_member_list (
   company_uuid UUID NOT NULL, /* uuid компании */
   user_uuid UUID NOT NULL, /* uuid профиля */
   role_id INTEGER NOT NULL, /* идентификатор роли пользователя */
   is_enabled BOOLEAN NOT NULL DEFAULT 't', /* член компании активен */
   created_at TIMESTAMP NOT NULL DEFAULT NOW(), /* дата создания */
   updated_at TIMESTAMP NOT NULL DEFAULT NOW(), /* дата обновления */
-  CONSTRAINT company_member_role_pk PRIMARY KEY (company_uuid, user_uuid, role_id)
+  CONSTRAINT company_member_list_pk PRIMARY KEY (company_uuid, user_uuid, role_id)
 );
 
 /* связь каталогов с компанией */
