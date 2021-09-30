@@ -4639,15 +4639,266 @@ describe('component', () => {
     done();
   });
 
-  // parentComponentUuid: "${parentComponentUuid}",
-  // name: "${nameComponent}",
-  // description: "${descriptionComponent}",
-  // typeAccessId: ${typeAccessIdComponent},
-  // componentTypeId: ${componentTypeId},
-  // actualStatusId: ${actualStatusIdComponent},
-  // isBase: ${isBaseComponent}
+  // add access for company
+  it('/graphql:M setCompanyAccessComponent - OK add low access company', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation  {
+            setCompanyAccessComponent(
+              data: {
+                componentUuid: "${componentUuidStandard}"
+                companyUuid: "${companyUuidNoSupplier}"
+                typeAccessId: ${secondAccess}
+              }
+            )
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql setCompanyAccessComponent=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { setCompanyAccessComponent },
+    } = body;
+    expect(setCompanyAccessComponent).toBe(true);
+    done();
+  });
 
-  it('/graphql:M putComponentUpdate - BadRequest not have access', async (done) => {
+  it('/graphql:M putComponentUpdate - BadRequest need higher access', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `mutation  {
+            putComponentUpdate(
+              componentUuid: "${componentUuidStandard}"
+              data: {
+                parentComponentUuid: "${componentUuidStandard}"
+                name: "${nameForUpdate}"
+                description: "${descriptionForUpdate}"
+                componentTypeId: ${componentTypeIdForUpdate}
+                actualStatusId: ${actualStatusIdForUpdate}
+              }
+            )
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Access denied'
+    );
+    expect(body.errors[0].path[0]).toBe('putComponentUpdate');
+    done();
+  });
+
+  it('/graphql:M setCompanyAccessComponent - OK add access company', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation  {
+            setCompanyAccessComponent(
+              data: {
+                componentUuid: "${componentUuidStandard}"
+                companyUuid: "${companyUuidNoSupplier}"
+                typeAccessId: ${firstAccess}
+              }
+            )
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql setCompanyAccessComponent=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { setCompanyAccessComponent },
+    } = body;
+    expect(setCompanyAccessComponent).toBe(true);
+    done();
+  });
+
+  // NEED add access USER in COMPANY with low access
+
+  it('/graphql:Q getCompaniesListAccessComponent - BadRequest access denied', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `query {
+            getCompaniesListAccessComponent(
+              componentUuid: "${componentUuidStandard}"
+            ) {
+              componentUuid
+              companyUuid
+              typeAccess {
+                typeAccessId
+                langId
+                name
+              }
+              isEnabled
+              createdAt
+              updatedAt
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql getCompaniesListAccessComponent=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Access denied'
+    );
+    expect(body.errors[0].path[0]).toBe('getCompaniesListAccessComponent');
+    done();
+  });
+
+  // NEED add USER in COMPANY with access
+
+
+
+  // NEED change access USER in COMPANY with access
+
+  it('/graphql:Q getCompaniesListAccessComponent - OK', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `query {
+            getCompaniesListAccessComponent(
+              componentUuid: "${componentUuidStandard}"
+            ) {
+              componentUuid
+              companyUuid
+              typeAccess {
+                typeAccessId
+                langId
+                name
+              }
+              isEnabled
+              createdAt
+              updatedAt
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql getCompaniesListAccessComponent=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { getCompaniesListAccessComponent },
+    } = body;
+    expect(getCompaniesListAccessComponent[0].componentUuid).toBe(componentUuidStandard);
+    expect(getCompaniesListAccessComponent[0].companyUuid).toBe(companyUuidNoSupplier);
+    expect(getCompaniesListAccessComponent[0].typeAccess.typeAccessId).toBe(firstAccess);
+    done();
+  });
+
+  it('/graphql:M putComponentUpdate - OK with access user', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `mutation  {
+            putComponentUpdate(
+              componentUuid: "${componentUuidStandard}"
+              data: {
+                parentComponentUuid: "${parentComponentUuid}",
+                name: "${nameComponent}",
+                description: "${descriptionComponent}",
+                componentTypeId: ${componentTypeId},
+                actualStatusId: ${actualStatusIdComponent},
+              }
+            )
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql putComponentUpdate=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { putComponentUpdate },
+    } = body;
+    expect(putComponentUpdate).toBe(5);
+    done();
+  });
+
+  // disable access for authorizationTokenSecond
+  it('/graphql:M deleteCompanyAccessComponent - OK delete access user', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation  {
+            deleteCompanyAccessComponent(
+              data: {
+                componentUuid: "${componentUuidStandard}"
+                companyUuid: "${companyUuidNoSupplier}"
+              }
+            )
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql deleteCompanyAccessComponent=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { deleteCompanyAccessComponent },
+    } = body;
+    expect(deleteCompanyAccessComponent).toBe(true);
+    done();
+  });
+
+  // NEED delete access USER in COMPANY with access
+
+  // NEED putComponentUpdate - BadRequest access denied
+
+  it('/graphql:M deleteCompanyAccessComponent - BadRequest not found access', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation  {
+            deleteCompanyAccessComponent(
+              data: {
+                componentUuid: "${componentUuidStandard}"
+                companyUuid: "${companyUuidNoSupplier}"
+              }
+            )
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql deleteCompanyAccessComponent=%o', body);
+    // expect(body).toBe(0);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Access not found for company'
+    );
+    expect(body.errors[0].path[0]).toBe('deleteCompanyAccessComponent');
+    done();
+  });
+
+  it('/graphql:M putComponentUpdate - BadRequest access denied', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .set(

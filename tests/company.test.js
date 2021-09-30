@@ -106,7 +106,7 @@ createdAt \
 updatedAt \
 `;
 
-const companysListQuery = ` \
+const companiesListQuery = ` \
 uuid \
 shortname \
 inn \
@@ -485,7 +485,7 @@ describe('company', () => {
             "${companyUuidSupplier}",
             "${companyUuidNoSupplier}"
           ]) {
-            ${companysListQuery}
+            ${companiesListQuery}
           }
         }`,
       })
@@ -512,7 +512,7 @@ describe('company', () => {
             "${companyUuidSupplier}",
             "${companyUuidNoSupplier}"
           ]) {
-            ${companysListQuery}
+            ${companiesListQuery}
           }
         }`,
       })
