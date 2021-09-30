@@ -55,9 +55,8 @@ fn find_spec_ids(
 
 
     Ok(spec_translate_list
-        // .filter(lang_id.eq_any(target_lang_id))
-        .filter(spec_id.eq_any(target_spec_ids))
-        .filter(lang_id.eq(set_lang_id))
+        .filter(spec_id.eq_any(target_spec_ids)
+        .and(lang_id.eq(set_lang_id)))
         .limit(limit as i64)
         .offset(offset as i64)
         .load::<SpecTranslateList>(conn)?)

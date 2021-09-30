@@ -53,8 +53,8 @@ fn find_param_id(
 
 
     Ok(param_translate_list
-        .filter(param_id.eq_any(param_id_search))
-        .filter(lang_id.eq(set_lang_id))
+        .filter(param_id.eq_any(param_id_search)
+        .and(lang_id.eq(set_lang_id)))
         .limit(limit as i64)
         .offset(offset as i64)
         .load::<ParamTranslateList>(conn)?)

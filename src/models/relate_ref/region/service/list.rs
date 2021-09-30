@@ -52,8 +52,8 @@ fn find_region_id(
     use crate::schema::region_translate_list::dsl::*;
 
     Ok(region_translate_list
-        .filter(region_id.eq_any(region_id_search))
-        .filter(lang_id.eq(set_lang_id))
+        .filter(region_id.eq_any(region_id_search)
+        .and(lang_id.eq(set_lang_id)))
         .limit(limit as i64)
         .offset(offset as i64)
         .load::<RegionTranslateList>(conn)?)

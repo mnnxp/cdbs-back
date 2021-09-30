@@ -52,8 +52,8 @@ fn find_type_access_ids(
     use crate::schema::type_access_translate_list::dsl::*;
 
     Ok(type_access_translate_list
-        .filter(type_access_id.eq_any(type_access_id_search))
-        .filter(lang_id.eq(set_lang_id))
+        .filter(type_access_id.eq_any(type_access_id_search)
+        .and(lang_id.eq(set_lang_id)))
         .limit(limit as i64)
         .offset(offset as i64)
         .load::<TypeAccessTranslateList>(conn)?)
