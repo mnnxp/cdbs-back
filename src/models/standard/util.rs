@@ -56,10 +56,10 @@ pub(crate) fn check_standard_access(
         },
         // 1..=i32::MAX => {
         //     Err(ServiceError::BadRequest(
-        //         "You have insufficient access level.".to_string(),
+        //         "Access denied".to_string(),
         //     ))
         // },
-        _ => Err(ServiceError::BadRequest("You not have access.".to_string())),
+        _ => Err(ServiceError::BadRequest("Access denied".to_string())),
     }
 }
 
@@ -73,8 +73,8 @@ pub(crate) fn get_user_access_standard(
 
     // find role_id user
     user_access_to_standard
-        .filter(standard_uuid.eq(target_standard_uuid))
-        .filter(user_uuid.eq(target_user_uuid))
+        .filter(standard_uuid.eq(target_standard_uuid)
+        .and(user_uuid.eq(target_user_uuid)))
         .select(type_access_id)
         .first(conn)
         .unwrap_or(0)
@@ -157,12 +157,12 @@ pub(crate) fn get_access_granted_company(
                 THEN company_access_to_standard.type_access_id \
                 ELSE role_access.type_access_id \
         END access_level \
-        FROM company_member_role \
+        FROM company_member_list \
         INNER JOIN company_access_to_standard \
-            ON (company_member_role.company_uuid = company_access_to_standard.company_uuid) \
+            ON (company_member_list.company_uuid = company_access_to_standard.company_uuid) \
         INNER JOIN role_access \
-            ON (company_member_role.role_id = role_access.role_id) \
-        WHERE company_member_role.user_uuid = $1 \
+            ON (company_member_list.role_id = role_access.role_id) \
+        WHERE company_member_list.user_uuid = $1 \
             AND company_access_to_standard.standard_uuid = $2 \
             AND company_access_to_standard.type_access_id <= $3 \
             AND role_access.type_access_id <= $3;";
