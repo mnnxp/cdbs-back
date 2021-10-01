@@ -2,6 +2,9 @@ use crate::database::{get_conn, PooledConnection};
 use crate::errors::ServiceResult;
 use crate::models::component;
 use crate::models::component::model::{IptComponentData, SlimComponent, IptUpdateComponentData};
+use crate::models::component::access::company::model::{
+    IptCompanyAccessComponentData, DelCompanyAccessComponentData
+};
 use crate::models::component::access::user::model::{
     IptUserAccessComponentData, DelUserAccessComponentData
 };
@@ -106,6 +109,44 @@ impl ComponentMutation {
     }
 
     // Start Manage access component
+    async fn set_company_access_component(
+        &self,
+        cxt: &Context<'_>,
+        data: IptCompanyAccessComponentData,
+    ) -> ServiceResult<bool> {
+        use component::access::company::manage::set_company_access_component;
+
+        // checking authorization and getting company uuid
+        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+
+        let conn: &PooledConnection = &get_conn(cxt)?;
+
+        set_company_access_component(
+            &logged_user_uuid,
+            &data,
+            conn
+        )
+    }
+
+    async fn delete_company_access_component(
+        &self,
+        cxt: &Context<'_>,
+        data: DelCompanyAccessComponentData,
+    ) -> ServiceResult<bool> {
+        use component::access::company::manage::del_company_access_component;
+
+        // checking authorization and getting company uuid
+        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+
+        let conn: &PooledConnection = &get_conn(cxt)?;
+
+        del_company_access_component(
+            &logged_user_uuid,
+            &data,
+            conn
+        )
+    }
+
     async fn set_user_access_component(
         &self,
         cxt: &Context<'_>,
@@ -143,7 +184,6 @@ impl ComponentMutation {
             conn
         )
     }
-
     // End Manage access component
 
     async fn put_component_params(
