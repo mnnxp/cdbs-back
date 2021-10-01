@@ -4,11 +4,21 @@ use diesel::prelude::*;
 use uuid::Uuid;
 
 pub(crate) fn delete_company_represent(
-    target_company_uuid: Uuid,
-    target_uuid_represent: Uuid,
+    logged_user_uuid: &Uuid,
+    target_company_uuid: &Uuid,
+    target_uuid_represent: &Uuid,
     conn: &PgConnection,
 ) -> ServiceResult<SlimCompanyRepresent> {
     use crate::schema::company_represent_ref::dsl::*;
+
+    let need_access_level = 1; // todo!(create enum for manage access level)
+
+    crate::models::company::access::util::check_company_access(
+        logged_user_uuid,
+        target_company_uuid,
+        &need_access_level,
+        conn,
+    )?;
 
     // debug!("fn target_company_uuid = {}", &target_company_uuid);
     // debug!("fn target_uuid_represent = {}", &target_uuid_represent);

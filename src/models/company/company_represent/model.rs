@@ -88,8 +88,8 @@ pub struct CompanyRepresentData {
     pub phone: String,
 }
 
-impl From<IptCompanyRepresentData> for CompanyRepresentData {
-    fn from(ipt_data: IptCompanyRepresentData) -> Self {
+impl From<&IptCompanyRepresentData> for CompanyRepresentData {
+    fn from(ipt_data: &IptCompanyRepresentData) -> Self {
         let IptCompanyRepresentData {
             company_uuid,
             region_id,
@@ -100,11 +100,11 @@ impl From<IptCompanyRepresentData> for CompanyRepresentData {
         } = ipt_data;
         CompanyRepresentData {
             company_uuid: Uuid::parse_str(&company_uuid.to_string()).unwrap(),
-            region_id,
-            representation_type_id,
-            name,
-            address,
-            phone,
+            region_id: *region_id,
+            representation_type_id: *representation_type_id,
+            name: name.to_string(),
+            address: address.to_string(),
+            phone: phone.to_string(),
         }
     }
 }
