@@ -16,7 +16,7 @@ pub(crate) fn update_component_by_uuid(
     use crate::schema::component_ref::dsl as component_ref;
 
     // need top level access for change component main data
-    let need_access_level = 1;
+    let need_access_level = 1; // todo!(create enum for manage access level)
 
     let target_component_uuid: &Uuid = match check_is_owner(
         logged_user_uuid,
