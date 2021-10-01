@@ -26,10 +26,10 @@ pub(crate) fn create_standard(
 
     let image_file_uuid = Uuid::parse_str("bc1c2151-86d0-4656-9c9d-d016dd584297")?; // <-- todo!(get uuid default favicon)
 
-    crate::models::company::util::check_company_access(
+    crate::models::company::access::util::check_company_access(
         &logged_user_uuid,
         &data.company_uuid,
-        3,
+        &3,
         conn,
     )?;
 
@@ -55,8 +55,8 @@ pub(crate) fn create_standard(
     };
 
     let flag_found_company: i64 = company_ref::company_ref
-        .filter(company_ref::user_uuid.eq(&new_standard_data.user_uuid))
-        .filter(company_ref::uuid.eq(&new_standard_data.company_uuid))
+        .filter(company_ref::user_uuid.eq(&new_standard_data.user_uuid)
+        .and(company_ref::uuid.eq(&new_standard_data.company_uuid)))
         .select(count(company_ref::uuid))
         .first(conn).unwrap();
 
@@ -71,6 +71,6 @@ pub(crate) fn create_standard(
                 .get_result(conn)?;
             Ok(inserted_standard_data.into())
         }
-        _ => Err(ServiceError::BadRequest("Wow what? Found several companys.".to_string())),
+        _ => Err(ServiceError::BadRequest("Wow what? Found several companies.".to_string())),
     }
 }
