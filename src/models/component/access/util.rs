@@ -74,7 +74,7 @@ pub(crate) fn check_access_component_for_user(
     // 3.1 которые предоставляют требуемый доступ пользователю:
     // 3.2 получить список компаний с подходящим доступом company_access_to_component
     // 3.3 получить списко ролей с подходящим доступом role_access
-    // 3.4 поиск пользователя среди сотрудников компаний в company_member_role с подходящей ролью:
+    // 3.4 поиск пользователя среди сотрудников компаний в company_member_list с подходящей ролью:
     // фильтр пользователя, список компаний, список ролей)
     // checking the availability of user access provided by the company
     if check_user_access_provided_by_company(target_user_uuid,
@@ -127,8 +127,8 @@ pub(crate) fn check_user_access_provided_by_company(
     need_access_level: &i32,
     conn: &PgConnection
 ) -> ServiceResult<bool> {
-    use crate::models::company::util::get_roles_ids_for_access;
-    use crate::models::company::util::check_clerk_with_suitable_role;
+    use crate::models::company::access::util::get_roles_ids_for_access;
+    use crate::models::company::access::util::check_clerk_with_suitable_role;
 
     // 3. рекурсивно проверить доступ у компаний,
     // 3.1 получить список которые предоставляют требуемый доступ пользователю:
@@ -141,7 +141,7 @@ pub(crate) fn check_user_access_provided_by_company(
     )?;
 
     // 3.3 получить список ролей с подходящим доступом role_access
-    // 3.4 поиск пользователя среди сотрудников компаний в company_member_role с подходящей ролью:
+    // 3.4 поиск пользователя среди сотрудников компаний в company_member_list с подходящей ролью:
     // фильтр пользователя, список компаний, список ролей)
     if check_clerk_with_suitable_role(
         target_user_uuid,
