@@ -277,6 +277,10 @@ var fileUuid5 = "";
 var firstAccess = 1;
 var secondAccess = 2;
 
+var langId = 1;
+var nameRole = "test role";
+var newRoleId = 0;
+
 var nameForUpdate = "new name";
 var descriptionForUpdate = "new description";
 var typeAccessIdForUpdate = 2;
@@ -4728,6 +4732,90 @@ describe('component', () => {
   });
 
   // NEED add access USER in COMPANY with low access
+  it('/graphql:M registerCompanyRole - OK return already id', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation  {
+            registerCompanyRole( data: {
+              companyUuid: "${companyUuidNoSupplier}"
+              langId: ${langId}
+              name: "${nameRole}"
+            })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql registerCompanyRole=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { registerCompanyRole },
+    } = body;
+    newRoleId = registerCompanyRole;
+    done();
+  });
+
+  it('/graphql:M addAccessRole - OK add access role', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation  {
+            addAccessRole( data: {
+              roleId: ${newRoleId}
+              typesAccessIds: 3
+            })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql addAccessRole=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { addAccessRole },
+    } = body;
+    expect(addAccessRole).toBe(true);
+    done();
+  });
+
+  it('/graphql:M addCompanyMember - OK add company member', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation  {
+            addCompanyMember(
+              data: {
+                companyUuid: "${companyUuidNoSupplier}"
+                userUuid: "${authorizationUserSecond}"
+                roleId: ${newRoleId}
+              }
+            ) {
+              companyUuid
+              userUuid
+              roleId
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql addCompanyMember=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { addCompanyMember },
+    } = body;
+    expect(addCompanyMember.companyUuid).toBe(companyUuidNoSupplier);
+    expect(addCompanyMember.userUuid).toBe(authorizationUserSecond);
+    expect(addCompanyMember.roleId).toBe(newRoleId);
+    done();
+  });
 
   it('/graphql:Q getCompaniesListAccessComponent - BadRequest access denied', async (done) => {
     const { body } = await agent
@@ -4764,11 +4852,30 @@ describe('component', () => {
     done();
   });
 
-  // NEED add USER in COMPANY with access
-
-
-
-  // NEED change access USER in COMPANY with access
+  it('/graphql:M addAccessRole - OK add access role', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation  {
+            addAccessRole( data: {
+              roleId: ${newRoleId}
+              typesAccessIds: 1
+            })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql addAccessRole=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { addAccessRole },
+    } = body;
+    expect(addAccessRole).toBe(true);
+    done();
+  });
 
   it('/graphql:Q getCompaniesListAccessComponent - OK', async (done) => {
     const { body } = await agent
@@ -4807,7 +4914,7 @@ describe('component', () => {
     done();
   });
 
-  it('/graphql:M putComponentUpdate - OK with access user', async (done) => {
+  it('/graphql:M putComponentUpdate - OK with access from company', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .set(
@@ -4834,7 +4941,7 @@ describe('component', () => {
     const {
       data: { putComponentUpdate },
     } = body;
-    expect(putComponentUpdate).toBe(5);
+    expect(putComponentUpdate).toBe(6);
     done();
   });
 
