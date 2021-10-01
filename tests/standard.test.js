@@ -643,7 +643,7 @@ describe('company', () => {
     debug('/graphql - body=%o', body);
     const { errors, data } = body;
     expect(data).toBeNull();
-    expect(errors[0].message).toBe("BadRequest: You not have access.");
+    expect(errors[0].message).toBe("BadRequest: Access denied");
     done();
   });
 
@@ -723,7 +723,7 @@ describe('company', () => {
   //   debug('/graphql - body=%o', body);
   //   const { errors, data } = body;
   //   expect(data).toBeNull();
-  //   expect(errors[0].message).toBe("BadRequest: You not have access.");
+  //   expect(errors[0].message).toBe("BadRequest: Access denied");
   //   done();
   // });
 
@@ -793,7 +793,7 @@ describe('company', () => {
   //   debug('/graphql - body=%o', body);
   //   const { errors, data } = body;
   //   expect(data).toBeNull();
-  //   expect(errors[0].message).toBe("BadRequest: You not have access.");
+  //   expect(errors[0].message).toBe("BadRequest: Access denied");
   //   done();
   // });
 
