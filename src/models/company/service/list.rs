@@ -18,7 +18,7 @@ pub(crate) fn find_companies(
         conn
     ).expect("Error loading list companies and collect short data");
 
-    debug!("Companys data: {:#?}", result);
+    debug!("Companies data: {:#?}", result);
 
     Ok(result)
 }
