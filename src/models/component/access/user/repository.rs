@@ -18,20 +18,20 @@ impl UserAccessComponentAndRelatedData {
             .filter(component_uuid.eq(target_component_uuid))
             .load::<UserAccessComponent>(conn)?;
 
-        let mut target_vec_type_access_id: Vec<i32> = Vec::new();
+        let mut target_types_access_ids: Vec<i32> = Vec::new();
         for x in list_users_with_access.iter() {
-            target_vec_type_access_id.push(x.type_access_id.to_owned());
+            target_types_access_ids.push(x.type_access_id.to_owned());
         }
 
-        let type_access_with_relate = TypeAccessTranslateList::get_type_access_by_vec_id(
-            &target_vec_type_access_id,
+        let type_access_with_translate = TypeAccessTranslateList::get_types_access_by_ids(
+            &target_types_access_ids,
             set_lang_id,
             conn
         )?;
 
         let mut res: Vec<UserAccessComponentAndRelatedData> = Vec::new();
         for x in list_users_with_access {
-            for type_access in &type_access_with_relate {
+            for type_access in &type_access_with_translate {
                 if x.type_access_id == type_access.type_access_id {
                     res.push(
                         UserAccessComponentAndRelatedData{
