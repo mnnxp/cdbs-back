@@ -133,6 +133,44 @@ pub struct IptComponentModificationData {
     pub actual_status_id: i32,
 }
 
+impl From<&IptComponentModificationData> for InsertableComponentModification {
+    fn from(ipt_data: &IptComponentModificationData) -> Self {
+        let IptComponentModificationData {
+            component_uuid,
+            parent_modification_uuid,
+            modification_name,
+            description,
+            actual_status_id,
+        } = ipt_data;
+
+        Self {
+            uuid: Uuid::new_v4(),
+            component_uuid: *component_uuid,
+            parent_modification_uuid: *parent_modification_uuid,
+            modification_name: modification_name.to_string(),
+            description: description.to_string(),
+            actual_status_id: *actual_status_id,
+            is_delete: false,
+            created_at: chrono::Local::now().naive_local(),
+            updated_at: chrono::Local::now().naive_local(),
+        }
+    }
+}
+
+#[derive(Debug, Deserialize, Clone, InputObject)]
+pub struct IptUpdateComponentModificationData {
+    // pub parent_modification_uuid: Option<Uuid>,
+    pub modification_name: Option<String>,
+    pub description: Option<String>,
+    pub actual_status_id: Option<i32>,
+}
+
+#[derive(Debug, Deserialize, Clone, InputObject)]
+pub struct DelComponentModificationData {
+    pub component_uuid: Uuid,
+    pub modification_uuid: Uuid,
+}
+
 #[derive(Debug, Serialize, Queryable, Clone)]
 pub struct SlimComponentModification {
     pub uuid: Uuid,
@@ -159,56 +197,4 @@ impl SlimComponentModification {
     async fn updated_at(&self) -> &NaiveDateTime {
         &self.updated_at
     }
-}
-
-impl From<IptComponentModificationData> for InsertableComponentModification {
-    fn from(ipt_data: IptComponentModificationData) -> Self {
-        let IptComponentModificationData {
-            component_uuid,
-            parent_modification_uuid,
-            modification_name,
-            description,
-            actual_status_id,
-        } = ipt_data;
-
-        Self {
-            uuid: Uuid::new_v4(),
-            component_uuid: Uuid::parse_str(&component_uuid.to_string()).unwrap(),
-            parent_modification_uuid: Uuid::parse_str(&parent_modification_uuid.to_string())
-                .unwrap(),
-            modification_name,
-            description,
-            actual_status_id,
-            is_delete: false,
-            created_at: chrono::Local::now().naive_local(),
-            updated_at: chrono::Local::now().naive_local(),
-        }
-    }
-}
-
-impl From<ComponentModification> for SlimComponentModification {
-    fn from(data_modification: ComponentModification) -> Self {
-        let ComponentModification {
-            uuid,
-            component_uuid,
-            modification_name,
-            description,
-            updated_at,
-            ..
-        } = data_modification;
-
-        Self {
-            uuid,
-            component_uuid,
-            modification_name,
-            description,
-            updated_at,
-        }
-    }
-}
-
-#[derive(Debug, Deserialize, Clone, InputObject)]
-pub struct DelComponentModificationData {
-    pub component_uuid: Uuid,
-    pub modification_uuid: Uuid,
 }
