@@ -8,7 +8,7 @@ use crate::models::component::access::company::model::{
 use crate::models::component::access::user::model::{
     IptUserAccessComponentData, DelUserAccessComponentData
 };
-use crate::models::component::component_fav::model::{ComponentFav, IptComponentFavData};
+use crate::models::component::component_fav::model::ComponentFav;
 use crate::models::component::keyword as component_keyword;
 use crate::models::component::keyword::model::IptComponentKeywordData;
 use crate::models::component::license::model::IptComponentLicenseData;
@@ -31,7 +31,8 @@ use crate::models::component::component_modification::modification_file_from_fil
     IptModificationFileFromFilesetData, DelModificationFileFromFilesetData,
 };
 use crate::models::component::component_modification::model::{
-    IptComponentModificationData, SlimComponentModification, DelComponentModificationData
+    IptComponentModificationData, IptUpdateComponentModificationData,
+    SlimComponentModification, DelComponentModificationData
 };
 use crate::models::component::component_modification::param::model::{
     IptModificationParamData, DelModificationParamData,
@@ -65,7 +66,11 @@ impl ComponentMutation {
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
-        create_component(logged_user_uuid, data, conn)
+        create_component(
+            &logged_user_uuid,
+            &data, 
+            conn
+        )
     }
 
     async fn put_component_update(
@@ -193,13 +198,12 @@ impl ComponentMutation {
     ) -> ServiceResult<i32> {
         use component_param::service::change::put_component_params;
 
-        crate::models::user::check_authorized(cxt)?;
-        // let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
         put_component_params(
-            // &logged_user_uuid,
+            &logged_user_uuid,
             &data,
             conn
         )
@@ -212,13 +216,12 @@ impl ComponentMutation {
     ) -> ServiceResult<i32> {
         use component_param::service::delete::del_component_params;
 
-        crate::models::user::check_authorized(cxt)?;
-        // let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
         del_component_params(
-            // &logged_user_uuid,
+            &logged_user_uuid,
             &data,
             conn
         )
@@ -231,11 +234,15 @@ impl ComponentMutation {
     ) -> ServiceResult<bool> {
         use component::license::service::add::add_component_license;
 
-        crate::models::user::check_authorized(cxt)?;
+        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
-        add_component_license(data, conn)
+        add_component_license(
+            &logged_user_uuid,
+            &data,
+            conn
+        )
     }
 
     async fn delete_component_license(
@@ -245,11 +252,15 @@ impl ComponentMutation {
     ) -> ServiceResult<i32> {
         use component::license::service::delete::del_component_license;
 
-        crate::models::user::check_authorized(cxt)?;
+        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
-        del_component_license(data, conn)
+        del_component_license(
+            &logged_user_uuid,
+            &data,
+            conn
+        )
     }
 
     async fn add_component_specs(
@@ -259,11 +270,15 @@ impl ComponentMutation {
     ) -> ServiceResult<i32> {
         use component_spec::service::add::add_component_specs;
 
-        crate::models::user::check_authorized(cxt)?;
+        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
-        add_component_specs(data, conn)
+        add_component_specs(
+            &logged_user_uuid,
+            &data,
+            conn
+        )
     }
 
     async fn delete_component_specs(
@@ -273,11 +288,15 @@ impl ComponentMutation {
     ) -> ServiceResult<i32> {
         use component_spec::service::delete::del_component_specs;
 
-        crate::models::user::check_authorized(cxt)?;
+        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
-        del_component_specs(data, conn)
+        del_component_specs(
+            &logged_user_uuid,
+            &data,
+            conn
+        )
     }
 
     async fn add_component_keywords(
@@ -287,11 +306,15 @@ impl ComponentMutation {
     ) -> ServiceResult<i32> {
         use component_keyword::service::add::add_component_keywords;
 
-        crate::models::user::check_authorized(cxt)?;
+        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
-        add_component_keywords(data, conn)
+        add_component_keywords(
+            &logged_user_uuid,
+            &data,
+            conn
+        )
     }
 
     async fn delete_component_keywords(
@@ -301,11 +324,15 @@ impl ComponentMutation {
     ) -> ServiceResult<i32> {
         use component_keyword::service::delete::del_component_keywords;
 
-        crate::models::user::check_authorized(cxt)?;
+        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
-        del_component_keywords(data, conn)
+        del_component_keywords(
+            &logged_user_uuid,
+            &data,
+            conn
+        )
     }
 
     async fn upload_component_files(
@@ -333,13 +360,12 @@ impl ComponentMutation {
     ) -> ServiceResult<bool> {
         use component_file::service::delete::delete_component_file;
 
-
-        crate::models::user::get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
         delete_component_file(
-            // &logged_user_uuid,
+            &logged_user_uuid,
             &data,
             conn
         )
@@ -352,11 +378,15 @@ impl ComponentMutation {
     ) -> ServiceResult<bool> {
         use component_supplier::service::add::add_component_supplier;
 
-        crate::models::user::check_authorized(cxt)?;
+        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
-        add_component_supplier(&data, conn)
+        add_component_supplier(
+            &logged_user_uuid,
+            &data,
+            conn
+        )
     }
 
     async fn delete_suppliers_component(
@@ -366,11 +396,15 @@ impl ComponentMutation {
     ) -> ServiceResult<i32> {
         use component_supplier::service::delete::del_suppliers_component;
 
-        crate::models::user::check_authorized(cxt)?;
+        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
-        del_suppliers_component(&data,conn)
+        del_suppliers_component(
+            &logged_user_uuid,
+            &data,
+            conn
+        )
     }
 
     async fn add_standard_to_component(
@@ -380,11 +414,15 @@ impl ComponentMutation {
     ) -> ServiceResult<bool> {
         use component_standard::service::add::add_standard_to_component;
 
-        crate::models::user::check_authorized(cxt)?;
+        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
-        add_standard_to_component(&data,conn)
+        add_standard_to_component(
+            &logged_user_uuid,
+            &data,
+            conn
+        )
     }
 
     async fn delete_standards_component(
@@ -394,11 +432,15 @@ impl ComponentMutation {
     ) -> ServiceResult<i32> {
         use component_standard::service::delete::del_standards_component;
 
-        crate::models::user::check_authorized(cxt)?;
+        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
-        del_standards_component(&data,conn)
+        del_standards_component(
+            &logged_user_uuid,
+            &data,
+            conn
+        )
     }
 
     async fn register_component_modification(
@@ -412,7 +454,32 @@ impl ComponentMutation {
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
-        create_component_modification(data, logged_user_uuid, conn)
+        create_component_modification(
+            &logged_user_uuid,
+            &data,
+            conn
+        )
+    }
+
+    async fn put_component_modification_update(
+        &self,
+        cxt: &Context<'_>,
+        component_modification_uuid: Uuid,
+        data: IptUpdateComponentModificationData,
+    ) -> ServiceResult<i32> {
+        use component_modification::service::update::update_modification_data;
+
+        // checking authorization and getting user uuid
+        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+
+        let conn: &PooledConnection = &get_conn(cxt)?;
+
+        update_modification_data(
+            &logged_user_uuid,
+            &component_modification_uuid,
+            &data,
+            conn
+        )
     }
 
     async fn delete_component_modification(
@@ -441,13 +508,12 @@ impl ComponentMutation {
     ) -> ServiceResult<i32> {
         use component_modification::param::service::change::put_modification_params;
 
-        crate::models::user::check_authorized(cxt)?;
-        // let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
         put_modification_params(
-            // &logged_user_uuid,
+            &logged_user_uuid,
             &data,
             conn
         )
@@ -460,13 +526,12 @@ impl ComponentMutation {
     ) -> ServiceResult<i32> {
         use component_modification::param::service::delete::del_modification_params;
 
-        crate::models::user::check_authorized(cxt)?;
-        // let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
         del_modification_params(
-            // &logged_user_uuid,
+            &logged_user_uuid,
             &data,
             conn
         )
@@ -497,13 +562,12 @@ impl ComponentMutation {
     ) -> ServiceResult<bool> {
         use component_modification::file::service::delete::delete_modification_file;
 
-        crate::models::user::check_authorized(cxt)?;
-        // let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
         delete_modification_file(
-            // &logged_user_uuid,
+            &logged_user_uuid,
             &data,
             conn
         )
@@ -516,11 +580,15 @@ impl ComponentMutation {
     ) -> ServiceResult<FilesetProgram> {
         use fileset_program::service::add::create_modification_fileset;
 
-        crate::models::user::check_authorized(cxt)?;
+        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
-        create_modification_fileset(data, conn)
+        create_modification_fileset(
+            &logged_user_uuid,
+            &data,
+            conn
+        )
     }
 
     async fn delete_modification_fileset(
@@ -554,7 +622,7 @@ impl ComponentMutation {
 
         add_files_of_modification_set(
             &logged_user_uuid,
-            data,
+            &data,
             conn
         )
     }
@@ -580,14 +648,18 @@ impl ComponentMutation {
     async fn add_component_favorite(
         &self,
         cxt: &Context<'_>,
-        data: IptComponentFavData,
+        component_uuid: Uuid,
     ) -> ServiceResult<ComponentFav> {
         use component::component_fav::service::add::add_component_favorite;
 
-        crate::models::user::check_authorized(cxt)?;
+        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
-        add_component_favorite(data, conn)
+        add_component_favorite(
+            &logged_user_uuid,
+            &component_uuid,
+            conn
+        )
     }
 }
