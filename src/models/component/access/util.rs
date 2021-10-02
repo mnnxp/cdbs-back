@@ -43,6 +43,7 @@ pub fn check_is_owner_with_err(
 }
 
 /// Full find and check access to component for user
+/// return err if not found need access
 pub(crate) fn check_access_component_for_user(
     target_user_uuid: &Uuid,
     target_component_uuid: &Uuid,
@@ -56,6 +57,15 @@ pub(crate) fn check_access_component_for_user(
     // ownership check for ownership_check is true
     if ownership_check && check_is_owner(target_user_uuid, target_component_uuid, conn) {
         return Ok(true)
+    }
+
+    // if request to view a public component
+    if need_access_level == &3 {
+        let access_type_component = get_access_type_component(target_component_uuid, conn)?;
+        // if target component public
+        if access_type_component == 3 {
+            return Ok(true)
+        }
     }
 
     // 2. проверить наличие доступа к компоненту,
@@ -182,6 +192,29 @@ pub(crate) fn get_companies_have_access_to_component(
             debug!("Failed check data: {:?}", err);
             Err(ServiceError::BadRequest(
                 "Failed check data".to_string()
+            ))
+        },
+    }
+}
+
+/// Gets access type for component
+pub(crate) fn get_access_type_component(
+    target_component_uuid: &Uuid,
+    conn: &PgConnection
+) -> ServiceResult<i32> {
+    use crate::schema::component_ref::dsl::*;
+
+    let type_access = component_ref
+        .filter(uuid.eq(target_component_uuid))
+        .select(type_access_id)
+        .first::<i32>(conn);
+
+    match type_access {
+        Ok(ta) => Ok(ta),
+        Err(err) => {
+            debug!("Not found data: {:?}", err);
+            Err(ServiceError::BadRequest(
+                "Not found data".to_string()
             ))
         },
     }
