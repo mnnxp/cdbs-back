@@ -8,13 +8,19 @@ use crate::models::component::component_fav::model::{
     InsertableComponentFav
 };
 use diesel::prelude::*;
-// use uuid::Uuid;
+use uuid::Uuid;
 
 pub(crate) fn add_component_favorite(
-    data: IptComponentFavData,
+    logged_user_uuid: &Uuid,
+    target_component_uuid: &Uuid,
     conn: &PgConnection
 ) -> ServiceResult<ComponentFav> {
     use crate::schema::component_fav::dsl::*;
+
+    let data = IptComponentFavData {
+        component_uuid: *target_component_uuid,
+        user_uuid: *logged_user_uuid,
+    };
 
     let new_component_favorite: InsertableComponentFav = data.into();
 
