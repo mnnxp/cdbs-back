@@ -11,9 +11,21 @@ use uuid::Uuid;
 /// Add new params with values for component
 /// or update values an existing component params
 pub(crate) fn put_component_params(
+    logged_user_uuid: &Uuid,
     data: &IptComponentParamData,
     conn: &PgConnection
 ) -> ServiceResult<i32> {
+    
+    let need_access_level = 1; // todo!(create enum for manage access level)
+
+    crate::models::component::access::util::check_access_component_for_user(
+        logged_user_uuid,
+        &data.component_uuid,
+        &need_access_level,
+        true, // ownership_check
+        conn
+    )?;
+
     if data.params.is_empty() {
         return Err(ServiceError::BadRequest(
             "Not found params for adding or updating".to_string()

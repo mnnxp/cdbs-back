@@ -5,15 +5,26 @@ use crate::models::component::standard::model::{
     InsertableStandardToComponent
 };
 use diesel::prelude::*;
-// use uuid::Uuid;
+use uuid::Uuid;
 
 /// Add related standard for component
 /// insert row in standard_to_component table
 pub(crate) fn add_standard_to_component(
+    logged_user_uuid: &Uuid,
     data: &IptStandardToComponentData,
     conn: &PgConnection
 ) -> ServiceResult<bool> {
     use crate::schema::standard_to_component::dsl::*;
+
+    let need_access_level = 1; // todo!(create enum for manage access level)
+
+    crate::models::component::access::util::check_access_component_for_user(
+        logged_user_uuid,
+        &data.component_uuid,
+        &need_access_level,
+        true, // ownership_check
+        conn
+    )?;
 
     let found_standard = standard_to_component
         .filter(component_uuid.eq(data.component_uuid)

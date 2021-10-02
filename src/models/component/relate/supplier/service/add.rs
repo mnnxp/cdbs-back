@@ -5,16 +5,27 @@ use crate::models::component::supplier::model::{
 use crate::models::component::util::check_is_base;
 use crate::models::company::util::check_is_supplier;
 use diesel::prelude::*;
-// use uuid::Uuid;
+use uuid::Uuid;
 
 /// Add related suppliers from component
 /// insert row in supplier_to_component table
 pub(crate) fn add_component_supplier(
+    logged_user_uuid: &Uuid,
     data: &IptSupplierComponentData,
     conn: &PgConnection
 ) -> ServiceResult<bool> {
     use crate::schema::supplier_to_component::dsl::*;
 
+    let need_access_level = 1; // todo!(create enum for manage access level)
+
+    crate::models::component::access::util::check_access_component_for_user(
+        logged_user_uuid,
+        &data.component_uuid,
+        &need_access_level,
+        true, // ownership_check
+        conn
+    )?;
+    
     // checking if a component is basic
     check_is_base(&data.component_uuid, conn)?;
 

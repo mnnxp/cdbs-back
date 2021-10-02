@@ -8,13 +8,24 @@ use crate::models::component::keyword::model::{
     InsertableComponentKeyword
 };
 use diesel::prelude::*;
-// use uuid::Uuid;
+use uuid::Uuid;
 
 pub(crate) fn add_component_keywords(
-    data: IptComponentKeywordData,
+    logged_user_uuid: &Uuid,
+    data: &IptComponentKeywordData,
     conn: &PgConnection
 ) -> ServiceResult<i32> {
     use crate::schema::keyword_to_component::dsl::*;
+
+    let need_access_level = 1; // todo!(create enum for manage access level)
+
+    crate::models::component::access::util::check_access_component_for_user(
+        logged_user_uuid,
+        &data.component_uuid,
+        &need_access_level,
+        true, // ownership_check
+        conn
+    )?;
 
     let mut count_insert_rows = 0; // <-- for accumulated count inserted rows
     let mut error_kw_has: Vec<i32> = Vec::new(); // <-- for accumulated keyword duplicates

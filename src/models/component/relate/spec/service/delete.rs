@@ -7,13 +7,24 @@ use crate::models::component::spec::model::{
     DeleteComponentSpec
 };
 use diesel::prelude::*;
-// use uuid::Uuid;
+use uuid::Uuid;
 
 pub(crate) fn del_component_specs(
-    data: IptComponentSpecData,
+    logged_user_uuid: &Uuid,
+    data: &IptComponentSpecData,
     conn: &PgConnection
 ) -> ServiceResult<i32> {
     use crate::schema::spec_to_component::dsl::*;
+
+    let need_access_level = 1; // todo!(create enum for manage access level)
+
+    crate::models::component::access::util::check_access_component_for_user(
+        logged_user_uuid,
+        &data.component_uuid,
+        &need_access_level,
+        true, // ownership_check
+        conn
+    )?;
 
     // creating structures for delete records
     let del_specs: DeleteComponentSpec = data.into();

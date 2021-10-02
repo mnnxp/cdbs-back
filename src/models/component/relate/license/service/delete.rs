@@ -4,12 +4,24 @@ use crate::errors::{
 };
 use crate::models::component::license::model::IptComponentLicenseData;
 use diesel::prelude::*;
+use uuid::Uuid;
 
 pub(crate) fn del_component_license(
-    data: IptComponentLicenseData,
+    logged_user_uuid: &Uuid,
+    data: &IptComponentLicenseData,
     conn: &PgConnection
 ) -> ServiceResult<i32> {
     use crate::schema::license_to_component::dsl::*;
+
+    let need_access_level = 1; // todo!(create enum for manage access level)
+
+    crate::models::component::access::util::check_access_component_for_user(
+        logged_user_uuid,
+        &data.component_uuid,
+        &need_access_level,
+        true, // ownership_check
+        conn
+    )?;
 
     if data.license_id < 0 {
         // return error if not correct license id

@@ -1,15 +1,26 @@
 use crate::errors::{ServiceError, ServiceResult};
 use crate::models::component::supplier::model::DelSupplierToComponentData;
 use diesel::prelude::*;
-// use uuid::Uuid;
+use uuid::Uuid;
 
 /// Remove related suppliers from component
 /// delete rows in supplier_to_component table
 pub(crate) fn del_suppliers_component(
+    logged_user_uuid: &Uuid,
     data: &DelSupplierToComponentData,
     conn: &PgConnection
 ) -> ServiceResult<i32> {
     use crate::schema::supplier_to_component::dsl::*;
+
+    let need_access_level = 1; // todo!(create enum for manage access level)
+
+    crate::models::component::access::util::check_access_component_for_user(
+        logged_user_uuid,
+        &data.component_uuid,
+        &need_access_level,
+        true, // ownership_check
+        conn
+    )?;
 
     let del_count = diesel::delete(supplier_to_component
         .filter(component_uuid.eq(&data.component_uuid)

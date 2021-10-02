@@ -12,13 +12,24 @@ use uuid::Uuid;
 /// The return the pre-signed URLs (in wrapper UploadFile) to download the file
 /// and insert the line to link the file to the component
 pub(crate) fn add_component_files(
-    target_user_uuid: &Uuid,
+    logged_user_uuid: &Uuid,
     data: &IptComponentFileData,
     conn: &PgConnection,
 ) -> ServiceResult<Vec<UploadFile>> {
-    // return error if not found correct keywords
+
+    let need_access_level = 1; // todo!(create enum for manage access level)
+
+    crate::models::component::access::util::check_access_component_for_user(
+        logged_user_uuid,
+        &data.component_uuid,
+        &need_access_level,
+        true, // ownership_check
+        conn
+    )?;
+
+    // return error if not correct file name
     if data.filename.is_empty() {
-        return Err(ServiceError::BadRequest("Not found keywords".to_string()))
+        return Err(ServiceError::BadRequest("Bad filename".to_string()))
     }
 
     let mut up_files: Vec<UploadFile> = Vec::new();
@@ -26,7 +37,7 @@ pub(crate) fn add_component_files(
     for filename in &data.filename {
         let slim_file = file::service::register::register(
             PreliminaryFileData::from_ipt_file_data(
-                *target_user_uuid,
+                *logged_user_uuid,
                 Uuid::parse_str("bc1c2151-86d0-4656-9c9d-d016dd584297")?, // <-- todo!(get uuid default file)
                 ListObject::Component(data.component_uuid),
                 filename,

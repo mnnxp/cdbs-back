@@ -55,8 +55,8 @@ pub struct InsertableComponentSpec {
     pub spec_id: i32,
 }
 
-impl From<IptComponentSpecData> for Vec<InsertableComponentSpec> {
-    fn from(ipt_data: IptComponentSpecData) -> Vec<InsertableComponentSpec> {
+impl From<&IptComponentSpecData> for Vec<InsertableComponentSpec> {
+    fn from(ipt_data: &IptComponentSpecData) -> Vec<InsertableComponentSpec> {
         let IptComponentSpecData {
             component_uuid,
             spec_ids,
@@ -65,10 +65,10 @@ impl From<IptComponentSpecData> for Vec<InsertableComponentSpec> {
 
         let mut res = Vec::new();
         // create struct for each keyword
-        for spec_id in spec_ids.iter() {
+        for spec_id in spec_ids {
             if spec_id > &0 { // <-- additionally we check the correctness of the key
                 res.push(InsertableComponentSpec {
-                    component_uuid,
+                    component_uuid: component_uuid.to_owned(),
                     spec_id: *spec_id,
                 })
             }
@@ -83,8 +83,8 @@ pub struct DeleteComponentSpec {
     pub spec_ids: Vec<i32>,
 }
 
-impl From<IptComponentSpecData> for DeleteComponentSpec {
-    fn from(ipt_data: IptComponentSpecData) -> Self {
+impl From<&IptComponentSpecData> for DeleteComponentSpec {
+    fn from(ipt_data: &IptComponentSpecData) -> Self {
         let IptComponentSpecData {
             component_uuid,
             spec_ids,
@@ -93,14 +93,14 @@ impl From<IptComponentSpecData> for DeleteComponentSpec {
 
         let mut good_spec_ids: Vec<i32> = Vec::new();
         // filter bad keyword id
-        for spec_id in spec_ids.iter() {
+        for spec_id in spec_ids {
             if spec_id > &0 {
                 good_spec_ids.push(*spec_id)
             }
         }
 
         Self{
-            component_uuid,
+            component_uuid: component_uuid.to_owned(),
             spec_ids: good_spec_ids,
         }
     }

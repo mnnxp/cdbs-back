@@ -38,16 +38,16 @@ pub struct InsertableComponentLicense {
     pub license_id: i32,
 }
 
-impl From<IptComponentLicenseData> for InsertableComponentLicense {
-    fn from(ipt_data: IptComponentLicenseData) -> Self {
+impl From<&IptComponentLicenseData> for InsertableComponentLicense {
+    fn from(ipt_data: &IptComponentLicenseData) -> Self {
         let IptComponentLicenseData {
             component_uuid,
             license_id,
         } = ipt_data;
 
         Self {
-            component_uuid,
-            license_id,
+            component_uuid: *component_uuid,
+            license_id: *license_id,
         }
     }
 }

@@ -5,24 +5,34 @@ use crate::models::component::license::model::{
     InsertableComponentLicense,
 };
 use diesel::prelude::*;
-// use uuid::Uuid;
+use uuid::Uuid;
 
 pub(crate) fn add_component_license(
-    new_license_data: IptComponentLicenseData,
-    // user_uuid: Uuid, todo!(access manage for owner component)
+    logged_user_uuid: &Uuid,
+    data: &IptComponentLicenseData,
     conn: &PgConnection
 ) -> ServiceResult<bool> {
     use crate::schema::license_to_component::dsl::*;
 
-    if new_license_data.license_id < 0 {
+    let need_access_level = 1; // todo!(create enum for manage access level)
+
+    crate::models::component::access::util::check_access_component_for_user(
+        logged_user_uuid,
+        &data.component_uuid,
+        &need_access_level,
+        true, // ownership_check
+        conn
+    )?;
+
+    if data.license_id < 0 {
         return Err(ServiceError::BadRequest("Error incorrect id".to_string()))
     }
 
-    let new_license_data: InsertableComponentLicense = new_license_data.into();
+    let data: InsertableComponentLicense = data.into();
 
     let flag_found_license = license_to_component
-        .filter(component_uuid.eq(&new_license_data.component_uuid)
-        .and(license_id.eq(&new_license_data.license_id)))
+        .filter(component_uuid.eq(&data.component_uuid)
+        .and(license_id.eq(&data.license_id)))
         .execute(conn).unwrap_or(0);
 
     // debug!("fn create_license START SEARCH ={:?}", flag_found_license);
@@ -32,7 +42,7 @@ pub(crate) fn add_component_license(
     }
 
     match diesel::insert_into(license_to_component)
-        .values(&new_license_data)
+        .values(&data)
         .get_result::<ComponentLicense>(conn) {
         Ok(row) => {
             debug!("Completed, add license for component: {:?}", row);
