@@ -2,6 +2,9 @@ use crate::database::{get_conn, PooledConnection};
 use crate::errors::ServiceResult;
 use crate::models::component;
 use crate::models::component::model::{IptComponentData, SlimComponent, IptUpdateComponentData};
+use crate::models::component::access::model::{
+    ChangeOwnerComponent, ChangeTypeAccessComponent,
+};
 use crate::models::component::access::company::model::{
     IptCompanyAccessComponentData, DelCompanyAccessComponentData
 };
@@ -68,7 +71,47 @@ impl ComponentMutation {
 
         create_component(
             &logged_user_uuid,
-            &data, 
+            &data,
+            conn
+        )
+    }
+
+    /// Transfer component ownership to another user
+    async fn transfer_component_ownership(
+        &self,
+        cxt: &Context<'_>,
+        data: ChangeOwnerComponent,
+    ) -> ServiceResult<bool> {
+        use component::access::manage::change_component_owner_user;
+
+        // checking authorization and getting user uuid
+        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+
+        let conn: &PooledConnection = &get_conn(cxt)?;
+
+        change_component_owner_user(
+            &logged_user_uuid,
+            &data,
+            conn
+        )
+    }
+
+    /// Change component type access
+    async fn change_component_access(
+        &self,
+        cxt: &Context<'_>,
+        data: ChangeTypeAccessComponent,
+    ) -> ServiceResult<bool> {
+        use component::access::manage::change_component_type_access;
+
+        // checking authorization and getting user uuid
+        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+
+        let conn: &PooledConnection = &get_conn(cxt)?;
+
+        change_component_type_access(
+            &logged_user_uuid,
+            &data,
             conn
         )
     }
