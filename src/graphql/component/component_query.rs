@@ -29,8 +29,8 @@ impl ComponentQuery {
         let conn: &PooledConnection = &get_conn(cxt)?;
 
         component::service::list::find_components(
-            &components_uuids,
             &logged_user_uuid,
+            &components_uuids,
             &crate::models::user::get_set_language(cxt),
             conn,
         )
@@ -47,8 +47,8 @@ impl ComponentQuery {
         let conn: &PooledConnection = &get_conn(cxt)?;
 
         component::service::list::find_component_uuid(
-            &component_uuid,
             &logged_user_uuid,
+            &component_uuid,
             &crate::models::user::get_set_language(cxt),
             conn,
         )
