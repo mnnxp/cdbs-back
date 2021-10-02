@@ -2,6 +2,7 @@ use crate::errors::{ServiceError, ServiceResult};
 use crate::models::component::component_modification::param::model::{
     IptModificationParamData, InsertableModificationParam
 };
+use crate::models::component::component_modification::util::get_component_by_modification;
 use crate::models::relate_ref::param::model::IptParamData;
 use crate::schema::param_to_modification::dsl::*;
 use diesel::prelude::*;
@@ -10,9 +11,21 @@ use uuid::Uuid;
 /// Add new params with values for component modification
 /// or update values an existing component modification params
 pub(crate) fn put_modification_params(
+    logged_user_uuid: &Uuid,
     data: &IptModificationParamData,
     conn: &PgConnection
 ) -> ServiceResult<i32> {
+
+    let need_access_level = 1; // todo!(create enum for manage access level)
+
+    crate::models::component::access::util::check_access_component_for_user(
+        logged_user_uuid,
+        &get_component_by_modification(&data.modification_uuid, conn)?,
+        &need_access_level,
+        true, // ownership_check
+        conn
+    )?;
+
     if data.params.is_empty() {
         return Err(ServiceError::BadRequest(
             "Not found params for adding or updating".to_string()

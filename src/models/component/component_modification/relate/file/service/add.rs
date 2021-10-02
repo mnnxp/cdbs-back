@@ -1,5 +1,6 @@
 use crate::errors::{ServiceResult, ServiceError};
 use crate::models::component::component_modification::relate::file::model::IptModificationFileData;
+use crate::models::component::component_modification::util::get_component_by_modification;
 use crate::models::relate_ref::file::model::{
     ListObject, PreliminaryFileData, UploadFile
 };
@@ -12,10 +13,21 @@ use uuid::Uuid;
 /// The return the pre-signed URLs (in wrapper UploadFile) to upload the files
 /// before that inserts rows in file_ref and component_modification tables
 pub(crate) fn add_modification_files(
-    target_user_uuid: &Uuid,
+    logged_user_uuid: &Uuid,
     data: &IptModificationFileData,
     conn: &PgConnection,
 ) -> ServiceResult<Vec<UploadFile>> {
+
+    let need_access_level = 1; // todo!(create enum for manage access level)
+
+    crate::models::component::access::util::check_access_component_for_user(
+        logged_user_uuid,
+        &get_component_by_modification(&data.modification_uuid, conn)?,
+        &need_access_level,
+        true, // ownership_check
+        conn
+    )?;
+
     // return error if not found correct filename
     if data.filename.is_empty() {
         return Err(ServiceError::BadRequest("Not found filename".to_string()))
@@ -27,7 +39,7 @@ pub(crate) fn add_modification_files(
         // insert row file in file_ref and addiction tables
         let slim_file = file::service::register::register(
             PreliminaryFileData::from_ipt_file_data( // <-- making data for insert
-                *target_user_uuid,
+                *logged_user_uuid,
                 Uuid::parse_str("bc1c2151-86d0-4656-9c9d-d016dd584297")?, // <-- todo!(get uuid default file)
                 ListObject::ComponentModification(data.modification_uuid),
                 filename,

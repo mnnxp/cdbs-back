@@ -6,17 +6,28 @@ use crate::models::component::component_modification::modification_file_from_fil
     ModificationFileFromFileset,
     DelModificationFileFromFilesetData,
 };
-// use crate::models::relate_ref::file::service::delete::delete_rows_by_uuids;
+use crate::models::component::component_modification::relate::fileset_for_program::util::get_component_by_fileset;
 use diesel::prelude::*;
 use uuid::Uuid;
 
 /// Delete a set of files for the program
 /// not delete row in file_ref and file in storage
 pub(crate) fn del_file_from_fileset(
-    _logged_user_uuid: &Uuid, // <-- todo!(check access)
+    logged_user_uuid: &Uuid,
     data: &DelModificationFileFromFilesetData,
     conn: &PgConnection,
 ) -> ServiceResult<bool> {
+
+    let need_access_level = 1; // todo!(create enum for manage access level)
+
+    crate::models::component::access::util::check_access_component_for_user(
+        logged_user_uuid,
+        &get_component_by_fileset(&data.fileset_uuid, conn)?,
+        &need_access_level,
+        true, // ownership_check
+        conn
+    )?;
+
     match &data.file_uuids {
         files_of_set if files_of_set.is_empty() => Ok(false), // <-- not found files for delete
         _ => {

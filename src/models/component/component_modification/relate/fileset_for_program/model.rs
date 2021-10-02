@@ -67,8 +67,8 @@ pub struct InsertableFilesetProgram {
     pub program_id: i32,
 }
 
-impl From<IptFilesetProgramData> for InsertableFilesetProgram {
-    fn from(ipt_data: IptFilesetProgramData) -> Self {
+impl From<&IptFilesetProgramData> for InsertableFilesetProgram {
+    fn from(ipt_data: &IptFilesetProgramData) -> Self {
         let IptFilesetProgramData {
             modification_uuid,
             program_id,
@@ -76,8 +76,8 @@ impl From<IptFilesetProgramData> for InsertableFilesetProgram {
 
         Self {
             uuid: Uuid::new_v4(),
-            modification_uuid,
-            program_id,
+            modification_uuid: *modification_uuid,
+            program_id: *program_id,
         }
     }
 }

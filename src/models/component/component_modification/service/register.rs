@@ -7,41 +7,53 @@ use crate::models::component::component_modification::model::{
     InsertableComponentModification,
     IptComponentModificationData,
     SlimComponentModification,
-    ComponentModification,
 };
 // use actix_web::web;
 use diesel::prelude::*;
 use uuid::Uuid;
 
 pub(crate) fn create_component_modification(
-    new_modification_data: IptComponentModificationData,
-    logged_user_uuid: Uuid,
+    logged_user_uuid: &Uuid,
+    data: &IptComponentModificationData,
     conn: &PgConnection
 ) -> ServiceResult<SlimComponentModification> {
-    use crate::schema::component_ref::dsl::*;
-    use crate::schema::component_ref::dsl::uuid as component_uuid;
     use crate::schema::component_modification_list::dsl::*;
-    use diesel::dsl::count;
 
-    let new_modification_data: InsertableComponentModification = new_modification_data.into();
+    let need_access_level = 1; // todo!(create enum for manage access level)
 
-    let flag_found_component: i64 = component_ref
-        .filter(user_uuid.eq(logged_user_uuid))
-        .filter(component_uuid.eq(new_modification_data.component_uuid))
-        .select(count(component_uuid))
-        .first(conn).unwrap();
+    crate::models::component::access::util::check_access_component_for_user(
+        logged_user_uuid,
+        &data.component_uuid,
+        &need_access_level,
+        true, // ownership_check
+        conn
+    )?;
 
-    // debug!("fn create_component_modification START SEARCH ={:?}", flag_found_component);
+    let data: InsertableComponentModification = data.into();
 
-    match flag_found_component {
-        0 => Err(ServiceError::BadRequest("Access denied".to_string())),
-        1 => {
-            let inserted_modification_data: ComponentModification = diesel::insert_into(
-                component_modification_list)
-                .values(&new_modification_data)
-                .get_result(conn)?;
-            Ok(inserted_modification_data.into())
-        }
-        _ => Err(ServiceError::BadRequest("Wow what? Found several components.".to_string())),
+    let inserted_modification_data = diesel::insert_into(
+        component_modification_list)
+        .values(&data)
+        .returning((
+            uuid,
+            component_uuid,
+            modification_name,
+            description,
+            updated_at,
+        ))
+        .get_result::<SlimComponentModification>(conn);
+
+    match inserted_modification_data {
+        Ok(idmd) => {
+            debug!("Completed inserted data: {:?}", idmd);
+            Ok(idmd)
+        },
+        Err(err) => {
+            debug!("Error create modification data: {:?}", err);
+
+            Err(ServiceError::BadRequest(
+                "Error create modification data".to_string()
+            ))
+        },
     }
 }

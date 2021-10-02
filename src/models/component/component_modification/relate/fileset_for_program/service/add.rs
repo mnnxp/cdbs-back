@@ -7,16 +7,28 @@ use crate::models::component::component_modification::fileset_for_program::model
     IptFilesetProgramData,
     InsertableFilesetProgram
 };
+use crate::models::component::component_modification::util::get_component_by_modification;
 use diesel::prelude::*;
 use uuid::Uuid;
 
 /// Creating a new set of files for the program
 /// if found duplicate (modification and program) return error with fileset_uuid
 pub(crate) fn create_modification_fileset(
-    data: IptFilesetProgramData,
+    logged_user_uuid: &Uuid,
+    data: &IptFilesetProgramData,
     conn: &PgConnection
 ) -> ServiceResult<FilesetProgram> {
     use crate::schema::fileset_for_program::dsl::*;
+
+    let need_access_level = 1; // todo!(create enum for manage access level)
+
+    crate::models::component::access::util::check_access_component_for_user(
+        logged_user_uuid,
+        &get_component_by_modification(&data.modification_uuid, conn)?,
+        &need_access_level,
+        true, // ownership_check
+        conn
+    )?;
 
     let find_fileset = &fileset_for_program
         .filter(modification_uuid.eq(&data.modification_uuid)
