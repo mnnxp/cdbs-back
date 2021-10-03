@@ -62,7 +62,7 @@ table! {
 }
 
 table! {
-    company_member_list (company_uuid, user_uuid, role_id) {
+    company_member_list (company_uuid, user_uuid) {
         company_uuid -> Uuid,
         user_uuid -> Uuid,
         role_id -> Int4,

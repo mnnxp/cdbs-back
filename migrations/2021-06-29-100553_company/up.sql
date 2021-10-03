@@ -59,7 +59,7 @@ CREATE TABLE company_member_list (
   is_enabled BOOLEAN NOT NULL DEFAULT 't', /* член компании активен */
   created_at TIMESTAMP NOT NULL DEFAULT NOW(), /* дата создания */
   updated_at TIMESTAMP NOT NULL DEFAULT NOW(), /* дата обновления */
-  CONSTRAINT company_member_list_pk PRIMARY KEY (company_uuid, user_uuid, role_id)
+  CONSTRAINT company_member_list_pk PRIMARY KEY (company_uuid, user_uuid)
 );
 
 /* связь каталогов с компанией */

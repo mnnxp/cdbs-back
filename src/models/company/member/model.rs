@@ -10,7 +10,7 @@ use chrono::*;
 use uuid::Uuid;
 
 #[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, Clone, Debug)]
-#[primary_key(company_uuid, user_uuid, role_id)]
+#[primary_key(company_uuid, user_uuid)]
 #[belongs_to(Company, foreign_key = "company_uuid")]
 #[belongs_to(UserQuery, foreign_key = "user_uuid")]
 #[belongs_to(RoleMember, foreign_key = "role_id")]
