@@ -72,6 +72,14 @@ pub struct IptRoleMemberData {
     pub name: String,
 }
 
+#[derive(Debug, Deserialize, Clone, InputObject)]
+pub struct IptUpdataNameRoleData {
+    pub company_uuid: Uuid,
+    pub role_id: i32,
+    pub lang_id: i32,
+    pub name: String,
+}
+
 #[derive(Debug, Insertable)]
 #[table_name = "role_member_translate_list"]
 pub struct InsertableRoleMemberTranslateList {

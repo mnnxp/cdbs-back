@@ -1702,6 +1702,138 @@ describe('company', () => {
     done();
   });
 
+  // Testing change name role access
+  it('/graphql:M changeNameRoleCompany - BadRequest no token', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .send({
+        query: `mutation  {
+            changeNameRoleCompany( data: {
+              companyUuid: "${companyUuidNoSupplier}"
+              roleId: ${newRoleId2}
+              langId: ${langId}
+              name: "${nameRole2}"
+            })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Token not found.'
+    );
+    expect(body.errors[0].path[0]).toBe('changeNameRoleCompany');
+    done();
+  });
+
+  it('/graphql:M changeNameRoleCompany - BadRequest access denied', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `mutation  {
+            changeNameRoleCompany( data: {
+              companyUuid: "${companyUuidNoSupplier}"
+              roleId: ${newRoleId2}
+              langId: ${langId}
+              name: "${nameRole2}"
+            })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql changeNameRoleCompany=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Access denied'
+    );
+    expect(body.errors[0].path[0]).toBe('changeNameRoleCompany');
+    done();
+  });
+
+  it('/graphql:M changeNameRoleCompany - OK change name role', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation  {
+            changeNameRoleCompany( data: {
+              companyUuid: "${companyUuidNoSupplier}"
+              roleId: ${newRoleId2}
+              langId: ${langId}
+              name: "temp test nam2e"
+            })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql changeNameRoleCompany=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { changeNameRoleCompany },
+    } = body;
+    expect(changeNameRoleCompany).toBe(true);
+    done();
+  });
+
+  it('/graphql:M changeNameRoleCompany - OK return name role', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation  {
+            changeNameRoleCompany( data: {
+              companyUuid: "${companyUuidNoSupplier}"
+              roleId: ${newRoleId2}
+              langId: ${langId}
+              name: "${nameRole2}"
+            })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql changeNameRoleCompany=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { changeNameRoleCompany },
+    } = body;
+    expect(changeNameRoleCompany).toBe(true);
+    done();
+  });
+
+  it('/graphql:M changeNameRoleCompany - OK name role duplicate', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation  {
+            changeNameRoleCompany( data: {
+              companyUuid: "${companyUuidNoSupplier}"
+              roleId: ${newRoleId2}
+              langId: ${langId}
+              name: "${nameRole2}"
+            })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql changeNameRoleCompany=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { changeNameRoleCompany },
+    } = body;
+    expect(changeNameRoleCompany).toBe(false);
+    done();
+  });
+
   // Testing get role access
   it('/graphql:Q companyRoles - BadRequest no token', async (done) => {
     const { body } = await agent

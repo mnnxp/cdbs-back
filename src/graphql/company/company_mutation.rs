@@ -6,9 +6,15 @@ use crate::models::company::model::{
 use crate::models::company::access::role_access::model::{IptRoleAccessData, DelRoleAccessData};
 use crate::models::company::certificate::model::IptCompanyCertificateData;
 use crate::models::company::spec::model::IptCompanySpecData;
-use crate::models::company::company_represent::model::{IptCompanyRepresentData, SlimCompanyRepresent};
-use crate::models::company::member::model::{IptCompanyMemberData, SlimCompanyMember, DelCompanyMemberData};
-use crate::models::company::member::role::model::{IptRoleMemberData, DelRoleMemberData};
+use crate::models::company::company_represent::model::{
+    IptCompanyRepresentData, SlimCompanyRepresent
+};
+use crate::models::company::member::model::{
+    IptCompanyMemberData, SlimCompanyMember, DelCompanyMemberData
+};
+use crate::models::company::member::role::model::{
+    IptRoleMemberData, IptUpdataNameRoleData, DelRoleMemberData
+};
 use crate::models::relate_ref::file::model::UploadFile;
 
 use async_graphql::{self, Context, Object};
@@ -231,6 +237,24 @@ impl CompanyMutation {
         let conn: &PooledConnection = &get_conn(cxt)?;
 
         create_role_member(
+            &logged_user_uuid,
+            &data,
+            conn
+        )
+    }
+
+    async fn change_name_role_company(
+        &self,
+        cxt: &Context<'_>,
+        data: IptUpdataNameRoleData,
+    ) -> ServiceResult<bool> {
+        use crate::models::company::member::role::service::update::change_name_role_company;
+
+        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+
+        let conn: &PooledConnection = &get_conn(cxt)?;
+
+        change_name_role_company(
             &logged_user_uuid,
             &data,
             conn
