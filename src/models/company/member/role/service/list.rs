@@ -5,9 +5,8 @@ use diesel::{PgConnection, prelude::*};
 use uuid::Uuid;
 
 /// Gets IDs roles for company by uuid
-/// Fn without check access
-pub(crate) fn get_company_roles_ids(
-    // logged_user_uuid: &Uuid,
+/// Warning: fn without check access and not use for API GraphQL
+pub(super) fn get_company_roles_ids(
     target_company_uuid: &Uuid,
     conn: &PgConnection,
 ) -> ServiceResult<Vec<i32>> {

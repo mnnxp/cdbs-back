@@ -30,7 +30,6 @@ pub(crate) fn create_role_member(
 
     // get roles for target company
     let company_roles_ids = super::list::get_company_roles_ids(
-        // logged_user_uuid,
         &data.company_uuid,
         conn
     )?;
