@@ -26,7 +26,11 @@ impl CompanyMutation {
 
         let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
 
-        create_company(logged_user_uuid, data, conn)
+        create_company(
+            &logged_user_uuid,
+            &data,
+            conn
+        )
     }
 
     async fn upload_company_certificate(

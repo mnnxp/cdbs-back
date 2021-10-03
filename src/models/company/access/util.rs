@@ -70,13 +70,13 @@ pub fn check_is_owner_with_err(
 /// Gets list of users uuids that have need level access to a company
 pub(crate) fn _get_users_have_access_to_company(
     target_company_uuid: &Uuid,
-    need_access_level: &i32,
+    required_access: &i32,
     conn: &PgConnection
 ) -> ServiceResult<Vec<Uuid>> {
     use crate::schema::company_member_list::dsl::*;
 
     let suitable_role = RoleMember::get_roles_for_type_access(
-        need_access_level,
+        required_access,
         conn
     );
 
@@ -124,8 +124,17 @@ pub(crate) fn check_company_access(
         return Ok(true)
     }
 
+    // if request to view a public company
+    if required_access == &3 {
+        let access_type_company = get_access_type_company(target_company_uuid, conn)?;
+        // if target company is public
+        if access_type_company == 3 {
+            return Ok(true)
+        }
+    }
+
     let found_type_access_id: i32 = get_type_access_id(
-        &company_member_list(
+        &member_role_in_company(
             target_user_uuid,
             target_company_uuid,
             conn,
@@ -148,7 +157,8 @@ pub(crate) fn check_company_access(
     }
 }
 
-pub(crate) fn company_member_list(
+/// Get role member for select user in target company
+pub(crate) fn member_role_in_company(
     target_user_uuid: &Uuid,
     target_company_uuid: &Uuid,
     conn: &PgConnection,
@@ -181,13 +191,13 @@ pub(crate) fn get_type_access_id(
 
 /// Get role IDs for desired level access
 pub(crate) fn get_roles_ids_for_access(
-    need_level_access: &i32,
+    required_access: &i32,
     conn: &PgConnection
 ) -> ServiceResult<Vec<i32>> {
     use crate::schema::role_access::dsl::*;
 
     let roles_ids = role_access
-        .filter(type_access_id.le(need_level_access)) // <-- filter access < or = need_level_access
+        .filter(type_access_id.le(required_access)) // <-- filter access < or = required_access
         .select(role_id)
         .load(conn);
 
@@ -231,5 +241,27 @@ pub(crate) fn check_clerk_with_suitable_role(
             false
         },
     }
+}
 
+/// Gets access type for company
+pub(crate) fn get_access_type_company(
+    target_company_uuid: &Uuid,
+    conn: &PgConnection
+) -> ServiceResult<i32> {
+    use crate::schema::company_ref::dsl::*;
+
+    let type_access = company_ref
+        .filter(uuid.eq(target_company_uuid))
+        .select(type_access_id)
+        .first::<i32>(conn);
+
+    match type_access {
+        Ok(ta) => Ok(ta),
+        Err(err) => {
+            debug!("Not found data: {:?}", err);
+            Err(ServiceError::BadRequest(
+                "Not found data".to_string()
+            ))
+        },
+    }
 }

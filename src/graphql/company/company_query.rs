@@ -21,6 +21,8 @@ impl CompanyQuery {
         cxt: &Context<'_>,
         companies_uuids: Vec<Uuid>,
     ) -> ServiceResult<Vec<ShowCompanyShort>> {
+        use company::service::list::find_companies;
+
         // authorization check
         let logged_user_uuid = user::get_logged_user_uuid(cxt, true)?;
 
@@ -28,9 +30,9 @@ impl CompanyQuery {
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
-        company::service::list::find_companies(
-            &companies_uuids,
+        find_companies(
             &logged_user_uuid,
+            &companies_uuids,
             &crate::models::user::get_set_language(cxt),
             conn,
         )
@@ -41,14 +43,16 @@ impl CompanyQuery {
         cxt: &Context<'_>,
         company_uuid: Uuid,
     ) -> ServiceResult<CompanyAndRelatedData> {
+        use company::service::list::find_by_uuid;
+
         // authorization check
         let logged_user_uuid = user::get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
-        company::service::list::find_by_uuid(
-            &company_uuid,
+        find_by_uuid(
             &logged_user_uuid,
+            &company_uuid,
             &crate::models::user::get_set_language(cxt),
             conn,
         )

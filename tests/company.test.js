@@ -138,6 +138,33 @@ isFollowed \
 updatedAt \
 `;
 
+const companyCertificatesQuery = ` \
+companyCertificates { \
+  file { \
+    uuid \
+    filename \
+    filesize \
+  } \
+  description \
+} \
+companyCertificates { \
+  file { \
+    uuid \
+    filename \
+    filesize \
+  } \
+  description \
+} \
+companyCertificates { \
+  file { \
+    uuid \
+    filename \
+    filesize \
+  } \
+  description \
+} \
+`;
+
 // data for represent
 const regionIdRepresentation = 10;
 const representationTypeId = 1;
@@ -576,14 +603,7 @@ describe('company', () => {
       .send({
         query: `query {
             company(companyUuid: "${companyUuidNoSupplier}") {
-              companyCertificates { \
-                file { \
-                  uuid \
-                  filename \
-                  filesize \
-                } \
-                description \
-              } \
+              ${companyCertificatesQuery}
             }
         }`,
       })
@@ -628,7 +648,7 @@ describe('company', () => {
       .post('/graphql')
       .set(
         'Authorization',
-        `Bearer ${authorizationTokenSecond}`
+        `Bearer ${authorizationTokenFirst}`
       )
       .send({
         query: `mutation {
@@ -645,13 +665,69 @@ describe('company', () => {
       })
       .expect(HttpStatus.OK)
     debug('/graphql CompanyCertificate=%o', body);
-    expect(body.data.uploadCompanyCertificate.fileUuid).toBeNonEmptyString();
-    expect(body.data.uploadCompanyCertificate.filename).toBe(goodFilenameCertificateTest);
-    expect(body.data.uploadCompanyCertificate.uploadUrl).toBeNonEmptyString();
+    const {
+      data: { uploadCompanyCertificate },
+    } = body;
+    expect(uploadCompanyCertificate.fileUuid).toBeNonEmptyString();
+    expect(uploadCompanyCertificate.filename).toBe(goodFilenameCertificateTest);
+    expect(uploadCompanyCertificate.uploadUrl).toBeNonEmptyString();
+    done();
+  });
+
+  it('/graphql:M CompanyCertificate - BadRequest no access', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `mutation {
+          uploadCompanyCertificate(certData: {
+            companyUuid: "${companyUuidNoSupplier}"
+            description: "${descriptionCertificateTest}"
+        		filename: "${badFilenameCertificateTest}"
+          }) {
+            fileUuid
+            filename
+            uploadUrl
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql - body=%o', body);
+    const { errors, data } = body;
+    expect(data).toBeNull();
+    expect(errors[0].message).toBe("BadRequest: Access denied");
     done();
   });
 
   it('/graphql:Q CompanyCertificate - Ok', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `query {
+            company(companyUuid: "${companyUuidNoSupplier}") {
+              ${companyCertificatesQuery}
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql CompanyCertificate=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { company },
+    } = body;
+    expect(company.companyCertificates[0].file.filename).toBe(goodFilenameCertificateTest);
+    expect(company.companyCertificates[0].description).toBe(descriptionCertificateTest);
+    done();
+  });
+
+  it('/graphql:Q CompanyCertificate - BadRequest no access', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .set(
@@ -661,21 +737,15 @@ describe('company', () => {
       .send({
         query: `query {
             company(companyUuid: "${companyUuidNoSupplier}") {
-              companyCertificates { \
-                file { \
-                  uuid \
-                  filename \
-                  filesize \
-                } \
-                description \
-              } \
+              ${companyCertificatesQuery}
             }
         }`,
       })
       .expect(HttpStatus.OK)
-    debug('/graphql CompanyCertificate=%o', body);
-    expect(body.data.company.companyCertificates[0].file.filename).toBe(goodFilenameCertificateTest);
-    expect(body.data.company.companyCertificates[0].description).toBe(descriptionCertificateTest);
+    debug('/graphql - body=%o', body);
+    const { errors, data } = body;
+    expect(data).toBeNull();
+    expect(errors[0].message).toBe("BadRequest: Access denied");
     done();
   });
 

@@ -4,6 +4,7 @@ use crate::models::company::certificate::model::{
     IptCompanyCertificateData,
     InsertableCompanyCertificate,
 };
+use crate::models::company::access::util::check_company_access;
 use crate::models::relate_ref::file::model::{
     ListObject, PreliminaryFileData, UploadFile
 };
@@ -15,13 +16,24 @@ use diesel::prelude::*;
 use uuid::Uuid;
 
 pub(crate) fn add_certificate(
-    target_user_uuid: &Uuid,
+    logged_user_uuid: &Uuid,
     cert_data: &IptCompanyCertificateData,
     conn: &PgConnection,
 ) -> ServiceResult<UploadFile> {
+
+    let need_access_level = 1; // todo!(create enum for manage access level)
+
+    // check access user for company
+    check_company_access(
+        logged_user_uuid,
+        &cert_data.company_uuid,
+        &need_access_level,
+        conn
+    )?;
+
     // Get data for write information about the file before upload to storage
     let preliminary_file_data = PreliminaryFileData::from_ipt_file_data(
-        *target_user_uuid,
+        *logged_user_uuid,
         Uuid::parse_str("bc1c2151-86d0-4656-9c9d-d016dd584297")?, // <-- todo!(get uuid default file)
         ListObject::CompanyCertificate(cert_data.company_uuid),
         &cert_data.filename,
