@@ -125,6 +125,21 @@ pub struct IptCompanyData {
     pub company_type_id: i32,
 }
 
+#[derive(Debug, Deserialize, Clone, InputObject)]
+pub struct IptUpdateCompanyData {
+    pub orgname: Option<String>,
+    pub shortname: Option<String>,
+    pub inn: Option<String>,
+    pub phone: Option<String>,
+    pub email: Option<String>,
+    pub description: Option<String>,
+    pub address: Option<String>,
+    pub site_url: Option<String>,
+    pub time_zone: Option<String>,
+    pub region_id: Option<i32>,
+    pub company_type_id: Option<i32>,
+}
+
 #[derive(Debug, Deserialize, Clone)]
 pub struct CompanyData {
     pub orgname: String,

@@ -165,6 +165,18 @@ companyCertificates { \
 } \
 `;
 
+const orgnameUpdate = "orgname test for update";
+const shortnameUpdate = "shortname test for update";
+const innUpdate = "inn test for update";
+const phoneUpdate = "phone test for update";
+const emailUpdate = "email_test@mail.test";
+const descriptionUpdate = "description test for update";
+const addressUpdate = "address test for update";
+const siteUrlUpdate = "site-url.test.update";
+const timeZoneUpdate = "UTC";
+const regionUpdateId = 5;
+const companyTypeUpdateId = 2;
+
 // data for represent
 const regionIdRepresentation = 10;
 const representationTypeId = 1;
@@ -593,6 +605,184 @@ describe('company', () => {
     expect(companies).toBeNonEmptyArray();
     expect(companies[0].uuid).toBe(companyUuidSupplier);
     expect(companies[1].uuid).toBe(companyUuidNoSupplier);
+    done();
+  });
+
+  // Testing company data  update
+  it('/graphql:M putCompanyUpdate - BadRequest no token', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .send({
+        query: `mutation  {
+            putCompanyUpdate(
+              companyUuid: "${companyUuidNoSupplier}"
+              data: {
+                orgname: "${orgnameUpdate}"
+                shortname: "${shortnameUpdate}"
+                inn: "${innUpdate}"
+                phone: "${phoneUpdate}"
+                email: "${emailUpdate}"
+                description: "${descriptionUpdate}"
+                address: "${addressUpdate}"
+                siteUrl: "${siteUrlUpdate}"
+                timeZone: "${timeZoneUpdate}"
+                regionId: ${regionUpdateId}
+                companyTypeId: ${companyTypeUpdateId}
+              }
+            )
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Token not found.'
+    );
+    expect(body.errors[0].path[0]).toBe('putCompanyUpdate');
+    done();
+  });
+
+  it('/graphql:M putCompanyUpdate - BadRequest no access', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `mutation  {
+            putCompanyUpdate(
+              companyUuid: "${companyUuidNoSupplier}"
+              data: {
+                orgname: "${orgnameUpdate}"
+                shortname: "${shortnameUpdate}"
+                inn: "${innUpdate}"
+                phone: "${phoneUpdate}"
+                email: "${emailUpdate}"
+                description: "${descriptionUpdate}"
+                address: "${addressUpdate}"
+                siteUrl: "${siteUrlUpdate}"
+                timeZone: "${timeZoneUpdate}"
+                regionId: ${regionUpdateId}
+                companyTypeId: ${companyTypeUpdateId}
+              }
+            )
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Access denied'
+    );
+    expect(body.errors[0].path[0]).toBe('putCompanyUpdate');
+    done();
+  });
+
+  it('/graphql:M putCompanyUpdate - OK', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation  {
+            putCompanyUpdate(
+              companyUuid: "${companyUuidNoSupplier}"
+              data: {
+                orgname: "${orgnameUpdate}"
+                shortname: "${shortnameUpdate}"
+                inn: "${innUpdate}"
+                phone: "${phoneUpdate}"
+                email: "${emailUpdate}"
+                description: "${descriptionUpdate}"
+                address: "${addressUpdate}"
+                siteUrl: "${siteUrlUpdate}"
+                timeZone: "${timeZoneUpdate}"
+                regionId: ${regionUpdateId}
+                companyTypeId: ${companyTypeUpdateId}
+              }
+            )
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql putCompanyUpdate=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { putCompanyUpdate },
+    } = body;
+    expect(putCompanyUpdate).toBe(10);
+    done();
+  });
+
+  it('/graphql:M putCompanyUpdate - BadRequest data has already', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation  {
+            putCompanyUpdate(
+              companyUuid: "${companyUuidNoSupplier}"
+              data: {
+                orgname: "${orgnameUpdate}"
+                shortname: "${shortnameUpdate}"
+                inn: "${innUpdate}"
+                phone: "${phoneUpdate}"
+                email: "${emailUpdate}"
+                description: "${descriptionUpdate}"
+                address: "${addressUpdate}"
+                siteUrl: "${siteUrlUpdate}"
+                timeZone: "${timeZoneUpdate}"
+                regionId: ${regionUpdateId}
+                companyTypeId: ${companyTypeUpdateId}
+              }
+            )
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: The data has already'
+    );
+    expect(body.errors[0].path[0]).toBe('putCompanyUpdate');
+    done();
+  });
+
+  it('/graphql:Q company - OK check update data', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `query company {
+        	company (companyUuid: "${companyUuidNoSupplier}"){
+            ${companyFullDataQuery}
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql company=%o', body);
+    const {
+      data: { company },
+    } = body;
+    expect(company.orgname).toBe(orgnameUpdate);
+    expect(company.shortname).toBe(shortnameUpdate);
+    expect(company.inn).toBe(innUpdate);
+    expect(company.phone).toBe(phoneUpdate);
+    expect(company.email).toBe(emailUpdate);
+    expect(company.description).toBe(descriptionUpdate);
+    expect(company.address).toBe(addressUpdate);
+    expect(company.siteUrl).toBe(siteUrlUpdate);
+    expect(company.timeZone).toBe(timeZoneUpdate);
+    expect(company.region.regionId).toBe(regionUpdateId);
+    expect(company.companyType.companyTypeId).toBe(companyTypeUpdateId);
     done();
   });
 

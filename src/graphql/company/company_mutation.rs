@@ -1,11 +1,13 @@
 use crate::database::{get_conn, PooledConnection};
 use crate::errors::ServiceResult;
+use crate::models::company::model::{
+    IptCompanyData, IptUpdateCompanyData, SlimCompany
+};
 use crate::models::company::access::role_access::model::{IptRoleAccessData, DelRoleAccessData};
 use crate::models::company::certificate::model::IptCompanyCertificateData;
 use crate::models::company::company_represent::model::{IptCompanyRepresentData, SlimCompanyRepresent};
 use crate::models::company::member::model::{IptCompanyMemberData, SlimCompanyMember, DelCompanyMemberData};
 use crate::models::company::member::role::model::{IptRoleMemberData, DelRoleMemberData};
-use crate::models::company::model::{IptCompanyData, SlimCompany};
 use crate::models::relate_ref::file::model::UploadFile;
 
 use async_graphql::{self, Context, Object};
@@ -28,6 +30,25 @@ impl CompanyMutation {
 
         create_company(
             &logged_user_uuid,
+            &data,
+            conn
+        )
+    }
+
+    async fn put_company_update(
+        &self,
+        cxt: &Context<'_>,
+        company_uuid: Uuid,
+        data: IptUpdateCompanyData,
+    ) -> ServiceResult<i32> {
+        use crate::models::company::service::update::update_company_by_uuid;
+        let conn: &PooledConnection = &get_conn(cxt)?;
+
+        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+
+        update_company_by_uuid(
+            &logged_user_uuid,
+            &company_uuid,
             &data,
             conn
         )
