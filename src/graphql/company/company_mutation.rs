@@ -182,6 +182,25 @@ impl CompanyMutation {
         )
     }
 
+    /// Change access role for member
+    async fn change_role_member(
+        &self,
+        cxt: &Context<'_>,
+        data: IptCompanyMemberData,
+    ) -> ServiceResult<bool> {
+        use crate::models::company::member::service::change::change_role_member;
+
+        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+
+        let conn: &PooledConnection = &get_conn(cxt)?;
+
+        change_role_member(
+            &logged_user_uuid,
+            &data,
+            conn
+        )
+    }
+
     async fn delete_company_member(
         &self,
         cxt: &Context<'_>,

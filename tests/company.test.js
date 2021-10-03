@@ -24,6 +24,8 @@ var secondAccess = 2;
 var langId = 1;
 var nameRole = "test role";
 var newRoleId = 0;
+var nameRole2 = "test role2";
+var newRoleId2 = 0;
 
 // data for company
 const orgname = "orgname supplier of the test";
@@ -1648,6 +1650,32 @@ describe('company', () => {
     done();
   });
 
+  it('/graphql:M registerCompanyRole - OK create second role', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation  {
+            registerCompanyRole( data: {
+              companyUuid: "${companyUuidNoSupplier}"
+              langId: ${langId}
+              name: "${nameRole2}"
+            })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql registerCompanyRole=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { registerCompanyRole },
+    } = body;
+    newRoleId2 = registerCompanyRole;
+    done();
+  });
+
   it('/graphql:M registerCompanyRole - OK return already id', async (done) => {
     const { body } = await agent
       .post('/graphql')
@@ -2069,6 +2097,171 @@ describe('company', () => {
     expect(addCompanyMember.companyUuid).toBe(companyUuidNoSupplier);
     expect(addCompanyMember.userUuid).toBe(authorizationUserSecond);
     expect(addCompanyMember.roleId).toBe(newRoleId);
+    done();
+  });
+
+  // Test for change role memeber in company
+  it('/graphql:M changeRoleMember - BadRequest no token', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .send({
+        query: `mutation  {
+            changeRoleMember(
+              data: {
+                companyUuid: "${companyUuidNoSupplier}"
+                userUuid: "${authorizationUserSecond}"
+                roleId: ${firstAccess}
+              }
+            )
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Token not found.'
+    );
+    expect(body.errors[0].path[0]).toBe('changeRoleMember');
+    done();
+  });
+
+  it('/graphql:M changeRoleMember - BadRequest access denied', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `mutation  {
+            changeRoleMember(
+              data: {
+                companyUuid: "${companyUuidNoSupplier}"
+                userUuid: "${authorizationUserSecond}"
+                roleId: ${firstAccess}
+              }
+            )
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql changeRoleMember=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Access denied'
+    );
+    expect(body.errors[0].path[0]).toBe('changeRoleMember');
+    done();
+  });
+
+  it('/graphql:M changeRoleMember - BadRequest set role other company', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation  {
+            changeRoleMember(
+              data: {
+                companyUuid: "${companyUuidNoSupplier}"
+                userUuid: "${authorizationUserSecond}"
+                roleId: ${firstAccess}
+              }
+            )
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql changeRoleMember=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Role not found'
+    );
+    expect(body.errors[0].path[0]).toBe('changeRoleMember');
+    done();
+  });
+
+  it('/graphql:M changeRoleMember - OK change role member', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation  {
+            changeRoleMember(
+              data: {
+                companyUuid: "${companyUuidNoSupplier}"
+                userUuid: "${authorizationUserSecond}"
+                roleId: ${newRoleId2}
+              }
+            )
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql changeRoleMember=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { changeRoleMember },
+    } = body;
+    expect(changeRoleMember).toBe(true);
+    done();
+  });
+
+  it('/graphql:M changeRoleMember - OK return role member', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation  {
+            changeRoleMember(
+              data: {
+                companyUuid: "${companyUuidNoSupplier}"
+                userUuid: "${authorizationUserSecond}"
+                roleId: ${newRoleId}
+              }
+            )
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql changeRoleMember=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { changeRoleMember },
+    } = body;
+    expect(changeRoleMember).toBe(true);
+    done();
+  });
+
+  it('/graphql:M changeRoleMember - OK old role member', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation  {
+            changeRoleMember(
+              data: {
+                companyUuid: "${companyUuidNoSupplier}"
+                userUuid: "${authorizationUserSecond}"
+                roleId: ${newRoleId}
+              }
+            )
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql changeRoleMember=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { changeRoleMember },
+    } = body;
+    expect(changeRoleMember).toBe(false);
     done();
   });
 
