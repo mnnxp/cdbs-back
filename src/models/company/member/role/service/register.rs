@@ -9,6 +9,7 @@ use crate::models::company::access::util::check_is_owner_with_err;
 use diesel::prelude::*;
 use uuid::Uuid;
 
+/// Create company member role 
 pub(crate) fn create_role_member(
     logged_user_uuid: &Uuid,
     data: &IptRoleMemberData,
