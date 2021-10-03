@@ -54,6 +54,24 @@ impl CompanyMutation {
         )
     }
 
+    async fn delete_company(
+        &self,
+        cxt: &Context<'_>,
+        company_uuid: Uuid,
+    ) -> ServiceResult<SlimCompany> {
+        use crate::models::company::service::delete::del_company;
+
+        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+
+        let conn: &PooledConnection = &get_conn(cxt)?;
+
+        del_company(
+            &logged_user_uuid,
+            &company_uuid,
+            conn
+        )
+    }
+
     async fn upload_company_certificate(
         &self,
         cxt: &Context<'_>,

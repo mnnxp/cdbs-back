@@ -2039,4 +2039,108 @@ describe('company', () => {
     expect(deleteCompanyRole).toBe(0);
     done();
   });
+
+  // Testing delete company
+  it('/graphql:M deleteCompany - BadRequest no token', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .send({
+        query: `mutation  {
+            deleteCompany( companyUuid: "${companyUuidSupplier}") {
+                uuid
+                shortname
+                isSupplier
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Token not found.'
+    );
+    expect(body.errors[0].path[0]).toBe('deleteCompany');
+    done();
+  });
+
+  it('/graphql:M deleteCompany - BadRequest not owner user', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `mutation  {
+            deleteCompany( companyUuid: "${companyUuidSupplier}") {
+                uuid
+                shortname
+                isSupplier
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Failed delete company'
+    );
+    expect(body.errors[0].path[0]).toBe('deleteCompany');
+    done();
+  });
+
+  it('/graphql:M deleteCompany - OK supplier', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation  {
+            deleteCompany( companyUuid: "${companyUuidSupplier}") {
+                uuid
+                shortname
+                isSupplier
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql deleteCompany=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { deleteCompany },
+    } = body;
+    expect(deleteCompany).toContainAllKeys(["uuid", "shortname", "isSupplier"]);
+    expect(deleteCompany.uuid).toBe(companyUuidSupplier);
+    expect(deleteCompany.shortname).toBe(shortname);
+    expect(deleteCompany.isSupplier).toBe(true);
+    done();
+  });
+
+  it('/graphql:M deleteCompany - BadRequest not found company', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation  {
+            deleteCompany( companyUuid: "${companyUuidSupplier}") {
+                uuid
+                shortname
+                isSupplier
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Failed delete company'
+    );
+    expect(body.errors[0].path[0]).toBe('deleteCompany');
+    done();
+  });
 });
