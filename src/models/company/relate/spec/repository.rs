@@ -1,6 +1,6 @@
 use crate::errors::ServiceResult;
 use crate::models::company::model::Company;
-use crate::models::company::spec::model::{SpecCompany, CompanySpecWithTranslation};
+use crate::models::company::spec::model::{CompanySpec, CompanySpecWithTranslation};
 use crate::models::relate_ref::spec::model::SpecTranslateList;
 use diesel::prelude::*;
 
@@ -10,8 +10,8 @@ impl CompanySpecWithTranslation {
         set_lang_id: &i32,
         conn: &PgConnection,
     ) -> ServiceResult<Vec<CompanySpecWithTranslation>> {
-        let spec_company: Vec<SpecCompany> = SpecCompany::belonging_to(company)
-            .load::<SpecCompany>(conn)
+        let spec_company: Vec<CompanySpec> = CompanySpec::belonging_to(company)
+            .load::<CompanySpec>(conn)
             .expect("Error loading spec_company");
 
         // get specs for company

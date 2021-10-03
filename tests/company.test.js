@@ -43,6 +43,11 @@ const companyUuidBase = "2cd385e1-8f7e-4908-8235-dfe42938b46d";
 var companyUuidNoSupplier = "";
 var companyUuidSupplier = "";
 
+const specIdsOk = [10,30,55];
+const specIdsDup = [10,22,30,44,55];
+const specIdsDel = [10,55];
+const idErr = 0;
+
 const descriptionCertificateTest = "test desctiption for certificate";
 const badFilenameCertificateTest = "name* file/ certificate.pdf";
 const goodFilenameCertificateTest = "name file certificate.pdf";
@@ -936,6 +941,336 @@ describe('company', () => {
     const { errors, data } = body;
     expect(data).toBeNull();
     expect(errors[0].message).toBe("BadRequest: Access denied");
+    done();
+  });
+
+  // Testing adding company specs
+  it('/graphql:M addCompanySpecs - BadRequest no token', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .send({
+        query: `mutation  {
+          addCompanySpecs(data: {
+            companyUuid: "${companyUuidNoSupplier}"
+            specIds: [${specIdsOk}]
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql addCompanySpecs=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Token not found.'
+    );
+    expect(body.errors[0].path[0]).toBe('addCompanySpecs');
+    done();
+  });
+
+  it('/graphql:M addCompanySpecs - OK', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation  {
+          addCompanySpecs(data: {
+            companyUuid: "${companyUuidNoSupplier}"
+            specIds: [${specIdsOk}]
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql registerCompany=%o', body);
+    const {
+      data: { addCompanySpecs },
+    } = body;
+    expect(addCompanySpecs).toBe(3);
+    done();
+  });
+
+  it('/graphql:M addCompanySpecs - OK with duplicate', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation  {
+          addCompanySpecs(data: {
+            companyUuid: "${companyUuidNoSupplier}"
+            specIds: [${specIdsDup}]
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql registerCompany=%o', body);
+    const {
+      data: { addCompanySpecs },
+    } = body;
+    expect(addCompanySpecs).toBe(2);
+    done();
+  });
+
+  it('/graphql:M addCompanySpecs - BadRequest all duplicates', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation  {
+          addCompanySpecs(data: {
+            companyUuid: "${companyUuidNoSupplier}"
+            specIds: [${specIdsOk}]
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql addCompanySpecs=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      "BadRequest: This ids [10, 30, 55] already has"
+    );
+    expect(body.errors[0].path[0]).toBe('addCompanySpecs');
+    done();
+  });
+
+  it('/graphql:M addCompanySpecs - BadRequest not found id', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation  {
+          addCompanySpecs(data: {
+            companyUuid: "${companyUuidNoSupplier}"
+            specIds: [${idErr}]
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql addCompanySpecs=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      "BadRequest: Not found specs"
+    );
+    expect(body.errors[0].path[0]).toBe('addCompanySpecs');
+    done();
+  });
+
+  it('/graphql:M addCompanySpecs - BadRequest no access', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `mutation  {
+          addCompanySpecs(data: {
+            companyUuid: "${companyUuidNoSupplier}"
+            specIds: [${idErr}]
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql addCompanySpecs=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      "BadRequest: Access denied"
+    );
+    expect(body.errors[0].path[0]).toBe('addCompanySpecs');
+    done();
+  });
+
+  it('/graphql:Q company - OK check update data', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `query company {
+          company (companyUuid: "${companyUuidNoSupplier}"){
+            ${companyFullDataQuery}
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql company=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { company },
+    } = body;
+    expect(company.companySpecs[0].spec.specId).toBe(10);
+    expect(company.companySpecs[0].spec.spec).toBeNonEmptyString();
+    expect(company.companySpecs[1].spec.specId).toBe(30);
+    expect(company.companySpecs[1].spec.spec).toBeNonEmptyString();
+    expect(company.companySpecs[2].spec.specId).toBe(55);
+    expect(company.companySpecs[2].spec.spec).toBeNonEmptyString();
+    expect(company.companySpecs[3].spec.specId).toBe(22);
+    expect(company.companySpecs[3].spec.spec).toBeNonEmptyString();
+    expect(company.companySpecs[4].companyUuid).toBe(companyUuidNoSupplier);
+    expect(company.companySpecs[4].spec.specId).toBe(44);
+    expect(company.companySpecs[4].spec.spec).toBeNonEmptyString();
+    done();
+  });
+
+  // Testing delete company specs
+  it('/graphql:M deleteCompanySpecs - BadRequest no token', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .send({
+        query: `mutation  {
+          deleteCompanySpecs(data: {
+            companyUuid: "${companyUuidNoSupplier}"
+            specIds: [${specIdsDel}]
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql deleteCompanySpecs=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Token not found.'
+    );
+    expect(body.errors[0].path[0]).toBe('deleteCompanySpecs');
+    done();
+  });
+
+  it('/graphql:M deleteCompanySpecs - OK', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation  {
+          deleteCompanySpecs(data: {
+            companyUuid: "${companyUuidNoSupplier}"
+            specIds: [${specIdsDel}]
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql registerCompany=%o', body);
+    const {
+      data: { deleteCompanySpecs },
+    } = body;
+    expect(deleteCompanySpecs).toBe(2);
+    done();
+  });
+
+  it('/graphql:M deleteCompanySpecs - OK data already delete', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation  {
+          deleteCompanySpecs(data: {
+            companyUuid: "${companyUuidNoSupplier}"
+            specIds: [${specIdsDel}]
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql registerCompany=%o', body);
+    const {
+      data: { deleteCompanySpecs },
+    } = body;
+    expect(deleteCompanySpecs).toBe(0);
+    done();
+  });
+
+  it('/graphql:M deleteCompanySpecs - BadRequest not found id', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation  {
+          deleteCompanySpecs(data: {
+            companyUuid: "${companyUuidNoSupplier}"
+            specIds: [${idErr}]
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql deleteCompanySpecs=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      "BadRequest: Not found specs"
+    );
+    expect(body.errors[0].path[0]).toBe('deleteCompanySpecs');
+    done();
+  });
+
+  it('/graphql:M deleteCompanySpecs - BadRequest no access', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `mutation  {
+          deleteCompanySpecs(data: {
+            companyUuid: "${companyUuidNoSupplier}"
+            specIds: [${idErr}]
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql deleteCompanySpecs=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      "BadRequest: Access denied"
+    );
+    expect(body.errors[0].path[0]).toBe('deleteCompanySpecs');
+    done();
+  });
+
+  it('/graphql:Q company - OK check update data', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `query company {
+          company (companyUuid: "${companyUuidNoSupplier}"){
+            ${companyFullDataQuery}
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql company=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { company },
+    } = body;
+    expect(company.companySpecs.length).toBe(3);
+    expect(company.companySpecs[0].companyUuid).toBe(companyUuidNoSupplier);
+    expect(company.companySpecs[0].spec.specId).toBe(30);
+    expect(company.companySpecs[0].spec.spec).toBeNonEmptyString();
+    expect(company.companySpecs[1].spec.specId).toBe(22);
+    expect(company.companySpecs[1].spec.spec).toBeNonEmptyString();
+    expect(company.companySpecs[2].spec.specId).toBe(44);
+    expect(company.companySpecs[2].spec.spec).toBeNonEmptyString();
     done();
   });
 

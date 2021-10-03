@@ -5,6 +5,7 @@ use crate::models::company::model::{
 };
 use crate::models::company::access::role_access::model::{IptRoleAccessData, DelRoleAccessData};
 use crate::models::company::certificate::model::IptCompanyCertificateData;
+use crate::models::company::spec::model::IptCompanySpecData;
 use crate::models::company::company_represent::model::{IptCompanyRepresentData, SlimCompanyRepresent};
 use crate::models::company::member::model::{IptCompanyMemberData, SlimCompanyMember, DelCompanyMemberData};
 use crate::models::company::member::role::model::{IptRoleMemberData, DelRoleMemberData};
@@ -86,6 +87,42 @@ impl CompanyMutation {
         add_certificate(
             &logged_user_uuid,
             &cert_data,
+            conn
+        )
+    }
+
+    async fn add_company_specs(
+        &self,
+        cxt: &Context<'_>,
+        data: IptCompanySpecData,
+    ) -> ServiceResult<i32> {
+        use crate::models::company::spec::service::add::add_company_specs;
+
+        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+
+        let conn: &PooledConnection = &get_conn(cxt)?;
+
+        add_company_specs(
+            &logged_user_uuid,
+            &data,
+            conn
+        )
+    }
+
+    async fn delete_company_specs(
+        &self,
+        cxt: &Context<'_>,
+        data: IptCompanySpecData,
+    ) -> ServiceResult<i32> {
+        use crate::models::company::spec::service::delete::del_company_specs;
+
+        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+
+        let conn: &PooledConnection = &get_conn(cxt)?;
+
+        del_company_specs(
+            &logged_user_uuid,
+            &data,
             conn
         )
     }
