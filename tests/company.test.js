@@ -916,7 +916,7 @@ describe('company', () => {
         }`,
       })
       .expect(HttpStatus.OK)
-    debug('/graphql CompanyCertificate=%o', body);
+    debug('/graphql body=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
       'BadRequest: Token not found.'
@@ -966,7 +966,7 @@ describe('company', () => {
         }`,
       })
       .expect(HttpStatus.OK)
-    debug('/graphql CompanyCertificate=%o', body);
+    debug('/graphql body=%o', body);
     const {
       data: { updateCompanyCertificate },
     } = body;
@@ -991,7 +991,7 @@ describe('company', () => {
         }`,
       })
       .expect(HttpStatus.OK)
-    debug('/graphql CompanyCertificate=%o', body);
+    debug('/graphql body=%o', body);
     const {
       data: { updateCompanyCertificate },
     } = body;
@@ -1016,7 +1016,7 @@ describe('company', () => {
         }`,
       })
       .expect(HttpStatus.OK)
-    debug('/graphql CompanyCertificate=%o', body);
+    debug('/graphql body=%o', body);
     const {
       data: { updateCompanyCertificate },
     } = body;
