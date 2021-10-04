@@ -2,21 +2,20 @@ use crate::errors::{ServiceError, ServiceResult};
 use crate::models::component::supplier::model::{
     SupplierComponent, IptSupplierComponentData, InsertableSupplierComponent
 };
-use crate::models::component::util::check_is_base;
+use crate::models::component::util::check_is_base_with_err;
 use crate::models::company::util::check_is_supplier;
 use diesel::prelude::*;
 use uuid::Uuid;
 
-/// Add related suppliers from component
-/// insert row in supplier_to_component table
-pub(crate) fn add_component_supplier(
+/// Add related supplier for component base
+pub(crate) fn add_component_base_supplier(
     logged_user_uuid: &Uuid,
     data: &IptSupplierComponentData,
     conn: &PgConnection
 ) -> ServiceResult<bool> {
-    use crate::schema::supplier_to_component::dsl::*;
-
-    let need_access_level = 1; // todo!(create enum for manage access level)
+    // if logged user can view base component,
+    // they can add company to supplier list
+    let need_access_level = 3; // todo!(create enum for manage access level)
 
     crate::models::component::access::util::check_access_component_for_user(
         logged_user_uuid,
@@ -25,12 +24,27 @@ pub(crate) fn add_component_supplier(
         true, // ownership_check
         conn
     )?;
-    
+
     // checking if a component is basic
-    check_is_base(&data.component_uuid, conn)?;
+    check_is_base_with_err(&data.component_uuid, conn)?;
 
     // checking if the company is a supplier
     check_is_supplier(&data.company_uuid, conn)?;
+
+    // add row in database
+    add_component_supplier_company(
+        data,
+        conn
+    )
+}
+
+/// Insert row in supplier_to_component table
+/// Warning: without check access
+pub(crate) fn add_component_supplier_company(
+    data: &IptSupplierComponentData,
+    conn: &PgConnection
+) -> ServiceResult<bool> {
+    use crate::schema::supplier_to_component::dsl::*;
 
     let found_supplier = supplier_to_component
         .filter(component_uuid.eq(&data.component_uuid)
