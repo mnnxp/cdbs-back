@@ -22,9 +22,7 @@ use crate::models::component::spec::model::IptComponentSpecData;
 use crate::models::component::file as component_file;
 use crate::models::component::file::model::{IptComponentFileData, DelComponentFileData};
 use crate::models::component::supplier as component_supplier;
-use crate::models::component::supplier::model::{
-    IptSupplierComponentData, DelSupplierToComponentData
-};
+use crate::models::component::supplier::model::DelSuppliersComponentData;
 use crate::models::component::standard as component_standard;
 use crate::models::component::standard::model::{
     IptStandardToComponentData, DelStandardToComponentData
@@ -414,28 +412,29 @@ impl ComponentMutation {
         )
     }
 
-    async fn add_supplier_component(
-        &self,
-        cxt: &Context<'_>,
-        data: IptSupplierComponentData,
-    ) -> ServiceResult<bool> {
-        use component_supplier::service::add::add_component_supplier;
-
-        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
-
-        let conn: &PooledConnection = &get_conn(cxt)?;
-
-        add_component_supplier(
-            &logged_user_uuid,
-            &data,
-            conn
-        )
-    }
+    // This fn moved to company_mutation
+    // async fn add_supplier_component(
+    //     &self,
+    //     cxt: &Context<'_>,
+    //     data: IptSupplierComponentData,
+    // ) -> ServiceResult<bool> {
+    //     use component_supplier::service::add::add_component_base_supplier;
+    //
+    //     let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+    //
+    //     let conn: &PooledConnection = &get_conn(cxt)?;
+    //
+    //     add_component_base_supplier(
+    //         &logged_user_uuid,
+    //         &data,
+    //         conn
+    //     )
+    // }
 
     async fn delete_suppliers_component(
         &self,
         cxt: &Context<'_>,
-        data: DelSupplierToComponentData,
+        data: DelSuppliersComponentData,
     ) -> ServiceResult<i32> {
         use component_supplier::service::delete::del_suppliers_component;
 

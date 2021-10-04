@@ -654,6 +654,7 @@ describe('component', () => {
     const {
       data: { registerComponent },
     } = body;
+    componentUuidStandard = registerComponent.uuid;
     expect(registerComponent).toContainAllKeys([
       "description", "actualStatusId", "isBase", "name", "updatedAt", "uuid"
     ]);
@@ -662,7 +663,6 @@ describe('component', () => {
     expect(registerComponent.description).toBe(descriptionComponent);
     expect(registerComponent.isBase).toBe(isBaseComponent);
     expect(registerComponent.actualStatusId).toBe(actualStatusIdComponent);
-    componentUuidStandard = registerComponent.uuid;
     done();
   });
 
@@ -1710,12 +1710,12 @@ describe('component', () => {
   });
 
   // Testing add supplier component
-  it('/graphql:M addSupplierComponent - BadRequest no token', async (done) => {
+  it('/graphql:M addComponentSupplier - BadRequest no token', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .send({
         query: `mutation  {
-            addSupplierComponent( data: {
+            addComponentSupplier( data: {
                 componentUuid: "${componentUuidStandard}",
                 companyUuid: "${companyUuidSupplier}",
                 description: "description for supplier component",
@@ -1728,11 +1728,11 @@ describe('component', () => {
     expect(body.errors[0].message).toBe(
       'BadRequest: Token not found.'
     );
-    expect(body.errors[0].path[0]).toBe('addSupplierComponent');
+    expect(body.errors[0].path[0]).toBe('addComponentSupplier');
     done();
   });
 
-  it('/graphql:M addSupplierComponent - OK', async (done) => {
+  it('/graphql:M addComponentSupplier - OK', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .set(
@@ -1741,7 +1741,7 @@ describe('component', () => {
       )
       .send({
         query: `mutation  {
-            addSupplierComponent( data: {
+            addComponentSupplier( data: {
                 componentUuid: "${componentUuidStandard}",
                 companyUuid: "${companyUuidSupplier}",
                 description: "description for supplier component",
@@ -1749,15 +1749,16 @@ describe('component', () => {
         }`,
       })
       .expect(HttpStatus.OK);
-    debug('/graphql addSupplierComponent=%o', body);
+    debug('/graphql addComponentSupplier=%o', body);
+    // expect(body).toBe(0);
     const {
-      data: { addSupplierComponent },
+      data: { addComponentSupplier },
     } = body;
-    expect(addSupplierComponent).toBe(true);
+    expect(addComponentSupplier).toBe(true);
     done();
   });
 
-  it('/graphql:M addSupplierComponent - BadRequest is not supplier', async (done) => {
+  it('/graphql:M addComponentSupplier - BadRequest is not supplier', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .set(
@@ -1766,7 +1767,7 @@ describe('component', () => {
       )
       .send({
         query: `mutation  {
-            addSupplierComponent( data: {
+            addComponentSupplier( data: {
                 componentUuid: "${componentUuidStandard}",
                 companyUuid: "${companyUuidNoSupplier}",
                 description: "description for supplier component",
@@ -1779,20 +1780,25 @@ describe('component', () => {
     expect(body.errors[0].message).toBe(
       'BadRequest: The company is not supplier.'
     );
-    expect(body.errors[0].path[0]).toBe('addSupplierComponent');
+    expect(body.errors[0].path[0]).toBe('addComponentSupplier');
     done();
   });
 
-  it('/graphql:M addSupplierComponent - BadRequest not standard component', async (done) => {
+  it('/graphql:M addComponentSupplier - BadRequest not standard component', async (done) => {
+    // change access to public
+    await global.knex.raw('UPDATE component_ref SET type_access_id=? WHERE uuid=?', [
+      typeAccessIdComponent,
+      componentUuidNoStandard,
+    ]);
     const { body } = await agent
       .post('/graphql')
       .set(
         'Authorization',
-        `Bearer ${authorizationTokenSecond}`
+        `Bearer ${authorizationTokenFirst}`
       )
       .send({
         query: `mutation  {
-            addSupplierComponent( data: {
+            addComponentSupplier( data: {
                 componentUuid: "${componentUuidNoStandard}",
                 companyUuid: "${companyUuidSupplier}",
                 description: "description for supplier component",
@@ -1805,11 +1811,16 @@ describe('component', () => {
     expect(body.errors[0].message).toBe(
       'BadRequest: The component is not standard.'
     );
-    expect(body.errors[0].path[0]).toBe('addSupplierComponent');
+    expect(body.errors[0].path[0]).toBe('addComponentSupplier');
     done();
+    // return access to private
+    await global.knex.raw('UPDATE component_ref SET type_access_id=? WHERE uuid=?', [
+      typeAccessIdComponentPrivate,
+      componentUuidNoStandard,
+    ]);
   });
 
-  it('/graphql:M addSupplierComponent - BadRequest supplier already exists', async (done) => {
+  it('/graphql:M addComponentSupplier - BadRequest supplier already exists', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .set(
@@ -1818,7 +1829,7 @@ describe('component', () => {
       )
       .send({
         query: `mutation  {
-            addSupplierComponent( data: {
+            addComponentSupplier( data: {
                 componentUuid: "${componentUuidStandard}",
                 companyUuid: "${companyUuidSupplier}",
                 description: "description for supplier component",
@@ -1831,7 +1842,7 @@ describe('component', () => {
     expect(body.errors[0].message).toBe(
       'BadRequest: This supplier is already with the component'
     );
-    expect(body.errors[0].path[0]).toBe('addSupplierComponent');
+    expect(body.errors[0].path[0]).toBe('addComponentSupplier');
     done();
   });
 
@@ -1942,7 +1953,6 @@ describe('component', () => {
     expect(deleteSuppliersComponent).toBe(0);
     done();
   });
-
 
   // Testing add standard component
   it('/graphql:M addStandardToComponent - BadRequest no token', async (done) => {
