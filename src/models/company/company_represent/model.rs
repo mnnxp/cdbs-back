@@ -78,6 +78,15 @@ pub struct IptCompanyRepresentData {
     pub phone: String,
 }
 
+#[derive(Debug, Deserialize, Clone, InputObject)]
+pub struct IptUpdateCompanyRepresentData {
+    pub region_id: Option<i32>,
+    pub representation_type_id: Option<i32>,
+    pub name: Option<String>,
+    pub address: Option<String>,
+    pub phone: Option<String>,
+}
+
 #[derive(Debug, Deserialize, Clone)]
 pub struct CompanyRepresentData {
     pub company_uuid: Uuid,

@@ -7,7 +7,7 @@ use crate::models::company::access::role_access::model::{IptRoleAccessData, DelR
 use crate::models::company::certificate::model::IptCompanyCertificateData;
 use crate::models::company::spec::model::IptCompanySpecData;
 use crate::models::company::company_represent::model::{
-    IptCompanyRepresentData, SlimCompanyRepresent
+    IptCompanyRepresentData, IptUpdateCompanyRepresentData, SlimCompanyRepresent
 };
 use crate::models::company::member::model::{
     IptCompanyMemberData, SlimCompanyMember, DelCompanyMemberData
@@ -146,6 +146,28 @@ impl CompanyMutation {
 
         create_company_represent(
             &logged_user_uuid,
+            &data,
+            conn
+        )
+    }
+
+    async fn update_company_represent(
+        &self,
+        cxt: &Context<'_>,
+        company_uuid: Uuid,
+        company_represent_uuid: Uuid,
+        data: IptUpdateCompanyRepresentData,
+    ) -> ServiceResult<i32> {
+        use crate::models::company::company_represent::service::update::update_company_represent_by_uuid;
+
+        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+
+        let conn: &PooledConnection = &get_conn(cxt)?;
+
+        update_company_represent_by_uuid(
+            &logged_user_uuid,
+            &company_uuid,
+            &company_represent_uuid,
             &data,
             conn
         )

@@ -1277,6 +1277,39 @@ describe('company', () => {
   });
 
   // Test for represent
+  it('/graphql:M registerCompanyRepresent - BadRequest no access', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `mutation  {
+            registerCompanyRepresent( data: {
+                companyUuid: "${companyUuidNoSupplier}",
+                name: "${nameRepresentationFirst}",
+                address: "${addressRepresentation}",
+                phone: "${phoneRepresentation}",
+                regionId: ${regionIdRepresentation},
+                representationTypeId: ${representationTypeId}
+            }) {
+                uuid
+                companyUuid
+                name
+                address
+                phone
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql - body=%o', body);
+    const { errors, data } = body;
+    expect(data).toBeNull();
+    expect(errors[0].message).toBe("BadRequest: Access denied");
+    done();
+  });
+
   it('/graphql:M registerCompanyRepresent - OK', async (done) => {
     const { body } = await agent
       .post('/graphql')
@@ -1349,6 +1382,127 @@ describe('company', () => {
     const { errors, data } = body;
     expect(data).toBeNull();
     expect(errors[0].message).toBe("BadRequest: The company is not supplier.");
+    done();
+  });
+
+  // Test for represent
+  it('/graphql:M updateCompanyRepresent - BadRequest no access', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `mutation  {
+            updateCompanyRepresent(
+              companyUuid: "${companyUuidNoSupplier}",
+              companyRepresentUuid: "${uuidRepresentFirst}",
+              data: {
+                name: "${nameRepresentationFirst}",
+                address: "${addressRepresentation}",
+                phone: "${phoneRepresentation}",
+                regionId: ${regionIdRepresentation},
+                representationTypeId: ${representationTypeId}
+            })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql - body=%o', body);
+    const { errors, data } = body;
+    expect(data).toBeNull();
+    expect(errors[0].message).toBe("BadRequest: Access denied");
+    done();
+  });
+
+  it('/graphql:M updateCompanyRepresent - Ok', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation  {
+            updateCompanyRepresent(
+              companyUuid: "${companyUuidNoSupplier}",
+              companyRepresentUuid: "${uuidRepresentFirst}",
+              data: {
+                name: "random data",
+                address: "random data",
+                phone: "+7777777777777777",
+                regionId: 5,
+                representationTypeId: 2
+            })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql - body=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { updateCompanyRepresent },
+    } = body;
+    expect(updateCompanyRepresent).toBe(5);
+    done();
+  });
+
+  it('/graphql:M updateCompanyRepresent - Return data', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation  {
+            updateCompanyRepresent(
+              companyUuid: "${companyUuidNoSupplier}",
+              companyRepresentUuid: "${uuidRepresentFirst}",
+              data: {
+                name: "${nameRepresentationFirst}",
+                address: "${addressRepresentation}",
+                phone: "${phoneRepresentation}",
+                regionId: ${regionIdRepresentation},
+                representationTypeId: ${representationTypeId}
+            })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { updateCompanyRepresent },
+    } = body;
+    expect(updateCompanyRepresent).toBe(5);
+    done();
+  });
+
+  it('/graphql:M updateCompanyRepresent - BadRequest data duplicate', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation  {
+            updateCompanyRepresent(
+              companyUuid: "${companyUuidNoSupplier}",
+              companyRepresentUuid: "${uuidRepresentFirst}",
+              data: {
+                name: "${nameRepresentationFirst}",
+                address: "${addressRepresentation}",
+                phone: "${phoneRepresentation}",
+                regionId: ${regionIdRepresentation},
+                representationTypeId: ${representationTypeId}
+            })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql - body=%o', body);
+    const { errors, data } = body;
+    expect(data).toBeNull();
+    expect(errors[0].message).toBe("BadRequest: The data has already");
     done();
   });
 
