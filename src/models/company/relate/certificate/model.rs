@@ -63,3 +63,9 @@ pub struct IptUpdateCompanyCertificateData {
     pub file_uuid: Uuid,
     pub description: String,
 }
+
+#[derive(Debug, Deserialize, Clone, InputObject)]
+pub struct DelCompanyCertificateData {
+    pub company_uuid: Uuid,
+    pub file_uuid: Uuid,
+}

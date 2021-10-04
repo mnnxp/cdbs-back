@@ -902,7 +902,7 @@ describe('company', () => {
     done();
   });
 
-  // Test update company certificates description
+  // Test update company certificate description
   it('/graphql:M updateCompanyCertificate - BadRequest not token', async (done) => {
     const { body } = await agent
       .post('/graphql')
@@ -1851,6 +1851,100 @@ describe('company', () => {
       .expect(HttpStatus.OK)
     debug('/graphql filter body=%o', response1.body);
     expect(response1.body.data.companyRepresents).toBeEmptyArray();
+    done();
+  });
+
+  // Test delete company certificate
+  it('/graphql:M deleteCompanyCertificate - BadRequest not token', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .send({
+        query: `mutation {
+          deleteCompanyCertificate(data: {
+            companyUuid: "${companyUuidNoSupplier}"
+            fileUuid: "${fileCertificateTestUuid}"
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Token not found.'
+    );
+    expect(body.errors[0].path[0]).toBe('deleteCompanyCertificate');
+    done();
+  });
+
+  it('/graphql:M deleteCompanyCertificate - BadRequest no access', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `mutation {
+          deleteCompanyCertificate(data: {
+            companyUuid: "${companyUuidNoSupplier}"
+            fileUuid: "${fileCertificateTestUuid}"
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql - body=%o', body);
+    const { errors, data } = body;
+    expect(data).toBeNull();
+    expect(errors[0].message).toBe("BadRequest: Access denied");
+    done();
+  });
+
+  it('/graphql:M deleteCompanyCertificate - OK', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation {
+          deleteCompanyCertificate(data: {
+            companyUuid: "${companyUuidNoSupplier}"
+            fileUuid: "${fileCertificateTestUuid}"
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    const {
+      data: { deleteCompanyCertificate },
+    } = body;
+    expect(deleteCompanyCertificate).toBe(true);
+    done();
+  });
+
+  it('/graphql:M deleteCompanyCertificate - BadRequest not found data', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation {
+          deleteCompanyCertificate(data: {
+            companyUuid: "${companyUuidNoSupplier}"
+            fileUuid: "${fileCertificateTestUuid}"
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Failed remove certificate data'
+    );
+    expect(body.errors[0].path[0]).toBe('deleteCompanyCertificate');
     done();
   });
 

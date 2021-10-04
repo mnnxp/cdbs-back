@@ -1,10 +1,12 @@
-use crate::database::{get_conn, PooledConnection};
+use crate::database::{get_pool, get_conn, PooledConnection};
 use crate::errors::ServiceResult;
 use crate::models::company::model::{
     IptCompanyData, IptUpdateCompanyData, SlimCompany
 };
 use crate::models::company::access::role_access::model::{IptRoleAccessData, DelRoleAccessData};
-use crate::models::company::certificate::model::{IptCompanyCertificateData, IptUpdateCompanyCertificateData};
+use crate::models::company::certificate::model::{
+    IptCompanyCertificateData, IptUpdateCompanyCertificateData, DelCompanyCertificateData
+};
 use crate::models::company::spec::model::IptCompanySpecData;
 use crate::models::company::company_represent::model::{
     IptCompanyRepresentData, IptUpdateCompanyRepresentData, SlimCompanyRepresent
@@ -31,9 +33,10 @@ impl CompanyMutation {
         data: IptCompanyData,
     ) -> ServiceResult<SlimCompany> {
         use crate::models::company::service::register::create_company;
-        let conn: &PooledConnection = &get_conn(cxt)?;
 
         let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+
+        let conn: &PooledConnection = &get_conn(cxt)?;
 
         create_company(
             &logged_user_uuid,
@@ -49,9 +52,10 @@ impl CompanyMutation {
         data: IptUpdateCompanyData,
     ) -> ServiceResult<i32> {
         use crate::models::company::service::update::update_company_by_uuid;
-        let conn: &PooledConnection = &get_conn(cxt)?;
 
         let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+
+        let conn: &PooledConnection = &get_conn(cxt)?;
 
         update_company_by_uuid(
             &logged_user_uuid,
@@ -68,9 +72,9 @@ impl CompanyMutation {
     ) -> ServiceResult<SlimCompany> {
         use crate::models::company::service::delete::del_company;
 
-        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
-
         let conn: &PooledConnection = &get_conn(cxt)?;
+
+        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
 
         del_company(
             &logged_user_uuid,
@@ -86,9 +90,9 @@ impl CompanyMutation {
     ) -> ServiceResult<UploadFile> {
         use crate::models::company::certificate::service::add::add_certificate;
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
-
         let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+
+        let conn: &PooledConnection = &get_conn(cxt)?;
 
         add_certificate(
             &logged_user_uuid,
@@ -105,15 +109,33 @@ impl CompanyMutation {
     ) -> ServiceResult<bool> {
         use crate::models::company::certificate::service::update::update_certificate_description;
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
-
         let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+
+        let conn: &PooledConnection = &get_conn(cxt)?;
 
         update_certificate_description(
             &logged_user_uuid,
             &data,
             conn
         )
+    }
+
+    async fn delete_company_certificate(
+        &self,
+        cxt: &Context<'_>,
+        data: DelCompanyCertificateData,
+    ) -> ServiceResult<bool> {
+        use crate::models::company::certificate::service::delete::del_certificate_description;
+
+        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+
+        let pool = get_pool(cxt)?;
+
+        del_certificate_description(
+            &logged_user_uuid,
+            &data,
+            &pool
+        ).await
     }
 
     async fn add_company_specs(
@@ -199,9 +221,10 @@ impl CompanyMutation {
         company_represent_uuid: Uuid,
     ) -> ServiceResult<SlimCompanyRepresent> {
         use crate::models::company::company_represent::service::delete::delete_company_represent;
-        let conn: &PooledConnection = &get_conn(cxt)?;
 
         let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+
+        let conn: &PooledConnection = &get_conn(cxt)?;
 
         delete_company_represent(
             &logged_user_uuid,
