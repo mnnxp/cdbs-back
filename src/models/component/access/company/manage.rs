@@ -6,22 +6,20 @@ use crate::models::component::access::company::model::{
     InsertableCompanyAccessComponent,
     DelCompanyAccessComponentData,
 };
-use crate::models::component::access::util::check_is_owner;
+use crate::models::component::access::util::check_is_owner_with_err;
 use crate::schema::company_access_to_component::dsl::*;
 use diesel::prelude::*;
 use uuid::Uuid;
 
 /// Get companies list have access to component
 pub(crate) fn get_companies_list_access_component(
-    logged_company_uuid: &Uuid,
+    logged_user_uuid: &Uuid,
     target_component_uuid: &Uuid,
     set_lang_id: &i32,
     conn: &PgConnection,
 ) -> ServiceResult<Vec<CompanyAccessComponentAndRelatedData>> {
     // 1. проверить пользователя на владение компонентом
-    if !check_is_owner(logged_company_uuid, target_component_uuid, conn) {
-        return Err(ServiceError::BadRequest("Access denied".to_string()))
-    }
+    check_is_owner_with_err(logged_user_uuid, target_component_uuid, conn)?;
 
     // 2. получить список пользователей с доступом к компоненту
     let list_companies_with_access = CompanyAccessComponentAndRelatedData::from_component_by_uuid(
@@ -46,16 +44,14 @@ pub(crate) fn get_companies_list_access_component(
 
 /// Manage component access for company
 pub(crate) fn set_company_access_component(
-    logged_company_uuid: &Uuid,
+    logged_user_uuid: &Uuid,
     data: &IptCompanyAccessComponentData,
     conn: &PgConnection,
 ) -> ServiceResult<bool> {
     // 1. проверить пользователя на владение компонентом
-    if !check_is_owner(logged_company_uuid, &data.component_uuid, conn) {
-        return Err(ServiceError::BadRequest("Access denied".to_string()))
-    }
+    check_is_owner_with_err(logged_user_uuid, &data.component_uuid, conn)?;
 
-    // 2. изменить или добавить доступ для указанного пользователя
+    // 2. изменить или добавить доступ для указанной компании
     let set_access = diesel::update(company_access_to_component
         .filter(component_uuid.eq(&data.component_uuid)
         .and(company_uuid.eq(&data.company_uuid))))
@@ -90,6 +86,24 @@ pub(crate) fn set_company_access_component(
     }
 }
 
+/// Give company top access component
+pub(crate) fn give_company_top_access_component(
+    logged_user_uuid: &Uuid,
+    target_component_uuid: &Uuid,
+    target_company_uuid: &Uuid,
+    conn: &PgConnection,
+) -> ServiceResult<bool> {
+    set_company_access_component(
+        logged_user_uuid,
+        &IptCompanyAccessComponentData {
+            component_uuid: *target_component_uuid,
+            company_uuid: *target_company_uuid,
+            type_access_id: 1,
+        },
+        conn
+    )
+}
+
 /// Add new access component for company
 /// Warning: this function without "check is owner company"
 fn add_company_access_component(
@@ -119,16 +133,14 @@ fn add_company_access_component(
 
 /// Remove access component for company
 pub(crate) fn del_company_access_component(
-    logged_company_uuid: &Uuid,
+    logged_user_uuid: &Uuid,
     data: &DelCompanyAccessComponentData,
     conn: &PgConnection,
 ) -> ServiceResult<bool> {
     // 1. проверить пользователя на владение компонентом
-    if !check_is_owner(logged_company_uuid, &data.component_uuid, conn) {
-        return Err(ServiceError::BadRequest("Access denied".to_string()))
-    }
+    check_is_owner_with_err(logged_user_uuid, &data.component_uuid, conn)?;
 
-    // 2. деактивировать доступ для указанного пользователя
+    // 2. деактивировать доступ для указанной компании
     let del_access = diesel::delete(company_access_to_component)
         .filter(component_uuid.eq(&data.component_uuid)
         .and(company_uuid.eq(&data.company_uuid)))
