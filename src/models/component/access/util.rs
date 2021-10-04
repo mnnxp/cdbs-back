@@ -54,11 +54,6 @@ pub(crate) fn check_access_component_for_user(
     // 1. проверить владение компонентом
     // если флаг ownership_check true
 
-    // ownership check for ownership_check is true
-    if ownership_check && check_is_owner(target_user_uuid, target_component_uuid, conn) {
-        return Ok(true)
-    }
-
     // if request to view a public component
     if need_access_level == &3 {
         let access_type_component = get_access_type_component(target_component_uuid, conn)?;
@@ -66,6 +61,11 @@ pub(crate) fn check_access_component_for_user(
         if access_type_component == 3 {
             return Ok(true)
         }
+    }
+
+    // ownership check for ownership_check is true
+    if ownership_check && check_is_owner(target_user_uuid, target_component_uuid, conn) {
+        return Ok(true)
     }
 
     // 2. проверить наличие доступа к компоненту,

@@ -115,15 +115,6 @@ pub(crate) fn check_company_access(
     required_access: &i32,
     conn: &PgConnection,
 ) -> ServiceResult<bool> {
-    // check user on owner company
-    if check_is_owner(
-        target_user_uuid,
-        target_company_uuid,
-        conn
-    ) {
-        return Ok(true)
-    }
-
     // if request to view a public company
     if required_access == &3 {
         let access_type_company = get_access_type_company(target_company_uuid, conn)?;
@@ -131,6 +122,15 @@ pub(crate) fn check_company_access(
         if access_type_company == 3 {
             return Ok(true)
         }
+    }
+
+    // check user on owner company
+    if check_is_owner(
+        target_user_uuid,
+        target_company_uuid,
+        conn
+    ) {
+        return Ok(true)
     }
 
     let found_type_access_id: i32 = get_type_access_id(
