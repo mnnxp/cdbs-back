@@ -23,7 +23,9 @@ impl StorageAccess {
             },
             Err(e) => {
                 debug!("Failed get storage access data: {:#?}", e);
-                Err(ServiceError::BadRequest("Failed get storage access data. Please tell administration to update storage access.".to_string()))
+                Err(ServiceError::BadRequest(
+                    "Failed get storage access data. Please tell administration to update storage access.".to_string()
+                ))
             },
         }
     }

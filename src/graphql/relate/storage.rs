@@ -58,15 +58,17 @@ impl StorageMutation {
         &self,
         cxt: &Context<'_>,
         file_uuid: Uuid,
-    ) -> ServiceResult<i32> {
-        let pool = get_pool(cxt)?;
+    ) -> ServiceResult<bool> {
+        use file::service::delete::delete_file_with_check_by_uuid;
 
         let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
 
-        file::service::delete::delete_file_by_uuid(
+        let pool = get_pool(cxt)?;
+
+        delete_file_with_check_by_uuid(
             &logged_user_uuid,
             &file_uuid,
-            pool
+            &pool
         ).await
     }
 }
