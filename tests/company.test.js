@@ -54,6 +54,8 @@ const descriptionCertificateTest = "test desctiption for certificate";
 const badFilenameCertificateTest = "name* file/ certificate.pdf";
 const goodFilenameCertificateTest = "name file certificate.pdf";
 
+var fileCertificateTestUuid = "";
+
 const companyFullDataQuery = ` \
 uuid \
 orgname \
@@ -865,6 +867,7 @@ describe('company', () => {
     const {
       data: { uploadCompanyCertificate },
     } = body;
+    fileCertificateTestUuid = uploadCompanyCertificate.fileUuid;
     expect(uploadCompanyCertificate.fileUuid).toBeNonEmptyString();
     expect(uploadCompanyCertificate.filename).toBe(goodFilenameCertificateTest);
     expect(uploadCompanyCertificate.uploadUrl).toBeNonEmptyString();
@@ -896,6 +899,128 @@ describe('company', () => {
     const { errors, data } = body;
     expect(data).toBeNull();
     expect(errors[0].message).toBe("BadRequest: Access denied");
+    done();
+  });
+
+  // Test update company certificates description
+  it('/graphql:M updateCompanyCertificate - BadRequest not token', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .send({
+        query: `mutation {
+          updateCompanyCertificate(data: {
+            companyUuid: "${companyUuidNoSupplier}"
+            fileUuid: "${fileCertificateTestUuid}"
+            description: "${descriptionCertificateTest}"
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql CompanyCertificate=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Token not found.'
+    );
+    expect(body.errors[0].path[0]).toBe('updateCompanyCertificate');
+    done();
+  });
+
+  it('/graphql:M updateCompanyCertificate - BadRequest no access', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `mutation {
+          updateCompanyCertificate(data: {
+            companyUuid: "${companyUuidNoSupplier}"
+            fileUuid: "${fileCertificateTestUuid}"
+            description: "${descriptionCertificateTest}"
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql - body=%o', body);
+    const { errors, data } = body;
+    expect(data).toBeNull();
+    expect(errors[0].message).toBe("BadRequest: Access denied");
+    done();
+  });
+
+  it('/graphql:M updateCompanyCertificate - OK', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation {
+          updateCompanyCertificate(data: {
+            companyUuid: "${companyUuidNoSupplier}"
+            fileUuid: "${fileCertificateTestUuid}"
+            description: "test of the test description"
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql CompanyCertificate=%o', body);
+    const {
+      data: { updateCompanyCertificate },
+    } = body;
+    expect(updateCompanyCertificate).toBe(true);
+    done();
+  });
+
+  it('/graphql:M updateCompanyCertificate - OK return old description', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation {
+          updateCompanyCertificate(data: {
+            companyUuid: "${companyUuidNoSupplier}"
+            fileUuid: "${fileCertificateTestUuid}"
+            description: "${descriptionCertificateTest}"
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql CompanyCertificate=%o', body);
+    const {
+      data: { updateCompanyCertificate },
+    } = body;
+    expect(updateCompanyCertificate).toBe(true);
+    done();
+  });
+
+  it('/graphql:M updateCompanyCertificate - OK duplicate data', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation {
+          updateCompanyCertificate(data: {
+            companyUuid: "${companyUuidNoSupplier}"
+            fileUuid: "${fileCertificateTestUuid}"
+            description: "${descriptionCertificateTest}"
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql CompanyCertificate=%o', body);
+    const {
+      data: { updateCompanyCertificate },
+    } = body;
+    expect(updateCompanyCertificate).toBe(false);
     done();
   });
 

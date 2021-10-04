@@ -56,3 +56,10 @@ impl From<CompanyCertificate> for InsertableCompanyCertificate {
         }
     }
 }
+
+#[derive(Debug, Deserialize, Clone, InputObject)]
+pub struct IptUpdateCompanyCertificateData {
+    pub company_uuid: Uuid,
+    pub file_uuid: Uuid,
+    pub description: String,
+}
