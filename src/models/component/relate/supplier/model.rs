@@ -81,7 +81,7 @@ impl From<&IptSupplierComponentData> for InsertableSupplierComponent {
 }
 
 #[derive(Debug, Deserialize, Clone, InputObject)]
-pub struct DelSupplierToComponentData {
+pub struct DelSuppliersComponentData {
     pub component_uuid: Uuid,
     pub companies_uuids: Vec<Uuid>,
 }
