@@ -17,6 +17,8 @@ use crate::models::company::member::model::{
 use crate::models::company::member::role::model::{
     IptRoleMemberData, IptUpdataNameRoleData, DelRoleMemberData
 };
+use crate::models::company::supplier_component::model::DelCompanyOfSuppliersData;
+use crate::models::component::supplier::model::IptSupplierComponentData;
 use crate::models::relate_ref::file::model::UploadFile;
 
 use async_graphql::{self, Context, Object};
@@ -373,6 +375,63 @@ impl CompanyMutation {
         let conn: &PooledConnection = &get_conn(cxt)?;
 
         del_role_access(
+            &logged_user_uuid,
+            &data,
+            conn
+        )
+    }
+
+    /// Add company to suppliers list component
+    async fn add_component_supplier(
+        &self,
+        cxt: &Context<'_>,
+        data: IptSupplierComponentData,
+    ) -> ServiceResult<bool> {
+        use crate::models::company::supplier_component::add::add_company_to_suppliers;
+
+        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+
+        let conn: &PooledConnection = &get_conn(cxt)?;
+
+        add_company_to_suppliers(
+            &logged_user_uuid,
+            &data,
+            conn
+        )
+    }
+
+    /// Set company as main supplier component
+    async fn set_company_owner_supplier(
+        &self,
+        cxt: &Context<'_>,
+        data: IptSupplierComponentData,
+    ) -> ServiceResult<bool> {
+        use crate::models::company::supplier_component::add::set_company_owner_supplier;
+
+        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+
+        let conn: &PooledConnection = &get_conn(cxt)?;
+
+        set_company_owner_supplier(
+            &logged_user_uuid,
+            &data,
+            conn
+        )
+    }
+
+    /// Delete company of suppliers list
+    async fn delete_supplier_company(
+        &self,
+        cxt: &Context<'_>,
+        data: DelCompanyOfSuppliersData,
+    ) -> ServiceResult<bool> {
+        use crate::models::company::supplier_component::delete::del_company_of_suppliers;
+
+        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+
+        let conn: &PooledConnection = &get_conn(cxt)?;
+
+        del_company_of_suppliers(
             &logged_user_uuid,
             &data,
             conn

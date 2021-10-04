@@ -256,6 +256,32 @@ createdAt \
 updatedAt \
 `;
 
+
+// data for component
+const parentComponentUuid = "a5953fd9-7393-4f1e-a899-06b5e159dbf1";
+const nameComponent = "M Series Geared Motor";
+const nameComponent2 = "X Custom Geared Motor";
+const descriptionComponent = "graphqlcomment for component";
+const typeAccessIdComponent = 3;
+const typeAccessIdComponentPrivate = 1;
+const componentTypeId = 2;
+const actualStatusIdComponent = 1;
+const isBaseComponent = true;
+const isBaseComponent0 = false;
+const subscribersCount = 1;
+const keywordIdsOk = [1,3,5];
+const keywordIdsDup = [1,2,3,4,5];
+const licenseIdOk = 1;
+const licenseIdErr = 2;
+const filename1 = "file-test-name 1.pdf";
+const filename2 = "file-test-name 2.pdf";
+const filename3 = "file-test-name 3.pdf";
+const filename4 = "file-test-name 4.pdf";
+const filename5 = "file-test-name 5.pdf";
+
+var componentUuidStandard = "";
+var componentUuidNoStandard = "";
+
 async function cleanupCompanyDb() {
   return global.knex.raw('DELETE FROM company_ref WHERE orgname in (?,?)', [
     orgname,
@@ -2380,6 +2406,280 @@ describe('company', () => {
     );
     expect(body.errors[0].path[0]).toBe('addAccessRole');
     done();
+  });
+
+  // Register components for testing add company suppliers
+  it('/graphql:M registerComponent - OK standard', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `mutation  {
+            registerComponent( data: {
+                parentComponentUuid: "${parentComponentUuid}",
+                name: "${nameComponent}",
+                description: "${descriptionComponent}",
+                typeAccessId: ${typeAccessIdComponent},
+                componentTypeId: ${componentTypeId},
+                actualStatusId: ${actualStatusIdComponent},
+                isBase: ${isBaseComponent}
+            }) {
+                uuid
+                name
+                description
+                actualStatusId
+                isBase
+                updatedAt
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql registerComponent=%o', body);
+    const {
+      data: { registerComponent },
+    } = body;
+    componentUuidStandard = registerComponent.uuid;
+    expect(registerComponent).toContainAllKeys([
+      "description", "actualStatusId", "isBase", "name", "updatedAt", "uuid"
+    ]);
+    expect(registerComponent.uuid).toBeNonEmptyString();
+    expect(registerComponent.name).toBe(nameComponent);
+    expect(registerComponent.description).toBe(descriptionComponent);
+    expect(registerComponent.isBase).toBe(isBaseComponent);
+    expect(registerComponent.actualStatusId).toBe(actualStatusIdComponent);
+    done();
+  });
+
+  it('/graphql:M registerComponent - OK not standard', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `mutation  {
+            registerComponent( data: {
+                parentComponentUuid: "${parentComponentUuid}",
+                name: "${nameComponent2}",
+                description: "${descriptionComponent}",
+                typeAccessId: ${typeAccessIdComponentPrivate},
+                componentTypeId: ${componentTypeId},
+                actualStatusId: ${actualStatusIdComponent},
+                isBase: ${isBaseComponent0}
+            }) {
+                uuid
+                name
+                description
+                actualStatusId
+                isBase
+                updatedAt
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql registerComponent=%o', body);
+    const {
+      data: { registerComponent },
+    } = body;
+    componentUuidNoStandard = registerComponent.uuid;
+    expect(registerComponent).toContainAllKeys([
+      "description", "actualStatusId", "isBase", "name", "updatedAt", "uuid"
+    ]);
+    expect(registerComponent.uuid).toBeNonEmptyString();
+    expect(registerComponent.name).toBe(nameComponent2);
+    expect(registerComponent.description).toBe(descriptionComponent);
+    expect(registerComponent.isBase).toBe(isBaseComponent0);
+    expect(registerComponent.actualStatusId).toBe(actualStatusIdComponent);
+    done();
+  });
+
+  // Testing add company owner supplier
+  it('/graphql:M setCompanyOwnerSupplier - OK', async (done) => {
+    // change owner company
+    await global.knex.raw('UPDATE company_ref SET user_uuid=? WHERE uuid=?', [
+      authorizationUserSecond,
+      companyUuidNoSupplier,
+    ]);
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `mutation  {
+            setCompanyOwnerSupplier( data: {
+                componentUuid: "${componentUuidNoStandard}",
+                companyUuid: "${companyUuidNoSupplier}",
+                description: "description for supplier component",
+            })
+        }`,
+      })
+      .expect(HttpStatus.OK);
+    debug('/graphql setCompanyOwnerSupplier=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { setCompanyOwnerSupplier },
+    } = body;
+    expect(setCompanyOwnerSupplier).toBe(true);
+    done();
+    // return owner component
+    await global.knex.raw('UPDATE company_ref SET user_uuid=? WHERE uuid=?', [
+      authorizationUserFirst,
+      companyUuidNoSupplier,
+    ]);
+  });
+
+  it('/graphql:M setCompanyOwnerSupplier - BadRequest standard component', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation  {
+            setCompanyOwnerSupplier( data: {
+                componentUuid: "${componentUuidStandard}",
+                companyUuid: "${companyUuidNoSupplier}",
+                description: "description for supplier component",
+            })
+        }`,
+      })
+      .expect(HttpStatus.OK);
+    debug('/graphql - body =%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: This not work for base component'
+    );
+    expect(body.errors[0].path[0]).toBe('setCompanyOwnerSupplier');
+    done();
+  });
+
+  it('/graphql:M setCompanyOwnerSupplier - BadRequest no access', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation  {
+            setCompanyOwnerSupplier( data: {
+                componentUuid: "${componentUuidNoStandard}",
+                companyUuid: "${companyUuidSupplier}",
+                description: "description for supplier component",
+            })
+        }`,
+      })
+      .expect(HttpStatus.OK);
+    debug('/graphql - body =%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Access denied'
+    );
+    expect(body.errors[0].path[0]).toBe('setCompanyOwnerSupplier');
+    done();
+  });
+
+  // Test for delete company of component suppliers list
+  it('/graphql:M deleteSupplierCompany - BadRequest no token', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .send({
+        query: `mutation  {
+          deleteSupplierCompany( data: {
+              companyUuid: "${companyUuidNoSupplier}",
+              componentUuid: "${componentUuidNoStandard}",
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Token not found.'
+    );
+    expect(body.errors[0].path[0]).toBe('deleteSupplierCompany');
+    done();
+  });
+
+  it('/graphql:M deleteSupplierCompany - BadRequest access denied', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `mutation  {
+          deleteSupplierCompany( data: {
+              companyUuid: "${companyUuidNoSupplier}",
+              componentUuid: "${componentUuidNoStandard}",
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql deleteSupplierCompany=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Access denied'
+    );
+    expect(body.errors[0].path[0]).toBe('deleteSupplierCompany');
+    done();
+  });
+
+  it('/graphql:M deleteSupplierCompany - OK delete company role', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation  {
+          deleteSupplierCompany( data: {
+              companyUuid: "${companyUuidNoSupplier}",
+              componentUuid: "${componentUuidNoStandard}",
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql deleteSupplierCompany=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { deleteSupplierCompany },
+    } = body;
+    expect(deleteSupplierCompany).toBe(true);
+    done();
+  });
+
+  it('/graphql:M deleteSupplierCompany - Ok delete fantom', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation  {
+          deleteSupplierCompany( data: {
+              companyUuid: "${companyUuidNoSupplier}",
+              componentUuid: "${componentUuidNoStandard}",
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+      // expect(body).toBe(0);
+      const {
+        data: { deleteSupplierCompany },
+      } = body;
+      expect(deleteSupplierCompany).toBe(false);
+      done();
   });
 
   // Test for delete access for company role
