@@ -12,13 +12,13 @@ use uuid::Uuid;
 #[belongs_to(Standard, foreign_key = "standard_uuid")]
 #[belongs_to(Keyword, foreign_key = "keyword_id")]
 #[table_name = "keyword_to_standard"]
-pub struct KeywordStandard {
+pub struct StandardKeyword {
     pub standard_uuid: Uuid,
     pub keyword_id: i32,
 }
 
 #[Object]
-impl KeywordStandard {
+impl StandardKeyword {
     async fn keyword_id(&self) -> &i32 {
         &self.keyword_id
     }
@@ -33,8 +33,8 @@ pub struct StandardKeywordRelatedData {
     pub standard_uuid: Uuid,
 }
 
-impl From<(KeywordStandard, Keyword)> for StandardKeywordRelatedData {
-    fn from(data: (KeywordStandard, Keyword)) -> Self {
+impl From<(StandardKeyword, Keyword)> for StandardKeywordRelatedData {
+    fn from(data: (StandardKeyword, Keyword)) -> Self {
         Self {
             keyword: data.1,
             standard_uuid: data.0.standard_uuid,
@@ -42,30 +42,67 @@ impl From<(KeywordStandard, Keyword)> for StandardKeywordRelatedData {
     }
 }
 
-#[derive(Debug, Deserialize, Clone, InputObject)]
-pub struct IptKeywordStandardData {
-    pub standard_uuid: Uuid,
-    pub keyword_id: i32,
-}
-
 #[derive(Debug, Insertable)]
 #[table_name = "keyword_to_standard"]
-pub struct InsertableKeywordStandard {
+pub struct InsertableStandardKeyword {
     pub standard_uuid: Uuid,
     pub keyword_id: i32,
 }
 
-impl From<IptKeywordStandardData> for InsertableKeywordStandard {
-    fn from(ipt_data: IptKeywordStandardData) -> Self {
-        let IptKeywordStandardData {
+#[derive(Debug, Deserialize, Clone, InputObject)]
+pub struct IptStandardKeywordsData {
+    pub standard_uuid: Uuid,
+    pub keyword_ids: Vec<i32>,
+}
+
+impl From<&IptStandardKeywordsData> for Vec<InsertableStandardKeyword> {
+    fn from(ipt_data: &IptStandardKeywordsData) -> Vec<InsertableStandardKeyword> {
+        let IptStandardKeywordsData {
             standard_uuid,
-            keyword_id,
+            keyword_ids,
             ..
         } = ipt_data;
 
-        Self {
-            standard_uuid: Uuid::parse_str(&standard_uuid.to_string()).unwrap(),
-            keyword_id,
+        let mut res = Vec::new();
+        // create struct for each keyword
+        for keyword_id in keyword_ids {
+            if keyword_id > &0 { // <-- additionally we check the correctness of the key
+                res.push(InsertableStandardKeyword {
+                    standard_uuid: standard_uuid.to_owned(),
+                    keyword_id: *keyword_id,
+                })
+            }
+        }
+
+        res
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct DeleteStandardKeywords {
+    pub standard_uuid: Uuid,
+    pub keyword_ids: Vec<i32>,
+}
+
+impl From<&IptStandardKeywordsData> for DeleteStandardKeywords {
+    fn from(ipt_data: &IptStandardKeywordsData) -> Self {
+        let IptStandardKeywordsData {
+            standard_uuid,
+            keyword_ids,
+            ..
+        } = ipt_data;
+
+        let mut good_keyword_ids: Vec<i32> = Vec::new();
+        // filter bad keywords id
+        for keyword_id in keyword_ids {
+            if keyword_id > &0 {
+                good_keyword_ids.push(*keyword_id)
+            }
+        }
+
+        Self{
+            standard_uuid: standard_uuid.to_owned(),
+            keyword_ids: good_keyword_ids,
         }
     }
 }

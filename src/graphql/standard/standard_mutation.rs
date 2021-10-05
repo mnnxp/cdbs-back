@@ -2,6 +2,7 @@ use crate::errors::ServiceResult;
 use crate::database::{get_conn, PooledConnection};
 use crate::models::standard::model::{IptStandardData, IptUpdateStandardData, SlimStandard};
 use crate::models::standard::spec::model::IptStandardSpecData;
+use crate::models::standard::keyword::model::IptStandardKeywordsData;
 
 use async_graphql::{self, Context, Object};
 use uuid::Uuid;
@@ -97,6 +98,42 @@ impl StandardMutation {
         let conn: &PooledConnection = &get_conn(cxt)?;
 
         del_standard_specs(
+            &logged_user_uuid,
+            &data,
+            conn
+        )
+    }
+
+    async fn add_standard_keywords(
+        &self,
+        cxt: &Context<'_>,
+        data: IptStandardKeywordsData,
+    ) -> ServiceResult<i32> {
+        use crate::models::standard::keyword::service::add::add_standard_keywords;
+
+        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+
+        let conn: &PooledConnection = &get_conn(cxt)?;
+
+        add_standard_keywords(
+            &logged_user_uuid,
+            &data,
+            conn
+        )
+    }
+
+    async fn delete_standard_keywords(
+        &self,
+        cxt: &Context<'_>,
+        data: IptStandardKeywordsData,
+    ) -> ServiceResult<i32> {
+        use crate::models::standard::keyword::service::delete::del_standard_keywords;
+
+        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+
+        let conn: &PooledConnection = &get_conn(cxt)?;
+
+        del_standard_keywords(
             &logged_user_uuid,
             &data,
             conn

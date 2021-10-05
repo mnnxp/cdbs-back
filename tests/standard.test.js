@@ -1194,6 +1194,277 @@ describe('company', () => {
     done();
   });
 
+  // Testing adding standard keywords
+  it('/graphql:M addStandardKeywords - BadRequest no token', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .send({
+        query: `mutation  {
+          addStandardKeywords(data: {
+            standardUuid: "${standardUuidSecond}"
+            keywordIds: [${keywordIdsOk}]
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql addStandardKeywords=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Token not found.'
+    );
+    expect(body.errors[0].path[0]).toBe('addStandardKeywords');
+    done();
+  });
+
+  it('/graphql:M addStandardKeywords - OK', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation  {
+          addStandardKeywords(data: {
+            standardUuid: "${standardUuidFirst}"
+            keywordIds: [${keywordIdsOk}]
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql registerComponent=%o', body);
+    const {
+      data: { addStandardKeywords },
+    } = body;
+    expect(addStandardKeywords).toBe(3);
+    done();
+  });
+
+  it('/graphql:M addStandardKeywords - OK with duplicate', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation  {
+          addStandardKeywords(data: {
+            standardUuid: "${standardUuidFirst}"
+            keywordIds: [${keywordIdsDup}]
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql registerComponent=%o', body);
+    const {
+      data: { addStandardKeywords },
+    } = body;
+    expect(addStandardKeywords).toBe(2);
+    done();
+  });
+
+  it('/graphql:M addStandardKeywords - BadRequest all duplicates', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation  {
+          addStandardKeywords(data: {
+            standardUuid: "${standardUuidFirst}"
+            keywordIds: [${keywordIdsOk}]
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql addStandardKeywords=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      "BadRequest: This ids [1, 3, 5] already has"
+    );
+    expect(body.errors[0].path[0]).toBe('addStandardKeywords');
+    done();
+  });
+
+  it('/graphql:M addStandardKeywords - BadRequest not found id', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation  {
+          addStandardKeywords(data: {
+            standardUuid: "${standardUuidFirst}"
+            keywordIds: [${idErr}]
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql addStandardKeywords=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      "BadRequest: Not found keywords"
+    );
+    expect(body.errors[0].path[0]).toBe('addStandardKeywords');
+    done();
+  });
+
+  it('/graphql:M addStandardKeywords - BadRequest no access', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `mutation  {
+          addStandardKeywords(data: {
+            standardUuid: "${standardUuidFirst}"
+            keywordIds: [${idErr}]
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql addStandardKeywords=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      "BadRequest: Access denied"
+    );
+    expect(body.errors[0].path[0]).toBe('addStandardKeywords');
+    done();
+  });
+
+  it('/graphql:Q Get full data Component - OK check add keywords', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+          query: `query standardQuery{
+            standard(standardUuid: "${standardUuidFirst}") {
+              ${standardFullDataQuery}
+            }
+          }`,
+        })
+      .expect(HttpStatus.OK)
+    debug('/graphql filter standard=%o', body.data.standard);
+    expect(body.data.standard.uuid).toBe(standardUuidFirst);
+    expect(body.data.standard.standardKeywords[0].id).toBe(1);
+    expect(body.data.standard.standardKeywords[0].keyword).toBeNonEmptyString();
+    expect(body.data.standard.standardKeywords[1].id).toBe(2);
+    expect(body.data.standard.standardKeywords[1].keyword).toBeNonEmptyString();
+    expect(body.data.standard.standardKeywords[2].id).toBe(3);
+    expect(body.data.standard.standardKeywords[2].keyword).toBeNonEmptyString();
+    expect(body.data.standard.standardKeywords[3].id).toBe(4);
+    expect(body.data.standard.standardKeywords[3].keyword).toBeNonEmptyString();
+    expect(body.data.standard.standardKeywords[4].id).toBe(5);
+    expect(body.data.standard.standardKeywords[4].keyword).toBeNonEmptyString();
+    done();
+  });
+
+  // Testing delete standard keywords
+  it('/graphql:M deleteStandardKeywords - BadRequest no token', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .send({
+        query: `mutation  {
+          deleteStandardKeywords(data: {
+            standardUuid: "${standardUuidFirst}"
+            keywordIds: [${keywordIdsOk}]
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql deleteStandardKeywords=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Token not found.'
+    );
+    expect(body.errors[0].path[0]).toBe('deleteStandardKeywords');
+    done();
+  });
+
+  it('/graphql:M deleteStandardKeywords - OK', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation  {
+          deleteStandardKeywords(data: {
+            standardUuid: "${standardUuidFirst}"
+            keywordIds: [${keywordIdsOk}]
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql deleteStandardKeywords=%o', body);
+    const {
+      data: { deleteStandardKeywords },
+    } = body;
+    expect(deleteStandardKeywords).toBe(3);
+    done();
+  });
+
+  it('/graphql:M deleteStandardKeywords - BadRequest not found id', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation  {
+          deleteStandardKeywords(data: {
+            standardUuid: "${standardUuidFirst}"
+            keywordIds: [${idErr}]
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql deleteStandardKeywords=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      "BadRequest: Not found keywords"
+    );
+    expect(body.errors[0].path[0]).toBe('deleteStandardKeywords');
+    done();
+  });
+
+  it('/graphql:M deleteStandardKeywords - BadRequest no access', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `mutation  {
+          deleteStandardKeywords(data: {
+            standardUuid: "${standardUuidFirst}"
+            keywordIds: [${idErr}]
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql deleteStandardKeywords=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      "BadRequest: Access denied"
+    );
+    expect(body.errors[0].path[0]).toBe('deleteStandardKeywords');
+    done();
+  });
+
   // Testing get standard data
   it('/graphql:Q standard - BadRequest without token', async (done) => {
     const { body } = await agent
