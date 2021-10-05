@@ -22,11 +22,11 @@ impl StorageQuery {
         // authorization check
         let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
 
-        Ok(file::service::list::get_url_file_by_uuid(
+        file::service::list::get_url_file_by_uuid(
             &logged_user_uuid,
             &file_uuid,
             conn,
-        )?)
+        )
     }
 }
 
