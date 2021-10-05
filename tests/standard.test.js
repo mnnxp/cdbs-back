@@ -922,33 +922,34 @@ describe('company', () => {
     done();
   });
 
-  // it('/graphql:Q standard - BadReuest no access', async (done) => {
-  //   const { body } = await agent
-  //     .post('/graphql')
-  //     .set(
-  //       'Authorization',
-  //       `Bearer ${authorizationTokenSecond}`
-  //     )
-  //     .send({
-  //       query: `query selectStandardQuery{
-  //         standards (standardsUuids: "${standardUuidSecond}") {
-  //           ${standardsListQuery}
-  //         }
-  //       }`,
-  //     })
-  //     .expect(HttpStatus.OK)
-  //   debug('/graphql - body=%o', body);
-  //   const { errors, data } = body;
-  //   expect(data).toBeNull();
-  //   expect(errors[0].message).toBe("BadRequest: Access denied");
-  //   done();
-  // });
+  it('/graphql:Q standard - BadReuest no access', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `query selectStandardQuery{
+          standards (standardsUuids: "${standardUuidSecond}") {
+            ${standardsListQuery}
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql - body=%o', body);
+    const { errors, data } = body;
+    expect(data).toBeNull();
+    expect(errors[0].message).toBe("BadRequest: Access denied");
+    done();
+  });
 
   it('/graphql:Q standard - OK Select with uuid (private access)', async (done) => {
     // add access to the object for the user
-    await global.knex.raw('INSERT INTO user_access_to_standard (standard_uuid, user_uuid, type_access_id, is_enabled, created_at, updated_at) VALUES (?, ?, 1, true, now(), now());', [
+    await global.knex.raw('INSERT INTO user_access_to_standard (standard_uuid, user_uuid, type_access_id, is_enabled, created_at, updated_at) VALUES (?, ?, ?, true, now(), now());', [
       standardUuidSecond,
       userUuidSecond,
+      3, // type access
     ]);
     const { body } = await agent
       .post('/graphql')

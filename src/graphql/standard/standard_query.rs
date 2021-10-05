@@ -41,8 +41,8 @@ impl StandardQuery {
         let conn: &PooledConnection = &get_conn(cxt)?;
 
         standard::service::list::find_by_uuid(
-            &standard_uuid,
             &logged_user_uuid,
+            &standard_uuid,
             &crate::models::user::get_set_language(cxt),
             conn,
         )
