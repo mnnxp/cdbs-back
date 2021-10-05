@@ -333,3 +333,17 @@ impl From<Standard> for SlimStandard {
         }
     }
 }
+
+#[derive(Debug, Deserialize, Clone, InputObject)]
+pub struct IptUpdateStandardData {
+    pub classifier: Option<String>,
+    pub name: Option<String>,
+    pub description: Option<String>,
+    pub specified_tolerance: Option<String>,
+    pub technical_committee: Option<String>,
+    pub publication_at: Option<NaiveDateTime>,
+    pub company_uuid: Option<Uuid>,
+    pub type_access_id: Option<i32>,
+    pub standard_status_id: Option<i32>,
+    pub region_id: Option<i32>,
+}
