@@ -227,7 +227,7 @@ impl StandardData {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Queryable, Clone)]
 pub struct SlimStandard {
     pub uuid: Uuid,
     pub classifier: String,

@@ -20,6 +20,10 @@ impl StandardMutation {
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
-        create_standard(logged_user_uuid, data, conn)
+        create_standard(
+            &logged_user_uuid,
+            &data,
+            conn
+        )
     }
 }

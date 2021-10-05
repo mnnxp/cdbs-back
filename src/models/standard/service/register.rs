@@ -1,22 +1,22 @@
-use crate::errors::{
-    ServiceError,
-    ServiceResult
-};
+use crate::errors::{ServiceError, ServiceResult};
 use crate::models::standard::model::{
     IptStandardData,
     InsertableStandard,
     SlimStandard,
-    Standard,
     StandardData
 };
-use crate::schema::company_ref::dsl as company_ref;
+use crate::models::company::{
+    access::util::check_company_access,
+    util::check_is_supplier,
+};
 use crate::schema::standard_ref::dsl as standard_ref;
-use diesel::{dsl::count, prelude::*};
+use diesel::prelude::*;
 use uuid::Uuid;
 
+/// Created standard
 pub(crate) fn create_standard(
-    logged_user_uuid: Uuid,
-    data: IptStandardData,
+    logged_user_uuid: &Uuid,
+    data: &IptStandardData,
     conn: &PgConnection
 ) -> ServiceResult<SlimStandard> {
     let parent_standard_uuid = match data.parent_standard_uuid {
@@ -26,51 +26,59 @@ pub(crate) fn create_standard(
 
     let image_file_uuid = Uuid::parse_str("bc1c2151-86d0-4656-9c9d-d016dd584297")?; // <-- todo!(get uuid default favicon)
 
-    crate::models::company::access::util::check_company_access(
-        &logged_user_uuid,
+    let need_access_level = 2; // todo!(create enum for manage access level)
+
+    check_company_access(
+        logged_user_uuid,
         &data.company_uuid,
-        &3,
+        &need_access_level,
         conn,
     )?;
 
-    crate::models::company::util::check_is_supplier(
+    check_is_supplier(
         &data.company_uuid,
         conn
     )?;
 
     let new_standard_data = StandardData {
         parent_standard_uuid,
-        classifier: data.classifier,
-        name: data.name,
-        description: data.description,
-        specified_tolerance: data.specified_tolerance,
-        technical_committee: data.technical_committee,
+        classifier: data.classifier.to_string(),
+        name: data.name.to_string(),
+        description: data.description.to_string(),
+        specified_tolerance: data.specified_tolerance.to_string(),
+        technical_committee: data.technical_committee.to_string(),
         publication_at: data.publication_at,
         image_file_uuid,
-        user_uuid: logged_user_uuid,
+        user_uuid: *logged_user_uuid,
         company_uuid: data.company_uuid,
         type_access_id: data.type_access_id,
         standard_status_id: data.standard_status_id,
         region_id: data.region_id,
     };
 
-    let flag_found_company: i64 = company_ref::company_ref
-        .filter(company_ref::user_uuid.eq(&new_standard_data.user_uuid)
-        .and(company_ref::uuid.eq(&new_standard_data.company_uuid)))
-        .select(count(company_ref::uuid))
-        .first(conn).unwrap();
+    let data: InsertableStandard = new_standard_data.into();
 
-    // debug!("fn create_standard START SEARCH ={:?}", flag_found_company);
+    let inserted_data = diesel::insert_into(standard_ref::standard_ref)
+        .values(&data)
+        .returning((
+            standard_ref::uuid,
+            standard_ref::classifier,
+            standard_ref::name,
+            standard_ref::specified_tolerance,
+            standard_ref::technical_committee,
+            standard_ref::publication_at,
+            standard_ref::standard_status_id,
+        ))
+        .get_result::<SlimStandard>(conn);
 
-    match flag_found_company {
-        0 => Err(ServiceError::BadRequest("Not found this company of you.".to_string())),
-        1 => {
-            let data: InsertableStandard = new_standard_data.into();
-            let inserted_standard_data: Standard = diesel::insert_into(standard_ref::standard_ref)
-                .values(&data)
-                .get_result(conn)?;
-            Ok(inserted_standard_data.into())
-        }
-        _ => Err(ServiceError::BadRequest("Wow what? Found several companies.".to_string())),
+    match inserted_data {
+        Ok(x) => Ok(x),
+        Err(err) => {
+            debug!("Failed created standard: {:?}", err);
+
+            Err(ServiceError::BadRequest(
+                "Failed created standard".to_string()
+            ))
+        },
     }
 }
