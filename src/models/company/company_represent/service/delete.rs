@@ -6,7 +6,7 @@ use uuid::Uuid;
 pub(crate) fn delete_company_represent(
     logged_user_uuid: &Uuid,
     target_company_uuid: &Uuid,
-    target_uuid_represent: &Uuid,
+    target_represent_uuid: &Uuid,
     conn: &PgConnection,
 ) -> ServiceResult<SlimCompanyRepresent> {
     use crate::schema::company_represent_ref::dsl::*;
@@ -21,12 +21,12 @@ pub(crate) fn delete_company_represent(
     )?;
 
     // debug!("fn target_company_uuid = {}", &target_company_uuid);
-    // debug!("fn target_uuid_represent = {}", &target_uuid_represent);
+    // debug!("fn target_represent_uuid = {}", &target_represent_uuid);
 
     // find represent and check privileges for delete
     let find_represent = company_represent_ref
         .filter(company_uuid.eq(target_company_uuid))
-        .filter(uuid.eq(target_uuid_represent))
+        .filter(uuid.eq(target_represent_uuid))
         .execute(conn)
         .unwrap_or(0);
 
@@ -36,7 +36,7 @@ pub(crate) fn delete_company_represent(
             let delete_company_represent: CompanyRepresent =
                 diesel::delete(
                     company_represent_ref.filter(
-                        uuid.eq(target_uuid_represent)
+                        uuid.eq(target_represent_uuid)
                     ))
                     .get_result(conn)?;
             // debug!("fn delete_company_represent ={:?}", &delete_company_represent);

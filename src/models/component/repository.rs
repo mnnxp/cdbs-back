@@ -29,7 +29,7 @@ impl Component {
 
 impl ShowComponentShort {
     pub fn get_list_by_uuids(
-        target_uuids_components: &[Uuid],
+        target_components_uuids: &[Uuid],
         target_user_uuid: &Uuid,
         set_lang_id: &i32,
         conn: &PgConnection,
@@ -38,7 +38,7 @@ impl ShowComponentShort {
         let mut result: Vec<ShowComponentShort> = Vec::new();
 
         // collecting data for each component
-        for target_component_uuid in target_uuids_components.iter() {
+        for target_component_uuid in target_components_uuids.iter() {
             // get target component
             let component: Component = Component::get_component_by_uuid(
                 target_component_uuid,

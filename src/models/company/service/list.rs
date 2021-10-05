@@ -7,7 +7,7 @@ use uuid::Uuid;
 /// Gets companies with allow access for user
 pub(crate) fn find_companies(
     logged_user_uuid: &Uuid,
-    target_uuids_companies: &[Uuid],
+    target_companies_uuids: &[Uuid],
     set_lang_id: &i32,
     conn: &PgConnection,
 ) -> ServiceResult<Vec<ShowCompanyShort>> {
@@ -15,7 +15,7 @@ pub(crate) fn find_companies(
     let need_access_level = 3; // todo!(create enum for manage access level)
 
     // check access user for all companies
-    for cy_uuid in target_uuids_companies {
+    for cy_uuid in target_companies_uuids {
         check_company_access(
             logged_user_uuid,
             cy_uuid,
@@ -25,7 +25,7 @@ pub(crate) fn find_companies(
     }
 
     let result: Vec<ShowCompanyShort> = ShowCompanyShort::get_list_by_uuids(
-        target_uuids_companies,
+        target_companies_uuids,
         logged_user_uuid,
         set_lang_id,
         conn
