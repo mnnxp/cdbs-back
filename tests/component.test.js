@@ -676,7 +676,6 @@ describe('component', () => {
       .send({
         query: `mutation  {
             registerComponent( data: {
-                parentComponentUuid: "${parentComponentUuid}",
                 name: "${nameComponent2}",
                 description: "${descriptionComponent}",
                 typeAccessId: ${typeAccessIdComponentPrivate},
@@ -2216,6 +2215,7 @@ describe('component', () => {
   //   expect(data).toBeNull();
   //   expect(errors[0].message).toBe("BadRequest: Access denied");
   //   expect(body.errors[0].path[0]).toBe('addStandardToComponent');
+  //   done();
   // });
 
   // Testing component files
@@ -2242,7 +2242,7 @@ describe('component', () => {
     done();
   });
 
-  it('/graphql:Q ComponentFiles - OK with parentComponentUuid', async (done) => {
+  it('/graphql:Q ComponentFiles - BadReuest no access', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .set(
@@ -2260,17 +2260,43 @@ describe('component', () => {
           }`,
         })
       .expect(HttpStatus.OK)
-    debug('/graphql componentFiles=%o', body.data);
-    const {
-      data: { componentFiles },
-    } = body;
-    expect(componentFiles).toBeNonEmptyArray();
-    expect(componentFiles[0].uuid).toBeNonEmptyString();
-    expect(componentFiles[0].filename).toBeNonEmptyString();
-    expect(componentFiles[0].filesize).toBe(0);
-    expect(componentFiles[0].downloadUrl).toBeNonEmptyString();
+    debug('/graphql  body=%o', body);
+    const { errors, data } = body;
+    expect(data).toBeNull();
+    expect(errors[0].message).toBe("BadRequest: Access denied");
+    expect(body.errors[0].path[0]).toBe('componentFiles');
     done();
   });
+
+  // it('/graphql:Q ComponentFiles - OK with parentComponentUuid', async (done) => {
+  //   const { body } = await agent
+  //     .post('/graphql')
+  //     .set(
+  //       'Authorization',
+  //       `Bearer ${authorizationTokenSecond}`
+  //     )
+  //     .send({
+  //         query: `query componentQuery{
+  //           componentFiles(componentUuid: "${parentComponentUuid}") {
+  //             uuid
+  //             filename
+  //             filesize
+  //             downloadUrl
+  //           }
+  //         }`,
+  //       })
+  //     .expect(HttpStatus.OK)
+  //   debug('/graphql componentFiles=%o', body);
+  //   const {
+  //     data: { componentFiles },
+  //   } = body;
+  //   expect(componentFiles).toBeNonEmptyArray();
+  //   expect(componentFiles[0].uuid).toBeNonEmptyString();
+  //   expect(componentFiles[0].filename).toBeNonEmptyString();
+  //   expect(componentFiles[0].filesize).toBe(0);
+  //   expect(componentFiles[0].downloadUrl).toBeNonEmptyString();
+  //   done();
+  // });
 
   it('/graphql:M uploadComponentFiles - BadReuest no access', async (done) => {
     const { body } = await agent
@@ -2809,6 +2835,7 @@ describe('component', () => {
   //   expect(data).toBeNull();
   //   expect(errors[0].message).toBe("BadRequest: Access denied");
   //   expect(body.errors[0].path[0]).toBe('putComponentParams');
+  //   done();
   // });
 
   // Testing component modification
@@ -2816,7 +2843,7 @@ describe('component', () => {
     const { body } = await agent
       .post('/graphql')
       .send({
-        query: `mutation ComponentModificationQuery {
+        query: `mutation {
           registerComponentModification( data: {
             modificationName: "${modificationName}",
             componentUuid: "${componentUuidNoStandard}",
@@ -2849,7 +2876,7 @@ describe('component', () => {
         `Bearer ${authorizationTokenFirst}`
       )
       .send({
-        query: `mutation ComponentModificationQuery {
+        query: `mutation {
           registerComponentModification( data: {
             modificationName: "${modificationName}",
             componentUuid: "${componentUuidStandard}",
@@ -2869,6 +2896,7 @@ describe('component', () => {
     const {
       data: { registerComponentModification },
     } = body;
+    componentModificationUuidFirst = registerComponentModification.uuid;
     expect(registerComponentModification).toContainAllKeys(
       ["uuid", "componentUuid", "modificationName", "description"]
     );
@@ -2876,7 +2904,6 @@ describe('component', () => {
     expect(registerComponentModification.componentUuid).toBe(componentUuidStandard);
     expect(registerComponentModification.modificationName).toBe(modificationName);
     expect(registerComponentModification.description).toBe(descriptionModification);
-    componentModificationUuidFirst = registerComponentModification.uuid;
     done();
   });
 
@@ -2888,7 +2915,7 @@ describe('component', () => {
         `Bearer ${authorizationTokenSecond}`
       )
       .send({
-        query: `mutation ComponentModificationQuery {
+        query: `mutation {
           registerComponentModification( data: {
             modificationName: "${modificationName}",
             componentUuid: "${componentUuidNoStandard}",
@@ -2908,6 +2935,7 @@ describe('component', () => {
     const {
       data: { registerComponentModification },
     } = body;
+    componentModificationUuidSecond = registerComponentModification.uuid;
     expect(registerComponentModification).toContainAllKeys(
       ["uuid", "componentUuid", "modificationName", "description"]
     );
@@ -2915,7 +2943,6 @@ describe('component', () => {
     expect(registerComponentModification.componentUuid).toBe(componentUuidNoStandard);
     expect(registerComponentModification.modificationName).toBe(modificationName);
     expect(registerComponentModification.description).toBe(descriptionModification);
-    componentModificationUuidSecond = registerComponentModification.uuid;
     done();
   });
 
@@ -2927,7 +2954,7 @@ describe('component', () => {
         `Bearer ${authorizationTokenFirst}`
       )
       .send({
-        query: `mutation ComponentModificationQuery {
+        query: `mutation {
           registerComponentModification( data: {
             modificationName: "${modificationName}",
             componentUuid: "${componentUuidStandard}",
@@ -2965,7 +2992,7 @@ describe('component', () => {
         `Bearer ${authorizationTokenFirst}`
       )
       .send({
-        query: `mutation ComponentModificationQuery {
+        query: `mutation {
           registerComponentModification( data: {
             modificationName: "${modificationName}",
             componentUuid: "${componentUuidNoStandard}",
@@ -3347,6 +3374,7 @@ describe('component', () => {
   //   expect(data).toBeNull();
   //   expect(errors[0].message).toBe("BadRequest: Access denied");
   //   expect(body.errors[0].path[0]).toBe('putModificationParams');
+  //   done();
   // });
 
   // Testing component modification files
@@ -3373,7 +3401,7 @@ describe('component', () => {
     done();
   });
 
-  it('/graphql:Q ModificationFiles - OK with parentModificationUuid', async (done) => {
+  it('/graphql:Q ModificationFiles - BadReuest no access', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .set(
@@ -3391,15 +3419,11 @@ describe('component', () => {
           }`,
         })
       .expect(HttpStatus.OK)
-    debug('/graphql componentModificationFiles=%o', body.data);
-    const {
-      data: { componentModificationFiles },
-    } = body;
-    expect(componentModificationFiles).toBeNonEmptyArray();
-    expect(componentModificationFiles[0].uuid).toBeNonEmptyString();
-    expect(componentModificationFiles[0].filename).toBeNonEmptyString();
-    expect(componentModificationFiles[0].filesize).toBe(0);
-    expect(componentModificationFiles[0].downloadUrl).toBeNonEmptyString();
+    debug('/graphql  body=%o', body);
+    const { errors, data } = body;
+    expect(data).toBeNull();
+    expect(errors[0].message).toBe("BadRequest: Access denied");
+    expect(body.errors[0].path[0]).toBe('componentModificationFiles');
     done();
   });
 
@@ -3689,7 +3713,7 @@ describe('component', () => {
     done();
   });
 
-  it('/graphql:Q componentModificationFilesets - OK with parentModificationUuid', async (done) => {
+  it('/graphql:Q componentModificationFilesets - BadReuest no access', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .set(
@@ -3711,14 +3735,11 @@ describe('component', () => {
           }`,
         })
       .expect(HttpStatus.OK)
-    debug('/graphql componentModificationFilesets=%o', body.data);
-    const {
-      data: { componentModificationFilesets },
-    } = body;
-    expect(componentModificationFilesets[0].modificationUuid).toBe(parentModificationUuid);
-    expect(componentModificationFilesets[0].uuid).toBeNonEmptyString();
-    expect(componentModificationFilesets[0].program.id).toBe(1);
-    expect(componentModificationFilesets[0].program.name).toBe("AutoCAD");
+    debug('/graphql  body=%o', body);
+    const { errors, data } = body;
+    expect(data).toBeNull();
+    expect(errors[0].message).toBe("BadRequest: Access denied");
+    expect(body.errors[0].path[0]).toBe('componentModificationFilesets');
     done();
   });
 
@@ -3876,7 +3897,7 @@ describe('component', () => {
       .post('/graphql')
       .set(
         'Authorization',
-        `Bearer ${authorizationTokenFirst}`
+        `Bearer ${authorizationTokenSecond}`
       )
       .send({
           query: `query {
@@ -3913,7 +3934,7 @@ describe('component', () => {
       .post('/graphql')
       .set(
         'Authorization',
-        `Bearer ${authorizationTokenFirst}`
+        `Bearer ${authorizationTokenSecond}`
       )
       .send({
           query: `query {
@@ -3935,6 +3956,7 @@ describe('component', () => {
     const {
       data: { componentModificationFilesets },
     } = body;
+    componentModificationFilesetsSecond = componentModificationFilesets[0].uuid;
     expect(componentModificationFilesets[0].modificationUuid).toBe(componentModificationUuidSecond);
     expect(componentModificationFilesets[0].uuid).toBeNonEmptyString();
     expect(componentModificationFilesets[0].program.id).toBe(5);
@@ -3948,7 +3970,7 @@ describe('component', () => {
       .post('/graphql')
       .set(
         'Authorization',
-        `Bearer ${authorizationTokenFirst}`
+        `Bearer ${authorizationTokenSecond}`
       )
       .send({
           query: `query {
@@ -4003,7 +4025,7 @@ describe('component', () => {
     done();
   });
 
-  it('/graphql:Q componentModificationFilesOfFileset - OK with parentModificationUuid', async (done) => {
+  it('/graphql:Q componentModificationFilesOfFileset - BadReuest no access', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .set(
@@ -4025,13 +4047,42 @@ describe('component', () => {
           }`,
         })
       .expect(HttpStatus.OK)
-    debug('/graphql componentModificationFilesOfFileset=%o', body.data);
+    debug('/graphql  body=%o', body);
+    const { errors, data } = body;
+    expect(data).toBeNull();
+    expect(errors[0].message).toBe("BadRequest: Access denied");
+    expect(body.errors[0].path[0]).toBe('componentModificationFilesOfFileset');
+    done();
+  });
+
+  it('/graphql:Q componentModificationFilesOfFileset - OK empty array', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+          query: `query {
+            componentModificationFilesOfFileset(
+              filesetUuid: "${componentModificationFilesetsSecond}"
+            ) {
+              filesetUuid
+              showFile {
+                uuid
+                filename
+                updatedAt
+              }
+            }
+          }`,
+        })
+      .expect(HttpStatus.OK)
+    debug('/graphql componentModificationFilesOfFileset=%o', body);
+    // expect(body).toBe(0);
     const {
       data: { componentModificationFilesOfFileset },
     } = body;
-    expect(componentModificationFilesOfFileset[0].filesetUuid).toBe(baseFilesetUuid);
-    expect(componentModificationFilesOfFileset[0].showFile.uuid).toBeNonEmptyString();
-    expect(componentModificationFilesOfFileset[0].showFile.filename).toBeNonEmptyString();
+    expect(componentModificationFilesOfFileset).toBeEmptyArray();
     done();
   });
 
@@ -4107,7 +4158,7 @@ describe('component', () => {
           }`,
         })
       .expect(HttpStatus.OK)
-    debug('/graphql componentModificationFilesOfFileset=%o', body.data);
+    debug('/graphql componentModificationFilesOfFileset=%o', body);
     const {
       data: { componentModificationFilesOfFileset },
     } = body;
@@ -4141,7 +4192,7 @@ describe('component', () => {
           }`,
         })
       .expect(HttpStatus.OK)
-    debug('/graphql componentModificationFilesOfFileset=%o', body.data);
+    debug('/graphql componentModificationFilesOfFileset=%o', body);
     const {
       data: { componentModificationFilesOfFileset },
     } = body;
@@ -4262,7 +4313,7 @@ describe('component', () => {
           }`,
         })
       .expect(HttpStatus.OK)
-    debug('/graphql componentModificationFilesOfFileset=%o', body.data);
+    debug('/graphql componentModificationFilesOfFileset=%o', body);
     const {
       data: { componentModificationFilesOfFileset },
     } = body;
@@ -4342,7 +4393,7 @@ describe('component', () => {
     done();
   });
 
-  it('/graphql:Q componentModificationFilesOfFileset - OK not found fileset', async (done) => {
+  it('/graphql:Q componentModificationFilesOfFileset - BadReuest not found fileset', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .set(
@@ -4364,11 +4415,12 @@ describe('component', () => {
           }`,
         })
       .expect(HttpStatus.OK)
-    debug('/graphql componentModificationFilesOfFileset=%o', body.data);
-    const {
-      data: { componentModificationFilesOfFileset },
-    } = body;
-    expect(componentModificationFilesOfFileset).toBeEmptyArray();
+    debug('/graphql body=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Not found fileset data'
+    );
+    expect(body.errors[0].path[0]).toBe('componentModificationFilesOfFileset');
     done();
   });
 
