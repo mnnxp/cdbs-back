@@ -1,18 +1,24 @@
 use crate::errors::{ServiceResult, ServiceError};
-use crate::models::relate_ref::file::model::{
-    SlimFile,
-    DownloadFile,
-};
+use crate::models::relate_ref::file::access::check_file_owner_err;
+use crate::models::relate_ref::file::model::{SlimFile, DownloadFile};
 use crate::storage::model::StorageAccess;
 use crate::storage::presigned_url::download_presigned_url;
 use diesel::PgConnection;
 use uuid::Uuid;
 
+/// Gets presigned url for download target file
 pub(crate) fn get_url_file_by_uuid(
-    _logged_user_uuid: &Uuid, // <-- todo!(access check)
+    logged_user_uuid: &Uuid,
     target_file_uuid: &Uuid,
     conn: &PgConnection,
 ) -> ServiceResult<String> {
+    // check ownership file
+    check_file_owner_err(
+        logged_user_uuid,
+        target_file_uuid,
+        conn
+    )?;
+
     let storage_access = StorageAccess::get(conn)?;
 
     let slim_file = SlimFile::get_file_by_uuid(

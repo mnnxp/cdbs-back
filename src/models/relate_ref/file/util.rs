@@ -90,21 +90,6 @@ pub(crate) fn find_id_ext(filename: &str, conn: &PgConnection) -> i32 {
 //     check_user_owned_component(user_uuid, component_uuid, conn)
 // }
 
-/// Find and check existence user owned component
-pub(crate) fn check_file_owner(
-    user_uuid: &Uuid,
-    file_uuid: &Uuid,
-    conn: &PgConnection
-) -> i32 {
-    use crate::schema::file_ref::dsl as file_ref;
-
-    // find file with target user
-    file_ref::file_ref
-        .filter(file_ref::uuid.eq(file_uuid)
-        .and(file_ref::user_uuid.eq(user_uuid)))
-        .execute(conn).unwrap_or_default() as i32
-}
-
 /// Checking pre file data for the user
 pub(crate) fn check_write_data(
     user_uuid: &Uuid,

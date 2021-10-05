@@ -1,7 +1,7 @@
 use crate::errors::{ServiceError, ServiceResult};
 use crate::database::PgPool;
 use crate::models::relate_ref::file::model::SlimFile;
-use crate::models::relate_ref::file::util::check_file_owner;
+use crate::models::relate_ref::file::access::check_file_owner_err;
 use crate::storage::model::StorageAccess;
 use crate::storage::delete::delete_object;
 use diesel::prelude::*;
@@ -55,7 +55,7 @@ pub(crate) async fn delete_file_with_check_by_uuid(
     )?;
 
     // ownership check and data update
-    if check_file_owner(logged_user_uuid, &slim_file.uuid, &conn) == 1 {
+    if check_file_owner_err(logged_user_uuid, &slim_file.uuid, &conn)? {
         // delete file and data about file
         full_delete_file(&slim_file, pool).await
     } else {
