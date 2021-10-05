@@ -53,7 +53,7 @@ pub(crate) fn update_component_by_uuid(
     if let Some(value) = &data.parent_component_uuid {
         let res = diesel::update(component_ref::component_ref
             .filter(component_ref::uuid.eq(target_component_uuid)
-            .and(component_ref::parent_component_uuid.ne(&value))))
+            .and(component_ref::parent_component_uuid.ne(value))))
             .set(component_ref::parent_component_uuid.eq(value))
             .execute(conn);
 
@@ -73,7 +73,7 @@ pub(crate) fn update_component_by_uuid(
     if let Some(value) = &data.name {
         let res = diesel::update(component_ref::component_ref
             .filter(component_ref::uuid.eq(target_component_uuid)
-            .and(component_ref::name.ne(&value))))
+            .and(component_ref::name.ne(value))))
             .set(component_ref::name.eq(value))
             .execute(conn);
 
@@ -93,7 +93,7 @@ pub(crate) fn update_component_by_uuid(
     if let Some(value) = &data.description {
         let res = diesel::update(component_ref::component_ref
             .filter(component_ref::uuid.eq(target_component_uuid)
-            .and(component_ref::description.ne(&value))))
+            .and(component_ref::description.ne(value))))
             .set(component_ref::description.eq(value))
             .execute(conn);
 
@@ -113,7 +113,7 @@ pub(crate) fn update_component_by_uuid(
     if let Some(value) = &data.component_type_id {
         let res = diesel::update(component_ref::component_ref
             .filter(component_ref::uuid.eq(target_component_uuid)
-            .and(component_ref::component_type_id.ne(&value))))
+            .and(component_ref::component_type_id.ne(value))))
             .set(component_ref::component_type_id.eq(value))
             .execute(conn);
 
@@ -133,7 +133,7 @@ pub(crate) fn update_component_by_uuid(
     if let Some(value) = &data.actual_status_id {
         let res = diesel::update(component_ref::component_ref
             .filter(component_ref::uuid.eq(target_component_uuid)
-            .and(component_ref::actual_status_id.ne(&value))))
+            .and(component_ref::actual_status_id.ne(value))))
             .set(component_ref::actual_status_id.eq(value))
             .execute(conn);
 

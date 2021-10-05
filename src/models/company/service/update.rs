@@ -12,7 +12,7 @@ pub(crate) fn update_company_by_uuid(
     conn: &PgConnection
 ) -> ServiceResult<i32> {
     use crate::schema::company_ref::dsl as company_ref;
-    
+
     // check access user for company
     check_is_owner_with_err(
         logged_user_uuid,
@@ -27,7 +27,7 @@ pub(crate) fn update_company_by_uuid(
     if let Some(value) = &data.orgname {
         let res = diesel::update(company_ref::company_ref
             .filter(company_ref::uuid.eq(target_company_uuid)
-            .and(company_ref::orgname.ne(&value))))
+            .and(company_ref::orgname.ne(value))))
             .set(company_ref::orgname.eq(value))
             .execute(conn);
 
@@ -47,7 +47,7 @@ pub(crate) fn update_company_by_uuid(
     if let Some(value) = &data.shortname {
         let res = diesel::update(company_ref::company_ref
             .filter(company_ref::uuid.eq(target_company_uuid)
-            .and(company_ref::shortname.ne(&value))))
+            .and(company_ref::shortname.ne(value))))
             .set(company_ref::shortname.eq(value))
             .execute(conn);
 
@@ -67,7 +67,7 @@ pub(crate) fn update_company_by_uuid(
     if let Some(value) = &data.inn {
         let res = diesel::update(company_ref::company_ref
             .filter(company_ref::uuid.eq(target_company_uuid)
-            .and(company_ref::inn.ne(&value))))
+            .and(company_ref::inn.ne(value))))
             .set(company_ref::inn.eq(value))
             .execute(conn);
 
@@ -87,7 +87,7 @@ pub(crate) fn update_company_by_uuid(
     if let Some(value) = &data.phone {
         let res = diesel::update(company_ref::company_ref
             .filter(company_ref::uuid.eq(target_company_uuid)
-            .and(company_ref::phone.ne(&value))))
+            .and(company_ref::phone.ne(value))))
             .set(company_ref::phone.eq(value))
             .execute(conn);
 
@@ -107,7 +107,7 @@ pub(crate) fn update_company_by_uuid(
     if let Some(value) = &data.email {
         let res = diesel::update(company_ref::company_ref
             .filter(company_ref::uuid.eq(target_company_uuid)
-            .and(company_ref::email.ne(&value))))
+            .and(company_ref::email.ne(value))))
             .set(company_ref::email.eq(value))
             .execute(conn);
 
@@ -127,7 +127,7 @@ pub(crate) fn update_company_by_uuid(
     if let Some(value) = &data.description {
         let res = diesel::update(company_ref::company_ref
             .filter(company_ref::uuid.eq(target_company_uuid)
-            .and(company_ref::description.ne(&value))))
+            .and(company_ref::description.ne(value))))
             .set(company_ref::description.eq(value))
             .execute(conn);
 
@@ -147,7 +147,7 @@ pub(crate) fn update_company_by_uuid(
     if let Some(value) = &data.address {
         let res = diesel::update(company_ref::company_ref
             .filter(company_ref::uuid.eq(target_company_uuid)
-            .and(company_ref::address.ne(&value))))
+            .and(company_ref::address.ne(value))))
             .set(company_ref::address.eq(value))
             .execute(conn);
 
@@ -167,7 +167,7 @@ pub(crate) fn update_company_by_uuid(
     if let Some(value) = &data.site_url {
         let res = diesel::update(company_ref::company_ref
             .filter(company_ref::uuid.eq(target_company_uuid)
-            .and(company_ref::site_url.ne(&value))))
+            .and(company_ref::site_url.ne(value))))
             .set(company_ref::site_url.eq(value))
             .execute(conn);
 
@@ -187,7 +187,7 @@ pub(crate) fn update_company_by_uuid(
     if let Some(value) = &data.time_zone {
         let res = diesel::update(company_ref::company_ref
             .filter(company_ref::uuid.eq(target_company_uuid)
-            .and(company_ref::time_zone.ne(&value))))
+            .and(company_ref::time_zone.ne(value))))
             .set(company_ref::time_zone.eq(value))
             .execute(conn);
 
@@ -207,7 +207,7 @@ pub(crate) fn update_company_by_uuid(
     if let Some(value) = &data.region_id {
         let res = diesel::update(company_ref::company_ref
             .filter(company_ref::uuid.eq(target_company_uuid)
-            .and(company_ref::region_id.ne(&value))))
+            .and(company_ref::region_id.ne(value))))
             .set(company_ref::region_id.eq(value))
             .execute(conn);
 
@@ -227,7 +227,7 @@ pub(crate) fn update_company_by_uuid(
     if let Some(value) = &data.company_type_id {
         let res = diesel::update(company_ref::company_ref
             .filter(company_ref::uuid.eq(target_company_uuid)
-            .and(company_ref::company_type_id.ne(&value))))
+            .and(company_ref::company_type_id.ne(value))))
             .set(company_ref::company_type_id.eq(value))
             .execute(conn);
 

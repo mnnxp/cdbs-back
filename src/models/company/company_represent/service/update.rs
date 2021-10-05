@@ -28,7 +28,7 @@ pub(crate) fn update_company_represent_by_uuid(
     if let Some(value) = &data.region_id {
         let res = diesel::update(company_represent_ref::company_represent_ref
             .filter(company_represent_ref::uuid.eq(target_company_represent_uuid)
-            .and(company_represent_ref::region_id.ne(&value))))
+            .and(company_represent_ref::region_id.ne(value))))
             .set(company_represent_ref::region_id.eq(value))
             .execute(conn);
 
@@ -48,7 +48,7 @@ pub(crate) fn update_company_represent_by_uuid(
     if let Some(value) = &data.representation_type_id {
         let res = diesel::update(company_represent_ref::company_represent_ref
             .filter(company_represent_ref::uuid.eq(target_company_represent_uuid)
-            .and(company_represent_ref::representation_type_id.ne(&value))))
+            .and(company_represent_ref::representation_type_id.ne(value))))
             .set(company_represent_ref::representation_type_id.eq(value))
             .execute(conn);
 
@@ -68,7 +68,7 @@ pub(crate) fn update_company_represent_by_uuid(
     if let Some(value) = &data.name {
         let res = diesel::update(company_represent_ref::company_represent_ref
             .filter(company_represent_ref::uuid.eq(target_company_represent_uuid)
-            .and(company_represent_ref::name.ne(&value))))
+            .and(company_represent_ref::name.ne(value))))
             .set(company_represent_ref::name.eq(value))
             .execute(conn);
 
@@ -88,7 +88,7 @@ pub(crate) fn update_company_represent_by_uuid(
     if let Some(value) = &data.address {
         let res = diesel::update(company_represent_ref::company_represent_ref
             .filter(company_represent_ref::uuid.eq(target_company_represent_uuid)
-            .and(company_represent_ref::address.ne(&value))))
+            .and(company_represent_ref::address.ne(value))))
             .set(company_represent_ref::address.eq(value))
             .execute(conn);
 
@@ -108,7 +108,7 @@ pub(crate) fn update_company_represent_by_uuid(
     if let Some(value) = &data.phone {
         let res = diesel::update(company_represent_ref::company_represent_ref
             .filter(company_represent_ref::uuid.eq(target_company_represent_uuid)
-            .and(company_represent_ref::phone.ne(&value))))
+            .and(company_represent_ref::phone.ne(value))))
             .set(company_represent_ref::phone.eq(value))
             .execute(conn);
 

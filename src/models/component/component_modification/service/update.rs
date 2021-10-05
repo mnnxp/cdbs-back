@@ -30,7 +30,7 @@ pub(crate) fn update_modification_data(
     if let Some(value) = &data.modification_name {
         let res = diesel::update(component_modification_list
             .filter(uuid.eq(target_modification_uuid)
-            .and(modification_name.ne(&value))))
+            .and(modification_name.ne(value))))
             .set(modification_name.eq(value))
             .execute(conn);
 
@@ -50,7 +50,7 @@ pub(crate) fn update_modification_data(
     if let Some(value) = &data.description {
         let res = diesel::update(component_modification_list
             .filter(uuid.eq(target_modification_uuid)
-            .and(description.ne(&value))))
+            .and(description.ne(value))))
             .set(description.eq(value))
             .execute(conn);
 
@@ -70,7 +70,7 @@ pub(crate) fn update_modification_data(
     if let Some(value) = &data.actual_status_id {
         let res = diesel::update(component_modification_list
             .filter(uuid.eq(target_modification_uuid)
-            .and(actual_status_id.ne(&value))))
+            .and(actual_status_id.ne(value))))
             .set(actual_status_id.eq(value))
             .execute(conn);
 
