@@ -1,6 +1,6 @@
 use crate::errors::ServiceResult;
 use crate::models::standard::model::Standard;
-use crate::models::standard::spec::model::{SpecStandard, StandardSpecWithTranslation};
+use crate::models::standard::spec::model::{StandardSpec, StandardSpecWithTranslation};
 use crate::models::relate_ref::spec::model::SpecTranslateList;
 use diesel::prelude::*;
 
@@ -10,8 +10,8 @@ impl StandardSpecWithTranslation {
         set_lang_id: &i32,
         conn: &PgConnection,
     ) -> ServiceResult<Vec<StandardSpecWithTranslation>> {
-        let spec_standard: Vec<SpecStandard> = SpecStandard::belonging_to(standard)
-            .load::<SpecStandard>(conn)
+        let spec_standard: Vec<StandardSpec> = StandardSpec::belonging_to(standard)
+            .load::<StandardSpec>(conn)
             .expect("Error loading spec_standard");
 
         // get specs for standard

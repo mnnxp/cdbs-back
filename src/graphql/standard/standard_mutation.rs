@@ -1,6 +1,7 @@
 use crate::errors::ServiceResult;
 use crate::database::{get_conn, PooledConnection};
 use crate::models::standard::model::{IptStandardData, IptUpdateStandardData, SlimStandard};
+use crate::models::standard::spec::model::IptStandardSpecData;
 
 use async_graphql::{self, Context, Object};
 use uuid::Uuid;
@@ -62,6 +63,42 @@ impl StandardMutation {
         del_standard_data(
             &logged_user_uuid,
             &standard_uuid,
+            conn
+        )
+    }
+
+    async fn add_standard_specs(
+        &self,
+        cxt: &Context<'_>,
+        data: IptStandardSpecData,
+    ) -> ServiceResult<i32> {
+        use crate::models::standard::spec::service::add::add_standard_specs;
+
+        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+
+        let conn: &PooledConnection = &get_conn(cxt)?;
+
+        add_standard_specs(
+            &logged_user_uuid,
+            &data,
+            conn
+        )
+    }
+
+    async fn delete_standard_specs(
+        &self,
+        cxt: &Context<'_>,
+        data: IptStandardSpecData,
+    ) -> ServiceResult<i32> {
+        use crate::models::standard::spec::service::delete::del_standard_specs;
+
+        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+
+        let conn: &PooledConnection = &get_conn(cxt)?;
+
+        del_standard_specs(
+            &logged_user_uuid,
+            &data,
             conn
         )
     }

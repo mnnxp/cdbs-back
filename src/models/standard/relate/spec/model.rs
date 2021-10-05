@@ -12,13 +12,13 @@ use uuid::Uuid;
 #[belongs_to(Standard, foreign_key = "standard_uuid")]
 #[belongs_to(Spec, foreign_key = "spec_id")]
 #[table_name = "spec_to_standard"]
-pub struct SpecStandard {
+pub struct StandardSpec {
     pub spec_id: i32,
     pub standard_uuid: Uuid,
 }
 
 #[Object]
-impl SpecStandard {
+impl StandardSpec {
     async fn spec_id(&self) -> &i32 {
         &self.spec_id
     }
@@ -33,8 +33,8 @@ pub struct StandardSpecWithTranslation {
     pub standard_uuid: Uuid,
 }
 
-impl From<(SpecStandard, SpecTranslateList)> for StandardSpecWithTranslation {
-    fn from(data: (SpecStandard, SpecTranslateList)) -> Self {
+impl From<(StandardSpec, SpecTranslateList)> for StandardSpecWithTranslation {
+    fn from(data: (StandardSpec, SpecTranslateList)) -> Self {
         Self {
             spec: data.1,
             standard_uuid: data.0.standard_uuid,
@@ -42,30 +42,67 @@ impl From<(SpecStandard, SpecTranslateList)> for StandardSpecWithTranslation {
     }
 }
 
-#[derive(Debug, Deserialize, Clone, InputObject)]
-pub struct IptSpecStandardData {
-    pub standard_uuid: Uuid,
-    pub spec_id: i32,
-}
-
 #[derive(Debug, Insertable)]
 #[table_name = "spec_to_standard"]
-pub struct InsertableSpecStandard {
+pub struct InsertableStandardSpec {
     pub standard_uuid: Uuid,
     pub spec_id: i32,
 }
 
-impl From<IptSpecStandardData> for InsertableSpecStandard {
-    fn from(ipt_data: IptSpecStandardData) -> Self {
-        let IptSpecStandardData {
+#[derive(Debug, Deserialize, Clone, InputObject)]
+pub struct IptStandardSpecData {
+    pub standard_uuid: Uuid,
+    pub spec_ids: Vec<i32>,
+}
+
+impl From<&IptStandardSpecData> for Vec<InsertableStandardSpec> {
+    fn from(ipt_data: &IptStandardSpecData) -> Vec<InsertableStandardSpec> {
+        let IptStandardSpecData {
             standard_uuid,
-            spec_id,
+            spec_ids,
             ..
         } = ipt_data;
 
-        Self {
-            standard_uuid: Uuid::parse_str(&standard_uuid.to_string()).unwrap(),
-            spec_id,
+        let mut res = Vec::new();
+        // create struct for each spec
+        for spec_id in spec_ids {
+            if spec_id > &0 { // <-- additionally we check the correctness of the key
+                res.push(InsertableStandardSpec {
+                    standard_uuid: standard_uuid.to_owned(),
+                    spec_id: *spec_id,
+                })
+            }
+        }
+
+        res
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct DeleteStandardSpec {
+    pub standard_uuid: Uuid,
+    pub spec_ids: Vec<i32>,
+}
+
+impl From<&IptStandardSpecData> for DeleteStandardSpec {
+    fn from(ipt_data: &IptStandardSpecData) -> Self {
+        let IptStandardSpecData {
+            standard_uuid,
+            spec_ids,
+            ..
+        } = ipt_data;
+
+        let mut good_spec_ids: Vec<i32> = Vec::new();
+        // filter bad specs id
+        for spec_id in spec_ids {
+            if spec_id > &0 {
+                good_spec_ids.push(*spec_id)
+            }
+        }
+
+        Self{
+            standard_uuid: standard_uuid.to_owned(),
+            spec_ids: good_spec_ids,
         }
     }
 }

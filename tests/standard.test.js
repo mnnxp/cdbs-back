@@ -197,6 +197,15 @@ var companyUuidFirst = "";
 var uuidRepresentFirst = "";
 var uuidRepresentDelete = "";
 
+const keywordIdsOk = [1,3,5];
+const keywordIdsDup = [1,2,3,4,5];
+
+// standard specs
+const specIdsOk = [10,30,55];
+const specIdsDup = [10,22,30,44,55];
+const specIdsDel = [10,55];
+const idErr = 0;
+
 async function cleanupCompanyDb() {
   return global.knex.raw('DELETE FROM company_ref WHERE orgname in (?,?);', [
     orgname,
@@ -852,6 +861,336 @@ describe('company', () => {
     expect(errors[0].message).toBe(
       "BadRequest: The data has already"
     );
+    done();
+  });
+
+  // Testing adding standard specs
+  it('/graphql:M addStandardSpecs - BadRequest no token', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .send({
+        query: `mutation  {
+          addStandardSpecs(data: {
+            standardUuid: "${standardUuidFirst}"
+            specIds: [${specIdsOk}]
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql addStandardSpecs=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Token not found.'
+    );
+    expect(body.errors[0].path[0]).toBe('addStandardSpecs');
+    done();
+  });
+
+  it('/graphql:M addStandardSpecs - OK', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation  {
+          addStandardSpecs(data: {
+            standardUuid: "${standardUuidFirst}"
+            specIds: [${specIdsOk}]
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql registerCompany=%o', body);
+    const {
+      data: { addStandardSpecs },
+    } = body;
+    expect(addStandardSpecs).toBe(3);
+    done();
+  });
+
+  it('/graphql:M addStandardSpecs - OK with duplicate', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation  {
+          addStandardSpecs(data: {
+            standardUuid: "${standardUuidFirst}"
+            specIds: [${specIdsDup}]
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql registerCompany=%o', body);
+    const {
+      data: { addStandardSpecs },
+    } = body;
+    expect(addStandardSpecs).toBe(2);
+    done();
+  });
+
+  it('/graphql:M addStandardSpecs - BadRequest all duplicates', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation  {
+          addStandardSpecs(data: {
+            standardUuid: "${standardUuidFirst}"
+            specIds: [${specIdsOk}]
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql addStandardSpecs=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      "BadRequest: This ids [10, 30, 55] already has"
+    );
+    expect(body.errors[0].path[0]).toBe('addStandardSpecs');
+    done();
+  });
+
+  it('/graphql:M addStandardSpecs - BadRequest not found id', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation  {
+          addStandardSpecs(data: {
+            standardUuid: "${standardUuidFirst}"
+            specIds: [${idErr}]
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql addStandardSpecs=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      "BadRequest: Not found specs"
+    );
+    expect(body.errors[0].path[0]).toBe('addStandardSpecs');
+    done();
+  });
+
+  it('/graphql:M addStandardSpecs - BadRequest no access', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `mutation  {
+          addStandardSpecs(data: {
+            standardUuid: "${standardUuidFirst}"
+            specIds: [${idErr}]
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql addStandardSpecs=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      "BadRequest: Access denied"
+    );
+    expect(body.errors[0].path[0]).toBe('addStandardSpecs');
+    done();
+  });
+
+  it('/graphql:Q standard - OK check add specs', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `query standard {
+          standard (standardUuid: "${standardUuidFirst}"){
+            ${standardFullDataQuery}
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql standard=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { standard },
+    } = body;
+    expect(standard.standardSpecs[0].spec.specId).toBe(10);
+    expect(standard.standardSpecs[0].spec.spec).toBeNonEmptyString();
+    expect(standard.standardSpecs[1].spec.specId).toBe(30);
+    expect(standard.standardSpecs[1].spec.spec).toBeNonEmptyString();
+    expect(standard.standardSpecs[2].spec.specId).toBe(55);
+    expect(standard.standardSpecs[2].spec.spec).toBeNonEmptyString();
+    expect(standard.standardSpecs[3].spec.specId).toBe(22);
+    expect(standard.standardSpecs[3].spec.spec).toBeNonEmptyString();
+    expect(standard.standardSpecs[4].standardUuid).toBe(standardUuidFirst);
+    expect(standard.standardSpecs[4].spec.specId).toBe(44);
+    expect(standard.standardSpecs[4].spec.spec).toBeNonEmptyString();
+    done();
+  });
+
+  // Testing delete standard specs
+  it('/graphql:M deleteStandardSpecs - BadRequest no token', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .send({
+        query: `mutation  {
+          deleteStandardSpecs(data: {
+            standardUuid: "${standardUuidFirst}"
+            specIds: [${specIdsDel}]
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql deleteStandardSpecs=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Token not found.'
+    );
+    expect(body.errors[0].path[0]).toBe('deleteStandardSpecs');
+    done();
+  });
+
+  it('/graphql:M deleteStandardSpecs - OK', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation  {
+          deleteStandardSpecs(data: {
+            standardUuid: "${standardUuidFirst}"
+            specIds: [${specIdsDel}]
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql registerCompany=%o', body);
+    const {
+      data: { deleteStandardSpecs },
+    } = body;
+    expect(deleteStandardSpecs).toBe(2);
+    done();
+  });
+
+  it('/graphql:M deleteStandardSpecs - OK data already delete', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation  {
+          deleteStandardSpecs(data: {
+            standardUuid: "${standardUuidFirst}"
+            specIds: [${specIdsDel}]
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql registerCompany=%o', body);
+    const {
+      data: { deleteStandardSpecs },
+    } = body;
+    expect(deleteStandardSpecs).toBe(0);
+    done();
+  });
+
+  it('/graphql:M deleteStandardSpecs - BadRequest not found id', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation  {
+          deleteStandardSpecs(data: {
+            standardUuid: "${standardUuidFirst}"
+            specIds: [${idErr}]
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql deleteStandardSpecs=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      "BadRequest: Not found specs"
+    );
+    expect(body.errors[0].path[0]).toBe('deleteStandardSpecs');
+    done();
+  });
+
+  it('/graphql:M deleteStandardSpecs - BadRequest no access', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `mutation  {
+          deleteStandardSpecs(data: {
+            standardUuid: "${standardUuidFirst}"
+            specIds: [${idErr}]
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql deleteStandardSpecs=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      "BadRequest: Access denied"
+    );
+    expect(body.errors[0].path[0]).toBe('deleteStandardSpecs');
+    done();
+  });
+
+  it('/graphql:Q standard - OK check delete specs', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `query standard {
+          standard (standardUuid: "${standardUuidFirst}"){
+            ${standardFullDataQuery}
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql standard=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { standard },
+    } = body;
+    expect(standard.standardSpecs.length).toBe(3);
+    expect(standard.standardSpecs[0].standardUuid).toBe(standardUuidFirst);
+    expect(standard.standardSpecs[0].spec.specId).toBe(30);
+    expect(standard.standardSpecs[0].spec.spec).toBeNonEmptyString();
+    expect(standard.standardSpecs[1].spec.specId).toBe(22);
+    expect(standard.standardSpecs[1].spec.spec).toBeNonEmptyString();
+    expect(standard.standardSpecs[2].spec.specId).toBe(44);
+    expect(standard.standardSpecs[2].spec.spec).toBeNonEmptyString();
     done();
   });
 
