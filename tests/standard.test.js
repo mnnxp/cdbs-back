@@ -972,4 +972,168 @@ describe('company', () => {
     expect(standards[0].classifier).toBe(classifierStandard);
     done();
   });
+
+  // Testing delete standard data
+  it('/graphql:M deleteStandard - BadRequest no access', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `mutation {
+          deleteStandard(
+            standardUuid: "${standardUuidFirst}"
+          ) {
+            uuid
+            classifier
+            name
+            specifiedTolerance
+            technicalCommittee
+            publicationAt
+            standardStatusId
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql - body=%o', body);
+    const { errors, data } = body;
+    expect(data).toBeNull();
+    expect(errors[0].message).toBe("BadRequest: Access denied");
+    done();
+  });
+
+  it('/graphql:M deleteStandard - BadRequest no access', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `mutation {
+          deleteStandard(
+            standardUuid: "${standardUuidSecond}"
+          ) {
+            uuid
+            classifier
+            name
+            specifiedTolerance
+            technicalCommittee
+            publicationAt
+            standardStatusId
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql - body=%o', body);
+    const { errors, data } = body;
+    expect(data).toBeNull();
+    expect(errors[0].message).toBe("BadRequest: Access denied");
+    done();
+  });
+
+  it('/graphql:M deleteStandard - OK delete first', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation {
+          deleteStandard(
+            standardUuid: "${standardUuidFirst}"
+          ) {
+            uuid
+            classifier
+            name
+            specifiedTolerance
+            technicalCommittee
+            publicationAt
+            standardStatusId
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql deleteStandard=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { deleteStandard },
+    } = body;
+    expect(deleteStandard).toContainAllKeys([
+      'uuid', 'classifier', 'name', 'specifiedTolerance',
+      'technicalCommittee', 'publicationAt', 'standardStatusId',
+    ]);
+    expect(deleteStandard.uuid).toBe(standardUuidFirst);
+    done();
+  });
+
+  it('/graphql:M deleteStandard - OK delete second standard', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation {
+          deleteStandard(
+            standardUuid: "${standardUuidSecond}"
+          ) {
+            uuid
+            classifier
+            name
+            specifiedTolerance
+            technicalCommittee
+            publicationAt
+            standardStatusId
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+      // expect(body).toBe(0);
+      const {
+        data: { deleteStandard },
+      } = body;
+      expect(deleteStandard).toContainAllKeys([
+        'uuid', 'classifier', 'name', 'specifiedTolerance',
+        'technicalCommittee', 'publicationAt', 'standardStatusId',
+      ]);
+      expect(deleteStandard.uuid).toBe(standardUuidSecond);
+      done();
+  });
+
+  it('/graphql:M deleteStandard - OK data not found', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation {
+          deleteStandard(
+            standardUuid: "${standardUuidSecond}"
+          ) {
+            uuid
+            classifier
+            name
+            specifiedTolerance
+            technicalCommittee
+            publicationAt
+            standardStatusId
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql - body=%o', body);
+    const { errors, data } = body;
+    expect(data).toBeNull();
+    expect(errors[0].message).toBe(
+      "BadRequest: Not found standard"
+    );
+    done();
+  });
 });
