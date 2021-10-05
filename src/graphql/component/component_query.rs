@@ -3,7 +3,7 @@ use uuid::Uuid;
 
 use crate::errors::ServiceResult;
 use crate::database::{get_conn, PooledConnection};
-use crate::models::user;
+use crate::models::user::get_logged_user_uuid;
 use crate::models::component;
 use crate::models::component::access::company::model::CompanyAccessComponentAndRelatedData;
 use crate::models::component::access::user::model::UserAccessComponentAndRelatedData;
@@ -24,7 +24,7 @@ impl ComponentQuery {
         components_uuids: Vec<Uuid>,
     ) -> ServiceResult<Vec<ShowComponentShort>> {
         // authorization check
-        let logged_user_uuid: Uuid = user::get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid: Uuid = get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
@@ -42,7 +42,7 @@ impl ComponentQuery {
         component_uuid: Uuid,
     ) -> ServiceResult<ComponentAndRelatedData> {
         // authorization check
-        let logged_user_uuid: Uuid = user::get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid: Uuid = get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
@@ -61,8 +61,7 @@ impl ComponentQuery {
     ) -> ServiceResult<Vec<CompanyAccessComponentAndRelatedData>> {
         use component::access::company::manage::get_companies_list_access_component;
 
-        // checking authorization and getting company uuid
-        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
@@ -82,7 +81,7 @@ impl ComponentQuery {
         use component::access::user::manage::get_users_list_access_component;
 
         // checking authorization and getting user uuid
-        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
@@ -101,7 +100,7 @@ impl ComponentQuery {
     ) -> ServiceResult<Vec<DownloadFile>> {
 
         // authorization check
-        let logged_user_uuid: Uuid = user::get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid: Uuid = get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
@@ -120,7 +119,7 @@ impl ComponentQuery {
         use component_modification::file::service::list::get_component_modification_files;
 
         // authorization check
-        let logged_user_uuid: Uuid = user::get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid: Uuid = get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
@@ -141,8 +140,7 @@ impl ComponentQuery {
     ) -> ServiceResult<Vec<FilesetProgramRelatedData>> {
         use component_modification::fileset_for_program::service::list::get_modification_filesets;
 
-        // authorization check
-        user::util::check_authorized(cxt)?;
+        let logged_user_uuid: Uuid = get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
@@ -150,6 +148,7 @@ impl ComponentQuery {
         let offset: i32 = offset.unwrap_or(0);
 
         get_modification_filesets(
+            &logged_user_uuid,
             &modification_uuid,
             &program_id,
             &limit,
@@ -168,8 +167,7 @@ impl ComponentQuery {
     ) -> ServiceResult<Vec<ShowFileOfFileset>> {
         use component_modification::modification_file_from_fileset::service::list::get_files_of_fileset;
 
-        // authorization check
-        user::util::check_authorized(cxt)?;
+        let logged_user_uuid: Uuid = get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
@@ -177,6 +175,7 @@ impl ComponentQuery {
         let offset: i32 = offset.unwrap_or(0);
 
         get_files_of_fileset(
+            &logged_user_uuid,
             &fileset_uuid,
             &file_uuids,
             &limit,
