@@ -18,7 +18,6 @@ pub(crate) fn find_components(
             logged_user_uuid,
             tcu,
             &need_access_level,
-            true, // ownership_check
             conn
         )?;
     }
@@ -48,7 +47,6 @@ pub(crate) fn find_component_uuid(
         logged_user_uuid,
         target_component_uuid,
         &need_access_level,
-        true, // ownership_check
         conn
     )?;
 

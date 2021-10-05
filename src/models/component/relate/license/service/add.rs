@@ -20,7 +20,6 @@ pub(crate) fn add_component_license(
         logged_user_uuid,
         &data.component_uuid,
         &need_access_level,
-        true, // ownership_check
         conn
     )?;
 

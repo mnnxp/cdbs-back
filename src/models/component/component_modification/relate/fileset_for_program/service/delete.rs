@@ -7,6 +7,7 @@ use crate::models::component::component_modification::fileset_for_program::model
     DelFilesetProgramData,
 };
 use crate::models::component::component_modification::relate::fileset_for_program::util::get_component_by_fileset;
+use crate::models::component::access::util::check_access_component_for_user;
 use diesel::prelude::*;
 use uuid::Uuid;
 
@@ -21,11 +22,10 @@ pub(crate) fn del_modification_fileset(
 
     let need_access_level = 1; // todo!(create enum for manage access level)
 
-    crate::models::component::access::util::check_access_component_for_user(
+    check_access_component_for_user(
         logged_user_uuid,
         &get_component_by_fileset(&data.fileset_uuid, conn)?,
         &need_access_level,
-        true, // ownership_check
         conn
     )?;
 
@@ -50,7 +50,7 @@ pub(crate) fn del_modification_fileset(
                 return Ok(true)
             }
             Err(ServiceError::BadRequest(
-                "Failed with delete fileset data".to_string()
+                "Not found fileset data".to_string()
             ))
         },
         Err(err) => {

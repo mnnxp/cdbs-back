@@ -17,7 +17,6 @@ pub(crate) fn del_modification_params(
         logged_user_uuid,
         &get_component_by_modification(&data.modification_uuid, conn)?,
         &need_access_level,
-        true, // ownership_check
         conn
     )?;
 

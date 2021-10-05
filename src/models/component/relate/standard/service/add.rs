@@ -22,7 +22,6 @@ pub(crate) fn add_standard_to_component(
         logged_user_uuid,
         &data.component_uuid,
         &need_access_level,
-        true, // ownership_check
         conn
     )?;
 

@@ -18,7 +18,6 @@ pub(crate) fn del_suppliers_component(
         logged_user_uuid,
         &data.component_uuid,
         &need_access_level,
-        true, // ownership_check
         conn
     )?;
 

@@ -24,7 +24,6 @@ pub(crate) fn del_file_from_fileset(
         logged_user_uuid,
         &get_component_by_fileset(&data.fileset_uuid, conn)?,
         &need_access_level,
-        true, // ownership_check
         conn
     )?;
 

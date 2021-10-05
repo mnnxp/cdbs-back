@@ -21,7 +21,6 @@ pub(crate) fn add_component_base_supplier(
         logged_user_uuid,
         &data.component_uuid,
         &need_access_level,
-        true, // ownership_check
         conn
     )?;
 

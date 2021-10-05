@@ -3,10 +3,13 @@ use crate::models::component::component_modification::modification_file_from_fil
     ModificationFileFromFileset, ShowFileOfFileset
 };
 use crate::models::relate_ref::file::model::ShowFile;
+use crate::models::component::component_modification::fileset_for_program::util::get_component_by_fileset;
+use crate::models::component::access::util::check_access_component_for_user;
 use diesel::prelude::*;
 use uuid::Uuid;
 
 pub(crate) fn get_files_of_fileset(
+    logged_user_uuid: &Uuid,
     target_fileset_uuid: &Uuid,
     target_file_uuids: &Option<Vec<Uuid>>,
     limit: &i32,
@@ -14,6 +17,15 @@ pub(crate) fn get_files_of_fileset(
     conn: &PgConnection,
 ) -> ServiceResult<Vec<ShowFileOfFileset>> {
     use crate::schema::modification_file_from_fileset::dsl::*;
+
+    let need_access_level = 2; // todo!(create enum for manage access level)
+
+    check_access_component_for_user(
+        logged_user_uuid,
+        &get_component_by_fileset(target_fileset_uuid, conn)?,
+        &need_access_level,
+        conn
+    )?;
 
     let mut query = modification_file_from_fileset.into_boxed();
 

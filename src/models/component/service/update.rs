@@ -1,8 +1,6 @@
 use crate::errors::{ServiceError, ServiceResult};
 use crate::models::component::model::IptUpdateComponentData;
-use crate::models::component::access::util::{
-    check_is_owner, check_access_component_for_user
-};
+use crate::models::component::access::util::check_access_component_for_user;
 use diesel::prelude::*;
 use uuid::Uuid;
 
@@ -18,33 +16,12 @@ pub(crate) fn update_component_by_uuid(
     // need top level access for change component main data
     let need_access_level = 1; // todo!(create enum for manage access level)
 
-    let target_component_uuid: &Uuid = match check_is_owner(
+    check_access_component_for_user(
         logged_user_uuid,
         target_component_uuid,
-        conn
-    ) {
-        // component owner user
-        true => target_component_uuid,
-        // need check access if user not owned component
-        false => {
-            debug!("User not owned target component");
-
-            if !check_access_component_for_user(
-                logged_user_uuid,
-                target_component_uuid,
-                &need_access_level,
-                false, // <-- not need check owned again
-                conn,
-            )? {
-                // return error if user not have access level
-                return Err(ServiceError::BadRequest("Access denied".to_string()))
-            }
-
-            // initialization uuid if found target access level
-            target_component_uuid
-        }
-    };
-
+        &need_access_level,
+        conn,
+    )?;
 
     // for returning change count
     let mut count_update_columns = 0_usize;

@@ -2,10 +2,13 @@ use crate::errors::{ServiceResult, ServiceError};
 use crate::models::component::component_modification::fileset_for_program::model::{
     FilesetProgram, FilesetProgramRelatedData
 };
+use crate::models::component::component_modification::util::get_component_by_modification;
+use crate::models::component::access::util::check_access_component_for_user;
 use diesel::prelude::*;
 use uuid::Uuid;
 
 pub(crate) fn get_modification_filesets(
+    logged_user_uuid: &Uuid,
     target_modification_uuid: &Uuid,
     target_program_id: &Option<Vec<i32>>,
     limit: &i32,
@@ -13,7 +16,18 @@ pub(crate) fn get_modification_filesets(
     conn: &PgConnection,
 ) -> ServiceResult<Vec<FilesetProgramRelatedData>> {
     use crate::schema::fileset_for_program::dsl::*;
+
+    let need_access_level = 2; // todo!(create enum for manage access level)
+
+    check_access_component_for_user(
+        logged_user_uuid,
+        &get_component_by_modification(target_modification_uuid, conn)?,
+        &need_access_level,
+        conn
+    )?;
+
     let mut query = fileset_for_program.into_boxed();
+
     match target_program_id {
         // add filter for target program
         Some(prog_id) if !prog_id.is_empty() => {

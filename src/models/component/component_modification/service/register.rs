@@ -25,7 +25,6 @@ pub(crate) fn create_component_modification(
         logged_user_uuid,
         &data.component_uuid,
         &need_access_level,
-        true, // ownership_check
         conn
     )?;
 

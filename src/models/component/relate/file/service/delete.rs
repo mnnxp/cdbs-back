@@ -17,7 +17,6 @@ pub(crate) fn delete_component_file(
         logged_user_uuid,
         &data.component_uuid,
         &need_access_level,
-        true, // ownership_check
         conn
     )?;
 

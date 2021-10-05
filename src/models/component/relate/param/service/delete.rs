@@ -9,14 +9,13 @@ pub(crate) fn del_component_params(
     data: &DelComponentParamData,
     conn: &PgConnection
 ) -> ServiceResult<i32> {
-    
+
     let need_access_level = 1; // todo!(create enum for manage access level)
 
     crate::models::component::access::util::check_access_component_for_user(
         logged_user_uuid,
         &data.component_uuid,
         &need_access_level,
-        true, // ownership_check
         conn
     )?;
 

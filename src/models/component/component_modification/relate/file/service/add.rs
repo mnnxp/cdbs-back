@@ -4,6 +4,7 @@ use crate::models::component::component_modification::util::get_component_by_mod
 use crate::models::relate_ref::file::model::{
     ListObject, PreliminaryFileData, UploadFile
 };
+use crate::models::component::access::util::check_access_component_for_user;
 use crate::models::relate_ref::file as file;
 use crate::storage::model::StorageAccess;
 use crate::storage::presigned_url::upload_presigned_url;
@@ -20,11 +21,10 @@ pub(crate) fn add_modification_files(
 
     let need_access_level = 1; // todo!(create enum for manage access level)
 
-    crate::models::component::access::util::check_access_component_for_user(
+    check_access_component_for_user(
         logged_user_uuid,
         &get_component_by_modification(&data.modification_uuid, conn)?,
         &need_access_level,
-        true, // ownership_check
         conn
     )?;
 

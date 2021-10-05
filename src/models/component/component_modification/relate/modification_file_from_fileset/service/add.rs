@@ -24,7 +24,6 @@ pub(crate) fn add_files_of_modification_set(
         logged_user_uuid,
         &get_component_by_fileset(&data.fileset_uuid, conn)?,
         &need_access_level,
-        true, // ownership_check
         conn
     )?;
 

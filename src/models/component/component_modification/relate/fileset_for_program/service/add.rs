@@ -8,6 +8,7 @@ use crate::models::component::component_modification::fileset_for_program::model
     InsertableFilesetProgram
 };
 use crate::models::component::component_modification::util::get_component_by_modification;
+use crate::models::component::access::util::check_access_component_for_user;
 use diesel::prelude::*;
 use uuid::Uuid;
 
@@ -22,11 +23,10 @@ pub(crate) fn create_modification_fileset(
 
     let need_access_level = 1; // todo!(create enum for manage access level)
 
-    crate::models::component::access::util::check_access_component_for_user(
+    check_access_component_for_user(
         logged_user_uuid,
         &get_component_by_modification(&data.modification_uuid, conn)?,
         &need_access_level,
-        true, // ownership_check
         conn
     )?;
 
