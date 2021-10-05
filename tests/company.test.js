@@ -2545,7 +2545,7 @@ describe('company', () => {
         query: `mutation  {
             setCompanyOwnerSupplier( data: {
                 componentUuid: "${componentUuidStandard}",
-                companyUuid: "${companyUuidNoSupplier}",
+                companyUuid: "${companyUuidSupplier}",
                 description: "description for supplier component",
             })
         }`,
