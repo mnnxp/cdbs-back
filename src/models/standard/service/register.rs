@@ -19,13 +19,6 @@ pub(crate) fn create_standard(
     data: &IptStandardData,
     conn: &PgConnection
 ) -> ServiceResult<SlimStandard> {
-    let parent_standard_uuid = match data.parent_standard_uuid {
-        Some(parent) => parent,
-        None => Uuid::parse_str("303ec2aa-2066-42e3-93fb-de4fb9344bcb")?, // <-- todo!(get uuid root standard)
-    };
-
-    let image_file_uuid = Uuid::parse_str("bc1c2151-86d0-4656-9c9d-d016dd584297")?; // <-- todo!(get uuid default favicon)
-
     let need_access_level = 2; // todo!(create enum for manage access level)
 
     check_company_access(
@@ -39,6 +32,13 @@ pub(crate) fn create_standard(
         &data.company_uuid,
         conn
     )?;
+
+    let parent_standard_uuid = match data.parent_standard_uuid {
+        Some(parent) => parent,
+        None => Uuid::parse_str("303ec2aa-2066-42e3-93fb-de4fb9344bcb")?, // <-- todo!(get uuid root standard)
+    };
+
+    let image_file_uuid = Uuid::parse_str("bc1c2151-86d0-4656-9c9d-d016dd584297")?; // <-- todo!(get uuid default favicon)
 
     let new_standard_data = StandardData {
         parent_standard_uuid,
