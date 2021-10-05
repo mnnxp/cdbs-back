@@ -82,30 +82,30 @@ impl RoleMemberTranslateList {
 }
 
 impl RoleMemberAndRelatedData {
-    /// Get role by id for set lang
-    pub fn _get_role_by_id(
-        target_role_id: &i32,
-        set_lang_id: &i32,
-        conn: &PgConnection,
-    ) -> ServiceResult<RoleMemberAndRelatedData> {
-        let role = RoleMemberTranslateList::get_role_by_id(
-            target_role_id,
-            set_lang_id,
-            conn
-        )?;
-
-        let access = TypeAccessTranslateList::get_by_role_id(
-            target_role_id,
-            set_lang_id,
-            conn
-        )?;
-
-        // if found data return RoleMemberAndRelatedData
-        Ok(RoleMemberAndRelatedData {
-            role,
-            access,
-        })
-    }
+    // /// Get role by id for set lang
+    // pub fn get_role_by_id(
+    //     target_role_id: &i32,
+    //     set_lang_id: &i32,
+    //     conn: &PgConnection,
+    // ) -> ServiceResult<RoleMemberAndRelatedData> {
+    //     let role = RoleMemberTranslateList::get_role_by_id(
+    //         target_role_id,
+    //         set_lang_id,
+    //         conn
+    //     )?;
+    //
+    //     let access = TypeAccessTranslateList::get_by_role_id(
+    //         target_role_id,
+    //         set_lang_id,
+    //         conn
+    //     )?;
+    //
+    //     // if found data return RoleMemberAndRelatedData
+    //     Ok(RoleMemberAndRelatedData {
+    //         role,
+    //         access,
+    //     })
+    // }
 
     /// Get roles by IDs for set lang
     pub fn get_roles_by_ids(

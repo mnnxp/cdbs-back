@@ -1,5 +1,5 @@
 use crate::errors::{ServiceResult, ServiceError};
-use crate::models::company::member::role::model::RoleMember;
+// use crate::models::company::member::role::model::RoleMember;
 use diesel::prelude::*;
 use uuid::Uuid;
 
@@ -67,45 +67,45 @@ pub fn check_is_owner_with_err(
     }
 }
 
-/// Gets list of users uuids that have need level access to a company
-pub(crate) fn _get_users_have_access_to_company(
-    target_company_uuid: &Uuid,
-    required_access: &i32,
-    conn: &PgConnection
-) -> ServiceResult<Vec<Uuid>> {
-    use crate::schema::company_member_list::dsl::*;
-
-    let suitable_role = RoleMember::get_roles_for_type_access(
-        required_access,
-        conn
-    );
-
-    if suitable_role.is_empty() {
-        return Err(ServiceError::BadRequest(
-            "Not found set access for target role".to_string()
-        ))
-    }
-
-    let users_uuids = company_member_list
-        .filter(company_uuid.eq(target_company_uuid)
-        .and(role_id.eq_any(&suitable_role)))
-        .select(user_uuid)
-        .load::<Uuid>(conn);
-
-    match users_uuids {
-        Ok(ur_uuids) if !ur_uuids.is_empty() => Ok(ur_uuids),
-        // not found companies with need access
-        Ok(_) => Err(ServiceError::BadRequest(
-            "Mot found users with access target company".to_string()
-        )),
-        Err(err) => {
-            debug!("Failed check data: {:?}", err);
-            Err(ServiceError::BadRequest(
-                "Failed check data".to_string()
-            ))
-        },
-    }
-}
+// /// Gets list of users uuids that have need level access to a company
+// pub(crate) fn get_users_have_access_to_company(
+//     target_company_uuid: &Uuid,
+//     required_access: &i32,
+//     conn: &PgConnection
+// ) -> ServiceResult<Vec<Uuid>> {
+//     use crate::schema::company_member_list::dsl::*;
+//
+//     let suitable_role = RoleMember::get_roles_for_type_access(
+//         required_access,
+//         conn
+//     );
+//
+//     if suitable_role.is_empty() {
+//         return Err(ServiceError::BadRequest(
+//             "Not found set access for target role".to_string()
+//         ))
+//     }
+//
+//     let users_uuids = company_member_list
+//         .filter(company_uuid.eq(target_company_uuid)
+//         .and(role_id.eq_any(&suitable_role)))
+//         .select(user_uuid)
+//         .load::<Uuid>(conn);
+//
+//     match users_uuids {
+//         Ok(ur_uuids) if !ur_uuids.is_empty() => Ok(ur_uuids),
+//         // not found companies with need access
+//         Ok(_) => Err(ServiceError::BadRequest(
+//             "Mot found users with access target company".to_string()
+//         )),
+//         Err(err) => {
+//             debug!("Failed check data: {:?}", err);
+//             Err(ServiceError::BadRequest(
+//                 "Failed check data".to_string()
+//             ))
+//         },
+//     }
+// }
 
 /// Checking the availability of the required access level
 /// with ownership check
