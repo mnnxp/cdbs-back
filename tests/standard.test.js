@@ -17,7 +17,8 @@ const password = "password";
 const uuidFail = "aba22d59-4f6c-24a4-9a37-2d38f0e577a8";
 const userUuid = "31ecc6f8-0c09-4a59-a2d5-34b5b833e59b";
 const userUuid2 = "68b8281a-d19c-4d4b-88eb-6fd4a2afde1b";
-var userUuidSecond = "";
+var authorizationUserFirst = "";
+var authorizationUserSecond = "";
 
 // data for standard
 const parentStandardUuid = "303ec2aa-2066-42e3-93fb-de4fb9344bcb";
@@ -206,6 +207,21 @@ const specIdsDup = [10,22,30,44,55];
 const specIdsDel = [10,55];
 const idErr = 0;
 
+// standard files
+const filename1 = "file-test-name 1.pdf";
+const filename2 = "file-test-name 2.pdf";
+const filename3 = "file-test-name 3.pdf";
+const filename4 = "file-test-name 4.pdf";
+const filename5 = "file-test-name 5.pdf";
+
+const descriptionStandardFileTest = "test desctiption for standard";
+const filenameStandardFileTest = "second name file for standard.pdf";
+const badFilenameStandardFileTest = "name* file/ standard.pdf";
+const goodFilenameStandardFileTest = "name file standard.pdf";
+
+var fileStandardFileTestUuid = "";
+var fileStandardFileTestUuid2 = "";
+
 async function cleanupCompanyDb() {
   return global.knex.raw('DELETE FROM company_ref WHERE orgname in (?,?);', [
     orgname,
@@ -288,6 +304,7 @@ describe('company', () => {
     const {
       data: { registerUser },
     } = body;
+    authorizationUserFirst = registerUser.uuid;
     expect(registerUser).toContainAllKeys(['uuid', 'programId', 'username']);
     expect(registerUser.uuid).toBeNonEmptyString();
     expect(registerUser.programId).toBe(1);
@@ -343,11 +360,11 @@ describe('company', () => {
     const {
       data: { registerUser },
     } = body;
+    authorizationUserSecond = registerUser.uuid;
     expect(registerUser).toContainAllKeys(['uuid', 'programId', 'username']);
     expect(registerUser.uuid).toBeNonEmptyString();
     expect(registerUser.programId).toBe(5);
     expect(registerUser.username).toBe(username2);
-    userUuidSecond = registerUser.uuid;
     done();
   });
 
@@ -861,6 +878,224 @@ describe('company', () => {
     expect(errors[0].message).toBe(
       "BadRequest: The data has already"
     );
+    done();
+  });
+
+  // Testing add files for standard
+  it('/graphql:M uploadStandardFiles - BadRequest not token', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .send({
+        query: `mutation {
+          uploadStandardFiles(data: {
+            standardUuid: "${standardUuidSecond}"
+            filename: "${badFilenameStandardFileTest}"
+          }) {
+            fileUuid
+            filename
+            uploadUrl
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql uploadStandardFiles=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Token not found.'
+    );
+    expect(body.errors[0].path[0]).toBe('uploadStandardFiles');
+    done();
+  });
+
+  it('/graphql:M uploadStandardFiles - Ok', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation {
+          uploadStandardFiles(data: {
+            standardUuid: "${standardUuidSecond}"
+            filename: [
+              "${badFilenameStandardFileTest}"
+              "${filenameStandardFileTest}"
+            ]
+          }) {
+            fileUuid
+            filename
+            uploadUrl
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql uploadStandardFiles=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { uploadStandardFiles },
+    } = body;
+    fileStandardFileTestUuid = uploadStandardFiles[0].fileUuid;
+    expect(uploadStandardFiles[0].fileUuid).toBeNonEmptyString();
+    expect(uploadStandardFiles[0].filename).toBe(goodFilenameStandardFileTest);
+    expect(uploadStandardFiles[0].uploadUrl).toBeNonEmptyString();
+    fileStandardFileTestUuid2 = uploadStandardFiles[1].fileUuid;
+    expect(uploadStandardFiles[1].fileUuid).toBeNonEmptyString();
+    expect(uploadStandardFiles[1].filename).toBe(filenameStandardFileTest);
+    expect(uploadStandardFiles[1].uploadUrl).toBeNonEmptyString();
+    done();
+  });
+
+  it('/graphql:M uploadStandardFiles - BadRequest no access', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `mutation {
+          uploadStandardFiles(data: {
+            standardUuid: "${standardUuidSecond}"
+            filename: "${badFilenameStandardFileTest}"
+          }) {
+            fileUuid
+            filename
+            uploadUrl
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql - body=%o', body);
+    const { errors, data } = body;
+    expect(data).toBeNull();
+    expect(errors[0].message).toBe("BadRequest: Access denied");
+    done();
+  });
+
+  // Testing delete files of standard
+  it('/graphql:M deleteStandardFiles - BadRequest not token', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .send({
+        query: `mutation {
+          deleteStandardFiles(data: {
+            standardUuid: "${standardUuidSecond}"
+            fileUuid: "${fileStandardFileTestUuid}"
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql deleteStandardFiles=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Token not found.'
+    );
+    expect(body.errors[0].path[0]).toBe('deleteStandardFiles');
+    done();
+  });
+
+  it('/graphql:M deleteStandardFiles - Ok', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation {
+          deleteStandardFiles(data: {
+            standardUuid: "${standardUuidSecond}"
+            fileUuid: "${fileStandardFileTestUuid}"
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql deleteStandardFiles=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { deleteStandardFiles },
+    } = body;
+    expect(deleteStandardFiles).toBe(true);
+    done();
+  });
+
+  it('/graphql:M deleteStandardFiles - Ok not found file', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation {
+          deleteStandardFiles(data: {
+            standardUuid: "${standardUuidSecond}"
+            fileUuid: "${fileStandardFileTestUuid}"
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql deleteStandardFiles=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { deleteStandardFiles },
+    } = body;
+    expect(deleteStandardFiles).toBe(false);
+    done();
+  });
+
+  it('/graphql:M deleteStandardFiles - BadRequest no access', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `mutation {
+          deleteStandardFiles(data: {
+            standardUuid: "${standardUuidSecond}"
+            fileUuid: "${fileStandardFileTestUuid}"
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql - body=%o', body);
+    const { errors, data } = body;
+    expect(data).toBeNull();
+    expect(errors[0].message).toBe("BadRequest: Access denied");
+    done();
+  });
+
+  // check add and delete files
+  it('/graphql:Q standard - OK check add/del files', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `query standard {
+          standard (standardUuid: "${standardUuidSecond}"){
+            ${standardFullDataQuery}
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql standard=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { standard },
+    } = body;
+    expect(standard.uuid).toBe(standardUuidSecond);
+    expect(standard.standardFiles[0].uuid).toBe(fileStandardFileTestUuid2);
+    expect(standard.standardFiles[0].parentFileUuid).toBeNonEmptyString();
+    expect(standard.standardFiles[0].userUuid).toBe(authorizationUserFirst);
+    expect(standard.standardFiles[0].filename).toBe(filenameStandardFileTest);
+    expect(standard.standardFiles[0].contentType).toBeNonEmptyString();
+    expect(standard.standardFiles[0].filesize).toBe(0);
     done();
   });
 
@@ -1558,7 +1793,7 @@ describe('company', () => {
     // add access to the object for the user
     await global.knex.raw('INSERT INTO user_access_to_standard (standard_uuid, user_uuid, type_access_id, is_enabled, created_at, updated_at) VALUES (?, ?, ?, true, now(), now());', [
       standardUuidSecond,
-      userUuidSecond,
+      authorizationUserSecond,
       3, // type access
     ]);
     const { body } = await agent

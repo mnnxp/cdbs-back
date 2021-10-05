@@ -5,6 +5,7 @@ use crate::models::relate_ref::spec::model::SpecTranslateList;
 use diesel::prelude::*;
 
 impl StandardSpecWithTranslation {
+    /// Gets all specs for standard by uuid
     pub fn for_standard(
         standard: &Standard,
         set_lang_id: &i32,

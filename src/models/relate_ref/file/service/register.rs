@@ -19,10 +19,10 @@ use crate::models::component::component_modification::relate::modification_file_
     ModificationFileFromFileset,
     InsertableModificationFileFromFileset,
 };
-// use crate::models::standard::relate::file::model:{
-//     InsertableFileStandard,
-//     FileStandard,
-// };
+use crate::models::standard::file::model::{
+    StandardFile,
+    InsertableStandardFile,
+};
 // use crate::models::relate_ref::file as file;
 use diesel::prelude::*;
 use uuid::Uuid;
@@ -35,10 +35,7 @@ pub(crate) fn register(
     // register data in file_ref table
     let value_slim_file_data = match write_metadata(preliminary_file_data, conn) {
         Ok(value) => value,
-        Err(err) => {
-            debug!("Fail write metadata: {:#?}", err);
-            return Err(ServiceError::BadRequest("Fail write metadata".to_string()))
-        },
+        Err(err) => return Err(err),
     };
     // register data in addiction table (depends on the request)
     if let Err(err) = write_addiction_data(object, value_slim_file_data.uuid, conn) {
@@ -50,7 +47,7 @@ pub(crate) fn register(
 }
 
 /// Write information of file to db file_ref
-pub(crate) fn write_metadata(
+fn write_metadata(
     file_data: PreliminaryFileData,
     conn: &PgConnection
 ) -> ServiceResult<SlimFile> {
@@ -62,7 +59,7 @@ pub(crate) fn write_metadata(
 }
 
 /// Write information of file to db file_to_component or file_to_modification
-pub(crate) fn write_addiction_data(
+fn write_addiction_data(
     object: ListObject,
     file_uuid: Uuid,
     conn: &PgConnection
@@ -119,22 +116,26 @@ pub(crate) fn write_addiction_data(
             debug!("Select modification table, addiction data: {:?} ", &inserted_file_to_set);
 
             Ok(true)
-        }
-        // ListObject::Standard(standard_uuid) => {   // <- add addiction data in file_to_standard
-        //     use crate::schema::file_to_standard::dsl::file_to_standard;
-        //
-        //     let standard =  InsertableFileStandard {
-        //         file_uuid,
-        //         standard_uuid,
-        //     };
-        //     let inserted_standard: FileStandard = diesel::insert_into(file_to_standard)
-        //         .values(&standard)
-        //         .get_result(conn)?;
-        //
-        //     debug!("Select standard table, data: {:?} ", &inserted_standard);
-        //
-        //     Ok(true)
-        // },
-        _ => ServiceResult::Err(ServiceError::BadRequest("Error select addiction table".to_string()))?
+        },
+        ListObject::Standard(standard_uuid) => {   // <- add addiction data in file_to_standard
+            use crate::schema::file_to_standard::dsl::file_to_standard;
+
+            let standard =  InsertableStandardFile {
+                file_uuid,
+                standard_uuid,
+            };
+            let inserted_standard: StandardFile = diesel::insert_into(file_to_standard)
+                .values(&standard)
+                .get_result(conn)?;
+
+            debug!("Select standard table, data: {:?} ", &inserted_standard);
+
+            Ok(true)
+        },
+        not_match => {
+            debug!("Failed write metadata: {:#?}", not_match);
+
+            Err(ServiceError::BadRequest("Failed write metadata".to_string()))
+        },
     }
 }

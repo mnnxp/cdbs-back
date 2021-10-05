@@ -134,11 +134,16 @@ impl StandardAndRelatedData {
         ).expect("Error loading company_type");
 
         // count subscribers standard
-        let subscribers: i32 = StandardFav::get_count_followers_by_uuid(&standard.uuid, conn)?;
+        let subscribers: i32 = StandardFav::get_count_followers_by_uuid(
+            &standard.uuid,
+            conn
+        ).expect("Error loading subscribers");
 
         // get files for standard
-        let standard_files = ShowFile::for_standard(&standard, conn)
-            .expect("Error loading standard files");
+        let standard_files = ShowFile::for_standard_by_uuid(
+            &standard.uuid,
+            conn
+        ).expect("Error loading standard files");
 
         // get specs with translation for standard
         let standard_specs: Vec<StandardSpecWithTranslation> = StandardSpecWithTranslation::for_standard(
@@ -155,8 +160,8 @@ impl StandardAndRelatedData {
         ).expect("Error get is_followed");
 
         // get keywords for standard
-        let standard_keywords: Vec<Keyword> = Keyword::get_by_standard(
-            &standard,
+        let standard_keywords: Vec<Keyword> = Keyword::for_standard_by_uuid(
+            &standard.uuid,
             conn
         ).expect("Error loading standard keywords");
 

@@ -1,9 +1,11 @@
 use crate::errors::ServiceResult;
 use crate::database::{get_conn, PooledConnection};
+use crate::models::user::get_logged_user_uuid;
 use crate::models::standard::model::{IptStandardData, IptUpdateStandardData, SlimStandard};
 use crate::models::standard::spec::model::IptStandardSpecsData;
 use crate::models::standard::keyword::model::IptStandardKeywordsData;
-
+use crate::models::standard::file::model::{IptStandardFilesData, DeleteStandardFileData};
+use crate::models::relate_ref::file::model::{UploadFile, DownloadFile};
 use async_graphql::{self, Context, Object};
 use uuid::Uuid;
 
@@ -19,7 +21,7 @@ impl StandardMutation {
     ) -> ServiceResult<SlimStandard> {
         use crate::models::standard::service::register::create_standard;
 
-        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
@@ -38,7 +40,7 @@ impl StandardMutation {
     ) -> ServiceResult<i32> {
         use crate::models::standard::service::update::update_standard_data;
 
-        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
@@ -57,7 +59,7 @@ impl StandardMutation {
     ) -> ServiceResult<SlimStandard> {
         use crate::models::standard::service::delete::del_standard_data;
 
-        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
@@ -75,7 +77,7 @@ impl StandardMutation {
     ) -> ServiceResult<i32> {
         use crate::models::standard::spec::service::add::add_standard_specs;
 
-        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
@@ -93,7 +95,7 @@ impl StandardMutation {
     ) -> ServiceResult<i32> {
         use crate::models::standard::spec::service::delete::del_standard_specs;
 
-        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
@@ -111,7 +113,7 @@ impl StandardMutation {
     ) -> ServiceResult<i32> {
         use crate::models::standard::keyword::service::add::add_standard_keywords;
 
-        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
@@ -129,11 +131,66 @@ impl StandardMutation {
     ) -> ServiceResult<i32> {
         use crate::models::standard::keyword::service::delete::del_standard_keywords;
 
-        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
         del_standard_keywords(
+            &logged_user_uuid,
+            &data,
+            conn
+        )
+    }
+
+    async fn upload_standard_files(
+        &self,
+        cxt: &Context<'_>,
+        data: IptStandardFilesData,
+    ) -> ServiceResult<Vec<UploadFile>> {
+        use crate::models::standard::file::service::add::add_standard_files;
+
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+
+        let conn: &PooledConnection = &get_conn(cxt)?;
+
+        add_standard_files(
+            &logged_user_uuid,
+            &data,
+            conn
+        )
+    }
+
+    async fn standard_files(
+        &self,
+        cxt: &Context<'_>,
+        standard_uuid: Uuid,
+    ) -> ServiceResult<Vec<DownloadFile>> {
+        use crate::models::standard::file::service::list::get_standard_files;
+
+        // authorization check
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+
+        let conn: &PooledConnection = &get_conn(cxt)?;
+
+        get_standard_files(
+            &logged_user_uuid,
+            &standard_uuid,
+            conn
+        )
+    }
+
+    async fn delete_standard_files(
+        &self,
+        cxt: &Context<'_>,
+        data: DeleteStandardFileData,
+    ) -> ServiceResult<bool> {
+        use crate::models::standard::file::service::delete::delete_standard_file;
+
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+
+        let conn: &PooledConnection = &get_conn(cxt)?;
+
+        delete_standard_file(
             &logged_user_uuid,
             &data,
             conn

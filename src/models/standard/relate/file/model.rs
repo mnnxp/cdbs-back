@@ -12,13 +12,13 @@ use uuid::Uuid;
 #[belongs_to(ShowFile, foreign_key = "file_uuid")]
 #[belongs_to(Standard, foreign_key = "standard_uuid")]
 #[table_name = "file_to_standard"]
-pub struct FileStandard {
+pub struct StandardFile {
     pub file_uuid: Uuid,
     pub standard_uuid: Uuid,
 }
 
 #[Object]
-impl FileStandard {
+impl StandardFile {
     async fn file_uuid(&self) -> ID {
         self.file_uuid.into()
     }
@@ -29,14 +29,14 @@ impl FileStandard {
 
 #[derive(Debug, Insertable)]
 #[table_name = "file_to_standard"]
-pub struct InsertableFileStandard {
+pub struct InsertableStandardFile {
     pub file_uuid: Uuid,
     pub standard_uuid: Uuid,
 }
 
-impl From<FileStandard> for InsertableFileStandard {
-    fn from(ipt_data: FileStandard) -> Self {
-        let FileStandard {
+impl From<StandardFile> for InsertableStandardFile {
+    fn from(ipt_data: StandardFile) -> Self {
+        let StandardFile {
             file_uuid,
             standard_uuid,
             ..
@@ -47,4 +47,17 @@ impl From<FileStandard> for InsertableFileStandard {
             standard_uuid,
         }
     }
+}
+
+
+#[derive(InputObject, Deserialize, Debug)]
+pub struct IptStandardFilesData {
+    pub filename: Vec<String>,
+    pub standard_uuid: Uuid,
+}
+
+#[derive(InputObject, Deserialize, Debug)]
+pub struct DeleteStandardFileData {
+    pub file_uuid: Uuid,
+    pub standard_uuid: Uuid,
 }
