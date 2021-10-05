@@ -31,7 +31,7 @@ impl ShowFile {
             .first::<ShowFile>(conn)?)
     }
 
-    pub fn get_file_by_vec_uuid(
+    pub fn get_file_by_uuids(
         target_vec_file_uuid: &[Uuid],
         conn: &PgConnection,
     ) -> ServiceResult<Vec<ShowFile>> {

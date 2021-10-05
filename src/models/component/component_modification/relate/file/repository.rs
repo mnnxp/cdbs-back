@@ -14,6 +14,6 @@ impl ShowFile {
         let target_vec_file_uuid: Vec<Uuid> = FileModification::belonging_to(component_modification)
             .select(file_to_modification::file_uuid)
             .load::<Uuid>(conn)?;
-        ShowFile::get_file_by_vec_uuid(&target_vec_file_uuid, conn)
+        ShowFile::get_file_by_uuids(&target_vec_file_uuid, conn)
     }
 }

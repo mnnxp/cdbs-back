@@ -11,10 +11,10 @@ impl ShowFile {
         component: &Component,
         conn: &PgConnection,
     ) -> ServiceResult<Vec<ShowFile>> {
-        let target_vec_file_uuid: Vec<Uuid> = ComponentFile::belonging_to(component)
+        let target_file_uuids: Vec<Uuid> = ComponentFile::belonging_to(component)
             .select(file_to_component::file_uuid)
             .load::<Uuid>(conn)?;
 
-        ShowFile::get_file_by_vec_uuid(&target_vec_file_uuid, conn)
+        ShowFile::get_file_by_uuids(&target_file_uuids, conn)
     }
 }

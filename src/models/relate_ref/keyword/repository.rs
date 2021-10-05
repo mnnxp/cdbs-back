@@ -14,11 +14,11 @@ impl Keyword {
     }
 
     pub fn get_keyword_by_vec_id(
-        target_vec_keyword_id: &[i32],
+        target_keyword_ids: &[i32],
         conn: &PgConnection,
     ) -> ServiceResult<Vec<Keyword>> {
         Ok(keyword_ref::keyword_ref
-            .filter(keyword_ref::id.eq_any(target_vec_keyword_id))
+            .filter(keyword_ref::id.eq_any(target_keyword_ids))
             .load::<Keyword>(conn)?)
     }
 }

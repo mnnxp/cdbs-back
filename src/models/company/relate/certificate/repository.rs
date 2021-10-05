@@ -19,7 +19,7 @@ impl ShowFile {
             .select(company_certificate_ref::file_uuid)
             .load::<Uuid>(conn)?;
 
-        ShowFile::get_file_by_vec_uuid(&target_vec_file_uuid, conn)
+        ShowFile::get_file_by_uuids(&target_vec_file_uuid, conn)
     }
 }
 
