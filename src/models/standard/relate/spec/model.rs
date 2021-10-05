@@ -50,14 +50,14 @@ pub struct InsertableStandardSpec {
 }
 
 #[derive(Debug, Deserialize, Clone, InputObject)]
-pub struct IptStandardSpecData {
+pub struct IptStandardSpecsData {
     pub standard_uuid: Uuid,
     pub spec_ids: Vec<i32>,
 }
 
-impl From<&IptStandardSpecData> for Vec<InsertableStandardSpec> {
-    fn from(ipt_data: &IptStandardSpecData) -> Vec<InsertableStandardSpec> {
-        let IptStandardSpecData {
+impl From<&IptStandardSpecsData> for Vec<InsertableStandardSpec> {
+    fn from(ipt_data: &IptStandardSpecsData) -> Vec<InsertableStandardSpec> {
+        let IptStandardSpecsData {
             standard_uuid,
             spec_ids,
             ..
@@ -79,14 +79,14 @@ impl From<&IptStandardSpecData> for Vec<InsertableStandardSpec> {
 }
 
 #[derive(Debug, Clone)]
-pub struct DeleteStandardSpec {
+pub struct DeleteStandardSpecs {
     pub standard_uuid: Uuid,
     pub spec_ids: Vec<i32>,
 }
 
-impl From<&IptStandardSpecData> for DeleteStandardSpec {
-    fn from(ipt_data: &IptStandardSpecData) -> Self {
-        let IptStandardSpecData {
+impl From<&IptStandardSpecsData> for DeleteStandardSpecs {
+    fn from(ipt_data: &IptStandardSpecsData) -> Self {
+        let IptStandardSpecsData {
             standard_uuid,
             spec_ids,
             ..

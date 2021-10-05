@@ -1,7 +1,7 @@
 use crate::errors::ServiceResult;
 use crate::database::{get_conn, PooledConnection};
 use crate::models::standard::model::{IptStandardData, IptUpdateStandardData, SlimStandard};
-use crate::models::standard::spec::model::IptStandardSpecData;
+use crate::models::standard::spec::model::IptStandardSpecsData;
 use crate::models::standard::keyword::model::IptStandardKeywordsData;
 
 use async_graphql::{self, Context, Object};
@@ -71,7 +71,7 @@ impl StandardMutation {
     async fn add_standard_specs(
         &self,
         cxt: &Context<'_>,
-        data: IptStandardSpecData,
+        data: IptStandardSpecsData,
     ) -> ServiceResult<i32> {
         use crate::models::standard::spec::service::add::add_standard_specs;
 
@@ -89,7 +89,7 @@ impl StandardMutation {
     async fn delete_standard_specs(
         &self,
         cxt: &Context<'_>,
-        data: IptStandardSpecData,
+        data: IptStandardSpecsData,
     ) -> ServiceResult<i32> {
         use crate::models::standard::spec::service::delete::del_standard_specs;
 

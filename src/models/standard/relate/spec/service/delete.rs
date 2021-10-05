@@ -1,7 +1,7 @@
 use crate::errors::{ServiceError, ServiceResult};
 use crate::models::standard::spec::model::{
-    IptStandardSpecData,
-    DeleteStandardSpec,
+    IptStandardSpecsData,
+    DeleteStandardSpecs,
 };
 use crate::models::standard::access::util::check_access_standard_for_user;
 use diesel::prelude::*;
@@ -9,7 +9,7 @@ use uuid::Uuid;
 
 pub(crate) fn del_standard_specs(
     logged_user_uuid: &Uuid,
-    data: &IptStandardSpecData,
+    data: &IptStandardSpecsData,
     conn: &PgConnection
 ) -> ServiceResult<i32> {
     use crate::schema::spec_to_standard::dsl::*;
@@ -24,7 +24,7 @@ pub(crate) fn del_standard_specs(
     )?;
 
     // creating structures for delete records
-    let del_specs: DeleteStandardSpec = data.into();
+    let del_specs: DeleteStandardSpecs = data.into();
 
     if del_specs.spec_ids.is_empty() {
         // return error if not found correct specs

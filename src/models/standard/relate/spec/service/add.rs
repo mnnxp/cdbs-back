@@ -1,7 +1,7 @@
 use crate::errors::{ServiceError, ServiceResult};
 use crate::models::standard::spec::model::{
     StandardSpec,
-    IptStandardSpecData,
+    IptStandardSpecsData,
     InsertableStandardSpec
 };
 use crate::models::standard::access::util::check_access_standard_for_user;
@@ -10,7 +10,7 @@ use uuid::Uuid;
 
 pub(crate) fn add_standard_specs(
     logged_user_uuid: &Uuid,
-    data: &IptStandardSpecData,
+    data: &IptStandardSpecsData,
     conn: &PgConnection
 ) -> ServiceResult<i32> {
     use crate::schema::spec_to_standard::dsl::*;
