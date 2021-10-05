@@ -2272,6 +2272,41 @@ describe('component', () => {
     done();
   });
 
+  it('/graphql:M uploadComponentFiles - BadReuest no access', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+          query: `mutation {
+            uploadComponentFiles(data: {
+              filename: [
+                "${filename1}",
+                "${filename2}",
+                "${filename3}",
+                "${filename4}",
+                "${filename5}"
+              ]
+              componentUuid: "${componentUuidNoStandard}"
+            }){
+              fileUuid
+              filename
+              uploadUrl
+            }
+          }`,
+        })
+      .expect(HttpStatus.OK)
+    debug('/graphql componentFiles=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Access denied'
+    );
+    expect(body.errors[0].path[0]).toBe('uploadComponentFiles');
+    done();
+  });
+
   it('/graphql:M uploadComponentFiles - OK add files 1-5', async (done) => {
     const { body } = await agent
       .post('/graphql')
