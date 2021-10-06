@@ -736,7 +736,6 @@ describe('company', () => {
               specifiedTolerance: "A",
               technicalCommittee: "GMONSTER",
               publicationAt: "1994-01-01T00:00:00",
-              typeAccessId: 1,
               standardStatusId: 2,
               regionId: 3
           })
@@ -771,7 +770,6 @@ describe('company', () => {
               technicalCommittee: "${technicalCommittee}",
               publicationAt: "${publicationAt}",
               companyUuid: "${companyUuidSupplier}",
-              typeAccessId: ${typeAccessId3},
               standardStatusId: ${standardStatusId},
               regionId: ${regionId}
           })
@@ -804,7 +802,6 @@ describe('company', () => {
               technicalCommittee: "${technicalCommittee}",
               publicationAt: "${publicationAt}",
               companyUuid: "${companyUuidNoSupplier}",
-              typeAccessId: ${typeAccessId3},
               standardStatusId: ${standardStatusId},
               regionId: ${regionId}
           })
@@ -836,7 +833,6 @@ describe('company', () => {
               specifiedTolerance: "${specifiedTolerance}",
               technicalCommittee: "${technicalCommittee}",
               publicationAt: "${publicationAt}",
-              typeAccessId: ${typeAccessId1},
               standardStatusId: ${standardStatusId},
               regionId: ${regionId}
           })
@@ -869,7 +865,6 @@ describe('company', () => {
               specifiedTolerance: "${specifiedTolerance}",
               technicalCommittee: "${technicalCommittee}",
               publicationAt: "${publicationAt}",
-              typeAccessId: ${typeAccessId1},
               standardStatusId: ${standardStatusId},
               regionId: ${regionId}
           })

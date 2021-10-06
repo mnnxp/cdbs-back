@@ -343,7 +343,6 @@ pub struct IptUpdateStandardData {
     pub technical_committee: Option<String>,
     pub publication_at: Option<NaiveDateTime>,
     pub company_uuid: Option<Uuid>,
-    pub type_access_id: Option<i32>,
     pub standard_status_id: Option<i32>,
     pub region_id: Option<i32>,
 }

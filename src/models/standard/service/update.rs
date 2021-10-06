@@ -180,26 +180,6 @@ pub(crate) fn update_standard_data(
         }
     }
 
-    // update column type_access_id
-    if let Some(value) = &data.type_access_id {
-        let res = diesel::update(standard_ref::standard_ref
-            .filter(standard_ref::uuid.eq(target_standard_uuid)
-            .and(standard_ref::type_access_id.ne(value))))
-            .set(standard_ref::type_access_id.eq(value))
-            .execute(conn);
-
-        match res {
-            Ok(up_item) => count_update_columns += up_item,
-            Err(err) => {
-                debug!("Failed update data: {:?}", err);
-
-                return Err(ServiceError::BadRequest(
-                    "Failed update data".to_string()
-                ))
-            },
-        }
-    }
-
     // update column standard_status_id
     if let Some(value) = &data.standard_status_id {
         let res = diesel::update(standard_ref::standard_ref
