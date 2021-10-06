@@ -17,14 +17,9 @@ const loginData = [ { "user": {
 ];
 const baseUserUuid = "31ecc6f8-0c09-4a59-a2d5-34b5b833e59b";
 const email = "testemail@mail.ru";
-const psw_hash = "test_psw_hash";
-const psw_salt = "test_psw_salt";
 const firstname = "test_firstname";
 const lastname = "test_lastname";
 const secondname = "test_secondname";
-const username = "baromi";
-const username2 = "simaco";
-const password = "password";
 const phone = "test_phone";
 const description = "test_description";
 const address = "test_address";
@@ -40,6 +35,39 @@ var authorizationTokenFirst = "";
 var authorizationTokenSecond = "";
 var userUuidFirst = "";
 var userUuidSecond = "";
+
+const username = "baromi";
+const username2 = "simaco";
+const password = "password";
+
+// for update user
+const emailNew = "testemail@mail.ru.new";
+const firstnameNew = "test_firstname_new";
+const lastnameNew = "test_lastname_new";
+const secondnameNew = "test_secondname_new";
+const usernameNew = "username_new";
+const passwordNew = "password_new";
+const phoneNew = "test_phone_new";
+const descriptionNew = "test_description_new";
+const addressNew = "test_address_new";
+const positionNew = "test_position_new";
+const timeZoneNew = "Europe/Minks";
+const regionIdNew = 2;
+const programIdNew = 2;
+
+// for update user
+const emailPut = "testemail@mail.ru.put";
+const firstnamePut = "test_firstname_put";
+const lastnamePut = "test_lastname_put";
+const secondnamePut = "test_secondname_put";
+const usernamePut = "usernewnameput";
+const phonePut = "test_phone_put";
+const descriptionPut = "test_description_put";
+const addressPut = "test_address_put";
+const positionPut = "test_position_put";
+const timeZonePut = "Europe/Moscow";
+const regionIdPut = 2;
+const programIdPut = 2;
 
 const descriptionCertificateTest = "test desctiption for certificate";
 const badFilenameCertificateTest = "name* file/ certificate.pdf";
@@ -140,7 +168,7 @@ describe('users', () => {
     const response1 = await agent
       .post('/graphql')
       .send({
-        query: `query ListUsers {
+        query: `query {
             user(userUuid: "${baseUserUuid}") {
               ${userFullDataQuery}
             }
@@ -162,19 +190,9 @@ describe('users', () => {
       .send({
         query: `mutation  {
             registerUser( data: {
-                email: "testemail@mail.ru",
-                firstname: "test_firstname",
-                lastname: "test_lastname",
-                secondname: "test_secondname",
+                email: "${email}",
                 username: "${username}",
-                password: "password",
-                phone: "test_phone",
-                description: "test_description",
-                address: "test_address",
-                position: "test_position",
-                timeZone: "Europe/Moscow",
-                regionId: 1,
-                programId: 1,
+                password: "${password}",
             }) {
                 uuid
                 programId
@@ -184,14 +202,15 @@ describe('users', () => {
       })
       .expect(HttpStatus.OK)
     debug('/graphql users=%o', body);
+    // expect(body).toBe(0);
     const {
       data: { registerUser },
     } = body;
+    userUuidFirst = registerUser.uuid;
     expect(registerUser).toContainAllKeys(['uuid', 'programId', 'username']);
     expect(registerUser.uuid).toBeNonEmptyString();
     expect(registerUser.programId).toBe(1);
     expect(registerUser.username).toBe(username);
-    userUuidFirst = registerUser.uuid;
     done();
   });
 
@@ -201,19 +220,19 @@ describe('users', () => {
       .send({
         query: `mutation  {
             registerUser( data: {
-                email: "testemail@mail.ru",
-                firstname: "test_firstname",
-                lastname: "test_lastname",
-                secondname: "test_secondname",
+                email: "${emailNew}",
                 username: "${username2}",
-                password: "password",
-                phone: "test_phone",
-                description: "test_description",
-                address: "test_address",
-                position: "test_position",
-                timeZone: "Europe/Moscow",
-                regionId: 1,
-                programId: 1,
+                password: "${password}"
+                firstname: "${firstnameNew}"
+                lastname: "${lastnameNew}"
+                secondname: "${secondnameNew}"
+                phone: "${phoneNew}"
+                description: "${descriptionNew}"
+                address: "${addressNew}"
+                position: "${positionNew}"
+                timeZone: "${timeZoneNew}"
+                regionId: ${regionIdNew}
+                programId: ${programIdNew}
             }) {
                 uuid
                 programId
@@ -223,14 +242,15 @@ describe('users', () => {
       })
       .expect(HttpStatus.OK)
     debug('/graphql users=%o', body);
+    // expect(body).toBe(0);
     const {
       data: { registerUser },
     } = body;
+    userUuidSecond = registerUser.uuid;
     expect(registerUser).toContainAllKeys(['uuid', 'programId', 'username']);
     expect(registerUser.uuid).toBeNonEmptyString();
-    expect(registerUser.programId).toBe(1);
+    expect(registerUser.programId).toBe(programIdNew);
     expect(registerUser.username).toBe(username2);
-    userUuidSecond = registerUser.uuid;
     done();
   });
 
@@ -240,19 +260,9 @@ describe('users', () => {
       .send({
         query: `mutation  {
             registerUser( data: {
-                email: "testemail@mail.ru",
-                firstname: "test_firstname",
-                lastname: "test_lastname",
-                secondname: "test_secondname",
-                username: "${username2}",
-                password: "password",
-                phone: "test_phone",
-                description: "test_description",
-                address: "test_address",
-                position: "test_position",
-                timeZone: "Europe/Moscow",
-                regionId: 1,
-                programId: 1,
+                email: "${email}",
+                username: "${username}",
+                password: "${password}",
             }) {
                 uuid
                 programId
@@ -265,7 +275,7 @@ describe('users', () => {
     const { errors, data } = body;
     expect(data).toBeNull();
     expect(errors[0].message).toBe(
-      'BadRequest: Key (username)=(simaco) already exists.'
+      'BadRequest: Failed create new user'
     );
     done();
   });
@@ -573,7 +583,7 @@ describe('users', () => {
       done();
   });
 
-  it('/graphql:Q user - Ok', async (done) => {
+  it('/graphql:Q User - Ok', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .set(
@@ -581,7 +591,7 @@ describe('users', () => {
         `Bearer ${authorizationTokenFirst}`
       )
       .send({
-        query: `query ListUsers {
+        query: `query {
             user(userUuid: "${userUuidFirst}") {
               ${userFullDataQuery}
             }
@@ -595,6 +605,186 @@ describe('users', () => {
     expect(body.data.user.favComponentsCount).toBe(0);
     expect(body.data.user.favStandardsCount).toBe(0);
     expect(body.data.user.favUsersCount).toBe(0);
+    done();
+  });
+
+  // Testing user data update
+  it('/graphql:M putUserUpdate - BadRequest no token', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .send({
+        query: `mutation  {
+            putUserUpdate(
+              data: {
+                email: "${emailPut}"
+                firstname: "${firstnamePut}"
+                lastname: "${lastnamePut}"
+                secondname: "${secondnamePut}"
+                username: "${usernamePut}"
+                phone: "${phonePut}"
+                description: "${descriptionPut}"
+                address: "${addressPut}"
+                position: "${positionPut}"
+                timeZone: "${timeZonePut}"
+                regionId: ${regionIdPut}
+                programId: ${programIdPut}
+              }
+            )
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Token not found.'
+    );
+    expect(body.errors[0].path[0]).toBe('putUserUpdate');
+    done();
+  });
+
+  it('/graphql:M putUserUpdate - OK', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation  {
+            putUserUpdate(
+              data: {
+                email: "${emailPut}"
+                firstname: "${firstnamePut}"
+                lastname: "${lastnamePut}"
+                secondname: "${secondnamePut}"
+                username: "${usernamePut}"
+                phone: "${phonePut}"
+                description: "${descriptionPut}"
+                address: "${addressPut}"
+                position: "${positionPut}"
+                timeZone: "${timeZonePut}"
+                regionId: ${regionIdPut}
+                programId: ${programIdPut}
+              }
+            )
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql putUserUpdate=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { putUserUpdate },
+    } = body;
+    expect(putUserUpdate).toBe(13);
+    done();
+  });
+
+  it('/graphql:M putUserUpdate - BadRequest data has already', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation  {
+            putUserUpdate(
+              data: {
+                email: "${emailPut}"
+                firstname: "${firstnamePut}"
+                lastname: "${lastnamePut}"
+                secondname: "${secondnamePut}"
+                username: "${usernamePut}"
+                phone: "${phonePut}"
+                description: "${descriptionPut}"
+                address: "${addressPut}"
+                position: "${positionPut}"
+                timeZone: "${timeZonePut}"
+                regionId: ${regionIdPut}
+                programId: ${programIdPut}
+              }
+            )
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: The data has already'
+    );
+    expect(body.errors[0].path[0]).toBe('putUserUpdate');
+    done();
+  });
+
+  it('/graphql:Q User - OK check update data', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `query {
+            user(userUuid: "${userUuidFirst}") {
+              ${userFullDataQuery}
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql user=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { user },
+    } = body;
+    expect(user.email).toBe(emailPut);
+    expect(user.firstname).toBe(firstnamePut);
+    expect(user.lastname).toBe(lastnamePut);
+    expect(user.secondname).toBe(secondnamePut);
+    expect(user.username).toBe(usernamePut);
+    expect(user.phone).toBe(phonePut);
+    expect(user.description).toBe(descriptionPut);
+    expect(user.address).toBe(addressPut);
+    expect(user.position).toBe(positionPut);
+    expect(user.timeZone).toBe(timeZonePut);
+    expect(user.region.regionId).toBe(regionIdPut);
+    expect(user.program.id).toBe(programIdPut);
+    done();
+  });
+
+  it('/graphql:M putUserUpdate - OK return data', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation  {
+            putUserUpdate(
+              data: {
+                email: "${emailPut}"
+                firstname: "${firstnamePut}"
+                lastname: "${lastnamePut}"
+                secondname: "${secondnamePut}"
+                username: "${username}"
+                phone: "${phonePut}"
+                description: "${descriptionPut}"
+                address: "${addressPut}"
+                position: "${positionPut}"
+                timeZone: "${timeZonePut}"
+                regionId: ${regionIdPut}
+                programId: ${programIdPut}
+              }
+            )
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql putUserUpdate=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { putUserUpdate },
+    } = body;
+    expect(putUserUpdate).toBe(2);
     done();
   });
 
@@ -808,7 +998,7 @@ describe('users', () => {
         `Bearer ${authorizationTokenFirst}`
       )
       .send({
-        query: `query ListUsers {
+        query: `query {
             user(userUuid: "${userUuidFirst}") {
               ${userFullDataQuery}
             }
@@ -1025,7 +1215,7 @@ describe('users', () => {
       done();
   });
 
-  it('/graphql:Q user - Ok no fav', async (done) => {
+  it('/graphql:Q User - Ok no fav', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .set(
@@ -1033,7 +1223,7 @@ describe('users', () => {
         `Bearer ${authorizationTokenFirst}`
       )
       .send({
-        query: `query ListUsers {
+        query: `query {
             user(userUuid: "${userUuidFirst}") {
               ${userFullDataQuery}
             }

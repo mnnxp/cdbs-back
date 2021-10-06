@@ -1,5 +1,6 @@
 use crate::database::{get_conn, PooledConnection};
 use crate::errors::ServiceResult;
+use crate::models::user::model::IptUpdateUserData;
 use crate::models::user::certificate::model::IptUserCertificateData;
 use crate::models::user::company_fav::model::{CompanyFav, IptCompanyFavData};
 use crate::models::user::component_fav::model::{ComponentFav, IptComponentFavData};
@@ -7,6 +8,7 @@ use crate::models::user::standard_fav::model::{StandardFav, IptStandardFavData};
 use crate::models::user::user_fav::model::{UserFav, IptUserFavData};
 use crate::models::user::model::{IptUserData, SlimUser};
 use crate::models::user::notification::model::{Notification, NotificationData, SlimNotification};
+use crate::models::user::get_logged_user_uuid;
 use crate::models::relate_ref::file::model::UploadFile;
 
 use async_graphql::{self, Context, Object};
@@ -18,11 +20,37 @@ pub struct UserMutation;
 #[Object]
 impl UserMutation {
     // Add new user
-    async fn register_user(&self, cxt: &Context<'_>, data: IptUserData) -> ServiceResult<SlimUser> {
+    async fn register_user(
+        &self,
+        cxt: &Context<'_>,
+        data: IptUserData,
+    ) -> ServiceResult<SlimUser> {
         use crate::models::user::service::register::create_user;
+
         let conn: &PooledConnection = &get_conn(cxt)?;
 
-        create_user(data, conn)
+        create_user(
+            &data,
+            conn
+        )
+    }
+
+    async fn put_user_update(
+        &self,
+        cxt: &Context<'_>,
+        data: IptUpdateUserData,
+    ) -> ServiceResult<i32> {
+        use crate::models::user::service::update::update_user;
+
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+
+        let conn: &PooledConnection = &get_conn(cxt)?;
+
+        update_user(
+            &logged_user_uuid,
+            &data,
+            conn
+        )
     }
 
     async fn upload_favicon(
@@ -30,9 +58,9 @@ impl UserMutation {
         cxt: &Context<'_>,
         filename: String,
     ) -> ServiceResult<String> {
-        use crate::models::user::service::upload::favicon::update_favicon;
+        use crate::models::user::service::relate::favicon::update_favicon;
 
-        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
@@ -46,7 +74,7 @@ impl UserMutation {
     ) -> ServiceResult<UploadFile> {
         use crate::models::user::certificate::service::add::add_certificate;
 
-        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
@@ -64,7 +92,7 @@ impl UserMutation {
     ) -> ServiceResult<CompanyFav> {
         use crate::models::user::company_fav::service::add::add_company_fav;
 
-        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
@@ -84,7 +112,7 @@ impl UserMutation {
     ) -> ServiceResult<CompanyFav> {
         use crate::models::user::company_fav::service::delete::delete_company_fav;
 
-        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
@@ -104,7 +132,7 @@ impl UserMutation {
     ) -> ServiceResult<ComponentFav> {
         use crate::models::user::component_fav::service::add::add_component_fav;
 
-        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
@@ -124,7 +152,7 @@ impl UserMutation {
     ) -> ServiceResult<ComponentFav> {
         use crate::models::user::component_fav::service::delete::delete_component_fav;
 
-        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
@@ -144,7 +172,7 @@ impl UserMutation {
     ) -> ServiceResult<StandardFav> {
         use crate::models::user::standard_fav::service::add::add_standard_fav;
 
-        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
@@ -164,7 +192,7 @@ impl UserMutation {
     ) -> ServiceResult<StandardFav> {
         use crate::models::user::standard_fav::service::delete::delete_standard_fav;
 
-        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
@@ -184,7 +212,7 @@ impl UserMutation {
     ) -> ServiceResult<UserFav> {
         use crate::models::user::user_fav::service::add::add_user_fav;
 
-        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
@@ -204,7 +232,7 @@ impl UserMutation {
     ) -> ServiceResult<UserFav> {
         use crate::models::user::user_fav::service::delete::delete_user_fav;
 
-        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
@@ -224,7 +252,7 @@ impl UserMutation {
     ) -> ServiceResult<SlimNotification> {
         use crate::models::user::notification::service::register::create_notification;
 
-        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
@@ -238,7 +266,7 @@ impl UserMutation {
     ) -> ServiceResult<Notification> {
         use crate::models::user::notification::service::delete::delete_notification;
 
-        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
