@@ -3,6 +3,9 @@ use crate::database::{get_conn, PooledConnection};
 use crate::models::user::get_logged_user_uuid;
 use crate::models::standard::model::{IptStandardData, IptUpdateStandardData, SlimStandard};
 use crate::models::standard::access::model::{ChangeOwnerStandard, ChangeTypeAccessStandard};
+use crate::models::standard::access::company::model::{
+    IptCompanyAccessStandardData, DelCompanyAccessStandardData
+};
 use crate::models::standard::spec::model::IptStandardSpecsData;
 use crate::models::standard::keyword::model::IptStandardKeywordsData;
 use crate::models::standard::file::model::{IptStandardFilesData, DeleteStandardFileData};
@@ -107,6 +110,45 @@ impl StandardMutation {
         del_standard_data(
             &logged_user_uuid,
             &standard_uuid,
+            conn
+        )
+    }
+
+    // Start Manage access standard
+    async fn set_company_access_standard(
+        &self,
+        cxt: &Context<'_>,
+        data: IptCompanyAccessStandardData,
+    ) -> ServiceResult<bool> {
+        use crate::models::standard::access::company::manage::set_company_access_standard;
+
+        // checking authorization and getting company uuid
+        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+
+        let conn: &PooledConnection = &get_conn(cxt)?;
+
+        set_company_access_standard(
+            &logged_user_uuid,
+            &data,
+            conn
+        )
+    }
+
+    async fn delete_company_access_standard(
+        &self,
+        cxt: &Context<'_>,
+        data: DelCompanyAccessStandardData,
+    ) -> ServiceResult<bool> {
+        use crate::models::standard::access::company::manage::del_company_access_standard;
+
+        // checking authorization and getting company uuid
+        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+
+        let conn: &PooledConnection = &get_conn(cxt)?;
+
+        del_company_access_standard(
+            &logged_user_uuid,
+            &data,
             conn
         )
     }

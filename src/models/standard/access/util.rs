@@ -29,18 +29,18 @@ pub fn check_is_owner(
 
 /// Checking onwed standard
 /// Return error if user not owned
-// pub fn check_is_owner_with_err(
-//     target_user_uuid: &Uuid,
-//     target_standard_uuid: &Uuid,
-//     conn: &PgConnection
-// ) -> ServiceResult<bool> {
-//     match check_is_owner(target_user_uuid, target_standard_uuid, conn) {
-//         true => Ok(true),
-//         false => Err(ServiceError::BadRequest(
-//             "Access denied".to_string(),
-//         )),
-//     }
-// }
+pub fn check_is_owner_with_err(
+    target_user_uuid: &Uuid,
+    target_standard_uuid: &Uuid,
+    conn: &PgConnection
+) -> ServiceResult<bool> {
+    match check_is_owner(target_user_uuid, target_standard_uuid, conn) {
+        true => Ok(true),
+        false => Err(ServiceError::BadRequest(
+            "Access denied".to_string(),
+        )),
+    }
+}
 
 /// Full find and check access to standard for user
 /// return err if not found need access
