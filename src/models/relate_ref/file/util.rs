@@ -57,39 +57,6 @@ pub(crate) fn find_id_ext(filename: &str, conn: &PgConnection) -> i32 {
         .first::<i32>(conn).unwrap_or(1)
 }
 
-// /// Find and check existence user owned component
-// pub(crate) fn check_user_owned_component(
-//     user_uuid: Uuid,
-//     component_uuid: Uuid,
-//     conn: &PgConnection
-// ) -> i32 {
-//     use crate::schema::component_ref::dsl::*;
-//
-//     // find component by uuid for user
-//     component_ref
-//         .filter(uuid.eq(component_uuid))
-//         .filter(user_uuid.eq(user_uuid))
-//         .execute(conn).unwrap_or(0) as i32
-// }
-
-// /// Find and check existence user owned component
-// pub(crate) fn check_user_owned_modification(
-//     user_uuid: Uuid,
-//     modification_uuid: Uuid,
-//     conn: &PgConnection
-// ) -> i32 {
-//     use crate::schema::component_modification_list::dsl::*;
-//
-//     // find component this modification by uuid
-//     let component_uuid = component_modification_list
-//         .filter(uuid.eq(modification_uuid))
-//         .select(component_uuid)
-//         .first::<Uuid>(conn).unwrap_or_else(|_| Uuid::nil());
-//
-//     // check user for owned the component
-//     check_user_owned_component(user_uuid, component_uuid, conn)
-// }
-
 /// Checking pre file data for the user
 pub(crate) fn check_write_data(
     user_uuid: &Uuid,
