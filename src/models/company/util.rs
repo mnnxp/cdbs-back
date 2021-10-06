@@ -10,14 +10,13 @@ pub fn check_is_supplier(
     use crate::schema::company_ref::dsl::*;
 
     let get_company_status = company_ref
-        .filter(uuid.eq(target_company_uuid)
-        .and(is_supplier.eq(true)))
-        .limit(1)
-        .execute(conn);
+        .filter(uuid.eq(target_company_uuid))
+        .select(is_supplier)
+        .first::<bool>(conn);
 
     match get_company_status {
-        Ok(count) if count == 1 => Ok(true),
-        Ok(_) => Err(ServiceError::BadRequest(
+        Ok(true) => Ok(true),
+        Ok(false) => Err(ServiceError::BadRequest(
             "The company is not supplier.".to_string(),
         )),
         _ => Err(ServiceError::BadRequest(

@@ -100,14 +100,16 @@ pub(crate) fn check_user_access_to_standard(
 
     let check_res = user_access_to_standard
         .filter(standard_uuid.eq(target_standard_uuid)
-        .and(user_uuid.eq(target_user_uuid)
-        .and(type_access_id.le(need_access_level)))) // <-- access < or = need_access_level
-        .limit(1)
-        .execute(conn);
+        .and(user_uuid.eq(target_user_uuid)))
+        .select(type_access_id)
+        .first::<i32>(conn);
 
     match check_res {
-        Ok(count) if count == 1 => true,
-        Ok(_) => false,
+        Ok(ref tai) if need_access_level >= tai => true, // <-- access < or = need_access_level
+        Ok(tai) => {
+            debug!("Found inappropriate access: {:?}", tai);
+            false
+        },
         Err(err) => {
             debug!("Failed check data: {:?}", err);
             // Err(ServiceError::BadRequest("Failed check data".to_string()))

@@ -115,7 +115,7 @@ pub(crate) fn check_user_access_to_component(
         .filter(component_uuid.eq(target_component_uuid)
         .and(user_uuid.eq(target_user_uuid)))
         .select(type_access_id)
-        .get_result::<i32>(conn);
+        .first::<i32>(conn);
 
     match check_res {
         Ok(ref tai) if need_access_level >= tai => true, // <-- access < or = need_access_level
