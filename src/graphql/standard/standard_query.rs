@@ -3,7 +3,7 @@ use crate::database::{get_conn, PooledConnection};
 use crate::models::user::get_logged_user_uuid;
 use crate::models::standard::model::{ShowStandardShort, StandardAndRelatedData};
 use crate::models::standard::access::company::model::CompanyAccessStandardAndRelatedData;
-// use crate::models::standard::access::user::model::UserAccessStandardAndRelatedData;
+use crate::models::standard::access::user::model::UserAccessStandardAndRelatedData;
 
 use async_graphql::{self, Context, Object};
 use uuid::Uuid;
@@ -72,23 +72,23 @@ impl StandardQuery {
         )
     }
 
-    // async fn get_users_list_access_standard(
-    //     &self,
-    //     cxt: &Context<'_>,
-    //     standard_uuid: Uuid,
-    // ) -> ServiceResult<Vec<UserAccessStandardAndRelatedData>> {
-    //     use crate::models::standard::access::user::manage::get_users_list_access_standard;
-    //
-    //     // checking authorization and getting user uuid
-    //     let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
-    //
-    //     let conn: &PooledConnection = &get_conn(cxt)?;
-    //
-    //     get_users_list_access_standard(
-    //         &logged_user_uuid,
-    //         &standard_uuid,
-    //         &crate::models::user::get_set_language(cxt),
-    //         conn
-    //     )
-    // }
+    async fn get_users_list_access_standard(
+        &self,
+        cxt: &Context<'_>,
+        standard_uuid: Uuid,
+    ) -> ServiceResult<Vec<UserAccessStandardAndRelatedData>> {
+        use crate::models::standard::access::user::manage::get_users_list_access_standard;
+
+        // checking authorization and getting user uuid
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+
+        let conn: &PooledConnection = &get_conn(cxt)?;
+
+        get_users_list_access_standard(
+            &logged_user_uuid,
+            &standard_uuid,
+            &crate::models::user::get_set_language(cxt),
+            conn
+        )
+    }
 }

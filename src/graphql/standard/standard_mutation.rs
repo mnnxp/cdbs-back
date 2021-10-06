@@ -6,6 +6,9 @@ use crate::models::standard::access::model::{ChangeOwnerStandard, ChangeTypeAcce
 use crate::models::standard::access::company::model::{
     IptCompanyAccessStandardData, DelCompanyAccessStandardData
 };
+use crate::models::standard::access::user::model::{
+    IptUserAccessStandardData, DelUserAccessStandardData
+};
 use crate::models::standard::spec::model::IptStandardSpecsData;
 use crate::models::standard::keyword::model::IptStandardKeywordsData;
 use crate::models::standard::file::model::{IptStandardFilesData, DeleteStandardFileData};
@@ -152,6 +155,45 @@ impl StandardMutation {
             conn
         )
     }
+
+    async fn set_user_access_standard(
+        &self,
+        cxt: &Context<'_>,
+        data: IptUserAccessStandardData,
+    ) -> ServiceResult<bool> {
+        use crate::models::standard::access::user::manage::set_user_access_standard;
+
+        // checking authorization and getting user uuid
+        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+
+        let conn: &PooledConnection = &get_conn(cxt)?;
+
+        set_user_access_standard(
+            &logged_user_uuid,
+            &data,
+            conn
+        )
+    }
+
+    async fn delete_user_access_standard(
+        &self,
+        cxt: &Context<'_>,
+        data: DelUserAccessStandardData,
+    ) -> ServiceResult<bool> {
+        use crate::models::standard::access::user::manage::del_user_access_standard;
+
+        // checking authorization and getting user uuid
+        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+
+        let conn: &PooledConnection = &get_conn(cxt)?;
+
+        del_user_access_standard(
+            &logged_user_uuid,
+            &data,
+            conn
+        )
+    }
+    // End Manage access component
 
     async fn add_standard_specs(
         &self,

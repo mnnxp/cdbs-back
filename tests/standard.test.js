@@ -1480,7 +1480,7 @@ describe('company', () => {
         }`,
       })
       .expect(HttpStatus.OK)
-    debug('/graphql registerComponent=%o', body);
+    debug('/graphql body=%o', body);
     const {
       data: { addStandardKeywords },
     } = body;
@@ -1504,7 +1504,7 @@ describe('company', () => {
         }`,
       })
       .expect(HttpStatus.OK)
-    debug('/graphql registerComponent=%o', body);
+    debug('/graphql body=%o', body);
     const {
       data: { addStandardKeywords },
     } = body;
@@ -1587,7 +1587,7 @@ describe('company', () => {
     done();
   });
 
-  it('/graphql:Q Get full data Component - OK check add keywords', async (done) => {
+  it('/graphql:Q Get full data Standard - OK check add keywords', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .set(
@@ -2228,13 +2228,72 @@ describe('company', () => {
     done();
   });
 
+  it('/graphql:M putStandardUpdate - BadReuest no access for company', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `mutation  {
+            putStandardUpdate(
+              standardUuid: "${standardUuidFirst}"
+              data: {
+                classifier: "${classifierStandard}",
+                name: "${nameStandard}",
+                description: "${descriptionStandard}",
+                specifiedTolerance: "${specifiedTolerance}",
+                technicalCommittee: "${technicalCommittee}",
+                publicationAt: "${publicationAt}",
+                companyUuid: "${companyUuidNoSupplier}",
+                standardStatusId: ${standardStatusId},
+                regionId: ${regionId}
+              }
+            )
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql putStandardUpdate=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Access denied'
+    );
+    expect(body.errors[0].path[0]).toBe('putStandardUpdate');
+    done();
+  });
+
+  // Testing add access for user
+  // add access for authorizationTokenSecond
+  it('/graphql:M setUserAccessStandard - OK add low access user', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation  {
+            setUserAccessStandard(
+              data: {
+                standardUuid: "${standardUuidFirst}"
+                userUuid: "${authorizationUserSecond}"
+                typeAccessId: ${typeAccessId2}
+              }
+            )
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql setUserAccessStandard=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { setUserAccessStandard },
+    } = body;
+    expect(setUserAccessStandard).toBe(true);
+    done();
+  });
+
   it('/graphql:Q Get full data Standard - OK Select with uuid (private access)', async (done) => {
-    // add access to the object for the user
-    await global.knex.raw('INSERT INTO user_access_to_standard (standard_uuid, user_uuid, type_access_id, is_enabled, created_at, updated_at) VALUES (?, ?, ?, true, now(), now());', [
-      standardUuidSecond,
-      authorizationUserSecond,
-      3, // type access
-    ]);
     const { body } = await agent
       .post('/graphql')
       .set(
@@ -2243,18 +2302,314 @@ describe('company', () => {
       )
       .send({
         query: `query selectStandardQuery{
-          standards (standardsUuids: "${standardUuidSecond}") {
+          standards (standardsUuids: "${standardUuidFirst}") {
             ${standardsListQuery}
           }
         }`,
       })
       .expect(HttpStatus.OK)
     debug('/graphql body=%o', body);
+    // expect(body).toBe(0);
     const {
       data: { standards },
     } = body;
-    expect(standards[0].uuid).toBe(standardUuidSecond);
-    expect(standards[0].classifier).toBe(classifierStandard);
+    expect(standards[0].uuid).toBe(standardUuidFirst);
+    expect(standards[0].classifier).toBe(classifierStandard2);
+    done();
+  });
+
+  it('/graphql:M putStandardUpdate - BadRequest need higher access', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `mutation  {
+            putStandardUpdate(
+              standardUuid: "${standardUuidFirst}"
+              data: {
+                classifier: "${classifierStandard}",
+                name: "${nameStandard}",
+                description: "${descriptionStandard}",
+                specifiedTolerance: "${specifiedTolerance}",
+                technicalCommittee: "${technicalCommittee}",
+                publicationAt: "${publicationAt}",
+                companyUuid: "${companyUuidNoSupplier}",
+                standardStatusId: ${standardStatusId},
+                regionId: ${regionId}
+              }
+            )
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Access denied'
+    );
+    expect(body.errors[0].path[0]).toBe('putStandardUpdate');
+    done();
+  });
+
+  it('/graphql:M setUserAccessStandard - OK add access user', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation  {
+            setUserAccessStandard(
+              data: {
+                standardUuid: "${standardUuidFirst}"
+                userUuid: "${authorizationUserSecond}"
+                typeAccessId: ${typeAccessId1}
+              }
+            )
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql setUserAccessStandard=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { setUserAccessStandard },
+    } = body;
+    expect(setUserAccessStandard).toBe(true);
+    done();
+  });
+
+  it('/graphql:Q getUsersListAccessStandard - BadRequest access denied', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `query {
+            getUsersListAccessStandard(
+              standardUuid: "${standardUuidFirst}"
+            ) {
+              standardUuid
+              userUuid
+              typeAccess {
+                typeAccessId
+                langId
+                name
+              }
+              isEnabled
+              createdAt
+              updatedAt
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql getUsersListAccessStandard=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Access denied'
+    );
+    expect(body.errors[0].path[0]).toBe('getUsersListAccessStandard');
+    done();
+  });
+
+  it('/graphql:Q getUsersListAccessStandard - OK', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `query {
+            getUsersListAccessStandard(
+              standardUuid: "${standardUuidFirst}"
+            ) {
+              standardUuid
+              userUuid
+              typeAccess {
+                typeAccessId
+                langId
+                name
+              }
+              isEnabled
+              createdAt
+              updatedAt
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql getUsersListAccessStandard=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { getUsersListAccessStandard },
+    } = body;
+    expect(getUsersListAccessStandard[0].standardUuid).toBe(standardUuidFirst);
+    expect(getUsersListAccessStandard[0].userUuid).toBe(authorizationUserSecond);
+    expect(getUsersListAccessStandard[0].typeAccess.typeAccessId).toBe(typeAccessId1);
+    done();
+  });
+
+  it('/graphql:M putStandardUpdate - BadReuest no access', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `mutation  {
+            putStandardUpdate(
+              standardUuid: "${standardUuidFirst}"
+              data: {
+                classifier: "${classifierStandard2}",
+                name: "${nameStandard2}",
+                description: "${descriptionStandard2}",
+                specifiedTolerance: "${specifiedTolerance2}",
+                technicalCommittee: "${technicalCommittee2}",
+                publicationAt: "${publicationAt2}",
+                companyUuid: "${companyUuidNoSupplier}",
+                standardStatusId: ${standardStatusId2},
+                regionId: ${regionId2}
+              }
+            )
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql putStandardUpdate=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Access denied'
+    );
+    expect(body.errors[0].path[0]).toBe('putStandardUpdate');
+    done();
+  });
+
+  it('/graphql:M putStandardUpdate - OK with access user', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `mutation  {
+            putStandardUpdate(
+              standardUuid: "${standardUuidFirst}"
+              data: {
+                classifier: "${classifierStandard}",
+                name: "${nameStandard2}",
+                description: "${descriptionStandard}",
+                specifiedTolerance: "${specifiedTolerance2}",
+                technicalCommittee: "${technicalCommittee}",
+                publicationAt: "${publicationAt2}",
+                standardStatusId: ${standardStatusId},
+                regionId: ${regionId2}
+              }
+            )
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql putStandardUpdate=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { putStandardUpdate },
+    } = body;
+    expect(putStandardUpdate).toBe(5);
+    done();
+  });
+
+  // disable access for authorizationTokenSecond
+  it('/graphql:M deleteUserAccessStandard - OK delete access user', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation  {
+            deleteUserAccessStandard(
+              data: {
+                standardUuid: "${standardUuidFirst}"
+                userUuid: "${authorizationUserSecond}"
+              }
+            )
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql deleteUserAccessStandard=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { deleteUserAccessStandard },
+    } = body;
+    expect(deleteUserAccessStandard).toBe(true);
+    done();
+  });
+
+  it('/graphql:M deleteUserAccessStandard - BadRequest not found access', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation  {
+            deleteUserAccessStandard(
+              data: {
+                standardUuid: "${standardUuidFirst}"
+                userUuid: "${authorizationUserSecond}"
+              }
+            )
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql deleteUserAccessStandard=%o', body);
+    // expect(body).toBe(0);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Access not found for user'
+    );
+    expect(body.errors[0].path[0]).toBe('deleteUserAccessStandard');
+    done();
+  });
+
+  it('/graphql:M putStandardUpdate - BadRequest access denied', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `mutation  {
+            putStandardUpdate(
+              standardUuid: "${standardUuidFirst}"
+              data: {
+                classifier: "${classifierStandard}",
+                name: "${nameStandard}",
+                description: "${descriptionStandard}",
+                specifiedTolerance: "${specifiedTolerance}",
+                technicalCommittee: "${technicalCommittee}",
+                publicationAt: "${publicationAt}",
+                companyUuid: "${companyUuidNoSupplier}",
+                standardStatusId: ${standardStatusId},
+                regionId: ${regionId}
+              }
+            )
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Access denied'
+    );
+    expect(body.errors[0].path[0]).toBe('putStandardUpdate');
     done();
   });
 
