@@ -1,40 +1,36 @@
-use crate::errors::ServiceResult;
-use crate::models::user::model::{
-    IptUserData,
-    InsertableUser,
-    SlimUser,
-    User,
-    UserData,
-};
+use crate::errors::{ServiceResult, ServiceError};
+use crate::models::user::model::{IptUserData, InsertableUser, SlimUser};
 use diesel::prelude::*;
-use uuid::Uuid;
+// use uuid::Uuid;
 
+/// Create new user
 pub(crate) fn create_user(
-    data: IptUserData,
+    data: &IptUserData,
     conn: &PgConnection
 ) -> ServiceResult<SlimUser> {
-    use crate::schema::user_ref::dsl::user_ref;
+    use crate::schema::user_ref::dsl::*;
 
-    let image_file_uuid = Uuid::parse_str("bc1c2151-86d0-4656-9c9d-d016dd584297")?; // <-- todo!(get uuid default favicon)
+    let insert_values: InsertableUser = data.into();
 
-    let new_user = UserData {
-        email: data.email,
-        password: data.password,
-        firstname: data.firstname,
-        lastname: data.lastname,
-        secondname: data.secondname,
-        username: data.username,
-        phone: data.phone,
-        description: data.description,
-        address: data.address,
-        position: data.position,
-        time_zone: data.time_zone,
-        image_file_uuid,
-        region_id: data.region_id,
-        program_id: data.program_id,
-    };
+    let inserted_user = diesel::insert_into(user_ref)
+        .values(&insert_values)
+        .returning((
+            uuid,
+            program_id,
+            username,
+        ))
+        .get_result::<SlimUser>(conn);
 
-    let user: InsertableUser = new_user.into();
-    let inserted_user: User = diesel::insert_into(user_ref).values(&user).get_result(conn)?;
-    Ok(inserted_user.into())
+    match inserted_user {
+        Ok(x) => {
+            debug!("Completed create new user: {:?}", x);
+            Ok(x)
+        },
+        Err(err) => {
+            debug!("Failed create new user: {:?}", err);
+            Err(ServiceError::BadRequest(
+                "Failed create new user".to_string()
+            ))
+        },
+    }
 }

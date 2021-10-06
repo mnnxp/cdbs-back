@@ -97,50 +97,7 @@ pub struct UserAndRelatedData {
     pub fav_users_count: i32,
 }
 
-#[derive(Debug, Insertable)]
-#[table_name = "user_ref"]
-pub struct InsertableUser {
-    pub uuid: Uuid,
-    pub email: String,
-    pub psw_hash: Vec<u8>,
-    pub psw_salt: String,
-    pub firstname: String,
-    pub lastname: String,
-    pub secondname: String,
-    pub username: String,
-    pub phone: String,
-    pub description: String,
-    pub address: String,
-    pub position: String,
-    pub time_zone: String,
-    pub image_file_uuid: Uuid,
-    pub region_id: i32,
-    pub program_id: i32,
-    pub is_email_verified: bool,
-    pub is_enabled: bool,
-    pub is_delete: bool,
-    pub created_at: NaiveDateTime,
-    pub updated_at: NaiveDateTime,
-}
-
-#[derive(Debug, Deserialize, Clone, InputObject)]
-pub struct IptUserData {
-    pub email: String,
-    pub password: String,
-    pub firstname: String,
-    pub lastname: String,
-    pub secondname: String,
-    pub username: String,
-    pub phone: String,
-    pub description: String,
-    pub address: String,
-    pub position: String,
-    pub time_zone: String,
-    pub region_id: i32,
-    pub program_id: i32,
-}
-
-#[derive(Debug, Deserialize, Clone)]
+#[derive(Debug, Clone)]
 pub struct UserData {
     pub email: String,
     pub password: String,
@@ -158,87 +115,127 @@ pub struct UserData {
     pub program_id: i32,
 }
 
-#[Object]
-impl UserData {
-    async fn email(&self) -> &String {
-        &self.email
-    }
-    async fn firstname(&self) -> &String {
-        &self.firstname
-    }
-    async fn lastname(&self) -> &String {
-        &self.lastname
-    }
-    async fn secondname(&self) -> &String {
-        &self.secondname
-    }
-    async fn username(&self) -> &String {
-        &self.username
-    }
-    async fn phone(&self) -> &String {
-        &self.phone
-    }
-    async fn description(&self) -> &String {
-        &self.description
-    }
-    async fn address(&self) -> &String {
-        &self.address
-    }
-    async fn position(&self) -> &String {
-        &self.position
-    }
-    async fn time_zone(&self) -> &String {
-        &self.time_zone
-    }
-    async fn image_file_uuid(&self) -> ID {
-        self.image_file_uuid.into()
-    }
-    async fn region_id(&self) -> &i32 {
-        &self.region_id
-    }
-    async fn program_id(&self) -> &i32 {
-        &self.program_id
-    }
+#[derive(Debug, Insertable)]
+#[table_name = "user_ref"]
+pub(crate) struct InsertableUser {
+    uuid: Uuid,
+    email: String,
+    psw_hash: Vec<u8>,
+    psw_salt: String,
+    firstname: String,
+    lastname: String,
+    secondname: String,
+    username: String,
+    phone: String,
+    description: String,
+    address: String,
+    position: String,
+    time_zone: String,
+    image_file_uuid: Uuid,
+    region_id: i32,
+    program_id: i32,
+    is_email_verified: bool,
+    is_enabled: bool,
+    is_delete: bool,
+    created_at: NaiveDateTime,
+    updated_at: NaiveDateTime,
 }
 
-impl From<UserData> for InsertableUser {
-    fn from(user_data: UserData) -> Self {
-        let UserData {
+#[derive(Debug, Deserialize, Clone, InputObject)]
+pub struct IptUserData {
+    pub email: String,
+    pub username: String,
+    pub password: String,
+    pub firstname: Option<String>,
+    pub lastname: Option<String>,
+    pub secondname: Option<String>,
+    pub phone: Option<String>,
+    pub description: Option<String>,
+    pub address: Option<String>,
+    pub position: Option<String>,
+    pub time_zone: Option<String>,
+    pub region_id: Option<i32>,
+    pub program_id: Option<i32>,
+}
+
+impl From<&IptUserData> for InsertableUser {
+    fn from(ipt_data: &IptUserData) -> Self {
+        let IptUserData {
             email,
+            username,
             password,
             firstname,
             lastname,
             secondname,
-            username,
             phone,
             description,
             address,
             position,
             time_zone,
-            image_file_uuid,
             region_id,
             program_id,
             ..
-        } = user_data;
+        } = ipt_data;
 
         let psw_salt = make_salt();
-        let psw_hash = make_hash_salt(&password, &psw_salt).to_vec();
+        let psw_hash = make_hash_salt(password, &psw_salt).to_vec();
+
+        // todo!(make fn for gets default uuid favicon)
+        let image_file_uuid = Uuid::from_bytes([
+            0xbc,0x1c,0x21,0x51,0x86,0xd0,0x46,0x56,0x9c,0x9d,0xd0,0x16,0xdd,0x58,0x42,0x97
+        ]);
+
+        // set default data
+        let firstname = match firstname {
+            Some(x) => x.to_string(),
+            None => String::new(),
+        };
+        let lastname = match lastname{
+            Some(x) => x.to_string(),
+            None => String::new(),
+        };
+        let secondname = match secondname{
+            Some(x) => x.to_string(),
+            None => String::new(),
+        };
+        let phone = match phone{
+            Some(x) => x.to_string(),
+            None => String::new(),
+        };
+        let description = match description{
+            Some(x) => x.to_string(),
+            None => String::new(),
+        };
+        let address = match address{
+            Some(x) => x.to_string(),
+            None => String::new(),
+        };
+        let position = match position{
+            Some(x) => x.to_string(),
+            None => String::new(),
+        };
+        let time_zone = match time_zone{
+            Some(x) => x.to_string(),
+            None => String::new(),
+        };
+        let region_id = region_id.unwrap_or(1);
+        let program_id = program_id.unwrap_or(1);
 
         Self {
             uuid: Uuid::new_v4(),
-            email,
+            email: email.to_string(),
             psw_hash,
             psw_salt,
             firstname,
             lastname,
             secondname,
-            username,
+            username: username.to_string(),
             phone,
             description,
             address,
             position,
             time_zone,
-            image_file_uuid,
+            image_file_uuid, // default
             region_id,
             program_id,
             is_email_verified: false,
@@ -318,12 +315,29 @@ impl ShowUserShort {
     }
 }
 
-impl From<(&UserShort, ShowFile)> for ShowUserShort {
-    fn from(data: (&UserShort, ShowFile)) -> Self {
+impl From<(&UserShort, &ShowFile)> for ShowUserShort {
+    fn from(data: (&UserShort, &ShowFile)) -> Self {
         Self {
             uuid: data.0.uuid,
             username: data.0.username.to_string(),
-            image_file: data.1,
+            image_file: data.1.to_owned(),
         }
     }
+}
+
+
+#[derive(Debug, Deserialize, Clone, InputObject)]
+pub struct IptUpdateUserData {
+    pub email: Option<String>,
+    pub firstname: Option<String>,
+    pub lastname: Option<String>,
+    pub secondname: Option<String>,
+    pub username: Option<String>,
+    pub phone: Option<String>,
+    pub description: Option<String>,
+    pub address: Option<String>,
+    pub position: Option<String>,
+    pub time_zone: Option<String>,
+    pub region_id: Option<i32>,
+    pub program_id: Option<i32>,
 }

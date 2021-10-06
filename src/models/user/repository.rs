@@ -89,7 +89,7 @@ impl ShowUserShort {
 
         Ok(ShowUserShort::from((
             &user_data,
-            ShowFile::get_file_by_uuid(&user_data.image_file_uuid, conn)
+            &ShowFile::get_file_by_uuid(&user_data.image_file_uuid, conn)
                 .expect("Failed get CertificateWithShowFile for ShowUserShort")
         )))
     }
