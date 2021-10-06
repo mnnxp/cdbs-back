@@ -28,8 +28,6 @@ const descriptionStandard = "Test GOST standard";
 const specifiedTolerance = "C";
 const technicalCommittee = "GOST";
 const publicationAt = "2021-07-31T00:00:00";
-const typeAccessId3 = 3;
-const typeAccessId1 = 1;
 const standardStatusId = 1;
 const regionId = 5;
 var standardUuidFirst = "";
@@ -198,6 +196,12 @@ var companyUuidFirst = "";
 var uuidRepresentFirst = "";
 var uuidRepresentDelete = "";
 
+// standard type access
+const typeAccessId3 = 3;
+const typeAccessId2 = 2;
+const typeAccessId1 = 1;
+
+// standard keywords
 const keywordIdsOk = [1,3,5];
 const keywordIdsDup = [1,2,3,4,5];
 
@@ -1069,7 +1073,7 @@ describe('company', () => {
   });
 
   // check add and delete files
-  it('/graphql:Q standard - OK check add/del files', async (done) => {
+  it('/graphql:Q Get full data Standard - OK check add/del files', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .set(
@@ -1244,7 +1248,7 @@ describe('company', () => {
     done();
   });
 
-  it('/graphql:Q standard - OK check add specs', async (done) => {
+  it('/graphql:Q Get full data Standard - OK check add specs', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .set(
@@ -1398,7 +1402,7 @@ describe('company', () => {
     done();
   });
 
-  it('/graphql:Q standard - OK check delete specs', async (done) => {
+  it('/graphql:Q Get full data Standard - OK check delete specs', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .set(
@@ -1701,7 +1705,7 @@ describe('company', () => {
   });
 
   // Testing get standard data
-  it('/graphql:Q standard - BadRequest without token', async (done) => {
+  it('/graphql:Q Get full data Standard - BadRequest without token', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .send({
@@ -1719,7 +1723,7 @@ describe('company', () => {
     done();
   });
 
-  it('/graphql:Q standard - OK ShowStandardShort', async (done) => {
+  it('/graphql:Q Get full data Standard - OK ShowStandardShort', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .set(
@@ -1743,7 +1747,7 @@ describe('company', () => {
     done();
   });
 
-  it('/graphql:Q standard - OK Select with uuid (public access)', async (done) => {
+  it('/graphql:Q Get full data Standard - OK Select with uuid (public access)', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .set(
@@ -1767,7 +1771,7 @@ describe('company', () => {
     done();
   });
 
-  it('/graphql:Q standard - BadReuest no access', async (done) => {
+  it('/graphql:Q Get full data Standard - BadReuest no access', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .set(
@@ -1789,7 +1793,11 @@ describe('company', () => {
     done();
   });
 
-  it('/graphql:Q standard - OK Select with uuid (private access)', async (done) => {
+  // Testing add access for company
+
+  // Testing delete access for company
+
+  it('/graphql:Q Get full data Standard - OK Select with uuid (private access)', async (done) => {
     // add access to the object for the user
     await global.knex.raw('INSERT INTO user_access_to_standard (standard_uuid, user_uuid, type_access_id, is_enabled, created_at, updated_at) VALUES (?, ?, ?, true, now(), now());', [
       standardUuidSecond,
@@ -1816,6 +1824,168 @@ describe('company', () => {
     } = body;
     expect(standards[0].uuid).toBe(standardUuidSecond);
     expect(standards[0].classifier).toBe(classifierStandard);
+    done();
+  });
+
+  // Testing change standard access
+  it('/graphql:M changeStandardAccess - BadRequest access denied', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `mutation {
+            changeStandardAccess( data: {
+              standardUuid: "${standardUuidSecond}"
+              newTypeAccessUuid: ${typeAccessId2}
+            })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql changeStandardAccess=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Access denied'
+    );
+    expect(body.errors[0].path[0]).toBe('changeStandardAccess');
+    done();
+  });
+
+  it('/graphql:M changeStandardAccess - OK', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation {
+            changeStandardAccess( data: {
+              standardUuid: "${standardUuidSecond}"
+              newTypeAccessUuid: ${typeAccessId2}
+            })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql changeStandardAccess=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { changeStandardAccess },
+    } = body;
+    expect(changeStandardAccess).toBe(true);
+    done();
+  });
+
+  it('/graphql:Q Get full data Standard - OK check change access', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+          query: `query standardQuery{
+            standard(standardUuid: "${standardUuidSecond}") {
+              uuid
+              ownerUser {
+                uuid
+              }
+              typeAccessId
+            }
+          }`,
+        })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { standard },
+    } = body;
+    expect(standard.uuid).toBe(standardUuidSecond);
+    expect(standard.ownerUser.uuid).toBe(authorizationUserFirst);
+    expect(standard.typeAccessId).toBe(typeAccessId2);
+    done();
+  });
+
+  // Testing transfer standard ownership
+  it('/graphql:M transferStandardOwnership - BadRequest access denied', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `mutation {
+            transferStandardOwnership( data: {
+              standardUuid: "${standardUuidSecond}"
+              newOwnerUserUuid: "${authorizationUserFirst}"
+            })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql transferStandardOwnership=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Access denied'
+    );
+    expect(body.errors[0].path[0]).toBe('transferStandardOwnership');
+    done();
+  });
+
+  it('/graphql:M transferStandardOwnership - OK', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation {
+            transferStandardOwnership( data: {
+              standardUuid: "${standardUuidSecond}"
+              newOwnerUserUuid: "${authorizationUserFirst}"
+            })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql transferStandardOwnership=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { transferStandardOwnership },
+    } = body;
+    expect(transferStandardOwnership).toBe(true);
+    done();
+  });
+
+  it('/graphql:Q Get full data Standard - OK check change owner', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+          query: `query standardQuery{
+            standard(standardUuid: "${standardUuidSecond}") {
+              uuid
+              ownerUser {
+                uuid
+              }
+              typeAccessId
+            }
+          }`,
+        })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { standard },
+    } = body;
+    expect(standard.uuid).toBe(standardUuidSecond);
+    expect(standard.ownerUser.uuid).toBe(authorizationUserFirst);
+    expect(standard.typeAccessId).toBe(typeAccessId2);
     done();
   });
 
