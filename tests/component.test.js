@@ -53,6 +53,11 @@ var companyUuidNoSupplier = "";
 var companyUuidSupplier = "";
 
 // data for component
+const componentNamePut = "componentNamePutUpdate";
+const descriptionNamePut = "descriptionNamePutUpdate";
+const componentTypeIdPut = 2;
+const actualStatusIdPut = 1;
+
 const parentComponentUuid = "a5953fd9-7393-4f1e-a899-06b5e159dbf1";
 const nameComponent = "M Series Geared Motor";
 const nameComponent2 = "X Custom Geared Motor";
@@ -752,6 +757,157 @@ describe('component', () => {
     done();
   });
 
+  // Testing update component data
+  it('/graphql:M putComponentUpdate - BadRequest no token', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .send({
+        query: `mutation  {
+            putComponentUpdate(
+              componentUuid: "${componentUuidStandard}"
+              data: {
+                parentComponentUuid: "${componentUuidNoStandard}"
+                name: "${componentNamePut}"
+                description: "${descriptionNamePut}"
+                componentTypeId: ${componentTypeIdPut}
+                actualStatusId: ${actualStatusIdPut}
+              }
+            )
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Token not found.'
+    );
+    expect(body.errors[0].path[0]).toBe('putComponentUpdate');
+    done();
+  });
+
+  it('/graphql:M putComponentUpdate - BadRequest no access', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `mutation  {
+            putComponentUpdate(
+              componentUuid: "${componentUuidStandard}"
+              data: {
+                parentComponentUuid: "${componentUuidNoStandard}"
+                name: "${componentNamePut}"
+                description: "${descriptionNamePut}"
+                componentTypeId: ${componentTypeIdPut}
+                actualStatusId: ${actualStatusIdPut}
+              }
+            )
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Access denied'
+    );
+    expect(body.errors[0].path[0]).toBe('putComponentUpdate');
+    done();
+  });
+
+  it('/graphql:M putComponentUpdate - OK', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation  {
+            putComponentUpdate(
+              componentUuid: "${componentUuidStandard}"
+              data: {
+                parentComponentUuid: "${componentUuidNoStandard}"
+                name: "${componentNamePut}"
+                description: "${descriptionNamePut}"
+                componentTypeId: ${componentTypeIdPut}
+                actualStatusId: ${actualStatusIdPut}
+              }
+            )
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql putComponentUpdate=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { putComponentUpdate },
+    } = body;
+    expect(putComponentUpdate).toBe(4);
+    done();
+  });
+
+  it('/graphql:M putComponentUpdate - BadRequest data has already', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation  {
+            putComponentUpdate(
+              componentUuid: "${componentUuidStandard}"
+              data: {
+                parentComponentUuid: "${componentUuidNoStandard}"
+                name: "${componentNamePut}"
+                description: "${descriptionNamePut}"
+                componentTypeId: ${componentTypeIdPut}
+                actualStatusId: ${actualStatusIdPut}
+              }
+            )
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: The data has already'
+    );
+    expect(body.errors[0].path[0]).toBe('putComponentUpdate');
+    done();
+  });
+
+  it('/graphql:M putComponentUpdate - OK return data', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation  {
+            putComponentUpdate(
+              componentUuid: "${componentUuidStandard}"
+              data: {
+                parentComponentUuid: "${parentComponentUuid}",
+                name: "${nameComponent}",
+                description: "${descriptionComponent}",
+                componentTypeId: ${componentTypeId},
+                actualStatusId: ${actualStatusIdComponent},
+              }
+            )
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql putComponentUpdate=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { putComponentUpdate },
+    } = body;
+    expect(putComponentUpdate).toBe(4);
+    done();
+  });
 
   // Testing adding component keywords
   it('/graphql:M addComponentKeywords - BadRequest no token', async (done) => {
