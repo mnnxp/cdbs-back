@@ -60,7 +60,7 @@ impl UserMutation {
         cxt: &Context<'_>,
         filename: String,
     ) -> ServiceResult<String> {
-        use crate::models::user::service::relate::favicon::update_favicon;
+        use crate::models::user::relate::favicon::update_favicon;
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
