@@ -822,7 +822,7 @@ describe('company', () => {
   });
 
   // Test for company certificates
-  it('/graphql:Q CompanyCertificate - BadRequest not token', async (done) => {
+  it('/graphql:Q companyCertificate - BadRequest not token', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .send({
@@ -1050,7 +1050,7 @@ describe('company', () => {
     done();
   });
 
-  it('/graphql:Q CompanyCertificate - Ok', async (done) => {
+  it('/graphql:Q companyCertificate - Ok', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .set(
@@ -1075,7 +1075,7 @@ describe('company', () => {
     done();
   });
 
-  it('/graphql:Q CompanyCertificate - BadRequest no access', async (done) => {
+  it('/graphql:Q companyCertificate - BadRequest no access', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .set(

@@ -1,5 +1,4 @@
 use crate::errors::ServiceResult;
-use crate::models::company::model::Company;
 use crate::models::company::certificate::model::{
     CompanyCertificate,
     CertificateWithShowFile,
@@ -10,12 +9,13 @@ use diesel::prelude::*;
 use uuid::Uuid;
 
 impl ShowFile {
-    /// Search files certificates target company
-    pub fn for_company_certificates(
-        company: &Company,
+    /// Search files certificates target company by uuid
+    pub fn from_company_certificates(
+        target_company_uuid: &Uuid,
         conn: &PgConnection,
     ) -> ServiceResult<Vec<ShowFile>> {
-        let target_vec_file_uuid: Vec<Uuid> = CompanyCertificate::belonging_to(company)
+        let target_vec_file_uuid: Vec<Uuid> = company_certificate_ref::company_certificate_ref
+            .filter(company_certificate_ref::company_uuid.eq(target_company_uuid))
             .select(company_certificate_ref::file_uuid)
             .load::<Uuid>(conn)?;
 
@@ -25,15 +25,16 @@ impl ShowFile {
 
 impl CertificateWithShowFile {
     /// Gets certificates company with slimfile data
-    pub fn for_company(
-        company: &Company,
+    pub fn from_company(
+        target_company_uuid: &Uuid,
         conn: &PgConnection,
     ) -> ServiceResult<Vec<CertificateWithShowFile>> {
-        let certificates_company = CompanyCertificate::belonging_to(company)
+        let certificates_company = company_certificate_ref::company_certificate_ref
+            .filter(company_certificate_ref::company_uuid.eq(target_company_uuid))
             .load::<CompanyCertificate>(conn)?;
 
-        let files_for_certificates = ShowFile::for_company_certificates(
-            company,
+        let files_for_certificates = ShowFile::from_company_certificates(
+            target_company_uuid,
             conn
         ).expect("Error loading certificates");
 

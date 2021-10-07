@@ -156,8 +156,8 @@ impl CompanyAndRelatedData {
         let company_subscribers_count: i32 = CompanyFav::get_count_followers_by_uuid(&company.uuid, conn)?;
 
         // get certificates with slimfile for company
-        let certificates_with_slimfile: Vec<CertificateWithShowFile> = CertificateWithShowFile::for_company(
-            &company,
+        let certificates_with_slimfile: Vec<CertificateWithShowFile> = CertificateWithShowFile::from_company(
+            &company.uuid,
             conn
         ).expect("Error loading spec company with translate");
 
