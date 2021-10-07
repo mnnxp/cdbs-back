@@ -1,4 +1,4 @@
-use super::util::{make_hash_salt, make_salt};
+use super::access::util::{make_hash_salt, make_salt};
 use super::certificate::model::CertificateWithShowFile;
 use crate::models::relate_ref::file::model::ShowFile;
 use crate::models::relate_ref::region::model::RegionTranslateList;
@@ -10,29 +10,41 @@ use chrono::*;
 use uuid::Uuid;
 
 #[derive(Debug, Queryable)]
-pub struct User {
-    pub uuid: Uuid,
-    pub email: String,
-    pub psw_hash: Vec<u8>,
-    pub psw_salt: String,
-    pub firstname: String,
-    pub lastname: String,
-    pub secondname: String,
-    pub username: String,
-    pub phone: String,
-    pub description: String,
-    pub address: String,
-    pub position: String, // todo!(in future: separate in table with translation)
-    pub time_zone: String,
-    pub image_file_uuid: Uuid,
-    pub region_id: i32,
-    pub program_id: i32,
-    pub type_access_id: i32,
-    pub is_email_verified: bool,
-    pub is_enabled: bool,
-    pub is_delete: bool,
-    pub created_at: NaiveDateTime,
-    pub updated_at: NaiveDateTime,
+pub(crate) struct User {
+    uuid: Uuid,
+    email: String,
+    psw_hash: Vec<u8>,
+    psw_salt: Vec<u8>,
+    firstname: String,
+    lastname: String,
+    secondname: String,
+    username: String,
+    phone: String,
+    description: String,
+    address: String,
+    position: String, // todo!(in future: separate in table with translation)
+    time_zone: String,
+    image_file_uuid: Uuid,
+    region_id: i32,
+    program_id: i32,
+    type_access_id: i32,
+    is_email_verified: bool,
+    is_enabled: bool,
+    is_delete: bool,
+    created_at: NaiveDateTime,
+    updated_at: NaiveDateTime,
+}
+
+impl User {
+    /// Gets password hash
+    pub(super) fn get_psw_hash(&self) -> &[u8] {
+        &self.psw_hash
+    }
+
+    /// Gets password salt
+    pub(super) fn get_psw_salt(&self) -> &[u8] {
+        &self.psw_salt
+    }
 }
 
 #[derive(Identifiable, Deserialize, Queryable, Debug)]
@@ -121,7 +133,7 @@ pub(crate) struct InsertableUser {
     uuid: Uuid,
     email: String,
     psw_hash: Vec<u8>,
-    psw_salt: String,
+    psw_salt: Vec<u8>,
     firstname: String,
     lastname: String,
     secondname: String,
@@ -178,7 +190,10 @@ impl From<&IptUserData> for InsertableUser {
         } = ipt_data;
 
         let psw_salt = make_salt();
-        let psw_hash = make_hash_salt(password, &psw_salt).to_vec();
+        let psw_hash = make_hash_salt(
+            password.as_bytes(),
+            &psw_salt,
+        );
 
         // todo!(make fn for gets default uuid favicon)
         let image_file_uuid = Uuid::from_bytes([
@@ -225,7 +240,7 @@ impl From<&IptUserData> for InsertableUser {
             uuid: Uuid::new_v4(),
             email: email.to_string(),
             psw_hash,
-            psw_salt,
+            psw_salt: psw_salt.to_vec(),
             firstname,
             lastname,
             secondname,

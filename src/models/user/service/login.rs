@@ -1,6 +1,6 @@
 use crate::errors::{ServiceError, ServiceResult};
 use crate::models::user::model::{SlimUser, User};
-use crate::models::user::util::verify;
+use crate::models::user::access::util::verify;
 // use actix_web::web;
 use diesel::prelude::*;
 
@@ -16,9 +16,8 @@ pub(crate) fn login(
         .first::<User>(conn)
         .map_err(|_| ServiceError::Unauthorized)?;
 
-    if verify(&user, user_password) {
-        Ok(user.into())
-    } else {
-        Err(ServiceError::Unauthorized)
+    match verify(user.get_psw_hash(), user.get_psw_salt(), user_password.as_bytes()) {
+        true => Ok(user.into()),
+        false => Err(ServiceError::Unauthorized),
     }
 }
