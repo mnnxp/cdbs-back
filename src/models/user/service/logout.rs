@@ -1,16 +1,17 @@
 use crate::database::{get_conn, PooledConnection};
 use crate::errors::ServiceError;
-use crate::models::user::service as user;
 use async_graphql::Context;
 
 pub(crate) fn logout(
     cxt: &Context<'_> ,
 ) -> Result<String, ServiceError> {
+    use crate::models::user::access::token::{token_from_cxt, delete_token};
+
     let conn: &PooledConnection = &get_conn(cxt)?;
 
-    let target_token = user::token::token_from_cxt(cxt)?;
+    let target_token = token_from_cxt(cxt)?;
 
-    match user::token::delete_token(target_token.as_str(), conn) {
+    match delete_token(target_token.as_str(), conn) {
         Ok(_) => Ok("Good Luck".to_string()),
         Err(_) => Err(ServiceError::Unauthorized),
     }

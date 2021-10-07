@@ -1,5 +1,6 @@
 mod handler;
-pub mod model;
+pub(crate) mod access;
+pub(crate) mod model;
 pub(crate) mod notification;
 pub(crate) mod service;
 pub(crate) mod relate;

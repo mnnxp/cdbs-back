@@ -2,7 +2,6 @@ mod login;
 mod logout;
 pub(crate) mod list;
 pub(crate) mod register;
-pub(crate) mod token;
 pub(crate) mod update;
 
 pub(crate) use login::login;

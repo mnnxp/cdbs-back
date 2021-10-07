@@ -1,8 +1,8 @@
+use crate::errors::{ServiceResult, ServiceError};
 use crate::database::{get_conn, PooledConnection};
-use super::model::User;
-use crate::models::user::service as user;
+use crate::models::user::model::User;
 use crate::models::relate_ref::language::model::SetLang;
-use crate::errors::ServiceError;
+
 use async_graphql::Context;
 use argon2rs::argon2i_simple;
 use uuid::Uuid;
@@ -37,12 +37,14 @@ pub(crate) fn verify(user: &User, password: &str) -> bool {
 }
 
 /// checking user authorization
-pub(crate) fn check_authorized(cxt: &Context<'_>) -> Result<bool, ServiceError> {
+pub(crate) fn check_authorized(cxt: &Context<'_>) -> ServiceResult<bool> {
+    use crate::models::user::access::token::{token_from_cxt, check_token};
+
     let conn: &PooledConnection = &get_conn(cxt)?;
 
-    let token = user::token::token_from_cxt(cxt)?;
+    let token = token_from_cxt(cxt)?;
 
-    match user::token::check_token(token.as_str(), conn)? {
+    match check_token(token.as_str(), conn)? {
         true => Ok(true),
         false => Err(ServiceError::Unauthorized),
     }
@@ -53,16 +55,18 @@ pub(crate) fn check_authorized(cxt: &Context<'_>) -> Result<bool, ServiceError> 
 pub(crate) fn get_logged_user_uuid(
     cxt: &Context<'_>,
     need_check: bool
-) -> Result<Uuid, ServiceError> {
-    let target_token = user::token::token_from_cxt(cxt)?;
+) -> ServiceResult<Uuid> {
+    use crate::models::user::access::token::{token_from_cxt, whose_token, check_token};
+
+    let target_token = token_from_cxt(cxt)?;
 
     let conn: &PooledConnection = &get_conn(cxt)?;
 
     match need_check {
-        false => user::token::whose_token(target_token.as_str(), conn),
+        false => whose_token(target_token.as_str(), conn),
         true => {
-            if user::token::check_token(target_token.as_str(), conn)? {
-                user::token::whose_token(target_token.as_str(), conn)
+            if check_token(target_token.as_str(), conn)? {
+                whose_token(target_token.as_str(), conn)
             } else {
                 Err(ServiceError::Unauthorized)
             }
@@ -82,6 +86,6 @@ pub(crate) fn get_set_language(
 }
 
 // comparison of the received user_uuid with the user_uuid of the authorized user
-// pub(crate) fn compare_user_uuid(target_auth_user_uuid: Uuid, cxt: &Context<'_>) -> Result<bool, ServiceError> {
+// pub(crate) fn compare_user_uuid(target_auth_user_uuid: Uuid, cxt: &Context<'_>) -> ServiceResult<bool> {
 //     Ok(get_auth_user_uuid(cxt, false)? == target_auth_user_uuid)
 // }
