@@ -1,6 +1,6 @@
 use crate::errors::ServiceResult;
 use crate::database::{get_conn, PooledConnection};
-use crate::models::user;
+use crate::models::user::access::logged::get_logged_user_uuid;
 use crate::models::company::model::{CompanyAndRelatedData, ShowCompanyShort};
 use crate::models::company;
 use crate::models::company::member::model::CompanyMemberAndRelatedData;
@@ -24,7 +24,7 @@ impl CompanyQuery {
         use company::service::list::find_companies;
 
         // authorization check
-        let logged_user_uuid = user::get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
         // todo!(need set check limit length vec)
 
@@ -46,7 +46,7 @@ impl CompanyQuery {
         use company::service::list::find_by_uuid;
 
         // authorization check
-        let logged_user_uuid = user::get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
@@ -65,7 +65,7 @@ impl CompanyQuery {
         represents_uuids: Option<Vec<Uuid>>,
     ) -> ServiceResult<Vec<CompanyRepresentAndRelatedData>> {
         // authorization check
-        user::util::check_authorized(cxt)?;
+        crate::models::user::access::logged::check_authorized(cxt)?;
 
         // todo!(check access)
 
@@ -101,7 +101,7 @@ impl CompanyQuery {
         use company::member::service::list::get_by_company_uuid;
 
         // authorization check
-        let logged_user_uuid = user::get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
@@ -121,7 +121,7 @@ impl CompanyQuery {
         use company::member::role::service::list::get_roles_for_company;
 
         // authorization check
-        let logged_user_uuid = user::get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 

@@ -4,7 +4,6 @@ use crate::database::{get_conn, PooledConnection};
 use crate::errors::ServiceResult;
 use crate::models::relate_ref::program;
 use crate::models::relate_ref::program::model::{IptProgramData, Program};
-use crate::models::user;
 
 #[derive(Default)]
 pub struct ProgramQuery;
@@ -41,7 +40,7 @@ impl ProgramMutation {
         use program::service::register::create_program;
         let conn: &PooledConnection = &get_conn(cxt)?;
 
-        user::check_authorized(cxt)?;
+        crate::models::user::access::logged::check_authorized(cxt)?;
 
         create_program(data, conn)
     }

@@ -1,6 +1,6 @@
 use crate::database::{get_conn, PooledConnection};
 use crate::errors::ServiceResult;
-use crate::models::component;
+use crate::models::user::access::logged::get_logged_user_uuid;
 use crate::models::component::model::{IptComponentData, SlimComponent, IptUpdateComponentData};
 use crate::models::component::access::model::{
     ChangeOwnerComponent, ChangeTypeAccessComponent,
@@ -60,10 +60,10 @@ impl ComponentMutation {
         cxt: &Context<'_>,
         data: IptComponentData,
     ) -> ServiceResult<SlimComponent> {
-        use component::service::register::create_component;
+        use crate::models::component::service::register::create_component;
 
         // checking authorization and getting user uuid
-        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
@@ -80,10 +80,10 @@ impl ComponentMutation {
         cxt: &Context<'_>,
         data: ChangeOwnerComponent,
     ) -> ServiceResult<bool> {
-        use component::access::manage::change_component_owner_user;
+        use crate::models::component::access::manage::change_component_owner_user;
 
         // checking authorization and getting user uuid
-        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
@@ -100,10 +100,10 @@ impl ComponentMutation {
         cxt: &Context<'_>,
         data: ChangeTypeAccessComponent,
     ) -> ServiceResult<bool> {
-        use component::access::manage::change_component_type_access;
+        use crate::models::component::access::manage::change_component_type_access;
 
         // checking authorization and getting user uuid
-        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
@@ -120,10 +120,10 @@ impl ComponentMutation {
         component_uuid: Uuid,
         data: IptUpdateComponentData,
     ) -> ServiceResult<i32> {
-        use component::service::update::update_component_by_uuid;
+        use crate::models::component::service::update::update_component_by_uuid;
 
         // checking authorization and getting user uuid
-        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
@@ -140,10 +140,10 @@ impl ComponentMutation {
         cxt: &Context<'_>,
         component_uuid: Uuid,
     ) -> ServiceResult<SlimComponent> {
-        use component::service::delete::del_component;
+        use crate::models::component::service::delete::del_component;
 
         // checking authorization and getting user uuid
-        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
@@ -160,10 +160,10 @@ impl ComponentMutation {
         cxt: &Context<'_>,
         data: IptCompanyAccessComponentData,
     ) -> ServiceResult<bool> {
-        use component::access::company::manage::set_company_access_component;
+        use crate::models::component::access::company::manage::set_company_access_component;
 
         // checking authorization and getting company uuid
-        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
@@ -179,10 +179,10 @@ impl ComponentMutation {
         cxt: &Context<'_>,
         data: DelCompanyAccessComponentData,
     ) -> ServiceResult<bool> {
-        use component::access::company::manage::del_company_access_component;
+        use crate::models::component::access::company::manage::del_company_access_component;
 
         // checking authorization and getting company uuid
-        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
@@ -198,10 +198,10 @@ impl ComponentMutation {
         cxt: &Context<'_>,
         data: IptUserAccessComponentData,
     ) -> ServiceResult<bool> {
-        use component::access::user::manage::set_user_access_component;
+        use crate::models::component::access::user::manage::set_user_access_component;
 
         // checking authorization and getting user uuid
-        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
@@ -217,10 +217,10 @@ impl ComponentMutation {
         cxt: &Context<'_>,
         data: DelUserAccessComponentData,
     ) -> ServiceResult<bool> {
-        use component::access::user::manage::del_user_access_component;
+        use crate::models::component::access::user::manage::del_user_access_component;
 
         // checking authorization and getting user uuid
-        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
@@ -239,7 +239,7 @@ impl ComponentMutation {
     ) -> ServiceResult<i32> {
         use component_param::service::change::put_component_params;
 
-        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
@@ -257,7 +257,7 @@ impl ComponentMutation {
     ) -> ServiceResult<i32> {
         use component_param::service::delete::del_component_params;
 
-        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
@@ -273,9 +273,9 @@ impl ComponentMutation {
         cxt: &Context<'_>,
         data: IptComponentLicenseData,
     ) -> ServiceResult<bool> {
-        use component::license::service::add::add_component_license;
+        use crate::models::component::license::service::add::add_component_license;
 
-        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
@@ -291,9 +291,9 @@ impl ComponentMutation {
         cxt: &Context<'_>,
         data: IptComponentLicenseData,
     ) -> ServiceResult<i32> {
-        use component::license::service::delete::del_component_license;
+        use crate::models::component::license::service::delete::del_component_license;
 
-        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
@@ -311,7 +311,7 @@ impl ComponentMutation {
     ) -> ServiceResult<i32> {
         use component_spec::service::add::add_component_specs;
 
-        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
@@ -329,7 +329,7 @@ impl ComponentMutation {
     ) -> ServiceResult<i32> {
         use component_spec::service::delete::del_component_specs;
 
-        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
@@ -347,7 +347,7 @@ impl ComponentMutation {
     ) -> ServiceResult<i32> {
         use component_keyword::service::add::add_component_keywords;
 
-        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
@@ -365,7 +365,7 @@ impl ComponentMutation {
     ) -> ServiceResult<i32> {
         use component_keyword::service::delete::del_component_keywords;
 
-        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
@@ -383,7 +383,7 @@ impl ComponentMutation {
     ) -> ServiceResult<Vec<UploadFile>> {
         use component_file::service::add::add_component_files;
 
-        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
@@ -401,7 +401,7 @@ impl ComponentMutation {
     ) -> ServiceResult<bool> {
         use component_file::service::delete::delete_component_file;
 
-        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
@@ -420,7 +420,7 @@ impl ComponentMutation {
     // ) -> ServiceResult<bool> {
     //     use component_supplier::service::add::add_component_base_supplier;
     //
-    //     let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+    //     let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
     //
     //     let conn: &PooledConnection = &get_conn(cxt)?;
     //
@@ -438,7 +438,7 @@ impl ComponentMutation {
     ) -> ServiceResult<i32> {
         use component_supplier::service::delete::del_suppliers_component;
 
-        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
@@ -456,7 +456,7 @@ impl ComponentMutation {
     ) -> ServiceResult<bool> {
         use component_standard::service::add::add_standard_to_component;
 
-        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
@@ -474,7 +474,7 @@ impl ComponentMutation {
     ) -> ServiceResult<i32> {
         use component_standard::service::delete::del_standards_component;
 
-        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
@@ -492,7 +492,7 @@ impl ComponentMutation {
     ) -> ServiceResult<SlimComponentModification> {
         use component_modification::service::register::create_component_modification;
 
-        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
@@ -512,7 +512,7 @@ impl ComponentMutation {
         use component_modification::service::update::update_modification_data;
 
         // checking authorization and getting user uuid
-        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
@@ -532,7 +532,7 @@ impl ComponentMutation {
         use component_modification::service::delete::del_component_modification;
 
         // checking authorization and getting user uuid
-        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
@@ -550,7 +550,7 @@ impl ComponentMutation {
     ) -> ServiceResult<i32> {
         use component_modification::param::service::change::put_modification_params;
 
-        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
@@ -568,7 +568,7 @@ impl ComponentMutation {
     ) -> ServiceResult<i32> {
         use component_modification::param::service::delete::del_modification_params;
 
-        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
@@ -586,7 +586,7 @@ impl ComponentMutation {
     ) -> ServiceResult<Vec<UploadFile>> {
         use component_modification::file::service::add::add_modification_files;
 
-        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
@@ -604,7 +604,7 @@ impl ComponentMutation {
     ) -> ServiceResult<bool> {
         use component_modification::file::service::delete::delete_modification_file;
 
-        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
@@ -622,7 +622,7 @@ impl ComponentMutation {
     ) -> ServiceResult<FilesetProgram> {
         use fileset_program::service::add::create_modification_fileset;
 
-        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
@@ -640,7 +640,7 @@ impl ComponentMutation {
     ) -> ServiceResult<bool> {
         use fileset_program::service::delete::del_modification_fileset;
 
-        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
@@ -658,7 +658,7 @@ impl ComponentMutation {
     ) -> ServiceResult<Vec<UploadFile>> {
         use component_modification::modification_file_from_fileset::service::add::add_files_of_modification_set;
 
-        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
@@ -676,7 +676,7 @@ impl ComponentMutation {
     ) -> ServiceResult<bool> {
         use component_modification::modification_file_from_fileset::service::delete::del_file_from_fileset;
 
-        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
@@ -692,9 +692,9 @@ impl ComponentMutation {
         cxt: &Context<'_>,
         component_uuid: Uuid,
     ) -> ServiceResult<ComponentFav> {
-        use component::component_fav::service::add::add_component_favorite;
+        use crate::models::component::component_fav::service::add::add_component_favorite;
 
-        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 

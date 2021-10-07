@@ -4,7 +4,6 @@ use crate::database::{get_conn, PooledConnection};
 use crate::errors::ServiceResult;
 use crate::models::relate_ref::keyword;
 use crate::models::relate_ref::keyword::model::{IptKeywordData, Keyword};
-use crate::models::user;
 
 #[derive(Default)]
 pub struct KeywordQuery;
@@ -21,7 +20,7 @@ impl KeywordQuery {
         offset: Option<i32>,
     ) -> ServiceResult<Vec<Keyword>> {
         // authorization check
-        user::util::check_authorized(cxt)?;
+        crate::models::user::access::logged::check_authorized(cxt)?;
 
         let keyword_id: Vec<i32> = keyword_id.unwrap_or_default();
         let limit: i32 = limit.unwrap_or(100);
@@ -41,7 +40,7 @@ impl KeywordMutation {
         use keyword::service::register::create_keyword;
         let conn: &PooledConnection = &get_conn(cxt)?;
 
-        crate::models::user::check_authorized(cxt)?;
+        crate::models::user::access::logged::check_authorized(cxt)?;
 
         create_keyword(data, conn)
     }

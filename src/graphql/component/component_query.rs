@@ -3,8 +3,7 @@ use uuid::Uuid;
 
 use crate::errors::ServiceResult;
 use crate::database::{get_conn, PooledConnection};
-use crate::models::user::get_logged_user_uuid;
-use crate::models::component;
+use crate::models::user::access::logged::get_logged_user_uuid;
 use crate::models::component::access::company::model::CompanyAccessComponentAndRelatedData;
 use crate::models::component::access::user::model::UserAccessComponentAndRelatedData;
 use crate::models::component::component_modification;
@@ -23,12 +22,14 @@ impl ComponentQuery {
         cxt: &Context<'_>,
         components_uuids: Vec<Uuid>,
     ) -> ServiceResult<Vec<ShowComponentShort>> {
+        use crate::models::component::service::list::find_components;
+
         // authorization check
         let logged_user_uuid: Uuid = get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
-        component::service::list::find_components(
+        find_components(
             &logged_user_uuid,
             &components_uuids,
             &crate::models::user::get_set_language(cxt),
@@ -41,12 +42,14 @@ impl ComponentQuery {
         cxt: &Context<'_>,
         component_uuid: Uuid,
     ) -> ServiceResult<ComponentAndRelatedData> {
+        use crate::models::component::service::list::find_component_uuid;
+
         // authorization check
         let logged_user_uuid: Uuid = get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
-        component::service::list::find_component_uuid(
+        find_component_uuid(
             &logged_user_uuid,
             &component_uuid,
             &crate::models::user::get_set_language(cxt),
@@ -59,7 +62,7 @@ impl ComponentQuery {
         cxt: &Context<'_>,
         component_uuid: Uuid,
     ) -> ServiceResult<Vec<CompanyAccessComponentAndRelatedData>> {
-        use component::access::company::manage::get_companies_list_access_component;
+        use crate::models::component::access::company::manage::get_companies_list_access_component;
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
@@ -78,7 +81,7 @@ impl ComponentQuery {
         cxt: &Context<'_>,
         component_uuid: Uuid,
     ) -> ServiceResult<Vec<UserAccessComponentAndRelatedData>> {
-        use component::access::user::manage::get_users_list_access_component;
+        use crate::models::component::access::user::manage::get_users_list_access_component;
 
         // checking authorization and getting user uuid
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
@@ -98,13 +101,14 @@ impl ComponentQuery {
         cxt: &Context<'_>,
         component_uuid: Uuid,
     ) -> ServiceResult<Vec<DownloadFile>> {
+        use crate::models::component::file::service::list::get_component_files;
 
         // authorization check
         let logged_user_uuid: Uuid = get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
-        component::file::service::list::get_component_files(
+        get_component_files(
             &logged_user_uuid,
             &component_uuid,
             conn

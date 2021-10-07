@@ -1,9 +1,10 @@
+use crate::errors::ServiceResult;
+use crate::database::{get_pool, get_conn, PooledConnection};
+use crate::models::user::access::logged::get_logged_user_uuid;
+use crate::models::relate_ref::file;
+
 use async_graphql::{self, Context, Object};
 use uuid::Uuid;
-
-use crate::database::{get_pool, get_conn, PooledConnection};
-use crate::errors::ServiceResult;
-use crate::models::relate_ref::file;
 
 #[derive(Default)]
 pub struct StorageQuery;
@@ -20,7 +21,7 @@ impl StorageQuery {
         let conn: &PooledConnection = &get_conn(cxt)?;
 
         // authorization check
-        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
         file::service::list::get_url_file_by_uuid(
             &logged_user_uuid,
@@ -40,7 +41,7 @@ impl StorageMutation {
     ) -> ServiceResult<i32> {
         let pool = get_pool(cxt)?;
 
-        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
         if file_uuids.is_empty() {
             return Ok(0) // <-- Not found uuids, just return 0
@@ -61,7 +62,7 @@ impl StorageMutation {
     ) -> ServiceResult<bool> {
         use file::service::delete::delete_file_with_check_by_uuid;
 
-        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
         let pool = get_pool(cxt)?;
 

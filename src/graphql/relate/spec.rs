@@ -4,7 +4,6 @@ use crate::errors::ServiceResult;
 use crate::database::{get_conn, PooledConnection};
 use crate::models::relate_ref::spec;
 use crate::models::relate_ref::spec::model::SpecTranslateList;
-use crate::models::user;
 
 #[derive(Default)]
 pub struct SpecQuery;
@@ -21,7 +20,7 @@ impl SpecQuery {
         offset: Option<i32>,
     ) -> ServiceResult<Vec<SpecTranslateList>> {
         // authorization check
-        user::util::check_authorized(cxt)?;
+        crate::models::user::access::logged::check_authorized(cxt)?;
 
         let spec_id: Vec<i32> = spec_id.unwrap_or_default();
         let limit: i32 = limit.unwrap_or(100);

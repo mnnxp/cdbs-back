@@ -4,7 +4,6 @@ use crate::database::{get_conn, PooledConnection};
 use crate::errors::ServiceResult;
 use crate::models::relate_ref::region;
 use crate::models::relate_ref::region::model::{IptRegionTranslateListData, RegionTranslateList};
-use crate::models::user;
 
 #[derive(Default)]
 pub struct RegionQuery;
@@ -49,7 +48,7 @@ impl RegionMutation {
         use region::service::register::create_region;
         let conn: &PooledConnection = &get_conn(cxt)?;
 
-        user::check_authorized(cxt)?;
+        crate::models::user::access::logged::check_authorized(cxt)?;
 
         create_region(data, conn)
     }

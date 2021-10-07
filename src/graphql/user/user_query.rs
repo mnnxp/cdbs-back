@@ -1,7 +1,7 @@
 use crate::errors::ServiceResult;
 use crate::database::{get_conn, PooledConnection};
 use crate::jwt::model::{Claims, Token};
-use crate::models::user::{util::check_authorized, get_logged_user_uuid};
+use crate::models::user::access::logged::{check_authorized, get_logged_user_uuid};
 use crate::models::user::model::{ShowUserShort, SlimUser, UserAndRelatedData};
 use crate::models::user::notification::model::Notification;
 use crate::models::user::notification::service as notification;

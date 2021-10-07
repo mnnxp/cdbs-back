@@ -4,7 +4,6 @@ use crate::database::{get_conn, PooledConnection};
 use crate::errors::ServiceResult;
 use crate::models::relate_ref::param;
 use crate::models::relate_ref::param::model::{IptParamTranslateListData, ParamTranslateList};
-use crate::models::user;
 
 #[derive(Default)]
 pub struct ParamQuery;
@@ -21,7 +20,7 @@ impl ParamQuery {
         offset: Option<i32>,
     ) -> ServiceResult<Vec<ParamTranslateList>> {
         // authorization check
-        user::util::check_authorized(cxt)?;
+        crate::models::user::access::logged::check_authorized(cxt)?;
 
         let param_id: Vec<i32> = param_id.unwrap_or_default();
         let limit: i32 = limit.unwrap_or(100);
@@ -49,7 +48,7 @@ impl ParamMutation {
         use param::service::register::create_param;
         let conn: &PooledConnection = &get_conn(cxt)?;
 
-        crate::models::user::check_authorized(cxt)?;
+        crate::models::user::access::logged::check_authorized(cxt)?;
 
         create_param(data, conn)
     }

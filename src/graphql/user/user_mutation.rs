@@ -1,5 +1,6 @@
 use crate::database::{get_pool, get_conn, PooledConnection};
 use crate::errors::ServiceResult;
+use crate::models::user::access::logged::get_logged_user_uuid;
 use crate::models::user::model::IptUpdateUserData;
 use crate::models::user::certificate::model::{
     IptUserCertificateData, IptUpdateUserCertificateData, DelUserCertificateData
@@ -10,7 +11,6 @@ use crate::models::user::standard_fav::model::{StandardFav, IptStandardFavData};
 use crate::models::user::user_fav::model::{UserFav, IptUserFavData};
 use crate::models::user::model::{IptUserData, SlimUser};
 use crate::models::user::notification::model::{Notification, NotificationData, SlimNotification};
-use crate::models::user::get_logged_user_uuid;
 use crate::models::relate_ref::file::model::UploadFile;
 
 use async_graphql::{self, Context, Object};

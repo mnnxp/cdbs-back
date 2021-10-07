@@ -1,10 +1,9 @@
-use async_graphql::{self, Context, Object};
-
 use crate::database::{get_conn, PooledConnection};
 use crate::errors::ServiceResult;
-// use crate::models::user as user;
 use crate::models::relate_ref::extension;
 use crate::models::relate_ref::extension::model::{Extension, IptExtensionData};
+
+use async_graphql::{self, Context, Object};
 
 // #[derive(Default)]
 // pub struct ExtensionQuery;
@@ -26,7 +25,7 @@ impl ExtensionMutation {
         use extension::service::register::create_extension;
         let conn: &PooledConnection = &get_conn(cxt)?;
 
-        crate::models::user::check_authorized(cxt)?;
+        crate::models::user::access::logged::check_authorized(cxt)?;
 
         create_extension(data, conn)
     }

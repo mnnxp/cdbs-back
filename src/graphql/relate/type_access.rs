@@ -4,7 +4,6 @@ use crate::database::{get_conn, PooledConnection};
 use crate::errors::ServiceResult;
 use crate::models::relate_ref::type_access;
 use crate::models::relate_ref::type_access::model::{IptTypeAccessTranslateListData, TypeAccessTranslateList};
-use crate::models::user;
 
 #[derive(Default)]
 pub struct TypeAccessQuery;
@@ -49,7 +48,7 @@ impl TypeAccessMutation {
         use type_access::service::register::create_type_access;
         let conn: &PooledConnection = &get_conn(cxt)?;
 
-        user::check_authorized(cxt)?;
+        crate::models::user::access::logged::check_authorized(cxt)?;
 
         create_type_access(data, conn)
     }

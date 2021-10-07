@@ -1,5 +1,6 @@
 use crate::database::{get_pool, get_conn, PooledConnection};
 use crate::errors::ServiceResult;
+use crate::models::user::access::logged::get_logged_user_uuid;
 use crate::models::company::model::{
     IptCompanyData, IptUpdateCompanyData, SlimCompany
 };
@@ -36,7 +37,7 @@ impl CompanyMutation {
     ) -> ServiceResult<SlimCompany> {
         use crate::models::company::service::register::create_company;
 
-        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
@@ -55,7 +56,7 @@ impl CompanyMutation {
     ) -> ServiceResult<i32> {
         use crate::models::company::service::update::update_company_by_uuid;
 
-        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
@@ -76,7 +77,7 @@ impl CompanyMutation {
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
-        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
         del_company(
             &logged_user_uuid,
@@ -92,7 +93,7 @@ impl CompanyMutation {
     ) -> ServiceResult<UploadFile> {
         use crate::models::company::certificate::service::add::add_certificate;
 
-        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
@@ -111,7 +112,7 @@ impl CompanyMutation {
     ) -> ServiceResult<bool> {
         use crate::models::company::certificate::service::update::update_certificate_description;
 
-        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
@@ -129,7 +130,7 @@ impl CompanyMutation {
     ) -> ServiceResult<bool> {
         use crate::models::company::certificate::service::delete::del_certificate_description;
 
-        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
         let pool = get_pool(cxt)?;
 
@@ -147,7 +148,7 @@ impl CompanyMutation {
     ) -> ServiceResult<i32> {
         use crate::models::company::spec::service::add::add_company_specs;
 
-        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
@@ -165,7 +166,7 @@ impl CompanyMutation {
     ) -> ServiceResult<i32> {
         use crate::models::company::spec::service::delete::del_company_specs;
 
-        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
@@ -183,7 +184,7 @@ impl CompanyMutation {
     ) -> ServiceResult<SlimCompanyRepresent> {
         use crate::models::company::company_represent::service::register::create_company_represent;
 
-        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
@@ -203,7 +204,7 @@ impl CompanyMutation {
     ) -> ServiceResult<i32> {
         use crate::models::company::company_represent::service::update::update_company_represent_by_uuid;
 
-        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
@@ -224,7 +225,7 @@ impl CompanyMutation {
     ) -> ServiceResult<SlimCompanyRepresent> {
         use crate::models::company::company_represent::service::delete::delete_company_represent;
 
-        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
@@ -243,7 +244,7 @@ impl CompanyMutation {
     ) -> ServiceResult<SlimCompanyMember> {
         use crate::models::company::member::service::add::add_company_member;
 
-        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
@@ -262,7 +263,7 @@ impl CompanyMutation {
     ) -> ServiceResult<bool> {
         use crate::models::company::member::service::change::change_role_member;
 
-        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
@@ -280,7 +281,7 @@ impl CompanyMutation {
     ) -> ServiceResult<SlimCompanyMember> {
         use crate::models::company::member::service::delete::del_company_member;
 
-        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
@@ -298,7 +299,7 @@ impl CompanyMutation {
     ) -> ServiceResult<i32> {
         use crate::models::company::member::role::service::register::create_role_member;
 
-        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
@@ -316,7 +317,7 @@ impl CompanyMutation {
     ) -> ServiceResult<bool> {
         use crate::models::company::member::role::service::update::change_name_role_company;
 
-        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
@@ -334,7 +335,7 @@ impl CompanyMutation {
     ) -> ServiceResult<i32> {
         use crate::models::company::member::role::service::delete::del_role_member;
 
-        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
@@ -352,7 +353,7 @@ impl CompanyMutation {
     ) -> ServiceResult<bool> {
         use crate::models::company::access::role_access::service::register::create_role_access;
 
-        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
@@ -370,7 +371,7 @@ impl CompanyMutation {
     ) -> ServiceResult<i32> {
         use crate::models::company::access::role_access::service::delete::del_role_access;
 
-        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
@@ -389,7 +390,7 @@ impl CompanyMutation {
     ) -> ServiceResult<bool> {
         use crate::models::company::supplier_component::add::add_company_to_suppliers;
 
-        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
@@ -408,7 +409,7 @@ impl CompanyMutation {
     ) -> ServiceResult<bool> {
         use crate::models::company::supplier_component::add::set_company_owner_supplier;
 
-        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
@@ -427,7 +428,7 @@ impl CompanyMutation {
     ) -> ServiceResult<bool> {
         use crate::models::company::supplier_component::delete::del_company_of_suppliers;
 
-        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 

@@ -1,6 +1,6 @@
 use crate::errors::ServiceResult;
 use crate::database::{get_conn, PooledConnection};
-use crate::models::user::get_logged_user_uuid;
+use crate::models::user::access::logged::get_logged_user_uuid;
 use crate::models::standard::model::{ShowStandardShort, StandardAndRelatedData};
 use crate::models::standard::access::company::model::CompanyAccessStandardAndRelatedData;
 use crate::models::standard::access::user::model::UserAccessStandardAndRelatedData;

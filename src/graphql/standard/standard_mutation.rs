@@ -1,6 +1,6 @@
 use crate::errors::ServiceResult;
 use crate::database::{get_conn, PooledConnection};
-use crate::models::user::get_logged_user_uuid;
+use crate::models::user::access::logged::get_logged_user_uuid;
 use crate::models::standard::model::{IptStandardData, IptUpdateStandardData, SlimStandard};
 use crate::models::standard::access::model::{ChangeOwnerStandard, ChangeTypeAccessStandard};
 use crate::models::standard::access::company::model::{
@@ -48,7 +48,7 @@ impl StandardMutation {
         use crate::models::standard::access::manage::change_standard_owner_user;
 
         // checking authorization and getting user uuid
-        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
@@ -68,7 +68,7 @@ impl StandardMutation {
         use crate::models::standard::access::manage::change_standard_type_access;
 
         // checking authorization and getting user uuid
-        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
@@ -126,7 +126,7 @@ impl StandardMutation {
         use crate::models::standard::access::company::manage::set_company_access_standard;
 
         // checking authorization and getting company uuid
-        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
@@ -145,7 +145,7 @@ impl StandardMutation {
         use crate::models::standard::access::company::manage::del_company_access_standard;
 
         // checking authorization and getting company uuid
-        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
@@ -164,7 +164,7 @@ impl StandardMutation {
         use crate::models::standard::access::user::manage::set_user_access_standard;
 
         // checking authorization and getting user uuid
-        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
@@ -183,7 +183,7 @@ impl StandardMutation {
         use crate::models::standard::access::user::manage::del_user_access_standard;
 
         // checking authorization and getting user uuid
-        let logged_user_uuid = crate::models::user::get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
