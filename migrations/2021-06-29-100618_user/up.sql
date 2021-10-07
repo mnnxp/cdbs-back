@@ -4,7 +4,7 @@ CREATE TABLE user_ref (
   uuid UUID NOT NULL PRIMARY KEY,
   email VARCHAR(100) NOT NULL, /*email профиля, на один адрес может быть несколько профилей (закос под reddit) */
   psw_hash BYTEA NOT NULL, /* хеш пароля профиля */
-  psw_salt VARCHAR(255) NOT NULL, /* соль для пароля профиля */
+  psw_salt BYTEA NOT NULL, /* соль для пароля профиля */
   firstname VARCHAR(100) NOT NULL, /*Имя */
   lastname VARCHAR(100) NOT NULL, /*Фамилия */
   secondname VARCHAR(100) NOT NULL, /*Отчество */

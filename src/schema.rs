@@ -702,7 +702,7 @@ table! {
         uuid -> Uuid,
         email -> Varchar,
         psw_hash -> Bytea,
-        psw_salt -> Varchar,
+        psw_salt -> Bytea,
         firstname -> Varchar,
         lastname -> Varchar,
         secondname -> Varchar,
