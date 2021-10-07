@@ -153,8 +153,8 @@ impl UserAndRelatedData {
         let subscribers: i32 = UserFav::get_count_followers_by_uuid(&user.uuid, conn)?;
 
         // get certificates with slimfile for user
-        let certificates: Vec<CertificateWithShowFile> = CertificateWithShowFile::for_user(
-            &user,
+        let certificates: Vec<CertificateWithShowFile> = CertificateWithShowFile::from_user(
+            &user.uuid,
             conn
         ).expect("Error loading spec user with translate");
 

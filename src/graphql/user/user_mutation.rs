@@ -1,7 +1,9 @@
-use crate::database::{get_conn, PooledConnection};
+use crate::database::{get_pool, get_conn, PooledConnection};
 use crate::errors::ServiceResult;
 use crate::models::user::model::IptUpdateUserData;
-use crate::models::user::certificate::model::IptUserCertificateData;
+use crate::models::user::certificate::model::{
+    IptUserCertificateData, IptUpdateUserCertificateData, DelUserCertificateData
+};
 use crate::models::user::company_fav::model::{CompanyFav, IptCompanyFavData};
 use crate::models::user::component_fav::model::{ComponentFav, IptComponentFavData};
 use crate::models::user::standard_fav::model::{StandardFav, IptStandardFavData};
@@ -83,6 +85,43 @@ impl UserMutation {
             &cert_data,
             conn
         )
+    }
+
+    /// Update user certificate description
+    async fn update_user_certificate(
+        &self,
+        cxt: &Context<'_>,
+        data: IptUpdateUserCertificateData,
+    ) -> ServiceResult<bool> {
+        use crate::models::user::certificate::service::update::update_certificate_description;
+
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+
+        let conn: &PooledConnection = &get_conn(cxt)?;
+
+        update_certificate_description(
+            &logged_user_uuid,
+            &data,
+            conn
+        )
+    }
+
+    async fn delete_user_certificate(
+        &self,
+        cxt: &Context<'_>,
+        data: DelUserCertificateData,
+    ) -> ServiceResult<bool> {
+        use crate::models::user::certificate::service::delete::del_certificate_description;
+
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+
+        let pool = get_pool(cxt)?;
+
+        del_certificate_description(
+            &logged_user_uuid,
+            &data,
+            &pool
+        ).await
     }
 
     async fn add_company_fav(

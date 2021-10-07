@@ -70,8 +70,11 @@ const regionIdPut = 2;
 const programIdPut = 2;
 
 const descriptionCertificateTest = "test desctiption for certificate";
+const descriptionCertificateUpdateTest = "test of the test description";
 const badFilenameCertificateTest = "name* file/ certificate.pdf";
 const goodFilenameCertificateTest = "name file certificate.pdf";
+
+var fileCertificateTestUuid = "";
 
 const companyUuidBase = "2cd385e1-8f7e-4908-8235-dfe42938b46d";
 const componentUuidBase = "a5953fd9-7393-4f1e-a899-06b5e159dbf1";
@@ -136,6 +139,18 @@ imageFile { \
   uuid \
   filename \
   filesize \
+} \
+`;
+
+const userCertificatesQuery = ` \
+certificates { \
+  userUuid \
+  file { \
+    uuid \
+    filename \
+    filesize \
+  } \
+  description \
 } \
 `;
 
@@ -789,26 +804,6 @@ describe('users', () => {
   });
 
   // Testing user certificates
-  it('/graphql:Q UserCertificate - BadRequest not token', async (done) => {
-    const { body } = await agent
-      .post('/graphql')
-      .send({
-        query: `query {
-            user(userUuid: "${userUuidFirst}") {
-              ${userFullDataQuery}
-            }
-        }`,
-      })
-      .expect(HttpStatus.OK)
-    debug('/graphql UserCertificate=%o', body);
-    expect(body.data).toBeNull();
-    expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
-    );
-    expect(body.errors[0].path[0]).toBe('user');
-    done();
-  });
-
   it('/graphql:M UserCertificate - BadRequest not token', async (done) => {
     const { body } = await agent
       .post('/graphql')
@@ -853,11 +848,36 @@ describe('users', () => {
           }
         }`,
       })
+      .expect(HttpStatus.OK);
+    debug('/graphql UserCertificate=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { uploadUserCertificate },
+    } = body;
+    fileCertificateTestUuid = uploadUserCertificate.fileUuid;
+    expect(uploadUserCertificate.fileUuid).toBeNonEmptyString();
+    expect(uploadUserCertificate.filename).toBe(goodFilenameCertificateTest);
+    expect(uploadUserCertificate.uploadUrl).toBeNonEmptyString();
+    done();
+  });
+
+  it('/graphql:Q UserCertificate - BadRequest not token', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .send({
+        query: `query {
+            user(userUuid: "${userUuidFirst}") {
+              ${userFullDataQuery}
+            }
+        }`,
+      })
       .expect(HttpStatus.OK)
     debug('/graphql UserCertificate=%o', body);
-    expect(body.data.uploadUserCertificate.fileUuid).toBeNonEmptyString();
-    expect(body.data.uploadUserCertificate.filename).toBe(goodFilenameCertificateTest);
-    expect(body.data.uploadUserCertificate.uploadUrl).toBeNonEmptyString();
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Token not found.'
+    );
+    expect(body.errors[0].path[0]).toBe('user');
     done();
   });
 
@@ -871,22 +891,230 @@ describe('users', () => {
       .send({
         query: `query {
             user(userUuid: "${userUuidFirst}") {
-              certificates { \
-                userUuid \
-                file { \
-                  uuid \
-                  filename \
-                  filesize \
-                } \
-                description \
-              } \
+              ${userCertificatesQuery}
             }
         }`,
       })
       .expect(HttpStatus.OK)
     debug('/graphql UserCertificate=%o', body);
-    expect(body.data.user.certificates[0].file.filename).toBe(goodFilenameCertificateTest);
-    expect(body.data.user.certificates[0].description).toBe(descriptionCertificateTest);
+    // expect(body).toBe(0);
+    const {
+      data: { user },
+    } = body;
+    expect(user.certificates[0].file.filename).toBe(goodFilenameCertificateTest);
+    expect(user.certificates[0].description).toBe(descriptionCertificateTest);
+    done();
+  });
+
+  // Test update user certificate description
+  it('/graphql:M updateUserCertificate - BadRequest not token', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .send({
+        query: `mutation {
+          updateUserCertificate(data: {
+            fileUuid: "${fileCertificateTestUuid}"
+            description: "${descriptionCertificateTest}"
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Token not found.'
+    );
+    expect(body.errors[0].path[0]).toBe('updateUserCertificate');
+    done();
+  });
+
+  it('/graphql:M updateUserCertificate - OK', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation {
+          updateUserCertificate(data: {
+            fileUuid: "${fileCertificateTestUuid}"
+            description: "${descriptionCertificateUpdateTest}"
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    const {
+      data: { updateUserCertificate },
+    } = body;
+    expect(updateUserCertificate).toBe(true);
+    done();
+  });
+
+  it('/graphql:Q userCertificate - Ok check update description', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `query {
+            user(userUuid: "${userUuidFirst}") {
+              ${userCertificatesQuery}
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql UserCertificate=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { user },
+    } = body;
+    expect(user.certificates[0].file.filename).toBe(goodFilenameCertificateTest);
+    expect(user.certificates[0].description).toBe(descriptionCertificateUpdateTest);
+    done();
+  });
+
+  it('/graphql:M updateUserCertificate - OK return old description', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation {
+          updateUserCertificate(data: {
+            fileUuid: "${fileCertificateTestUuid}"
+            description: "${descriptionCertificateTest}"
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    const {
+      data: { updateUserCertificate },
+    } = body;
+    expect(updateUserCertificate).toBe(true);
+    done();
+  });
+
+  it('/graphql:M updateUserCertificate - OK duplicate data', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation {
+          updateUserCertificate(data: {
+            fileUuid: "${fileCertificateTestUuid}"
+            description: "${descriptionCertificateTest}"
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    const {
+      data: { updateUserCertificate },
+    } = body;
+    expect(updateUserCertificate).toBe(false);
+    done();
+  });
+
+  it('/graphql:Q userCertificate - Ok', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `query {
+            user(userUuid: "${userUuidFirst}") {
+              ${userCertificatesQuery}
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql UserCertificate=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { user },
+    } = body;
+    expect(user.certificates[0].file.filename).toBe(goodFilenameCertificateTest);
+    expect(user.certificates[0].description).toBe(descriptionCertificateTest);
+    done();
+  });
+
+  // Test delete user certificate
+  it('/graphql:M deleteUserCertificate - BadRequest not token', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .send({
+        query: `mutation {
+          deleteUserCertificate(data: {
+            fileUuid: "${fileCertificateTestUuid}"
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Token not found.'
+    );
+    expect(body.errors[0].path[0]).toBe('deleteUserCertificate');
+    done();
+  });
+
+  it('/graphql:M deleteUserCertificate - OK', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation {
+          deleteUserCertificate(data: {
+            fileUuid: "${fileCertificateTestUuid}"
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    const {
+      data: { deleteUserCertificate },
+    } = body;
+    expect(deleteUserCertificate).toBe(true);
+    done();
+  });
+
+  it('/graphql:M deleteUserCertificate - BadRequest not found data', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation {
+          deleteUserCertificate(data: {
+            fileUuid: "${fileCertificateTestUuid}"
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Failed remove certificate data'
+    );
+    expect(body.errors[0].path[0]).toBe('deleteUserCertificate');
     done();
   });
 

@@ -15,15 +15,15 @@ use diesel::prelude::*;
 use uuid::Uuid;
 
 pub(crate) fn add_certificate(
-    target_user_uuid: &Uuid,
+    logged_user_uuid: &Uuid,
     cert_data: &IptUserCertificateData,
     conn: &PgConnection,
 ) -> ServiceResult<UploadFile> {
     // Get data for write information about the file before upload to storage
     let preliminary_file_data = PreliminaryFileData::from_ipt_file_data(
-        *target_user_uuid,
+        *logged_user_uuid,
         Uuid::parse_str("bc1c2151-86d0-4656-9c9d-d016dd584297")?, // <-- todo!(get uuid default file)
-        ListObject::UserCertificate(*target_user_uuid),
+        ListObject::UserCertificate(*logged_user_uuid),
         &cert_data.filename,
         conn
     );
@@ -33,9 +33,12 @@ pub(crate) fn add_certificate(
         conn
     )?;
 
+    // workaround until i figure make the pre-url generation
+    // let temp_string = format!("This will be url for upload file {:?}", slim_file.path_file);
+
     let new_user_certificate = InsertableUserCertificate{
         file_uuid: slim_file.uuid,
-        user_uuid: target_user_uuid.to_owned(),
+        user_uuid: *logged_user_uuid,
         description: cert_data.description.to_string(),
     };
 

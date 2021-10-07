@@ -1,2 +1,3 @@
 pub(crate) mod add;
-// pub(crate) mod delete;
+pub(crate) mod update;
+pub(crate) mod delete;

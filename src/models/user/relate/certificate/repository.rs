@@ -1,5 +1,4 @@
 use crate::errors::ServiceResult;
-use crate::models::user::model::UserQuery;
 use crate::models::user::certificate::model::{
     UserCertificate,
     CertificateWithShowFile,
@@ -10,12 +9,13 @@ use diesel::prelude::*;
 use uuid::Uuid;
 
 impl ShowFile {
-    /// Search files certificates target user
-    pub fn for_user_certificates(
-        user: &UserQuery,
+    /// Search files certificates target user by user_uuid
+    pub fn from_user_certificates(
+        target_user_uuid: &Uuid,
         conn: &PgConnection,
     ) -> ServiceResult<Vec<ShowFile>> {
-        let target_vec_file_uuid: Vec<Uuid> = UserCertificate::belonging_to(user)
+        let target_vec_file_uuid: Vec<Uuid> = user_certificate_ref::user_certificate_ref
+            .filter(user_certificate_ref::user_uuid.eq(target_user_uuid))
             .select(user_certificate_ref::file_uuid)
             .load::<Uuid>(conn)?;
 
@@ -24,16 +24,17 @@ impl ShowFile {
 }
 
 impl CertificateWithShowFile {
-    /// Gets certificates user with slimfile data
-    pub fn for_user(
-        user: &UserQuery,
+    /// Gets certificates user with slimfile data by uuid
+    pub fn from_user(
+        target_user_uuid: &Uuid,
         conn: &PgConnection,
     ) -> ServiceResult<Vec<CertificateWithShowFile>> {
-        let certificates_user = UserCertificate::belonging_to(user)
+        let certificates_user = user_certificate_ref::user_certificate_ref
+            .filter(user_certificate_ref::user_uuid.eq(target_user_uuid))
             .load::<UserCertificate>(conn)?;
 
-        let files_for_certificates = ShowFile::for_user_certificates(
-            user,
+        let files_for_certificates = ShowFile::from_user_certificates(
+            target_user_uuid,
             conn
         ).expect("Error loading certificates");
 
