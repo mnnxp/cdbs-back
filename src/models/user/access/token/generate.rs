@@ -14,7 +14,9 @@ impl Token {
     }
 }
 
-pub(crate) fn generate(user: &SlimUser) -> ServiceResult<Token> {
+pub(crate) fn generate(
+    user: &SlimUser
+) -> ServiceResult<Token> {
     let opt = {
         use structopt::StructOpt;
         crate::cli_args::Opt::from_args()

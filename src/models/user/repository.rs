@@ -1,4 +1,5 @@
 use super::model::{
+    SlimUser,
     UserQuery,
     UserShort,
     ShowUserShort,
@@ -19,6 +20,23 @@ use crate::errors::ServiceResult;
 use crate::schema::user_ref::dsl as user_ref;
 use diesel::prelude::*;
 use uuid::Uuid;
+
+impl SlimUser {
+    /// Get slim user data from user_ref table by uuid
+    pub fn get_by_uuid(
+        target_user_uuid: &Uuid,
+        conn: &PgConnection,
+    ) -> ServiceResult<SlimUser> {
+        Ok(user_ref::user_ref
+            .filter(user_ref::uuid.eq(target_user_uuid))
+            .select((
+                user_ref::uuid,
+                user_ref::username,
+                user_ref::program_id,
+            ))
+            .first::<SlimUser>(conn)?)
+    }
+}
 
 impl UserQuery {
     /// Get user data from user_ref table by uuid

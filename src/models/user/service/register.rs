@@ -16,8 +16,8 @@ pub(crate) fn create_user(
         .values(&insert_values)
         .returning((
             uuid,
-            program_id,
             username,
+            program_id,
         ))
         .get_result::<SlimUser>(conn);
 

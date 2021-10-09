@@ -10,7 +10,9 @@ use diesel::prelude::*;
 use uuid::Uuid;
 
 /// get token from request
-pub(crate) fn token_from_cxt(cxt: &Context<'_>) -> ServiceResult<String> {
+pub(crate) fn token_from_cxt(
+    cxt: &Context<'_>
+) -> ServiceResult<String> {
     let token = match cxt.data_opt::<Token>() {
         Some(token) => token.clone(),
         None => Token { bearer: None },
@@ -23,21 +25,21 @@ pub(crate) fn token_from_cxt(cxt: &Context<'_>) -> ServiceResult<String> {
 
 /// show all tokens for user_uuid
 pub(crate) fn show_tokens(
-    cxt: &Context<'_>,
-    auth_user_uuid: Uuid,
+    logged_user_uuid: &Uuid,
+    conn: &PgConnection,
 ) -> ServiceResult<Vec<UserToken>> {
-    let conn: &PooledConnection = &get_conn(cxt)?;
-
     use crate::schema::user_token_ref::dsl::*;
 
     user_token_ref
-        .filter(user_uuid.eq(auth_user_uuid))
+        .filter(user_uuid.eq(logged_user_uuid))
         .load(conn)
         .map_err(|e| ServiceError::BadRequest(e.to_string()))
 }
 
 /// get SlimUser from Claims
-pub(crate) fn get_slim_user(jwt: Claims) -> ServiceResult<SlimUser> {
+pub(crate) fn get_slim_user(
+    jwt: Claims
+) -> ServiceResult<SlimUser> {
     SlimUser::try_from(jwt)
         .map_err(|_| ServiceError::BadRequest("Fail get SlimUser from Claims.".to_string()))
 }
@@ -45,7 +47,7 @@ pub(crate) fn get_slim_user(jwt: Claims) -> ServiceResult<SlimUser> {
 /// updating a token with or without removing the old one
 pub(crate) fn update(
     cxt: &Context<'_>,
-    flag_delete_token: bool
+    flag_delete_token: bool,
 ) -> ServiceResult<Token> {
     use crate::models::user::access::token::{generate, decode};
 
@@ -90,45 +92,55 @@ pub(crate) fn delete_token(
 ) -> ServiceResult<UserToken> {
     use crate::schema::user_token_ref::dsl::*;
 
-    let updated_token: UserToken = diesel::delete(user_token_ref)
+    let delete_token: UserToken = diesel::delete(user_token_ref)
         .filter(token.eq(&target_token))
         .get_result(conn)?;
 
-    Ok(updated_token)
+    Ok(delete_token)
 }
 
 /// delete target token to table user_token_ref of database
 pub(crate) fn delete_user_token(
-    cxt: &Context<'_>,
+    logged_user_uuid: &Uuid,
     target_token: &str,
-    auth_user_uuid: Uuid,
-) -> ServiceResult<i32> {
-    let conn: &PooledConnection = &get_conn(cxt)?;
-
+    conn: &PgConnection,
+) -> ServiceResult<bool> {
     use crate::schema::user_token_ref::dsl::*;
 
-    let updated_token: usize = diesel::delete(user_token_ref)
-        .filter(user_uuid.eq(&auth_user_uuid))
-        .filter(token.eq(&target_token))
-        .execute(conn)?;
+    let delete_token = diesel::delete(user_token_ref)
+        .filter(user_uuid.eq(&logged_user_uuid)
+        .and(token.eq(&target_token)))
+        .execute(conn);
 
-    Ok(updated_token as i32)
+    match delete_token {
+        Ok(0) => Ok(false),
+        Ok(_) => Ok(true),
+        Err(err) => {
+            debug!("Failed delete token: {:?}", err);
+            Err(ServiceError::InternalServerError)
+        },
+    }
 }
 
 /// delete tokens to table user_token_ref of database
 pub(crate) fn delete_all_tokens(
-    cxt: &Context<'_>,
-    target_user_uuid: Uuid,
+    target_user_uuid: &Uuid,
+    conn: &PgConnection,
 ) -> ServiceResult<i32> {
-    let conn: &PooledConnection = &get_conn(cxt)?;
-
     use crate::schema::user_token_ref::dsl::*;
 
-    let updated_token: usize = diesel::delete(user_token_ref)
-        .filter(user_uuid.eq_all(&target_user_uuid))
-        .execute(conn)?;
+    let del_tokens = diesel::delete(user_token_ref)
+        .filter(user_uuid.eq_all(target_user_uuid))
+        .execute(conn);
 
-    Ok(updated_token as i32)
+    match del_tokens {
+        Ok(x) => Ok(x as i32),
+        Err(err) => {
+            debug!("Failed delete tokens: {:?}", err);
+
+            Err(ServiceError::InternalServerError)
+        },
+    }
 }
 
 /// write token to table user_token_ref of database
@@ -181,8 +193,8 @@ pub(crate) fn check_token(
     let naive_local_now = chrono::Local::now().naive_local();
 
     let find_token = user_token_ref
-        .filter(token.eq(target_token))
-        .filter(expiration_at.gt(naive_local_now))
+        .filter(token.eq(target_token)
+        .and(expiration_at.gt(naive_local_now)))
         .execute(conn).unwrap();
 
     match find_token as i32 {

@@ -2,7 +2,8 @@ use crate::database::{get_conn, PooledConnection};
 use crate::errors::ServiceError;
 use async_graphql::Context;
 
-pub(crate) fn logout(
+/// Logout user and delete used token
+pub(crate) fn logout_user(
     cxt: &Context<'_> ,
 ) -> Result<String, ServiceError> {
     use crate::models::user::access::token::{token_from_cxt, delete_token};

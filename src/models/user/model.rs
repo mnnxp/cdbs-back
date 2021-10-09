@@ -265,8 +265,8 @@ impl From<&IptUserData> for InsertableUser {
 #[derive(Debug, Serialize, Deserialize, Queryable, Clone)]
 pub struct SlimUser {
     pub uuid: Uuid,
-    pub program_id: i32,
     pub username: String,
+    pub program_id: i32,
 }
 
 #[Object]
@@ -274,13 +274,11 @@ impl SlimUser {
     async fn uuid(&self) -> ID {
         self.uuid.into()
     }
-
-    async fn program_id(&self) -> &i32 {
-        &self.program_id
-    }
-
     async fn username(&self) -> &String {
         &self.username
+    }
+    async fn program_id(&self) -> &i32 {
+        &self.program_id
     }
 }
 
@@ -288,15 +286,15 @@ impl From<User> for SlimUser {
     fn from(user: User) -> Self {
         let User {
             uuid,
-            program_id,
             username,
+            program_id,
             ..
         } = user;
 
         Self {
             uuid,
-            program_id,
             username,
+            program_id,
         }
     }
 }

@@ -548,7 +548,7 @@ describe('users', () => {
     const {
       data: { deleteToken },
     } = response1.body;
-    expect(deleteToken).toBe('removed 1 token.');
+    expect(deleteToken).toBe(true);
     done();
   });
 
@@ -596,6 +596,35 @@ describe('users', () => {
         'Unauthorized'
       );
       done();
+  });
+
+  it('/graphql:Q selfData - OK', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `query {
+            selfData{
+              ${userFullDataQuery}
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    // expect(body).toBe(0);
+    let {
+      data: { selfData }
+    } = body;
+    expect(selfData.uuid).toBe(userUuidFirst);
+    expect(selfData.username).toBe(username);
+    expect(selfData.favCompaniesCount).toBe(0);
+    expect(selfData.favComponentsCount).toBe(0);
+    expect(selfData.favStandardsCount).toBe(0);
+    expect(selfData.favUsersCount).toBe(0);
+    done();
   });
 
   it('/graphql:Q User - Ok', async (done) => {
@@ -1536,7 +1565,7 @@ describe('users', () => {
     debug('/graphql body=%o', response1.body);
     expect(response1.body.data).toBeNull();
     expect(response1.body.errors[0].message).toBe(
-      'BadRequest: Your token is invalid.'
+      'Unauthorized'
     );
     expect(response1.body.errors[0].path[0]).toBe('getToken');
     done();
@@ -1697,7 +1726,7 @@ describe('users', () => {
       .expect(HttpStatus.OK)
       debug('/graphql body=%o', response1.body);
       expect(response1.body.errors[0].message).toBe(
-        'BadRequest: Your token is invalid.'
+        'Unauthorized'
       );
       done();
   });

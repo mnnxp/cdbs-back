@@ -4,8 +4,11 @@ use crate::database::{get_conn, PooledConnection};
 use async_graphql::Context;
 use uuid::Uuid;
 
-/// checking user authorization
-pub(crate) fn check_authorized(cxt: &Context<'_>) -> ServiceResult<bool> {
+/// Checking user authorization
+/// Return error if token not found or not valid
+pub(crate) fn check_authorized(
+    cxt: &Context<'_>
+) -> ServiceResult<bool> {
     use crate::models::user::access::token::{token_from_cxt, check_token};
 
     let conn: &PooledConnection = &get_conn(cxt)?;

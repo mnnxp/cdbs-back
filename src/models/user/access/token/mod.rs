@@ -3,6 +3,7 @@ mod generate;
 mod util;
 pub(crate) mod model;
 
-pub(crate) use decode::decode;
-pub(crate) use generate::generate;
-pub(crate) use util::*;
+pub(in crate::models::user::access) use decode::decode;
+pub(in crate::models::user::access) use generate::generate;
+// pub(in crate::models::user::access) use util::*;
+pub(super) use util::*;
