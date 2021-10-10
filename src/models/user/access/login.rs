@@ -37,6 +37,8 @@ pub(crate) fn login_with_pass(
     }
 }
 
+/// Compare password with password in database
+/// if check success return SlimUser for generate token
 fn login_check(
     user_username: &str,
     user_password: &str,
