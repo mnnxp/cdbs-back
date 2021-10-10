@@ -1,4 +1,5 @@
 use crate::errors::ServiceResult;
+use crate::models::user::access::util::check_access_user_for_user;
 use crate::models::user::model::{
     SlimUser, ShowUserShort, UserAndRelatedData,
 };
@@ -6,9 +7,21 @@ use diesel::PgConnection;
 use uuid::Uuid;
 
 pub(crate) fn find_users_by_uuids(
+    logged_user_uuid: &Uuid,
     target_users_uuids: &[Uuid],
     conn: &PgConnection,
 ) -> ServiceResult<Vec<ShowUserShort>> {
+    let need_access_level = 3; // todo!(create enum for manage access level)
+
+    // check access user for all users
+    for tu_uuid in target_users_uuids {
+        check_access_user_for_user(
+            logged_user_uuid,
+            tu_uuid,
+            &need_access_level,
+            conn
+        )?;
+    }
 
     let result: Vec<ShowUserShort> = ShowUserShort::get_list_by_uuids(
         target_users_uuids,
@@ -27,6 +40,16 @@ pub(crate) fn find_user_by_uuid(
     set_lang_id: &i32,
     conn: &PgConnection,
 ) -> ServiceResult<UserAndRelatedData> {
+    let need_access_level = 3; // todo!(create enum for manage access level)
+
+    // check access user for user
+    check_access_user_for_user(
+        logged_user_uuid,
+        target_user_uuid,
+        &need_access_level,
+        conn
+    )?;
+
     // collect data for user
     let result: UserAndRelatedData = UserAndRelatedData::collect_related_data(
         target_user_uuid,

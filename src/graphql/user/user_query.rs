@@ -25,12 +25,12 @@ impl UserQuery {
         use crate::models::user::service::list::find_users_by_uuids;
 
         // authorization check
-        let _logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
         find_users_by_uuids(
-            // &logged_user_uuid,
+            &logged_user_uuid,
             &users_uuids,
             conn,
         )

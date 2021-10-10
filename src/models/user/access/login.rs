@@ -1,7 +1,7 @@
 use crate::errors::{ServiceError, ServiceResult};
 use crate::models::user::model::{SlimUser, User};
 use crate::models::user::access::{
-    model::UserToken, util::verify,
+    model::UserToken, hash::verify,
 };
 use diesel::prelude::*;
 

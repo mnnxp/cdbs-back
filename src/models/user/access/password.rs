@@ -1,5 +1,5 @@
 use crate::errors::{ServiceResult, ServiceError};
-use crate::models::user::access::util::{
+use crate::models::user::access::hash::{
     make_hash_salt, make_salt, verify,
 };
 use crate::schema::user_ref::dsl as user_ref;

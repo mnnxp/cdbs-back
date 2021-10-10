@@ -1,3 +1,4 @@
+pub(super) mod hash;
 pub(super) mod util;
 pub(super) mod token;
 pub(crate) mod logged;

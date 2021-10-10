@@ -1,4 +1,4 @@
-use super::access::util::{make_hash_salt, make_salt};
+use super::access::hash::{make_hash_salt, make_salt};
 use super::certificate::model::CertificateWithShowFile;
 use crate::models::relate_ref::file::model::ShowFile;
 use crate::models::relate_ref::region::model::RegionTranslateList;
@@ -146,6 +146,7 @@ pub(crate) struct InsertableUser {
     image_file_uuid: Uuid,
     region_id: i32,
     program_id: i32,
+    type_access_id: i32,
     is_email_verified: bool,
     is_enabled: bool,
     is_delete: bool,
@@ -168,6 +169,7 @@ pub struct IptUserData {
     pub time_zone: Option<String>,
     pub region_id: Option<i32>,
     pub program_id: Option<i32>,
+    pub type_access_id: Option<i32>,
 }
 
 impl From<&IptUserData> for InsertableUser {
@@ -186,6 +188,7 @@ impl From<&IptUserData> for InsertableUser {
             time_zone,
             region_id,
             program_id,
+            type_access_id,
             ..
         } = ipt_data;
 
@@ -235,6 +238,7 @@ impl From<&IptUserData> for InsertableUser {
         };
         let region_id = region_id.unwrap_or(1);
         let program_id = program_id.unwrap_or(1);
+        let type_access_id = type_access_id.unwrap_or(3);
 
         Self {
             uuid: Uuid::new_v4(),
@@ -253,6 +257,7 @@ impl From<&IptUserData> for InsertableUser {
             image_file_uuid, // default
             region_id,
             program_id,
+            type_access_id,
             is_email_verified: false,
             is_enabled: true,
             is_delete: false,
