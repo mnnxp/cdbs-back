@@ -38,6 +38,25 @@ impl UserMutation {
         )
     }
 
+    // Delete user and relating data
+    async fn delete_user_data(
+        &self,
+        cxt: &Context<'_>,
+        password: String,
+    ) -> ServiceResult<bool> {
+        use crate::models::user::service::delete::delete_user;
+
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+
+        let conn: &PooledConnection = &get_conn(cxt)?;
+
+        delete_user(
+            &logged_user_uuid,
+            password.as_bytes(),
+            conn,
+        )
+    }
+
     async fn put_update_password(
         &self,
         cxt: &Context<'_>,

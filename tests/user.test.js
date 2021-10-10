@@ -1061,7 +1061,7 @@ describe('users', () => {
     done();
   });
 
-  it('/graphql:M putUpdatePassword - OK not valid old password', async (done) => {
+  it('/graphql:M putUpdatePassword - BadRequest not valid old password', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .set(
@@ -1082,7 +1082,7 @@ describe('users', () => {
     debug('/graphql body=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Old password does not valid.'
+      'BadRequest: Password is not correct.'
     );
     expect(body.errors[0].path[0]).toBe('putUpdatePassword');
     done();
@@ -1836,5 +1836,118 @@ describe('users', () => {
         'Unauthorized'
       );
       done();
+  });
+
+  it('/graphql:M deleteUserData - UNAUTHORIZED not valid token', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation  {
+          deleteUserData(
+            password: "${passwordGood}"
+          )
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'Unauthorized'
+    );
+    expect(body.errors[0].path[0]).toBe('deleteUserData');
+    done();
+  });
+
+  it('/login - OK to login first time', (done) => {
+    agent
+      .post('/login')
+      .send({ "user": {
+            "username": username,
+            "password": passwordGood,
+          }
+        })
+      .expect(HttpStatus.OK)
+      .then(({ body, headers }) => {
+        debug('/login headers=%o', headers);
+        expect(body.bearer).toBeNonEmptyString();
+        // write new token (update old)
+        authorizationTokenFirst = body.bearer;
+        done();
+      });
+  });
+
+  it('/graphql:M deleteUserData - BadRequest not valid password', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation  {
+          deleteUserData(
+            password: "${password}"
+          )
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Password is not correct.'
+    );
+    expect(body.errors[0].path[0]).toBe('deleteUserData');
+    done();
+  });
+
+  it('/graphql:M deleteUserData - OK', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation  {
+            deleteUserData(
+              password: "${passwordGood}"
+            )
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql deleteUserData=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { deleteUserData },
+    } = body;
+    expect(deleteUserData).toBe(true);
+    done();
+  });
+
+  it('/login - UNAUTHORIZED not found user', (done) => {
+    agent
+      .post('/login')
+      .send({ "user": {
+            "username": username,
+            "password": passwordGood,
+          }
+        })
+      .expect(HttpStatus.UNAUTHORIZED)
+      .then(({ body, text, error, headers }) => {
+        debug(
+          '/login body=%o text=%o error=%o headers=%o ',
+          body,
+          text,
+          error,
+          headers
+        );
+        expect(error.text).toBe('"Unauthorized"');
+        expect(body).toBe('Unauthorized');
+        done();
+      });
   });
 });

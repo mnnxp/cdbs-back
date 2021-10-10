@@ -53,26 +53,12 @@ pub(crate) fn change_password(
         return Ok(false)
     }
 
-    let hash_pass = user_ref::user_ref
-        .filter(user_ref::uuid.eq(logged_user_uuid))
-        .select((
-            user_ref::psw_hash,
-            user_ref::psw_salt,
-        ))
-        .first::<HashPassword>(conn)
-        .map_err(|_| ServiceError::Unauthorized)?;
-
-    // debug!("HashPassword: {:?}", user);
-
-    if !verify(
-        hash_pass.get_psw_hash(),
-        hash_pass.get_psw_salt(),
-        data.old_password.as_bytes()
-    ) {
-        return Err(ServiceError::BadRequest(
-            "Old password does not valid.".to_string()
-        ))
-    }
+    // check if the old password is correct
+    check_password(
+        logged_user_uuid,
+        data.old_password.as_bytes(),
+        conn
+    )?;
 
     // match PASSWORD_REGEXP.is_match(&data.new_password) {
     //     true => {},
@@ -126,5 +112,36 @@ fn update_password(
             debug!("Failed updated password: {:?}", err);
             Err(ServiceError::InternalServerError)
         }
+    }
+}
+
+/// Compare password with password in database
+pub(crate) fn check_password(
+    logged_user_uuid: &Uuid,
+    password: &[u8],
+    conn: &PgConnection,
+) -> ServiceResult<bool> {
+    let hash_pass = user_ref::user_ref
+        .filter(user_ref::uuid.eq(logged_user_uuid))
+        .select((
+            user_ref::psw_hash,
+            user_ref::psw_salt,
+        ))
+        .first::<HashPassword>(conn)
+        .map_err(|_| ServiceError::InternalServerError)?;
+
+    // debug!("HashPassword: {:?}", hash_pass);
+
+    match verify(
+        hash_pass.get_psw_hash(),
+        hash_pass.get_psw_salt(),
+        password,
+    ) {
+        true => Ok(true),
+        false => {
+            Err(ServiceError::BadRequest(
+                "Password is not correct.".to_string()
+            ))
+        },
     }
 }
