@@ -5,7 +5,7 @@ use crate::models::user::access::logged::{check_authorized, get_logged_user_uuid
 use crate::models::user::model::{ShowUserShort, SlimUser, UserAndRelatedData};
 use crate::models::user::notification::model::Notification;
 use crate::models::user::notification::service as notification;
-use crate::models::user::access::token::model::UserToken;
+use crate::models::user::access::model::UserToken;
 use crate::models::user::get_set_language;
 
 use async_graphql::{self, Context, Object};

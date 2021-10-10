@@ -1,5 +1,7 @@
 use crate::errors::{ServiceResult, ServiceError};
-use super::model::{UserToken, InsertableUserToken};
+use crate::models::user::access::model::{
+    UserToken, InsertableUserToken
+};
 use crate::database::{get_conn, PooledConnection};
 use crate::models::user::model::SlimUser;
 use crate::jwt::model::{Token, Claims};

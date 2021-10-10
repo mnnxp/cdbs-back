@@ -1,7 +1,8 @@
 use crate::errors::{ServiceError, ServiceResult};
 use crate::models::user::model::{SlimUser, User};
-use crate::models::user::access::token::model::UserToken;
-use crate::models::user::access::util::verify;
+use crate::models::user::access::{
+    model::UserToken, util::verify,
+};
 use diesel::prelude::*;
 
 // Login user with user/pass, return new token

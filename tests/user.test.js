@@ -39,6 +39,8 @@ var userUuidSecond = "";
 const username = "baromi";
 const username2 = "simaco";
 const password = "password";
+const passwordBad = "pbad";
+const passwordGood = "1passwordG00D!";
 
 // for update user
 const emailNew = "testemail@mail.ru.new";
@@ -46,7 +48,6 @@ const firstnameNew = "test_firstname_new";
 const lastnameNew = "test_lastname_new";
 const secondnameNew = "test_secondname_new";
 const usernameNew = "username_new";
-const passwordNew = "password_new";
 const phoneNew = "test_phone_new";
 const descriptionNew = "test_description_new";
 const addressNew = "test_address_new";
@@ -1003,6 +1004,87 @@ describe('users', () => {
     } = body;
     expect(user.certificates[0].file.filename).toBe(goodFilenameCertificateTest);
     expect(user.certificates[0].description).toBe(descriptionCertificateUpdateTest);
+    done();
+  });
+
+  it('/graphql:M putUpdatePassword - OK duplicate password', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation  {
+            putUpdatePassword(
+              data: {
+                oldPassword: "${password}",
+                newPassword: "${password}",
+              }
+            )
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql putUpdatePassword=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { putUpdatePassword },
+    } = body;
+    expect(putUpdatePassword).toBe(false);
+    done();
+  });
+
+  it('/graphql:M putUpdatePassword - OK', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation  {
+            putUpdatePassword(
+              data: {
+                oldPassword: "${password}",
+                newPassword: "${passwordGood}",
+              }
+            )
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql putUpdatePassword=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { putUpdatePassword },
+    } = body;
+    expect(putUpdatePassword).toBe(true);
+    done();
+  });
+
+  it('/graphql:M putUpdatePassword - OK not valid old password', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation  {
+            putUpdatePassword(
+              data: {
+                oldPassword: "${password}",
+                newPassword: "${passwordBad}",
+              }
+            )
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Old password does not valid.'
+    );
+    expect(body.errors[0].path[0]).toBe('putUpdatePassword');
     done();
   });
 

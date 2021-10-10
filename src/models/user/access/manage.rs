@@ -1,6 +1,6 @@
 use crate::errors::ServiceResult;
 use crate::jwt::model::{Claims, Token};
-use crate::models::user::access::token::model::UserToken;
+use crate::models::user::access::model::UserToken;
 use async_graphql::Context;
 use diesel::prelude::PgConnection;
 use uuid::Uuid;
@@ -14,7 +14,7 @@ pub(crate) fn show_user_tokens(
 
     show_tokens(
         logged_user_uuid,
-        conn, 
+        conn,
     )
 }
 

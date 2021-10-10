@@ -1,6 +1,7 @@
 use crate::database::{get_pool, get_conn, PooledConnection};
 use crate::errors::ServiceResult;
 use crate::models::user::access::logged::get_logged_user_uuid;
+use crate::models::user::access::password::IptUpdatePassword;
 use crate::models::user::model::IptUpdateUserData;
 use crate::models::user::certificate::model::{
     IptUserCertificateData, IptUpdateUserCertificateData, DelUserCertificateData
@@ -32,6 +33,24 @@ impl UserMutation {
         let conn: &PooledConnection = &get_conn(cxt)?;
 
         create_user(
+            &data,
+            conn
+        )
+    }
+
+    async fn put_update_password(
+        &self,
+        cxt: &Context<'_>,
+        data: IptUpdatePassword,
+    ) -> ServiceResult<bool> {
+        use crate::models::user::access::password::change_password;
+
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+
+        let conn: &PooledConnection = &get_conn(cxt)?;
+
+        change_password(
+            &logged_user_uuid,
             &data,
             conn
         )

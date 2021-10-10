@@ -14,11 +14,11 @@ pub struct UserToken {
 
 #[derive(Debug, Insertable)]
 #[table_name = "user_token_ref"]
-pub struct InsertableUserToken {
-    pub user_uuid: Uuid,
-    pub token: String,
-    pub created_at: NaiveDateTime,
-    pub expiration_at: NaiveDateTime,
+pub(super) struct InsertableUserToken {
+    pub(super) user_uuid: Uuid,
+    pub(super) token: String,
+    pub(super) created_at: NaiveDateTime,
+    pub(super) expiration_at: NaiveDateTime,
 }
 
 #[Object]
