@@ -2424,6 +2424,132 @@ describe('users', () => {
     done();
   });
 
+  // change type access user profile
+  it('/graphql:M changeTypeAccessUser - Ok change access type profile to public', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenUserSecond}`
+      )
+      .send({
+        query: `mutation {
+            changeTypeAccessUser(
+              newTypeAccess: ${type_access_id_public}
+            )
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: changeTypeAccessUser
+    } = body;
+    expect(changeTypeAccessUser.changeTypeAccessUser).toBe(true);
+    done();
+  });
+
+  it('/graphql:Q User - Ok get public profile', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenUserFirst}`
+      )
+      .send({
+        query: `query {
+            user(userUuid: "${userUuidSecond}") {
+              ${userFullDataQuery}
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { user }
+    } = body;
+    expect(user.uuid).toBe(userUuidSecond);
+    expect(user.username).toBe(username2);
+    expect(user.favCompaniesCount).toBe(0);
+    expect(user.favComponentsCount).toBe(0);
+    expect(user.favStandardsCount).toBe(0);
+    expect(user.favUsersCount).toBe(0);
+    done();
+  });
+
+  it('/graphql:M changeTypeAccessUser - Ok return private access type profile', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenUserSecond}`
+      )
+      .send({
+        query: `mutation {
+            changeTypeAccessUser(
+              newTypeAccess: ${type_access_id_private}
+            )
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: changeTypeAccessUser
+    } = body;
+    expect(changeTypeAccessUser.changeTypeAccessUser).toBe(true);
+    done();
+  });
+
+  it('/graphql:M changeTypeAccessUser - Ok this access already has', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenUserSecond}`
+      )
+      .send({
+        query: `mutation {
+            changeTypeAccessUser(
+              newTypeAccess: ${type_access_id_private}
+            )
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: changeTypeAccessUser
+    } = body;
+    expect(changeTypeAccessUser.changeTypeAccessUser).toBe(false);
+    done();
+  });
+
+  it('/graphql:Q User - BadRequest private profile', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenUserFirst}`
+      )
+      .send({
+        query: `query {
+            user(userUuid: "${userUuidSecond}") {
+              ${userFullDataQuery}
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Access denied'
+    );
+    expect(body.errors[0].path[0]).toBe('user');
+    done();
+  });
+
   it('/graphql:Q getToken UNAUTHORIZED removed token', async (done) => {
     const response1 = await agent
       .post('/graphql')

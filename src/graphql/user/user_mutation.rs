@@ -75,6 +75,24 @@ impl UserMutation {
         )
     }
 
+    async fn change_type_access_user(
+        &self,
+        cxt: &Context<'_>,
+        new_type_access: i32,
+    ) -> ServiceResult<bool> {
+        use crate::models::user::access::update::change_access_type_user;
+
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+
+        let conn: &PooledConnection = &get_conn(cxt)?;
+
+        Ok(change_access_type_user(
+            &logged_user_uuid,
+            &new_type_access,
+            conn
+        ))
+    }
+
     async fn put_user_update(
         &self,
         cxt: &Context<'_>,
