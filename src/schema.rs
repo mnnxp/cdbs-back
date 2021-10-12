@@ -395,14 +395,13 @@ table! {
         id -> Int4,
         notification -> Varchar,
         degree_importance_id -> Int4,
-        generated_at -> Timestamp,
+        created_at -> Timestamp,
         is_read -> Bool,
     }
 }
 
 table! {
     notification_to_user (notification_id, user_uuid) {
-        id -> Int4,
         notification_id -> Int4,
         user_uuid -> Uuid,
     }
