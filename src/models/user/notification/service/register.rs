@@ -1,37 +1,41 @@
 use crate::errors::ServiceResult;
 use crate::models::user::notification::model::{
-    Notification, NotificationData, InsertableNotification, SlimNotification,
-    NotificationToUser, InsertableNotificationToUser,
+    NotificationData,
+    InsertableNotification,
+    InsertableNotificationToUser,
 };
 use diesel::prelude::*;
 use uuid::Uuid;
 
-pub fn create_notification(
-    notification_data: NotificationData,
-    user_uuid: Uuid,
+pub(crate) fn create_notification(
+    logged_user_uuid: &Uuid,
+    notification_data: &NotificationData,
     conn: &PgConnection,
-) -> ServiceResult<SlimNotification> {
-    use crate::schema::notification_ref::dsl::notification_ref;
-    use crate::schema::notification_to_user::dsl::notification_to_user;
+) -> ServiceResult<bool> {
+    use crate::schema::notification_ref::dsl as notification_ref;
+    use crate::schema::notification_to_user::dsl as notification_to_user;
 
-    // debug!("fn notification_id_delete = {}", &notification_id_delete);
+    let insert_notification_data: InsertableNotification = notification_data.into();
 
-    let notification: InsertableNotification = notification_data.into();
-    let inserted_notification: Notification = diesel::insert_into(notification_ref)
-        .values(&notification)
-        .get_result(conn)?;
+    let notification_id = diesel::insert_into(notification_ref::notification_ref)
+        .values(&insert_notification_data)
+        .returning(notification_ref::id)
+        .get_result::<i32>(conn)
+        .expect("Failed inser notification");
+
     // debug!("fn input_user_uuid = {}", &input_user_uuid);
 
-    // add row to notification_to_user with current user
     let row_notification_to_user: InsertableNotificationToUser = InsertableNotificationToUser{
-        notification_id: (inserted_notification.id),
-        user_uuid: (user_uuid),
+        notification_id,
+        user_uuid: *logged_user_uuid,
     };
-    let row_notification_to_user: NotificationToUser = diesel::insert_into(notification_to_user)
+
+    // add row with notification id and logged user
+    diesel::insert_into(notification_to_user::notification_to_user)
         .values(&row_notification_to_user)
-        .get_result(conn)?;
+        .returning(notification_to_user::notification_id)
+        .get_result::<i32>(conn)
+        .expect("Failed insert notification data related with user");
 
-    debug!("Entry added successfully = {:?}", row_notification_to_user);
-
-    Ok(inserted_notification.into())
+    Ok(true)
 }

@@ -11,7 +11,6 @@ use crate::models::user::component_fav::model::{ComponentFav, IptComponentFavDat
 use crate::models::user::standard_fav::model::{StandardFav, IptStandardFavData};
 use crate::models::user::user_fav::model::{UserFav, IptUserFavData};
 use crate::models::user::model::{IptUserData, SlimUser};
-use crate::models::user::notification::model::{Notification, NotificationData, SlimNotification};
 use crate::models::relate_ref::file::model::UploadFile;
 
 use async_graphql::{self, Context, Object};
@@ -340,25 +339,29 @@ impl UserMutation {
         )
     }
 
-    async fn register_notification(
+    async fn read_notification(
         &self,
         cxt: &Context<'_>,
-        data: NotificationData,
-    ) -> ServiceResult<SlimNotification> {
-        use crate::models::user::notification::service::register::create_notification;
+        notification_id: i32,
+    ) -> ServiceResult<bool> {
+        use crate::models::user::notification::service::update::notification_is_read;
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
-        create_notification(data, logged_user_uuid, conn)
+        notification_is_read(
+            &logged_user_uuid,
+            &notification_id,
+            conn,
+        )
     }
 
     async fn delete_notification(
         &self,
         cxt: &Context<'_>,
-        notification_id: i32,
-    ) -> ServiceResult<Notification> {
+        notification_ids: Vec<i32>,
+    ) -> ServiceResult<i32> {
         use crate::models::user::notification::service::delete::delete_notification;
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
@@ -366,8 +369,8 @@ impl UserMutation {
         let conn: &PooledConnection = &get_conn(cxt)?;
 
         delete_notification(
-            logged_user_uuid,
-            notification_id,
+            &logged_user_uuid,
+            &notification_ids,
             conn,
         )
     }

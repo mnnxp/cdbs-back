@@ -1,39 +1,31 @@
-use crate::errors::{ServiceError, ServiceResult};
-use crate::models::user::notification::model::Notification;
+use crate::errors::ServiceResult;
 use diesel::prelude::*;
 use uuid::Uuid;
 
+/// Delete notifications logged user
 pub(crate) fn delete_notification(
-    input_user_uuid: Uuid,
-    notification_id_delete: i32,
+    logged_user_uuid: &Uuid,
+    notification_ids: &[i32],
     conn: &PgConnection,
-) -> ServiceResult<Notification> {
-    use crate::schema::notification_ref::dsl::*;
-    use crate::schema::notification_ref::dsl::id as notification_ref_id;
-    use crate::schema::notification_to_user::dsl::*;
-
-    // debug!("fn input_user_uuid = {}", &input_user_uuid);
-    // debug!("fn notification_id_delete = {}", &notification_id_delete);
+) -> ServiceResult<i32> {
+    use crate::schema::notification_ref::dsl as notification_ref;
+    use crate::schema::notification_to_user::dsl as notification_to_user;
 
     // find notification and check privileges for delete
-    let find_notification: i32 = notification_to_user
-        .filter(user_uuid.eq(input_user_uuid))
-        .filter(notification_id.eq(notification_id_delete))
-        .select(notification_id)
-        .first(conn)
-        .unwrap_or(0);
+    let find_notifications = notification_to_user::notification_to_user
+        .filter(notification_to_user::user_uuid.eq(logged_user_uuid)
+        .and(notification_to_user::notification_id.eq_any(notification_ids)))
+        .select(notification_to_user::notification_id)
+        .load::<i32>(conn)
+        .expect("Not found notification");
 
-    match find_notification {
-        1..=i32::MAX => {
-            // delete notification and save delete data for send response
-            let delete_notification: Notification =
-                diesel::delete(notification_ref.filter(notification_ref_id.eq(find_notification)))
-                    .get_result(conn)?;
-            // debug!("fn delete_notification ={:?}", &delete_notification);
-            Ok(delete_notification)
-        }
-        _ => Err(ServiceError::BadRequest(
-            "The notification not you or not found.".to_string(),
-        )),
-    }
+    // delete notification and save delete data for send response
+    let count_del = diesel::delete(notification_ref::notification_ref
+        .filter(notification_ref::id.eq_any(find_notifications)))
+        .execute(conn)
+        .expect("Failed delete notification");
+
+    // debug!("fn delete_notification ={:?}", &delete_notification);
+
+    Ok(count_del as i32)
 }

@@ -37,7 +37,7 @@ fn get_all(
         .filter(user_uuid.eq(target_user_uuid))
         .select((
             notification_ref_id, notification, degree_importance_id,
-            generated_at, is_read,
+            created_at, is_read,
         ))
         .limit(limit as i64)
         .offset(offset as i64)
@@ -62,7 +62,7 @@ fn get_by_id(
         .and(notification_id.eq_any(search_ids)))
         .select((
             notification_ref_id, notification, degree_importance_id,
-            generated_at, is_read,
+            created_at, is_read,
         ))
         .load::<Notification>(conn)?)
 }
