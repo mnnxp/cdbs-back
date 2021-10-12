@@ -111,7 +111,6 @@ CREATE TABLE standard_fav (
 
 /* доступ к стандарту отдельного пользователя */
 CREATE TABLE notification_to_user (
-  id SERIAL UNIQUE, /* id уведомления */
   notification_id INTEGER NOT NULL, /* идентификатор уведомления */
   user_uuid UUID NOT NULL, /* идентификатор профиля */
   CONSTRAINT notification_to_user_pk PRIMARY KEY (notification_id, user_uuid)
