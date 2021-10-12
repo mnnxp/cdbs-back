@@ -1143,34 +1143,6 @@ describe('users', () => {
     done();
   });
 
-  it('/graphql:Q notifications - OK not have notification', async (done) => {
-    const { body } = await agent
-      .post('/graphql')
-      .set(
-        'Authorization',
-        `Bearer ${authorizationTokenUserFirst}`
-      )
-      .send({
-        query: `query  {
-            notifications {
-              id
-              notification
-              degreeImportanceId
-              createdAt
-              isRead
-            }
-        }`,
-      })
-      .expect(HttpStatus.OK)
-    debug('/graphql notifications=%o', body);
-    // expect(body).toBe(0);
-    const {
-      data: { notifications },
-    } = body;
-    expect(notifications).toBeEmptyArray();
-    done();
-  });
-
   it('/graphql:M putUpdatePassword - OK', async (done) => {
     const { body } = await agent
       .post('/graphql')
@@ -1195,6 +1167,34 @@ describe('users', () => {
       data: { putUpdatePassword },
     } = body;
     expect(putUpdatePassword).toBe(true);
+    done();
+  });
+
+  it('/graphql:Q notifications - OK not have notification', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenUserSecond}`
+      )
+      .send({
+        query: `query  {
+            notifications {
+              id
+              notification
+              degreeImportanceId
+              createdAt
+              isRead
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql notifications=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { notifications },
+    } = body;
+    expect(notifications).toBeEmptyArray();
     done();
   });
 
@@ -1290,6 +1290,30 @@ describe('users', () => {
     expect(notifications[0].notification).toBe(notificationUpdatePassword);
     expect(notifications[0].degreeImportanceId).toBe(5);
     expect(notifications[0].isRead).toBe(true);
+    done();
+  });
+
+  it('/graphql:M deleteNotification - BadRequest someone else notice', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenUserSecond}`
+      )
+      .send({
+        query: `mutation  {
+            deleteNotification(
+              notificationIds: ${notificationId}
+            )
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql deleteNotification=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { deleteNotification },
+    } = body;
+    expect(deleteNotification).toBe(0);
     done();
   });
 
