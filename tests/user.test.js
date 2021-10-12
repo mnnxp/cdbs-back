@@ -163,6 +163,10 @@ const keywordIdsDup = [1,2,3,4,5];
 const licenseIdOk = 1;
 const licenseIdErr = 2;
 
+// for notification
+const notificationUpdatePassword = "Updated password";
+var notificationId = 0;
+
 const userFullDataQuery = ` \
 uuid \
 email \
@@ -1139,6 +1143,34 @@ describe('users', () => {
     done();
   });
 
+  it('/graphql:Q notifications - OK not have notification', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenUserFirst}`
+      )
+      .send({
+        query: `query  {
+            notifications {
+              id
+              notification
+              degreeImportanceId
+              createdAt
+              isRead
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql notifications=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { notifications },
+    } = body;
+    expect(notifications).toBeEmptyArray();
+    done();
+  });
+
   it('/graphql:M putUpdatePassword - OK', async (done) => {
     const { body } = await agent
       .post('/graphql')
@@ -1163,6 +1195,125 @@ describe('users', () => {
       data: { putUpdatePassword },
     } = body;
     expect(putUpdatePassword).toBe(true);
+    done();
+  });
+
+  it('/graphql:Q notifications - OK update password', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenUserFirst}`
+      )
+      .send({
+        query: `query  {
+            notifications {
+              id
+              notification
+              degreeImportanceId
+              createdAt
+              isRead
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql notifications=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { notifications },
+    } = body;
+    notificationId = notifications[0].id;
+    expect(notifications[0]).toContainAllKeys([
+      "id", "notification", "degreeImportanceId",
+      "createdAt", "isRead",
+    ]);
+    expect(notifications[0].notification).toBe(notificationUpdatePassword);
+    expect(notifications[0].degreeImportanceId).toBe(5);
+    expect(notifications[0].isRead).toBe(false);
+    done();
+  });
+
+  it('/graphql:M readNotification - OK', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenUserFirst}`
+      )
+      .send({
+        query: `mutation  {
+            readNotification(
+              notificationId: ${notificationId}
+            )
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql readNotification=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { readNotification },
+    } = body;
+    expect(readNotification).toBe(true);
+    done();
+  });
+
+  it('/graphql:Q notifications - OK read notification', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenUserFirst}`
+      )
+      .send({
+        query: `query  {
+            notifications {
+              id
+              notification
+              degreeImportanceId
+              createdAt
+              isRead
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql notifications=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { notifications },
+    } = body;
+    notificationId = notifications[0].id;
+    expect(notifications[0]).toContainAllKeys([
+      "id", "notification", "degreeImportanceId",
+      "createdAt", "isRead",
+    ]);
+    expect(notifications[0].id).toBe(notificationId);
+    expect(notifications[0].notification).toBe(notificationUpdatePassword);
+    expect(notifications[0].degreeImportanceId).toBe(5);
+    expect(notifications[0].isRead).toBe(true);
+    done();
+  });
+
+  it('/graphql:M deleteNotification - OK', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenUserFirst}`
+      )
+      .send({
+        query: `mutation  {
+            deleteNotification(
+              notificationIds: ${notificationId}
+            )
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql deleteNotification=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { deleteNotification },
+    } = body;
+    expect(deleteNotification).toBe(1);
     done();
   });
 

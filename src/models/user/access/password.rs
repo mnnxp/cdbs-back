@@ -94,25 +94,32 @@ fn update_password(
     );
 
     // update hash and salt in database
-    let res = diesel::update(user_ref::user_ref
+    diesel::update(user_ref::user_ref
         .filter(user_ref::uuid.eq(logged_user_uuid)))
         .set((
             user_ref::psw_hash.eq(psw_hash),
             user_ref::psw_salt.eq(psw_salt.to_vec()),
             user_ref::updated_at.eq(chrono::Local::now().naive_local()),
         ))
-        .execute(conn);
+        .execute(conn)
+        .expect("Failed updated password");
 
-    match res {
-        Ok(x) => {
-            debug!("Password updated: {:?}", x);
-            Ok(true)
+    // debug!("Password updated: {:?}", res);
+
+    // add notification for user
+    use crate::models::user::notification::model::{NotificationType, NotificationData};
+    use crate::models::user::notification::service::register::create_notification;
+
+    create_notification(
+        logged_user_uuid,
+        &NotificationData {
+            notification: "Updated password".to_string(),
+            degree_importance: NotificationType::Info,
         },
-        Err(err) => {
-            debug!("Failed updated password: {:?}", err);
-            Err(ServiceError::InternalServerError)
-        }
-    }
+        conn,
+    ).expect("Failed add user notification");
+
+    Ok(true)
 }
 
 /// Compare password with password in database
