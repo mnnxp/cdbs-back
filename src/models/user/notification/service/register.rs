@@ -7,8 +7,9 @@ use crate::models::user::notification::model::{
 use diesel::prelude::*;
 use uuid::Uuid;
 
+/// Add notification for target user
 pub(crate) fn create_notification(
-    logged_user_uuid: &Uuid,
+    target_user_uuid: &Uuid,
     notification_data: &NotificationData,
     conn: &PgConnection,
 ) -> ServiceResult<bool> {
@@ -27,10 +28,10 @@ pub(crate) fn create_notification(
 
     let row_notification_to_user: InsertableNotificationToUser = InsertableNotificationToUser{
         notification_id,
-        user_uuid: *logged_user_uuid,
+        user_uuid: *target_user_uuid,
     };
 
-    // add row with notification id and logged user
+    // add row with notification id and target user
     diesel::insert_into(notification_to_user::notification_to_user)
         .values(&row_notification_to_user)
         .returning(notification_to_user::notification_id)
