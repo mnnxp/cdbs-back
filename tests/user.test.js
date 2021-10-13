@@ -1519,19 +1519,12 @@ describe('users', () => {
       )
       .send({
         query: `mutation {
-            addCompanyFav(companyUuid: "${companyUuidBase}") {
-              companyUuid
-              userUuid
-              isEnabled
-              createdAt
-            }
+            addCompanyFav(companyUuid: "${companyUuidBase}")
         }`,
       })
       .expect(HttpStatus.OK)
     debug('/graphql addCompanyFav body=%o', body);
-    expect(body.data.addCompanyFav.companyUuid).toBe(companyUuidBase);
-    expect(body.data.addCompanyFav.userUuid).toBe(userUuidFirst);
-    expect(body.data.addCompanyFav.isEnabled).toBe(true);
+    expect(body.data.addCompanyFav).toBe(true);
     done();
   });
 
@@ -1587,12 +1580,7 @@ describe('users', () => {
       )
       .send({
         query: `mutation {
-            addComponentFav(componentUuid: "${componentUuidBase}") {
-              componentUuid
-              userUuid
-              isEnabled
-              createdAt
-            }
+            addComponentFav(componentUuid: "${componentUuidBase}")
         }`,
       })
       .expect(HttpStatus.OK)
@@ -1614,19 +1602,12 @@ describe('users', () => {
       )
       .send({
         query: `mutation {
-            addComponentFav(componentUuid: "${componentUuidForFav}") {
-              componentUuid
-              userUuid
-              isEnabled
-              createdAt
-            }
+            addComponentFav(componentUuid: "${componentUuidForFav}")
         }`,
       })
       .expect(HttpStatus.OK)
     debug('/graphql addComponentFav body=%o', body);
-    expect(body.data.addComponentFav.componentUuid).toBe(componentUuidForFav);
-    expect(body.data.addComponentFav.userUuid).toBe(userUuidFirst);
-    expect(body.data.addComponentFav.isEnabled).toBe(true);
+    expect(body.data.addComponentFav).toBe(true);
     done();
   });
 
@@ -1727,19 +1708,12 @@ describe('users', () => {
       )
       .send({
         query: `mutation {
-            addStandardFav(standardUuid: "${standardUuidForFav}") {
-              standardUuid
-              userUuid
-              isEnabled
-              createdAt
-            }
+            addStandardFav(standardUuid: "${standardUuidForFav}")
         }`,
       })
       .expect(HttpStatus.OK)
     debug('/graphql addStandardFav body=%o', body);
-    expect(body.data.addStandardFav.standardUuid).toBe(standardUuidForFav);
-    expect(body.data.addStandardFav.userUuid).toBe(userUuidFirst);
-    expect(body.data.addStandardFav.isEnabled).toBe(true);
+    expect(body.data.addStandardFav).toBe(true);
     done();
   });
 
@@ -1752,19 +1726,12 @@ describe('users', () => {
       )
       .send({
         query: `mutation {
-            addUserFav(userUuid: "${userUuidBase}") {
-              userFavoriteUuid
-              userFollowerUuid
-              isEnabled
-              createdAt
-            }
+            addUserFav(userUuid: "${userUuidBase}")
         }`,
       })
       .expect(HttpStatus.OK)
     debug('/graphql addUserFav body=%o', body);
-    expect(body.data.addUserFav.userFavoriteUuid).toBe(userUuidBase);
-    expect(body.data.addUserFav.userFollowerUuid).toBe(userUuidFirst);
-    expect(body.data.addUserFav.isEnabled).toBe(true);
+    expect(body.data.addUserFav).toBe(true);
     done();
   });
 
@@ -1805,19 +1772,12 @@ describe('users', () => {
       )
       .send({
         query: `mutation {
-            deleteCompanyFav(companyUuid: "${companyUuidBase}") {
-              companyUuid
-              userUuid
-              isEnabled
-              createdAt
-            }
+            deleteCompanyFav(companyUuid: "${companyUuidBase}")
         }`,
       })
       .expect(HttpStatus.OK)
     debug('/graphql deleteCompanyFav body=%o', body);
-    expect(body.data.deleteCompanyFav.companyUuid).toBe(companyUuidBase);
-    expect(body.data.deleteCompanyFav.userUuid).toBe(userUuidFirst);
-    expect(body.data.deleteCompanyFav.isEnabled).toBe(false);
+    expect(body.data.deleteCompanyFav).toBe(true);
     done();
   });
 
@@ -1830,18 +1790,13 @@ describe('users', () => {
       )
       .send({
         query: `mutation {
-            deleteCompanyFav(companyUuid: "${companyUuidBase}") {
-              companyUuid
-              userUuid
-              isEnabled
-              createdAt
-            }
+            deleteCompanyFav(companyUuid: "${companyUuidBase}")
         }`,
       })
       .expect(HttpStatus.OK)
       debug('/graphql body=%o', body);
       expect(body.errors[0].message).toBe(
-        'BadRequest: Company not found in favotite list'
+        'BadRequest: No data found'
       );
       done();
   });
@@ -1855,19 +1810,12 @@ describe('users', () => {
       )
       .send({
         query: `mutation {
-            deleteComponentFav(componentUuid: "${componentUuidForFav}") {
-              componentUuid
-              userUuid
-              isEnabled
-              createdAt
-            }
+            deleteComponentFav(componentUuid: "${componentUuidForFav}")
         }`,
       })
       .expect(HttpStatus.OK)
     debug('/graphql deleteComponentFav body=%o', body);
-    expect(body.data.deleteComponentFav.componentUuid).toBe(componentUuidForFav);
-    expect(body.data.deleteComponentFav.userUuid).toBe(userUuidFirst);
-    expect(body.data.deleteComponentFav.isEnabled).toBe(false);
+    expect(body.data.deleteComponentFav).toBe(true);
     done();
   });
 
@@ -1880,18 +1828,13 @@ describe('users', () => {
       )
       .send({
         query: `mutation {
-            deleteComponentFav(componentUuid: "${componentUuidForFav}") {
-              componentUuid
-              userUuid
-              isEnabled
-              createdAt
-            }
+            deleteComponentFav(componentUuid: "${componentUuidForFav}")
         }`,
       })
       .expect(HttpStatus.OK)
       debug('/graphql body=%o', body);
       expect(body.errors[0].message).toBe(
-        'BadRequest: Component not found in favotite list'
+        'BadRequest: No data found'
       );
       done();
   });
@@ -1905,19 +1848,12 @@ describe('users', () => {
       )
       .send({
         query: `mutation {
-            deleteStandardFav(standardUuid: "${standardUuidForFav}") {
-              standardUuid
-              userUuid
-              isEnabled
-              createdAt
-            }
+            deleteStandardFav(standardUuid: "${standardUuidForFav}")
         }`,
       })
       .expect(HttpStatus.OK)
     debug('/graphql deleteStandardFav body=%o', body);
-    expect(body.data.deleteStandardFav.standardUuid).toBe(standardUuidForFav);
-    expect(body.data.deleteStandardFav.userUuid).toBe(userUuidFirst);
-    expect(body.data.deleteStandardFav.isEnabled).toBe(false);
+    expect(body.data.deleteStandardFav).toBe(true);
     done();
   });
 
@@ -1930,18 +1866,13 @@ describe('users', () => {
       )
       .send({
         query: `mutation {
-            deleteStandardFav(standardUuid: "${standardUuidForFav}") {
-              standardUuid
-              userUuid
-              isEnabled
-              createdAt
-            }
+            deleteStandardFav(standardUuid: "${standardUuidForFav}")
         }`,
       })
       .expect(HttpStatus.OK)
       debug('/graphql body=%o', body);
       expect(body.errors[0].message).toBe(
-        'BadRequest: Standard not found in favotite list'
+        'BadRequest: No data found'
       );
       done();
   });
@@ -1955,19 +1886,12 @@ describe('users', () => {
       )
       .send({
         query: `mutation {
-            deleteUserFav(userUuid: "${userUuidBase}") {
-              userFavoriteUuid
-              userFollowerUuid
-              isEnabled
-              createdAt
-            }
+            deleteUserFav(userUuid: "${userUuidBase}")
         }`,
       })
       .expect(HttpStatus.OK)
     debug('/graphql deleteUserFav body=%o', body);
-    expect(body.data.deleteUserFav.userFavoriteUuid).toBe(userUuidBase);
-    expect(body.data.deleteUserFav.userFollowerUuid).toBe(userUuidFirst);
-    expect(body.data.deleteUserFav.isEnabled).toBe(false);
+    expect(body.data.deleteUserFav).toBe(true);
     done();
   });
 
@@ -1980,18 +1904,13 @@ describe('users', () => {
       )
       .send({
         query: `mutation {
-            deleteUserFav(userUuid: "${userUuidBase}") {
-              userFavoriteUuid
-              userFollowerUuid
-              isEnabled
-              createdAt
-            }
+            deleteUserFav(userUuid: "${userUuidBase}")
         }`,
       })
       .expect(HttpStatus.OK)
       debug('/graphql body=%o', body);
       expect(body.errors[0].message).toBe(
-        'BadRequest: User not found in favotite list'
+        'BadRequest: No data found'
       );
       done();
   });

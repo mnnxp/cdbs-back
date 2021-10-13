@@ -1,11 +1,5 @@
-use crate::errors::{
-    ServiceError,
-    ServiceResult
-};
-use crate::models::user::standard_fav::model::{
-    StandardFav,
-    IptStandardFavData,
-};
+use crate::errors::{ServiceError, ServiceResult};
+use crate::models::user::standard_fav::model::IptStandardFavData;
 use crate::schema::standard_fav::dsl::*;
 use diesel::prelude::*;
 
@@ -13,25 +7,24 @@ use diesel::prelude::*;
 pub(crate) fn delete_standard_fav(
     data: &IptStandardFavData,
     conn: &PgConnection,
-) -> ServiceResult<StandardFav> {
+) -> ServiceResult<bool> {
     // if have need row, just update is_enabled to false
     let check_fav = diesel::update(standard_fav)
         .filter(standard_uuid.eq(&data.standard_uuid)
         .and(user_uuid.eq(&data.user_uuid))
         .and(is_enabled.eq(true))) // <-- active favorite
         .set(is_enabled.eq(false)) // <-- off favorite standard
-        .get_result(conn);
+        .execute(conn)
+        .expect("Failed check fav data");
 
-    let user_standard_fav: StandardFav = match check_fav {
-        Ok(fav) => fav, // <-- turned flag to false
-        Err(err) => {
-            debug!("Err with delete standard fav: {:#?}", err);
+    match check_fav {
+        1_usize => Ok(true), // <-- turned flag to false
+        0_usize => {
             // standard not found in favorite list
-            return Err(ServiceError::BadRequest("Standard not found in favotite list".to_string()))
+            Err(ServiceError::BadRequest(
+                "No data found".to_string()
+            ))
         },
-    };
-
-    debug!("Standard delete from favorute: {:#?}", user_standard_fav);
-
-    Ok(user_standard_fav)
+        _ => Err(ServiceError::InternalServerError),
+    }
 }

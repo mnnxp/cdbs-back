@@ -6,10 +6,10 @@ use crate::models::user::model::IptUpdateUserData;
 use crate::models::user::certificate::model::{
     IptUserCertificateData, IptUpdateUserCertificateData, DelUserCertificateData
 };
-use crate::models::user::company_fav::model::{CompanyFav, IptCompanyFavData};
-use crate::models::user::component_fav::model::{ComponentFav, IptComponentFavData};
-use crate::models::user::standard_fav::model::{StandardFav, IptStandardFavData};
-use crate::models::user::user_fav::model::{UserFav, IptUserFavData};
+use crate::models::user::company_fav::model::IptCompanyFavData;
+use crate::models::user::component_fav::model::IptComponentFavData;
+use crate::models::user::standard_fav::model::IptStandardFavData;
+use crate::models::user::user_fav::model::IptUserFavData;
 use crate::models::user::model::{IptUserData, SlimUser};
 use crate::models::relate_ref::file::model::UploadFile;
 
@@ -183,7 +183,7 @@ impl UserMutation {
         &self,
         cxt: &Context<'_>,
         company_uuid: Uuid,
-    ) -> ServiceResult<CompanyFav> {
+    ) -> ServiceResult<bool> {
         use crate::models::user::company_fav::service::add::add_company_fav;
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
@@ -203,7 +203,7 @@ impl UserMutation {
         &self,
         cxt: &Context<'_>,
         company_uuid: Uuid,
-    ) -> ServiceResult<CompanyFav> {
+    ) -> ServiceResult<bool> {
         use crate::models::user::company_fav::service::delete::delete_company_fav;
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
@@ -223,7 +223,7 @@ impl UserMutation {
         &self,
         cxt: &Context<'_>,
         component_uuid: Uuid,
-    ) -> ServiceResult<ComponentFav> {
+    ) -> ServiceResult<bool> {
         use crate::models::user::component_fav::service::add::add_component_fav;
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
@@ -243,7 +243,7 @@ impl UserMutation {
         &self,
         cxt: &Context<'_>,
         component_uuid: Uuid,
-    ) -> ServiceResult<ComponentFav> {
+    ) -> ServiceResult<bool> {
         use crate::models::user::component_fav::service::delete::delete_component_fav;
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
@@ -263,7 +263,7 @@ impl UserMutation {
         &self,
         cxt: &Context<'_>,
         standard_uuid: Uuid,
-    ) -> ServiceResult<StandardFav> {
+    ) -> ServiceResult<bool> {
         use crate::models::user::standard_fav::service::add::add_standard_fav;
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
@@ -283,7 +283,7 @@ impl UserMutation {
         &self,
         cxt: &Context<'_>,
         standard_uuid: Uuid,
-    ) -> ServiceResult<StandardFav> {
+    ) -> ServiceResult<bool> {
         use crate::models::user::standard_fav::service::delete::delete_standard_fav;
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
@@ -303,7 +303,7 @@ impl UserMutation {
         &self,
         cxt: &Context<'_>,
         user_uuid: Uuid,
-    ) -> ServiceResult<UserFav> {
+    ) -> ServiceResult<bool> {
         use crate::models::user::user_fav::service::add::add_user_fav;
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
@@ -323,7 +323,7 @@ impl UserMutation {
         &self,
         cxt: &Context<'_>,
         user_uuid: Uuid,
-    ) -> ServiceResult<UserFav> {
+    ) -> ServiceResult<bool> {
         use crate::models::user::user_fav::service::delete::delete_user_fav;
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;

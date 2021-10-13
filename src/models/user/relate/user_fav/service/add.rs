@@ -1,9 +1,7 @@
-use crate::errors::ServiceResult;
+use crate::errors::{ServiceError, ServiceResult};
 use crate::models::user::access::util::check_access_user_for_user;
 use crate::models::user::user_fav::model::{
-    UserFav,
-    IptUserFavData,
-    InsertableUserFav,
+    IptUserFavData, InsertableUserFav
 };
 use crate::schema::user_fav::dsl::*;
 use diesel::prelude::*;
@@ -11,7 +9,7 @@ use diesel::prelude::*;
 pub(crate) fn add_user_fav(
     data: &IptUserFavData,
     conn: &PgConnection,
-) -> ServiceResult<UserFav> {
+) -> ServiceResult<bool> {
     let need_access_level = 3; // todo!(create enum for manage access level)
 
     // check access user for user
@@ -27,21 +25,22 @@ pub(crate) fn add_user_fav(
         .filter(user_favorite_uuid.eq(&data.user_favorite_uuid)
         .and(user_follower_uuid.eq(&data.user_follower_uuid)))
         .set(is_enabled.eq(true))
-        .get_result(conn);
+        .execute(conn)
+        .expect("Failed check fav data");
 
-    let user_user_fav: UserFav = match check_fav {
-        Ok(fav) => fav,
-        Err(_) => {
+    match check_fav {
+        1_usize => Ok(true),
+        0_usize => {
             // add flag and date created
             let insertable_fav: InsertableUserFav = data.into();
 
             diesel::insert_into(user_fav)
                 .values(insertable_fav)
-                .get_result(conn)?
+                .execute(conn)
+                .expect("Failed add fav data");
+
+            Ok(true)
         },
-    };
-
-    debug!("User favorite user: {:#?}", user_user_fav);
-
-    Ok(user_user_fav)
+        _ => Err(ServiceError::InternalServerError),
+    }
 }
