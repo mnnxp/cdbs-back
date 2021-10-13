@@ -11,7 +11,7 @@ use diesel::prelude::*;
 
 // Remove a company from user favorites company list
 pub(crate) fn delete_company_fav(
-    data: IptCompanyFavData,
+    data: &IptCompanyFavData,
     conn: &PgConnection,
 ) -> ServiceResult<CompanyFav> {
     // if have need row, just update is_enabled to false

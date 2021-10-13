@@ -191,7 +191,7 @@ impl UserMutation {
         let conn: &PooledConnection = &get_conn(cxt)?;
 
         add_company_fav(
-            IptCompanyFavData {
+            &IptCompanyFavData {
                 company_uuid,
                 user_uuid: logged_user_uuid
             },
@@ -211,7 +211,7 @@ impl UserMutation {
         let conn: &PooledConnection = &get_conn(cxt)?;
 
         delete_company_fav(
-            IptCompanyFavData {
+            &IptCompanyFavData {
                 company_uuid,
                 user_uuid: logged_user_uuid
             },
@@ -231,7 +231,7 @@ impl UserMutation {
         let conn: &PooledConnection = &get_conn(cxt)?;
 
         add_component_fav(
-            IptComponentFavData {
+            &IptComponentFavData {
                 component_uuid,
                 user_uuid: logged_user_uuid
             },
@@ -251,7 +251,7 @@ impl UserMutation {
         let conn: &PooledConnection = &get_conn(cxt)?;
 
         delete_component_fav(
-            IptComponentFavData {
+            &IptComponentFavData {
                 component_uuid,
                 user_uuid: logged_user_uuid
             },
@@ -271,7 +271,7 @@ impl UserMutation {
         let conn: &PooledConnection = &get_conn(cxt)?;
 
         add_standard_fav(
-            IptStandardFavData {
+            &IptStandardFavData {
                 standard_uuid,
                 user_uuid: logged_user_uuid
             },
@@ -291,7 +291,7 @@ impl UserMutation {
         let conn: &PooledConnection = &get_conn(cxt)?;
 
         delete_standard_fav(
-            IptStandardFavData {
+            &IptStandardFavData {
                 standard_uuid,
                 user_uuid: logged_user_uuid
             },
@@ -311,7 +311,7 @@ impl UserMutation {
         let conn: &PooledConnection = &get_conn(cxt)?;
 
         add_user_fav(
-            IptUserFavData {
+            &IptUserFavData {
                 user_favorite_uuid: user_uuid,
                 user_follower_uuid: logged_user_uuid
             },
@@ -331,7 +331,7 @@ impl UserMutation {
         let conn: &PooledConnection = &get_conn(cxt)?;
 
         delete_user_fav(
-            IptUserFavData {
+            &IptUserFavData {
                 user_favorite_uuid: user_uuid,
                 user_follower_uuid: logged_user_uuid
             },

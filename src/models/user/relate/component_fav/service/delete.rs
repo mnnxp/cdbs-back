@@ -11,7 +11,7 @@ use diesel::prelude::*;
 
 // Remove a component from user favorites component list
 pub(crate) fn delete_component_fav(
-    data: IptComponentFavData,
+    data: &IptComponentFavData,
     conn: &PgConnection,
 ) -> ServiceResult<ComponentFav> {
     // if have need row, just update is_enabled to false

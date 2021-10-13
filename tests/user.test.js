@@ -77,8 +77,9 @@ const regionIdPut = 2;
 const programIdPut = 2;
 
 
-var firstAccess = 1;
-var secondAccess = 2;
+var typeAccessId1 = 1;
+var typeAccessId2 = 2;
+var typeAccessId3 = 3;
 
 var langId = 1;
 var nameRole = "test role";
@@ -1517,7 +1518,7 @@ describe('users', () => {
         `Bearer ${authorizationTokenUserFirst}`
       )
       .send({
-        query: `mutation addCompanyFavM {
+        query: `mutation {
             addCompanyFav(companyUuid: "${companyUuidBase}") {
               companyUuid
               userUuid
@@ -1534,7 +1535,50 @@ describe('users', () => {
     done();
   });
 
-  it('/graphql:M ComponentFav - Ok add', async (done) => {
+  it('/graphql:M registerComponent - OK not standard', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenUserThree}`
+      )
+      .send({
+        query: `mutation  {
+            registerComponent( data: {
+                name: "${nameComponent2}",
+                description: "${descriptionComponent}",
+                typeAccessId: ${typeAccessIdComponent},
+                componentTypeId: ${componentTypeId},
+                actualStatusId: ${actualStatusIdComponent},
+                isBase: ${isBaseComponent0}
+            }) {
+                uuid
+                name
+                description
+                actualStatusId
+                isBase
+                updatedAt
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql registerComponent=%o', body);
+    const {
+      data: { registerComponent },
+    } = body;
+    expect(registerComponent).toContainAllKeys([
+      "description", "actualStatusId", "isBase", "name", "updatedAt", "uuid"
+    ]);
+    expect(registerComponent.uuid).toBeNonEmptyString();
+    expect(registerComponent.name).toBe(nameComponent2);
+    expect(registerComponent.description).toBe(descriptionComponent);
+    expect(registerComponent.isBase).toBe(isBaseComponent0);
+    expect(registerComponent.actualStatusId).toBe(actualStatusIdComponent);
+    componentUuidForFav = registerComponent.uuid;
+    done();
+  });
+
+  it('/graphql:M ComponentFav - BadReuest not access', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .set(
@@ -1542,7 +1586,7 @@ describe('users', () => {
         `Bearer ${authorizationTokenUserFirst}`
       )
       .send({
-        query: `mutation addComponentFavM {
+        query: `mutation {
             addComponentFav(componentUuid: "${componentUuidBase}") {
               componentUuid
               userUuid
@@ -1552,10 +1596,125 @@ describe('users', () => {
         }`,
       })
       .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Access denied'
+    );
+    expect(body.errors[0].path[0]).toBe('addComponentFav');
+    done();
+  });
+
+  it('/graphql:M ComponentFav - Ok add', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenUserFirst}`
+      )
+      .send({
+        query: `mutation {
+            addComponentFav(componentUuid: "${componentUuidForFav}") {
+              componentUuid
+              userUuid
+              isEnabled
+              createdAt
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
     debug('/graphql addComponentFav body=%o', body);
-    expect(body.data.addComponentFav.componentUuid).toBe(componentUuidBase);
+    expect(body.data.addComponentFav.componentUuid).toBe(componentUuidForFav);
     expect(body.data.addComponentFav.userUuid).toBe(userUuidFirst);
     expect(body.data.addComponentFav.isEnabled).toBe(true);
+    done();
+  });
+
+  it('/graphql:M registerCompany - OK Supplier', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenUserThree}`
+      )
+      .send({
+        query: `mutation newCompany {
+         registerCompany( data: {
+            orgname: "${orgname}",
+            shortname: "${shortname}",
+            inn: "${inn}",
+            phone: "${phoneCompany}",
+            email: "${emailCompany}",
+            description: "${description}",
+            address: "${addressCompany}"
+            siteUrl: "${siteUrlCompany}",
+            timeZone: "${timeZoneCompany}",
+            regionId: ${regionIdCompany},
+            companyTypeId: ${companyTypeId}
+          }) {
+            uuid
+            shortname
+            isSupplier
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql registerCompany=%o', body);
+    const {
+      data: { registerCompany },
+    } = body;
+    expect(registerCompany.uuid).toBeNonEmptyString();
+    expect(registerCompany.shortname).toBe(shortname);
+    expect(registerCompany.isSupplier).toBe(false);
+    companyUuidSupplier = registerCompany.uuid;
+    done();
+    // change supplier status on 1
+    await global.knex.raw('UPDATE company_ref SET is_supplier=? WHERE orgname=?', [
+      't',
+      orgname,
+    ]);
+  });
+
+  it('/graphql:M registerStandard - OK', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenUserThree}`
+      )
+      .send({
+        query: `mutation standardQuery {
+          registerStandard( data: {
+            parentStandardUuid: "${parentStandardUuid}",
+            classifier: "${classifierStandard}",
+            name: "${nameStandard}",
+            description: "${descriptionStandard}",
+            specifiedTolerance: "${specifiedTolerance}",
+            technicalCommittee: "${technicalCommittee}",
+            publicationAt: "${publicationAt}",
+            companyUuid: "${companyUuidSupplier}",
+            typeAccessId: ${typeAccessId3},
+            standardStatusId: ${standardStatusId},
+            regionId: ${regionId}
+          }) {
+            uuid
+            classifier
+            name
+            specifiedTolerance
+            technicalCommittee
+            publicationAt
+            standardStatusId
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql registerStandard=%o', body);
+    const {
+      data: { registerStandard },
+    } = body;
+    expect(registerStandard.uuid).toBeNonEmptyString();
+    expect(registerStandard.name).toBe(nameStandard);
+    standardUuidForFav = registerStandard.uuid;
     done();
   });
 
@@ -1567,8 +1726,8 @@ describe('users', () => {
         `Bearer ${authorizationTokenUserFirst}`
       )
       .send({
-        query: `mutation addStandardFavM {
-            addStandardFav(standardUuid: "${standardUuidBase}") {
+        query: `mutation {
+            addStandardFav(standardUuid: "${standardUuidForFav}") {
               standardUuid
               userUuid
               isEnabled
@@ -1578,7 +1737,7 @@ describe('users', () => {
       })
       .expect(HttpStatus.OK)
     debug('/graphql addStandardFav body=%o', body);
-    expect(body.data.addStandardFav.standardUuid).toBe(standardUuidBase);
+    expect(body.data.addStandardFav.standardUuid).toBe(standardUuidForFav);
     expect(body.data.addStandardFav.userUuid).toBe(userUuidFirst);
     expect(body.data.addStandardFav.isEnabled).toBe(true);
     done();
@@ -1592,7 +1751,7 @@ describe('users', () => {
         `Bearer ${authorizationTokenUserFirst}`
       )
       .send({
-        query: `mutation addUserFavM {
+        query: `mutation {
             addUserFav(userUuid: "${userUuidBase}") {
               userFavoriteUuid
               userFollowerUuid
@@ -1645,7 +1804,7 @@ describe('users', () => {
         `Bearer ${authorizationTokenUserFirst}`
       )
       .send({
-        query: `mutation deleteCompanyFavM {
+        query: `mutation {
             deleteCompanyFav(companyUuid: "${companyUuidBase}") {
               companyUuid
               userUuid
@@ -1670,7 +1829,7 @@ describe('users', () => {
         `Bearer ${authorizationTokenUserFirst}`
       )
       .send({
-        query: `mutation deleteCompanyFavM {
+        query: `mutation {
             deleteCompanyFav(companyUuid: "${companyUuidBase}") {
               companyUuid
               userUuid
@@ -1695,8 +1854,8 @@ describe('users', () => {
         `Bearer ${authorizationTokenUserFirst}`
       )
       .send({
-        query: `mutation deleteComponentFavM {
-            deleteComponentFav(componentUuid: "${componentUuidBase}") {
+        query: `mutation {
+            deleteComponentFav(componentUuid: "${componentUuidForFav}") {
               componentUuid
               userUuid
               isEnabled
@@ -1706,7 +1865,7 @@ describe('users', () => {
       })
       .expect(HttpStatus.OK)
     debug('/graphql deleteComponentFav body=%o', body);
-    expect(body.data.deleteComponentFav.componentUuid).toBe(componentUuidBase);
+    expect(body.data.deleteComponentFav.componentUuid).toBe(componentUuidForFav);
     expect(body.data.deleteComponentFav.userUuid).toBe(userUuidFirst);
     expect(body.data.deleteComponentFav.isEnabled).toBe(false);
     done();
@@ -1720,8 +1879,8 @@ describe('users', () => {
         `Bearer ${authorizationTokenUserFirst}`
       )
       .send({
-        query: `mutation deleteComponentFavM {
-            deleteComponentFav(componentUuid: "${componentUuidBase}") {
+        query: `mutation {
+            deleteComponentFav(componentUuid: "${componentUuidForFav}") {
               componentUuid
               userUuid
               isEnabled
@@ -1745,8 +1904,8 @@ describe('users', () => {
         `Bearer ${authorizationTokenUserFirst}`
       )
       .send({
-        query: `mutation deleteStandardFavM {
-            deleteStandardFav(standardUuid: "${standardUuidBase}") {
+        query: `mutation {
+            deleteStandardFav(standardUuid: "${standardUuidForFav}") {
               standardUuid
               userUuid
               isEnabled
@@ -1756,7 +1915,7 @@ describe('users', () => {
       })
       .expect(HttpStatus.OK)
     debug('/graphql deleteStandardFav body=%o', body);
-    expect(body.data.deleteStandardFav.standardUuid).toBe(standardUuidBase);
+    expect(body.data.deleteStandardFav.standardUuid).toBe(standardUuidForFav);
     expect(body.data.deleteStandardFav.userUuid).toBe(userUuidFirst);
     expect(body.data.deleteStandardFav.isEnabled).toBe(false);
     done();
@@ -1770,8 +1929,8 @@ describe('users', () => {
         `Bearer ${authorizationTokenUserFirst}`
       )
       .send({
-        query: `mutation deleteStandardFavM {
-            deleteStandardFav(standardUuid: "${standardUuidBase}") {
+        query: `mutation {
+            deleteStandardFav(standardUuid: "${standardUuidForFav}") {
               standardUuid
               userUuid
               isEnabled
@@ -1795,7 +1954,7 @@ describe('users', () => {
         `Bearer ${authorizationTokenUserFirst}`
       )
       .send({
-        query: `mutation deleteUserFavM {
+        query: `mutation {
             deleteUserFav(userUuid: "${userUuidBase}") {
               userFavoriteUuid
               userFollowerUuid
@@ -1820,7 +1979,7 @@ describe('users', () => {
         `Bearer ${authorizationTokenUserFirst}`
       )
       .send({
-        query: `mutation deleteUserFavM {
+        query: `mutation {
             deleteUserFav(userUuid: "${userUuidBase}") {
               userFavoriteUuid
               userFollowerUuid
@@ -2248,7 +2407,7 @@ describe('users', () => {
             technicalCommittee: "${technicalCommittee}",
             publicationAt: "${publicationAt}",
             companyUuid: "${companyUuidSupplier}",
-            typeAccessId: ${secondAccess},
+            typeAccessId: ${typeAccessId2},
             standardStatusId: ${standardStatusId},
             regionId: ${regionId}
           }) {
@@ -2287,7 +2446,7 @@ describe('users', () => {
               data: {
                 standardUuid: "${standardUuidFirst}"
                 userUuid: "${userUuidSecond}"
-                typeAccessId: ${secondAccess}
+                typeAccessId: ${typeAccessId2}
               }
             )
         }`,
@@ -2344,7 +2503,7 @@ describe('users', () => {
               data: {
                 standardUuid: "${standardUuidFirst}"
                 userUuid: "${userUuidThree}"
-                typeAccessId: ${secondAccess}
+                typeAccessId: ${typeAccessId2}
               }
             )
         }`,
@@ -2469,7 +2628,7 @@ describe('users', () => {
               data: {
                 componentUuid: "${componentUuidNoStandard}"
                 userUuid: "${userUuidFirst}"
-                typeAccessId: ${secondAccess}
+                typeAccessId: ${typeAccessId2}
               }
             )
         }`,
@@ -2526,7 +2685,7 @@ describe('users', () => {
               data: {
                 componentUuid: "${componentUuidNoStandard}"
                 userUuid: "${userUuidThree}"
-                typeAccessId: ${secondAccess}
+                typeAccessId: ${typeAccessId2}
               }
             )
         }`,

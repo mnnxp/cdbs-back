@@ -1,4 +1,5 @@
 use crate::errors::ServiceResult;
+use crate::models::standard::access::util::check_access_standard_for_user;
 use crate::models::user::standard_fav::model::{
     StandardFav,
     IptStandardFavData,
@@ -8,9 +9,19 @@ use crate::schema::standard_fav::dsl::*;
 use diesel::prelude::*;
 
 pub(crate) fn add_standard_fav(
-    data: IptStandardFavData,
+    data: &IptStandardFavData,
     conn: &PgConnection,
 ) -> ServiceResult<StandardFav> {
+    let need_access_level = 3; // todo!(create enum for manage access level)
+
+    // check access user for standard
+    check_access_standard_for_user(
+        &data.user_uuid,
+        &data.standard_uuid,
+        &need_access_level,
+        conn
+    )?;
+
     // if have need row, just update is_enabled to true
     let check_fav = diesel::update(standard_fav)
         .filter(standard_uuid.eq(&data.standard_uuid)

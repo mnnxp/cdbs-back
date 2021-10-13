@@ -11,7 +11,7 @@ use diesel::prelude::*;
 
 // Remove a standard from user favorites standard list
 pub(crate) fn delete_standard_fav(
-    data: IptStandardFavData,
+    data: &IptStandardFavData,
     conn: &PgConnection,
 ) -> ServiceResult<StandardFav> {
     // if have need row, just update is_enabled to false

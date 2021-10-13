@@ -1,4 +1,5 @@
 use crate::errors::ServiceResult;
+use crate::models::component::access::util::check_access_component_for_user;
 use crate::models::user::component_fav::model::{
     ComponentFav,
     IptComponentFavData,
@@ -8,9 +9,19 @@ use crate::schema::component_fav::dsl::*;
 use diesel::prelude::*;
 
 pub(crate) fn add_component_fav(
-    data: IptComponentFavData,
+    data: &IptComponentFavData,
     conn: &PgConnection,
 ) -> ServiceResult<ComponentFav> {
+    let need_access_level = 3; // todo!(create enum for manage access level)
+
+    // check access user for component
+    check_access_component_for_user(
+        &data.user_uuid,
+        &data.component_uuid,
+        &need_access_level,
+        conn
+    )?;
+
     // if have need row, just update is_enabled to true
     let check_fav = diesel::update(component_fav)
         .filter(component_uuid.eq(&data.component_uuid)

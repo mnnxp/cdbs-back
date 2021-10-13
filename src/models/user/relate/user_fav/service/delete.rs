@@ -11,7 +11,7 @@ use diesel::prelude::*;
 
 // Remove a user from user favorites user list
 pub(crate) fn delete_user_fav(
-    data: IptUserFavData,
+    data: &IptUserFavData,
     conn: &PgConnection,
 ) -> ServiceResult<UserFav> {
     // if have need row, just update is_enabled to false

@@ -50,19 +50,17 @@ pub struct InsertableComponentFav {
     pub created_at: NaiveDateTime,
 }
 
-impl From<IptComponentFavData> for InsertableComponentFav {
-    fn from(ipt_data: IptComponentFavData) -> Self {
+impl From<&IptComponentFavData> for InsertableComponentFav {
+    fn from(ipt_data: &IptComponentFavData) -> Self {
         let IptComponentFavData {
             component_uuid,
             user_uuid,
-            // is_enabled,
-            // created_at,
             ..
         } = ipt_data;
 
         Self {
-            component_uuid,
-            user_uuid,
+            component_uuid: *component_uuid,
+            user_uuid: *user_uuid,
             is_enabled: true,
             created_at: chrono::Local::now().naive_local(),
         }

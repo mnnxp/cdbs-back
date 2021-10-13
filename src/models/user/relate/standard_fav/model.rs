@@ -50,19 +50,17 @@ pub struct InsertableStandardFav {
     pub created_at: NaiveDateTime,
 }
 
-impl From<IptStandardFavData> for InsertableStandardFav {
-    fn from(ipt_data: IptStandardFavData) -> Self {
+impl From<&IptStandardFavData> for InsertableStandardFav {
+    fn from(ipt_data: &IptStandardFavData) -> Self {
         let IptStandardFavData {
             standard_uuid,
             user_uuid,
-            // is_enabled,
-            // created_at,
             ..
         } = ipt_data;
 
         Self {
-            standard_uuid,
-            user_uuid,
+            standard_uuid: *standard_uuid,
+            user_uuid: *user_uuid,
             is_enabled: true,
             created_at: chrono::Local::now().naive_local(),
         }
