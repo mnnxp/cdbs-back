@@ -194,17 +194,19 @@ impl UserQuery {
     ) -> ServiceResult<Vec<Notification>> {
         use crate::models::user::notification::service::list::get_notifications;
         let select_ids: Vec<i32>  = select_ids.unwrap_or_default();
-        let limit: i32 = limit.unwrap_or(100);
-        let offset: i32 = offset.unwrap_or(0);
+        let limit: i64 = limit.unwrap_or(100) as i64;
+        let offset: i64 = offset.unwrap_or(0) as i64;
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
-        get_notifications(
-            cxt,
-            &select_ids,
+        let conn: &PooledConnection = &get_conn(cxt)?;
+
+        Ok(get_notifications(
             &logged_user_uuid,
-            limit,
-            offset
-        )
+            &select_ids,
+            &limit,
+            &offset,
+            conn,
+        ))
     }
 }
