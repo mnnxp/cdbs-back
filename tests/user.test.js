@@ -180,6 +180,7 @@ imageFile { \
   uuid \
   filename \
   filesize \
+  downloadUrl \
 } \
 region { \
   regionId \
@@ -196,8 +197,30 @@ certificates { \
   userUuid \
   file { \
     uuid \
-    filename \
-    filesize \
+    parentFileUuid \
+    download { \
+      uuid \
+      filename \
+      filesize \
+      downloadUrl \
+    } \
+    ownerUser { \
+      uuid \
+      username \
+      imageFile { \
+        uuid \
+        filename \
+        filesize \
+        downloadUrl \
+      } \
+    } \
+    contentType \
+    program { \
+      id \
+      name \
+    } \
+    createdAt \
+    updatedAt \
   } \
   description \
 } \
@@ -221,6 +244,7 @@ imageFile { \
   uuid \
   filename \
   filesize \
+  downloadUrl \
 } \
 region { \
   regionId \
@@ -240,8 +264,30 @@ certificates { \
   userUuid \
   file { \
     uuid \
-    filename \
-    filesize \
+    parentFileUuid \
+    download { \
+      uuid \
+      filename \
+      filesize \
+      downloadUrl \
+    } \
+    ownerUser { \
+      uuid \
+      username \
+      imageFile { \
+        uuid \
+        filename \
+        filesize \
+        downloadUrl \
+      } \
+    } \
+    contentType \
+    program { \
+      id \
+      name \
+    } \
+    createdAt \
+    updatedAt \
   } \
   description \
 } \
@@ -262,6 +308,7 @@ imageFile { \
   uuid \
   filename \
   filesize \
+  downloadUrl \
 } \
 `;
 
@@ -270,8 +317,30 @@ certificates { \
   userUuid \
   file { \
     uuid \
-    filename \
-    filesize \
+    parentFileUuid \
+    download { \
+      uuid \
+      filename \
+      filesize \
+      downloadUrl \
+    } \
+    ownerUser { \
+      uuid \
+      username \
+      imageFile { \
+        uuid \
+        filename \
+        filesize \
+        downloadUrl \
+      } \
+    } \
+    contentType \
+    program { \
+      id \
+      name \
+    } \
+    createdAt \
+    updatedAt \
   } \
   description \
 } \
@@ -1077,7 +1146,8 @@ describe('users', () => {
     const {
       data: { selfData },
     } = body;
-    expect(selfData.certificates[0].file.filename).toBe(goodFilenameCertificateTest);
+    expect(selfData.certificates[0].file.download.filename).toBe(goodFilenameCertificateTest);
+    expect(selfData.certificates[0].file.download.downloadUrl).toBeNonEmptyString();
     expect(selfData.certificates[0].description).toBe(descriptionCertificateTest);
     done();
   });
@@ -1148,7 +1218,8 @@ describe('users', () => {
     const {
       data: { selfData },
     } = body;
-    expect(selfData.certificates[0].file.filename).toBe(goodFilenameCertificateTest);
+    expect(selfData.certificates[0].file.download.filename).toBe(goodFilenameCertificateTest);
+    expect(selfData.certificates[0].file.download.downloadUrl).toBeNonEmptyString();
     expect(selfData.certificates[0].description).toBe(descriptionCertificateUpdateTest);
     done();
   });
@@ -1473,7 +1544,8 @@ describe('users', () => {
     const {
       data: { selfData },
     } = body;
-    expect(selfData.certificates[0].file.filename).toBe(goodFilenameCertificateTest);
+    expect(selfData.certificates[0].file.download.filename).toBe(goodFilenameCertificateTest);
+    expect(selfData.certificates[0].file.download.downloadUrl).toBeNonEmptyString();
     expect(selfData.certificates[0].description).toBe(descriptionCertificateTest);
     done();
   });

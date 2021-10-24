@@ -1,6 +1,7 @@
 use crate::errors::ServiceResult;
 use crate::database::{get_pool, get_conn, PooledConnection};
 use crate::models::user::access::logged::get_logged_user_uuid;
+use crate::models::relate_ref::file::model::DownloadFile;
 use crate::models::relate_ref::file;
 
 use async_graphql::{self, Context, Object};
@@ -17,13 +18,13 @@ impl StorageQuery {
     async fn presigned_url(
         &self, cxt: &Context<'_>,
         file_uuid: Uuid,
-    ) -> ServiceResult<String> {
+    ) -> ServiceResult<DownloadFile> {
         let conn: &PooledConnection = &get_conn(cxt)?;
 
         // authorization check
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
-        file::service::list::get_url_file_by_uuid(
+        file::service::list::get_url_by_file_uuid(
             &logged_user_uuid,
             &file_uuid,
             conn,

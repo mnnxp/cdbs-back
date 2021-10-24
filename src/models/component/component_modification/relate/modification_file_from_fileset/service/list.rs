@@ -1,8 +1,8 @@
 use crate::errors::{ServiceResult, ServiceError};
 use crate::models::component::component_modification::modification_file_from_fileset::model::{
-    ModificationFileFromFileset, ShowFileOfFileset
+    ModificationFileFromFileset, FileOfFileset
 };
-use crate::models::relate_ref::file::model::ShowFile;
+use crate::models::relate_ref::file::model::ShowFileForDownload;
 use crate::models::component::component_modification::fileset_for_program::util::get_component_by_fileset;
 use crate::models::component::access::util::check_access_component_for_user;
 use diesel::prelude::*;
@@ -15,7 +15,7 @@ pub(crate) fn get_files_of_fileset(
     limit: &i32,
     offset: &i32,
     conn: &PgConnection,
-) -> ServiceResult<Vec<ShowFileOfFileset>> {
+) -> ServiceResult<Vec<FileOfFileset>> {
     use crate::schema::modification_file_from_fileset::dsl::*;
 
     let need_access_level = 2; // todo!(create enum for manage access level)
@@ -54,12 +54,15 @@ pub(crate) fn get_files_of_fileset(
         },
     };
 
-    let mut show_files_of_fileset: Vec<ShowFileOfFileset> = Vec::new();
+    let mut show_files_of_fileset: Vec<FileOfFileset> = Vec::new();
     for file_of_set in files_of_fileset {
         show_files_of_fileset.push(
-            ShowFileOfFileset {
+            FileOfFileset {
                 fileset_uuid: file_of_set.fileset_uuid,
-                show_file: ShowFile::get_file_by_uuid(&file_of_set.file_uuid, conn)?,
+                file: ShowFileForDownload::get_file_by_uuid(
+                    &file_of_set.file_uuid,
+                    conn
+                )?,
             }
         )
     }

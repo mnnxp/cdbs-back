@@ -6,7 +6,7 @@ use super::model::{
     UserAndRelatedData,
     ShowUserAndRelatedData,
 };
-use super::certificate::model::CertificateWithShowFile;
+use super::certificate::model::CertificateAndFile;
 use super::user_fav::model::UserFav;
 use crate::models::company::model::ShowCompanyShort;
 use crate::models::component::model::ShowComponentShort;
@@ -14,7 +14,7 @@ use crate::models::standard::model::ShowStandardShort;
 use crate::models::company::company_fav::model::CompanyFav;
 use crate::models::component::component_fav::model::ComponentFav;
 use crate::models::standard::standard_fav::model::StandardFav;
-use crate::models::relate_ref::file::model::ShowFile;
+use crate::models::relate_ref::file::model::DownloadFile;
 use crate::models::relate_ref::program::model::Program;
 use crate::models::relate_ref::region::model::RegionTranslateList;
 use crate::errors::ServiceResult;
@@ -108,8 +108,10 @@ impl ShowUserShort {
 
         Ok(ShowUserShort::from((
             &user_data,
-            &ShowFile::get_file_by_uuid(&user_data.image_file_uuid, conn)
-                .expect("Failed get CertificateWithShowFile for ShowUserShort")
+            &DownloadFile::get_by_file_uuid(
+                &user_data.image_file_uuid,
+                conn
+            ).expect("Failed get CertificateAndFile for ShowUserShort")
         )))
     }
 
@@ -144,8 +146,10 @@ impl UserAndRelatedData {
         ).expect("Error loading user");
 
         // get image file (favicon) for user
-        let image_file = ShowFile::get_file_by_uuid(&user.image_file_uuid, conn)
-            .expect("Error loading user file");
+        let image_file = DownloadFile::get_by_file_uuid(
+            &user.image_file_uuid,
+            conn
+        ).expect("Error loading user file");
 
         // get region for user
         let region: RegionTranslateList = RegionTranslateList::get_region_by_id(
@@ -164,7 +168,7 @@ impl UserAndRelatedData {
         let subscribers: i32 = UserFav::get_count_followers_by_uuid(&user.uuid, conn)?;
 
         // get certificates with slimfile for user
-        let certificates: Vec<CertificateWithShowFile> = CertificateWithShowFile::from_user(
+        let certificates: Vec<CertificateAndFile> = CertificateAndFile::from_user(
             &user.uuid,
             conn
         ).expect("Error loading spec user with translate");
@@ -261,8 +265,10 @@ impl ShowUserAndRelatedData {
         ).expect("Error loading user");
 
         // get image file (favicon) for user
-        let image_file = ShowFile::get_file_by_uuid(&user.image_file_uuid, conn)
-            .expect("Error loading user file");
+        let image_file = DownloadFile::get_by_file_uuid(
+            &user.image_file_uuid,
+            conn
+        ).expect("Error loading user file");
 
         // get region for user
         let region: RegionTranslateList = RegionTranslateList::get_region_by_id(
@@ -288,7 +294,7 @@ impl ShowUserAndRelatedData {
         let subscribers: i32 = UserFav::get_count_followers_by_uuid(&user.uuid, conn)?;
 
         // get certificates with slimfile for user
-        let certificates: Vec<CertificateWithShowFile> = CertificateWithShowFile::from_user(
+        let certificates: Vec<CertificateAndFile> = CertificateAndFile::from_user(
             &user.uuid,
             conn
         ).expect("Error loading spec user with translate");

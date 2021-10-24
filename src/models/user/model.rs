@@ -1,6 +1,6 @@
 use super::access::hash::{make_hash_salt, make_salt};
-use super::certificate::model::CertificateWithShowFile;
-use crate::models::relate_ref::file::model::ShowFile;
+use super::certificate::model::CertificateAndFile;
+use crate::models::relate_ref::file::model::DownloadFile;
 use crate::models::relate_ref::region::model::RegionTranslateList;
 use crate::models::relate_ref::program::model::Program;
 use crate::schema::*;
@@ -72,7 +72,7 @@ pub struct UserQuery {
     pub updated_at: NaiveDateTime,
 }
 
-#[derive(Debug, Deserialize, SimpleObject)]
+#[derive(Debug, SimpleObject)]
 pub struct UserAndRelatedData {
     pub uuid: Uuid,
     pub email: String,
@@ -85,7 +85,7 @@ pub struct UserAndRelatedData {
     pub address: String,
     pub position: String, // <-- todo!(create a separate table with translation)
     pub time_zone: String,
-    pub image_file: ShowFile,
+    pub image_file: DownloadFile,
     pub region: RegionTranslateList,
     pub program: Program,
     pub is_email_verified: bool,
@@ -94,7 +94,7 @@ pub struct UserAndRelatedData {
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
     // related data
-    pub certificates: Vec<CertificateWithShowFile>,
+    pub certificates: Vec<CertificateAndFile>,
     pub subscribers: i32,
     // for a quick request just count objects have user
     pub companies_count: i32,
@@ -108,7 +108,7 @@ pub struct UserAndRelatedData {
 }
 
 /// For show data about profile
-#[derive(Debug, Deserialize, SimpleObject)]
+#[derive(Debug, SimpleObject)]
 pub struct ShowUserAndRelatedData {
     pub uuid: Uuid,
     pub firstname: String,
@@ -117,13 +117,13 @@ pub struct ShowUserAndRelatedData {
     pub username: String,
     pub description: String,
     pub position: String, // <-- todo!(create a separate table with translation)
-    pub image_file: ShowFile,
+    pub image_file: DownloadFile,
     pub region: RegionTranslateList,
     pub program: Program,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
     // related data
-    pub certificates: Vec<CertificateWithShowFile>,
+    pub certificates: Vec<CertificateAndFile>,
     pub subscribers: i32,
     // for display the checkbox "favorites"
     pub is_followed: bool,
@@ -324,37 +324,24 @@ impl From<User> for SlimUser {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, Queryable, Clone)]
+#[derive(Identifiable, Serialize, Associations, Queryable, Clone, Debug)]
+#[primary_key(uuid)]
+#[table_name = "user_ref"]
 pub struct UserShort {
     pub uuid: Uuid,
     pub username: String,
     pub image_file_uuid: Uuid,
 }
 
-#[derive(Identifiable, Serialize, Deserialize, Associations, Clone, Debug)]
-#[primary_key(uuid)]
-#[table_name = "user_ref"]
+#[derive(Clone, SimpleObject, Debug)]
 pub struct ShowUserShort {
     pub uuid: Uuid,
     pub username: String,
-    pub image_file: ShowFile,
+    pub image_file: DownloadFile,
 }
 
-#[Object]
-impl ShowUserShort {
-    async fn uuid(&self) -> ID {
-        self.uuid.into()
-    }
-    async fn username(&self) -> &String {
-        &self.username
-    }
-    async fn image_file(&self) -> &ShowFile {
-        &self.image_file
-    }
-}
-
-impl From<(&UserShort, &ShowFile)> for ShowUserShort {
-    fn from(data: (&UserShort, &ShowFile)) -> Self {
+impl From<(&UserShort, &DownloadFile)> for ShowUserShort {
+    fn from(data: (&UserShort, &DownloadFile)) -> Self {
         Self {
             uuid: data.0.uuid,
             username: data.0.username.to_string(),

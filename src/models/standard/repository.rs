@@ -5,7 +5,7 @@ use crate::models::standard::standard_fav::model::StandardFav;
 use crate::models::standard::spec::model::StandardSpecWithTranslation;
 use crate::models::relate_ref::region::model::RegionTranslateList;
 use crate::models::relate_ref::keyword::model::Keyword;
-use crate::models::relate_ref::file::model::ShowFile;
+use crate::models::relate_ref::file::model::ShowFileForDownload;
 use crate::schema::standard_ref::dsl as standard_ref;
 use diesel::prelude::*;
 use uuid::Uuid;
@@ -94,7 +94,7 @@ impl StandardAndRelatedData {
         ).expect("Error loading standard");
 
         // get image file (favicon) for standard
-        let image_file = ShowFile::get_file_by_uuid(&standard.image_file_uuid, conn)
+        let image_file = ShowFileForDownload::get_file_by_uuid(&standard.image_file_uuid, conn)
             .expect("Error loading standard file");
 
         // get standard owner user
@@ -140,7 +140,7 @@ impl StandardAndRelatedData {
         ).expect("Error loading subscribers");
 
         // get files for standard
-        let standard_files = ShowFile::for_standard_by_uuid(
+        let standard_files = ShowFileForDownload::for_standard_by_uuid(
             &standard.uuid,
             conn
         ).expect("Error loading standard files");

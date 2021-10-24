@@ -52,8 +52,30 @@ technicalCommittee \
 publicationAt \
 imageFile { \
   uuid \
-  filename \
-  filesize \
+  parentFileUuid \
+  download { \
+    uuid \
+    filename \
+    filesize \
+    downloadUrl \
+  } \
+  ownerUser { \
+    uuid \
+    username \
+    imageFile { \
+      uuid \
+      filename \
+      filesize \
+      downloadUrl \
+    } \
+  } \
+  contentType \
+  program { \
+    id \
+    name \
+  } \
+  createdAt \
+  updatedAt \
 } \
 ownerUser { \
   uuid \
@@ -62,6 +84,7 @@ ownerUser { \
     uuid \
     filename \
     filesize \
+    downloadUrl \
   } \
 } \
 ownerCompany { \
@@ -71,8 +94,30 @@ ownerCompany { \
   description \
   imageFile { \
     uuid \
-    filename \
-    filesize \
+    parentFileUuid \
+    download { \
+      uuid \
+      filename \
+      filesize \
+      downloadUrl \
+    } \
+    ownerUser { \
+      uuid \
+      username \
+      imageFile { \
+        uuid \
+        filename \
+        filesize \
+        downloadUrl \
+      } \
+    } \
+    contentType \
+    program { \
+      id \
+      name \
+    } \
+    createdAt \
+    updatedAt \
   } \
   region { \
     regionId \
@@ -106,11 +151,27 @@ updatedAt \
 standardFiles { \
   uuid \
   parentFileUuid \
-  userUuid \
-  filename \
+  download { \
+    uuid \
+    filename \
+    filesize \
+    downloadUrl \
+  } \
+  ownerUser { \
+    uuid \
+    username \
+    imageFile { \
+      uuid \
+      filename \
+      filesize \
+      downloadUrl \
+    } \
+  } \
   contentType \
-  idExt \
-  filesize \
+  program { \
+    id \
+    name \
+  } \
   createdAt \
   updatedAt \
 } \
@@ -146,8 +207,30 @@ ownerCompany { \
   description \
   imageFile { \
     uuid \
-    filename \
-    filesize \
+    parentFileUuid \
+    download { \
+      uuid \
+      filename \
+      filesize \
+      downloadUrl \
+    } \
+    ownerUser { \
+      uuid \
+      username \
+      imageFile { \
+        uuid \
+        filename \
+        filesize \
+        downloadUrl \
+      } \
+    } \
+    contentType \
+    program { \
+      id \
+      name \
+    } \
+    createdAt \
+    updatedAt \
   } \
   region { \
     regionId \
@@ -1105,10 +1188,11 @@ describe('company', () => {
     expect(standard.uuid).toBe(standardUuidSecond);
     expect(standard.standardFiles[0].uuid).toBe(fileStandardFileTestUuid2);
     expect(standard.standardFiles[0].parentFileUuid).toBeNonEmptyString();
-    expect(standard.standardFiles[0].userUuid).toBe(authorizationUserFirst);
-    expect(standard.standardFiles[0].filename).toBe(filenameStandardFileTest);
+    expect(standard.standardFiles[0].ownerUser.uuid).toBe(authorizationUserFirst);
+    expect(standard.standardFiles[0].download.filename).toBe(filenameStandardFileTest);
+    expect(standard.standardFiles[0].download.downloadUrl).toBeNonEmptyString();
+    expect(standard.standardFiles[0].download.filesize).toBe(0);
     expect(standard.standardFiles[0].contentType).toBeNonEmptyString();
-    expect(standard.standardFiles[0].filesize).toBe(0);
     done();
   });
 

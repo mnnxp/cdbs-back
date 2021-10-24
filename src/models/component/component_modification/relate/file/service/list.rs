@@ -28,7 +28,7 @@ pub(crate) fn get_component_modification_files(
         .select(file_to_modification::file_uuid)
         .load::<Uuid>(conn)?;
 
-    file::service::list::get_urls_files_by_uuid(
+    file::service::list::get_urls_by_files_uuids(
         &target_file_uuids,
         conn
     )

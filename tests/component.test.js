@@ -93,6 +93,7 @@ ownerUser { \
     uuid \
     filename \
     filesize \
+    downloadUrl \
   } \
 } \
 typeAccessId \
@@ -127,11 +128,27 @@ componentParams { \
 files { \
   uuid \
   parentFileUuid \
-  userUuid \
-  filename \
+  download { \
+    uuid \
+    filename \
+    filesize \
+    downloadUrl \
+  } \
+  ownerUser { \
+    uuid \
+    username \
+    imageFile { \
+      uuid \
+      filename \
+      filesize \
+      downloadUrl \
+    } \
+  } \
   contentType \
-  idExt \
-  filesize \
+  program { \
+    id \
+    name \
+  } \
   createdAt \
   updatedAt \
 } \
@@ -200,11 +217,27 @@ componentStandards { \
     imageFile { \
       uuid \
       parentFileUuid \
-      userUuid \
-      filename \
+      download { \
+        uuid \
+        filename \
+        filesize \
+        downloadUrl \
+      } \
+      ownerUser { \
+        uuid \
+        username \
+        imageFile { \
+          uuid \
+          filename \
+          filesize \
+          downloadUrl \
+        } \
+      } \
       contentType \
-      idExt \
-      filesize \
+      program { \
+        id \
+        name \
+      } \
       createdAt \
       updatedAt \
     } \
@@ -243,6 +276,7 @@ ownerUser { \
     uuid \
     filename \
     filesize \
+    downloadUrl \
   } \
 } \
 typeAccessId \
@@ -260,7 +294,30 @@ licenses { \
 } \
 files { \
   uuid \
-  filename \
+  parentFileUuid \
+  download { \
+    uuid \
+    filename \
+    filesize \
+    downloadUrl \
+  } \
+  ownerUser { \
+    uuid \
+    username \
+    imageFile { \
+      uuid \
+      filename \
+      filesize \
+      downloadUrl \
+    } \
+  } \
+  contentType \
+  program { \
+    id \
+    name \
+  } \
+  createdAt \
+  updatedAt \
 } \
 componentSuppliers { \
   componentUuid \
@@ -272,6 +329,37 @@ componentSuppliers { \
   description \
 } \
 `;
+
+const fileDataQuery = `
+file { \
+  uuid \
+  parentFileUuid \
+  download { \
+    uuid \
+    filename \
+    filesize \
+    downloadUrl \
+  } \
+  ownerUser { \
+    uuid \
+    username \
+    imageFile { \
+      uuid \
+      filename \
+      filesize \
+      downloadUrl \
+    } \
+  } \
+  contentType \
+  program { \
+    id \
+    name \
+  } \
+  createdAt \
+  updatedAt \
+} \
+`;
+
 var componentUuidNoStandard = "";
 var componentUuidStandard = "";
 var fileUuid1 = "";
@@ -4163,11 +4251,7 @@ describe('component', () => {
               fileUuids: []
             ) {
               filesetUuid
-              showFile {
-                uuid
-                filename
-                updatedAt
-              }
+              ${fileDataQuery}
             }
           }`,
         })
@@ -4194,11 +4278,7 @@ describe('component', () => {
               filesetUuid: "${baseFilesetUuid}"
             ) {
               filesetUuid
-              showFile {
-                uuid
-                filename
-                updatedAt
-              }
+              ${fileDataQuery}
             }
           }`,
         })
@@ -4224,11 +4304,7 @@ describe('component', () => {
               filesetUuid: "${componentModificationFilesetsSecond}"
             ) {
               filesetUuid
-              showFile {
-                uuid
-                filename
-                updatedAt
-              }
+              ${fileDataQuery}
             }
           }`,
         })
@@ -4305,11 +4381,7 @@ describe('component', () => {
               filesetUuid: "${filesetForProgramUuid}"
             ) {
               filesetUuid
-              showFile {
-                uuid
-                filename
-                updatedAt
-              }
+              ${fileDataQuery}
             }
           }`,
         })
@@ -4318,10 +4390,11 @@ describe('component', () => {
     const {
       data: { componentModificationFilesOfFileset },
     } = body;
-    fileOfFilesetUuid = componentModificationFilesOfFileset[0].showFile.uuid;
+    fileOfFilesetUuid = componentModificationFilesOfFileset[0].file.uuid;
     expect(componentModificationFilesOfFileset[0].filesetUuid).toBe(filesetForProgramUuid);
-    expect(componentModificationFilesOfFileset[0].showFile.uuid).toBeNonEmptyString();
-    expect(componentModificationFilesOfFileset[0].showFile.filename).toBeNonEmptyString();
+    expect(componentModificationFilesOfFileset[0].file.uuid).toBeNonEmptyString();
+    expect(componentModificationFilesOfFileset[0].file.download.filename).toBeNonEmptyString();
+    expect(componentModificationFilesOfFileset[0].file.download.downloadUrl).toBeNonEmptyString();
     done();
   });
 
@@ -4339,11 +4412,7 @@ describe('component', () => {
               fileUuids: ["${fileOfFilesetUuid}"]
             ) {
               filesetUuid
-              showFile {
-                uuid
-                filename
-                updatedAt
-              }
+              ${fileDataQuery}
             }
           }`,
         })
@@ -4352,10 +4421,11 @@ describe('component', () => {
     const {
       data: { componentModificationFilesOfFileset },
     } = body;
-    fileOfFilesetUuid = componentModificationFilesOfFileset[0].showFile.uuid;
+    fileOfFilesetUuid = componentModificationFilesOfFileset[0].file.uuid;
     expect(componentModificationFilesOfFileset[0].filesetUuid).toBe(filesetForProgramUuid);
-    expect(componentModificationFilesOfFileset[0].showFile.uuid).toBeNonEmptyString();
-    expect(componentModificationFilesOfFileset[0].showFile.filename).toBeNonEmptyString();
+    expect(componentModificationFilesOfFileset[0].file.uuid).toBeNonEmptyString();
+    expect(componentModificationFilesOfFileset[0].file.download.filename).toBeNonEmptyString();
+    expect(componentModificationFilesOfFileset[0].file.download.downloadUrl).toBeNonEmptyString();
     done();
   });
 
@@ -4460,11 +4530,7 @@ describe('component', () => {
               filesetUuid: "${filesetForProgramUuid}"
             ) {
               filesetUuid
-              showFile {
-                uuid
-                filename
-                updatedAt
-              }
+              ${fileDataQuery}
             }
           }`,
         })
@@ -4562,11 +4628,7 @@ describe('component', () => {
               filesetUuid: "${filesetForProgramUuid}"
             ) {
               filesetUuid
-              showFile {
-                uuid
-                filename
-                updatedAt
-              }
+              ${fileDataQuery}
             }
           }`,
         })

@@ -1,9 +1,9 @@
 use super::company_represent::model::CompanyRepresentAndRelatedData;
-use super::certificate::model::CertificateWithShowFile;
+use super::certificate::model::CertificateAndFile;
 use super::company_type::model::CompanyTypeTranslateList;
 use super::spec::model::CompanySpecWithTranslation;
 use crate::models::user::model::ShowUserShort;
-use crate::models::relate_ref::file::model::ShowFile;
+use crate::models::relate_ref::file::model::ShowFileForDownload;
 use crate::models::relate_ref::region::model::RegionTranslateList;
 use crate::schema::*;
 use async_graphql::types::ID;
@@ -38,7 +38,7 @@ pub struct Company {
     pub updated_at: NaiveDateTime,
 }
 
-#[derive(Debug, Deserialize, SimpleObject)]
+#[derive(Debug, SimpleObject)]
 pub struct CompanyAndRelatedData {
     pub uuid: Uuid,
     pub orgname: String,
@@ -51,12 +51,12 @@ pub struct CompanyAndRelatedData {
     pub site_url: String,
     pub time_zone: String,
     pub owner_user: ShowUserShort,
-    pub image_file: ShowFile,
+    pub image_file: ShowFileForDownload,
     pub region: RegionTranslateList,
     pub company_represents: Vec<CompanyRepresentAndRelatedData>,
     pub company_type: CompanyTypeTranslateList,
     // show certificates company
-    pub company_certificates: Vec<CertificateWithShowFile>,
+    pub company_certificates: Vec<CertificateAndFile>,
     pub company_specs: Vec<CompanySpecWithTranslation>,
     pub is_supplier: bool,
     pub is_email_verified: bool,
@@ -70,13 +70,13 @@ pub struct CompanyAndRelatedData {
     pub updated_at: NaiveDateTime,
 }
 
-#[derive(Debug, Deserialize, SimpleObject)]
+#[derive(Debug, SimpleObject)]
 pub struct ShowCompanyShort {
     pub uuid: Uuid,
     pub shortname: String,
     pub inn: String,
     pub description: String,
-    pub image_file: ShowFile,
+    pub image_file: ShowFileForDownload,
     pub region: RegionTranslateList,
     pub company_type: CompanyTypeTranslateList,
     pub is_supplier: bool,

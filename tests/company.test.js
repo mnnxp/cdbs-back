@@ -73,12 +73,35 @@ ownerUser { \
     uuid \
     filename \
     filesize \
+    downloadUrl \
   } \
 } \
 imageFile { \
   uuid \
-  filename \
-  filesize \
+  parentFileUuid \
+  download { \
+    uuid \
+    filename \
+    filesize \
+    downloadUrl \
+  } \
+  ownerUser { \
+    uuid \
+    username \
+    imageFile { \
+      uuid \
+      filename \
+      filesize \
+      downloadUrl \
+    } \
+  } \
+  contentType \
+  program { \
+    id \
+    name \
+  } \
+  createdAt \
+  updatedAt \
 } \
 region { \
   regionId \
@@ -99,8 +122,30 @@ companyType { \
 companyCertificates { \
   file { \
     uuid \
-    filename \
-    filesize \
+    parentFileUuid \
+    download { \
+      uuid \
+      filename \
+      filesize \
+      downloadUrl \
+    } \
+    ownerUser { \
+      uuid \
+      username \
+      imageFile { \
+        uuid \
+        filename \
+        filesize \
+        downloadUrl \
+      } \
+    } \
+    contentType \
+    program { \
+      id \
+      name \
+    } \
+    createdAt \
+    updatedAt \
   } \
   description \
 } \
@@ -129,7 +174,30 @@ inn \
 description \
 imageFile { \
   uuid \
-  filesize \
+  parentFileUuid \
+  download { \
+    uuid \
+    filename \
+    filesize \
+    downloadUrl \
+  } \
+  ownerUser { \
+    uuid \
+    username \
+    imageFile { \
+      uuid \
+      filename \
+      filesize \
+      downloadUrl \
+    } \
+  } \
+  contentType \
+  program { \
+    id \
+    name \
+  } \
+  createdAt \
+  updatedAt \
 } \
 region { \
   regionId \
@@ -151,24 +219,90 @@ const companyCertificatesQuery = ` \
 companyCertificates { \
   file { \
     uuid \
-    filename \
-    filesize \
+    parentFileUuid \
+    download { \
+      uuid \
+      filename \
+      filesize \
+      downloadUrl \
+    } \
+    ownerUser { \
+      uuid \
+      username \
+      imageFile { \
+        uuid \
+        filename \
+        filesize \
+        downloadUrl \
+      } \
+    } \
+    contentType \
+    program { \
+      id \
+      name \
+    } \
+    createdAt \
+    updatedAt \
   } \
   description \
 } \
 companyCertificates { \
   file { \
     uuid \
-    filename \
-    filesize \
+    parentFileUuid \
+    download { \
+      uuid \
+      filename \
+      filesize \
+      downloadUrl \
+    } \
+    ownerUser { \
+      uuid \
+      username \
+      imageFile { \
+        uuid \
+        filename \
+        filesize \
+        downloadUrl \
+      } \
+    } \
+    contentType \
+    program { \
+      id \
+      name \
+    } \
+    createdAt \
+    updatedAt \
   } \
   description \
 } \
 companyCertificates { \
   file { \
     uuid \
-    filename \
-    filesize \
+    parentFileUuid \
+    download { \
+      uuid \
+      filename \
+      filesize \
+      downloadUrl \
+    } \
+    ownerUser { \
+      uuid \
+      username \
+      imageFile { \
+        uuid \
+        filename \
+        filesize \
+        downloadUrl \
+      } \
+    } \
+    contentType \
+    program { \
+      id \
+      name \
+    } \
+    createdAt \
+    updatedAt \
   } \
   description \
 } \
@@ -534,6 +668,7 @@ describe('company', () => {
       })
       .expect(HttpStatus.OK)
     debug('/graphql body=%o', response1.body);
+    // expect(response1.body).toBe(0);
     expect(response1.body.data).toBeNull();
     expect(response1.body.errors[0].message).toBe(
       'BadRequest: Token not found.'
@@ -1070,7 +1205,8 @@ describe('company', () => {
     const {
       data: { company },
     } = body;
-    expect(company.companyCertificates[0].file.filename).toBe(goodFilenameCertificateTest);
+    expect(company.companyCertificates[0].file.download.filename).toBe(goodFilenameCertificateTest);
+    expect(company.companyCertificates[0].file.download.downloadUrl).toBeNonEmptyString();
     expect(company.companyCertificates[0].description).toBe(descriptionCertificateTest);
     done();
   });

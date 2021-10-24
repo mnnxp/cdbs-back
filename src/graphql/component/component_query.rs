@@ -8,7 +8,7 @@ use crate::models::component::access::company::model::CompanyAccessComponentAndR
 use crate::models::component::access::user::model::UserAccessComponentAndRelatedData;
 use crate::models::component::component_modification;
 use crate::models::component::component_modification::fileset_for_program::model::FilesetProgramRelatedData;
-use crate::models::component::component_modification::modification_file_from_fileset::model::ShowFileOfFileset;
+use crate::models::component::component_modification::modification_file_from_fileset::model::FileOfFileset;
 use crate::models::component::model::{ComponentAndRelatedData, ShowComponentShort};
 use crate::models::relate_ref::file::model::DownloadFile;
 
@@ -168,7 +168,7 @@ impl ComponentQuery {
         file_uuids: Option<Vec<Uuid>>,
         limit: Option<i32>,
         offset: Option<i32>,
-    ) -> ServiceResult<Vec<ShowFileOfFileset>> {
+    ) -> ServiceResult<Vec<FileOfFileset>> {
         use component_modification::modification_file_from_fileset::service::list::get_files_of_fileset;
 
         let logged_user_uuid: Uuid = get_logged_user_uuid(cxt, true)?;

@@ -4,6 +4,9 @@ use async_graphql::*;
 use chrono::*;
 use uuid::Uuid;
 
+use crate::models::user::model::ShowUserShort;
+use crate::models::relate_ref::program::model::Program;
+
 // /// First uuid: object_uuid, second uuid: addiction_uuid
 // #[derive(Deserialize, Clone, Debug)]
 // pub struct DoubleAddiction(Uuid,Uuid);
@@ -64,7 +67,7 @@ pub struct File {
     pub updated_at: NaiveDateTime,
 }
 
-#[derive(Identifiable, Serialize, Deserialize, Queryable, Clone, Debug)]
+#[derive(Identifiable, Queryable, Clone, Debug)]
 #[primary_key(uuid)]
 #[table_name = "file_ref"]
 pub struct ShowFile {
@@ -75,43 +78,9 @@ pub struct ShowFile {
     pub content_type: String,
     pub id_ext: i32,
     pub filesize: i64,
-    // pub path_file: String,
+    pub path_file: String,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
-}
-
-#[Object]
-impl ShowFile {
-    async fn uuid(&self) -> ID {
-        self.uuid.into()
-    }
-    async fn parent_file_uuid(&self) -> ID {
-        self.parent_file_uuid.into()
-    }
-    async fn user_uuid(&self) -> ID {
-        self.user_uuid.into()
-    }
-    async fn filename(&self) -> &String {
-        &self.filename
-    }
-    async fn content_type(&self) -> &String {
-        &self.content_type
-    }
-    async fn id_ext(&self) -> &i32 {
-        &self.id_ext
-    }
-    async fn filesize(&self) -> &i64 {
-        &self.filesize
-    }
-    // async fn path_file(&self) -> &String {
-    //     &self.path_file
-    // }
-    async fn created_at(&self) -> &NaiveDateTime {
-        &self.created_at
-    }
-    async fn updated_at(&self) -> &NaiveDateTime {
-        &self.updated_at
-    }
 }
 
 #[derive(Debug, Insertable)]
@@ -241,26 +210,22 @@ impl UploadFile {
     }
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Debug, SimpleObject, Clone)]
+pub struct ShowFileForDownload {
+    pub uuid: Uuid,
+    pub parent_file_uuid: Uuid,
+    pub download: DownloadFile,
+    pub owner_user: ShowUserShort,
+    pub content_type: String,
+    pub program: Program,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
+}
+
+#[derive(Serialize, SimpleObject, Clone, Debug)]
 pub struct DownloadFile {
     pub uuid: Uuid,
     pub filename: String,
     pub filesize: i64,
     pub download_url: String,
-}
-
-#[Object]
-impl DownloadFile {
-    async fn uuid(&self) -> ID {
-        self.uuid.into()
-    }
-    async fn filename(&self) -> &String {
-        &self.filename
-    }
-    async fn filesize(&self) -> &i64 {
-        &self.filesize
-    }
-    async fn download_url(&self) -> &String {
-        &self.download_url
-    }
 }

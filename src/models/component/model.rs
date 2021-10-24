@@ -9,7 +9,7 @@ use crate::models::component::component_modification::model::ComponentModificati
 use crate::models::standard::model::ShowStandardShort;
 use crate::models::relate_ref::license::model::License;
 use crate::models::relate_ref::keyword::model::Keyword;
-use crate::models::relate_ref::file::model::ShowFile;
+use crate::models::relate_ref::file::model::ShowFileForDownload;
 use async_graphql::types::ID;
 use async_graphql::*;
 use chrono::*;
@@ -73,7 +73,7 @@ impl Component {
     }
 }
 
-#[derive(Debug, Deserialize, SimpleObject)]
+#[derive(Debug, SimpleObject)]
 pub struct ComponentAndRelatedData {
     pub uuid: Uuid,
     pub parent_component_uuid: Uuid,
@@ -91,7 +91,7 @@ pub struct ComponentAndRelatedData {
     // related data
     pub licenses: Vec<License>,
     pub component_params: Vec<ComponentParamWithTranslation>,
-    pub files: Vec<ShowFile>,
+    pub files: Vec<ShowFileForDownload>,
     pub component_specs: Vec<ComponentSpecWithTranslation>,
     pub component_keywords: Vec<Keyword>,
     pub component_modifications: Vec<ComponentModificationAndRelatedData>,
@@ -101,7 +101,7 @@ pub struct ComponentAndRelatedData {
 }
 
 
-#[derive(Debug, Deserialize, SimpleObject)]
+#[derive(Debug, SimpleObject)]
 pub struct ShowComponentShort {
     pub uuid: Uuid,
     pub name: String,
@@ -116,7 +116,7 @@ pub struct ShowComponentShort {
     pub updated_at: NaiveDateTime,
     pub licenses: Vec<License>,
     // files for show image (models, draw)
-    pub files: Vec<ShowFile>,
+    pub files: Vec<ShowFileForDownload>,
     // show first supplier company
     pub component_suppliers: Vec<ComponentSupplierRelatedData>,
 }

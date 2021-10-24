@@ -1,6 +1,6 @@
 use crate::schema::*;
 use crate::models::user::model::User;
-use crate::models::relate_ref::file::model::ShowFile;
+use crate::models::relate_ref::file::model::ShowFileForDownload;
 // use async_graphql::types::ID;
 use async_graphql::*;
 // use chrono::*;
@@ -9,7 +9,7 @@ use uuid::Uuid;
 // Certificate for User
 #[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, Debug)]
 #[primary_key(file_uuid, user_uuid)]
-#[belongs_to(ShowFile, foreign_key = "file_uuid")]
+#[belongs_to(ShowFileForDownload, foreign_key = "file_uuid")]
 #[belongs_to(User, foreign_key = "user_uuid")]
 #[table_name = "user_certificate_ref"]
 pub struct UserCertificate {
@@ -18,9 +18,9 @@ pub struct UserCertificate {
     pub description: String,
 }
 
-#[derive(Debug, Deserialize, SimpleObject)]
-pub struct CertificateWithShowFile {
-    pub file: ShowFile,
+#[derive(Debug, SimpleObject)]
+pub struct CertificateAndFile {
+    pub file: ShowFileForDownload,
     pub user_uuid: Uuid,
     pub description: String,
 }

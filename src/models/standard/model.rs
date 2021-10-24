@@ -2,7 +2,7 @@ use super::standard_status::model::StandardStatusTranslateList;
 use super::spec::model::StandardSpecWithTranslation;
 use crate::models::company::model::ShowCompanyShort;
 use crate::models::user::model::ShowUserShort;
-use crate::models::relate_ref::file::model::ShowFile;
+use crate::models::relate_ref::file::model::ShowFileForDownload;
 use crate::models::relate_ref::region::model::RegionTranslateList;
 use crate::models::relate_ref::keyword::model::Keyword;
 use crate::schema::*;
@@ -89,7 +89,7 @@ impl Standard {
     }
 }
 
-#[derive(Debug, Deserialize, SimpleObject)]
+#[derive(Debug, SimpleObject)]
 pub struct StandardAndRelatedData {
     pub uuid: Uuid,
     pub parent_standard_uuid: Uuid,
@@ -99,7 +99,7 @@ pub struct StandardAndRelatedData {
     pub specified_tolerance: String,
     pub technical_committee: String,
     pub publication_at: NaiveDateTime,
-    pub image_file: ShowFile,
+    pub image_file: ShowFileForDownload,
     pub owner_user: ShowUserShort,
     pub owner_company: ShowCompanyShort,
     pub type_access_id: i32,
@@ -109,7 +109,7 @@ pub struct StandardAndRelatedData {
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
     // related data
-    pub standard_files: Vec<ShowFile>, // <-- documentation files, etc.
+    pub standard_files: Vec<ShowFileForDownload>, // <-- documentation files, etc.
     pub standard_specs: Vec<StandardSpecWithTranslation>,
     pub standard_keywords: Vec<Keyword>,
     // count users to folloded the standard
@@ -118,7 +118,7 @@ pub struct StandardAndRelatedData {
     pub is_followed: bool,
 }
 
-#[derive(Debug, Deserialize, SimpleObject)]
+#[derive(Debug, SimpleObject)]
 pub struct ShowStandardShort {
     pub uuid: Uuid,
     pub classifier: String,

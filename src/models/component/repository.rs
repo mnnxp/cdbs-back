@@ -10,7 +10,7 @@ use crate::models::component::component_modification::model::{ComponentModificat
 use crate::models::standard::model::ShowStandardShort;
 use crate::models::relate_ref::license::model::License;
 use crate::models::relate_ref::keyword::model::Keyword;
-use crate::models::relate_ref::file::model::ShowFile;
+use crate::models::relate_ref::file::model::ShowFileForDownload;
 use crate::schema::component_ref::dsl as component_ref;
 use diesel::prelude::*;
 use uuid::Uuid;
@@ -80,7 +80,7 @@ impl ShowComponentShort {
             ).expect("Error loading license");
 
             // get files for component
-            let files = ShowFile::for_component(&component, conn)
+            let files = ShowFileForDownload::for_component(&component, conn)
                 .expect("Error loading component_file");
 
             // collect data for supplier component
@@ -175,7 +175,7 @@ impl ComponentAndRelatedData {
         ).expect("Error loading license");
 
         // get files for component
-        let files = ShowFile::for_component(&component, conn)
+        let files = ShowFileForDownload::for_component(&component, conn)
             .expect("Error loading component files");
 
         // get specs with translation for component
@@ -214,7 +214,7 @@ impl ComponentAndRelatedData {
         let component_standards: Vec<ShowStandardShort> = ShowStandardShort::for_component(
             target_component_uuid,
             target_user_uuid,
-            set_lang_id, 
+            set_lang_id,
             conn
         ).expect("Error loading supplier component with relate");
 

@@ -1,6 +1,6 @@
 use crate::schema::*;
 use crate::models::component::component_modification::model::ComponentModification;
-use crate::models::relate_ref::file::model::ShowFile;
+use crate::models::relate_ref::file::model::ShowFileForDownload;
 use async_graphql::types::ID;
 use async_graphql::*;
 // use chrono::*;
@@ -9,7 +9,7 @@ use uuid::Uuid;
 // Structures for ComponentModification
 #[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, Debug)]
 #[primary_key(file_uuid, modification_uuid)]
-#[belongs_to(ShowFile, foreign_key = "file_uuid")]
+#[belongs_to(ShowFileForDownload, foreign_key = "file_uuid")]
 #[belongs_to(ComponentModification, foreign_key = "modification_uuid")]
 #[table_name = "file_to_modification"]
 pub struct FileModification {

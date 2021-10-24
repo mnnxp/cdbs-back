@@ -48,7 +48,7 @@ impl FilesetProgramRelatedData {
         }
 
         // get program for filesets component modification
-        let program_for_filesets: Vec<Program> = Program::get_program_by_vec_id(&program_ids_for_set, conn)?;
+        let program_for_filesets: Vec<Program> = Program::get_programs_by_ids(&program_ids_for_set, conn)?;
 
         let mut filesets_program_with_relate: Vec<FilesetProgramRelatedData> = Vec::new();
         for x in filesets {

@@ -6,25 +6,36 @@ use diesel::prelude::*;
 impl Extension {
     /// Get extension data for id
     pub fn get_by_id(
-        target_id_extension: &i32,
+        target_extension_id: &i32,
         conn: &PgConnection,
     ) -> ServiceResult<Extension> {
         Ok(extension_ref::extension_ref
-            .filter(extension_ref::id.eq(target_id_extension))
+            .filter(extension_ref::id.eq(target_extension_id))
             .first::<Extension>(conn)?)
     }
 
     /// Get extension data for list id
-    pub fn get_by_vec_id(
-        target_list_id_extension: &[i32],
-        limit: i32,
-        offset: i32,
+    pub fn get_by_ids(
+        target_extensions_ids: &[i32],
+        limit: &i32,
+        offset: &i32,
         conn: &PgConnection,
     ) -> ServiceResult<Vec<Extension>> {
         Ok(extension_ref::extension_ref
-            .filter(extension_ref::id.eq_any(target_list_id_extension))
-            .limit(limit as i64)
-            .offset(offset as i64)
+            .filter(extension_ref::id.eq_any(target_extensions_ids))
+            .limit(*limit as i64)
+            .offset(*offset as i64)
             .load::<Extension>(conn)?)
+    }
+
+    /// Get program id for target extension id
+    pub fn get_program_id(
+        target_extension_id: &i32,
+        conn: &PgConnection,
+    ) -> ServiceResult<i32> {
+        Ok(extension_ref::extension_ref
+            .filter(extension_ref::id.eq(target_extension_id))
+            .select(extension_ref::program_id)
+            .first::<i32>(conn)?)
     }
 }

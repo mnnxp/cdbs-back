@@ -1,6 +1,6 @@
 use crate::schema::*;
 use crate::models::component::component_modification::fileset_for_program::model::FilesetProgram;
-use crate::models::relate_ref::file::model::ShowFile;
+use crate::models::relate_ref::file::model::ShowFileForDownload;
 // use async_graphql::types::ID;
 use async_graphql::*;
 // use chrono::*;
@@ -9,21 +9,21 @@ use uuid::Uuid;
 #[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, PartialEq, Clone, Debug)]
 #[primary_key(fileset_uuid, file_uuid)]
 #[belongs_to(FilesetProgram, foreign_key = "fileset_uuid")]
-#[belongs_to(ShowFile, foreign_key = "file_uuid")]
+#[belongs_to(ShowFileForDownload, foreign_key = "file_uuid")]
 #[table_name = "modification_file_from_fileset"]
 pub struct ModificationFileFromFileset {
     pub fileset_uuid: Uuid,
     pub file_uuid: Uuid,
 }
 
-#[derive(Debug, Deserialize, SimpleObject, Clone)]
+#[derive(Debug, SimpleObject, Clone)]
 pub struct ModificationFileFromFilesetRelatedData {
     pub fileset_uuid: Uuid,
-    pub files: Vec<ShowFile>,
+    pub files: Vec<ShowFileForDownload>,
 }
 
-impl From<(ModificationFileFromFileset, Vec<ShowFile>)> for ModificationFileFromFilesetRelatedData {
-    fn from(data: (ModificationFileFromFileset, Vec<ShowFile>)) -> Self {
+impl From<(ModificationFileFromFileset, Vec<ShowFileForDownload>)> for ModificationFileFromFilesetRelatedData {
+    fn from(data: (ModificationFileFromFileset, Vec<ShowFileForDownload>)) -> Self {
         Self {
             fileset_uuid: data.0.fileset_uuid,
             files: data.1,
@@ -51,7 +51,7 @@ pub struct InsertableModificationFileFromFileset {
 }
 
 #[derive(SimpleObject, Clone, Debug)]
-pub struct ShowFileOfFileset {
+pub struct FileOfFileset {
     pub fileset_uuid: Uuid,
-    pub show_file: ShowFile,
+    pub file: ShowFileForDownload,
 }

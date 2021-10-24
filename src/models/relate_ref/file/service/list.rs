@@ -1,17 +1,15 @@
 use crate::errors::{ServiceResult, ServiceError};
 use crate::models::relate_ref::file::access::check_file_owner_err;
 use crate::models::relate_ref::file::model::{SlimFile, DownloadFile};
-use crate::storage::model::StorageAccess;
-use crate::storage::presigned_url::download_presigned_url;
 use diesel::PgConnection;
 use uuid::Uuid;
 
 /// Gets presigned url for download target file
-pub(crate) fn get_url_file_by_uuid(
+pub(crate) fn get_url_by_file_uuid(
     logged_user_uuid: &Uuid,
     target_file_uuid: &Uuid,
     conn: &PgConnection,
-) -> ServiceResult<String> {
+) -> ServiceResult<DownloadFile> {
     // check ownership file
     check_file_owner_err(
         logged_user_uuid,
@@ -19,21 +17,19 @@ pub(crate) fn get_url_file_by_uuid(
         conn
     )?;
 
-    let storage_access = StorageAccess::get(conn)?;
-
     let slim_file = SlimFile::get_file_by_uuid(
         target_file_uuid,
         conn,
     ).unwrap();
 
-    download_presigned_url(
-        &storage_access,
-        &slim_file.path_file,
+    DownloadFile::get_by_slim_file(
+        &slim_file,
+        conn
     )
 }
 
 /// Gets presigned urls for target files by uuids
-pub(crate) fn get_urls_files_by_uuid(
+pub(crate) fn get_urls_by_files_uuids(
     target_file_uuids: &[Uuid],
     conn: &PgConnection,
 ) -> ServiceResult<Vec<DownloadFile>> {
@@ -42,10 +38,8 @@ pub(crate) fn get_urls_files_by_uuid(
         return Err(ServiceError::BadRequest("Not found files".to_string()))
     }
 
-    let storage_access = StorageAccess::get(conn)?;
-
     // get files data by uuids, return error if have fail
-    let slim_files = match SlimFile::get_file_by_vec_uuid(
+    let slim_files = match SlimFile::get_by_files_uuids(
         target_file_uuids,
         conn,
     ) {
@@ -56,31 +50,8 @@ pub(crate) fn get_urls_files_by_uuid(
         },
     };
 
-    let mut res_down_urls: Vec<DownloadFile> = Vec::new();
-    for sf in slim_files {
-        match download_presigned_url(
-            &storage_access,
-            &sf.path_file,
-        ) {
-            Ok(sig_url) => res_down_urls.push(DownloadFile {
-                uuid: sf.uuid,
-                filename: sf.filename,
-                filesize: sf.filesize,
-                download_url: sig_url,
-            }),
-            Err(err) => {
-                debug!("Fail get presigned url: {:?}", err);
-                res_down_urls.push(DownloadFile {
-                    uuid: sf.uuid,
-                    filename: sf.filename,
-                    filesize: sf.filesize,
-                    download_url: "Failed get url".to_string(),
-                })
-            },
-        }
-    }
-
-    debug!("Gets presigned urls: {:?}", res_down_urls);
-
-    Ok(res_down_urls)
+    DownloadFile::get_by_files_uuids(
+        &slim_files,
+        conn
+    )
 }

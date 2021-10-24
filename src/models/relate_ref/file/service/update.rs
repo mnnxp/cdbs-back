@@ -18,7 +18,7 @@ pub(crate) async fn confirm_upload(
     let conn = pool.get().unwrap();
 
     // getting SlimFile data for get files paths
-    let slim_file = SlimFile::get_file_by_vec_uuid(
+    let slim_file = SlimFile::get_by_files_uuids(
         file_uuids,
         &conn,
     ).unwrap();
