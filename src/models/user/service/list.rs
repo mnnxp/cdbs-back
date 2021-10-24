@@ -1,7 +1,7 @@
 use crate::errors::ServiceResult;
 use crate::models::user::access::util::check_access_user_for_user;
 use crate::models::user::model::{
-    SlimUser, ShowUserShort, UserAndRelatedData,
+    SlimUser, ShowUserShort, UserAndRelatedData, ShowUserAndRelatedData
 };
 use diesel::PgConnection;
 use uuid::Uuid;
@@ -39,7 +39,7 @@ pub(crate) fn find_user_by_uuid(
     target_user_uuid: &Uuid,
     set_lang_id: &i32,
     conn: &PgConnection,
-) -> ServiceResult<UserAndRelatedData> {
+) -> ServiceResult<ShowUserAndRelatedData> {
     let need_access_level = 3; // todo!(create enum for manage access level)
 
     // check access user for user
@@ -51,7 +51,7 @@ pub(crate) fn find_user_by_uuid(
     )?;
 
     // collect data for user
-    let result: UserAndRelatedData = UserAndRelatedData::collect_related_data(
+    let result: ShowUserAndRelatedData = ShowUserAndRelatedData::collect_related_data(
         target_user_uuid,
         logged_user_uuid,
         set_lang_id,
@@ -79,7 +79,6 @@ pub(crate) fn get_self_user_data(
 ) -> ServiceResult<UserAndRelatedData> {
     // collect data for user
     let result: UserAndRelatedData = UserAndRelatedData::collect_related_data(
-        logged_user_uuid, // check follow self :)
         logged_user_uuid,
         set_lang_id,
         conn

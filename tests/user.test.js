@@ -168,7 +168,44 @@ const licenseIdErr = 2;
 const notificationUpdatePassword = "Updated password";
 var notificationId = 0;
 
-const userFullDataQuery = ` \
+const showUserAndRelatedData = ` \
+uuid \
+firstname \
+lastname \
+secondname \
+username \
+description \
+position \
+imageFile { \
+  uuid \
+  filename \
+  filesize \
+} \
+region { \
+  regionId \
+  langId \
+  region \
+} \
+program { \
+  id \
+  name \
+} \
+createdAt \
+updatedAt \
+certificates { \
+  userUuid \
+  file { \
+    uuid \
+    filename \
+    filesize \
+  } \
+  description \
+} \
+subscribers \
+isFollowed \
+`;
+
+const userAndRelatedData = ` \
 uuid \
 email \
 firstname \
@@ -209,7 +246,6 @@ certificates { \
   description \
 } \
 subscribers \
-isFollowed \
 companiesCount \
 componentsCount \
 standardsCount \
@@ -273,7 +309,7 @@ describe('users', () => {
       .send({
         query: `query {
             user(userUuid: "${baseUserUuid}") {
-              ${userFullDataQuery}
+              ${showUserAndRelatedData}
             }
         }`,
       })
@@ -744,7 +780,7 @@ describe('users', () => {
       .send({
         query: `query {
             selfData{
-              ${userFullDataQuery}
+              ${userAndRelatedData}
             }
         }`,
       })
@@ -881,7 +917,7 @@ describe('users', () => {
       .send({
         query: `query {
             selfData{
-              ${userFullDataQuery}
+              ${userAndRelatedData}
             }
         }`,
       })
@@ -1007,7 +1043,7 @@ describe('users', () => {
       .send({
         query: `query {
             selfData{
-              ${userFullDataQuery}
+              ${userAndRelatedData}
             }
         }`,
       })
@@ -1031,7 +1067,7 @@ describe('users', () => {
       .send({
         query: `query {
             selfData{
-              ${userFullDataQuery}
+              ${userAndRelatedData}
             }
         }`,
       })
@@ -1102,7 +1138,7 @@ describe('users', () => {
       .send({
         query: `query {
             selfData{
-              ${userFullDataQuery}
+              ${userAndRelatedData}
             }
         }`,
       })
@@ -1427,7 +1463,7 @@ describe('users', () => {
       .send({
         query: `query {
             selfData{
-              ${userFullDataQuery}
+              ${userAndRelatedData}
             }
         }`,
       })
@@ -1745,7 +1781,7 @@ describe('users', () => {
       .send({
         query: `query {
             selfData{
-              ${userFullDataQuery}
+              ${userAndRelatedData}
             }
         }`,
       })
@@ -1925,7 +1961,7 @@ describe('users', () => {
       .send({
         query: `query {
             selfData{
-              ${userFullDataQuery}
+              ${userAndRelatedData}
             }
         }`,
       })
@@ -1977,7 +2013,7 @@ describe('users', () => {
       .send({
         query: `query {
             user(userUuid: "${userUuidFirst}") {
-              ${userFullDataQuery}
+              ${showUserAndRelatedData}
             }
         }`,
       })
@@ -1989,10 +2025,8 @@ describe('users', () => {
     } = body;
     expect(user.uuid).toBe(userUuidFirst);
     expect(user.username).toBe(username);
-    expect(user.favCompaniesCount).toBe(0);
-    expect(user.favComponentsCount).toBe(0);
-    expect(user.favStandardsCount).toBe(0);
-    expect(user.favUsersCount).toBe(0);
+    expect(user.subscribers).toBe(0);
+    expect(user.isFollowed).toBe(false);
     done();
   });
 
@@ -2006,7 +2040,7 @@ describe('users', () => {
       .send({
         query: `query {
             user(userUuid: "${userUuidSecond}") {
-              ${userFullDataQuery}
+              ${showUserAndRelatedData}
             }
         }`,
       })
@@ -2135,7 +2169,7 @@ describe('users', () => {
       .send({
         query: `query {
             user(userUuid: "${userUuidSecond}") {
-              ${userFullDataQuery}
+              ${showUserAndRelatedData}
             }
         }`,
       })
@@ -2147,10 +2181,8 @@ describe('users', () => {
     } = body;
     expect(user.uuid).toBe(userUuidSecond);
     expect(user.username).toBe(username2);
-    expect(user.favCompaniesCount).toBe(0);
-    expect(user.favComponentsCount).toBe(0);
-    expect(user.favStandardsCount).toBe(0);
-    expect(user.favUsersCount).toBe(0);
+    expect(user.subscribers).toBe(0);
+    expect(user.isFollowed).toBe(false);
     done();
   });
 
@@ -2390,7 +2422,7 @@ describe('users', () => {
       .send({
         query: `query {
             user(userUuid: "${userUuidSecond}") {
-              ${userFullDataQuery}
+              ${showUserAndRelatedData}
             }
         }`,
       })
@@ -2402,10 +2434,8 @@ describe('users', () => {
     } = body;
     expect(user.uuid).toBe(userUuidSecond);
     expect(user.username).toBe(username2);
-    expect(user.favCompaniesCount).toBe(0);
-    expect(user.favComponentsCount).toBe(0);
-    expect(user.favStandardsCount).toBe(0);
-    expect(user.favUsersCount).toBe(0);
+    expect(user.subscribers).toBe(0);
+    expect(user.isFollowed).toBe(false);
     done();
   });
 
@@ -2447,7 +2477,7 @@ describe('users', () => {
       .send({
         query: `query {
             user(userUuid: "${userUuidThree}") {
-              ${userFullDataQuery}
+              ${showUserAndRelatedData}
             }
         }`,
       })
@@ -2572,7 +2602,7 @@ describe('users', () => {
       .send({
         query: `query {
             user(userUuid: "${userUuidSecond}") {
-              ${userFullDataQuery}
+              ${showUserAndRelatedData}
             }
         }`,
       })
@@ -2584,10 +2614,8 @@ describe('users', () => {
     } = body;
     expect(user.uuid).toBe(userUuidSecond);
     expect(user.username).toBe(username2);
-    expect(user.favCompaniesCount).toBe(0);
-    expect(user.favComponentsCount).toBe(0);
-    expect(user.favStandardsCount).toBe(0);
-    expect(user.favUsersCount).toBe(0);
+    expect(user.subscribers).toBe(0);
+    expect(user.isFollowed).toBe(false);
     done();
   });
 
@@ -2629,7 +2657,7 @@ describe('users', () => {
       .send({
         query: `query {
             user(userUuid: "${userUuidThree}") {
-              ${userFullDataQuery}
+              ${showUserAndRelatedData}
             }
         }`,
       })
@@ -2712,7 +2740,7 @@ describe('users', () => {
       .send({
         query: `query {
             user(userUuid: "${userUuidSecond}") {
-              ${userFullDataQuery}
+              ${showUserAndRelatedData}
             }
         }`,
       })
@@ -2724,10 +2752,8 @@ describe('users', () => {
     } = body;
     expect(user.uuid).toBe(userUuidSecond);
     expect(user.username).toBe(username2);
-    expect(user.favCompaniesCount).toBe(0);
-    expect(user.favComponentsCount).toBe(0);
-    expect(user.favStandardsCount).toBe(0);
-    expect(user.favUsersCount).toBe(0);
+    expect(user.subscribers).toBe(0);
+    expect(user.isFollowed).toBe(false);
     done();
   });
 
@@ -2789,7 +2815,7 @@ describe('users', () => {
       .send({
         query: `query {
             user(userUuid: "${userUuidSecond}") {
-              ${userFullDataQuery}
+              ${showUserAndRelatedData}
             }
         }`,
       })

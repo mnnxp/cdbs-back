@@ -2,7 +2,9 @@ use crate::errors::ServiceResult;
 use crate::database::{get_conn, PooledConnection};
 use crate::jwt::model::{Claims, Token};
 use crate::models::user::access::logged::{check_authorized, get_logged_user_uuid};
-use crate::models::user::model::{ShowUserShort, SlimUser, UserAndRelatedData};
+use crate::models::user::model::{
+    ShowUserShort, SlimUser, UserAndRelatedData, ShowUserAndRelatedData
+};
 use crate::models::user::notification::model::Notification;
 use crate::models::user::access::model::UserToken;
 use crate::models::user::get_set_language;
@@ -39,7 +41,7 @@ impl UserQuery {
         &self,
         cxt: &Context<'_>,
         user_uuid: Uuid,
-    ) -> ServiceResult<UserAndRelatedData> {
+    ) -> ServiceResult<ShowUserAndRelatedData> {
         use crate::models::user::service::list::find_user_by_uuid;
 
         // authorization check

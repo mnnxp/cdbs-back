@@ -3,7 +3,8 @@ use super::model::{
     UserQuery,
     UserShort,
     ShowUserShort,
-    UserAndRelatedData
+    UserAndRelatedData,
+    ShowUserAndRelatedData,
 };
 use super::certificate::model::CertificateWithShowFile;
 use super::user_fav::model::UserFav;
@@ -133,7 +134,6 @@ impl UserAndRelatedData {
     /// Collecting user data and related data using uuid
     pub fn collect_related_data(
         target_user_uuid: &Uuid,
-        logged_user_uuid: &Uuid,
         set_lang_id: &i32,
         conn: &PgConnection,
     ) -> ServiceResult<UserAndRelatedData> {
@@ -159,13 +159,6 @@ impl UserAndRelatedData {
             &user.program_id,
             conn
         ).expect("Error get set program");
-
-        // check whether the object is being tracked auth user
-        let is_followed = crate::models::user::user_fav::util::check_subscriber_by_uuid(
-            target_user_uuid,
-            logged_user_uuid,
-            conn
-        ).expect("Error get value is_followed");
 
         // count subscribers user
         let subscribers: i32 = UserFav::get_count_followers_by_uuid(&user.uuid, conn)?;
@@ -240,7 +233,6 @@ impl UserAndRelatedData {
             updated_at: user.updated_at,
             certificates,
             subscribers,
-            is_followed,
             companies_count,
             components_count,
             standards_count,
@@ -248,6 +240,75 @@ impl UserAndRelatedData {
             fav_components_count,
             fav_standards_count,
             fav_users_count,
+        };
+
+        Ok(result)
+    }
+}
+
+impl ShowUserAndRelatedData {
+    /// Collecting user data and related data using uuid
+    pub fn collect_related_data(
+        target_user_uuid: &Uuid,
+        logged_user_uuid: &Uuid,
+        set_lang_id: &i32,
+        conn: &PgConnection,
+    ) -> ServiceResult<ShowUserAndRelatedData> {
+        // collect data for user
+        let user: UserQuery = UserQuery::get_user_by_uuid(
+            target_user_uuid,
+            conn
+        ).expect("Error loading user");
+
+        // get image file (favicon) for user
+        let image_file = ShowFile::get_file_by_uuid(&user.image_file_uuid, conn)
+            .expect("Error loading user file");
+
+        // get region for user
+        let region: RegionTranslateList = RegionTranslateList::get_region_by_id(
+            &user.region_id,
+            set_lang_id,
+            conn
+        ).expect("Error loading user_type");
+
+        // get program set default for user
+        let program: Program = Program::get_program_by_id(
+            &user.program_id,
+            conn
+        ).expect("Error get set program");
+
+        // check whether the object is being tracked auth user
+        let is_followed = crate::models::user::user_fav::util::check_subscriber_by_uuid(
+            target_user_uuid,
+            logged_user_uuid,
+            conn
+        ).expect("Error get value is_followed");
+
+        // count subscribers user
+        let subscribers: i32 = UserFav::get_count_followers_by_uuid(&user.uuid, conn)?;
+
+        // get certificates with slimfile for user
+        let certificates: Vec<CertificateWithShowFile> = CertificateWithShowFile::from_user(
+            &user.uuid,
+            conn
+        ).expect("Error loading spec user with translate");
+
+        let result = ShowUserAndRelatedData {
+            uuid: user.uuid,
+            firstname: user.firstname,
+            lastname: user.lastname,
+            secondname: user.secondname,
+            username: user.username,
+            description: user.description,
+            position: user.position,
+            image_file,
+            region,
+            program,
+            created_at: user.created_at,
+            updated_at: user.updated_at,
+            certificates,
+            subscribers,
+            is_followed,
         };
 
         Ok(result)

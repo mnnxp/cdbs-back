@@ -96,8 +96,6 @@ pub struct UserAndRelatedData {
     // related data
     pub certificates: Vec<CertificateWithShowFile>,
     pub subscribers: i32,
-    // for display the checkbox "favorites"
-    pub is_followed: bool,
     // for a quick request just count objects have user
     pub companies_count: i32,
     pub components_count: i32,
@@ -107,6 +105,28 @@ pub struct UserAndRelatedData {
     pub fav_components_count: i32,
     pub fav_standards_count: i32,
     pub fav_users_count: i32,
+}
+
+/// For show data about profile
+#[derive(Debug, Deserialize, SimpleObject)]
+pub struct ShowUserAndRelatedData {
+    pub uuid: Uuid,
+    pub firstname: String,
+    pub lastname: String,
+    pub secondname: String,
+    pub username: String,
+    pub description: String,
+    pub position: String, // <-- todo!(create a separate table with translation)
+    pub image_file: ShowFile,
+    pub region: RegionTranslateList,
+    pub program: Program,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
+    // related data
+    pub certificates: Vec<CertificateWithShowFile>,
+    pub subscribers: i32,
+    // for display the checkbox "favorites"
+    pub is_followed: bool,
 }
 
 #[derive(Debug, Clone)]
