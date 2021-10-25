@@ -75,7 +75,7 @@ pub(crate) fn find_user_by_username(
     let user_uuid: &Uuid = &get_uuid_by_username(
         target_username,
         conn
-    );
+    )?;
 
     find_user_by_uuid(
         logged_user_uuid,

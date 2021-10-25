@@ -15,6 +15,7 @@ const loginData = [ { "user": {
     }
   }
 ];
+const fakeUuid = "9a9221c1-f517-40a0-a06d-fdfa8c17a462";
 const baseUserUuid = "31ecc6f8-0c09-4a59-a2d5-34b5b833e59b";
 const baseUsername = "usernameeee";
 const email = "testemail@mail.ru";
@@ -2842,6 +2843,30 @@ describe('users', () => {
     done();
   });
 
+  it('/graphql:Q User - BadRequest fakeUsername (by username)', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenUserFirst}`
+      )
+      .send({
+        query: `query {
+            user(username: "fakeusername") {
+              ${showUserAndRelatedData}
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Data not found'
+    );
+    expect(body.errors[0].path[0]).toBe('user');
+    done();
+  });
+
   it('/graphql:Q User - BadRequest have access to one component but private profile', async (done) => {
     const { body } = await agent
       .post('/graphql')
@@ -2861,6 +2886,30 @@ describe('users', () => {
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
       'BadRequest: Access denied'
+    );
+    expect(body.errors[0].path[0]).toBe('user');
+    done();
+  });
+
+  it('/graphql:Q User - BadRequest fakeUuid (failed check access)', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenUserFirst}`
+      )
+      .send({
+        query: `query {
+            user(userUuid: "${fakeUuid}") {
+              ${showUserAndRelatedData}
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'Internal Server Error'
     );
     expect(body.errors[0].path[0]).toBe('user');
     done();
