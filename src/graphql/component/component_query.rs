@@ -32,7 +32,7 @@ impl ComponentQuery {
         find_components(
             &logged_user_uuid,
             &components_uuids,
-            &crate::models::user::get_set_language(cxt),
+            &crate::models::relate_ref::language::get_set_language(cxt),
             conn,
         )
     }
@@ -52,7 +52,7 @@ impl ComponentQuery {
         find_component_uuid(
             &logged_user_uuid,
             &component_uuid,
-            &crate::models::user::get_set_language(cxt),
+            &crate::models::relate_ref::language::get_set_language(cxt),
             conn,
         )
     }
@@ -71,7 +71,7 @@ impl ComponentQuery {
         get_companies_list_access_component(
             &logged_user_uuid,
             &component_uuid,
-            &crate::models::user::get_set_language(cxt),
+            &crate::models::relate_ref::language::get_set_language(cxt),
             conn
         )
     }
@@ -91,7 +91,7 @@ impl ComponentQuery {
         get_users_list_access_component(
             &logged_user_uuid,
             &component_uuid,
-            &crate::models::user::get_set_language(cxt),
+            &crate::models::relate_ref::language::get_set_language(cxt),
             conn
         )
     }

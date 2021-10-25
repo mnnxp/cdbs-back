@@ -7,7 +7,7 @@ use crate::models::user::model::{
 };
 use crate::models::user::notification::model::Notification;
 use crate::models::user::access::model::UserToken;
-use crate::models::user::get_set_language;
+use crate::models::relate_ref::language::get_set_language;
 
 use async_graphql::{self, Context, Object};
 use uuid::Uuid;

@@ -32,7 +32,7 @@ impl TypeAccessQuery {
             type_access_id,
             limit,
             offset,
-            &crate::models::user::get_set_language(cxt),
+            &crate::models::relate_ref::language::get_set_language(cxt),
             conn,
         )
     }

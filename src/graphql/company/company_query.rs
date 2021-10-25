@@ -33,7 +33,7 @@ impl CompanyQuery {
         find_companies(
             &logged_user_uuid,
             &companies_uuids,
-            &crate::models::user::get_set_language(cxt),
+            &crate::models::relate_ref::language::get_set_language(cxt),
             conn,
         )
     }
@@ -53,7 +53,7 @@ impl CompanyQuery {
         find_by_uuid(
             &logged_user_uuid,
             &company_uuid,
-            &crate::models::user::get_set_language(cxt),
+            &crate::models::relate_ref::language::get_set_language(cxt),
             conn,
         )
     }
@@ -76,14 +76,14 @@ impl CompanyQuery {
             (Some(company_uuid), None) => {
                 company_represent::list::get_by_company_uuid(
                     &company_uuid,
-                    &crate::models::user::get_set_language(cxt),
+                    &crate::models::relate_ref::language::get_set_language(cxt),
                     conn,
                 )
             }
             (None, Some(represents_uuids)) => {
                 company_represent::list::get_represent_by_uuids(
                     &represents_uuids,
-                    &crate::models::user::get_set_language(cxt),
+                    &crate::models::relate_ref::language::get_set_language(cxt),
                     conn,
                 )
             }
@@ -108,7 +108,7 @@ impl CompanyQuery {
         get_by_company_uuid(
             &logged_user_uuid,
             &company_uuid,
-            &crate::models::user::get_set_language(cxt),
+            &crate::models::relate_ref::language::get_set_language(cxt),
             conn
         )
     }
@@ -128,7 +128,7 @@ impl CompanyQuery {
         get_roles_for_company(
             &logged_user_uuid,
             &company_uuid,
-            &crate::models::user::get_set_language(cxt),
+            &crate::models::relate_ref::language::get_set_language(cxt),
             conn
         )
     }

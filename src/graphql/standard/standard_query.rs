@@ -28,7 +28,7 @@ impl StandardQuery {
         find_by_uuids(
             &logged_user_uuid,
             &standards_uuids,
-            &crate::models::user::get_set_language(cxt),
+            &crate::models::relate_ref::language::get_set_language(cxt),
             conn,
         )
     }
@@ -48,7 +48,7 @@ impl StandardQuery {
         find_by_uuid(
             &logged_user_uuid,
             &standard_uuid,
-            &crate::models::user::get_set_language(cxt),
+            &crate::models::relate_ref::language::get_set_language(cxt),
             conn,
         )
     }
@@ -67,7 +67,7 @@ impl StandardQuery {
         get_companies_list_access_standard(
             &logged_user_uuid,
             &standard_uuid,
-            &crate::models::user::get_set_language(cxt),
+            &crate::models::relate_ref::language::get_set_language(cxt),
             conn
         )
     }
@@ -87,7 +87,7 @@ impl StandardQuery {
         get_users_list_access_standard(
             &logged_user_uuid,
             &standard_uuid,
-            &crate::models::user::get_set_language(cxt),
+            &crate::models::relate_ref::language::get_set_language(cxt),
             conn
         )
     }
