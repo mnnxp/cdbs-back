@@ -16,6 +16,7 @@ const loginData = [ { "user": {
   }
 ];
 const baseUserUuid = "31ecc6f8-0c09-4a59-a2d5-34b5b833e59b";
+const baseUsername = "usernameeee";
 const email = "testemail@mail.ru";
 const firstname = "test_firstname";
 const lastname = "test_lastname";
@@ -372,7 +373,27 @@ describe('users', () => {
 
   const agent = request.agent(url);
 
-  it('/graphql:Q users - UNAUTHORIZED', async (done) => {
+  it('/graphql:Q user - UNAUTHORIZED (by username)', async (done) => {
+    const response1 = await agent
+      .post('/graphql')
+      .send({
+        query: `query {
+            user(username: "${baseUsername}") {
+              ${showUserAndRelatedData}
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', response1.body);
+    expect(response1.body.data).toBeNull();
+    expect(response1.body.errors[0].message).toBe(
+      'BadRequest: Token not found.'
+    );
+    expect(response1.body.errors[0].path[0]).toBe('user');
+    done();
+  });
+
+  it('/graphql:Q user - UNAUTHORIZED', async (done) => {
     const response1 = await agent
       .post('/graphql')
       .send({
@@ -1679,7 +1700,7 @@ describe('users', () => {
     done();
   });
 
-  it('/graphql:M ComponentFav - BadReuest not access', async (done) => {
+  it('/graphql:M ComponentFav - BadRequest not access', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .set(
@@ -2231,6 +2252,30 @@ describe('users', () => {
     done();
   });
 
+  it('/graphql:Q User - BadRequest not set userUuid and username', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenUserFirst}`
+      )
+      .send({
+        query: `query {
+            user {
+              ${showUserAndRelatedData}
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Need set userUuid or username'
+    );
+    expect(body.errors[0].path[0]).toBe('user');
+    done();
+  });
+
   it('/graphql:Q User - Ok', async (done) => {
     const { body } = await agent
       .post('/graphql')
@@ -2241,6 +2286,33 @@ describe('users', () => {
       .send({
         query: `query {
             user(userUuid: "${userUuidSecond}") {
+              ${showUserAndRelatedData}
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { user }
+    } = body;
+    expect(user.uuid).toBe(userUuidSecond);
+    expect(user.username).toBe(username2);
+    expect(user.subscribers).toBe(0);
+    expect(user.isFollowed).toBe(false);
+    done();
+  });
+
+  it('/graphql:Q User - Ok (by username)', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenUserFirst}`
+      )
+      .send({
+        query: `query {
+            user(username: "${username2}") {
               ${showUserAndRelatedData}
             }
         }`,
@@ -2664,6 +2736,33 @@ describe('users', () => {
     done();
   });
 
+  it('/graphql:Q User - Ok get private profile from access component (by username)', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenUserFirst}`
+      )
+      .send({
+        query: `query {
+            user(username: "${username2}") {
+              ${showUserAndRelatedData}
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { user }
+    } = body;
+    expect(user.uuid).toBe(userUuidSecond);
+    expect(user.username).toBe(username2);
+    expect(user.subscribers).toBe(0);
+    expect(user.isFollowed).toBe(false);
+    done();
+  });
+
   it('/graphql:Q User - Ok get private profile from access component', async (done) => {
     const { body } = await agent
       .post('/graphql')
@@ -2716,6 +2815,30 @@ describe('users', () => {
       data: { setUserAccessComponent },
     } = body;
     expect(setUserAccessComponent).toBe(true);
+    done();
+  });
+
+  it('/graphql:Q User - BadRequest have access to one component but private profile (by username)', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenUserFirst}`
+      )
+      .send({
+        query: `query {
+            user(username: "${username3}") {
+              ${showUserAndRelatedData}
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Access denied'
+    );
+    expect(body.errors[0].path[0]).toBe('user');
     done();
   });
 
@@ -2802,6 +2925,33 @@ describe('users', () => {
     done();
   });
 
+  it('/graphql:Q User - Ok get public profile (by username)', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenUserFirst}`
+      )
+      .send({
+        query: `query {
+            user(username: "${username2}") {
+              ${showUserAndRelatedData}
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { user }
+    } = body;
+    expect(user.uuid).toBe(userUuidSecond);
+    expect(user.username).toBe(username2);
+    expect(user.subscribers).toBe(0);
+    expect(user.isFollowed).toBe(false);
+    done();
+  });
+
   it('/graphql:Q User - Ok get public profile', async (done) => {
     const { body } = await agent
       .post('/graphql')
@@ -2874,6 +3024,30 @@ describe('users', () => {
       data: changeTypeAccessUser
     } = body;
     expect(changeTypeAccessUser.changeTypeAccessUser).toBe(false);
+    done();
+  });
+
+  it('/graphql:Q User - BadRequest private profile (by username)', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenUserFirst}`
+      )
+      .send({
+        query: `query {
+            user(username: "${username2}") {
+              ${showUserAndRelatedData}
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Access denied'
+    );
+    expect(body.errors[0].path[0]).toBe('user');
     done();
   });
 

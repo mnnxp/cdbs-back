@@ -63,6 +63,28 @@ pub(crate) fn find_user_by_uuid(
     Ok(result)
 }
 
+/// Gets user with related data, with translate by username
+pub(crate) fn find_user_by_username(
+    logged_user_uuid: &Uuid,
+    target_username: &str,
+    set_lang_id: &i32,
+    conn: &PgConnection,
+) -> ServiceResult<ShowUserAndRelatedData> {
+    use crate::models::user::util::get_uuid_by_username;
+
+    let user_uuid: &Uuid = &get_uuid_by_username(
+        target_username,
+        conn
+    );
+
+    find_user_by_uuid(
+        logged_user_uuid,
+        user_uuid,
+        set_lang_id,
+        conn
+    )
+}
+
 /// Gets slim data logged user
 pub(crate) fn get_self_slim_data(
     logged_user_uuid: &Uuid,
