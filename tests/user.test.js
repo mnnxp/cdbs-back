@@ -42,6 +42,7 @@ var authorizationTokenUserThree = "";
 var userUuidFirst = "";
 var userUuidSecond = "";
 var userUuidThree = "";
+var uploadFaviconTestUuid = "";
 
 const username = "baromi";
 const username2 = "simaco";
@@ -887,6 +888,83 @@ describe('users', () => {
     expect(selfData.favComponentsCount).toBe(0);
     expect(selfData.favStandardsCount).toBe(0);
     expect(selfData.favUsersCount).toBe(0);
+    done();
+  });
+
+  // update favicon user
+  it('/graphql:Q uploadFavicon - BadRequest not token', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .send({
+        query: `mutation {
+          uploadFavicon (filename: "new favicon.png") {
+            fileUuid
+            filename
+            uploadUrl
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql uploadFavicon=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Token not found.'
+    );
+    expect(body.errors[0].path[0]).toBe('uploadFavicon');
+    done();
+  });
+
+  it('/graphql:Q uploadFavicon - OK', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenUserFirst}`
+      )
+      .send({
+        query: `mutation {
+          uploadFavicon (filename: "new favicon.png") {
+            fileUuid
+            filename
+            uploadUrl
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql uploadFavicon=%o', body);
+    const {
+      data: { uploadFavicon },
+    } = body;
+    uploadFaviconTestUuid = uploadFavicon.fileUuid;
+    expect(uploadFavicon.fileUuid).toBeNonEmptyString();
+    expect(uploadFavicon.filename).toBe("new favicon.png");
+    expect(uploadFavicon.uploadUrl).toBeNonEmptyString();
+    done();
+  });
+
+  it('/graphql:Q selfData - OK check new favicon', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenUserFirst}`
+      )
+      .send({
+        query: `query {
+            selfData{
+              ${userAndRelatedData}
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    // expect(body).toBe(0);
+    let {
+      data: { selfData }
+    } = body;
+    expect(selfData.uuid).toBe(userUuidFirst);
+    expect(selfData.username).toBe(username);
+    expect(selfData.imageFile.uuid).toBe(uploadFaviconTestUuid);
     done();
   });
 

@@ -114,14 +114,18 @@ impl UserMutation {
         &self,
         cxt: &Context<'_>,
         filename: String,
-    ) -> ServiceResult<String> {
+    ) -> ServiceResult<UploadFile> {
         use crate::models::user::relate::favicon::update_favicon;
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
-        update_favicon(&logged_user_uuid, &filename, conn)
+        update_favicon(
+            &logged_user_uuid,
+            &filename,
+            conn
+        )
     }
 
     async fn upload_user_certificate(
