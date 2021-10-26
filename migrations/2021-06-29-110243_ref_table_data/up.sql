@@ -100,7 +100,7 @@ INSERT INTO extension_ref (extension, program_id) VALUES
   ('wm2d', 1);
 
 INSERT INTO file_ref (uuid, parent_file_uuid, hash, user_uuid, filename, content_type, id_ext, filesize , path_file, created_at, updated_at) VALUES
-  ('bc1c2151-86d0-4656-9c9d-d016dd584297', 'bc1c2151-86d0-4656-9c9d-d016dd584297', E'\\000', '31ecc6f8-0c09-4a59-a2d5-34b5b833e59b', 'filename', 'text/plain', 1, 0, 'path/file/file.txt', now(), now()),
+  ('bc1c2151-86d0-4656-9c9d-d016dd584297', 'bc1c2151-86d0-4656-9c9d-d016dd584297', E'\\x', '68b8281a-d19c-4d4b-88eb-6fd4a2afde1b', 'default_favicon.png', 'image/png', 1, 166294, '7471c721a4d84a6b87b8af42e4c4494c/ce2301af77854d96b5ccc1182e24b751', '2021-10-26 22:16:49.008719', '2021-10-26 22:32:58.157966'),
   ('ae496786-33f9-4727-a0fb-9c6702a3f30a', 'bc1c2151-86d0-4656-9c9d-d016dd584297', E'\\xe3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855', '68b8281a-d19c-4d4b-88eb-6fd4a2afde1b', 'file_child_one.pdd', 'text/plain', 1, 136, '/sholder/file/f1c5a362-55f9-4edb-ad90-a2ea64d586df', now(), now()),
   ('a7ea73ef-1033-4cc7-b65b-93c1e9464360', 'bc1c2151-86d0-4656-9c9d-d016dd584297', E'\\xe3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855', '68b8281a-d19c-4d4b-88eb-6fd4a2afde1b', 'file_child_two.pdd', 'text/plain', 1, 365, '/sholder/file/f1c5a362-55f9-4edb-ad90-a2ea64d586df', now(), now()),
   ('9a227a5d-c54e-496a-a1ef-c5d49d8bd0a2', 'bc1c2151-86d0-4656-9c9d-d016dd584297', E'\\xe3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855', '68b8281a-d19c-4d4b-88eb-6fd4a2afde1b', 'file_child_three.pdd', 'text/plain', 1, 256, '/sholder/file/f1c5a362-55f9-4edb-ad90-a2ea64d586df', now(), now()),
