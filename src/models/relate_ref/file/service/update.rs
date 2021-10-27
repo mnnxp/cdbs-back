@@ -17,8 +17,10 @@ pub(crate) async fn confirm_upload(
 ) -> ServiceResult<i32> {
     let conn = pool.get().unwrap();
 
+    let mut confirm_files: usize = 0;
+
     // getting SlimFile data for get files paths
-    let slim_file = SlimFile::get_by_files_uuids(
+    let slim_files = SlimFile::get_by_files_uuids(
         file_uuids,
         &conn,
     ).unwrap();
@@ -27,7 +29,7 @@ pub(crate) async fn confirm_upload(
     let storage_access = StorageAccess::get(&conn)?;
 
     // getting data for all files in vec
-    for file_d in slim_file {
+    for file_d in slim_files {
         // ownership check and data update
         if check_write_data(
             target_user_uuid,
@@ -42,7 +44,7 @@ pub(crate) async fn confirm_upload(
 
             // let filesize = Some(file_h.content_length);
             // update file metadata in file_ref table
-            let update_file_data = update_file_data_by_uuid(
+            let update_file_rows = update_file_data_by_uuid(
                 target_user_uuid,
                 &file_d.uuid,
                 &FileData {
@@ -59,13 +61,18 @@ pub(crate) async fn confirm_upload(
                 &conn,
             )?;
 
-            debug!("Upload completed: {:?}", update_file_data);
+            debug!("Upload completed: {:?}", update_file_rows);
 
-            return Ok(update_file_data)
+            confirm_files += 1;
         }
     }
 
-    Err(ServiceError::BadRequest("Unsuccessful check data".to_string()))
+    match confirm_files == file_uuids.len() {
+        true => Ok(confirm_files as i32),
+        false => Err(ServiceError::BadRequest(
+            "Unsuccessful check data".to_string()
+        )),
+    }
 }
 
 /// Update file data by uuid
