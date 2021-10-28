@@ -5,7 +5,7 @@ use crate::models::user::access::model::{
 use crate::database::{get_conn, PooledConnection};
 use crate::models::user::model::SlimUser;
 use crate::jwt::model::{Token, Claims};
-use std::convert::TryFrom;
+// use std::convert::TryFrom;
 use async_graphql::Context;
 use chrono::NaiveDateTime;
 use diesel::prelude::*;

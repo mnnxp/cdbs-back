@@ -1,7 +1,7 @@
 use crate::models::user::model::SlimUser;
 use anyhow::Result;
 use chrono::{Duration, Local};
-use std::convert::TryFrom;
+// use std::convert::TryFrom;
 use uuid::Uuid;
 use actix_web::{http::header, http::HeaderMap};
 use regex::Regex;
