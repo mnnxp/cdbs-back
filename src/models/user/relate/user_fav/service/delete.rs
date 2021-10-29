@@ -21,9 +21,10 @@ pub(crate) fn delete_user_fav(
         1_usize => Ok(true), // <-- turned flag to false
         0_usize => {
             // user not found in favorite list
-            Err(ServiceError::BadRequest(
-                "No data found".to_string()
-            ))
+            // Err(ServiceError::BadRequest(
+            //     "No data found".to_string()
+            // ))
+            Ok(false)
         },
         _ => Err(ServiceError::InternalServerError),
     }
