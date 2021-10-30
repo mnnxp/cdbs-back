@@ -11,7 +11,7 @@ use crate::models::relate_ref::type_access::model::{
 use diesel::prelude::*;
 
 pub(crate) fn create_type_access(
-    data: IptTypeAccessTranslateListData,
+    data: &IptTypeAccessTranslateListData,
     conn: &PgConnection
 ) -> ServiceResult<TypeAccessTranslateList> {
     use crate::schema::type_access_translate_list::dsl::*;
@@ -39,7 +39,7 @@ pub(crate) fn create_type_access(
             let data = InsertableTypeAccessTranslateList {
                 type_access_id: new_type_access_id,
                 lang_id: data.lang_id,
-                name: data.name,
+                name: data.name.to_string(),
             };
             let inserted_type_access_data: TypeAccessTranslateList = diesel::insert_into(type_access_translate_list)
                 .values(&data)
