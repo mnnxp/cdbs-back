@@ -42,11 +42,13 @@ var authorizationTokenUserThree = "";
 var userUuidFirst = "";
 var userUuidSecond = "";
 var userUuidThree = "";
+var userUuidFour = "";
 var uploadFaviconTestUuid = "";
 
 const username = "baromi";
 const username2 = "simaco";
 const username3 = "threeusername";
+const username4 = "username4";
 const password = "password";
 const passwordBad = "pbad";
 const passwordGood = "1passwordG00D!";
@@ -354,10 +356,11 @@ async function cleanupTokenDb() {
 }
 
 async function cleanupUserDb() {
-  return global.knex.raw('DELETE FROM user_ref WHERE username IN (?,?,?)', [
+  return global.knex.raw('DELETE FROM user_ref WHERE username IN (?,?,?,?)', [
     username,
     username2,
     username3,
+    username4,
   ]);
 }
 
@@ -514,6 +517,37 @@ describe('users', () => {
     expect(registerUser.uuid).toBeNonEmptyString();
     expect(registerUser.programId).toBe(1);
     expect(registerUser.username).toBe(username3);
+    done();
+  });
+
+  it('/graphql:M register - OK public profile', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .send({
+        query: `mutation  {
+            registerUser( data: {
+                email: "random@random.random",
+                username: "${username4}",
+                password: "${password}",
+                typeAccessId: ${type_access_id_public}
+            }) {
+                uuid
+                programId
+                username
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql users=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { registerUser },
+    } = body;
+    userUuidFour = registerUser.uuid;
+    expect(registerUser).toContainAllKeys(['uuid', 'programId', 'username']);
+    expect(registerUser.uuid).toBeNonEmptyString();
+    expect(registerUser.programId).toBe(1);
+    expect(registerUser.username).toBe(username4);
     done();
   });
 
@@ -1934,11 +1968,12 @@ describe('users', () => {
       )
       .send({
         query: `mutation {
-            addUserFav(userUuid: "${userUuidBase}")
+            addUserFav(userUuid: "${userUuidFour}")
         }`,
       })
       .expect(HttpStatus.OK)
     debug('/graphql addUserFav body=%o', body);
+    // expect(body).toBe(0);
     expect(body.data.addUserFav).toBe(true);
     done();
   });
@@ -2094,7 +2129,7 @@ describe('users', () => {
       )
       .send({
         query: `mutation {
-            deleteUserFav(userUuid: "${userUuidBase}")
+            deleteUserFav(userUuid: "${userUuidFour}")
         }`,
       })
       .expect(HttpStatus.OK)
@@ -2103,7 +2138,7 @@ describe('users', () => {
     done();
   });
 
-  it('/graphql:M UserFav - BadRequest not found user fav', async (done) => {
+  it('/graphql:M UserFav - Ok not found user fav', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .set(
@@ -2112,15 +2147,13 @@ describe('users', () => {
       )
       .send({
         query: `mutation {
-            deleteUserFav(userUuid: "${userUuidBase}")
+            deleteUserFav(userUuid: "${userUuidFour}")
         }`,
       })
       .expect(HttpStatus.OK)
-      debug('/graphql body=%o', body);
-      expect(body.errors[0].message).toBe(
-        'BadRequest: No data found'
-      );
-      done();
+    debug('/graphql deleteUserFav body=%o', body);
+    expect(body.data.deleteUserFav).toBe(false);
+    done();
   });
 
   it('/graphql:Q selfData - Ok no fav', async (done) => {
