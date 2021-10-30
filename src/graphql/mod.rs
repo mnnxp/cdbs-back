@@ -21,6 +21,7 @@ pub use relate::program::{ProgramMutation, ProgramQuery};
 pub use relate::region::{RegionMutation, RegionQuery};
 pub use relate::spec::SpecQuery;
 pub use relate::storage::{StorageMutation, StorageQuery};
+pub use relate::type_access::TypeAccessQuery;
 
 #[derive(MergedObject, Default)]
 pub struct QueryRoot(
@@ -37,6 +38,7 @@ pub struct QueryRoot(
     RegionQuery,
     SpecQuery,
     StorageQuery,
+    TypeAccessQuery,
 );
 
 #[derive(MergedObject, Default)]
@@ -54,6 +56,7 @@ pub struct MutationRoot(
     RegionMutation,
     // SpecMutation,
     StorageMutation,
+    // TypeAccessMutation,
 );
 
 use crate::graphql::handler::{graphiql, graphql};
