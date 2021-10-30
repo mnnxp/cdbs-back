@@ -210,7 +210,7 @@ impl UserAndRelatedData {
         ).expect("Error get count fav_standards_count");
 
         // counting users in a user's favorite
-        let fav_users_count: i32 = UserFav::get_count_followers_by_uuid(
+        let fav_users_count: i32 = UserFav::get_count_favorites_by_uuid(
             target_user_uuid,
             conn
         ).expect("Error get count fav_users_count");

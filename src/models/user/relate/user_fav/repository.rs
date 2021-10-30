@@ -27,7 +27,18 @@ impl UserFav {
         conn: &PgConnection,
     ) -> ServiceResult<i32> {
         Ok(user_fav::user_fav
-            .filter(user_fav:: user_favorite_uuid.eq(target_user_uuid)
+            .filter(user_fav::user_favorite_uuid.eq(target_user_uuid)
+            .and(user_fav::is_enabled.eq(true)))
+            .execute(conn)? as i32)
+    }
+
+    /// Count favorite for user
+    pub fn get_count_favorites_by_uuid(
+        target_user_uuid: &Uuid,
+        conn: &PgConnection,
+    ) -> ServiceResult<i32> {
+        Ok(user_fav::user_fav
+            .filter(user_fav::user_follower_uuid.eq(target_user_uuid)
             .and(user_fav::is_enabled.eq(true)))
             .execute(conn)? as i32)
     }
