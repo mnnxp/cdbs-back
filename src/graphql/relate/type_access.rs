@@ -13,7 +13,7 @@ pub struct TypeAccessMutation;
 
 #[Object]
 impl TypeAccessQuery {
-    async fn type_access(
+    async fn types_access(
         &self,
         cxt: &Context<'_>,
         type_access_ids: Option<Vec<i32>>,
