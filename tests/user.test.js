@@ -260,6 +260,11 @@ program { \
   id \
   name \
 } \
+typeAccess { \
+  typeAccessId \
+  langId \
+  name \
+} \
 isEmailVerified \
 isEnabled \
 isDelete \
@@ -356,11 +361,31 @@ async function cleanupTokenDb() {
 }
 
 async function cleanupUserDb() {
-  return global.knex.raw('DELETE FROM user_ref WHERE username IN (?,?,?,?)', [
+  return global.knex.raw('DELETE FROM user_ref WHERE username IN (?,?,?,?,?)', [
     username,
     username2,
     username3,
     username4,
+    usernamePut,
+  ]);
+}
+
+async function cleanupComponentParamDb() {
+  return global.knex.raw('DELETE FROM param_to_component WHERE value in (?)', [
+    nameComponent2,
+  ]);
+}
+
+async function cleanupCompanyDb() {
+  return global.knex.raw('DELETE FROM company_ref WHERE orgname in (?,?);', [
+    orgname,
+    orgname2,
+  ]);
+}
+
+async function cleanupStandardDb() {
+  return global.knex.raw('DELETE FROM standard_ref WHERE name in (?)', [
+    nameStandard,
   ]);
 }
 
@@ -368,11 +393,17 @@ describe('users', () => {
   beforeAll(() => {
     cleanupTokenDb();
     cleanupUserDb();
+    cleanupComponentParamDb();
+    cleanupCompanyDb();
+    cleanupStandardDb();
     return;
   });
   afterAll(() => {
     cleanupTokenDb();
     cleanupUserDb();
+    cleanupComponentParamDb();
+    cleanupCompanyDb();
+    cleanupStandardDb();
     return;
   });
 
@@ -1932,6 +1963,7 @@ describe('users', () => {
       })
       .expect(HttpStatus.OK)
     debug('/graphql registerStandard=%o', body);
+    // expect(body).toBe(0);
     const {
       data: { registerStandard },
     } = body;

@@ -17,6 +17,7 @@ use crate::models::standard::standard_fav::model::StandardFav;
 use crate::models::relate_ref::file::model::DownloadFile;
 use crate::models::relate_ref::program::model::Program;
 use crate::models::relate_ref::region::model::RegionTranslateList;
+use crate::models::relate_ref::type_access::model::TypeAccessTranslateList;
 use crate::errors::ServiceResult;
 use crate::schema::user_ref::dsl as user_ref;
 use diesel::prelude::*;
@@ -62,6 +63,7 @@ impl UserQuery {
                 user_ref::image_file_uuid,
                 user_ref::region_id,
                 user_ref::program_id,
+                user_ref::type_access_id,
                 user_ref::is_email_verified,
                 user_ref::is_enabled,
                 user_ref::is_delete,
@@ -164,6 +166,13 @@ impl UserAndRelatedData {
             conn
         ).expect("Error get set program");
 
+        // get type access set for user profile
+        let type_access: TypeAccessTranslateList = TypeAccessTranslateList::get_type_access_by_id(
+            &user.type_access_id,
+            set_lang_id,
+            conn
+        ).expect("Error get set program");
+
         // count subscribers user
         let subscribers: i32 = UserFav::get_count_followers_by_uuid(&user.uuid, conn)?;
 
@@ -230,6 +239,7 @@ impl UserAndRelatedData {
             image_file,
             region,
             program,
+            type_access,
             is_email_verified: user.is_email_verified,
             is_enabled: user.is_enabled,
             is_delete: user.is_delete,

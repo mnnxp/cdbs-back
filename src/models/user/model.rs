@@ -3,6 +3,7 @@ use super::certificate::model::CertificateAndFile;
 use crate::models::relate_ref::file::model::DownloadFile;
 use crate::models::relate_ref::region::model::RegionTranslateList;
 use crate::models::relate_ref::program::model::Program;
+use crate::models::relate_ref::type_access::model::TypeAccessTranslateList;
 use crate::schema::*;
 use async_graphql::types::ID;
 use async_graphql::*;
@@ -65,6 +66,7 @@ pub struct UserQuery {
     pub image_file_uuid: Uuid,
     pub region_id: i32,
     pub program_id: i32,
+    pub type_access_id: i32,
     pub is_email_verified: bool,
     pub is_enabled: bool,
     pub is_delete: bool,
@@ -88,6 +90,7 @@ pub struct UserAndRelatedData {
     pub image_file: DownloadFile,
     pub region: RegionTranslateList,
     pub program: Program,
+    pub type_access: TypeAccessTranslateList,
     pub is_email_verified: bool,
     pub is_enabled: bool,
     pub is_delete: bool,
