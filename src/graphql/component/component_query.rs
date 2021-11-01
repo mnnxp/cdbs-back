@@ -21,7 +21,7 @@ impl ComponentQuery {
         &self,
         cxt: &Context<'_>,
         components_uuids: Option<Vec<Uuid>>,
-        _favorite: Option<Uuid>,
+        _favorite: Option<bool>,
         _user_uuid: Option<Uuid>,
         _user_fav_uuid: Option<Uuid>,
         _company_uuid: Option<Uuid>,
