@@ -20,12 +20,18 @@ impl ComponentQuery {
     async fn components(
         &self,
         cxt: &Context<'_>,
-        components_uuids: Vec<Uuid>,
+        components_uuids: Option<Vec<Uuid>>,
+        _favorite: Option<Uuid>,
+        _user_uuid: Option<Uuid>,
+        _user_fav_uuid: Option<Uuid>,
+        _company_uuid: Option<Uuid>,
     ) -> ServiceResult<Vec<ShowComponentShort>> {
         use crate::models::component::service::list::find_components;
 
         // authorization check
         let logged_user_uuid: Uuid = get_logged_user_uuid(cxt, true)?;
+
+        let components_uuids: Vec<Uuid> = components_uuids.unwrap_or_default();
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 

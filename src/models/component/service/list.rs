@@ -1,10 +1,54 @@
-use crate::errors::ServiceResult;
+use crate::errors::{ServiceResult, ServiceError};
 use crate::models::component::model::{ShowComponentShort, ComponentAndRelatedData};
 use crate::models::component::access::util::check_access_component_for_user;
-use diesel::PgConnection;
+use diesel::prelude::*;
+// use diesel::PgConnection;
 use uuid::Uuid;
 
 pub(crate) fn find_components(
+    logged_user_uuid: &Uuid,
+    target_components_uuids: &[Uuid],
+    set_lang_id: &i32,
+    conn: &PgConnection,
+) -> ServiceResult<Vec<ShowComponentShort>> {
+    match target_components_uuids.is_empty() {
+        true => get_components_by_uuids(
+            logged_user_uuid,
+            &get_components_uuids_by_user(logged_user_uuid, conn)?,
+            set_lang_id,
+            conn
+        ),
+        false => get_components_by_uuids(
+            logged_user_uuid,
+            target_components_uuids,
+            set_lang_id,
+            conn
+        ),
+    }
+}
+
+/// Find all components by target user (owner)
+fn get_components_uuids_by_user(
+    target_user_uuid: &Uuid,
+    conn: &PgConnection,
+) -> ServiceResult<Vec<Uuid>> {
+    use crate::schema::component_ref::dsl as component_ref;
+
+    let target_components_uuids = component_ref::component_ref
+        .filter(component_ref::user_uuid.eq(target_user_uuid))
+        .select(component_ref::uuid)
+        .load::<Uuid>(conn);
+
+    match target_components_uuids {
+        Ok(res) => Ok(res),
+        Err(err) => {
+            debug!("Fail load uuid list target user: {:?}", err);
+            Err(ServiceError::InternalServerError)
+        },
+    }
+}
+
+fn get_components_by_uuids(
     logged_user_uuid: &Uuid,
     target_components_uuids: &[Uuid],
     set_lang_id: &i32,
