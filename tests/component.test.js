@@ -872,6 +872,58 @@ describe('component', () => {
     done();
   });
 
+  // Testing get user components
+  it('/graphql:Q Components - BadRequest no access (private component)', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `query {
+          components(userUuid: "${authorizationUserSecond}") {
+            ${componentsListQuery}
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK);
+    debug('/graphql body=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Access denied'
+    );
+    expect(body.errors[0].path[0]).toBe('components');
+    done();
+  });
+
+  it('/graphql:Q Components - OK get user components', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `query {
+          components(userUuid: "${authorizationUserFirst}") {
+            ${componentsListQuery}
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK);
+    debug('/graphql body=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { components },
+    } = body;
+    expect(components[0].uuid).toBe(componentUuidStandard);
+    expect(components[0].name).toBe(nameComponent);
+    expect(components[0].isFollowed).toBe(false);
+    expect(components.length).toBe(1);
+    done();
+  });
+
   // Testing favorite components search
   it('/graphql:M ComponentFav - Ok add', async (done) => {
     const { body } = await agent
@@ -901,8 +953,8 @@ describe('component', () => {
           }
         }`,
       })
-      .expect(HttpStatus.OK)
-      debug('/graphql body=%o', body);
+      .expect(HttpStatus.OK);
+    debug('/graphql body=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
       'BadRequest: Token not found.'
@@ -933,6 +985,7 @@ describe('component', () => {
     } = body;
     expect(components[0].uuid).toBe(componentUuidStandard);
     expect(components[0].name).toBe(nameComponent);
+    expect(components[0].isFollowed).toBe(true);
     done();
   });
 
@@ -1959,6 +2012,33 @@ describe('component', () => {
       .post('/graphql')
       .set(
         'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `query selectComponentQuery{
+          components(componentsUuids: [
+            "${componentUuidNoStandard}",
+            "${parentComponentUuid}",
+          ]) {
+            ${componentsListQuery}
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Access denied'
+    );
+    expect(body.errors[0].path[0]).toBe('components');
+    done();
+  });
+
+  it('/graphql:Q List components - Ok get without 1 no access', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
         `Bearer ${authorizationTokenSecond}`
       )
       .send({
@@ -1974,11 +2054,12 @@ describe('component', () => {
       })
       .expect(HttpStatus.OK)
     debug('/graphql body=%o', body);
-    expect(body.data).toBeNull();
-    expect(body.errors[0].message).toBe(
-      'BadRequest: Access denied'
-    );
-    expect(body.errors[0].path[0]).toBe('components');
+    expect(body.data.components).toBeNonEmptyArray();
+    expect(body.data.components[0].uuid).toBe(componentUuidStandard);
+    expect(body.data.components[0].ownerUser.username).toBe(username);
+    expect(body.data.components[1].uuid).toBe(componentUuidNoStandard);
+    expect(body.data.components[1].ownerUser.username).toBe(username2);
+    expect(body.data.components.length).toBe(2);
     done();
   });
 

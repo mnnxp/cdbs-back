@@ -18,6 +18,8 @@ pub(crate) fn find_components(
     set_lang_id: &i32,
     conn: &PgConnection,
 ) -> ServiceResult<Vec<ShowComponentShort>> {
+    let need_access_level = 3;
+
     // if components owner self user - collect data without check access
     let mut flag_get_self_data = false;
 
@@ -91,15 +93,22 @@ pub(crate) fn find_components(
             )?
         },
         // gets components with/without filter
-        (fc_uuids, false, None, None) => {
+        (fc_uuids, _, _, _) => { // (fc_uuids, false, None, None)
+            if fc_uuids.is_empty() {
+                // if not set param and no filter
+                return Err(ServiceError::BadRequest(
+                    "Not correct parameters".to_string()
+                ));
+            }
+
             fc_uuids.to_vec()
         },
         // query with not correct parameters
-        _ => {
-            return Err(ServiceError::BadRequest(
-                "Not correct parameters".to_string()
-            ));
-        },
+        // _ => {
+        //     return Err(ServiceError::BadRequest(
+        //         "Not correct parameters".to_string()
+        //     ));
+        // },
     };
 
     if flag_get_self_data {
@@ -110,9 +119,17 @@ pub(crate) fn find_components(
             conn
         )
     } else {
-        Component::get_by_uuids(
+        // remove components uuids without access
+        let components_with_access = &Component::clear_uuids_without_access(
             logged_user_uuid,
             &res_filter_uuids,
+            &need_access_level,
+            conn
+        )?;
+
+        Component::get_without_check_by_uuids(
+            logged_user_uuid,
+            components_with_access,
             set_lang_id,
             conn
         )

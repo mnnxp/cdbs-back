@@ -27,6 +27,45 @@ impl Component {
             .first::<Component>(conn)?)
     }
 
+    /// Filter components uuid for has access authorized user
+    pub(crate) fn clear_uuids_without_access(
+        logged_user_uuid: &Uuid,
+        filter_components_uuids: &[Uuid],
+        need_access_level: &i32,
+        conn: &PgConnection,
+    ) -> ServiceResult<Vec<Uuid>> {
+        if filter_components_uuids.is_empty() {
+            return Ok(Vec::new());
+        }
+
+        let mut res_comp_uuids: Vec<Uuid> = Vec::new();
+
+        for tcu in filter_components_uuids {
+            match check_access_component_for_user(
+                logged_user_uuid,
+                tcu,
+                need_access_level,
+                conn
+            ) {
+                Ok(true) => res_comp_uuids.push(*tcu),
+                Ok(false) => debug!("Without access skip: {:?}", tcu),
+                Err(err) => {
+                    debug!("Without access skip: {:?}", tcu);
+                    debug!("Error with check uuid access: {:?}", err);
+                },
+            }
+        }
+
+        match res_comp_uuids.is_empty() {
+            true => {
+                Err(ServiceError::BadRequest(
+                    "Access denied".to_string()
+                ))
+            },
+            false => Ok(res_comp_uuids),
+        }
+    }
+
     /// Search all components uuids by target user (owner)
     pub(crate) fn get_uuids_by_user(
         target_user_uuid: &Uuid,
@@ -110,33 +149,6 @@ impl Component {
                     ServiceError::InternalServerError
                 })
         }
-    }
-
-    /// Gets components short data with checking access by uuids
-    pub(crate) fn get_by_uuids(
-        logged_user_uuid: &Uuid,
-        filter_components_uuids: &[Uuid],
-        set_lang_id: &i32,
-        conn: &PgConnection,
-    ) -> ServiceResult<Vec<ShowComponentShort>> {
-
-        let need_access_level = 3; // todo!(create enum for manage access level)
-
-        for tcu in filter_components_uuids {
-            check_access_component_for_user(
-                logged_user_uuid,
-                tcu,
-                &need_access_level,
-                conn
-            )?;
-        }
-
-        Component::get_without_check_by_uuids(
-            logged_user_uuid,
-            filter_components_uuids,
-            set_lang_id,
-            conn
-        )
     }
 
     /// Gets components short data without checking access
