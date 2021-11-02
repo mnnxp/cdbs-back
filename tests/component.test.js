@@ -845,7 +845,34 @@ describe('component', () => {
     done();
   });
 
-  // Testing favorite search
+  // Testing self components seatch
+  it('/graphql:Q Components - OK get self components', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `query {
+          components(userUuid: "${authorizationUserSecond}") {
+            ${componentsListQuery}
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK);
+    debug('/graphql body=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { components },
+    } = body;
+    expect(components[0].uuid).toBe(componentUuidNoStandard);
+    expect(components[0].name).toBe(nameComponent2);
+    expect(components.length).toBe(2);
+    done();
+  });
+
+  // Testing favorite components search
   it('/graphql:M ComponentFav - Ok add', async (done) => {
     const { body } = await agent
       .post('/graphql')

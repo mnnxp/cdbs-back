@@ -47,31 +47,31 @@ pub(crate) fn find_components(
                 conn
             )?
         },
-        // gets components authorized user with/without filter
-        (fc_uuids, false, ur_uuid, None) if Some(logged_user_uuid) == ur_uuid.as_ref() => {
-            // change flag for get data without check
-            flag_get_self_data = true;
-
-            Component::get_uuids_by_user(
-                logged_user_uuid,
-                fc_uuids,
-                conn
-            )?
-        },
-        // gets components with/without filter
-        (fc_uuids, false, None, None) => {
-            fc_uuids.to_vec()
-        },
-        // gets components user with/without filter
         (fc_uuids, false, Some(user_uuid), None) => {
-            if fc_uuids.is_empty() {
-                Component::get_uuids_by_user(
-                    user_uuid,
-                    fc_uuids,
-                    conn
-                )?
-            } else {
-                fc_uuids.to_vec()
+            match logged_user_uuid == user_uuid {
+                // gets components authorized user with/without filter
+                true => {
+                    // change flag for get data without check
+                    flag_get_self_data = true;
+
+                    Component::get_uuids_by_user(
+                        logged_user_uuid,
+                        fc_uuids,
+                        conn
+                    )?
+                },
+                // gets components user with/without filter
+                false => {
+                    if fc_uuids.is_empty() {
+                        Component::get_uuids_by_user(
+                            user_uuid,
+                            fc_uuids,
+                            conn
+                        )?
+                    } else {
+                        fc_uuids.to_vec()
+                    }
+                },
             }
         },
         // gets components from user favorite list with/without filter
@@ -90,6 +90,10 @@ pub(crate) fn find_components(
                 conn
             )?
         },
+        // gets components with/without filter
+        (fc_uuids, false, None, None) => {
+            fc_uuids.to_vec()
+        },
         // query with not correct parameters
         _ => {
             return Err(ServiceError::BadRequest(
@@ -98,7 +102,7 @@ pub(crate) fn find_components(
         },
     };
 
-    if flag_get_self_data && user_uuid.is_none() && company_uuid.is_none() {
+    if flag_get_self_data {
         Component::get_without_check_by_uuids(
             logged_user_uuid,
             &res_filter_uuids,

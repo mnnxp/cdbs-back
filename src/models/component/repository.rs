@@ -35,8 +35,7 @@ impl Component {
     ) -> ServiceResult<Vec<Uuid>> {
         if filter_components_uuids.is_empty() {
             component_ref::component_ref
-                .filter(component_ref::user_uuid.eq(target_user_uuid)
-                .and(component_ref::uuid.eq_any(filter_components_uuids)))
+                .filter(component_ref::user_uuid.eq(target_user_uuid))
                 .select(component_ref::uuid)
                 .load::<Uuid>(conn).map_err(|err| {
                     debug!("Fail load uuid list target user: {:?}", err);
@@ -44,7 +43,8 @@ impl Component {
                 })
         } else {
             component_ref::component_ref
-                .filter(component_ref::user_uuid.eq(target_user_uuid))
+                .filter(component_ref::user_uuid.eq(target_user_uuid)
+                .and(component_ref::uuid.eq_any(filter_components_uuids)))
                 .select(component_ref::uuid)
                 .load::<Uuid>(conn).map_err(|err| {
                     debug!("Fail load uuid list target user: {:?}", err);
