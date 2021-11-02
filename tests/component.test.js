@@ -2063,6 +2063,35 @@ describe('component', () => {
     done();
   });
 
+  // Testing get components from favorite list user
+  it('/graphql:Q List components - Ok by company', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `query selectComponentQuery{
+          components(
+            userUuid:  "${authorizationUserSecond}"
+            favorite:  true
+          ) {
+            ${componentsListQuery}
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    // expect(body).toBe(0);
+    expect(body.data.components).toBeNonEmptyArray();
+    expect(body.data.components[0].uuid).toBe(componentUuidStandard);
+    expect(body.data.components[0].ownerUser.username).toBe(username);
+    expect(body.data.components[0].isFollowed).toBe(false);
+    expect(body.data.components.length).toBe(1);
+    done();
+  });
+
   // Testing get components by company uuids (company don't has components)
   it('/graphql:Q List components - Ok by company', async (done) => {
     const { body } = await agent
