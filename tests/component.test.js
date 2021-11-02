@@ -2063,6 +2063,27 @@ describe('component', () => {
     done();
   });
 
+  // Testing get components by company uuids (company don't has components)
+  it('/graphql:Q List components - Ok by company', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `query selectComponentQuery{
+          components(companyUuid:  "${companyUuidSupplier}") {
+            ${componentsListQuery}
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    expect(body.data.components).toBeEmptyArray();
+    done();
+  });
+
   it('/graphql:Q List components - BadRequest no access', async (done) => {
     const { body } = await agent
       .post('/graphql')
@@ -2258,6 +2279,30 @@ describe('component', () => {
       'BadRequest: This supplier is already with the component'
     );
     expect(body.errors[0].path[0]).toBe('addComponentSupplier');
+    done();
+  });
+
+  // Testing get components by company (has one component)
+  it('/graphql:Q List components - Ok by company', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `query selectComponentQuery{
+          components(companyUuid:  "${companyUuidSupplier}") {
+            ${componentsListQuery}
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    expect(body.data.components).toBeNonEmptyArray();
+    expect(body.data.components[0].uuid).toBe(componentUuidStandard);
+    expect(body.data.components[0].ownerUser.username).toBe(username);
+    expect(body.data.components.length).toBe(1);
     done();
   });
 
