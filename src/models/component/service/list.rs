@@ -1,81 +1,118 @@
 use crate::errors::{ServiceResult, ServiceError};
-use crate::models::component::model::{ShowComponentShort, ComponentAndRelatedData};
+use crate::models::component::model::{
+    Component, ShowComponentShort, ComponentAndRelatedData
+};
 use crate::models::component::access::util::check_access_component_for_user;
 use diesel::prelude::*;
 // use diesel::PgConnection;
 use uuid::Uuid;
 
+/// Gets components short data with filter by:
+/// uuids, favorite list, user_uuid, company_uuid
 pub(crate) fn find_components(
     logged_user_uuid: &Uuid,
-    target_components_uuids: &[Uuid],
+    filter_components_uuids: &[Uuid],
+    favorite: &bool,
+    user_uuid: &Option<Uuid>,
+    company_uuid: &Option<Uuid>,
     set_lang_id: &i32,
     conn: &PgConnection,
 ) -> ServiceResult<Vec<ShowComponentShort>> {
-    match target_components_uuids.is_empty() {
-        true => get_components_by_uuids(
-            logged_user_uuid,
-            &get_components_uuids_by_user(logged_user_uuid, conn)?,
-            set_lang_id,
-            conn
-        ),
-        false => get_components_by_uuids(
-            logged_user_uuid,
-            target_components_uuids,
-            set_lang_id,
-            conn
-        ),
+    // if components owner self user - collect data without check access
+    let mut flag_get_self_data = false;
+
+    // limit filter uuids
+    if filter_components_uuids.len() > 100 {
+        return Err(ServiceError::BadRequest(
+            "Maximum allowed filter less 100 components".to_string()
+        ));
     }
-}
 
-/// Find all components by target user (owner)
-fn get_components_uuids_by_user(
-    target_user_uuid: &Uuid,
-    conn: &PgConnection,
-) -> ServiceResult<Vec<Uuid>> {
-    use crate::schema::component_ref::dsl as component_ref;
+    // select target components uuids
+    let res_filter_uuids = match (
+        filter_components_uuids, // &[Uuid]
+        favorite, // &bool
+        user_uuid, // &Option<Uuid>
+        company_uuid,// &Option<Uuid>
+    ) {
+        // gets components of self favorite list
+        // for authorized user with/without filter
+        (fc_uuids, true, None, None) => {
+            // change flag for get data without check
+            flag_get_self_data = true;
 
-    let target_components_uuids = component_ref::component_ref
-        .filter(component_ref::user_uuid.eq(target_user_uuid))
-        .select(component_ref::uuid)
-        .load::<Uuid>(conn);
-
-    match target_components_uuids {
-        Ok(res) => Ok(res),
-        Err(err) => {
-            debug!("Fail load uuid list target user: {:?}", err);
-            Err(ServiceError::InternalServerError)
+            Component::get_fav_list_uuids_by_user(
+                logged_user_uuid,
+                fc_uuids,
+                conn
+            )?
         },
-    }
-}
+        // gets components authorized user with/without filter
+        (fc_uuids, false, ur_uuid, None) if Some(logged_user_uuid) == ur_uuid.as_ref() => {
+            // change flag for get data without check
+            flag_get_self_data = true;
 
-fn get_components_by_uuids(
-    logged_user_uuid: &Uuid,
-    target_components_uuids: &[Uuid],
-    set_lang_id: &i32,
-    conn: &PgConnection,
-) -> ServiceResult<Vec<ShowComponentShort>> {
+            Component::get_uuids_by_user(
+                logged_user_uuid,
+                fc_uuids,
+                conn
+            )?
+        },
+        // gets components with/without filter
+        (fc_uuids, false, None, None) => {
+            fc_uuids.to_vec()
+        },
+        // gets components user with/without filter
+        (fc_uuids, false, Some(user_uuid), None) => {
+            if fc_uuids.is_empty() {
+                Component::get_uuids_by_user(
+                    user_uuid,
+                    fc_uuids,
+                    conn
+                )?
+            } else {
+                fc_uuids.to_vec()
+            }
+        },
+        // gets components from user favorite list with/without filter
+        (fc_uuids, true, Some(user_uuid), None) => {
+            Component::get_fav_list_uuids_by_user(
+                user_uuid,
+                fc_uuids,
+                conn
+            )?
+        },
+        // gets components from company with/without filter
+        (fc_uuids, false, None, Some(company_uuid)) => {
+            Component::get_uuids_by_company(
+                company_uuid,
+                fc_uuids,
+                conn
+            )?
+        },
+        // query with not correct parameters
+        _ => {
+            return Err(ServiceError::BadRequest(
+                "Not correct parameters".to_string()
+            ));
+        },
+    };
 
-    let need_access_level = 3; // todo!(create enum for manage access level)
-
-    for tcu in target_components_uuids {
-        check_access_component_for_user(
+    if flag_get_self_data && user_uuid.is_none() && company_uuid.is_none() {
+        Component::get_without_check_by_uuids(
             logged_user_uuid,
-            tcu,
-            &need_access_level,
+            &res_filter_uuids,
+            set_lang_id,
             conn
-        )?;
+        )
+    } else {
+        Component::get_by_uuids(
+            logged_user_uuid,
+            &res_filter_uuids,
+            set_lang_id,
+            conn
+        )
     }
-
-    let result: Vec<ShowComponentShort> = ShowComponentShort::get_list_by_uuids(
-        target_components_uuids,
-        logged_user_uuid,
-        set_lang_id,
-        conn
-    ).expect("Error loading list components and collect short data");
-
-    debug!("Components data: {:#?}", result);
-
-    Ok(result)
 }
 
 pub(crate) fn find_component_uuid(

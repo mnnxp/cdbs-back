@@ -21,10 +21,9 @@ impl ComponentQuery {
         &self,
         cxt: &Context<'_>,
         components_uuids: Option<Vec<Uuid>>,
-        _favorite: Option<bool>,
-        _user_uuid: Option<Uuid>,
-        _user_fav_uuid: Option<Uuid>,
-        _company_uuid: Option<Uuid>,
+        favorite: Option<bool>,
+        user_uuid: Option<Uuid>,
+        company_uuid: Option<Uuid>,
     ) -> ServiceResult<Vec<ShowComponentShort>> {
         use crate::models::component::service::list::find_components;
 
@@ -32,12 +31,16 @@ impl ComponentQuery {
         let logged_user_uuid: Uuid = get_logged_user_uuid(cxt, true)?;
 
         let components_uuids: Vec<Uuid> = components_uuids.unwrap_or_default();
+        let favorite: bool = favorite.unwrap_or(false);
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
         find_components(
             &logged_user_uuid,
             &components_uuids,
+            &favorite,
+            &user_uuid,
+            &company_uuid,
             &crate::models::relate_ref::language::get_set_language(cxt),
             conn,
         )

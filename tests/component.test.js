@@ -845,6 +845,70 @@ describe('component', () => {
     done();
   });
 
+  // Testing favorite search
+  it('/graphql:M ComponentFav - Ok add', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `mutation {
+            addComponentFav(componentUuid: "${componentUuidStandard}")
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql addComponentFav body=%o', body);
+    expect(body.data.addComponentFav).toBe(true);
+    done();
+  });
+
+  it('/graphql:Q Fav list components - BadRequest no token', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .send({
+        query: `query {
+          components(favorite: true) {
+            ${componentsListQuery}
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+      debug('/graphql body=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Token not found.'
+    );
+    expect(body.errors[0].path[0]).toBe('components');
+    done();
+  });
+
+  it('/graphql:Q Fav list components - OK', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `query {
+          components(favorite: true) {
+            ${componentsListQuery}
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK);
+    debug('/graphql body=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { components },
+    } = body;
+    expect(components[0].uuid).toBe(componentUuidStandard);
+    expect(components[0].name).toBe(nameComponent);
+    done();
+  });
+
   // Testing update component data
   it('/graphql:M putComponentUpdate - BadRequest no token', async (done) => {
     const { body } = await agent
@@ -1948,7 +2012,7 @@ describe('component', () => {
     expect(component.ownerUser.imageFile.uuid).toBeNonEmptyString();
     expect(component.componentType.componentType).toBeNonEmptyString();
     expect(component.actualStatus.name).toBeNonEmptyString();
-    expect(component.subscribers).toBe(0);
+    expect(component.subscribers).toBe(1);
     done();
   });
 

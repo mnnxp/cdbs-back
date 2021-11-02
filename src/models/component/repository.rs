@@ -1,4 +1,4 @@
-use crate::errors::ServiceResult;
+use crate::errors::{ServiceResult, ServiceError};
 use crate::models::component::model::{Component, ShowComponentShort, ComponentAndRelatedData};
 use crate::models::component::actual_status::model::ActualStatusTranslateList;
 use crate::models::component::component_type::model::ComponentTypeTranslateList;
@@ -12,12 +12,13 @@ use crate::models::relate_ref::license::model::License;
 use crate::models::relate_ref::keyword::model::Keyword;
 use crate::models::relate_ref::file::model::ShowFileForDownload;
 use crate::schema::component_ref::dsl as component_ref;
+use crate::models::component::access::util::check_access_component_for_user;
 use diesel::prelude::*;
 use uuid::Uuid;
 
 impl Component {
     /// Get component data from component_ref table by uuid
-    pub fn get_component_by_uuid(
+    pub(crate) fn get_component_by_uuid(
         target_component_uuid: &Uuid,
         conn: &PgConnection,
     ) -> ServiceResult<Component> {
@@ -25,10 +26,142 @@ impl Component {
             .filter(component_ref::uuid.eq(target_component_uuid))
             .first::<Component>(conn)?)
     }
+
+    /// Search all components uuids by target user (owner)
+    pub(crate) fn get_uuids_by_user(
+        target_user_uuid: &Uuid,
+        filter_components_uuids: &[Uuid],
+        conn: &PgConnection,
+    ) -> ServiceResult<Vec<Uuid>> {
+        if filter_components_uuids.is_empty() {
+            component_ref::component_ref
+                .filter(component_ref::user_uuid.eq(target_user_uuid)
+                .and(component_ref::uuid.eq_any(filter_components_uuids)))
+                .select(component_ref::uuid)
+                .load::<Uuid>(conn).map_err(|err| {
+                    debug!("Fail load uuid list target user: {:?}", err);
+                    ServiceError::InternalServerError
+                })
+        } else {
+            component_ref::component_ref
+                .filter(component_ref::user_uuid.eq(target_user_uuid))
+                .select(component_ref::uuid)
+                .load::<Uuid>(conn).map_err(|err| {
+                    debug!("Fail load uuid list target user: {:?}", err);
+                    ServiceError::InternalServerError
+                })
+        }
+    }
+
+    /// Search favorite components uuids with filter by user uuid
+    pub(crate) fn get_fav_list_uuids_by_user(
+        target_user_uuid: &Uuid,
+        filter_components_uuids: &[Uuid],
+        conn: &PgConnection,
+    ) -> ServiceResult<Vec<Uuid>> {
+        use crate::schema::component_fav::dsl as component_fav;
+
+        if filter_components_uuids.is_empty() {
+            component_fav::component_fav
+                .filter(component_fav::user_uuid.eq(target_user_uuid)
+                .and(component_fav::is_enabled.eq(true)))
+                .select(component_fav::component_uuid)
+                .load::<Uuid>(conn).map_err(|err| {
+                    debug!("Fail load uuid list target user: {:?}", err);
+                    ServiceError::InternalServerError
+                })
+        } else {
+            component_fav::component_fav
+                .filter(component_fav::user_uuid.eq(target_user_uuid)
+                .and(component_fav::is_enabled.eq(true))
+                .and(component_fav::component_uuid.eq_any(filter_components_uuids)))
+                .select(component_fav::component_uuid)
+                .load::<Uuid>(conn).map_err(|err| {
+                    debug!("Fail load uuid list target user: {:?}", err);
+                    ServiceError::InternalServerError
+                })
+        }
+    }
+
+    /// Search company components uuids with filter by company uuid
+    /// collecting all uuids when related with company
+    pub(crate) fn get_uuids_by_company(
+        target_company_uuid: &Uuid,
+        filter_components_uuids: &[Uuid],
+        conn: &PgConnection,
+    ) -> ServiceResult<Vec<Uuid>> {
+        use crate::schema::supplier_to_component::dsl as supplier_to_component;
+
+        if filter_components_uuids.is_empty() {
+            supplier_to_component::supplier_to_component
+                .filter(supplier_to_component::company_uuid.eq(target_company_uuid))
+                .select(supplier_to_component::component_uuid)
+                .load::<Uuid>(conn).map_err(|err| {
+                    debug!("Fail load uuid list target user: {:?}", err);
+                    ServiceError::InternalServerError
+                })
+        } else {
+            supplier_to_component::supplier_to_component
+                .filter(supplier_to_component::company_uuid.eq(target_company_uuid)
+                .and(supplier_to_component::component_uuid.eq_any(filter_components_uuids)))
+                .select(supplier_to_component::component_uuid)
+                .load::<Uuid>(conn).map_err(|err| {
+                    debug!("Fail load uuid list target user: {:?}", err);
+                    ServiceError::InternalServerError
+                })
+        }
+    }
+
+    /// Gets components short data with checking access by uuids
+    pub(crate) fn get_by_uuids(
+        logged_user_uuid: &Uuid,
+        filter_components_uuids: &[Uuid],
+        set_lang_id: &i32,
+        conn: &PgConnection,
+    ) -> ServiceResult<Vec<ShowComponentShort>> {
+
+        let need_access_level = 3; // todo!(create enum for manage access level)
+
+        for tcu in filter_components_uuids {
+            check_access_component_for_user(
+                logged_user_uuid,
+                tcu,
+                &need_access_level,
+                conn
+            )?;
+        }
+
+        Component::get_without_check_by_uuids(
+            logged_user_uuid,
+            filter_components_uuids,
+            set_lang_id,
+            conn
+        )
+    }
+
+    /// Gets components short data without checking access
+    pub(crate) fn get_without_check_by_uuids(
+        logged_user_uuid: &Uuid,
+        filter_components_uuids: &[Uuid],
+        set_lang_id: &i32,
+        conn: &PgConnection,
+    ) -> ServiceResult<Vec<ShowComponentShort>> {
+
+        let result: Vec<ShowComponentShort> = ShowComponentShort::get_list_by_uuids(
+            filter_components_uuids,
+            logged_user_uuid,
+            set_lang_id,
+            conn
+        ).expect("Error loading list components and collect short data");
+
+        debug!("Components data: {:#?}", result);
+
+        Ok(result)
+    }
 }
 
 impl ShowComponentShort {
-    pub fn get_list_by_uuids(
+    pub(crate) fn get_list_by_uuids(
         target_components_uuids: &[Uuid],
         target_user_uuid: &Uuid,
         set_lang_id: &i32,
@@ -111,7 +244,7 @@ impl ShowComponentShort {
 
 impl ComponentAndRelatedData {
     /// Collecting component data and related data using uuid
-    pub fn collect_related_data(
+    pub(crate) fn collect_related_data(
         target_component_uuid: &Uuid,
         target_user_uuid: &Uuid,
         set_lang_id: &i32,
