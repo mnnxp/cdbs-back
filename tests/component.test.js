@@ -1980,6 +1980,27 @@ describe('component', () => {
     done();
   });
 
+  it('/graphql:Q List components - OK without params', async (done) => {
+    const response1 = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `query {
+          components {
+            ${componentsListQuery}
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql filter components=%o', response1.body.data.components);
+    expect(response1.body.data.components[0].uuid).toBe(componentUuidNoStandard);
+    expect(response1.body.data.components[0].name).toBe(nameComponent2);
+    done();
+  });
+
   it('/graphql:Q List components - OK for 2 uuids', async (done) => {
     const { body } = await agent
       .post('/graphql')

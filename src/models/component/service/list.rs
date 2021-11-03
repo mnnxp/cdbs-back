@@ -94,14 +94,20 @@ pub(crate) fn find_components(
         },
         // gets components with/without filter
         (fc_uuids, _, _, _) => { // (fc_uuids, false, None, None)
-            if fc_uuids.is_empty() {
-                // if not set param and no filter
-                return Err(ServiceError::BadRequest(
-                    "Not correct parameters".to_string()
-                ));
-            }
+            match fc_uuids.is_empty() {
+                true => {
+                    flag_get_self_data = true;
 
-            fc_uuids.to_vec()
+                    Component::get_uuids_by_user(
+                        logged_user_uuid,
+                        fc_uuids,
+                        conn
+                    )?
+                },
+                false => {
+                    fc_uuids.to_vec()
+                },
+            }
         },
         // query with not correct parameters
         // _ => {
