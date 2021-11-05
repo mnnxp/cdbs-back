@@ -3,7 +3,7 @@ name = "cdbs-back"
 version = "0.1.0"
 authors = ["mnnxp <mananaxep@gmail.com>"]
 edition = "2021"
-resolver = "2"
+resolver = "1"
 rust-version = "1.56.0"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -23,8 +23,8 @@ reqwest = { version = "0.10.8", features = ["json"] }
 diesel = { version = "1.4", features = ["postgres", "uuidv07", "uuid", "chrono", "r2d2"] }
 r2d2 = "0.8"
 
-async-graphql = { version = "2.9.10", default-features = false, features = ["chrono", "uuid"] }
-async-graphql-actix-web = "2.9.10"
+async-graphql = { version = "2.11.0", default-features = false, features = ["chrono", "uuid"] }
+async-graphql-actix-web = "2.11.0"
 
 uuid = { version = "0.8", features = ["serde", "v4"] }
 time = "0.3"
