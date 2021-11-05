@@ -18,7 +18,7 @@ pub async fn build_schema(pool: Pool) -> ActixSchema {
         MutationRoot::default(),
         EmptySubscription,
     )
-    .enable_federation()
+    // .enable_federation()
     .data(pool)
     .finish()
 }
