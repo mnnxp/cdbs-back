@@ -11,7 +11,6 @@ use crate::models::component::access::company::model::{
 use crate::models::component::access::user::model::{
     IptUserAccessComponentData, DelUserAccessComponentData
 };
-use crate::models::component::component_fav::model::ComponentFav;
 use crate::models::component::keyword as component_keyword;
 use crate::models::component::keyword::model::IptComponentKeywordData;
 use crate::models::component::license::model::IptComponentLicenseData;
@@ -412,25 +411,6 @@ impl ComponentMutation {
         )
     }
 
-    // This fn moved to company_mutation
-    // async fn add_supplier_component(
-    //     &self,
-    //     cxt: &Context<'_>,
-    //     data: IptSupplierComponentData,
-    // ) -> ServiceResult<bool> {
-    //     use component_supplier::service::add::add_component_base_supplier;
-    //
-    //     let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
-    //
-    //     let conn: &PooledConnection = &get_conn(cxt)?;
-    //
-    //     add_component_base_supplier(
-    //         &logged_user_uuid,
-    //         &data,
-    //         conn
-    //     )
-    // }
-
     async fn delete_suppliers_component(
         &self,
         cxt: &Context<'_>,
@@ -683,24 +663,6 @@ impl ComponentMutation {
         del_file_from_fileset(
             &logged_user_uuid,
             &data,
-            conn
-        )
-    }
-
-    async fn add_component_favorite(
-        &self,
-        cxt: &Context<'_>,
-        component_uuid: Uuid,
-    ) -> ServiceResult<ComponentFav> {
-        use crate::models::component::component_fav::service::add::add_component_favorite;
-
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
-
-        let conn: &PooledConnection = &get_conn(cxt)?;
-
-        add_component_favorite(
-            &logged_user_uuid,
-            &component_uuid,
             conn
         )
     }
