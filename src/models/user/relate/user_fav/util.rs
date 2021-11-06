@@ -1,4 +1,4 @@
-use crate::errors::ServiceResult;
+use crate::errors::{ServiceResult, ServiceError};
 use crate::schema::user_fav::dsl as user_fav;
 use diesel::prelude::*;
 use uuid::Uuid;
@@ -11,12 +11,13 @@ pub(crate) fn check_subscriber_by_uuid(
 ) -> ServiceResult<bool> {
     let check_subscriber = user_fav::user_fav
         .filter(user_fav::user_favorite_uuid.eq(target_user_uuid)
-        .and(user_fav::user_follower_uuid.eq(logged_user_uuid)))
+        .and(user_fav::user_follower_uuid.eq(logged_user_uuid))
+        .and(user_fav::is_enabled.eq(true)))
         .execute(conn)
-        .expect("Fail load uuid list target user");
+        .map_err(|err| {
+            debug!("Fail load uuid list target user: {:?}", err);
+            ServiceError::InternalServerError
+        })?;
 
-    match check_subscriber {
-        0 => Ok(false),
-        _ => Ok(true),
-    }
+    Ok(matches!(check_subscriber, x if x > 0))
 }

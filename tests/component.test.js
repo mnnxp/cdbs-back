@@ -989,6 +989,77 @@ describe('component', () => {
     done();
   });
 
+  // Testing get components from favorite list user
+  it('/graphql:Q List components - Ok favorite list by user', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `query selectComponentQuery{
+          components(
+            userUuid:  "${authorizationUserSecond}"
+            favorite:  true
+          ) {
+            ${componentsListQuery}
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    // expect(body).toBe(0);
+    expect(body.data.components).toBeNonEmptyArray();
+    expect(body.data.components[0].uuid).toBe(componentUuidStandard);
+    expect(body.data.components[0].ownerUser.username).toBe(username);
+    expect(body.data.components[0].isFollowed).toBe(false);
+    expect(body.data.components.length).toBe(1);
+    done();
+  });
+
+  it('/graphql:M ComponentFav - Ok delete', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `mutation {
+            deleteComponentFav(componentUuid: "${componentUuidStandard}")
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql deleteComponentFav body=%o', body);
+    expect(body.data.deleteComponentFav).toBe(true);
+    done();
+  });
+
+  it('/graphql:Q Fav list components - OK', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `query {
+          components(favorite: true) {
+            ${componentsListQuery}
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK);
+    debug('/graphql body=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { components },
+    } = body;
+    expect(components).toBeEmptyArray();
+    done();
+  });
+
   // Testing update component data
   it('/graphql:M putComponentUpdate - BadRequest no token', async (done) => {
     const { body } = await agent
@@ -2085,7 +2156,7 @@ describe('component', () => {
   });
 
   // Testing get components from favorite list user
-  it('/graphql:Q List components - Ok by company', async (done) => {
+  it('/graphql:Q List components - Ok not found fav by user', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .set(
@@ -2105,11 +2176,7 @@ describe('component', () => {
       .expect(HttpStatus.OK)
     debug('/graphql body=%o', body);
     // expect(body).toBe(0);
-    expect(body.data.components).toBeNonEmptyArray();
-    expect(body.data.components[0].uuid).toBe(componentUuidStandard);
-    expect(body.data.components[0].ownerUser.username).toBe(username);
-    expect(body.data.components[0].isFollowed).toBe(false);
-    expect(body.data.components.length).toBe(1);
+    expect(body.data.components).toBeEmptyArray();;
     done();
   });
 
