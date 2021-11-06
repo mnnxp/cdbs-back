@@ -9,35 +9,6 @@ pub struct Notification {
     pub notification: String,
     pub degree_importance_id: i32,
     pub created_at: NaiveDateTime,
-    pub is_read: bool,
-}
-
-#[Object]
-impl Notification {
-    async fn id(&self) -> &i32 {
-        &self.id
-    }
-    async fn notification(&self) -> &String {
-        &self.notification
-    }
-    async fn degree_importance_id(&self) -> &i32 {
-        &self.degree_importance_id
-    }
-    async fn created_at(&self) -> &NaiveDateTime {
-        &self.created_at
-    }
-    async fn is_read(&self) -> &bool {
-        &self.is_read
-    }
-}
-
-#[derive(Debug, Insertable)]
-#[table_name = "notification_ref"]
-pub struct InsertableNotification {
-    pub notification: String,
-    pub degree_importance_id: i32,
-    pub created_at: NaiveDateTime,
-    pub is_read: bool,
 }
 
 #[derive(Debug, Clone)]
@@ -69,24 +40,45 @@ impl NotificationType {
 
 #[derive(Debug, Serialize, Clone)]
 pub struct ShowNotification {
+    pub id: i32,
     pub notification: String,
     pub degree_importance_id: i32,
+    pub created_at: NaiveDateTime,
     pub is_read: bool,
 }
 
-impl From<&Notification> for ShowNotification {
-    fn from(notification: &Notification) -> Self {
-        let Notification {
-            notification,
-            degree_importance_id,
-            is_read,
-            ..
-        } = notification;
+#[Object]
+impl ShowNotification {
+    async fn id(&self) -> &i32 {
+        &self.id
+    }
+    async fn notification(&self) -> &String {
+        &self.notification
+    }
+    async fn degree_importance_id(&self) -> &i32 {
+        &self.degree_importance_id
+    }
+    async fn created_at(&self) -> &NaiveDateTime {
+        &self.created_at
+    }
+    async fn is_read(&self) -> &bool {
+        &self.is_read
+    }
+}
+
+impl From<(&Notification, &NotificationToUser)> for ShowNotification {
+    fn from(data: (&Notification, &NotificationToUser)) -> Self {
+        let is_read = match data.1.notification_id == data.0.id {
+            true => data.1.is_read,
+            false => false,
+        };
 
         Self {
-            notification: notification.to_string(),
-            degree_importance_id: *degree_importance_id,
-            is_read: *is_read,
+            id: data.0.id,
+            notification: data.0.notification.to_string(),
+            degree_importance_id: data.0.degree_importance_id,
+            created_at: data.0.created_at,
+            is_read
         }
     }
 }
@@ -95,6 +87,7 @@ impl From<&Notification> for ShowNotification {
 pub struct NotificationToUser {
     pub notification_id: i32,
     pub user_uuid: Uuid,
+    pub is_read: bool,
 }
 
 #[derive(Debug, Insertable)]
@@ -102,6 +95,15 @@ pub struct NotificationToUser {
 pub struct InsertableNotificationToUser {
     pub notification_id: i32,
     pub user_uuid: Uuid,
+    pub is_read: bool,
+}
+
+#[derive(Debug, Insertable)]
+#[table_name = "notification_ref"]
+pub struct InsertableNotification {
+    pub notification: String,
+    pub degree_importance_id: i32,
+    pub created_at: NaiveDateTime,
 }
 
 impl From<&NotificationData> for InsertableNotification {
@@ -116,7 +118,6 @@ impl From<&NotificationData> for InsertableNotification {
             notification: notification.to_string(),
             degree_importance_id: degree_importance.get_id(),
             created_at: chrono::Local::now().naive_local(),
-            is_read: false,
         }
     }
 }

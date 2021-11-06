@@ -5,7 +5,7 @@ use crate::models::user::access::logged::{check_authorized, get_logged_user_uuid
 use crate::models::user::model::{
     ShowUserShort, SlimUser, UserAndRelatedData, ShowUserAndRelatedData
 };
-use crate::models::user::notification::model::Notification;
+use crate::models::user::notification::model::ShowNotification;
 use crate::models::user::access::model::UserToken;
 use crate::models::relate_ref::language::get_set_language;
 
@@ -214,7 +214,7 @@ impl UserQuery {
         select_ids: Option<Vec<i32>>,
         limit: Option<i32>,
         offset: Option<i32>,
-    ) -> ServiceResult<Vec<Notification>> {
+    ) -> ServiceResult<Vec<ShowNotification>> {
         use crate::models::user::notification::service::list::get_notifications;
         let select_ids: Vec<i32>  = select_ids.unwrap_or_default();
         let limit: i64 = limit.unwrap_or(100) as i64;
@@ -224,12 +224,12 @@ impl UserQuery {
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
-        Ok(get_notifications(
+        get_notifications(
             &logged_user_uuid,
             &select_ids,
             &limit,
             &offset,
             conn,
-        ))
+        )
     }
 }

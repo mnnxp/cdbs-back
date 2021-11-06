@@ -22,13 +22,14 @@ pub(crate) fn create_notification(
         .values(&insert_notification_data)
         .returning(notification_ref::id)
         .get_result::<i32>(conn)
-        .expect("Failed inser notification");
+        .expect("Failed insert notification");
 
     // debug!("fn input_user_uuid = {}", &input_user_uuid);
 
     let row_notification_to_user: InsertableNotificationToUser = InsertableNotificationToUser{
         notification_id,
         user_uuid: *target_user_uuid,
+        is_read: false,
     };
 
     // add row with notification id and target user
