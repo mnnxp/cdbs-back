@@ -173,6 +173,18 @@ const licenseIdErr = 2;
 const notificationUpdatePassword = "Updated password";
 var notificationId = 0;
 
+const showNotification = `\
+id \
+notification \
+degreeImportance { \
+  degreeImportanceId \
+  langId \
+  degree \
+} \
+createdAt \
+isRead \
+`;
+
 const showUserAndRelatedData = ` \
 uuid \
 firstname \
@@ -1453,11 +1465,7 @@ describe('users', () => {
       .send({
         query: `query  {
             notifications {
-              id
-              notification
-              degreeImportanceId
-              createdAt
-              isRead
+              ${showNotification}
             }
         }`,
       })
@@ -1481,11 +1489,7 @@ describe('users', () => {
       .send({
         query: `query  {
             notifications {
-              id
-              notification
-              degreeImportanceId
-              createdAt
-              isRead
+              ${showNotification}
             }
         }`,
       })
@@ -1497,11 +1501,12 @@ describe('users', () => {
     } = body;
     notificationId = notifications[0].id;
     expect(notifications[0]).toContainAllKeys([
-      "id", "notification", "degreeImportanceId",
+      "id", "notification", "degreeImportance",
       "createdAt", "isRead",
     ]);
     expect(notifications[0].notification).toBe(notificationUpdatePassword);
-    expect(notifications[0].degreeImportanceId).toBe(5);
+    expect(notifications[0].degreeImportance.degreeImportanceId).toBe(5);
+    expect(notifications[0].degreeImportance.degree).toBe("info");
     expect(notifications[0].isRead).toBe(false);
     done();
   });
@@ -1540,11 +1545,7 @@ describe('users', () => {
       .send({
         query: `query  {
             notifications {
-              id
-              notification
-              degreeImportanceId
-              createdAt
-              isRead
+              ${showNotification}
             }
         }`,
       })
@@ -1556,12 +1557,13 @@ describe('users', () => {
     } = body;
     notificationId = notifications[0].id;
     expect(notifications[0]).toContainAllKeys([
-      "id", "notification", "degreeImportanceId",
+      "id", "notification", "degreeImportance",
       "createdAt", "isRead",
     ]);
     expect(notifications[0].id).toBe(notificationId);
     expect(notifications[0].notification).toBe(notificationUpdatePassword);
-    expect(notifications[0].degreeImportanceId).toBe(5);
+    expect(notifications[0].degreeImportance.degreeImportanceId).toBe(5);
+    expect(notifications[0].degreeImportance.degree).toBe("info");
     expect(notifications[0].isRead).toBe(true);
     done();
   });

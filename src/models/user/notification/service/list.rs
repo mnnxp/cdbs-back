@@ -1,9 +1,10 @@
 use crate::errors::{ServiceResult, ServiceError};
 use crate::models::user::notification::model::{
-    Notification, NotificationToUser, ShowNotification,
+    Notification, NotificationToUser, ShowNotification, DegreeImportanceTranslateList,
 };
 use crate::schema::notification_ref::dsl as notification_ref;
 use crate::schema::notification_to_user::dsl as notification_to_user;
+use crate::schema::degree_importance_translate_list::dsl as degree_importance_translate_list;
 use diesel::prelude::*;
 use uuid::Uuid;
 
@@ -65,17 +66,11 @@ fn get_all(
             ServiceError::InternalServerError
         })?;
 
-    let mut res: Vec<ShowNotification> = Vec::new();
-    for x in get_list.iter() {
-        for y in get_data_list.iter() {
-            if x.notification_id == y.id {
-                res.push((y, x).into());
-                break;
-            }
-        }
-    }
-
-    Ok(res)
+    agregate_notifications(
+        &get_list,
+        &get_data_list,
+        conn
+    )
 }
 
 /// Gets notification for target user by ids list
@@ -110,14 +105,56 @@ fn get_by_ids(
             ServiceError::InternalServerError
         })?;
 
+    agregate_notifications(
+        &get_list,
+        &get_data_list,
+        conn
+    )
+}
+
+/// For collect data for ShowNotification from:
+/// notifications, relate user and degree translate
+fn agregate_notifications(
+    get_list: &[NotificationToUser],
+    get_data_list: &[Notification],
+    conn: &PgConnection,
+) -> ServiceResult<Vec<ShowNotification>> {
+    let mut degree_ids_list: Vec<i32> = Vec::new();
+    for value in get_data_list {
+        degree_ids_list.push(value.degree_importance_id)
+    }
+
+    let get_degrees_list = degree_importance_translate_list::degree_importance_translate_list
+        .filter(degree_importance_translate_list::degree_importance_id.eq_any(&degree_ids_list))
+        .load::<DegreeImportanceTranslateList>(conn)
+        .map_err(|err| {
+            debug!("Failed get notifications: {:?}", err);
+            ServiceError::InternalServerError
+        })?;
+
     let mut res: Vec<ShowNotification> = Vec::new();
-    for x in get_list.iter() {
-        for y in get_data_list.iter() {
-            if x.notification_id == y.id {
-                res.push((y, x).into());
+    for notif in get_data_list.iter() {
+        let mut notif_to_user = &NotificationToUser::default();
+        let mut degree_translate = &DegreeImportanceTranslateList::default();
+
+        for y in get_list {
+            if notif.id == y.notification_id {
+                notif_to_user = y;
                 break;
             }
         }
+
+        for z in &get_degrees_list {
+            if notif.degree_importance_id == z.degree_importance_id {
+                degree_translate = z;
+                // debug!("degree_translate in for: {:?}", degree_translate);
+                break;
+            }
+        }
+
+        // debug!("degree_translate out for: {:?}", degree_translate);
+
+        res.push((notif, notif_to_user, degree_translate).into());
     }
 
     Ok(res)
