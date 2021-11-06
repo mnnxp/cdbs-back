@@ -34,8 +34,8 @@ INSERT INTO component_fav (component_uuid, user_uuid) VALUES
 INSERT INTO standard_fav (standard_uuid, user_uuid) VALUES
   ('303ec2aa-2066-42e3-93fb-de4fb9344bcb', '31ecc6f8-0c09-4a59-a2d5-34b5b833e59b');
 
-INSERT INTO notification_to_user (notification_id, user_uuid) VALUES
-  (1, '31ecc6f8-0c09-4a59-a2d5-34b5b833e59b');
+INSERT INTO notification_to_user (notification_id, user_uuid, is_read) VALUES
+  (1, '31ecc6f8-0c09-4a59-a2d5-34b5b833e59b', 'f');
 
 INSERT INTO user_certificate_ref (file_uuid, user_uuid, description) VALUES
   ('ae496786-33f9-4727-a0fb-9c6702a3f30a', '31ecc6f8-0c09-4a59-a2d5-34b5b833e59b', 'user certificate');

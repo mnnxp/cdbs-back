@@ -396,7 +396,6 @@ table! {
         notification -> Varchar,
         degree_importance_id -> Int4,
         created_at -> Timestamp,
-        is_read -> Bool,
     }
 }
 
@@ -404,6 +403,7 @@ table! {
     notification_to_user (notification_id, user_uuid) {
         notification_id -> Int4,
         user_uuid -> Uuid,
+        is_read -> Bool,
     }
 }
 

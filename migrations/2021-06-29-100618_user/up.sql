@@ -113,6 +113,7 @@ CREATE TABLE standard_fav (
 CREATE TABLE notification_to_user (
   notification_id INTEGER NOT NULL, /* идентификатор уведомления */
   user_uuid UUID NOT NULL, /* идентификатор профиля */
+  is_read BOOLEAN NOT NULL DEFAULT 'f', /* статус прочтения */
   CONSTRAINT notification_to_user_pk PRIMARY KEY (notification_id, user_uuid)
 );
 

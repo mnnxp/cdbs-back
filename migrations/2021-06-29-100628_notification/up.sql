@@ -5,7 +5,6 @@ CREATE TABLE notification_ref (
   notification VARCHAR(2000) NOT NULL, /* наименование уведомления */
   degree_importance_id INTEGER NOT NULL, /* степень важности уведомления */
   created_at TIMESTAMP NOT NULL DEFAULT NOW(), /* дата публикации */
-  is_read BOOLEAN NOT NULL DEFAULT 'f', /* статус прочтения */
   CONSTRAINT notification_ref_pk PRIMARY KEY (id)
 );
 

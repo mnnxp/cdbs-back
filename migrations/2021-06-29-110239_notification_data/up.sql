@@ -1,7 +1,7 @@
 -- Your SQL goes here
 INSERT INTO notification_ref (notification, degree_importance_id,
-  created_at, is_read) VALUES
-  ('warning, this is 1th notification', 5, now(), 'f');
+  created_at) VALUES
+  ('warning, this is 1th notification', 5, now());
 
 INSERT INTO degree_importance_ref (id) VALUES
   (1),
