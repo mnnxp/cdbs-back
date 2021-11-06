@@ -3,9 +3,9 @@ use diesel::prelude::*;
 use uuid::Uuid;
 
 /// Delete notifications logged user
-pub(crate) fn delete_notification(
+pub(crate) fn delete_notifications(
     logged_user_uuid: &Uuid,
-    notification_ids: &[i32],
+    notifications_ids: &[i32],
     conn: &PgConnection,
 ) -> ServiceResult<i32> {
     use crate::schema::notification_ref::dsl as notification_ref;
@@ -14,7 +14,7 @@ pub(crate) fn delete_notification(
     // find notification and check privileges for delete
     let find_notifications = notification_to_user::notification_to_user
         .filter(notification_to_user::user_uuid.eq(logged_user_uuid)
-        .and(notification_to_user::notification_id.eq_any(notification_ids)))
+        .and(notification_to_user::notification_id.eq_any(notifications_ids)))
         .select(notification_to_user::notification_id)
         .load::<i32>(conn)
         .expect("Not found notification");

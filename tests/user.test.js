@@ -1521,7 +1521,7 @@ describe('users', () => {
       .send({
         query: `mutation  {
             readNotification(
-              notificationId: ${notificationId}
+              notificationsIds: ${notificationId}
             )
         }`,
       })
@@ -1578,7 +1578,7 @@ describe('users', () => {
       .send({
         query: `mutation  {
             deleteNotification(
-              notificationIds: ${notificationId}
+              notificationsIds: ${notificationId}
             )
         }`,
       })
@@ -1602,7 +1602,7 @@ describe('users', () => {
       .send({
         query: `mutation  {
             deleteNotification(
-              notificationIds: ${notificationId}
+              notificationsIds: ${notificationId}
             )
         }`,
       })

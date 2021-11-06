@@ -346,17 +346,17 @@ impl UserMutation {
     async fn read_notification(
         &self,
         cxt: &Context<'_>,
-        notification_id: i32,
+        notifications_ids: Vec<i32>,
     ) -> ServiceResult<bool> {
-        use crate::models::user::notification::service::update::notification_is_read;
+        use crate::models::user::notification::service::update::set_notifications_as_read;
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
-        notification_is_read(
+        set_notifications_as_read(
             &logged_user_uuid,
-            &notification_id,
+            &notifications_ids,
             conn,
         )
     }
@@ -364,17 +364,17 @@ impl UserMutation {
     async fn delete_notification(
         &self,
         cxt: &Context<'_>,
-        notification_ids: Vec<i32>,
+        notifications_ids: Vec<i32>,
     ) -> ServiceResult<i32> {
-        use crate::models::user::notification::service::delete::delete_notification;
+        use crate::models::user::notification::service::delete::delete_notifications;
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
-        delete_notification(
+        delete_notifications(
             &logged_user_uuid,
-            &notification_ids,
+            &notifications_ids,
             conn,
         )
     }

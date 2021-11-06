@@ -2606,6 +2606,142 @@ describe('company', () => {
     done();
   });
 
+  // Testing favorite standards search
+  it('/graphql:M StandardFav - Ok add', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `mutation {
+            addStandardFav(standardUuid: "${standardUuidFirst}")
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql addStandardFav body=%o', body);
+    expect(body.data.addStandardFav).toBe(true);
+    done();
+  });
+
+  // it('/graphql:Q Fav list standards - BadRequest no token', async (done) => {
+  //   const { body } = await agent
+  //     .post('/graphql')
+  //     .send({
+  //       query: `query {
+  //         standards(favorite: true) {
+  //           ${standardsListQuery}
+  //         }
+  //       }`,
+  //     })
+  //     .expect(HttpStatus.OK);
+  //   debug('/graphql body=%o', body);
+  //   expect(body.data).toBeNull();
+  //   expect(body.errors[0].message).toBe(
+  //     'BadRequest: Token not found.'
+  //   );
+  //   expect(body.errors[0].path[0]).toBe('standards');
+  //   done();
+  // });
+
+  // it('/graphql:Q Fav list standards - OK', async (done) => {
+  //   const { body } = await agent
+  //     .post('/graphql')
+  //     .set(
+  //       'Authorization',
+  //       `Bearer ${authorizationTokenSecond}`
+  //     )
+  //     .send({
+  //       query: `query {
+  //         standards(favorite: true) {
+  //           ${standardsListQuery}
+  //         }
+  //       }`,
+  //     })
+  //     .expect(HttpStatus.OK);
+  //   debug('/graphql body=%o', body);
+  //   // expect(body).toBe(0);
+  //   const {
+  //     data: { standards },
+  //   } = body;
+  //   expect(standards[0].uuid).toBe(standardUuidFirst);
+  //   expect(standards[0].name).toBe(nameComponent);
+  //   expect(standards[0].isFollowed).toBe(true);
+  //   done();
+  // });
+
+  // Testing get standards from favorite list user
+  // it('/graphql:Q List standards - Ok favorite list by user', async (done) => {
+  //   const { body } = await agent
+  //     .post('/graphql')
+  //     .set(
+  //       'Authorization',
+  //       `Bearer ${authorizationTokenFirst}`
+  //     )
+  //     .send({
+  //       query: `query selectComponentQuery{
+  //         standards(
+  //           userUuid:  "${authorizationUserSecond}"
+  //           favorite:  true
+  //         ) {
+  //           ${standardsListQuery}
+  //         }
+  //       }`,
+  //     })
+  //     .expect(HttpStatus.OK)
+  //   debug('/graphql body=%o', body);
+  //   // expect(body).toBe(0);
+  //   expect(body.data.standards).toBeNonEmptyArray();
+  //   expect(body.data.standards[0].uuid).toBe(standardUuidFirst);
+  //   expect(body.data.standards[0].ownerUser.username).toBe(username);
+  //   expect(body.data.standards[0].isFollowed).toBe(false);
+  //   expect(body.data.standards.length).toBe(1);
+  //   done();
+  // });
+
+  it('/graphql:M StandardFav - Ok delete', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `mutation {
+            deleteStandardFav(standardUuid: "${standardUuidFirst}")
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql deleteStandardFav body=%o', body);
+    expect(body.data.deleteStandardFav).toBe(true);
+    done();
+  });
+
+  // it('/graphql:Q Fav list standards - OK', async (done) => {
+  //   const { body } = await agent
+  //     .post('/graphql')
+  //     .set(
+  //       'Authorization',
+  //       `Bearer ${authorizationTokenSecond}`
+  //     )
+  //     .send({
+  //       query: `query {
+  //         standards(favorite: true) {
+  //           ${standardsListQuery}
+  //         }
+  //       }`,
+  //     })
+  //     .expect(HttpStatus.OK);
+  //   debug('/graphql body=%o', body);
+  //   // expect(body).toBe(0);
+  //   const {
+  //     data: { standards },
+  //   } = body;
+  //   expect(standards).toBeEmptyArray();
+  //   done();
+  // });
+
   // disable access for authorizationTokenSecond
   it('/graphql:M deleteUserAccessStandard - OK delete access user', async (done) => {
     const { body } = await agent

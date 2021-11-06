@@ -3,9 +3,9 @@ use diesel::prelude::*;
 use uuid::Uuid;
 
 /// Update is_read is true for target notification
-pub(crate) fn notification_is_read(
+pub(crate) fn set_notifications_as_read(
     logged_user_uuid: &Uuid,
-    notification_id: &i32,
+    notifications_ids: &[i32],
     conn: &PgConnection,
 ) -> ServiceResult<bool> {
     // use crate::schema::notification_ref::dsl as notification_ref;
@@ -13,7 +13,7 @@ pub(crate) fn notification_is_read(
 
     // check notification for logged user
     let res_change = diesel::update(notification_to_user::notification_to_user)
-        .filter(notification_to_user::notification_id.eq(notification_id)
+        .filter(notification_to_user::notification_id.eq_any(notifications_ids)
         .and(notification_to_user::user_uuid.eq(logged_user_uuid)))
         .set(notification_to_user::is_read.eq(true))
         .execute(conn)
@@ -22,5 +22,5 @@ pub(crate) fn notification_is_read(
             ServiceError::InternalServerError
         })?;
 
-    Ok(matches!(res_change, 1_usize))
+    Ok(matches!(res_change, x if x > 0))
 }
