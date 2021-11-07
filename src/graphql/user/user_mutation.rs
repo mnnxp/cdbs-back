@@ -343,7 +343,7 @@ impl UserMutation {
         )
     }
 
-    async fn read_notification(
+    async fn read_notifications(
         &self,
         cxt: &Context<'_>,
         notifications_ids: Vec<i32>,
@@ -361,7 +361,7 @@ impl UserMutation {
         )
     }
 
-    async fn delete_notification(
+    async fn delete_notifications(
         &self,
         cxt: &Context<'_>,
         notifications_ids: Vec<i32>,

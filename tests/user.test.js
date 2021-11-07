@@ -1511,7 +1511,7 @@ describe('users', () => {
     done();
   });
 
-  it('/graphql:M readNotification - OK', async (done) => {
+  it('/graphql:M readNotifications - OK', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .set(
@@ -1520,18 +1520,18 @@ describe('users', () => {
       )
       .send({
         query: `mutation  {
-            readNotification(
+            readNotifications(
               notificationsIds: ${notificationId}
             )
         }`,
       })
       .expect(HttpStatus.OK)
-    debug('/graphql readNotification=%o', body);
+    debug('/graphql readNotifications=%o', body);
     // expect(body).toBe(0);
     const {
-      data: { readNotification },
+      data: { readNotifications },
     } = body;
-    expect(readNotification).toBe(true);
+    expect(readNotifications).toBe(true);
     done();
   });
 
@@ -1568,7 +1568,7 @@ describe('users', () => {
     done();
   });
 
-  it('/graphql:M deleteNotification - BadRequest someone else notice', async (done) => {
+  it('/graphql:M deleteNotifications - BadRequest someone else notice', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .set(
@@ -1577,22 +1577,22 @@ describe('users', () => {
       )
       .send({
         query: `mutation  {
-            deleteNotification(
+            deleteNotifications(
               notificationsIds: ${notificationId}
             )
         }`,
       })
       .expect(HttpStatus.OK)
-    debug('/graphql deleteNotification=%o', body);
+    debug('/graphql deleteNotifications=%o', body);
     // expect(body).toBe(0);
     const {
-      data: { deleteNotification },
+      data: { deleteNotifications },
     } = body;
-    expect(deleteNotification).toBe(0);
+    expect(deleteNotifications).toBe(0);
     done();
   });
 
-  it('/graphql:M deleteNotification - OK', async (done) => {
+  it('/graphql:M deleteNotifications - OK', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .set(
@@ -1601,18 +1601,18 @@ describe('users', () => {
       )
       .send({
         query: `mutation  {
-            deleteNotification(
+            deleteNotifications(
               notificationsIds: ${notificationId}
             )
         }`,
       })
       .expect(HttpStatus.OK)
-    debug('/graphql deleteNotification=%o', body);
+    debug('/graphql deleteNotifications=%o', body);
     // expect(body).toBe(0);
     const {
-      data: { deleteNotification },
+      data: { deleteNotifications },
     } = body;
-    expect(deleteNotification).toBe(1);
+    expect(deleteNotifications).toBe(1);
     done();
   });
 
