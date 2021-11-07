@@ -7,7 +7,7 @@ pub(crate) fn set_notifications_as_read(
     logged_user_uuid: &Uuid,
     notifications_ids: &[i32],
     conn: &PgConnection,
-) -> ServiceResult<bool> {
+) -> ServiceResult<i32> {
     // use crate::schema::notification_ref::dsl as notification_ref;
     use crate::schema::notification_to_user::dsl as notification_to_user;
 
@@ -22,5 +22,5 @@ pub(crate) fn set_notifications_as_read(
             ServiceError::InternalServerError
         })?;
 
-    Ok(matches!(res_change, x if x > 0))
+    Ok(res_change as i32)
 }

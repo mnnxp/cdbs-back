@@ -1531,7 +1531,7 @@ describe('users', () => {
     const {
       data: { readNotifications },
     } = body;
-    expect(readNotifications).toBe(true);
+    expect(readNotifications).toBe(1);
     done();
   });
 
