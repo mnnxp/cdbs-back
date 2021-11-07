@@ -31,6 +31,11 @@ pub(crate) fn check_access_user_for_user(
     need_access_level: &i32,
     conn: &PgConnection
 ) -> ServiceResult<bool> {
+    // return true if user request myself user
+    if logged_user_uuid == target_user_uuid {
+        return Ok(true);
+    }
+
     // get set type access for target user
     let access_type_user = get_access_type_user(
         target_user_uuid,

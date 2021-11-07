@@ -43,39 +43,20 @@ impl UserQuery {
         user_uuid: Option<Uuid>,
         username: Option<String>,
     ) -> ServiceResult<ShowUserAndRelatedData> {
-        use crate::models::user::service::list::{
-            find_user_by_uuid,
-            find_user_by_username,
-        };
+        use crate::models::user::service::list::get_user_data;
 
         // authorization check
         let logged_user_uuid: Uuid = get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
-        match (user_uuid, username) {
-            (Some(ref uu), _) => {
-                find_user_by_uuid(
-                    &logged_user_uuid,
-                    uu,
-                    &get_set_language(cxt),
-                    conn,
-                )
-            },
-            (_, Some(ref un)) => {
-                find_user_by_username(
-                    &logged_user_uuid,
-                    un,
-                    &get_set_language(cxt),
-                    conn,
-                )
-            },
-            _ => {
-                Err(crate::errors::ServiceError::BadRequest(
-                    "Need set userUuid or username".to_string()
-                ))
-            },
-        }
+        get_user_data(
+            &logged_user_uuid,
+            &user_uuid,
+            &username,
+            &get_set_language(cxt),
+            conn
+        )
     }
 
     // return SlimUser data auth user

@@ -1,10 +1,43 @@
-use crate::errors::ServiceResult;
+use crate::errors::{ServiceResult, ServiceError};
 use crate::models::user::access::util::check_access_user_for_user;
 use crate::models::user::model::{
     SlimUser, ShowUserShort, UserAndRelatedData, ShowUserAndRelatedData
 };
 use diesel::PgConnection;
 use uuid::Uuid;
+
+/// Gets user data by uuid or username
+pub(crate) fn get_user_data (
+    logged_user_uuid: &Uuid,
+    user_uuid: &Option<Uuid>,
+    username: &Option<String>,
+    set_lang_id: &i32,
+    conn: &PgConnection,
+) -> ServiceResult<ShowUserAndRelatedData> {
+    match (user_uuid, username) {
+        (Some(ref uu), _) => {
+            find_user_by_uuid(
+                logged_user_uuid,
+                uu,
+                set_lang_id,
+                conn,
+            )
+        },
+        (_, Some(ref un)) => {
+            find_user_by_username(
+                logged_user_uuid,
+                un,
+                set_lang_id,
+                conn,
+            )
+        },
+        _ => {
+            Err(ServiceError::BadRequest(
+                "Need set userUuid or username".to_string()
+            ))
+        },
+    }
+}
 
 pub(crate) fn find_users_by_uuids(
     logged_user_uuid: &Uuid,
