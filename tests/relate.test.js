@@ -42,7 +42,7 @@ const langId2 = 2;
 
 const specId5 = 5;
 const specPath5 = "ROOT / MECHANICS (DESIGN, MACHINERY) / MECHANICAL COMPONENTS / Mountings / Screws and bolts";
-const specPathSplit = "ROOT # MECHANICS (DESIGN, MACHINERY) # MECHANICAL COMPONENTS # Mountings # Screws and bolts";
+const specPathSplit5 = "ROOT # MECHANICS (DESIGN, MACHINERY) # MECHANICAL COMPONENTS # Mountings # Screws and bolts";
 
 async function cleanupParamDb() {
   return global.knex.raw('DELETE FROM param_ref WHERE id in (?,?)', [
