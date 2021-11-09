@@ -40,6 +40,10 @@ var paramIdTest2 = 1000000;
 const langId1 = 1;
 const langId2 = 2;
 
+const specId5 = 5;
+const specPath5 = "ROOT / MECHANICS (DESIGN, MACHINERY) / MECHANICAL COMPONENTS / Mountings / Screws and bolts";
+const specPathSplit = "ROOT # MECHANICS (DESIGN, MACHINERY) # MECHANICAL COMPONENTS # Mountings # Screws and bolts";
+
 async function cleanupParamDb() {
   return global.knex.raw('DELETE FROM param_ref WHERE id in (?,?)', [
     paramIdTest,
@@ -394,6 +398,93 @@ describe('param', () => {
       'BadRequest: Token not found.'
     );
     expect(body.errors[0].path[0]).toBe('params');
+    done();
+  });
+
+  // Testing get full path specification
+  it('/graphql:Q Spec path - BadRequest no token', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .send({
+        query: `query {
+            specPath (specId: 0)
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Token not found.'
+    );
+    expect(body.errors[0].path[0]).toBe('specPath');
+    done();
+  });
+
+  it('/graphql:Q Spec path - BadRequest id zero', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `query {
+            specPath (specId: 0)
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Spec not found'
+    );
+    expect(body.errors[0].path[0]).toBe('specPath');
+    done();
+  });
+
+  it('/graphql:Q Spec path - OK', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `query {
+            specPath (specId: ${specId5})
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    const {
+      data: { specPath }
+    } = body;
+    expect(specPath).toBe(specPath5);
+    done();
+  });
+
+  it('/graphql:Q Spec path - OK', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `query {
+            specPath (
+              specId: ${specId5}
+              splitChar: "#"
+            )
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { specPath }
+    } = body;
+    expect(specPath).toBe(specPathSplit5);
     done();
   });
 });
