@@ -74,7 +74,7 @@ fn get_path_from_specs(
     let split = format!(" {} ", split_char);
 
     for (i, sd) in specs_data.iter().enumerate() {
-
+        // no include splits before root level
         if i > 0 {
             path_spec += split.as_str();
         }
