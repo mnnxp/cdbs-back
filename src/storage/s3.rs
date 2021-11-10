@@ -13,7 +13,7 @@ pub(crate) struct Aws {
 
 impl Aws {
     /// Create new Aws access
-    pub fn new(
+    pub(crate) fn new(
         access_key_id: &str,
         secret_access_key: &str,
         region: &str,
@@ -52,7 +52,7 @@ impl Aws {
     }
 
     /// Generate url for file download
-    pub fn put_download_signed_url(
+    pub(crate) fn put_download_signed_url(
         &self,
         bucket: &str,
         path_file: &str,
@@ -76,7 +76,7 @@ impl Aws {
     }
 
     /// Generate url for file upload
-    pub fn get_upload_signed_url(
+    pub(crate) fn get_upload_signed_url(
         &self,
         bucket: &str,
         path_file: &str,

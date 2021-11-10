@@ -1,53 +1,52 @@
-use crate::errors::ServiceResult;
+use crate::errors::{ServiceResult, ServiceError};
 use crate::models::relate_ref::spec::model::{
-    // Spec,
-    SpecTranslateList,
+    Spec, SpecTranslateList,
 };
 use crate::schema::spec_translate_list::dsl as spec_translate_list;
+use crate::schema::spec_ref::dsl as spec_ref;
 use diesel::prelude::*;
 
-impl SpecTranslateList {
-    pub fn get_spec_by_id(
+impl Spec {
+    /// Gets spec data by id
+    pub(crate) fn get_by_id(
         target_spec_id: &i32,
-        set_lang_id: &i32,
         conn: &PgConnection,
-    ) -> ServiceResult<SpecTranslateList> {
-        let spec = spec_translate_list::spec_translate_list
-            .filter(spec_translate_list::spec_id.eq(target_spec_id)
-            .and(spec_translate_list::lang_id.eq(set_lang_id)))
-            .first::<SpecTranslateList>(conn);
-
-        // if not found data for set lang
-        match spec {
-            Ok(sc) => Ok(sc),
-            Err(err) => {
-                debug!("Not found set lang for spec: {:?}", err);
-                Ok(spec_translate_list::spec_translate_list
-                    .filter(spec_translate_list::spec_id.eq(target_spec_id))
-                    .first::<SpecTranslateList>(conn)?)
-            },
-        }
+    ) -> ServiceResult<Spec> {
+        Ok(spec_ref::spec_ref
+            .filter(spec_ref::id.eq(target_spec_id))
+            .first::<Spec>(conn)?)
     }
+}
 
-    pub fn get_spec_by_vec_id(
-        target_vec_spec_id: &[i32],
+impl SpecTranslateList {
+    /// Gets specs list by ids
+    /// with/witout filter
+    pub(crate) fn get_by_ids(
+        target_specs_ids: &[i32],
+        limit: &i32,
+        offset: &i32,
         set_lang_id: &i32,
         conn: &PgConnection,
     ) -> ServiceResult<Vec<SpecTranslateList>> {
-        let specs = spec_translate_list::spec_translate_list
-            .filter(spec_translate_list::spec_id.eq_any(target_vec_spec_id)
-            .and(spec_translate_list::lang_id.eq(set_lang_id)))
-            .load::<SpecTranslateList>(conn);
+        let mut query = spec_translate_list::spec_translate_list.into_boxed();
 
-        // if not found data for set lang
-        match specs {
-            Ok(scs) => Ok(scs),
-            Err(err) => {
-                debug!("Not found set lang for specs: {:?}", err);
-                Ok(spec_translate_list::spec_translate_list
-                    .filter(spec_translate_list::spec_id.eq_any(target_vec_spec_id))
-                    .load::<SpecTranslateList>(conn)?)
+        query = match target_specs_ids.is_empty() {
+            true => {
+                query.filter(spec_translate_list::lang_id.eq(set_lang_id))
             },
-        }
+            false => {
+                query.filter(spec_translate_list::spec_id.eq_any(target_specs_ids)
+                    .and(spec_translate_list::lang_id.eq(set_lang_id)))
+            },
+        };
+
+        query
+            .limit(*limit as i64)
+            .offset(*offset as i64)
+            .load::<SpecTranslateList>(conn)
+            .map_err(|err| {
+                debug!("Failed get specs: {:?}", err);
+                ServiceError::InternalServerError
+            })
     }
 }

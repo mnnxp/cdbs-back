@@ -9,7 +9,7 @@ use crate::models::component::actual_status::model::ActualStatusTranslateList;
 use diesel::prelude::*;
 
 impl ComponentModification {
-    pub fn for_component_without_related_data(
+    pub(crate) fn for_component_without_related_data(
         component: &Component,
         conn: &PgConnection,
     ) -> ServiceResult<Vec<ComponentModification>> {
@@ -19,7 +19,7 @@ impl ComponentModification {
 }
 
 impl ComponentModificationWithActualStatus {
-    pub fn for_component_modification_list(
+    pub(crate) fn for_component_modification_list(
         component_modification: &[ComponentModification],
         set_lang_id: &i32,
         conn: &PgConnection,
@@ -49,7 +49,7 @@ impl ComponentModificationWithActualStatus {
 
 
 impl ComponentModificationAndRelatedData {
-    pub fn for_component_modification_list(
+    pub(crate) fn for_component_modification_list(
         component_modification: &[ComponentModification],
         set_lang_id: &i32,
         conn: &PgConnection,

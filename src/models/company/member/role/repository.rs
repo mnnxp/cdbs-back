@@ -9,56 +9,56 @@ use crate::schema::role_member_translate_list::dsl::*;
 use diesel::prelude::*;
 
 impl RoleMember {
-    /// Get roles IDs have target access level
-    pub fn get_roles_for_type_access(
-        target_type_access: &i32,
-        conn: &PgConnection,
-    ) -> Vec<i32> {
-        use crate::schema::role_access::dsl::*;
-
-        let role = role_access
-            .filter(type_access_id.le(target_type_access))
-            .select(role_id)
-            .load::<i32>(conn);
-
-        // if not found data for set lang
-        match role {
-            Ok(rl) => rl,
-            Err(err) => {
-                debug!("Not found suitable roles: {:?}", err);
-
-                Vec::new()
-            },
-        }
-    }
+    // /// Get roles IDs have target access level
+    // pub(crate) fn get_roles_for_type_access(
+    //     target_type_access: &i32,
+    //     conn: &PgConnection,
+    // ) -> Vec<i32> {
+    //     use crate::schema::role_access::dsl::*;
+    //
+    //     let role = role_access
+    //         .filter(type_access_id.le(target_type_access))
+    //         .select(role_id)
+    //         .load::<i32>(conn);
+    //
+    //     // if not found data for set lang
+    //     match role {
+    //         Ok(rl) => rl,
+    //         Err(err) => {
+    //             debug!("Not found suitable roles: {:?}", err);
+    //
+    //             Vec::new()
+    //         },
+    //     }
+    // }
 }
 
 impl RoleMemberTranslateList {
-    /// Get role data with translate by role id
-    pub fn get_role_by_id(
-        target_role_id: &i32,
-        set_lang_id: &i32,
-        conn: &PgConnection,
-    ) -> ServiceResult<RoleMemberTranslateList> {
-        let role = role_member_translate_list
-            .filter(role_member_id.eq(target_role_id)
-            .and(lang_id.eq(set_lang_id)))
-            .first::<RoleMemberTranslateList>(conn);
-
-        // if not found data for set lang
-        match role {
-            Ok(rn) => Ok(rn),
-            Err(err) => {
-                debug!("Not found set lang for role: {:?}", err);
-                Ok(role_member_translate_list
-                    .filter(role_member_id.eq(target_role_id))
-                    .first::<RoleMemberTranslateList>(conn)?)
-            },
-        }
-    }
+    // /// Get role data with translate by role id
+    // pub(crate) fn get_role_by_id(
+    //     target_role_id: &i32,
+    //     set_lang_id: &i32,
+    //     conn: &PgConnection,
+    // ) -> ServiceResult<RoleMemberTranslateList> {
+    //     let role = role_member_translate_list
+    //         .filter(role_member_id.eq(target_role_id)
+    //         .and(lang_id.eq(set_lang_id)))
+    //         .first::<RoleMemberTranslateList>(conn);
+    //
+    //     // if not found data for set lang
+    //     match role {
+    //         Ok(rn) => Ok(rn),
+    //         Err(err) => {
+    //             debug!("Not found set lang for role: {:?}", err);
+    //             Ok(role_member_translate_list
+    //                 .filter(role_member_id.eq(target_role_id))
+    //                 .first::<RoleMemberTranslateList>(conn)?)
+    //         },
+    //     }
+    // }
 
     /// Get roles data with translate by roles IDs
-    pub fn get_roles_by_ids(
+    pub(crate) fn get_roles_by_ids(
         target_roles_ids: &[i32],
         set_lang_id: &i32,
         conn: &PgConnection,
@@ -108,7 +108,7 @@ impl RoleMemberAndRelatedData {
     // }
 
     /// Get roles by IDs for set lang
-    pub fn get_roles_by_ids(
+    pub(crate) fn get_roles_by_ids(
         target_roles_ids: &[i32],
         set_lang_id: &i32,
         conn: &PgConnection,
@@ -140,7 +140,7 @@ impl RoleMemberAndRelatedData {
 
 impl TypeAccessTranslateList {
     /// Get access type for target role id
-    pub fn get_by_role_id(
+    pub(crate) fn get_by_role_id(
         target_role_id: &i32,
         set_lang_id: &i32,
         conn: &PgConnection,

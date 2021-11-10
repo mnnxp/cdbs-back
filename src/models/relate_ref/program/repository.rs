@@ -5,7 +5,7 @@ use crate::schema::program_ref::dsl as program_ref;
 use diesel::prelude::*;
 
 impl Program {
-    pub fn get_program_by_id(
+    pub(crate) fn get_program_by_id(
         target_program_id: &i32,
         conn: &PgConnection,
     ) -> ServiceResult<Program> {
@@ -14,7 +14,7 @@ impl Program {
             .first::<Program>(conn)?)
     }
 
-    pub fn get_programs_by_ids(
+    pub(crate) fn get_programs_by_ids(
         target_programs_ids: &[i32],
         conn: &PgConnection,
     ) -> ServiceResult<Vec<Program>> {
@@ -24,7 +24,7 @@ impl Program {
     }
 
     /// Gets programs for target extension
-    pub fn get_program_for_ext(
+    pub(crate) fn get_program_for_ext(
         target_ext_id: &i32,
         conn: &PgConnection,
     ) -> ServiceResult<Program> {

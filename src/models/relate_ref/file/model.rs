@@ -13,12 +13,12 @@ use crate::models::relate_ref::program::model::Program;
 //
 // impl DoubleAddiction {
 //     /// Clone object uuid of DoubleAddiction
-//     pub fn get_object_uuid(&self) -> Uuid {
+//     pub(crate) fn get_object_uuid(&self) -> Uuid {
 //         self.0
 //     }
 //
 //     /// Clone addiction uuid of DoubleAddiction
-//     pub fn get_addiction_uuid(&self) -> Uuid {
+//     pub(crate) fn get_addiction_uuid(&self) -> Uuid {
 //         self.1
 //     }
 // }
@@ -38,7 +38,7 @@ pub enum ListObject {
 
 impl ListObject {
     /// Clone Uuid from enum
-    pub fn get_uuid(&self) -> Uuid {
+    pub(crate) fn get_uuid(&self) -> Uuid {
         match self {
             ListObject::User(uuid_object) => *uuid_object,
             ListObject::UserCertificate(uuid_object) => *uuid_object,

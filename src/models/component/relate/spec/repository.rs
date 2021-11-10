@@ -5,7 +5,7 @@ use crate::models::relate_ref::spec::model::SpecTranslateList;
 use diesel::prelude::*;
 
 impl ComponentSpecWithTranslation {
-    pub fn for_component(
+    pub(crate) fn for_component(
         component: &Component,
         set_lang_id: &i32,
         conn: &PgConnection,
@@ -21,7 +21,13 @@ impl ComponentSpecWithTranslation {
         }
 
         // get specs with translation for component
-        let spec_translate_list: Vec<SpecTranslateList> = SpecTranslateList::get_spec_by_vec_id(&spec_ids_for_component, set_lang_id, conn)?;
+        let spec_translate_list: Vec<SpecTranslateList> = SpecTranslateList::get_by_ids(
+            &spec_ids_for_component,
+            &100,
+            &0,
+            set_lang_id,
+            conn
+        )?;
 
         let mut component_spec_with_translate: Vec<ComponentSpecWithTranslation> = Vec::new();
         for x in component_spec.iter() {

@@ -5,9 +5,9 @@ use crate::schema::component_fav::dsl as component_fav;
 use diesel::prelude::*;
 use uuid::Uuid;
 
-impl ComponentFav {
+impl ShowComponentShort {
     /// get list subscribers for component
-    pub fn get_by_user_uuid(
+    pub(crate) fn _get_by_user_uuid(
         target_user_uuid: &Uuid,
         set_lang_id: &i32,
         conn: &PgConnection,
@@ -26,9 +26,11 @@ impl ComponentFav {
             conn,
         )
     }
+}
 
+impl ComponentFav {
     /// Count subscribers for component
-    pub fn get_count_by_user_uuid(
+    pub(crate) fn get_count_by_user_uuid(
         target_user_uuid: &Uuid,
         conn: &PgConnection,
     ) -> ServiceResult<i32> {

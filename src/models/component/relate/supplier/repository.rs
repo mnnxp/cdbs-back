@@ -7,7 +7,7 @@ use diesel::prelude::*;
 use uuid::Uuid;
 
 impl ComponentSupplierRelatedData {
-    pub fn for_component(
+    pub(crate) fn for_component(
         component: &Component,
         conn: &PgConnection,
     ) -> ServiceResult<Vec<ComponentSupplierRelatedData>> {
@@ -44,7 +44,7 @@ impl ComponentSupplierRelatedData {
     }
 
     /// Get the first company associated with target component
-    pub fn get_first_supplier(
+    pub(crate) fn get_first_supplier(
         component: &Component,
         conn: &PgConnection,
     ) -> ServiceResult<Vec<ComponentSupplierRelatedData>> {

@@ -5,7 +5,7 @@ use diesel::prelude::*;
 
 impl ComponentTypeTranslateList {
     /// Get component type by id
-    pub fn get_component_type_by_id(
+    pub(crate) fn get_component_type_by_id(
         target_component_type_id: &i32,
         set_lang_id: &i32,
         conn: &PgConnection,

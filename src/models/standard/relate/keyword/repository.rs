@@ -15,6 +15,6 @@ impl Keyword {
             .select(keyword_to_standard::keyword_id)
             .load::<i32>(conn)?;
 
-        Keyword::get_keyword_by_vec_id(&target_keyword_ids, conn)
+        Keyword::get_by_ids(&target_keyword_ids, conn)
     }
 }

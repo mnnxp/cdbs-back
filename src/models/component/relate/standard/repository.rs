@@ -4,7 +4,7 @@ use diesel::prelude::*;
 use uuid::Uuid;
 
 impl ShowStandardShort {
-    pub fn for_component(
+    pub(crate) fn for_component(
         target_component_uuid: &Uuid,
         target_user_uuid: &Uuid,
         set_lang_id: &i32,

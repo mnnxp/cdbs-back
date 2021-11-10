@@ -6,7 +6,7 @@ use uuid::Uuid;
 
 impl ShowStandardShort {
     /// get list subscribers for standard
-    pub fn get_by_user_uuid(
+    pub(crate) fn _get_by_owner_user_uuid(
         target_user_uuid: &Uuid,
         set_lang_id: &i32,
         conn: &PgConnection,
@@ -26,7 +26,7 @@ impl ShowStandardShort {
     }
 
     /// Count subscribers for standard
-    pub fn get_count_by_user_uuid(
+    pub(crate) fn get_count_by_user_uuid(
         target_user_uuid: &Uuid,
         conn: &PgConnection,
     ) -> ServiceResult<i32> {

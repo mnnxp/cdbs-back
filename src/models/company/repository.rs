@@ -13,7 +13,7 @@ use uuid::Uuid;
 
 impl Company {
     /// Get company data from company_ref table by uuid
-    pub fn get_company_by_uuid(
+    pub(crate) fn get_company_by_uuid(
         target_company_uuid: &Uuid,
         conn: &PgConnection,
     ) -> ServiceResult<Company> {
@@ -25,7 +25,7 @@ impl Company {
 
 impl ShowCompanyShort {
     /// Gets company short data by company uuid
-    pub fn get_by_uuid(
+    pub(crate) fn get_by_uuid(
         target_company_uuid: &Uuid,
         target_user_uuid: &Uuid,
         set_lang_id: &i32,
@@ -78,7 +78,7 @@ impl ShowCompanyShort {
     }
 
     /// Gets companies short data by vec uuids
-    pub fn get_list_by_uuids(
+    pub(crate) fn get_list_by_uuids(
         target_companies_uuids: &[Uuid],
         target_user_uuid: &Uuid,
         set_lang_id: &i32,
@@ -102,7 +102,7 @@ impl ShowCompanyShort {
 
 impl CompanyAndRelatedData {
     /// Collecting company data and related data using uuid
-    pub fn collect_related_data(
+    pub(crate) fn collect_related_data(
         target_company_uuid: &Uuid,
         target_user_uuid: &Uuid,
         set_lang_id: &i32,

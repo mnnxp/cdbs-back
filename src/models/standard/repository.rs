@@ -12,7 +12,7 @@ use uuid::Uuid;
 
 impl Standard {
     /// Get standard data from standard_ref table by uuid
-    pub fn get_standard_by_uuid(
+    pub(crate) fn get_standard_by_uuid(
         target_standard_uuid: &Uuid,
         conn: &PgConnection,
     ) -> ServiceResult<Standard> {
@@ -23,7 +23,7 @@ impl Standard {
 }
 
 impl ShowStandardShort {
-    pub fn get_list_by_uuids(
+    pub(crate) fn get_list_by_uuids(
         target_standards_uuids: &[Uuid],
         target_user_uuid: &Uuid,
         set_lang_id: &i32,
@@ -81,7 +81,7 @@ impl ShowStandardShort {
 
 impl StandardAndRelatedData {
     /// Collecting standard data and related data using uuid
-    pub fn collect_related_data(
+    pub(crate) fn collect_related_data(
         target_standard_uuid: &Uuid,
         target_user_uuid: &Uuid,
         set_lang_id: &i32,

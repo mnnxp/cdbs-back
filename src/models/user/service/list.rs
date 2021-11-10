@@ -2,7 +2,6 @@ use crate::errors::{ServiceResult, ServiceError};
 use crate::models::user::model::{
     SlimUser, ShowUserShort, UserAndRelatedData, ShowUserAndRelatedData
 };
-use crate::models::user::user_fav::model::UserFav;
 use diesel::PgConnection;
 use uuid::Uuid;
 
@@ -92,18 +91,18 @@ pub(crate) fn get_self_user_data(
 pub(crate) fn get_users(
     logged_user_uuid: &Uuid,
     filter_users_uuids: &[Uuid],
-    subscriber: &bool,
+    subscribers: &bool,
     favorite: &bool,
     limit: &i32,
     offset: &i32,
     conn: &PgConnection,
 ) -> ServiceResult<Vec<ShowUserShort>> {
     // select target users uuids
-    match (subscriber, favorite) {
+    match (subscribers, favorite) {
         // gets users of self subscribers list
         // for authorized user with/without filter
         (true, false) => {
-            UserFav::get_list_followers_by_uuid(
+            ShowUserShort::get_followers_by_user_uuid(
                 logged_user_uuid,
                 filter_users_uuids,
                 limit,
@@ -114,7 +113,7 @@ pub(crate) fn get_users(
         // gets users of self favorite list
         // for authorized user with/without filter
         (false, true) => {
-            UserFav::get_list_favorites_by_uuid(
+            ShowUserShort::get_favorites_by_user_uuid(
                 logged_user_uuid,
                 filter_users_uuids,
                 limit,

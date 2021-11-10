@@ -5,7 +5,7 @@ use diesel::prelude::*;
 
 impl StandardStatusTranslateList {
     /// Get standard typeanization by id and set lang
-    pub fn get_standard_status_by_id(
+    pub(crate) fn get_standard_status_by_id(
         target_standard_status_id: &i32,
         set_lang_id: &i32,
         conn: &PgConnection,
@@ -23,29 +23,6 @@ impl StandardStatusTranslateList {
                 Ok(standard_status_translate_list::standard_status_translate_list
                     .filter(standard_status_translate_list::standard_status_id.eq(target_standard_status_id))
                     .first::<StandardStatusTranslateList>(conn)?)
-            },
-        }
-    }
-
-    /// Get list standard typeanization by vec id and set lang
-    pub fn get_standard_status_by_vec_id(
-        target_vec_standard_status_id: &[i32],
-        set_lang_id: &i32,
-        conn: &PgConnection,
-    ) -> ServiceResult<Vec<StandardStatusTranslateList>> {
-        let standards_status = standard_status_translate_list::standard_status_translate_list
-            .filter(standard_status_translate_list::standard_status_id.eq_any(target_vec_standard_status_id)
-            .and(standard_status_translate_list::lang_id.eq(set_lang_id)))
-            .load::<StandardStatusTranslateList>(conn);
-
-        // if not found data for set lang
-        match standards_status {
-            Ok(sds_status) => Ok(sds_status),
-            Err(err) => {
-                debug!("Not found set lang for standards status: {:?}", err);
-                Ok(standard_status_translate_list::standard_status_translate_list
-                    .filter(standard_status_translate_list::standard_status_id.eq_any(target_vec_standard_status_id))
-                    .load::<StandardStatusTranslateList>(conn)?)
             },
         }
     }

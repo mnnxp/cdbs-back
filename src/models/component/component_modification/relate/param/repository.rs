@@ -5,7 +5,7 @@ use crate::models::relate_ref::param::model::ParamTranslateList;
 use diesel::prelude::*;
 
 impl ModificationParamWithTranslation {
-    pub fn for_component_modification_list(
+    pub(crate) fn for_component_modification_list(
         component_modification: &[ComponentModification],
         set_lang_id: &i32,
         conn: &PgConnection,
@@ -26,7 +26,7 @@ impl ModificationParamWithTranslation {
         }
 
         // get param with translation for component modification
-        let param_translate_list: Vec<ParamTranslateList> = ParamTranslateList::get_param_by_vec_id(&param_ids_component_modification, set_lang_id, conn)?;
+        let param_translate_list: Vec<ParamTranslateList> = ParamTranslateList::get_by_ids(&param_ids_component_modification, set_lang_id, conn)?;
 
         let mut component_modification_param_with_translate: Vec<Vec<ModificationParamWithTranslation>> = Vec::new();
         for w in component_modification_param.iter() {

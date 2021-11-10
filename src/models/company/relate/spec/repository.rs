@@ -5,7 +5,7 @@ use crate::models::relate_ref::spec::model::SpecTranslateList;
 use diesel::prelude::*;
 
 impl CompanySpecWithTranslation {
-    pub fn for_company(
+    pub(crate) fn for_company(
         company: &Company,
         set_lang_id: &i32,
         conn: &PgConnection,
@@ -21,7 +21,13 @@ impl CompanySpecWithTranslation {
         }
 
         // get specs with translation for company
-        let spec_translate_list: Vec<SpecTranslateList> = SpecTranslateList::get_spec_by_vec_id(&spec_ids_for_company, set_lang_id, conn)?;
+        let spec_translate_list: Vec<SpecTranslateList> = SpecTranslateList::get_by_ids(
+            &spec_ids_for_company,
+            &100,
+            &0,
+            set_lang_id,
+            conn
+        )?;
 
         let mut spec_company_with_translate: Vec<CompanySpecWithTranslation> = Vec::new();
         for x in spec_company.iter() {

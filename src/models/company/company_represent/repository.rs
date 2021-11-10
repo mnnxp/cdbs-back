@@ -1,5 +1,5 @@
 use crate::errors::ServiceResult;
-use crate::models::company::model::Company;
+// use crate::models::company::model::Company;
 use crate::models::company::company_represent::model::{
     CompanyRepresent,
     CompanyRepresentAndRelatedData,
@@ -9,21 +9,9 @@ use crate::models::relate_ref::region::model::RegionTranslateList;
 use diesel::prelude::*;
 use uuid::Uuid;
 
-
 impl CompanyRepresent {
-    /// Gets company represent without related data by Company
-    pub fn get_by_company(
-        company: &Company,
-        conn: &PgConnection,
-    ) -> ServiceResult<Vec<CompanyRepresent>> {
-        // collect data for represents the company
-        Ok(CompanyRepresent::belonging_to(company)
-            .load::<CompanyRepresent>(conn)?
-        )
-    }
-
     /// Gets company represent without related data by company uuid
-    pub fn get_by_company_uuid(
+    pub(crate) fn get_by_company_uuid(
         target_company_uuid: &Uuid,
         conn: &PgConnection,
     ) -> ServiceResult<Vec<CompanyRepresent>> {
@@ -37,7 +25,7 @@ impl CompanyRepresent {
     }
 
     /// Gets company represent without related data by represents uuids
-    pub fn get_by_vec_uuids(
+    pub(crate) fn get_by_uuids(
         represents_uuids: &[Uuid],
         conn: &PgConnection,
     ) -> ServiceResult<Vec<CompanyRepresent>> {
@@ -54,7 +42,7 @@ impl CompanyRepresent {
 impl CompanyRepresentAndRelatedData {
     /// Gets company represents by company uuid
     /// with type and region data with translation for a given language
-    pub fn get_list_represents_by_company_uuid(
+    pub(crate) fn get_list_represents_by_company_uuid(
         company_uuid: &Uuid,
         set_lang_id: &i32,
         conn: &PgConnection,
@@ -73,12 +61,12 @@ impl CompanyRepresentAndRelatedData {
 
     /// Gets company represents by represents uuids
     /// with type and region data with translation for a given language
-    pub fn get_list_represents_by_uuids(
+    pub(crate) fn get_list_represents_by_uuids(
         represents_uuids: &[Uuid],
         set_lang_id: &i32,
         conn: &PgConnection,
     ) -> ServiceResult<Vec<CompanyRepresentAndRelatedData>> {
-        let company_represents = &CompanyRepresent::get_by_vec_uuids(
+        let company_represents = &CompanyRepresent::get_by_uuids(
             represents_uuids,
             conn
         ).unwrap();
@@ -92,7 +80,7 @@ impl CompanyRepresentAndRelatedData {
 
     /// Gets company represents by company represents
     /// with type and region data with translation for a given language
-    pub fn get_related_data_for_represents(
+    pub(crate) fn get_related_data_for_represents(
         company_represents: &[CompanyRepresent],
         set_lang_id: &i32,
         conn: &PgConnection,
@@ -114,7 +102,7 @@ impl CompanyRepresentAndRelatedData {
         )?;
 
         // get represent type for company represents
-        let represent_type_list_id = RepresentationTypeTranslateList::get_representation_type_by_vec_id(
+        let represent_type_list_id = RepresentationTypeTranslateList::get_by_ids(
             &represent_type_list_id,
             set_lang_id,
             conn

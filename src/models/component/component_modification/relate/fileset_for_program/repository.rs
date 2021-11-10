@@ -6,7 +6,7 @@ use diesel::prelude::*;
 
 impl FilesetProgramRelatedData {
     /// Find set of files for programs without list files
-    pub fn for_component_modification_list(
+    pub(crate) fn for_component_modification_list(
         component_modification: &[ComponentModification],
         conn: &PgConnection,
     ) -> ServiceResult<Vec<Vec<FilesetProgramRelatedData>>> {
@@ -36,7 +36,7 @@ impl FilesetProgramRelatedData {
 
     /// Gest filesets for program without list files
     /// by modification_uuid with filter program_id
-    pub fn for_filesets(
+    pub(crate) fn for_filesets(
         filesets: &[FilesetProgram],
         conn: &PgConnection,
     ) -> ServiceResult<Vec<FilesetProgramRelatedData>> {

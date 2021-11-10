@@ -4,29 +4,7 @@ use crate::schema::param_translate_list::dsl as param_translate_list;
 use diesel::prelude::*;
 
 impl ParamTranslateList {
-    pub fn get_param_by_id(
-        target_param_id: &i32,
-        set_lang_id: &i32,
-        conn: &PgConnection,
-    ) -> ServiceResult<ParamTranslateList> {
-        let param = param_translate_list::param_translate_list
-            .filter(param_translate_list::param_id.eq(target_param_id)
-            .and(param_translate_list::lang_id.eq(set_lang_id)))
-            .first::<ParamTranslateList>(conn);
-
-        // if not found data for set lang
-        match param {
-            Ok(pm) => Ok(pm),
-            Err(err) => {
-                debug!("Not found set lang for param: {:?}", err);
-                Ok(param_translate_list::param_translate_list
-                    .filter(param_translate_list::param_id.eq(target_param_id))
-                    .first::<ParamTranslateList>(conn)?)
-            },
-        }
-    }
-
-    pub fn get_param_by_vec_id(
+    pub(crate) fn get_by_ids(
         target_vec_param_id: &[i32],
         set_lang_id: &i32,
         conn: &PgConnection,

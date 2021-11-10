@@ -4,7 +4,7 @@ use crate::schema::region_translate_list::dsl as region_translate_list;
 use diesel::prelude::*;
 
 impl RegionTranslateList {
-    pub fn get_region_by_id(
+    pub(crate) fn get_region_by_id(
         target_region_id: &i32,
         set_lang_id: &i32,
         conn: &PgConnection,
@@ -26,7 +26,7 @@ impl RegionTranslateList {
         }
     }
 
-    pub fn get_region_by_vec_id(
+    pub(crate) fn get_region_by_vec_id(
         target_vec_region_id: &[i32],
         set_lang_id: &i32,
         conn: &PgConnection,

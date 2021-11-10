@@ -6,7 +6,7 @@ use diesel::prelude::*;
 
 impl StandardSpecWithTranslation {
     /// Gets all specs for standard by uuid
-    pub fn for_standard(
+    pub(crate) fn for_standard(
         standard: &Standard,
         set_lang_id: &i32,
         conn: &PgConnection,
@@ -22,7 +22,13 @@ impl StandardSpecWithTranslation {
         }
 
         // get specs with translation for standard
-        let spec_translate_list: Vec<SpecTranslateList> = SpecTranslateList::get_spec_by_vec_id(&spec_ids_for_standard, set_lang_id, conn)?;
+        let spec_translate_list: Vec<SpecTranslateList> = SpecTranslateList::get_by_ids(
+            &spec_ids_for_standard,
+            &100,
+            &0,
+            set_lang_id,
+            conn
+        )?;
 
         let mut spec_standard_with_translate: Vec<StandardSpecWithTranslation> = Vec::new();
         for x in spec_standard.iter() {

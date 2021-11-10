@@ -10,7 +10,7 @@ use uuid::Uuid;
 
 impl ShowFileForDownload {
     /// Search files certificates target company by uuid
-    pub fn from_company_certificates(
+    pub(crate) fn from_company_certificates(
         target_company_uuid: &Uuid,
         conn: &PgConnection,
     ) -> ServiceResult<Vec<ShowFileForDownload>> {
@@ -28,7 +28,7 @@ impl ShowFileForDownload {
 
 impl CertificateAndFile {
     /// Gets certificates company with slimfile data
-    pub fn from_company(
+    pub(crate) fn from_company(
         target_company_uuid: &Uuid,
         conn: &PgConnection,
     ) -> ServiceResult<Vec<CertificateAndFile>> {

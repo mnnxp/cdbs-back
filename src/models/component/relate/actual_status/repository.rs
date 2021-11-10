@@ -5,7 +5,7 @@ use diesel::prelude::*;
 
 impl ActualStatusTranslateList {
     /// Get actual status by id and set lang
-    pub fn get_actual_status_by_id(
+    pub(crate) fn get_actual_status_by_id(
         target_actual_status_id: &i32,
         set_lang_id: &i32,
         conn: &PgConnection,
@@ -28,7 +28,7 @@ impl ActualStatusTranslateList {
     }
 
     /// Get list actual status by vec id and set lang
-    pub fn get_actual_status_by_vec_id(
+    pub(crate) fn get_actual_status_by_vec_id(
         target_vec_actual_status_id: &[i32],
         set_lang_id: &i32,
         conn: &PgConnection,

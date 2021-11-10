@@ -7,7 +7,7 @@ use diesel::prelude::*;
 use uuid::Uuid;
 
 impl ShowFileForDownload {
-    pub fn for_component(
+    pub(crate) fn for_component(
         component: &Component,
         conn: &PgConnection,
     ) -> ServiceResult<Vec<ShowFileForDownload>> {

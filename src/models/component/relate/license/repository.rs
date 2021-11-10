@@ -7,7 +7,7 @@ use diesel::prelude::*;
 
 impl License {
     /// Get list license for component
-    pub fn get_by_component(
+    pub(crate) fn get_by_component(
         component: &Component,
         conn: &PgConnection,
     ) -> ServiceResult<Vec<License>> {

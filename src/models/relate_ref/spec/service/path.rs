@@ -2,9 +2,6 @@ use crate::errors::{ServiceResult, ServiceError};
 use crate::models::relate_ref::spec::model::{
     Spec, SpecTranslateList,
 };
-use crate::models::relate_ref::spec::service::list::{
-    get_specs_by_ids, get_spec_by_id,
-};
 use diesel::PgConnection;
 
 /// Collecting full path for specification
@@ -22,7 +19,7 @@ pub(crate) fn collect_path_spec(
         ServiceError::BadRequest("Spec not found".to_string())
     })?;
 
-    let target_specs_data = get_specs_by_ids(
+    let target_specs_data = SpecTranslateList::get_by_ids(
         &target_specs_ids,
         &100,
         &0,
@@ -48,7 +45,7 @@ fn get_parents_ids(
     let mut spec_id: i32 = *spec_id;
 
     loop {
-        let spec: Spec = get_spec_by_id(
+        let spec: Spec = Spec::get_by_id(
             &spec_id,
             conn
         )?;

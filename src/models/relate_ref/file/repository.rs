@@ -16,7 +16,7 @@ use diesel::prelude::*;
 use uuid::Uuid;
 
 // impl ShowFile {
-//     pub fn get_file_by_uuid(
+//     pub(crate) fn get_file_by_uuid(
 //         target_file_uuid: &Uuid,
 //         conn: &PgConnection,
 //     ) -> ServiceResult<ShowFile> {
@@ -37,7 +37,7 @@ use uuid::Uuid;
 //             .first::<ShowFile>(conn)?)
 //     }
 //
-//     pub fn get_file_by_uuids(
+//     pub(crate) fn get_file_by_uuids(
 //         target_files_uuids: &[Uuid],
 //         conn: &PgConnection,
 //     ) -> ServiceResult<Vec<ShowFile>> {
@@ -60,7 +60,7 @@ use uuid::Uuid;
 // }
 
 impl ShowFileForDownload {
-    pub fn get_file_by_uuid(
+    pub(crate) fn get_file_by_uuid(
         target_file_uuid: &Uuid,
         conn: &PgConnection,
     ) -> ServiceResult<ShowFileForDownload> {
@@ -113,7 +113,7 @@ impl ShowFileForDownload {
         Ok(result)
     }
 
-    pub fn get_file_by_uuids(
+    pub(crate) fn get_file_by_uuids(
         target_files_uuids: &[Uuid],
         conn: &PgConnection,
     ) -> ServiceResult<Vec<ShowFileForDownload>> {
@@ -132,7 +132,7 @@ impl ShowFileForDownload {
 
 impl SlimFile {
     /// Get SlimFile data by target file uuid
-    pub fn get_file_by_uuid(
+    pub(crate) fn get_file_by_uuid(
         target_file_uuid: &Uuid,
         conn: &PgConnection,
     ) -> ServiceResult<SlimFile> {
@@ -148,7 +148,7 @@ impl SlimFile {
     }
 
     /// Collect SlimFiles data by target files uuids
-    pub fn get_by_files_uuids(
+    pub(crate) fn get_by_files_uuids(
         target_files_uuids: &[Uuid],
         conn: &PgConnection,
     ) -> ServiceResult<Vec<SlimFile>> {
@@ -166,7 +166,7 @@ impl SlimFile {
 
 impl PreliminaryFileData {
     /// Creating data for write information about the file before upload to storage
-    pub fn from_ipt_file_data(
+    pub(crate) fn from_ipt_file_data(
         user_uuid: Uuid,
         parent_file_uuid: Uuid,
         object: ListObject,

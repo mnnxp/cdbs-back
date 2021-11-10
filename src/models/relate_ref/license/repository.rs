@@ -4,7 +4,7 @@ use crate::schema::license_ref::dsl as license_ref;
 use diesel::prelude::*;
 
 impl License {
-    pub fn get_license_by_id(
+    pub(crate) fn _get_license_by_id(
         target_license_id: &i32,
         conn: &PgConnection,
     ) -> ServiceResult<License> {
@@ -13,7 +13,7 @@ impl License {
             .first::<License>(conn)?)
     }
 
-    pub fn get_license_by_vec_id(
+    pub(crate) fn get_license_by_vec_id(
         target_vec_license_id: &[i32],
         conn: &PgConnection,
     ) -> ServiceResult<Vec<License>> {

@@ -5,7 +5,7 @@ use diesel::prelude::*;
 
 impl TypeAccessTranslateList {
     /// Get access type by id
-    pub fn get_type_access_by_id(
+    pub(crate) fn get_type_access_by_id(
         target_type_access_id: &i32,
         set_lang_id: &i32,
         conn: &PgConnection,
@@ -28,7 +28,7 @@ impl TypeAccessTranslateList {
     }
 
     /// Get access types by IDs
-    pub fn get_types_access_by_ids(
+    pub(crate) fn get_types_access_by_ids(
         target_types_access_ids: &[i32],
         set_lang_id: &i32,
         conn: &PgConnection,
