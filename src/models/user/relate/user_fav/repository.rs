@@ -1,4 +1,4 @@
-use crate::errors::ServiceResult;
+use crate::errors::{ServiceResult, ServiceError};
 use crate::models::user::user_fav::model::UserFav;
 use crate::models::user::model::ShowUserShort;
 use crate::schema::user_fav::dsl as user_fav;
@@ -7,33 +7,88 @@ use uuid::Uuid;
 
 impl UserFav {
     /// get list subscribers for user
-    pub fn get_list_followers_by_uuid(
-        target_user_uuid: &Uuid,
+    pub(crate) fn get_list_followers_by_uuid(
+        logged_user_uuid: &Uuid,
+        filter_users_uuids: &[Uuid],
+        limit: &i32,
+        offset: &i32,
         conn: &PgConnection,
     ) -> ServiceResult<Vec<ShowUserShort>> {
-        let target_list_user_uuid = user_fav::user_fav
-            .filter(user_fav::user_follower_uuid.eq(target_user_uuid)
-            .and(user_fav::is_enabled.eq(true)))
+        let mut query = user_fav::user_fav.into_boxed();
+        query = match filter_users_uuids.is_empty() {
+            true => {
+                query.filter(user_fav::user_favorite_uuid.eq(logged_user_uuid)
+                    .and(user_fav::is_enabled.eq(true)))
+            },
+            // add filter user_uuid if it set
+            false => {
+                query.filter(user_fav::user_favorite_uuid.eq(logged_user_uuid)
+                    .and(user_fav::is_enabled.eq(true)
+                    .and(user_fav::user_follower_uuid.eq_any(filter_users_uuids))))
+            },
+        };
+
+        let target_list_user_uuid = query
             .select(user_fav::user_follower_uuid)
+            .limit(*limit as i64)
+            .offset(*offset as i64)
             .load::<Uuid>(conn)
-            .expect("Fail load uuid list target user");
+            .map_err(|err| {
+                debug!("Fail load uuid list target user: {:?}", err);
+                ServiceError::InternalServerError
+            })?;
 
         ShowUserShort::get_list_by_uuids(&target_list_user_uuid, conn)
     }
 
     /// Count subscribers for user
-    pub fn get_count_followers_by_uuid(
-        target_user_uuid: &Uuid,
+    pub(crate) fn get_count_followers_by_uuid(
+        logged_user_uuid: &Uuid,
         conn: &PgConnection,
     ) -> ServiceResult<i32> {
         Ok(user_fav::user_fav
-            .filter(user_fav::user_favorite_uuid.eq(target_user_uuid)
+            .filter(user_fav::user_favorite_uuid.eq(logged_user_uuid)
             .and(user_fav::is_enabled.eq(true)))
             .execute(conn)? as i32)
     }
 
+    /// get favorite list for user
+    pub(crate) fn get_list_favorites_by_uuid(
+        logged_user_uuid: &Uuid,
+        filter_users_uuids: &[Uuid],
+        limit: &i32,
+        offset: &i32,
+        conn: &PgConnection,
+    ) -> ServiceResult<Vec<ShowUserShort>> {
+        let mut query = user_fav::user_fav.into_boxed();
+        query = match filter_users_uuids.is_empty() {
+            true => {
+                query.filter(user_fav::user_favorite_uuid.eq(logged_user_uuid)
+                    .and(user_fav::is_enabled.eq(true)))
+            },
+            // add filter user_uuid if it set
+            false => {
+                query.filter(user_fav::user_favorite_uuid.eq(logged_user_uuid)
+                    .and(user_fav::is_enabled.eq(true)
+                    .and(user_fav::user_favorite_uuid.eq_any(filter_users_uuids))))
+            },
+        };
+
+        let target_list_user_uuid = query
+            .select(user_fav::user_favorite_uuid)
+            .limit(*limit as i64)
+            .offset(*offset as i64)
+            .load::<Uuid>(conn)
+            .map_err(|err| {
+                debug!("Fail load uuid list target user: {:?}", err);
+                ServiceError::InternalServerError
+            })?;
+
+        ShowUserShort::get_list_by_uuids(&target_list_user_uuid, conn)
+    }
+
     /// Count favorite for user
-    pub fn get_count_favorites_by_uuid(
+    pub(crate) fn get_count_favorites_by_uuid(
         target_user_uuid: &Uuid,
         conn: &PgConnection,
     ) -> ServiceResult<i32> {

@@ -39,6 +39,7 @@ var authorizationTokenUserFirst = "";
 var authorizationTokenUserFirstUpdate = "";
 var authorizationTokenUserSecond = "";
 var authorizationTokenUserThree = "";
+var authorizationTokenUserFour = "";
 var userUuidFirst = "";
 var userUuidSecond = "";
 var userUuidThree = "";
@@ -711,6 +712,22 @@ describe('users', () => {
       .then(({ body, headers }) => {
         expect(body.bearer).toBeNonEmptyString();
         authorizationTokenUserThree = body.bearer;
+        done();
+      });
+  });
+
+  it('/login - OK to login four user', (done) => {
+    agent
+      .post('/login')
+      .send({ "user": {
+            "username": username4,
+            "password": password,
+          }
+        })
+      .expect(HttpStatus.OK)
+      .then(({ body, headers }) => {
+        expect(body.bearer).toBeNonEmptyString();
+        authorizationTokenUserFour = body.bearer;
         done();
       });
   });
@@ -2040,6 +2057,84 @@ describe('users', () => {
     done();
   });
 
+  it('/graphql:Q users - OK favorite', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenUserFirst}`
+      )
+      .send({
+        query: `query {
+            users (favorite: true) {
+              ${usersListQuery}
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql users=%o', body);
+    const {
+      data: { users }
+    } = body;
+    // expect(body).toBe(0);
+    expect(users).toBeNonEmptyArray();
+    expect(users[0].uuid).toBe(userUuidFour);
+    expect(users[0].username).toBe(username4);
+    expect(users.length).toBe(1);
+    done();
+  });
+
+  it('/graphql:Q users - OK no subscribers', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenUserFirst}`
+      )
+      .send({
+        query: `query {
+            users (subscribers: true) {
+              ${usersListQuery}
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql users=%o', body);
+    const {
+      data: { users }
+    } = body;
+    // expect(body).toBe(0);
+    expect(users).toBeEmptyArray();
+    done();
+  });
+
+  it('/graphql:Q users - OK 1 subscribers', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenUserFour}`
+      )
+      .send({
+        query: `query {
+            users (subscribers: true) {
+              ${usersListQuery}
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql users=%o', body);
+    const {
+      data: { users }
+    } = body;
+    // expect(body).toBe(0);
+    expect(users).toBeNonEmptyArray();
+    expect(users[0].uuid).toBe(userUuidFirst);
+    expect(users[0].username).toBe(username);
+    expect(users.length).toBe(1);
+    done();
+  });
+
   it('/graphql:M CompanyFav - Ok delete', async (done) => {
     const { body } = await agent
       .post('/graphql')
@@ -2565,6 +2660,91 @@ describe('users', () => {
     expect(users[0].username).toBe(username);
     expect(users[1].uuid).toBe(userUuidSecond);
     expect(users[1].username).toBe(username2);
+    done();
+  });
+
+  // Test get users data
+  it('/graphql:Q users - BadRequest not correct arguments', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenUserThree}`
+      )
+      .send({
+        query: `query {
+            users (
+              subscribers: true
+              favorite: true
+            ){
+              ${usersListQuery}
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: You cannot request subscribers and favorites in one request'
+    );
+    expect(body.errors[0].path[0]).toBe('users');
+    done();
+  });
+
+  it('/graphql:Q users - OK limit and offset', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenUserThree}`
+      )
+      .send({
+        query: `query {
+            users (
+              limit: 2
+              offset: 1
+            ){
+              ${usersListQuery}
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql users=%o', body);
+    const {
+      data: { users }
+    } = body;
+    // expect(body).toBe(0);
+    expect(users).toBeNonEmptyArray();
+    expect(users.length).toBe(2);
+    done();
+  });
+
+  it('/graphql:Q users - OK', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenUserThree}`
+      )
+      .send({
+        query: `query {
+            users {
+              ${usersListQuery}
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql users=%o', body);
+    const {
+      data: { users }
+    } = body;
+    // expect(body).toBe(0);
+    expect(users).toBeNonEmptyArray();
+    // expect(users[0].uuid).toBe(userUuidFour);
+    // expect(users[0].username).toBe(username4);
+    // expect(users[1].uuid).toBe(userUuidSecond);
+    // expect(users[1].username).toBe(username);
+    // expect(users.length).toBe(4);
     done();
   });
 

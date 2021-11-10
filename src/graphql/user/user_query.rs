@@ -21,18 +21,32 @@ impl UserQuery {
     async fn users(
         &self,
         cxt: &Context<'_>,
-        users_uuids: Vec<Uuid>,
+        users_uuids: Option<Vec<Uuid>>,
+        subscribers: Option<bool>,
+        favorite: Option<bool>,
+        limit: Option<i32>,
+        offset: Option<i32>,
     ) -> ServiceResult<Vec<ShowUserShort>> {
-        use crate::models::user::service::list::find_users_by_uuids;
+        use crate::models::user::service::list::get_users;
 
         // authorization check
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
+        let users_uuids: Vec<Uuid> = users_uuids.unwrap_or_default();
+        let subscribers: bool = subscribers.unwrap_or(false);
+        let favorite: bool = favorite.unwrap_or(false);
+        let limit: i32 = limit.unwrap_or(100);
+        let offset: i32 = offset.unwrap_or(0);
+
         let conn: &PooledConnection = &get_conn(cxt)?;
 
-        find_users_by_uuids(
+        get_users(
             &logged_user_uuid,
             &users_uuids,
+            &subscribers,
+            &favorite,
+            &limit,
+            &offset,
             conn,
         )
     }

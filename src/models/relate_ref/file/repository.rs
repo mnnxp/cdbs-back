@@ -1,4 +1,4 @@
-use crate::errors::ServiceResult;
+use crate::errors::{ServiceResult, ServiceError};
 use crate::models::relate_ref::file::model::{
     ListObject,
     PreliminaryFileData,
@@ -242,7 +242,10 @@ impl DownloadFile {
         let download_url = download_presigned_url(
             &StorageAccess::get(conn)?,
             &file.path_file,
-        )?;
+        ).map_err(|err| {
+            debug!("Failed get download data for file: {:?}", err);
+            ServiceError::InternalServerError
+        })?;
 
         Ok(DownloadFile{
             uuid: file.uuid.to_owned(),

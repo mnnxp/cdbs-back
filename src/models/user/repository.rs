@@ -1,3 +1,4 @@
+use crate::errors::{ServiceResult, ServiceError};
 use super::model::{
     SlimUser,
     UserQuery,
@@ -8,6 +9,7 @@ use super::model::{
 };
 use super::certificate::model::CertificateAndFile;
 use super::user_fav::model::UserFav;
+use super::access::util::check_access_user_for_user;
 use crate::models::company::model::ShowCompanyShort;
 use crate::models::component::model::ShowComponentShort;
 use crate::models::standard::model::ShowStandardShort;
@@ -18,14 +20,13 @@ use crate::models::relate_ref::file::model::DownloadFile;
 use crate::models::relate_ref::program::model::Program;
 use crate::models::relate_ref::region::model::RegionTranslateList;
 use crate::models::relate_ref::type_access::model::TypeAccessTranslateList;
-use crate::errors::ServiceResult;
 use crate::schema::user_ref::dsl as user_ref;
 use diesel::prelude::*;
 use uuid::Uuid;
 
 impl SlimUser {
     /// Get slim user data from user_ref table by uuid
-    pub fn get_by_uuid(
+    pub(crate) fn get_by_uuid(
         target_user_uuid: &Uuid,
         conn: &PgConnection,
     ) -> ServiceResult<SlimUser> {
@@ -42,7 +43,7 @@ impl SlimUser {
 
 impl UserQuery {
     /// Get user data from user_ref table by uuid
-    pub fn get_user_by_uuid(
+    pub(crate) fn get_user_by_uuid(
         target_user_uuid: &Uuid,
         conn: &PgConnection,
     ) -> ServiceResult<UserQuery> {
@@ -76,7 +77,7 @@ impl UserQuery {
 
 impl UserShort {
     /// get UserShort data for target uuid user
-    pub fn get_by_uuid(
+    pub(crate) fn get_by_uuid(
         target_user_uuid: &Uuid,
         conn: &PgConnection,
     ) -> ServiceResult<UserShort> {
@@ -94,7 +95,7 @@ impl UserShort {
 
 impl ShowUserShort {
     /// get ShowUserShort data for target uuid user
-    pub fn get_by_uuid(
+    pub(crate) fn get_by_uuid(
         target_user_uuid: &Uuid,
         conn: &PgConnection,
     ) -> ServiceResult<ShowUserShort> {
@@ -118,7 +119,7 @@ impl ShowUserShort {
     }
 
     /// get ShowUserShort data for target list uuid user
-    pub fn get_list_by_uuids(
+    pub(crate) fn get_list_by_uuids(
         target_users_uuids: &[Uuid],
         conn: &PgConnection,
     ) -> ServiceResult<Vec<ShowUserShort>> {
@@ -132,11 +133,77 @@ impl ShowUserShort {
 
         Ok(show_users_short_data)
     }
+
+    /// get ShowUserShort data of public users
+    /// with filter by user_uuids
+    pub(crate) fn get_all_public_users(
+        limit: &i32,
+        offset: &i32,
+        conn: &PgConnection,
+    ) -> ServiceResult<Vec<ShowUserShort>> {
+        let users = user_ref::user_ref
+            .filter(user_ref::type_access_id.eq(3))
+            .limit(*limit as i64)
+            .offset(*offset as i64)
+            .select((
+                user_ref::uuid,
+                user_ref::username,
+                user_ref::image_file_uuid,
+            ))
+            .load::<UserShort>(conn)
+            .map_err(|err| {
+                debug!("Faile get user_data: {:?}", err);
+                ServiceError::InternalServerError
+            })?;
+
+        let mut users_with_image: Vec<ShowUserShort> = Vec::new();
+        for user in users.iter() {
+            let download_favicon = DownloadFile::get_by_file_uuid(
+                    &user.image_file_uuid,
+                    conn
+                ).unwrap();
+
+            users_with_image.push(ShowUserShort::from((
+                user,
+                &download_favicon,
+            )));
+        }
+
+        Ok(users_with_image)
+    }
+
+    /// Gets users data by uuids with check access
+    pub(crate) fn get_users_by_uuids(
+        logged_user_uuid: &Uuid,
+        target_users_uuids: &[Uuid],
+        conn: &PgConnection,
+    ) -> ServiceResult<Vec<ShowUserShort>> {
+        let need_access_level = 3; // todo!(create enum for manage access level)
+
+        // check access user for all users
+        for tu_uuid in target_users_uuids {
+            check_access_user_for_user(
+                logged_user_uuid,
+                tu_uuid,
+                &need_access_level,
+                conn
+            )?;
+        }
+
+        let result: Vec<ShowUserShort> = ShowUserShort::get_list_by_uuids(
+            target_users_uuids,
+            conn
+        ).expect("Error loading list users and collect short data");
+
+        debug!("Users data: {:#?}", result);
+
+        Ok(result)
+    }
 }
 
 impl UserAndRelatedData {
     /// Collecting user data and related data using uuid
-    pub fn collect_related_data(
+    pub(crate) fn collect_related_data(
         target_user_uuid: &Uuid,
         set_lang_id: &i32,
         conn: &PgConnection,
@@ -262,7 +329,7 @@ impl UserAndRelatedData {
 
 impl ShowUserAndRelatedData {
     /// Collecting user data and related data using uuid
-    pub fn collect_related_data(
+    pub(crate) fn collect_related_data(
         target_user_uuid: &Uuid,
         logged_user_uuid: &Uuid,
         set_lang_id: &i32,
@@ -326,6 +393,36 @@ impl ShowUserAndRelatedData {
             subscribers,
             is_followed,
         };
+
+        Ok(result)
+    }
+
+    /// Gets user with related data, with translate by uuid
+    pub(crate) fn get_user_by_uuid(
+        logged_user_uuid: &Uuid,
+        target_user_uuid: &Uuid,
+        set_lang_id: &i32,
+        conn: &PgConnection,
+    ) -> ServiceResult<ShowUserAndRelatedData> {
+        let need_access_level = 3; // todo!(create enum for manage access level)
+
+        // check access user for user
+        check_access_user_for_user(
+            logged_user_uuid,
+            target_user_uuid,
+            &need_access_level,
+            conn
+        )?;
+
+        // collect data for user
+        let result: ShowUserAndRelatedData = ShowUserAndRelatedData::collect_related_data(
+            target_user_uuid,
+            logged_user_uuid,
+            set_lang_id,
+            conn
+        ).expect("Error loading user and collect related data");
+
+        debug!("User data: {:#?}", result);
 
         Ok(result)
     }
