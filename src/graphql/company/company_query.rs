@@ -7,6 +7,7 @@ use crate::models::company::member::model::CompanyMemberAndRelatedData;
 use crate::models::company::member::role::model::RoleMemberAndRelatedData;
 use crate::models::company::company_represent::model::CompanyRepresentAndRelatedData;
 use crate::models::company::company_represent::service as company_represent;
+use crate::models::relate_ref::language::get_set_language;
 
 use async_graphql::{self, Context, Object};
 use uuid::Uuid;
@@ -19,21 +20,32 @@ impl CompanyQuery {
     async fn companies(
         &self,
         cxt: &Context<'_>,
-        companies_uuids: Vec<Uuid>,
+        companies_uuids: Option<Vec<Uuid>>,
+        user_uuid: Option<Uuid>,
+        favorite: Option<bool>,
+        limit: Option<i32>,
+        offset: Option<i32>,
     ) -> ServiceResult<Vec<ShowCompanyShort>> {
-        use company::service::list::find_companies;
+        use company::service::list::get_companies;
 
         // authorization check
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
-        // todo!(need set check limit length vec)
+        let companies_uuids: Vec<Uuid> = companies_uuids.unwrap_or_default();
+
+        let favorite: bool = favorite.unwrap_or(false);
+        let limit: i32 = limit.unwrap_or(100);
+        let offset: i32 = offset.unwrap_or(0);
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
-        find_companies(
+        get_companies(
             &logged_user_uuid,
             &companies_uuids,
-            &crate::models::relate_ref::language::get_set_language(cxt),
+            &user_uuid,
+            &favorite,
+            (&limit, &offset),
+            &get_set_language(cxt),
             conn,
         )
     }
@@ -53,7 +65,7 @@ impl CompanyQuery {
         find_by_uuid(
             &logged_user_uuid,
             &company_uuid,
-            &crate::models::relate_ref::language::get_set_language(cxt),
+            &get_set_language(cxt),
             conn,
         )
     }
@@ -76,14 +88,14 @@ impl CompanyQuery {
             (Some(company_uuid), None) => {
                 company_represent::list::get_by_company_uuid(
                     &company_uuid,
-                    &crate::models::relate_ref::language::get_set_language(cxt),
+                    &get_set_language(cxt),
                     conn,
                 )
             }
             (None, Some(represents_uuids)) => {
                 company_represent::list::get_represent_by_uuids(
                     &represents_uuids,
-                    &crate::models::relate_ref::language::get_set_language(cxt),
+                    &get_set_language(cxt),
                     conn,
                 )
             }
@@ -108,7 +120,7 @@ impl CompanyQuery {
         get_by_company_uuid(
             &logged_user_uuid,
             &company_uuid,
-            &crate::models::relate_ref::language::get_set_language(cxt),
+            &get_set_language(cxt),
             conn
         )
     }
@@ -128,7 +140,7 @@ impl CompanyQuery {
         get_roles_for_company(
             &logged_user_uuid,
             &company_uuid,
-            &crate::models::relate_ref::language::get_set_language(cxt),
+            &get_set_language(cxt),
             conn
         )
     }
