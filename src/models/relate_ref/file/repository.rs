@@ -82,7 +82,7 @@ impl ShowFileForDownload {
             .expect("Error get file data");
 
         // collect data for user
-        let owner_user: ShowUserShort = ShowUserShort::get_by_uuid(
+        let owner_user: ShowUserShort = ShowUserShort::get_without_check_by_uuid(
             &file_data.user_uuid,
             conn
         ).expect("Error loading user");

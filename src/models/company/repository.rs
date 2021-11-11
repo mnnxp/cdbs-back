@@ -73,6 +73,21 @@ impl ShowCompanyShort {
             conn
         )?;
 
+        ShowCompanyShort::get_without_check_by_uuid(
+            target_company_uuid,
+            logged_user_uuid,
+            set_lang_id,
+            conn
+        )
+    }
+
+    /// Gets comapany short data by company_uuid wtihout check access
+    pub(crate) fn get_without_check_by_uuid(
+        target_company_uuid: &Uuid,
+        logged_user_uuid: &Uuid,
+        set_lang_id: &i32,
+        conn: &PgConnection,
+    ) -> ServiceResult<ShowCompanyShort> {
         // get target company
         let company: Company = Company::get_company_by_uuid(
             target_company_uuid,
@@ -81,8 +96,10 @@ impl ShowCompanyShort {
         .expect("Error loading company");
 
         // get image file (favicon) for company
-        let image_file = ShowFileForDownload::get_file_by_uuid(&company.image_file_uuid, conn)
-            .expect("Error loading company file");
+        let image_file = ShowFileForDownload::get_file_by_uuid(
+            &company.image_file_uuid,
+            conn
+        ).expect("Error loading company file");
 
         // get region for company
         let region_with_translate: RegionTranslateList = RegionTranslateList::get_region_by_id(
@@ -138,8 +155,8 @@ impl ShowCompanyShort {
                 conn
             ) {
                 Ok(value) => result.push(value),
-                other_res => {
-                    debug!("Failed get company short data: {:?}", other_res);
+                Err(err) => {
+                    debug!("Failed get company short data: {:?}", err);
                 },
             };
         }
@@ -204,14 +221,16 @@ impl CompanyAndRelatedData {
         ).expect("Error loading company");
 
         // get company owner
-        let owner_user = crate::models::user::model::ShowUserShort::get_by_uuid(
+        let owner_user = crate::models::user::model::ShowUserShort::get_without_check_by_uuid(
             &company.user_uuid,
             conn
         ).expect("Error loading slim_user");
 
         // get image file (favicon) for company
-        let image_file = ShowFileForDownload::get_file_by_uuid(&company.image_file_uuid, conn)
-            .expect("Error loading company file");
+        let image_file = ShowFileForDownload::get_file_by_uuid(
+            &company.image_file_uuid,
+            conn
+        ).expect("Error loading company file");
 
         // get company represents for company
         let company_represents_with_related_data = CompanyRepresentAndRelatedData::get_list_represents_by_company_uuid(

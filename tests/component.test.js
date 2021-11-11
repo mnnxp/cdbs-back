@@ -2692,6 +2692,55 @@ describe('component', () => {
       data: { component },
     } = body;
     expect(component.uuid).toBe(componentUuidStandard);
+    // standard private
+    expect(component.componentStandards).toBeEmptyArray();
+    done();
+  });
+
+  it('/graphql:Q Get full data Component - OK check add standard component', async (done) => {
+    await global.knex.raw('UPDATE standard_ref SET type_access_id=? WHERE uuid=?', [
+      3,
+      parentStandardUuid,
+    ]);
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+          query: `query {
+            component(componentUuid: "${componentUuidStandard}") {
+              uuid
+              componentStandards {
+                uuid
+                classifier
+                name
+                ownerCompany {
+                  uuid
+                  shortname
+                  region {
+                    region
+                  }
+                  companyType {
+                    shortname
+                  }
+                  isSupplier
+                }
+                standardStatus {
+                  name
+                }
+              }
+            }
+          }`,
+        })
+      .expect(HttpStatus.OK)
+    debug('/graphql filter component=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { component },
+    } = body;
+    expect(component.uuid).toBe(componentUuidStandard);
     expect(component.componentStandards[0].uuid).toBe(parentStandardUuid);
     expect(component.componentStandards[0].classifier).toBeNonEmptyString();
     expect(component.componentStandards[0].name).toBeNonEmptyString();
@@ -2699,6 +2748,11 @@ describe('component', () => {
     expect(component.componentStandards[0].ownerCompany.companyType.shortname).toBeNonEmptyString();
     expect(component.componentStandards[0].standardStatus.name).toBeNonEmptyString();
     done();
+    // return private type access
+    await global.knex.raw('UPDATE standard_ref SET type_access_id=? WHERE uuid=?', [
+      1,
+      parentStandardUuid,
+    ]);
   });
 
   // Testing delete standards component

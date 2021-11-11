@@ -3,6 +3,7 @@ use crate::models::standard::model::{Standard, ShowStandardShort, StandardAndRel
 use crate::models::standard::standard_status::model::StandardStatusTranslateList;
 use crate::models::standard::standard_fav::model::StandardFav;
 use crate::models::standard::spec::model::StandardSpecWithTranslation;
+use crate::models::standard::access::util::check_access_standard_for_user;
 use crate::models::relate_ref::region::model::RegionTranslateList;
 use crate::models::relate_ref::keyword::model::Keyword;
 use crate::models::relate_ref::file::model::ShowFileForDownload;
@@ -23,9 +24,67 @@ impl Standard {
 }
 
 impl ShowStandardShort {
+    pub(crate) fn get_by_uuid(
+        logged_user_uuid: &Uuid,
+        target_standard_uuid: &Uuid,
+        set_lang_id: &i32,
+        conn: &PgConnection,
+    ) -> ServiceResult<ShowStandardShort> {
+        let need_access_level = 3; // todo!(create enum for manage access level)
+
+        check_access_standard_for_user(
+            logged_user_uuid,
+            target_standard_uuid,
+            &need_access_level,
+            conn
+        )?;
+
+        // get target standard
+        let standard: Standard = Standard::get_standard_by_uuid(
+            target_standard_uuid,
+            conn
+        ).expect("Error loading standard");
+
+        // get standard owner company
+        let owner_company = crate::models::company::model::ShowCompanyShort::get_without_check_by_uuid(
+            &standard.company_uuid,
+            logged_user_uuid,
+            set_lang_id,
+            conn
+        ).expect("Error loading company short data");
+
+        // get standard type with translation for standard
+        let standard_status: StandardStatusTranslateList = StandardStatusTranslateList::get_standard_status_by_id(
+            &standard.standard_status_id,
+            set_lang_id,
+            conn
+        ).expect("Error loading standard_status");
+
+        // check whether the object is being tracked auth user
+        let is_followed = crate::models::standard::standard_fav::util::check_subscriber_by_uuid(
+            target_standard_uuid,
+            logged_user_uuid,
+            conn
+        ).expect("Error get is_followed");
+
+        Ok(ShowStandardShort {
+            uuid: standard.uuid,
+            classifier: standard.classifier,
+            name: standard.name,
+            description: standard.description,
+            specified_tolerance: standard.specified_tolerance,
+            publication_at: standard.publication_at,
+            owner_company,
+            standard_status,
+            updated_at: standard.updated_at,
+            is_followed,
+        })
+
+    }
+
     pub(crate) fn get_list_by_uuids(
         target_standards_uuids: &[Uuid],
-        target_user_uuid: &Uuid,
+        logged_user_uuid: &Uuid,
         set_lang_id: &i32,
         conn: &PgConnection,
     ) -> ServiceResult<Vec<ShowStandardShort>> {
@@ -34,46 +93,17 @@ impl ShowStandardShort {
 
         // collecting data for each standard
         for target_standard_uuid in target_standards_uuids.iter() {
-            // get target standard
-            let standard: Standard = Standard::get_standard_by_uuid(
+            match ShowStandardShort::get_by_uuid(
+                logged_user_uuid,
                 target_standard_uuid,
-                conn
-            ).expect("Error loading standard");
-
-            // get standard owner company
-            let owner_company = crate::models::company::model::ShowCompanyShort::get_by_uuid(
-                &standard.company_uuid,
-                target_user_uuid,
                 set_lang_id,
                 conn
-            ).expect("Error loading company short data");
-
-            // get standard type with translation for standard
-            let standard_status: StandardStatusTranslateList = StandardStatusTranslateList::get_standard_status_by_id(
-                &standard.standard_status_id,
-                set_lang_id,
-                conn
-            ).expect("Error loading standard_status");
-
-            // check whether the object is being tracked auth user
-            let is_followed = crate::models::standard::standard_fav::util::check_subscriber_by_uuid(
-                target_standard_uuid,
-                target_user_uuid,
-                conn
-            ).expect("Error get is_followed");
-
-            result.push(ShowStandardShort {
-                uuid: standard.uuid,
-                classifier: standard.classifier,
-                name: standard.name,
-                description: standard.description,
-                specified_tolerance: standard.specified_tolerance,
-                publication_at: standard.publication_at,
-                owner_company,
-                standard_status,
-                updated_at: standard.updated_at,
-                is_followed,
-            });
+            ) {
+                Ok(value) => result.push(value),
+                Err(err) => {
+                    debug!("Failed get standard short data: {:?}", err);
+                },
+            }
         }
         Ok(result)
     }
@@ -83,10 +113,19 @@ impl StandardAndRelatedData {
     /// Collecting standard data and related data using uuid
     pub(crate) fn collect_related_data(
         target_standard_uuid: &Uuid,
-        target_user_uuid: &Uuid,
+        logged_user_uuid: &Uuid,
         set_lang_id: &i32,
         conn: &PgConnection,
     ) -> ServiceResult<StandardAndRelatedData> {
+        let need_access_level = 3; // todo!(create enum for manage access level)
+
+        check_access_standard_for_user(
+            logged_user_uuid,
+            target_standard_uuid,
+            &need_access_level,
+            conn
+        )?;
+
         // collect data for standard
         let standard: Standard = Standard::get_standard_by_uuid(
             target_standard_uuid,
@@ -94,19 +133,21 @@ impl StandardAndRelatedData {
         ).expect("Error loading standard");
 
         // get image file (favicon) for standard
-        let image_file = ShowFileForDownload::get_file_by_uuid(&standard.image_file_uuid, conn)
-            .expect("Error loading standard file");
+        let image_file = ShowFileForDownload::get_file_by_uuid(
+            &standard.image_file_uuid,
+            conn
+        ).expect("Error loading standard file");
 
         // get standard owner user
-        let owner_user = crate::models::user::model::ShowUserShort::get_by_uuid(
+        let owner_user = crate::models::user::model::ShowUserShort::get_without_check_by_uuid(
             &standard.user_uuid,
             conn
         ).expect("Error loading slim_user");
 
         // get standard owner company
-        let owner_company = crate::models::company::model::ShowCompanyShort::get_by_uuid(
+        let owner_company = crate::models::company::model::ShowCompanyShort::get_without_check_by_uuid(
             &standard.company_uuid,
-            target_user_uuid,
+            logged_user_uuid,
             set_lang_id,
             conn
         ).expect("Error loading company short data");
@@ -155,7 +196,7 @@ impl StandardAndRelatedData {
         // check whether the object is being tracked auth user
         let is_followed = crate::models::standard::standard_fav::util::check_subscriber_by_uuid(
             target_standard_uuid,
-            target_user_uuid,
+            logged_user_uuid,
             conn
         ).expect("Error get is_followed");
 

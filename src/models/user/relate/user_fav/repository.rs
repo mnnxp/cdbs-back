@@ -38,7 +38,11 @@ impl ShowUserShort {
                 ServiceError::InternalServerError
             })?;
 
-        ShowUserShort::get_list_by_uuids(&target_list_user_uuid, conn)
+        ShowUserShort::get_users_by_uuids(
+            logged_user_uuid,
+            &target_list_user_uuid,
+            conn
+        )
     }
 
     /// get favorite list for user
@@ -73,7 +77,11 @@ impl ShowUserShort {
                 ServiceError::InternalServerError
             })?;
 
-        ShowUserShort::get_list_by_uuids(&target_list_user_uuid, conn)
+        ShowUserShort::get_users_by_uuids(
+            logged_user_uuid,
+            &target_list_user_uuid,
+            conn
+        )
     }
 }
 

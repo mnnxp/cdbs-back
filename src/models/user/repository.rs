@@ -48,7 +48,8 @@ impl UserQuery {
         conn: &PgConnection,
     ) -> ServiceResult<UserQuery> {
         Ok(user_ref::user_ref
-            .filter(user_ref::uuid.eq(target_user_uuid))
+            .filter(user_ref::uuid.eq(target_user_uuid)
+            .and(user_ref::is_delete.eq(false)))
             .select((
                 user_ref::uuid,
                 user_ref::email,
@@ -94,13 +95,36 @@ impl UserShort {
 }
 
 impl ShowUserShort {
-    /// get ShowUserShort data for target uuid user
+    /// Gets ShowUserShort data by user_uuid with check access
     pub(crate) fn get_by_uuid(
+        logged_user_uuid: &Uuid,
+        target_user_uuid: &Uuid,
+        conn: &PgConnection,
+    ) -> ServiceResult<ShowUserShort> {
+        let need_access_level = 3; // todo!(create enum for manage access level)
+
+        // check access user for target user
+        check_access_user_for_user(
+            logged_user_uuid,
+            target_user_uuid,
+            &need_access_level,
+            conn
+        )?;
+
+        ShowUserShort::get_without_check_by_uuid(
+            target_user_uuid,
+            conn
+        )
+    }
+
+    /// Gets user short data by user_uuid wtihout check access
+    pub(crate) fn get_without_check_by_uuid(
         target_user_uuid: &Uuid,
         conn: &PgConnection,
     ) -> ServiceResult<ShowUserShort> {
         let user_data = user_ref::user_ref
-            .filter(user_ref::uuid.eq(target_user_uuid))
+            .filter(user_ref::uuid.eq(target_user_uuid)
+            .and(user_ref::is_delete.eq(false)))
             .select((
                 user_ref::uuid,
                 user_ref::username,
@@ -116,22 +140,6 @@ impl ShowUserShort {
                 conn
             ).expect("Failed get CertificateAndFile for ShowUserShort")
         )))
-    }
-
-    /// get ShowUserShort data for target list uuid user
-    pub(crate) fn get_list_by_uuids(
-        target_users_uuids: &[Uuid],
-        conn: &PgConnection,
-    ) -> ServiceResult<Vec<ShowUserShort>> {
-        let mut show_users_short_data: Vec<ShowUserShort> = Vec::new();
-        for target_user_uuid in target_users_uuids.iter() {
-            show_users_short_data.push(ShowUserShort::get_by_uuid(
-                target_user_uuid,
-                conn
-            )?)
-        }
-
-        Ok(show_users_short_data)
     }
 
     /// get ShowUserShort data of public users
@@ -172,30 +180,25 @@ impl ShowUserShort {
         Ok(users_with_image)
     }
 
-    /// Gets users data by uuids with check access
+    /// Gets users short data by uuids
     pub(crate) fn get_users_by_uuids(
         logged_user_uuid: &Uuid,
         target_users_uuids: &[Uuid],
         conn: &PgConnection,
     ) -> ServiceResult<Vec<ShowUserShort>> {
-        let need_access_level = 3; // todo!(create enum for manage access level)
-
-        // check access user for all users
-        for tu_uuid in target_users_uuids {
-            check_access_user_for_user(
+        let mut result: Vec<ShowUserShort> = Vec::new();
+        for target_user_uuid in target_users_uuids.iter() {
+            match ShowUserShort::get_by_uuid(
                 logged_user_uuid,
-                tu_uuid,
-                &need_access_level,
+                target_user_uuid,
                 conn
-            )?;
+            ) {
+                Ok(value) => result.push(value),
+                Err(err) => {
+                    debug!("Failed get user short data: {:?}", err);
+                },
+            }
         }
-
-        let result: Vec<ShowUserShort> = ShowUserShort::get_list_by_uuids(
-            target_users_uuids,
-            conn
-        ).expect("Error loading list users and collect short data");
-
-        debug!("Users data: {:#?}", result);
 
         Ok(result)
     }

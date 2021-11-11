@@ -192,7 +192,7 @@ impl ShowComponentShort {
             .expect("Error loading component");
 
             // get component owner
-            let owner_user = crate::models::user::model::ShowUserShort::get_by_uuid(
+            let owner_user = crate::models::user::model::ShowUserShort::get_without_check_by_uuid(
                 &component.user_uuid,
                 conn
             ).expect("Error loading slim_user");
@@ -225,8 +225,10 @@ impl ShowComponentShort {
             ).expect("Error loading license");
 
             // get files for component
-            let files = ShowFileForDownload::for_component(&component, conn)
-                .expect("Error loading component_file");
+            let files = ShowFileForDownload::for_component(
+                &component,
+                conn
+            ).expect("Error loading component_file");
 
             // collect data for supplier component
             let component_suppliers: Vec<ComponentSupplierRelatedData> = ComponentSupplierRelatedData::get_first_supplier(
@@ -269,7 +271,7 @@ impl ComponentAndRelatedData {
         ).expect("Error loading component");
 
         // get component owner
-        let owner_user = crate::models::user::model::ShowUserShort::get_by_uuid(
+        let owner_user = crate::models::user::model::ShowUserShort::get_without_check_by_uuid(
             &component.user_uuid,
             conn
         ).expect("Error loading slim_user");
@@ -320,8 +322,10 @@ impl ComponentAndRelatedData {
         ).expect("Error loading license");
 
         // get files for component
-        let files = ShowFileForDownload::for_component(&component, conn)
-            .expect("Error loading component files");
+        let files = ShowFileForDownload::for_component(
+            &component,
+            conn
+        ).expect("Error loading component files");
 
         // get specs with translation for component
         let component_specs: Vec<ComponentSpecWithTranslation> = ComponentSpecWithTranslation::for_component(

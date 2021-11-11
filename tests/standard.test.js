@@ -1864,7 +1864,7 @@ describe('company', () => {
     done();
   });
 
-  it('/graphql:Q Get full data Standard - BadReuest no access', async (done) => {
+  it('/graphql:Q Get full data Standard - OK no access', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .set(
@@ -1880,9 +1880,10 @@ describe('company', () => {
       })
       .expect(HttpStatus.OK)
     debug('/graphql - body=%o', body);
-    const { errors, data } = body;
-    expect(data).toBeNull();
-    expect(errors[0].message).toBe("BadRequest: Access denied");
+    const {
+      data: { standards },
+    } = body;
+    expect(standards).toBeEmptyArray();
     done();
   });
 
