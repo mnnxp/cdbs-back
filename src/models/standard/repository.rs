@@ -24,6 +24,38 @@ impl Standard {
 }
 
 impl ShowStandardShort {
+    /// Gets standards by filter or all public
+    /// limit and offset works only without filter
+    pub(crate) fn get_standards(
+        logged_user_uuid: &Uuid,
+        filter_standards_uuids: &[Uuid],
+        limit: &i32,
+        offset: &i32,
+        set_lang_id: &i32,
+        conn: &PgConnection,
+    ) -> ServiceResult<Vec<ShowStandardShort>> {
+        match filter_standards_uuids.is_empty() {
+            true => {
+                ShowStandardShort::get_all_public(
+                    logged_user_uuid,
+                    limit,
+                    offset,
+                    set_lang_id,
+                    conn
+                )
+            },
+            false => {
+                ShowStandardShort::get_list_by_uuids(
+                    filter_standards_uuids,
+                    logged_user_uuid,
+                    set_lang_id,
+                    conn
+                )
+            }
+        }
+    }
+
+    /// Gets standard short data by standard_uuid with check access
     pub(crate) fn get_by_uuid(
         logged_user_uuid: &Uuid,
         target_standard_uuid: &Uuid,
@@ -91,6 +123,44 @@ impl ShowStandardShort {
         // the for collect the result :)
         let mut result: Vec<ShowStandardShort> = Vec::new();
 
+        // collecting data for each standard
+        for target_standard_uuid in target_standards_uuids.iter() {
+            match ShowStandardShort::get_by_uuid(
+                logged_user_uuid,
+                target_standard_uuid,
+                set_lang_id,
+                conn
+            ) {
+                Ok(value) => result.push(value),
+                Err(err) => {
+                    debug!("Failed get standard short data: {:?}", err);
+                },
+            }
+        }
+        Ok(result)
+    }
+
+    /// Gets all public standards short data
+    pub(crate) fn get_all_public(
+        logged_user_uuid: &Uuid,
+        limit: &i32,
+        offset: &i32,
+        set_lang_id: &i32,
+        conn: &PgConnection,
+    ) -> ServiceResult<Vec<ShowStandardShort>> {
+        // gets all public standards uuids
+        let target_standards_uuids = standard_ref::standard_ref
+            .filter(standard_ref::type_access_id.eq(3)
+            .and(standard_ref::is_delete.eq(false)))
+            .select(standard_ref::uuid)
+            .limit(*limit as i64)
+            .offset(*offset as i64)
+            .load::<Uuid>(conn)
+            .expect("Failed get public standards");
+
+
+        // the for collect the result :)
+        let mut result: Vec<ShowStandardShort> = Vec::new();
         // collecting data for each standard
         for target_standard_uuid in target_standards_uuids.iter() {
             match ShowStandardShort::get_by_uuid(

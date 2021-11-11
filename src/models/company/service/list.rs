@@ -103,7 +103,7 @@ fn get_companies_by_user(
         .offset(*offset as i64)
         .load::<Uuid>(conn)
         .map_err(|err| {
-            debug!("Failed get company fav: {:?}", err);
+            debug!("Failed get company: {:?}", err);
             ServiceError::InternalServerError
         })
 }

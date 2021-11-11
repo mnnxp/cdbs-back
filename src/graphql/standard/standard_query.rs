@@ -16,18 +16,31 @@ impl StandardQuery {
     async fn standards(
         &self,
         cxt: &Context<'_>,
-        standards_uuids: Vec<Uuid>,
+        standards_uuids: Option<Vec<Uuid>>,
+        company_uuid: Option<Uuid>,
+        favorite: Option<bool>,
+        limit: Option<i32>,
+        offset: Option<i32>,
     ) -> ServiceResult<Vec<ShowStandardShort>> {
-        use crate::models::standard::service::list::find_by_uuids;
+        use crate::models::standard::service::list::get_standard;
 
         // authorization check
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
+        let standards_uuids: Vec<Uuid> = standards_uuids.unwrap_or_default();
+
+        let favorite: bool = favorite.unwrap_or(false);
+        let limit: i32 = limit.unwrap_or(100);
+        let offset: i32 = offset.unwrap_or(0);
+
         let conn: &PooledConnection = &get_conn(cxt)?;
 
-        find_by_uuids(
+        get_standard(
             &logged_user_uuid,
             &standards_uuids,
+            &company_uuid,
+            &favorite,
+            (&limit, &offset),
             &crate::models::relate_ref::language::get_set_language(cxt),
             conn,
         )

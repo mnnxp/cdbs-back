@@ -1797,7 +1797,7 @@ describe('company', () => {
     done();
   });
 
-  // Testing get standard data
+  // Testing get standards data
   it('/graphql:Q Get full data Standard - BadRequest without token', async (done) => {
     const { body } = await agent
       .post('/graphql')
@@ -1880,6 +1880,114 @@ describe('company', () => {
       })
       .expect(HttpStatus.OK)
     debug('/graphql - body=%o', body);
+    const {
+      data: { standards },
+    } = body;
+    expect(standards).toBeEmptyArray();
+    done();
+  });
+
+  it('/graphql:Q List standards - BadReuest not correct arguments', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `query selectComponentQuery{
+          standards(
+            companyUuid: "${companyUuidNoSupplier}"
+            favorite:  true
+          ) {
+            ${standardsListQuery}
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql deleteUserAccessStandard=%o', body);
+    // expect(body).toBe(0);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Failed match arguments'
+    );
+    expect(body.errors[0].path[0]).toBe('standards');
+    done();
+  });
+
+  it('/graphql:Q Get full data Standard - OK without arguments', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `query selectStandardQuery{
+          standards {
+            ${standardsListQuery}
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql - body=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { standards },
+    } = body;
+    expect(standards).toBeNonEmptyArray();
+    expect(standards[0].uuid).toBe(standardUuidFirst);
+    expect(standards[0].name).toBe(nameStandard);
+    done();
+  });
+
+  it('/graphql:Q Get full data Standard - OK by company', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `query selectStandardQuery{
+          standards (
+            companyUuid: "${companyUuidSupplier}"
+          ){
+            ${standardsListQuery}
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql - body=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { standards },
+    } = body;
+    expect(standards).toBeNonEmptyArray();
+    expect(standards[0].uuid).toBe(standardUuidFirst);
+    expect(standards[0].name).toBe(nameStandard);
+    done();
+  });
+
+  it('/graphql:Q Get full data Standard - OK by company', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `query selectStandardQuery{
+          standards (
+            companyUuid: "${companyUuidNoSupplier}"
+          ){
+            ${standardsListQuery}
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql - body=%o', body);
+    // expect(body).toBe(0);
     const {
       data: { standards },
     } = body;
@@ -2378,6 +2486,30 @@ describe('company', () => {
     done();
   });
 
+  it('/graphql:Q Get full data Standard - OK Select with fake uuid', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `query selectStandardQuery{
+          standards (standardsUuids: "${uuidFake}") {
+            ${standardsListQuery}
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { standards },
+    } = body;
+    expect(standards).toBeEmptyArray();
+    done();
+  });
+
   it('/graphql:Q Get full data Standard - OK Select with uuid (private access)', async (done) => {
     const { body } = await agent
       .post('/graphql')
@@ -2626,80 +2758,31 @@ describe('company', () => {
     done();
   });
 
-  // it('/graphql:Q Fav list standards - BadRequest no token', async (done) => {
-  //   const { body } = await agent
-  //     .post('/graphql')
-  //     .send({
-  //       query: `query {
-  //         standards(favorite: true) {
-  //           ${standardsListQuery}
-  //         }
-  //       }`,
-  //     })
-  //     .expect(HttpStatus.OK);
-  //   debug('/graphql body=%o', body);
-  //   expect(body.data).toBeNull();
-  //   expect(body.errors[0].message).toBe(
-  //     'BadRequest: Token not found.'
-  //   );
-  //   expect(body.errors[0].path[0]).toBe('standards');
-  //   done();
-  // });
-
-  // it('/graphql:Q Fav list standards - OK', async (done) => {
-  //   const { body } = await agent
-  //     .post('/graphql')
-  //     .set(
-  //       'Authorization',
-  //       `Bearer ${authorizationTokenSecond}`
-  //     )
-  //     .send({
-  //       query: `query {
-  //         standards(favorite: true) {
-  //           ${standardsListQuery}
-  //         }
-  //       }`,
-  //     })
-  //     .expect(HttpStatus.OK);
-  //   debug('/graphql body=%o', body);
-  //   // expect(body).toBe(0);
-  //   const {
-  //     data: { standards },
-  //   } = body;
-  //   expect(standards[0].uuid).toBe(standardUuidFirst);
-  //   expect(standards[0].name).toBe(nameComponent);
-  //   expect(standards[0].isFollowed).toBe(true);
-  //   done();
-  // });
-
-  // Testing get standards from favorite list user
-  // it('/graphql:Q List standards - Ok favorite list by user', async (done) => {
-  //   const { body } = await agent
-  //     .post('/graphql')
-  //     .set(
-  //       'Authorization',
-  //       `Bearer ${authorizationTokenFirst}`
-  //     )
-  //     .send({
-  //       query: `query selectComponentQuery{
-  //         standards(
-  //           userUuid:  "${authorizationUserSecond}"
-  //           favorite:  true
-  //         ) {
-  //           ${standardsListQuery}
-  //         }
-  //       }`,
-  //     })
-  //     .expect(HttpStatus.OK)
-  //   debug('/graphql body=%o', body);
-  //   // expect(body).toBe(0);
-  //   expect(body.data.standards).toBeNonEmptyArray();
-  //   expect(body.data.standards[0].uuid).toBe(standardUuidFirst);
-  //   expect(body.data.standards[0].ownerUser.username).toBe(username);
-  //   expect(body.data.standards[0].isFollowed).toBe(false);
-  //   expect(body.data.standards.length).toBe(1);
-  //   done();
-  // });
+  it('/graphql:Q Fav list standards - OK', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `query {
+          standards(favorite: true) {
+            ${standardsListQuery}
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK);
+    debug('/graphql body=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { standards },
+    } = body;
+    expect(standards[0].uuid).toBe(standardUuidFirst);
+    expect(standards[0].name).toBe(nameStandard2);
+    expect(standards[0].isFollowed).toBe(true);
+    done();
+  });
 
   it('/graphql:M StandardFav - Ok delete', async (done) => {
     const { body } = await agent
@@ -2719,29 +2802,29 @@ describe('company', () => {
     done();
   });
 
-  // it('/graphql:Q Fav list standards - OK', async (done) => {
-  //   const { body } = await agent
-  //     .post('/graphql')
-  //     .set(
-  //       'Authorization',
-  //       `Bearer ${authorizationTokenSecond}`
-  //     )
-  //     .send({
-  //       query: `query {
-  //         standards(favorite: true) {
-  //           ${standardsListQuery}
-  //         }
-  //       }`,
-  //     })
-  //     .expect(HttpStatus.OK);
-  //   debug('/graphql body=%o', body);
-  //   // expect(body).toBe(0);
-  //   const {
-  //     data: { standards },
-  //   } = body;
-  //   expect(standards).toBeEmptyArray();
-  //   done();
-  // });
+  it('/graphql:Q Fav list standards - OK', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `query {
+          standards(favorite: true) {
+            ${standardsListQuery}
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK);
+    debug('/graphql body=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { standards },
+    } = body;
+    expect(standards).toBeEmptyArray();
+    done();
+  });
 
   // disable access for authorizationTokenSecond
   it('/graphql:M deleteUserAccessStandard - OK delete access user', async (done) => {
