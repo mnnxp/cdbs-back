@@ -9,7 +9,7 @@ use crate::models::component::access::user::model::UserAccessComponentAndRelated
 use crate::models::component::component_modification;
 use crate::models::component::component_modification::fileset_for_program::model::FilesetProgramRelatedData;
 use crate::models::component::component_modification::modification_file_from_fileset::model::FileOfFileset;
-use crate::models::component::model::{ComponentAndRelatedData, ShowComponentShort, ComponentsArg, ComponentsQueryArg};
+use crate::models::component::model::{ComponentAndRelatedData, ShowComponentShort, ComponentsArg, IptComponentsArg};
 use crate::models::relate_ref::file::model::DownloadFile;
 use crate::models::relate_ref::language::get_set_language;
 
@@ -21,7 +21,7 @@ impl ComponentQuery {
     async fn components(
         &self,
         cxt: &Context<'_>,
-        arguments: Option<ComponentsQueryArg>
+        arguments: Option<IptComponentsArg>
     ) -> ServiceResult<Vec<ShowComponentShort>> {
         use crate::models::component::service::list::get_components;
 

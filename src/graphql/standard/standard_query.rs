@@ -2,7 +2,7 @@ use crate::errors::ServiceResult;
 use crate::database::{get_conn, PooledConnection};
 use crate::models::user::access::logged::get_logged_user_uuid;
 use crate::models::standard::model::{
-    ShowStandardShort, StandardAndRelatedData, StandardsArg, StandardsQueryArg,
+    ShowStandardShort, StandardAndRelatedData, StandardsArg, IptStandardsArg,
 };
 use crate::models::standard::access::company::model::CompanyAccessStandardAndRelatedData;
 use crate::models::standard::access::user::model::UserAccessStandardAndRelatedData;
@@ -19,7 +19,7 @@ impl StandardQuery {
     async fn standards(
         &self,
         cxt: &Context<'_>,
-        arguments: Option<StandardsQueryArg>,
+        arguments: Option<IptStandardsArg>,
     ) -> ServiceResult<Vec<ShowStandardShort>> {
         use crate::models::standard::service::list::get_standard;
 

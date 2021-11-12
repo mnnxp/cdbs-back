@@ -2,7 +2,7 @@ use crate::errors::ServiceResult;
 use crate::database::{get_conn, PooledConnection};
 use crate::models::user::access::logged::get_logged_user_uuid;
 use crate::models::company::model::{
-    CompanyAndRelatedData, ShowCompanyShort, CompaniesArg, CompaniesQueryArg,
+    CompanyAndRelatedData, ShowCompanyShort, CompaniesArg, IptCompaniesArg,
 };
 use crate::models::company;
 use crate::models::company::member::model::CompanyMemberAndRelatedData;
@@ -22,7 +22,7 @@ impl CompanyQuery {
     async fn companies(
         &self,
         cxt: &Context<'_>,
-        arguments: Option<CompaniesQueryArg>,
+        arguments: Option<IptCompaniesArg>,
     ) -> ServiceResult<Vec<ShowCompanyShort>> {
         use company::service::list::get_companies;
 

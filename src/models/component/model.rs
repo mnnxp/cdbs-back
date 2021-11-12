@@ -269,7 +269,7 @@ pub struct IptUpdateComponentData {
 }
 
 #[derive(InputObject, Deserialize, Debug)]
-pub struct ComponentsQueryArg {
+pub struct IptComponentsArg {
     pub components_uuids:  Option<Vec<Uuid>>,
     pub company_uuid: Option<Uuid>,
     pub standard_uuid: Option<Uuid>,
@@ -304,9 +304,9 @@ impl Default for ComponentsArg {
     }
 }
 
-impl From<ComponentsQueryArg> for ComponentsArg {
-    fn from(data: ComponentsQueryArg) -> Self {
-        let ComponentsQueryArg {
+impl From<IptComponentsArg> for ComponentsArg {
+    fn from(data: IptComponentsArg) -> Self {
+        let IptComponentsArg {
             components_uuids,
             company_uuid,
             standard_uuid,

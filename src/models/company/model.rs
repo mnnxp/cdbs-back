@@ -288,7 +288,7 @@ impl From<Company> for SlimCompany {
 }
 
 #[derive(InputObject, Deserialize, Debug)]
-pub struct CompaniesQueryArg {
+pub struct IptCompaniesArg {
     pub companies_uuids:  Option<Vec<Uuid>>,
     pub user_uuid: Option<Uuid>,
     pub favorite: Option<bool>,
@@ -317,9 +317,9 @@ impl Default for CompaniesArg {
     }
 }
 
-impl From<CompaniesQueryArg> for CompaniesArg {
-    fn from(data: CompaniesQueryArg) -> Self {
-        let CompaniesQueryArg {
+impl From<IptCompaniesArg> for CompaniesArg {
+    fn from(data: IptCompaniesArg) -> Self {
+        let IptCompaniesArg {
             companies_uuids,
             user_uuid,
             favorite,

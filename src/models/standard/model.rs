@@ -348,7 +348,7 @@ pub struct IptUpdateStandardData {
 }
 
 #[derive(InputObject, Deserialize, Debug)]
-pub struct StandardsQueryArg {
+pub struct IptStandardsArg {
     pub standards_uuids:  Option<Vec<Uuid>>,
     pub company_uuid: Option<Uuid>,
     pub favorite: Option<bool>,
@@ -377,9 +377,9 @@ impl Default for StandardsArg {
     }
 }
 
-impl From<StandardsQueryArg> for StandardsArg {
-    fn from(data: StandardsQueryArg) -> Self {
-        let StandardsQueryArg {
+impl From<IptStandardsArg> for StandardsArg {
+    fn from(data: IptStandardsArg) -> Self {
+        let IptStandardsArg {
             standards_uuids,
             company_uuid,
             favorite,

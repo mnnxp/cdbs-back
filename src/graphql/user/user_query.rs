@@ -3,7 +3,7 @@ use crate::database::{get_conn, PooledConnection};
 use crate::jwt::model::{Claims, Token};
 use crate::models::user::access::logged::{check_authorized, get_logged_user_uuid};
 use crate::models::user::model::{
-    ShowUserShort, SlimUser, UserAndRelatedData, ShowUserAndRelatedData, UsersArg, UsersQueryArg,
+    ShowUserShort, SlimUser, UserAndRelatedData, ShowUserAndRelatedData, UsersArg, IptUsersArg,
 };
 use crate::models::user::notification::model::ShowNotification;
 use crate::models::user::access::model::UserToken;
@@ -21,7 +21,7 @@ impl UserQuery {
     async fn users(
         &self,
         cxt: &Context<'_>,
-        arguments: Option<UsersQueryArg>,
+        arguments: Option<IptUsersArg>,
     ) -> ServiceResult<Vec<ShowUserShort>> {
         use crate::models::user::service::list::get_users;
 

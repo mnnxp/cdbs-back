@@ -371,7 +371,7 @@ pub struct IptUpdateUserData {
 }
 
 #[derive(InputObject, Deserialize, Debug)]
-pub struct UsersQueryArg {
+pub struct IptUsersArg {
     pub users_uuids:  Option<Vec<Uuid>>,
     pub subscribers: Option<bool>,
     pub favorite: Option<bool>,
@@ -400,9 +400,9 @@ impl Default for UsersArg {
     }
 }
 
-impl From<UsersQueryArg> for UsersArg {
-    fn from(data: UsersQueryArg) -> Self {
-        let UsersQueryArg {
+impl From<IptUsersArg> for UsersArg {
+    fn from(data: IptUsersArg) -> Self {
+        let IptUsersArg {
             users_uuids,
             subscribers,
             favorite,
