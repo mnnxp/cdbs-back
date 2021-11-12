@@ -309,8 +309,8 @@ impl From<ComponentsQueryArg> for ComponentsArg {
         let ComponentsQueryArg {
             components_uuids,
             company_uuid,
-            user_uuid,
             standard_uuid,
+            user_uuid,
             favorite,
             limit,
             offset,
@@ -319,8 +319,8 @@ impl From<ComponentsQueryArg> for ComponentsArg {
         Self {
             filter_components_uuids: components_uuids.unwrap_or_default(),
             company_uuid,
-            user_uuid,
             standard_uuid,
+            user_uuid,
             favorite: favorite.unwrap_or(false),
             limit: limit.unwrap_or(100),
             offset: offset.unwrap_or(0),
