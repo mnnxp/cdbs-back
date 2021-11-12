@@ -66,7 +66,8 @@ pub(crate) fn get_companies(
     ShowCompanyShort::get_companies(
         logged_user_uuid,
         &target_companies_uuids,
-        limit, offset,
+        limit,
+        offset,
         set_lang_id,
         conn
     ).map_err(|err| {

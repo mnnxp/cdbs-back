@@ -205,18 +205,12 @@ pub(crate) fn get_access_type_component(
 ) -> ServiceResult<i32> {
     use crate::schema::component_ref::dsl::*;
 
-    let type_access = component_ref
+    component_ref
         .filter(uuid.eq(target_component_uuid))
         .select(type_access_id)
-        .first::<i32>(conn);
-
-    match type_access {
-        Ok(ta) => Ok(ta),
-        Err(err) => {
+        .first::<i32>(conn)
+        .map_err(|err| {
             debug!("Not found data: {:?}", err);
-            Err(ServiceError::BadRequest(
-                "Not found data".to_string()
-            ))
-        },
-    }
+            ServiceError::InternalServerError
+        })
 }

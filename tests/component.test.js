@@ -463,9 +463,9 @@ async function cleanupComponentModificationDb() {
 
 describe('component', () => {
   beforeAll(() => {
-    cleanupComponentParamDb();
-    cleanupModificationParamDb();
-    cleanupComponentModificationDb();
+    // cleanupComponentParamDb();
+    // cleanupModificationParamDb();
+    // cleanupComponentModificationDb();
     cleanupComponentDb();
     cleanupStandardDb();
     cleanupCompanyDb();
@@ -473,9 +473,9 @@ describe('component', () => {
     return cleanupUserDb();
   });
   afterAll(() => {
-    cleanupComponentParamDb();
-    cleanupModificationParamDb();
-    cleanupComponentModificationDb();
+    // cleanupComponentParamDb();
+    // cleanupModificationParamDb();
+    // cleanupComponentModificationDb();
     cleanupComponentDb();
     cleanupStandardDb();
     cleanupCompanyDb();
@@ -855,7 +855,7 @@ describe('component', () => {
       )
       .send({
         query: `query {
-          components(userUuid: "${authorizationUserSecond}") {
+          components(arguments: {userUuid: "${authorizationUserSecond}"}) {
             ${componentsListQuery}
           }
         }`,
@@ -873,7 +873,7 @@ describe('component', () => {
   });
 
   // Testing get user components
-  it('/graphql:Q Components - BadRequest no access (private component)', async (done) => {
+  it('/graphql:Q Components - Ok no access (private component)', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .set(
@@ -882,18 +882,18 @@ describe('component', () => {
       )
       .send({
         query: `query {
-          components(userUuid: "${authorizationUserSecond}") {
+          components(arguments: {userUuid: "${authorizationUserSecond}"}) {
             ${componentsListQuery}
           }
         }`,
       })
       .expect(HttpStatus.OK);
     debug('/graphql body=%o', body);
-    expect(body.data).toBeNull();
-    expect(body.errors[0].message).toBe(
-      'BadRequest: Access denied'
-    );
-    expect(body.errors[0].path[0]).toBe('components');
+    // expect(body).toBe(0);
+    const {
+      data: { components },
+    } = body;
+    expect(components).toBeEmptyArray();
     done();
   });
 
@@ -906,7 +906,7 @@ describe('component', () => {
       )
       .send({
         query: `query {
-          components(userUuid: "${authorizationUserFirst}") {
+          components(arguments: {userUuid: "${authorizationUserFirst}"}) {
             ${componentsListQuery}
           }
         }`,
@@ -948,7 +948,7 @@ describe('component', () => {
       .post('/graphql')
       .send({
         query: `query {
-          components(favorite: true) {
+          components(arguments: {favorite: true}) {
             ${componentsListQuery}
           }
         }`,
@@ -972,7 +972,7 @@ describe('component', () => {
       )
       .send({
         query: `query {
-          components(favorite: true) {
+          components(arguments: {favorite: true}) {
             ${componentsListQuery}
           }
         }`,
@@ -999,10 +999,10 @@ describe('component', () => {
       )
       .send({
         query: `query selectComponentQuery{
-          components(
+          components(arguments: {
             userUuid:  "${authorizationUserSecond}"
             favorite:  true
-          ) {
+          }) {
             ${componentsListQuery}
           }
         }`,
@@ -1045,7 +1045,7 @@ describe('component', () => {
       )
       .send({
         query: `query {
-          components(favorite: true) {
+          components(arguments: {favorite: true}) {
             ${componentsListQuery}
           }
         }`,
@@ -2015,7 +2015,7 @@ describe('component', () => {
       .post('/graphql')
       .send({
         query: `query componentsQuery{
-          components(componentsUuids: "${componentUuidStandard}") {
+          components(arguments: {componentsUuids: "${componentUuidStandard}"}) {
             ${componentsListQuery}
           }
         }`,
@@ -2039,7 +2039,7 @@ describe('component', () => {
       )
       .send({
         query: `query selectComponentQuery{
-          components(componentsUuids: "${componentUuidStandard}") {
+          components(arguments: {componentsUuids: "${componentUuidStandard}"}) {
             ${componentsListQuery}
           }
         }`,
@@ -2052,7 +2052,32 @@ describe('component', () => {
   });
 
   it('/graphql:Q List components - OK without params', async (done) => {
-    const response1 = await agent
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `query {
+          components {
+            ${componentsListQuery}
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { components }
+    } = body;
+    expect(components[0].uuid).toBe(componentUuidStandard);
+    expect(components[0].name).toBe(nameComponent);
+    done();
+  });
+
+  it('/graphql:Q List components - OK without params', async (done) => {
+    const { body } = await agent
       .post('/graphql')
       .set(
         'Authorization',
@@ -2066,9 +2091,13 @@ describe('component', () => {
         }`,
       })
       .expect(HttpStatus.OK)
-    debug('/graphql filter components=%o', response1.body.data.components);
-    expect(response1.body.data.components[0].uuid).toBe(componentUuidNoStandard);
-    expect(response1.body.data.components[0].name).toBe(nameComponent2);
+    debug('/graphql body=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { components }
+    } = body;
+    expect(components[0].uuid).toBe(componentUuidStandard);
+    expect(components[0].name).toBe(nameComponent);
     done();
   });
 
@@ -2081,10 +2110,10 @@ describe('component', () => {
       )
       .send({
         query: `query selectComponentQuery{
-          components(componentsUuids: [
+          components(arguments: {componentsUuids: [
             "${componentUuidStandard}",
             "${componentUuidNoStandard}",
-          ]) {
+          ]}) {
             ${componentsListQuery}
           }
         }`,
@@ -2099,7 +2128,7 @@ describe('component', () => {
     done();
   });
 
-  it('/graphql:Q List components - BadRequest get private component', async (done) => {
+  it('/graphql:Q List components - Ok get private component', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .set(
@@ -2108,21 +2137,21 @@ describe('component', () => {
       )
       .send({
         query: `query selectComponentQuery{
-          components(componentsUuids: [
+          components(arguments: {componentsUuids: [
             "${componentUuidNoStandard}",
             "${parentComponentUuid}",
-          ]) {
+          ]}) {
             ${componentsListQuery}
           }
         }`,
       })
       .expect(HttpStatus.OK)
     debug('/graphql body=%o', body);
-    expect(body.data).toBeNull();
-    expect(body.errors[0].message).toBe(
-      'BadRequest: Access denied'
-    );
-    expect(body.errors[0].path[0]).toBe('components');
+    // expect(body).toBe(0);
+    const {
+      data: { components },
+    } = body;
+    expect(components).toBeEmptyArray();
     done();
   });
 
@@ -2135,11 +2164,11 @@ describe('component', () => {
       )
       .send({
         query: `query selectComponentQuery{
-          components(componentsUuids: [
+          components(arguments: {componentsUuids: [
             "${componentUuidStandard}",
             "${componentUuidNoStandard}",
             "${parentComponentUuid}",
-          ]) {
+          ]}) {
             ${componentsListQuery}
           }
         }`,
@@ -2165,10 +2194,10 @@ describe('component', () => {
       )
       .send({
         query: `query selectComponentQuery{
-          components(
+          components(arguments: {
             userUuid:  "${authorizationUserSecond}"
             favorite:  true
-          ) {
+          }) {
             ${componentsListQuery}
           }
         }`,
@@ -2180,7 +2209,7 @@ describe('component', () => {
     done();
   });
 
-  // Testing get components by company uuids (company don't has components)
+  // Testing get components by company uuids
   it('/graphql:Q List components - Ok by company', async (done) => {
     const { body } = await agent
       .post('/graphql')
@@ -2190,18 +2219,23 @@ describe('component', () => {
       )
       .send({
         query: `query selectComponentQuery{
-          components(companyUuid:  "${companyUuidSupplier}") {
+          components(arguments: {companyUuid: "${companyUuidSupplier}"}) {
             ${componentsListQuery}
           }
         }`,
       })
       .expect(HttpStatus.OK)
     debug('/graphql body=%o', body);
-    expect(body.data.components).toBeEmptyArray();
+    // expect(body).toBe(0);
+    const {
+      data: { components }
+    } = body;
+    expect(components[0].uuid).toBe(componentUuidStandard);
+    expect(components[0].name).toBe(nameComponent);
     done();
   });
 
-  it('/graphql:Q List components - BadRequest no access', async (done) => {
+  it('/graphql:Q List components - Ok no access', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .set(
@@ -2210,18 +2244,18 @@ describe('component', () => {
       )
       .send({
         query: `query selectComponentQuery{
-          components(componentsUuids: "${componentUuidNoStandard}") {
+          components(arguments: {componentsUuids: "${componentUuidNoStandard}"}) {
             ${componentsListQuery}
           }
         }`,
       })
       .expect(HttpStatus.OK)
     debug('/graphql body=%o', body);
-    expect(body.data).toBeNull();
-    expect(body.errors[0].message).toBe(
-      'BadRequest: Access denied'
-    );
-    expect(body.errors[0].path[0]).toBe('components');
+    // expect(body).toBe(0);
+    const {
+      data: { components },
+    } = body;
+    expect(components).toBeEmptyArray();
     done();
   });
 
@@ -2409,7 +2443,7 @@ describe('component', () => {
       )
       .send({
         query: `query selectComponentQuery{
-          components(companyUuid:  "${companyUuidSupplier}") {
+          components(arguments: {companyUuid:  "${companyUuidSupplier}"}) {
             ${componentsListQuery}
           }
         }`,

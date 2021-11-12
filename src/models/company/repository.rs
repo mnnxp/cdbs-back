@@ -185,7 +185,7 @@ impl ShowCompanyShort {
 
         // collecting data for each company
         for target_company_uuid in target_companies_uuids.iter() {
-            result.push(ShowCompanyShort::get_by_uuid(
+            result.push(ShowCompanyShort::get_without_check_by_uuid(
                 target_company_uuid,
                 logged_user_uuid,
                 set_lang_id,

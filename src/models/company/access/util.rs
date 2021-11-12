@@ -257,6 +257,6 @@ pub(crate) fn get_access_type_company(
         .first::<i32>(conn)
         .map_err(|err| {
             debug!("Not found data: {:?}", err);
-            ServiceError::BadRequest("Not found data".to_string())
+            ServiceError::InternalServerError
         })
 }

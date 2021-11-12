@@ -9,8 +9,9 @@ use crate::models::component::access::user::model::UserAccessComponentAndRelated
 use crate::models::component::component_modification;
 use crate::models::component::component_modification::fileset_for_program::model::FilesetProgramRelatedData;
 use crate::models::component::component_modification::modification_file_from_fileset::model::FileOfFileset;
-use crate::models::component::model::{ComponentAndRelatedData, ShowComponentShort};
+use crate::models::component::model::{ComponentAndRelatedData, ShowComponentShort, ComponentsArg, ComponentsQueryArg};
 use crate::models::relate_ref::file::model::DownloadFile;
+use crate::models::relate_ref::language::get_set_language;
 
 #[derive(Default)]
 pub struct ComponentQuery;
@@ -20,28 +21,24 @@ impl ComponentQuery {
     async fn components(
         &self,
         cxt: &Context<'_>,
-        components_uuids: Option<Vec<Uuid>>,
-        favorite: Option<bool>,
-        user_uuid: Option<Uuid>,
-        company_uuid: Option<Uuid>,
+        arguments: Option<ComponentsQueryArg>
     ) -> ServiceResult<Vec<ShowComponentShort>> {
-        use crate::models::component::service::list::find_components;
+        use crate::models::component::service::list::get_components;
 
         // authorization check
         let logged_user_uuid: Uuid = get_logged_user_uuid(cxt, true)?;
 
-        let components_uuids: Vec<Uuid> = components_uuids.unwrap_or_default();
-        let favorite: bool = favorite.unwrap_or(false);
+        let arguments: ComponentsArg = match arguments {
+            Some(args) => ComponentsArg::from(args),
+            None => ComponentsArg::default(),
+        };
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
-        find_components(
+        get_components(
             &logged_user_uuid,
-            &components_uuids,
-            &favorite,
-            &user_uuid,
-            &company_uuid,
-            &crate::models::relate_ref::language::get_set_language(cxt),
+            &arguments,
+            &get_set_language(cxt),
             conn,
         )
     }
@@ -51,17 +48,17 @@ impl ComponentQuery {
         cxt: &Context<'_>,
         component_uuid: Uuid,
     ) -> ServiceResult<ComponentAndRelatedData> {
-        use crate::models::component::service::list::find_component_uuid;
+        use crate::models::component::service::list::get_component_by_uuid;
 
         // authorization check
         let logged_user_uuid: Uuid = get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
-        find_component_uuid(
+        get_component_by_uuid(
             &logged_user_uuid,
             &component_uuid,
-            &crate::models::relate_ref::language::get_set_language(cxt),
+            &get_set_language(cxt),
             conn,
         )
     }
@@ -80,7 +77,7 @@ impl ComponentQuery {
         get_companies_list_access_component(
             &logged_user_uuid,
             &component_uuid,
-            &crate::models::relate_ref::language::get_set_language(cxt),
+            &get_set_language(cxt),
             conn
         )
     }
@@ -100,7 +97,7 @@ impl ComponentQuery {
         get_users_list_access_component(
             &logged_user_uuid,
             &component_uuid,
-            &crate::models::relate_ref::language::get_set_language(cxt),
+            &get_set_language(cxt),
             conn
         )
     }
