@@ -1887,7 +1887,7 @@ describe('company', () => {
     done();
   });
 
-  it('/graphql:Q List standards - BadReuest not correct arguments', async (done) => {
+  it('/graphql:Q List standards - BadRequest not correct arguments', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .set(
@@ -2268,7 +2268,7 @@ describe('company', () => {
     done();
   });
 
-  it('/graphql:M putStandardUpdate - BadReuest not access for change company', async (done) => {
+  it('/graphql:M putStandardUpdate - BadRequest not access for change company', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .set(
@@ -2421,7 +2421,7 @@ describe('company', () => {
     done();
   });
 
-  it('/graphql:M putStandardUpdate - BadReuest no access for company', async (done) => {
+  it('/graphql:M putStandardUpdate - BadRequest no access for company', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .set(
@@ -2670,7 +2670,7 @@ describe('company', () => {
     done();
   });
 
-  it('/graphql:M putStandardUpdate - BadReuest no access', async (done) => {
+  it('/graphql:M putStandardUpdate - BadRequest no access', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .set(
