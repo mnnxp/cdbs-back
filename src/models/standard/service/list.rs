@@ -1,5 +1,7 @@
 use crate::errors::{ServiceResult, ServiceError};
-use crate::models::standard::model::{ShowStandardShort, StandardAndRelatedData};
+use crate::models::standard::model::{
+    ShowStandardShort, StandardAndRelatedData, StandardArg,
+};
 use diesel::{PgConnection, prelude::*};
 use uuid::Uuid;
 
@@ -7,23 +9,26 @@ use uuid::Uuid;
 /// uuids, company_uuid, favorite (for self, for other user)
 pub(crate) fn get_standard(
     logged_user_uuid: &Uuid,
-    filter_standards_uuids: &[Uuid],
-    company_uuid: &Option<Uuid>,
-    favorite: &bool,
-    limit_offset: (&i32, &i32),
+    arguments: &StandardArg,
     set_lang_id: &i32,
     conn: &PgConnection,
 ) -> ServiceResult<Vec<ShowStandardShort>> {
-    // tuple for reduce the number of function arguments
-    let (limit, offset) = limit_offset;
+    // structure for reduce the number of function arguments
+    let StandardArg {
+        filter_standards_uuids,
+        company_uuid,
+        favorite,
+        limit,
+        offset,
+    } = arguments;
 
     // collect standards uuids for check access
     let target_standards_uuids: Vec<Uuid> = match (company_uuid, favorite) {
         // gets standards of user list with/without filter
-        (Some(company_u), false) => {
+        (Some(cy_uuid), false) => {
             get_standards_by_user(
                 filter_standards_uuids,
-                company_u,
+                cy_uuid, // company_uuid
                 limit,
                 offset,
                 conn

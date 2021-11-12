@@ -1803,7 +1803,9 @@ describe('company', () => {
       .post('/graphql')
       .send({
         query: `query selectStandardQuery{
-          standards (standardsUuids: "${standardUuidSecond}") {
+          standards (arguments: {
+            standardsUuids: "${standardUuidSecond}"
+          }) {
             ${standardsListQuery}
           }
         }`,
@@ -1849,7 +1851,9 @@ describe('company', () => {
       )
       .send({
         query: `query selectStandardQuery{
-          standards (standardsUuids: ["${standardUuidFirst}"]) {
+          standards (arguments: {
+            standardsUuids: ["${standardUuidFirst}"]
+          }) {
             ${standardsListQuery}
           }
         }`,
@@ -1873,7 +1877,9 @@ describe('company', () => {
       )
       .send({
         query: `query selectStandardQuery{
-          standards (standardsUuids: "${standardUuidSecond}") {
+          standards (arguments: {
+            standardsUuids: "${standardUuidSecond}"
+          }) {
             ${standardsListQuery}
           }
         }`,
@@ -1896,10 +1902,10 @@ describe('company', () => {
       )
       .send({
         query: `query selectComponentQuery{
-          standards(
+          standards (arguments: {
             companyUuid: "${companyUuidNoSupplier}"
             favorite:  true
-          ) {
+          }) {
             ${standardsListQuery}
           }
         }`,
@@ -1950,9 +1956,9 @@ describe('company', () => {
       )
       .send({
         query: `query selectStandardQuery{
-          standards (
+          standards (arguments: {
             companyUuid: "${companyUuidSupplier}"
-          ){
+          }){
             ${standardsListQuery}
           }
         }`,
@@ -1978,9 +1984,9 @@ describe('company', () => {
       )
       .send({
         query: `query selectStandardQuery{
-          standards (
+          standards (arguments: {
             companyUuid: "${companyUuidNoSupplier}"
-          ){
+          }){
             ${standardsListQuery}
           }
         }`,
@@ -2495,7 +2501,9 @@ describe('company', () => {
       )
       .send({
         query: `query selectStandardQuery{
-          standards (standardsUuids: "${uuidFake}") {
+          standards (arguments: {
+            standardsUuids: "${uuidFake}"
+          }) {
             ${standardsListQuery}
           }
         }`,
@@ -2519,7 +2527,9 @@ describe('company', () => {
       )
       .send({
         query: `query selectStandardQuery{
-          standards (standardsUuids: "${standardUuidFirst}") {
+          standards (arguments: {
+            standardsUuids: "${standardUuidFirst}"
+          }) {
             ${standardsListQuery}
           }
         }`,
@@ -2767,7 +2777,9 @@ describe('company', () => {
       )
       .send({
         query: `query {
-          standards(favorite: true) {
+          standards (arguments: {
+            favorite: true
+          }) {
             ${standardsListQuery}
           }
         }`,
@@ -2811,7 +2823,9 @@ describe('company', () => {
       )
       .send({
         query: `query {
-          standards(favorite: true) {
+          standards (arguments: {
+            favorite: true
+          }) {
             ${standardsListQuery}
           }
         }`,
