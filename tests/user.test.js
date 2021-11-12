@@ -1986,9 +1986,9 @@ describe('users', () => {
     const {
       data: { registerStandard },
     } = body;
+    standardUuidForFav = registerStandard.uuid;
     expect(registerStandard.uuid).toBeNonEmptyString();
     expect(registerStandard.name).toBe(nameStandard);
-    standardUuidForFav = registerStandard.uuid;
     done();
   });
 
@@ -2066,7 +2066,9 @@ describe('users', () => {
       )
       .send({
         query: `query {
-            users (favorite: true) {
+            users(arguments: {
+              favorite: true
+            }) {
               ${usersListQuery}
             }
         }`,
@@ -2093,7 +2095,9 @@ describe('users', () => {
       )
       .send({
         query: `query {
-            users (subscribers: true) {
+            users(arguments: {
+              subscribers: true
+            }) {
               ${usersListQuery}
             }
         }`,
@@ -2117,7 +2121,9 @@ describe('users', () => {
       )
       .send({
         query: `query {
-            users (subscribers: true) {
+            users(arguments: {
+              subscribers: true
+            }) {
               ${usersListQuery}
             }
         }`,
@@ -2318,10 +2324,10 @@ describe('users', () => {
       .post('/graphql')
       .send({
         query: `query ListUsers {
-            users(usersUuids: [
+            users(arguments: {usersUuids: [
               "${userUuidFirst}",
               "${userUuidSecond}"
-            ]) {
+            ]}) {
               ${usersListQuery}
             }
         }`,
@@ -2571,7 +2577,7 @@ describe('users', () => {
     done();
   });
 
-  it('/graphql:Q users - BadRequest privates profile', async (done) => {
+  it('/graphql:Q users - Ok access one privates profile', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .set(
@@ -2580,21 +2586,49 @@ describe('users', () => {
       )
       .send({
         query: `query ListUsers {
-            users(usersUuids: [
+            users(arguments: {usersUuids: [
               "${userUuidFirst}",
               "${userUuidSecond}"
-            ]) {
+            ]}) {
               ${usersListQuery}
             }
         }`,
       })
       .expect(HttpStatus.OK)
     debug('/graphql body=%o', body);
-    expect(body.data).toBeNull();
-    expect(body.errors[0].message).toBe(
-      'BadRequest: Access denied'
-    );
-    expect(body.errors[0].path[0]).toBe('users');
+    // expect(body).toBe(0);
+    const {
+      data: { users }
+    } = body;
+    expect(users[0].uuid).toBe(userUuidFirst);
+    expect(users[0].username).toBe(username);
+    expect(users.length).toBe(1);
+    done();
+  });
+
+  it('/graphql:Q users - Ok no access privates profile', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenUserThree}`
+      )
+      .send({
+        query: `query ListUsers {
+            users(arguments: {usersUuids: [
+              "${userUuidSecond}"
+            ]}) {
+              ${usersListQuery}
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { users }
+    } = body;
+    expect(users).toBeEmptyArray();
     done();
   });
 
@@ -2641,10 +2675,10 @@ describe('users', () => {
       )
       .send({
         query: `query ListUsers {
-            users(usersUuids: [
+            users(arguments: {usersUuids: [
               "${userUuidFirst}",
               "${userUuidSecond}"
-            ]) {
+            ]}) {
               ${usersListQuery}
             }
         }`,
@@ -2673,10 +2707,10 @@ describe('users', () => {
       )
       .send({
         query: `query {
-            users (
+            users(arguments: {
               subscribers: true
               favorite: true
-            ){
+            }){
               ${usersListQuery}
             }
         }`,
@@ -2685,7 +2719,7 @@ describe('users', () => {
     debug('/graphql body=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: You cannot request subscribers and favorites in one request'
+      'BadRequest: Failed match arguments'
     );
     expect(body.errors[0].path[0]).toBe('users');
     done();
@@ -2700,10 +2734,10 @@ describe('users', () => {
       )
       .send({
         query: `query {
-            users (
+            users(arguments: {
               limit: 2
               offset: 1
-            ){
+            }){
               ${usersListQuery}
             }
         }`,

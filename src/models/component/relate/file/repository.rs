@@ -16,7 +16,7 @@ impl ShowFileForDownload {
             .load::<Uuid>(conn)?;
 
         ShowFileForDownload::get_file_by_uuids(
-            &target_files_uuids, 
+            &target_files_uuids,
             conn
         )
     }

@@ -19,7 +19,10 @@ impl ShowFileForDownload {
             .select(user_certificate_ref::file_uuid)
             .load::<Uuid>(conn)?;
 
-        ShowFileForDownload::get_file_by_uuids(&target_vec_file_uuid, conn)
+        ShowFileForDownload::get_file_by_uuids(
+            &target_vec_file_uuid,
+            conn
+        )
     }
 }
 

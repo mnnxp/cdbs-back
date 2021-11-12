@@ -346,3 +346,53 @@ pub struct IptUpdateStandardData {
     pub standard_status_id: Option<i32>,
     pub region_id: Option<i32>,
 }
+
+#[derive(InputObject, Deserialize, Debug)]
+pub struct IptStandardsArg {
+    pub standards_uuids:  Option<Vec<Uuid>>,
+    pub company_uuid: Option<Uuid>,
+    pub favorite: Option<bool>,
+    pub limit: Option<i32>,
+    pub offset: Option<i32>,
+}
+
+#[derive(Debug)]
+pub struct StandardsArg {
+    pub filter_standards_uuids: Vec<Uuid>,
+    pub company_uuid: Option<Uuid>,
+    pub favorite: bool,
+    pub limit: i32,
+    pub offset: i32,
+}
+
+impl Default for StandardsArg {
+    fn default() -> Self {
+        Self {
+            filter_standards_uuids: Vec::new(),
+            company_uuid: None,
+            favorite: false,
+            limit: 100,
+            offset: 0,
+        }
+    }
+}
+
+impl From<IptStandardsArg> for StandardsArg {
+    fn from(data: IptStandardsArg) -> Self {
+        let IptStandardsArg {
+            standards_uuids,
+            company_uuid,
+            favorite,
+            limit,
+            offset,
+        } = data;
+
+        Self {
+            filter_standards_uuids: standards_uuids.unwrap_or_default(),
+            company_uuid,
+            favorite: favorite.unwrap_or(false),
+            limit: limit.unwrap_or(100),
+            offset: offset.unwrap_or(0),
+        }
+    }
+}

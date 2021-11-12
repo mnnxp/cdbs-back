@@ -1,9 +1,12 @@
 use crate::errors::ServiceResult;
 use crate::database::{get_conn, PooledConnection};
 use crate::models::user::access::logged::get_logged_user_uuid;
-use crate::models::standard::model::{ShowStandardShort, StandardAndRelatedData};
+use crate::models::standard::model::{
+    ShowStandardShort, StandardAndRelatedData, StandardsArg, IptStandardsArg,
+};
 use crate::models::standard::access::company::model::CompanyAccessStandardAndRelatedData;
 use crate::models::standard::access::user::model::UserAccessStandardAndRelatedData;
+use crate::models::relate_ref::language::get_set_language;
 
 use async_graphql::{self, Context, Object};
 use uuid::Uuid;
@@ -16,19 +19,24 @@ impl StandardQuery {
     async fn standards(
         &self,
         cxt: &Context<'_>,
-        standards_uuids: Vec<Uuid>,
+        arguments: Option<IptStandardsArg>,
     ) -> ServiceResult<Vec<ShowStandardShort>> {
-        use crate::models::standard::service::list::find_by_uuids;
+        use crate::models::standard::service::list::get_standard;
 
         // authorization check
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
+        let arguments: StandardsArg = match arguments {
+            Some(args) => StandardsArg::from(args),
+            None => StandardsArg::default(),
+        };
+
         let conn: &PooledConnection = &get_conn(cxt)?;
 
-        find_by_uuids(
+        get_standard(
             &logged_user_uuid,
-            &standards_uuids,
-            &crate::models::relate_ref::language::get_set_language(cxt),
+            &arguments,
+            &get_set_language(cxt),
             conn,
         )
     }
@@ -48,7 +56,7 @@ impl StandardQuery {
         find_by_uuid(
             &logged_user_uuid,
             &standard_uuid,
-            &crate::models::relate_ref::language::get_set_language(cxt),
+            &get_set_language(cxt),
             conn,
         )
     }
@@ -67,7 +75,7 @@ impl StandardQuery {
         get_companies_list_access_standard(
             &logged_user_uuid,
             &standard_uuid,
-            &crate::models::relate_ref::language::get_set_language(cxt),
+            &get_set_language(cxt),
             conn
         )
     }
@@ -87,7 +95,7 @@ impl StandardQuery {
         get_users_list_access_standard(
             &logged_user_uuid,
             &standard_uuid,
-            &crate::models::relate_ref::language::get_set_language(cxt),
+            &get_set_language(cxt),
             conn
         )
     }

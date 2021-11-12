@@ -15,7 +15,7 @@ const username2 = "simaco";
 const password = "password";
 
 const uuidFail = "aba22d59-4f6c-24a4-9a37-2d38f0e577a8";
-const userUuid = "31ecc6f8-0c09-4a59-a2d5-34b5b833e59b";
+const userUuidBase = "31ecc6f8-0c09-4a59-a2d5-34b5b833e59b";
 const userUuid2 = "68b8281a-d19c-4d4b-88eb-6fd4a2afde1b";
 
 var firstAccess = 1;
@@ -732,10 +732,10 @@ describe('company', () => {
       .post('/graphql')
       .send({
         query: `query companies {
-        	companies (companiesUuids: [
+        	companies (arguments: {companiesUuids: [
             "${companyUuidSupplier}",
             "${companyUuidNoSupplier}"
-          ]) {
+          ]}) {
             ${companiesListQuery}
           }
         }`,
@@ -750,7 +750,7 @@ describe('company', () => {
     done();
   });
 
-  it('/graphql:Q companies - OK List all', async (done) => {
+  it('/graphql:Q companies - OK List with uuids', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .set(
@@ -759,10 +759,10 @@ describe('company', () => {
       )
       .send({
         query: `query companies {
-        	companies (companiesUuids: [
+        	companies (arguments: {companiesUuids: [
             "${companyUuidSupplier}",
             "${companyUuidNoSupplier}"
-          ]) {
+          ]}) {
             ${companiesListQuery}
           }
         }`,
@@ -775,6 +775,204 @@ describe('company', () => {
     expect(companies).toBeNonEmptyArray();
     expect(companies[0].uuid).toBe(companyUuidSupplier);
     expect(companies[1].uuid).toBe(companyUuidNoSupplier);
+    done();
+  });
+
+  // Test companies list
+  it('/graphql:Q companies - OK List all public', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `query companies {
+        	companies {
+            ${companiesListQuery}
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { companies },
+    } = body;
+    expect(companies).toBeNonEmptyArray();
+    expect(companies[0].uuid).toBe(companyUuidBase);
+    expect(companies.length).toBe(1);
+    done();
+  });
+
+  it('/graphql:M CompanyFav - Ok add', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation {
+            addCompanyFav(companyUuid: "${companyUuidBase}")
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql addCompanyFav body=%o', body);
+    expect(body.data.addCompanyFav).toBe(true);
+    done();
+  });
+
+  it('/graphql:Q companies - OK List favorite', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `query companies {
+        	companies (arguments: {
+            favorite: true
+          }){
+            ${companiesListQuery}
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { companies },
+    } = body;
+    expect(companies).toBeNonEmptyArray();
+    expect(companies[0].uuid).toBe(companyUuidBase);
+    expect(companies.length).toBe(1);
+    done();
+  });
+
+  it('/graphql:M CompanyFav - Ok delete', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation {
+            deleteCompanyFav(companyUuid: "${companyUuidBase}")
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql deleteCompanyFav body=%o', body);
+    expect(body.data.deleteCompanyFav).toBe(true);
+    done();
+  });
+
+  it('/graphql:Q companies - OK List no favorite', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `query companies {
+          companies (arguments: {
+            favorite: true
+          }){
+            ${companiesListQuery}
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { companies },
+    } = body;
+    expect(companies).toBeEmptyArray();
+    done();
+  });
+
+  it('/graphql:Q companies - OK List by user', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `query companies {
+          companies (arguments: {
+            userUuid: "${authorizationUserFirst}"
+          }){
+            ${companiesListQuery}
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { companies },
+    } = body;
+    expect(companies).toBeNonEmptyArray();
+    expect(companies.length).toBe(2);
+    done();
+  });
+
+  it('/graphql:Q companies - OK List by other user', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `query companies {
+          companies (arguments: {
+            userUuid: "${authorizationUserFirst}"
+          }){
+            ${companiesListQuery}
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { companies },
+    } = body;
+    expect(companies).toBeEmptyArray();
+    done();
+  });
+
+  it('/graphql:Q companies - OK List by other user', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `query companies {
+          companies (arguments: {
+            userUuid: "${userUuidBase}"
+          }){
+            ${companiesListQuery}
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { companies },
+    } = body;
+    expect(companies).toBeNonEmptyArray();
+    expect(companies[0].uuid).toBe(companyUuidBase);
+    expect(companies.length).toBe(1);
     done();
   });
 

@@ -1,4 +1,4 @@
-use crate::errors::ServiceResult;
+use crate::errors::{ServiceResult, ServiceError};
 use crate::models::standard::model::ShowStandardShort;
 use diesel::prelude::*;
 use uuid::Uuid;
@@ -10,15 +10,21 @@ impl ShowStandardShort {
         set_lang_id: &i32,
         conn: &PgConnection,
     ) -> ServiceResult<Vec<ShowStandardShort>> {
+        use crate::schema::standard_to_component::dsl::*;
+
         // search all standards for component
-        let select_standards_uuids: Vec<Uuid> = get_standards_uuids_by_component_uuid(
-            target_component_uuid,
-            conn,
-        );
+        let select_standards_uuids: Vec<Uuid> = standard_to_component
+            .filter(component_uuid.eq(target_component_uuid))
+            .select(standard_uuid)
+            .load::<Uuid>(conn)
+            .map_err(|err| {
+                debug!("Fail getting standards for the component: {:?}", err);
+                ServiceError::InternalServerError
+            })?;
 
         // return empty vec if not found standard for component_type
         if select_standards_uuids.is_empty() {
-            debug!("Not found standards for compont");
+            debug!("Not found standards for component");
             return Ok(Vec::new())
         }
 
@@ -29,25 +35,5 @@ impl ShowStandardShort {
             set_lang_id,
             conn,
         )
-    }
-}
-
-fn get_standards_uuids_by_component_uuid(
-    target_component_uuid: &Uuid,
-    conn: &PgConnection,
-) -> Vec<Uuid> {
-    use crate::schema::standard_to_component::dsl::*;
-
-    let res_standards_uuids = standard_to_component
-        .filter(component_uuid.eq(target_component_uuid))
-        .select(standard_uuid)
-        .load::<Uuid>(conn);
-
-    match res_standards_uuids {
-        Ok(res) => res,
-        Err(err) => {
-            debug!("Fail getting standards for the component: {:?}", err);
-            Vec::new()
-        },
     }
 }

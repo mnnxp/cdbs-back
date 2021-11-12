@@ -3,7 +3,7 @@ use crate::database::{get_conn, PooledConnection};
 use crate::jwt::model::{Claims, Token};
 use crate::models::user::access::logged::{check_authorized, get_logged_user_uuid};
 use crate::models::user::model::{
-    ShowUserShort, SlimUser, UserAndRelatedData, ShowUserAndRelatedData
+    ShowUserShort, SlimUser, UserAndRelatedData, ShowUserAndRelatedData, UsersArg, IptUsersArg,
 };
 use crate::models::user::notification::model::ShowNotification;
 use crate::models::user::access::model::UserToken;
@@ -21,32 +21,23 @@ impl UserQuery {
     async fn users(
         &self,
         cxt: &Context<'_>,
-        users_uuids: Option<Vec<Uuid>>,
-        subscribers: Option<bool>,
-        favorite: Option<bool>,
-        limit: Option<i32>,
-        offset: Option<i32>,
+        arguments: Option<IptUsersArg>,
     ) -> ServiceResult<Vec<ShowUserShort>> {
         use crate::models::user::service::list::get_users;
 
         // authorization check
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
-        let users_uuids: Vec<Uuid> = users_uuids.unwrap_or_default();
-        let subscribers: bool = subscribers.unwrap_or(false);
-        let favorite: bool = favorite.unwrap_or(false);
-        let limit: i32 = limit.unwrap_or(100);
-        let offset: i32 = offset.unwrap_or(0);
+        let arguments: UsersArg = match arguments {
+            Some(args) => UsersArg::from(args),
+            None => UsersArg::default(),
+        };
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
         get_users(
             &logged_user_uuid,
-            &users_uuids,
-            &subscribers,
-            &favorite,
-            &limit,
-            &offset,
+            &arguments,
             conn,
         )
     }

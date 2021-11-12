@@ -267,3 +267,63 @@ pub struct IptUpdateComponentData {
     pub component_type_id: Option<i32>,
     pub actual_status_id: Option<i32>,
 }
+
+#[derive(InputObject, Deserialize, Debug)]
+pub struct IptComponentsArg {
+    pub components_uuids:  Option<Vec<Uuid>>,
+    pub company_uuid: Option<Uuid>,
+    pub standard_uuid: Option<Uuid>,
+    pub user_uuid: Option<Uuid>,
+    pub favorite: Option<bool>,
+    pub limit: Option<i32>,
+    pub offset: Option<i32>,
+}
+
+#[derive(Debug)]
+pub struct ComponentsArg {
+    pub filter_components_uuids: Vec<Uuid>,
+    pub company_uuid: Option<Uuid>,
+    pub standard_uuid: Option<Uuid>,
+    pub user_uuid: Option<Uuid>,
+    pub favorite: bool,
+    pub limit: i32,
+    pub offset: i32,
+}
+
+impl Default for ComponentsArg {
+    fn default() -> Self {
+        Self {
+            filter_components_uuids: Vec::new(),
+            company_uuid: None,
+            standard_uuid: None,
+            user_uuid: None,
+            favorite: false,
+            limit: 100,
+            offset: 0,
+        }
+    }
+}
+
+impl From<IptComponentsArg> for ComponentsArg {
+    fn from(data: IptComponentsArg) -> Self {
+        let IptComponentsArg {
+            components_uuids,
+            company_uuid,
+            standard_uuid,
+            user_uuid,
+            favorite,
+            limit,
+            offset,
+        } = data;
+
+        Self {
+            filter_components_uuids: components_uuids.unwrap_or_default(),
+            company_uuid,
+            standard_uuid,
+            user_uuid,
+            favorite: favorite.unwrap_or(false),
+            limit: limit.unwrap_or(100),
+            offset: offset.unwrap_or(0),
+        }
+    }
+}

@@ -182,18 +182,12 @@ pub(crate) fn get_access_type_standard(
 ) -> ServiceResult<i32> {
     use crate::schema::standard_ref::dsl::*;
 
-    let type_access = standard_ref
+    standard_ref
         .filter(uuid.eq(target_standard_uuid))
         .select(type_access_id)
-        .first::<i32>(conn);
-
-    match type_access {
-        Ok(ta) => Ok(ta),
-        Err(err) => {
+        .first::<i32>(conn)
+        .map_err(|err| {
             debug!("Not found data: {:?}", err);
-            Err(ServiceError::BadRequest(
-                "Not found data".to_string()
-            ))
-        },
-    }
+            ServiceError::InternalServerError
+        })
 }
