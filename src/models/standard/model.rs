@@ -348,7 +348,7 @@ pub struct IptUpdateStandardData {
 }
 
 #[derive(InputObject, Deserialize, Debug)]
-pub struct StandardQueryArg {
+pub struct StandardsQueryArg {
     pub standards_uuids:  Option<Vec<Uuid>>,
     pub company_uuid: Option<Uuid>,
     pub favorite: Option<bool>,
@@ -357,7 +357,7 @@ pub struct StandardQueryArg {
 }
 
 #[derive(Debug)]
-pub struct StandardArg {
+pub struct StandardsArg {
     pub filter_standards_uuids: Vec<Uuid>,
     pub company_uuid: Option<Uuid>,
     pub favorite: bool,
@@ -365,7 +365,7 @@ pub struct StandardArg {
     pub offset: i32,
 }
 
-impl Default for StandardArg {
+impl Default for StandardsArg {
     fn default() -> Self {
         Self {
             filter_standards_uuids: Vec::new(),
@@ -377,9 +377,9 @@ impl Default for StandardArg {
     }
 }
 
-impl From<StandardQueryArg> for StandardArg {
-    fn from(data: StandardQueryArg) -> Self {
-        let StandardQueryArg {
+impl From<StandardsQueryArg> for StandardsArg {
+    fn from(data: StandardsQueryArg) -> Self {
+        let StandardsQueryArg {
             standards_uuids,
             company_uuid,
             favorite,

@@ -1,6 +1,6 @@
 use crate::errors::{ServiceResult, ServiceError};
 use crate::models::standard::model::{
-    ShowStandardShort, StandardAndRelatedData, StandardArg,
+    ShowStandardShort, StandardAndRelatedData, StandardsArg,
 };
 use diesel::{PgConnection, prelude::*};
 use uuid::Uuid;
@@ -9,12 +9,12 @@ use uuid::Uuid;
 /// uuids, company_uuid, favorite (for self, for other user)
 pub(crate) fn get_standard(
     logged_user_uuid: &Uuid,
-    arguments: &StandardArg,
+    arguments: &StandardsArg,
     set_lang_id: &i32,
     conn: &PgConnection,
 ) -> ServiceResult<Vec<ShowStandardShort>> {
     // structure for reduce the number of function arguments
-    let StandardArg {
+    let StandardsArg {
         filter_standards_uuids,
         company_uuid,
         favorite,
