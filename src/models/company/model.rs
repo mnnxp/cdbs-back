@@ -286,3 +286,53 @@ impl From<Company> for SlimCompany {
         }
     }
 }
+
+#[derive(InputObject, Deserialize, Debug)]
+pub struct CompaniesQueryArg {
+    pub companies_uuids:  Option<Vec<Uuid>>,
+    pub user_uuid: Option<Uuid>,
+    pub favorite: Option<bool>,
+    pub limit: Option<i32>,
+    pub offset: Option<i32>,
+}
+
+#[derive(Debug)]
+pub struct CompaniesArg {
+    pub filter_companies_uuids: Vec<Uuid>,
+    pub user_uuid: Option<Uuid>,
+    pub favorite: bool,
+    pub limit: i32,
+    pub offset: i32,
+}
+
+impl Default for CompaniesArg {
+    fn default() -> Self {
+        Self {
+            filter_companies_uuids: Vec::new(),
+            user_uuid: None,
+            favorite: false,
+            limit: 100,
+            offset: 0,
+        }
+    }
+}
+
+impl From<CompaniesQueryArg> for CompaniesArg {
+    fn from(data: CompaniesQueryArg) -> Self {
+        let CompaniesQueryArg {
+            companies_uuids,
+            user_uuid,
+            favorite,
+            limit,
+            offset,
+        } = data;
+
+        Self {
+            filter_companies_uuids: companies_uuids.unwrap_or_default(),
+            user_uuid,
+            favorite: favorite.unwrap_or(false),
+            limit: limit.unwrap_or(100),
+            offset: offset.unwrap_or(0),
+        }
+    }
+}

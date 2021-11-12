@@ -732,10 +732,10 @@ describe('company', () => {
       .post('/graphql')
       .send({
         query: `query companies {
-        	companies (companiesUuids: [
+        	companies (arguments: {companiesUuids: [
             "${companyUuidSupplier}",
             "${companyUuidNoSupplier}"
-          ]) {
+          ]}) {
             ${companiesListQuery}
           }
         }`,
@@ -759,10 +759,10 @@ describe('company', () => {
       )
       .send({
         query: `query companies {
-        	companies (companiesUuids: [
+        	companies (arguments: {companiesUuids: [
             "${companyUuidSupplier}",
             "${companyUuidNoSupplier}"
-          ]) {
+          ]}) {
             ${companiesListQuery}
           }
         }`,
@@ -832,9 +832,9 @@ describe('company', () => {
       )
       .send({
         query: `query companies {
-        	companies (
+        	companies (arguments: {
             favorite: true
-          ){
+          }){
             ${companiesListQuery}
           }
         }`,
@@ -878,9 +878,9 @@ describe('company', () => {
       )
       .send({
         query: `query companies {
-          companies (
+          companies (arguments: {
             favorite: true
-          ){
+          }){
             ${companiesListQuery}
           }
         }`,
@@ -904,9 +904,9 @@ describe('company', () => {
       )
       .send({
         query: `query companies {
-          companies (
+          companies (arguments: {
             userUuid: "${authorizationUserFirst}"
-          ){
+          }){
             ${companiesListQuery}
           }
         }`,
@@ -931,9 +931,9 @@ describe('company', () => {
       )
       .send({
         query: `query companies {
-          companies (
+          companies (arguments: {
             userUuid: "${authorizationUserFirst}"
-          ){
+          }){
             ${companiesListQuery}
           }
         }`,
@@ -957,9 +957,9 @@ describe('company', () => {
       )
       .send({
         query: `query companies {
-          companies (
+          companies (arguments: {
             userUuid: "${userUuidBase}"
-          ){
+          }){
             ${companiesListQuery}
           }
         }`,

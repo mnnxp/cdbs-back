@@ -1,6 +1,6 @@
 use crate::errors::{ServiceResult, ServiceError};
 use crate::models::company::model::{
-    ShowCompanyShort, CompanyAndRelatedData
+    ShowCompanyShort, CompanyAndRelatedData, CompaniesArg,
 };
 use diesel::{PgConnection, prelude::*};
 use uuid::Uuid;
@@ -9,33 +9,36 @@ use uuid::Uuid;
 /// uuids, user_uuid, favorite (for self, for other user)
 pub(crate) fn get_companies(
     logged_user_uuid: &Uuid,
-    filter_companies_uuids: &[Uuid],
-    user_uuid: &Option<Uuid>,
-    favorite: &bool,
-    limit_offset: (&i32, &i32),
+    arguments: &CompaniesArg,
     set_lang_id: &i32,
     conn: &PgConnection,
 ) -> ServiceResult<Vec<ShowCompanyShort>> {
-    // tuple for reduce the number of function arguments
-    let (limit, offset) = limit_offset;
+    // structure for reduce the number of function arguments
+    let CompaniesArg {
+        filter_companies_uuids,
+        user_uuid,
+        favorite,
+        limit,
+        offset,
+    } = arguments;
 
     // collect companies uuids for check access
     let target_companies_uuids: Vec<Uuid> = match (user_uuid, favorite) {
         // gets companies of user list with/without filter
-        (Some(user_u), false) => {
+        (Some(ur_uuid), false) => {
             get_companies_by_user(
                 filter_companies_uuids,
-                user_u,
+                ur_uuid, // user_uuid
                 limit,
                 offset,
                 conn
             )?
         },
         // gets companies of other user favorite list with/without filter
-        (Some(user_u), true) => {
+        (Some(ur_uuid), true) => {
             get_companies_followed_by_user(
                 filter_companies_uuids,
-                user_u,
+                ur_uuid, // user_uuid
                 limit,
                 offset,
                 conn

@@ -1,7 +1,9 @@
 use crate::errors::ServiceResult;
 use crate::database::{get_conn, PooledConnection};
 use crate::models::user::access::logged::get_logged_user_uuid;
-use crate::models::company::model::{CompanyAndRelatedData, ShowCompanyShort};
+use crate::models::company::model::{
+    CompanyAndRelatedData, ShowCompanyShort, CompaniesArg, CompaniesQueryArg,
+};
 use crate::models::company;
 use crate::models::company::member::model::CompanyMemberAndRelatedData;
 use crate::models::company::member::role::model::RoleMemberAndRelatedData;
@@ -20,31 +22,23 @@ impl CompanyQuery {
     async fn companies(
         &self,
         cxt: &Context<'_>,
-        companies_uuids: Option<Vec<Uuid>>,
-        user_uuid: Option<Uuid>,
-        favorite: Option<bool>,
-        limit: Option<i32>,
-        offset: Option<i32>,
+        arguments: Option<CompaniesQueryArg>,
     ) -> ServiceResult<Vec<ShowCompanyShort>> {
         use company::service::list::get_companies;
 
         // authorization check
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
-        let companies_uuids: Vec<Uuid> = companies_uuids.unwrap_or_default();
-
-        let favorite: bool = favorite.unwrap_or(false);
-        let limit: i32 = limit.unwrap_or(100);
-        let offset: i32 = offset.unwrap_or(0);
+        let arguments: CompaniesArg = match arguments {
+            Some(args) => CompaniesArg::from(args),
+            None => CompaniesArg::default(),
+        };
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
         get_companies(
             &logged_user_uuid,
-            &companies_uuids,
-            &user_uuid,
-            &favorite,
-            (&limit, &offset),
+            &arguments,
             &get_set_language(cxt),
             conn,
         )
