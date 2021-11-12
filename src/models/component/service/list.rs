@@ -14,10 +14,11 @@ pub(crate) fn get_components(
     set_lang_id: &i32,
     conn: &PgConnection,
 ) -> ServiceResult<Vec<ShowComponentShort>> {
-    // tuple for reduce the number of function arguments
+    // structure for reduce the number of function arguments
     let ComponentsArg {
         filter_components_uuids,
         company_uuid,
+        standard_uuid,
         user_uuid,
         favorite,
         limit,
@@ -25,38 +26,50 @@ pub(crate) fn get_components(
     } = arguments;
 
     // select target components uuids
-    let target_components_uuids = match (favorite, user_uuid, company_uuid) {
+    let target_components_uuids = match (favorite, user_uuid, standard_uuid, company_uuid) {
         // gets components of self favorite list for authorized user
-        (true, None, None) => {
+        (true, None, None, None) => {
             get_components_followed_by_user(
                 logged_user_uuid,
                 conn
             )?
         },
         // gets components by user
-        (false, Some(user_uuid), None) => {
+        (false, Some(ur_uuid), None, None) => {
             get_components_uuids_by_user(
-                user_uuid,
+                ur_uuid, // user_uuid
                 conn
             )?
         },
         // gets objects to which the user is subscribed
-        (true, Some(user_uuid), None) => {
+        (true, Some(ur_uuid), None, None) => {
             get_components_followed_by_user(
-                user_uuid,
+                ur_uuid, // user_uuid
                 conn
             )?
         },
         // gets components relate with company
-        (false, None, Some(company_uuid)) => {
+        (false, None, None, Some(cy_uuid)) => {
             get_components_uuids_by_company(
-                company_uuid,
+                cy_uuid, // company_uuid
+                conn
+            )?
+        },
+        // gets components relate with standard
+        (false, None, Some(sd_uuid), None) => {
+            get_components_uuids_by_standard(
+                sd_uuid, // standard_uuid
                 conn
             )?
         },
         // gets components with filter or all public
-        _ => {
+        (false, None, None, None) => {
             filter_components_uuids.to_vec()
+        },
+        _ => {
+            return Err(ServiceError::BadRequest(
+                "Failed match arguments".to_string()
+            ))
         },
     };
 
@@ -120,6 +133,22 @@ pub(crate) fn get_components_uuids_by_company(
     supplier_to_component::supplier_to_component
         .filter(supplier_to_component::company_uuid.eq(target_company_uuid))
         .select(supplier_to_component::component_uuid)
+        .load::<Uuid>(conn).map_err(|err| {
+            debug!("Fail load uuid list target user: {:?}", err);
+            ServiceError::InternalServerError
+        })
+}
+
+/// Gets all components uuids when related with standard
+pub(crate) fn get_components_uuids_by_standard(
+    target_standard_uuid: &Uuid,
+    conn: &PgConnection,
+) -> ServiceResult<Vec<Uuid>> {
+    use crate::schema::standard_to_component::dsl as standard_to_component;
+
+    standard_to_component::standard_to_component
+        .filter(standard_to_component::standard_uuid.eq(target_standard_uuid))
+        .select(standard_to_component::component_uuid)
         .load::<Uuid>(conn).map_err(|err| {
             debug!("Fail load uuid list target user: {:?}", err);
             ServiceError::InternalServerError

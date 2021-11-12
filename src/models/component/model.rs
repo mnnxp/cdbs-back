@@ -272,6 +272,7 @@ pub struct IptUpdateComponentData {
 pub struct ComponentsQueryArg {
     pub components_uuids:  Option<Vec<Uuid>>,
     pub company_uuid: Option<Uuid>,
+    pub standard_uuid: Option<Uuid>,
     pub user_uuid: Option<Uuid>,
     pub favorite: Option<bool>,
     pub limit: Option<i32>,
@@ -282,6 +283,7 @@ pub struct ComponentsQueryArg {
 pub struct ComponentsArg {
     pub filter_components_uuids: Vec<Uuid>,
     pub company_uuid: Option<Uuid>,
+    pub standard_uuid: Option<Uuid>,
     pub user_uuid: Option<Uuid>,
     pub favorite: bool,
     pub limit: i32,
@@ -293,6 +295,7 @@ impl Default for ComponentsArg {
         Self {
             filter_components_uuids: Vec::new(),
             company_uuid: None,
+            standard_uuid: None,
             user_uuid: None,
             favorite: false,
             limit: 100,
@@ -307,6 +310,7 @@ impl From<ComponentsQueryArg> for ComponentsArg {
             components_uuids,
             company_uuid,
             user_uuid,
+            standard_uuid,
             favorite,
             limit,
             offset,
@@ -316,6 +320,7 @@ impl From<ComponentsQueryArg> for ComponentsArg {
             filter_components_uuids: components_uuids.unwrap_or_default(),
             company_uuid,
             user_uuid,
+            standard_uuid,
             favorite: favorite.unwrap_or(false),
             limit: limit.unwrap_or(100),
             offset: offset.unwrap_or(0),
