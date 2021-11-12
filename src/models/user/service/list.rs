@@ -1,6 +1,6 @@
 use crate::errors::{ServiceResult, ServiceError};
 use crate::models::user::model::{
-    SlimUser, ShowUserShort, UserAndRelatedData, ShowUserAndRelatedData
+    SlimUser, ShowUserShort, UserAndRelatedData, ShowUserAndRelatedData, UsersArg,
 };
 use diesel::PgConnection;
 use uuid::Uuid;
@@ -90,13 +90,18 @@ pub(crate) fn get_self_user_data(
 /// uuids, favorite list
 pub(crate) fn get_users(
     logged_user_uuid: &Uuid,
-    filter_users_uuids: &[Uuid],
-    subscribers: &bool,
-    favorite: &bool,
-    limit: &i32,
-    offset: &i32,
+    arguments: &UsersArg,
     conn: &PgConnection,
 ) -> ServiceResult<Vec<ShowUserShort>> {
+    // structure for reduce the number of function arguments
+    let UsersArg {
+        filter_users_uuids,
+        subscribers,
+        favorite,
+        limit,
+        offset,
+    } = arguments;
+
     // select target users uuids
     match (subscribers, favorite) {
         // gets users of self subscribers list
@@ -143,7 +148,7 @@ pub(crate) fn get_users(
         },
         (true, true) => {
             Err(ServiceError::BadRequest(
-                "You cannot request subscribers and favorites in one request".to_string()
+                "Failed match arguments".to_string()
             ))
         },
     }

@@ -369,3 +369,53 @@ pub struct IptUpdateUserData {
     pub region_id: Option<i32>,
     pub program_id: Option<i32>,
 }
+
+#[derive(InputObject, Deserialize, Debug)]
+pub struct UsersQueryArg {
+    pub users_uuids:  Option<Vec<Uuid>>,
+    pub subscribers: Option<bool>,
+    pub favorite: Option<bool>,
+    pub limit: Option<i32>,
+    pub offset: Option<i32>,
+}
+
+#[derive(Debug)]
+pub struct UsersArg {
+    pub filter_users_uuids: Vec<Uuid>,
+    pub subscribers: bool,
+    pub favorite: bool,
+    pub limit: i32,
+    pub offset: i32,
+}
+
+impl Default for UsersArg {
+    fn default() -> Self {
+        Self {
+            filter_users_uuids: Vec::new(),
+            subscribers: false,
+            favorite: false,
+            limit: 100,
+            offset: 0,
+        }
+    }
+}
+
+impl From<UsersQueryArg> for UsersArg {
+    fn from(data: UsersQueryArg) -> Self {
+        let UsersQueryArg {
+            users_uuids,
+            subscribers,
+            favorite,
+            limit,
+            offset,
+        } = data;
+
+        Self {
+            filter_users_uuids: users_uuids.unwrap_or_default(),
+            subscribers: subscribers.unwrap_or(false),
+            favorite: favorite.unwrap_or(false),
+            limit: limit.unwrap_or(100),
+            offset: offset.unwrap_or(0),
+        }
+    }
+}
