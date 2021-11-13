@@ -31,7 +31,9 @@ impl SlimUser {
         conn: &PgConnection,
     ) -> ServiceResult<SlimUser> {
         Ok(user_ref::user_ref
-            .filter(user_ref::uuid.eq(target_user_uuid))
+            .filter(user_ref::uuid.eq(target_user_uuid)
+            .and(user_ref::is_enabled.eq(true))
+            .and(user_ref::is_delete.eq(false)))
             .select((
                 user_ref::uuid,
                 user_ref::username,
@@ -49,6 +51,7 @@ impl UserQuery {
     ) -> ServiceResult<UserQuery> {
         Ok(user_ref::user_ref
             .filter(user_ref::uuid.eq(target_user_uuid)
+            .and(user_ref::is_enabled.eq(true))
             .and(user_ref::is_delete.eq(false)))
             .select((
                 user_ref::uuid,
@@ -84,9 +87,13 @@ impl UserShort {
     ) -> ServiceResult<UserShort> {
 
     Ok(user_ref::user_ref
-        .filter(user_ref::uuid.eq(target_user_uuid))
+        .filter(user_ref::uuid.eq(target_user_uuid)
+        .and(user_ref::is_enabled.eq(true))
+        .and(user_ref::is_delete.eq(false)))
         .select((
             user_ref::uuid,
+            user_ref::firstname,
+            user_ref::lastname,
             user_ref::username,
             user_ref::image_file_uuid,
         ))
@@ -124,9 +131,12 @@ impl ShowUserShort {
     ) -> ServiceResult<ShowUserShort> {
         let user_data = user_ref::user_ref
             .filter(user_ref::uuid.eq(target_user_uuid)
+            .and(user_ref::is_enabled.eq(true))
             .and(user_ref::is_delete.eq(false)))
             .select((
                 user_ref::uuid,
+                user_ref::firstname,
+                user_ref::lastname,
                 user_ref::username,
                 user_ref::image_file_uuid,
             ))
@@ -150,11 +160,15 @@ impl ShowUserShort {
         conn: &PgConnection,
     ) -> ServiceResult<Vec<ShowUserShort>> {
         let users = user_ref::user_ref
-            .filter(user_ref::type_access_id.eq(3))
+            .filter(user_ref::type_access_id.eq(3)
+            .and(user_ref::is_enabled.eq(true))
+            .and(user_ref::is_delete.eq(false)))
             .limit(*limit as i64)
             .offset(*offset as i64)
             .select((
                 user_ref::uuid,
+                user_ref::firstname,
+                user_ref::lastname,
                 user_ref::username,
                 user_ref::image_file_uuid,
             ))

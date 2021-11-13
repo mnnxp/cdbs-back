@@ -332,6 +332,8 @@ impl From<User> for SlimUser {
 #[table_name = "user_ref"]
 pub struct UserShort {
     pub uuid: Uuid,
+    pub firstname: String,
+    pub lastname: String,
     pub username: String,
     pub image_file_uuid: Uuid,
 }
@@ -339,6 +341,8 @@ pub struct UserShort {
 #[derive(Clone, SimpleObject, Debug)]
 pub struct ShowUserShort {
     pub uuid: Uuid,
+    pub firstname: String,
+    pub lastname: String,
     pub username: String,
     pub image_file: DownloadFile,
 }
@@ -347,6 +351,8 @@ impl From<(&UserShort, &DownloadFile)> for ShowUserShort {
     fn from(data: (&UserShort, &DownloadFile)) -> Self {
         Self {
             uuid: data.0.uuid,
+            firstname: data.0.firstname.to_string(),
+            lastname: data.0.lastname.to_string(),
             username: data.0.username.to_string(),
             image_file: data.1.to_owned(),
         }
