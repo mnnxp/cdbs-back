@@ -325,8 +325,6 @@ impl UserAndRelatedData {
             program,
             type_access,
             is_email_verified: user.is_email_verified,
-            is_enabled: user.is_enabled,
-            is_delete: user.is_delete,
             created_at: user.created_at,
             updated_at: user.updated_at,
             certificates,

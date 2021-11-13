@@ -92,8 +92,6 @@ pub struct UserAndRelatedData {
     pub program: Program,
     pub type_access: TypeAccessTranslateList,
     pub is_email_verified: bool,
-    pub is_enabled: bool,
-    pub is_delete: bool,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
     // related data

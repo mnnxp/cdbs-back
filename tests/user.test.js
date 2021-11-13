@@ -279,8 +279,6 @@ typeAccess { \
   name \
 } \
 isEmailVerified \
-isEnabled \
-isDelete \
 createdAt \
 updatedAt \
 certificates { \
