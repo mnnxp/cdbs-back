@@ -1,4 +1,4 @@
-use crate::errors::ServiceResult;
+use crate::errors::{ServiceResult, ServiceError};
 use crate::models::standard::model::{Standard, ShowStandardShort, StandardAndRelatedData};
 use crate::models::standard::standard_status::model::StandardStatusTranslateList;
 use crate::models::standard::standard_fav::model::StandardFav;
@@ -6,7 +6,7 @@ use crate::models::standard::spec::model::StandardSpecWithTranslation;
 use crate::models::standard::access::util::check_access_standard_for_user;
 use crate::models::relate_ref::region::model::RegionTranslateList;
 use crate::models::relate_ref::keyword::model::Keyword;
-use crate::models::relate_ref::file::model::ShowFileForDownload;
+use crate::models::relate_ref::file::model::{ShowFileForDownload, DownloadFile};
 use crate::schema::standard_ref::dsl as standard_ref;
 use diesel::prelude::*;
 use uuid::Uuid;
@@ -17,9 +17,14 @@ impl Standard {
         target_standard_uuid: &Uuid,
         conn: &PgConnection,
     ) -> ServiceResult<Standard> {
-        Ok(standard_ref::standard_ref
-            .filter(standard_ref::uuid.eq(target_standard_uuid))
-            .first::<Standard>(conn)?)
+        standard_ref::standard_ref
+            .filter(standard_ref::uuid.eq(target_standard_uuid)
+            .and(standard_ref::is_delete.eq(false)))
+            .first::<Standard>(conn)
+            .map_err(|err| {
+                debug!("Failed get standard: {:?}", err);
+                ServiceError::InternalServerError
+            })
     }
 }
 
@@ -203,7 +208,7 @@ impl StandardAndRelatedData {
         ).expect("Error loading standard");
 
         // get image file (favicon) for standard
-        let image_file = ShowFileForDownload::get_file_by_uuid(
+        let image_file = DownloadFile::get_by_file_uuid(
             &standard.image_file_uuid,
             conn
         ).expect("Error loading standard file");

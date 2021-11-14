@@ -2,7 +2,7 @@ use super::standard_status::model::StandardStatusTranslateList;
 use super::spec::model::StandardSpecWithTranslation;
 use crate::models::company::model::ShowCompanyShort;
 use crate::models::user::model::ShowUserShort;
-use crate::models::relate_ref::file::model::ShowFileForDownload;
+use crate::models::relate_ref::file::model::{ShowFileForDownload, DownloadFile};
 use crate::models::relate_ref::region::model::RegionTranslateList;
 use crate::models::relate_ref::keyword::model::Keyword;
 use crate::schema::*;
@@ -99,7 +99,7 @@ pub struct StandardAndRelatedData {
     pub specified_tolerance: String,
     pub technical_committee: String,
     pub publication_at: NaiveDateTime,
-    pub image_file: ShowFileForDownload,
+    pub image_file: DownloadFile,
     pub owner_user: ShowUserShort,
     pub owner_company: ShowCompanyShort,
     pub type_access_id: i32,

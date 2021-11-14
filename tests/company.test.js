@@ -78,30 +78,9 @@ ownerUser { \
 } \
 imageFile { \
   uuid \
-  parentFileUuid \
-  download { \
-    uuid \
-    filename \
-    filesize \
-    downloadUrl \
-  } \
-  ownerUser { \
-    uuid \
-    username \
-    imageFile { \
-      uuid \
-      filename \
-      filesize \
-      downloadUrl \
-    } \
-  } \
-  contentType \
-  program { \
-    id \
-    name \
-  } \
-  createdAt \
-  updatedAt \
+  filename \
+  filesize \
+  downloadUrl \
 } \
 region { \
   regionId \
@@ -174,30 +153,9 @@ inn \
 description \
 imageFile { \
   uuid \
-  parentFileUuid \
-  download { \
-    uuid \
-    filename \
-    filesize \
-    downloadUrl \
-  } \
-  ownerUser { \
-    uuid \
-    username \
-    imageFile { \
-      uuid \
-      filename \
-      filesize \
-      downloadUrl \
-    } \
-  } \
-  contentType \
-  program { \
-    id \
-    name \
-  } \
-  createdAt \
-  updatedAt \
+  filename \
+  filesize \
+  downloadUrl \
 } \
 region { \
   regionId \

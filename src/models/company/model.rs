@@ -3,7 +3,7 @@ use super::certificate::model::CertificateAndFile;
 use super::company_type::model::CompanyTypeTranslateList;
 use super::spec::model::CompanySpecWithTranslation;
 use crate::models::user::model::ShowUserShort;
-use crate::models::relate_ref::file::model::ShowFileForDownload;
+use crate::models::relate_ref::file::model::DownloadFile;
 use crate::models::relate_ref::region::model::RegionTranslateList;
 use crate::schema::*;
 use async_graphql::types::ID;
@@ -51,7 +51,7 @@ pub struct CompanyAndRelatedData {
     pub site_url: String,
     pub time_zone: String,
     pub owner_user: ShowUserShort,
-    pub image_file: ShowFileForDownload,
+    pub image_file: DownloadFile,
     pub region: RegionTranslateList,
     pub company_represents: Vec<CompanyRepresentAndRelatedData>,
     pub company_type: CompanyTypeTranslateList,
@@ -76,7 +76,7 @@ pub struct ShowCompanyShort {
     pub shortname: String,
     pub inn: String,
     pub description: String,
-    pub image_file: ShowFileForDownload,
+    pub image_file: DownloadFile,
     pub region: RegionTranslateList,
     pub company_type: CompanyTypeTranslateList,
     pub is_supplier: bool,

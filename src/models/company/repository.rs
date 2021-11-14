@@ -1,4 +1,4 @@
-use crate::errors::ServiceResult;
+use crate::errors::{ServiceResult, ServiceError};
 use crate::models::company::model::{Company, ShowCompanyShort, CompanyAndRelatedData};
 use crate::models::company::company_represent::model::CompanyRepresentAndRelatedData;
 use crate::models::company::certificate::model::CertificateAndFile;
@@ -7,7 +7,7 @@ use crate::models::company::company_fav::model::CompanyFav;
 use crate::models::company::spec::model::CompanySpecWithTranslation;
 use crate::models::company::access::util::check_company_access;
 use crate::models::relate_ref::region::model::RegionTranslateList;
-use crate::models::relate_ref::file::model::ShowFileForDownload;
+use crate::models::relate_ref::file::model::DownloadFile;
 use crate::schema::company_ref::dsl as company_ref;
 use diesel::prelude::*;
 use uuid::Uuid;
@@ -18,9 +18,15 @@ impl Company {
         target_company_uuid: &Uuid,
         conn: &PgConnection,
     ) -> ServiceResult<Company> {
-        Ok(company_ref::company_ref
-            .filter(company_ref::uuid.eq(target_company_uuid))
-            .first::<Company>(conn)?)
+        company_ref::company_ref
+            .filter(company_ref::uuid.eq(target_company_uuid)
+            .and(company_ref::is_enabled.eq(true))
+            .and(company_ref::is_delete.eq(false)))
+            .first::<Company>(conn)
+            .map_err(|err| {
+                debug!("Failed get company: {:?}", err);
+                ServiceError::InternalServerError
+            })
     }
 }
 
@@ -96,7 +102,7 @@ impl ShowCompanyShort {
         .expect("Error loading company");
 
         // get image file (favicon) for company
-        let image_file = ShowFileForDownload::get_file_by_uuid(
+        let image_file = DownloadFile::get_by_file_uuid(
             &company.image_file_uuid,
             conn
         ).expect("Error loading company file");
@@ -173,6 +179,7 @@ impl ShowCompanyShort {
     ) -> ServiceResult<Vec<ShowCompanyShort>> {
         let target_companies_uuids = company_ref::company_ref
             .filter(company_ref::type_access_id.eq(3)
+            .and(company_ref::is_enabled.eq(true))
             .and(company_ref::is_delete.eq(false)))
             .select(company_ref::uuid)
             .limit(*limit as i64)
@@ -227,7 +234,7 @@ impl CompanyAndRelatedData {
         ).expect("Error loading slim_user");
 
         // get image file (favicon) for company
-        let image_file = ShowFileForDownload::get_file_by_uuid(
+        let image_file = DownloadFile::get_by_file_uuid(
             &company.image_file_uuid,
             conn
         ).expect("Error loading company file");
