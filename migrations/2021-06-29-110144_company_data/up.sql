@@ -20,7 +20,7 @@ INSERT INTO company_type_ref (id) VALUES
 
 INSERT INTO company_type_translate_list (company_type_id, lang_id, name, shortname) VALUES
   (1, 1, 'Individual entrepreneur', 'IP'),
-  (2, 1, 'Joint Stock Companies', 'AO'),
+  (2, 1, 'Joint Stock Companies', 'JSC'),
   (3, 1, 'Public Joint Stock Companies', 'PJSC'),
   (4, 1, 'Non-public joint stock companies', 'NAO'),
   (5, 1, 'Limited Liability Company', 'LLC'),
