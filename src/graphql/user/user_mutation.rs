@@ -378,4 +378,11 @@ impl UserMutation {
             conn,
         )
     }
+
+    async fn logout(&self, cxt: &Context<'_>) -> ServiceResult<String> {
+        use crate::models::user::access::logout::logout_user;
+
+        // removed user token
+        logout_user(cxt)
+    }
 }

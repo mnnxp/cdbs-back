@@ -3565,7 +3565,7 @@ describe('users', () => {
         `Bearer ${authorizationTokenUserFirstUpdate}`
       )
       .send({
-        query: `query logoutQuery {
+        query: `mutation {
           logout
         }`,
       })
