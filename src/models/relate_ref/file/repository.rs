@@ -255,9 +255,38 @@ impl DownloadFile {
         })
     }
 
+    /// Get structures of DownloadFile by files uuids
+    pub(crate) fn get_by_files_uuids (
+        target_files_uuids: &[Uuid],
+        conn: &PgConnection,
+    ) -> ServiceResult<Vec<DownloadFile>> {
+        let mut collect_res: Vec<DownloadFile> = Vec::new();
+
+        if target_files_uuids.is_empty() {
+            return Ok(collect_res);
+        }
+
+        for tfu in target_files_uuids {
+            let res = DownloadFile::get_by_file_uuid(
+                tfu,
+                conn
+            );
+
+            match res {
+                Ok(value) => collect_res.push(value),
+                Err(err) => {
+                    debug!("Failed get data DownloadFile: {:?}", err);
+                    return Err(ServiceError::InternalServerError);
+                },
+            }
+        }
+
+        Ok(collect_res)
+    }
+
     /// Gets vec from DownloadFile by SlimFiles
     /// and then collecting DownloadFiles with generated presigned_url
-    pub(crate) fn get_by_files_uuids(
+    pub(crate) fn get_by_slim_files(
         slim_files: &[SlimFile],
         conn: &PgConnection,
     ) -> ServiceResult<Vec<DownloadFile>> {

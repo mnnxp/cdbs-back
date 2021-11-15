@@ -215,30 +215,9 @@ certificates { \
   userUuid \
   file { \
     uuid \
-    parentFileUuid \
-    download { \
-      uuid \
-      filename \
-      filesize \
-      downloadUrl \
-    } \
-    ownerUser { \
-      uuid \
-      username \
-      imageFile { \
-        uuid \
-        filename \
-        filesize \
-        downloadUrl \
-      } \
-    } \
-    contentType \
-    program { \
-      id \
-      name \
-    } \
-    createdAt \
-    updatedAt \
+    filename \
+    filesize \
+    downloadUrl \
   } \
   description \
 } \
@@ -285,30 +264,9 @@ certificates { \
   userUuid \
   file { \
     uuid \
-    parentFileUuid \
-    download { \
-      uuid \
-      filename \
-      filesize \
-      downloadUrl \
-    } \
-    ownerUser { \
-      uuid \
-      username \
-      imageFile { \
-        uuid \
-        filename \
-        filesize \
-        downloadUrl \
-      } \
-    } \
-    contentType \
-    program { \
-      id \
-      name \
-    } \
-    createdAt \
-    updatedAt \
+    filename \
+    filesize \
+    downloadUrl \
   } \
   description \
 } \
@@ -1338,8 +1296,8 @@ describe('users', () => {
     const {
       data: { selfData },
     } = body;
-    expect(selfData.certificates[0].file.download.filename).toBe(goodFilenameCertificateTest);
-    expect(selfData.certificates[0].file.download.downloadUrl).toBeNonEmptyString();
+    expect(selfData.certificates[0].file.filename).toBe(goodFilenameCertificateTest);
+    expect(selfData.certificates[0].file.downloadUrl).toBeNonEmptyString();
     expect(selfData.certificates[0].description).toBe(descriptionCertificateTest);
     done();
   });
@@ -1410,8 +1368,8 @@ describe('users', () => {
     const {
       data: { selfData },
     } = body;
-    expect(selfData.certificates[0].file.download.filename).toBe(goodFilenameCertificateTest);
-    expect(selfData.certificates[0].file.download.downloadUrl).toBeNonEmptyString();
+    expect(selfData.certificates[0].file.filename).toBe(goodFilenameCertificateTest);
+    expect(selfData.certificates[0].file.downloadUrl).toBeNonEmptyString();
     expect(selfData.certificates[0].description).toBe(descriptionCertificateUpdateTest);
     done();
   });
@@ -1726,8 +1684,8 @@ describe('users', () => {
     const {
       data: { selfData },
     } = body;
-    expect(selfData.certificates[0].file.download.filename).toBe(goodFilenameCertificateTest);
-    expect(selfData.certificates[0].file.download.downloadUrl).toBeNonEmptyString();
+    expect(selfData.certificates[0].file.filename).toBe(goodFilenameCertificateTest);
+    expect(selfData.certificates[0].file.downloadUrl).toBeNonEmptyString();
     expect(selfData.certificates[0].description).toBe(descriptionCertificateTest);
     done();
   });
@@ -2747,7 +2705,7 @@ describe('users', () => {
     } = body;
     // expect(body).toBe(0);
     expect(users).toBeNonEmptyArray();
-    expect(users.length).toBe(2);
+    expect(users.length).toBe(1);
     done();
   });
 

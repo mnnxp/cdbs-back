@@ -50,7 +50,7 @@ pub(crate) fn get_urls_by_files_uuids(
         },
     };
 
-    DownloadFile::get_by_files_uuids(
+    DownloadFile::get_by_slim_files(
         &slim_files,
         conn
     )

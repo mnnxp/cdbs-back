@@ -1,5 +1,5 @@
 use super::access::hash::{make_hash_salt, make_salt};
-use super::certificate::model::CertificateAndFile;
+use super::certificate::model::UserCertificateAndFile;
 use crate::models::relate_ref::file::model::DownloadFile;
 use crate::models::relate_ref::region::model::RegionTranslateList;
 use crate::models::relate_ref::program::model::Program;
@@ -95,7 +95,7 @@ pub struct UserAndRelatedData {
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
     // related data
-    pub certificates: Vec<CertificateAndFile>,
+    pub certificates: Vec<UserCertificateAndFile>,
     pub subscribers: i32,
     // for a quick request just count objects have user
     pub companies_count: i32,
@@ -124,7 +124,7 @@ pub struct ShowUserAndRelatedData {
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
     // related data
-    pub certificates: Vec<CertificateAndFile>,
+    pub certificates: Vec<UserCertificateAndFile>,
     pub subscribers: i32,
     // for display the checkbox "favorites"
     pub is_followed: bool,

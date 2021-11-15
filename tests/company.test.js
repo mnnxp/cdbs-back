@@ -99,32 +99,12 @@ companyType { \
   shortname \
 } \
 companyCertificates { \
+  companyUuid
   file { \
     uuid \
-    parentFileUuid \
-    download { \
-      uuid \
-      filename \
-      filesize \
-      downloadUrl \
-    } \
-    ownerUser { \
-      uuid \
-      username \
-      imageFile { \
-        uuid \
-        filename \
-        filesize \
-        downloadUrl \
-      } \
-    } \
-    contentType \
-    program { \
-      id \
-      name \
-    } \
-    createdAt \
-    updatedAt \
+    filename \
+    filesize \
+    downloadUrl \
   } \
   description \
 } \
@@ -175,92 +155,12 @@ updatedAt \
 
 const companyCertificatesQuery = ` \
 companyCertificates { \
+  companyUuid
   file { \
     uuid \
-    parentFileUuid \
-    download { \
-      uuid \
-      filename \
-      filesize \
-      downloadUrl \
-    } \
-    ownerUser { \
-      uuid \
-      username \
-      imageFile { \
-        uuid \
-        filename \
-        filesize \
-        downloadUrl \
-      } \
-    } \
-    contentType \
-    program { \
-      id \
-      name \
-    } \
-    createdAt \
-    updatedAt \
-  } \
-  description \
-} \
-companyCertificates { \
-  file { \
-    uuid \
-    parentFileUuid \
-    download { \
-      uuid \
-      filename \
-      filesize \
-      downloadUrl \
-    } \
-    ownerUser { \
-      uuid \
-      username \
-      imageFile { \
-        uuid \
-        filename \
-        filesize \
-        downloadUrl \
-      } \
-    } \
-    contentType \
-    program { \
-      id \
-      name \
-    } \
-    createdAt \
-    updatedAt \
-  } \
-  description \
-} \
-companyCertificates { \
-  file { \
-    uuid \
-    parentFileUuid \
-    download { \
-      uuid \
-      filename \
-      filesize \
-      downloadUrl \
-    } \
-    ownerUser { \
-      uuid \
-      username \
-      imageFile { \
-        uuid \
-        filename \
-        filesize \
-        downloadUrl \
-      } \
-    } \
-    contentType \
-    program { \
-      id \
-      name \
-    } \
-    createdAt \
-    updatedAt \
+    filename \
+    filesize \
+    downloadUrl \
   } \
   description \
 } \
@@ -1361,8 +1261,9 @@ describe('company', () => {
     const {
       data: { company },
     } = body;
-    expect(company.companyCertificates[0].file.download.filename).toBe(goodFilenameCertificateTest);
-    expect(company.companyCertificates[0].file.download.downloadUrl).toBeNonEmptyString();
+    expect(company.companyCertificates[0].companyUuid).toBe(companyUuidNoSupplier);
+    expect(company.companyCertificates[0].file.filename).toBe(goodFilenameCertificateTest);
+    expect(company.companyCertificates[0].file.downloadUrl).toBeNonEmptyString();
     expect(company.companyCertificates[0].description).toBe(descriptionCertificateTest);
     done();
   });

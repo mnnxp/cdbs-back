@@ -7,7 +7,7 @@ use super::model::{
     UserAndRelatedData,
     ShowUserAndRelatedData,
 };
-use super::certificate::model::CertificateAndFile;
+use super::certificate::model::UserCertificateAndFile;
 use super::user_fav::model::UserFav;
 use super::access::util::check_access_user_for_user;
 use crate::models::company::model::ShowCompanyShort;
@@ -148,7 +148,7 @@ impl ShowUserShort {
             &DownloadFile::get_by_file_uuid(
                 &user_data.image_file_uuid,
                 conn
-            ).expect("Failed get CertificateAndFile for ShowUserShort")
+            ).expect("Failed get UserCertificateAndFile for ShowUserShort")
         )))
     }
 
@@ -261,7 +261,7 @@ impl UserAndRelatedData {
         let subscribers: i32 = UserFav::get_count_followers_by_uuid(&user.uuid, conn)?;
 
         // get certificates with slimfile for user
-        let certificates: Vec<CertificateAndFile> = CertificateAndFile::from_user(
+        let certificates: Vec<UserCertificateAndFile> = UserCertificateAndFile::from_user(
             &user.uuid,
             conn
         ).expect("Error loading spec user with translate");
@@ -386,7 +386,7 @@ impl ShowUserAndRelatedData {
         let subscribers: i32 = UserFav::get_count_followers_by_uuid(&user.uuid, conn)?;
 
         // get certificates with slimfile for user
-        let certificates: Vec<CertificateAndFile> = CertificateAndFile::from_user(
+        let certificates: Vec<UserCertificateAndFile> = UserCertificateAndFile::from_user(
             &user.uuid,
             conn
         ).expect("Error loading spec user with translate");

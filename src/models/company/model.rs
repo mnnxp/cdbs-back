@@ -1,5 +1,5 @@
 use super::company_represent::model::CompanyRepresentAndRelatedData;
-use super::certificate::model::CertificateAndFile;
+use super::certificate::model::CompanyCertificateAndFile;
 use super::company_type::model::CompanyTypeTranslateList;
 use super::spec::model::CompanySpecWithTranslation;
 use crate::models::user::model::ShowUserShort;
@@ -56,7 +56,7 @@ pub struct CompanyAndRelatedData {
     pub company_represents: Vec<CompanyRepresentAndRelatedData>,
     pub company_type: CompanyTypeTranslateList,
     // show certificates company
-    pub company_certificates: Vec<CertificateAndFile>,
+    pub company_certificates: Vec<CompanyCertificateAndFile>,
     pub company_specs: Vec<CompanySpecWithTranslation>,
     pub is_supplier: bool,
     pub is_email_verified: bool,

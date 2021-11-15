@@ -1,7 +1,7 @@
 use crate::errors::{ServiceResult, ServiceError};
 use crate::models::company::model::{Company, ShowCompanyShort, CompanyAndRelatedData};
 use crate::models::company::company_represent::model::CompanyRepresentAndRelatedData;
-use crate::models::company::certificate::model::CertificateAndFile;
+use crate::models::company::certificate::model::CompanyCertificateAndFile;
 use crate::models::company::company_type::model::CompanyTypeTranslateList;
 use crate::models::company::company_fav::model::CompanyFav;
 use crate::models::company::spec::model::CompanySpecWithTranslation;
@@ -271,7 +271,7 @@ impl CompanyAndRelatedData {
         let company_subscribers_count: i32 = CompanyFav::get_count_followers_by_uuid(&company.uuid, conn)?;
 
         // get certificates with slimfile for company
-        let certificates_with_slimfile: Vec<CertificateAndFile> = CertificateAndFile::from_company(
+        let certificates_with_slimfile: Vec<CompanyCertificateAndFile> = CompanyCertificateAndFile::from_company(
             &company.uuid,
             conn
         ).expect("Error loading spec company with translate");
