@@ -11,7 +11,7 @@ use async_graphql::*;
 use chrono::*;
 use uuid::Uuid;
 
-#[derive(Identifiable, Deserialize, Queryable, Debug)]
+#[derive(Identifiable, Queryable, Debug)]
 #[primary_key(uuid)]
 #[table_name = "standard_ref"]
 pub struct Standard {
@@ -34,61 +34,6 @@ pub struct Standard {
     pub updated_at: NaiveDateTime,
 }
 
-#[Object]
-impl Standard {
-    async fn uuid(&self) -> ID {
-        self.uuid.into()
-    }
-    async fn parent_standard_uuid(&self) -> ID {
-        self.parent_standard_uuid.into()
-    }
-    async fn classifier(&self) -> &String {
-        &self.classifier
-    }
-    async fn name(&self) -> &String {
-        &self.name
-    }
-    async fn description(&self) -> &String {
-        &self.description
-    }
-    async fn specified_tolerance(&self) -> &String {
-        &self.specified_tolerance
-    }
-    async fn technical_committee(&self) -> &String {
-        &self.technical_committee
-    }
-    async fn publication_at(&self) -> &NaiveDateTime {
-        &self.publication_at
-    }
-    async fn image_file_uuid(&self) -> ID {
-        self.image_file_uuid.into()
-    }
-    async fn user_uuid(&self) -> ID {
-        self.user_uuid.into()
-    }
-    async fn company_uuid(&self) -> ID {
-        self.company_uuid.into()
-    }
-    async fn type_access_id(&self) -> &i32 {
-        &self.type_access_id
-    }
-    async fn standard_status_id(&self) -> &i32 {
-        &self.standard_status_id
-    }
-    async fn region_id(&self) -> &i32 {
-        &self.region_id
-    }
-    async fn is_delete(&self) -> &bool {
-        &self.is_delete
-    }
-    async fn created_at(&self) -> &NaiveDateTime {
-        &self.created_at
-    }
-    async fn updated_at(&self) -> &NaiveDateTime {
-        &self.updated_at
-    }
-}
-
 #[derive(Debug, SimpleObject)]
 pub struct StandardAndRelatedData {
     pub uuid: Uuid,
@@ -105,7 +50,6 @@ pub struct StandardAndRelatedData {
     pub type_access_id: i32,
     pub standard_status: StandardStatusTranslateList,
     pub region: RegionTranslateList,
-    pub is_delete: bool,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
     // related data

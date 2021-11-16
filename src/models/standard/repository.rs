@@ -296,7 +296,6 @@ impl StandardAndRelatedData {
             type_access_id: standard.type_access_id,
             standard_status,
             region,
-            is_delete: standard.is_delete,
             created_at: standard.created_at,
             updated_at: standard.updated_at,
             standard_files,

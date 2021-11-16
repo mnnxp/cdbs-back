@@ -103,7 +103,6 @@ region { \
   langId \
   region \
 } \
-isDelete \
 createdAt \
 updatedAt \
 standardFiles { \

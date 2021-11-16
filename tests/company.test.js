@@ -120,8 +120,6 @@ isSupplier \
 isEmailVerified \
 subscribers \
 isFollowed \
-isEnabled \
-isDelete \
 createdAt \
 updatedAt \
 `;

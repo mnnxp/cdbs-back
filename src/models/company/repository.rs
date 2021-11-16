@@ -305,8 +305,6 @@ impl CompanyAndRelatedData {
             is_email_verified: company.is_email_verified,
             subscribers: company_subscribers_count,
             is_followed,
-            is_enabled: company.is_enabled,
-            is_delete: company.is_delete,
             created_at: company.created_at,
             updated_at: company.updated_at,
         };

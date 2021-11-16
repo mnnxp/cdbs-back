@@ -64,8 +64,6 @@ pub struct CompanyAndRelatedData {
     pub subscribers: i32,
     // for display the checkbox "favorites"
     pub is_followed: bool,
-    pub is_enabled: bool,
-    pub is_delete: bool,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
 }
