@@ -1,4 +1,4 @@
-use crate::errors::ServiceResult;
+use crate::errors::{ServiceResult, ServiceError};
 use crate::models::user::access::util::check_access_user_for_user;
 use crate::models::user::user_fav::model::{
     IptUserFavData, InsertableUserFav
@@ -38,10 +38,12 @@ pub(crate) fn add_user_fav(
                     .filter(user_fav::user_favorite_uuid.eq(&data.user_favorite_uuid)
                     .and(user_fav::user_follower_uuid.eq(&data.user_follower_uuid)))
                     .set(user_fav::is_enabled.eq(true))
-                    .execute(conn)
-                    .expect("Failed check fav data");
-
-                Ok(true)
+                    .returning(user_fav::is_enabled)
+                    .get_result(conn)
+                    .map_err(|err| {
+                        debug!("Failed add fav user: {:?}", err);
+                        ServiceError::InternalServerError
+                    })
             }
         },
         Err(err) => {
@@ -52,10 +54,12 @@ pub(crate) fn add_user_fav(
 
             diesel::insert_into(user_fav::user_fav)
                 .values(insertable_fav)
-                .execute(conn)
-                .expect("Failed add fav data");
-
-            Ok(true)
+                .returning(user_fav::is_enabled)
+                .get_result(conn)
+                .map_err(|err| {
+                    debug!("Failed add fav user: {:?}", err);
+                    ServiceError::InternalServerError
+                })
         },
     }
 }

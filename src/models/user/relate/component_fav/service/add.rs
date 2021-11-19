@@ -3,7 +3,7 @@ use crate::models::component::access::util::check_access_component_for_user;
 use crate::models::user::component_fav::model::{
     IptComponentFavData, InsertableComponentFav
 };
-use crate::schema::component_fav::dsl::*;
+use crate::schema::component_fav::dsl as component_fav;
 use diesel::prelude::*;
 
 pub(crate) fn add_component_fav(
@@ -21,26 +21,45 @@ pub(crate) fn add_component_fav(
     )?;
 
     // if have need row, just update is_enabled to true
-    let check_fav = diesel::update(component_fav)
-        .filter(component_uuid.eq(&data.component_uuid)
-        .and(user_uuid.eq(&data.user_uuid)))
-        .set(is_enabled.eq(true))
-        .execute(conn)
-        .expect("Failed check fav data");
+    let check_fav = component_fav::component_fav
+        .filter(component_fav::component_uuid.eq(&data.component_uuid)
+        .and(component_fav::user_uuid.eq(&data.user_uuid)))
+        .select(component_fav::is_enabled)
+        .first(conn);
 
     match check_fav {
-        1_usize => Ok(true),
-        0_usize => {
+        Ok(fav) => {
+            if fav {
+                // if data already has
+                Ok(false)
+            } else {
+                // if have need row, just update is_enabled to true
+                diesel::update(component_fav::component_fav)
+                    .filter(component_fav::component_uuid.eq(&data.component_uuid)
+                    .and(component_fav::user_uuid.eq(&data.user_uuid)))
+                    .set(component_fav::is_enabled.eq(true))
+                    .returning(component_fav::is_enabled)
+                    .get_result(conn)
+                    .map_err(|err| {
+                        debug!("Failed add fav component: {:?}", err);
+                        ServiceError::InternalServerError
+                    })
+            }
+        },
+        Err(err) => {
+            debug!("Err check is_enabled: {:?}", err);
+
             // add flag and date created
             let insertable_fav: InsertableComponentFav = data.into();
 
-            diesel::insert_into(component_fav)
+            diesel::insert_into(component_fav::component_fav)
                 .values(insertable_fav)
-                .execute(conn)
-                .expect("Failed add fav data");
-
-            Ok(true)
+                .returning(component_fav::is_enabled)
+                .get_result(conn)
+                .map_err(|err| {
+                    debug!("Failed add fav component: {:?}", err);
+                    ServiceError::InternalServerError
+                })
         },
-        _ => Err(ServiceError::InternalServerError),
     }
 }

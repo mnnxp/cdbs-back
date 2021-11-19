@@ -2130,7 +2130,7 @@ describe('users', () => {
       .expect(HttpStatus.OK)
       debug('/graphql body=%o', body);
       expect(body.errors[0].message).toBe(
-        'BadRequest: No data found'
+        'Internal Server Error'
       );
       done();
   });
@@ -2168,7 +2168,7 @@ describe('users', () => {
       .expect(HttpStatus.OK)
       debug('/graphql body=%o', body);
       expect(body.errors[0].message).toBe(
-        'BadRequest: No data found'
+        'Internal Server Error'
       );
       done();
   });
@@ -2206,7 +2206,7 @@ describe('users', () => {
       .expect(HttpStatus.OK)
       debug('/graphql body=%o', body);
       expect(body.errors[0].message).toBe(
-        'BadRequest: No data found'
+        'Internal Server Error'
       );
       done();
   });
@@ -2229,7 +2229,7 @@ describe('users', () => {
     done();
   });
 
-  it('/graphql:M UserFav - Ok not found user fav', async (done) => {
+  it('/graphql:M UserFav - BadRequest not found user fav', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .set(
@@ -2242,9 +2242,11 @@ describe('users', () => {
         }`,
       })
       .expect(HttpStatus.OK)
-    debug('/graphql deleteUserFav body=%o', body);
-    expect(body.data.deleteUserFav).toBe(false);
-    done();
+      debug('/graphql body=%o', body);
+      expect(body.errors[0].message).toBe(
+        'Internal Server Error'
+      );
+      done();
   });
 
   it('/graphql:Q selfData - Ok no fav', async (done) => {
@@ -2705,7 +2707,7 @@ describe('users', () => {
     } = body;
     // expect(body).toBe(0);
     expect(users).toBeNonEmptyArray();
-    expect(users.length).toBe(1);
+    expect(users.length).toBe(2);
     done();
   });
 

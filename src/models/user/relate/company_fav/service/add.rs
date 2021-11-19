@@ -3,7 +3,7 @@ use crate::models::company::access::util::check_company_access;
 use crate::models::user::company_fav::model::{
     IptCompanyFavData, InsertableCompanyFav
 };
-use crate::schema::company_fav::dsl::*;
+use crate::schema::company_fav::dsl as company_fav;
 use diesel::prelude::*;
 
 pub(crate) fn add_company_fav(
@@ -21,26 +21,45 @@ pub(crate) fn add_company_fav(
     )?;
 
     // if have need row, just update is_enabled to true
-    let check_fav = diesel::update(company_fav)
-        .filter(company_uuid.eq(&data.company_uuid)
-        .and(user_uuid.eq(&data.user_uuid)))
-        .set(is_enabled.eq(true))
-        .execute(conn)
-        .expect("Failed check fav data");
+    let check_fav = company_fav::company_fav
+        .filter(company_fav::company_uuid.eq(&data.company_uuid)
+        .and(company_fav::user_uuid.eq(&data.user_uuid)))
+        .select(company_fav::is_enabled)
+        .first(conn);
 
     match check_fav {
-        1_usize => Ok(true),
-        0_usize => {
+        Ok(fav) => {
+            if fav {
+                // if data already has
+                Ok(false)
+            } else {
+                // if have need row, just update is_enabled to true
+                diesel::update(company_fav::company_fav)
+                    .filter(company_fav::company_uuid.eq(&data.company_uuid)
+                    .and(company_fav::user_uuid.eq(&data.user_uuid)))
+                    .set(company_fav::is_enabled.eq(true))
+                    .returning(company_fav::is_enabled)
+                    .get_result(conn)
+                    .map_err(|err| {
+                        debug!("Failed add fav company: {:?}", err);
+                        ServiceError::InternalServerError
+                    })
+            }
+        },
+        Err(err) => {
+            debug!("Err check is_enabled: {:?}", err);
+
             // add flag and date created
             let insertable_fav: InsertableCompanyFav = data.into();
 
-            diesel::insert_into(company_fav)
+            diesel::insert_into(company_fav::company_fav)
                 .values(insertable_fav)
-                .execute(conn)
-                .expect("Failed add fav data");
-
-            Ok(true)
+                .returning(company_fav::is_enabled)
+                .get_result(conn)
+                .map_err(|err| {
+                    debug!("Failed add fav company: {:?}", err);
+                    ServiceError::InternalServerError
+                })
         },
-        _ => Err(ServiceError::InternalServerError),
     }
 }
