@@ -1,12 +1,13 @@
 use crate::errors::ServiceResult;
 use crate::database::{get_conn, PooledConnection};
-use crate::models::user::access::logged::get_logged_user_uuid;
+use crate::models::user::access::logged::{get_logged_user_uuid, check_authorized};
 use crate::models::company::model::{
     CompanyAndRelatedData, ShowCompanyShort, CompaniesArg, IptCompaniesArg,
 };
 use crate::models::company;
 use crate::models::company::member::model::CompanyMemberAndRelatedData;
 use crate::models::company::member::role::model::RoleMemberAndRelatedData;
+use crate::models::company::company_type::model::CompanyTypeTranslateList;
 use crate::models::company::company_represent::model::CompanyRepresentAndRelatedData;
 use crate::models::company::company_represent::service as company_represent;
 use crate::models::relate_ref::language::get_set_language;
@@ -134,6 +135,23 @@ impl CompanyQuery {
         get_roles_for_company(
             &logged_user_uuid,
             &company_uuid,
+            &get_set_language(cxt),
+            conn
+        )
+    }
+
+    async fn company_types(
+        &self,
+        cxt: &Context<'_>,
+    ) -> ServiceResult<Vec<CompanyTypeTranslateList>> {
+        use company::relate::company_type::service::list::get_types_for_company;
+
+        // authorization check
+        check_authorized(cxt)?;
+
+        let conn: &PooledConnection = &get_conn(cxt)?;
+
+        get_types_for_company(
             &get_set_language(cxt),
             conn
         )

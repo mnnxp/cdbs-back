@@ -1,4 +1,4 @@
-use crate::errors::ServiceResult;
+use crate::errors::{ServiceResult, ServiceError};
 use crate::models::company::company_type::model::CompanyTypeTranslateList;
 use crate::schema::company_type_translate_list::dsl as company_type_translate_list;
 use diesel::prelude::*;
@@ -10,20 +10,42 @@ impl CompanyTypeTranslateList {
         set_lang_id: &i32,
         conn: &PgConnection,
     ) -> ServiceResult<CompanyTypeTranslateList> {
-        let company_type = company_type_translate_list::company_type_translate_list
+        company_type_translate_list::company_type_translate_list
             .filter(company_type_translate_list::company_type_id.eq(target_company_type_id)
             .and(company_type_translate_list::lang_id.eq(set_lang_id)))
-            .first::<CompanyTypeTranslateList>(conn);
-
-        // if not found data for set lang
-        match company_type {
-            Ok(cy_type) => Ok(cy_type),
-            Err(err) => {
+            .first::<CompanyTypeTranslateList>(conn)
+            .map_err(|err| {
+                // if not found data for set lang
                 debug!("Not found set lang for company type: {:?}", err);
-                Ok(company_type_translate_list::company_type_translate_list
-                    .filter(company_type_translate_list::company_type_id.eq(target_company_type_id))
-                    .first::<CompanyTypeTranslateList>(conn)?)
-            },
-        }
+                company_type_translate_list::company_type_translate_list
+                    .filter(company_type_translate_list::company_type_id.eq(target_company_type_id)
+                    .and(company_type_translate_list::lang_id.eq(1)))
+                    .first::<CompanyTypeTranslateList>(conn)
+            })
+            .map_err(|err| {
+                debug!("Failed get company type: {:?}", err);
+                ServiceError::InternalServerError
+            })
+    }
+
+    /// Get all company types with translate
+    pub(crate) fn get_company_types(
+        set_lang_id: &i32,
+        conn: &PgConnection,
+    ) -> ServiceResult<Vec<CompanyTypeTranslateList>> {
+        company_type_translate_list::company_type_translate_list
+            .filter(company_type_translate_list::lang_id.eq(set_lang_id))
+            .load::<CompanyTypeTranslateList>(conn)
+            .map_err(|err| {
+                // if not found data for set lang
+                debug!("Not found set lang for company types: {:?}", err);
+                company_type_translate_list::company_type_translate_list
+                    .filter(company_type_translate_list::lang_id.eq(1))
+                    .load::<CompanyTypeTranslateList>(conn)
+            })
+            .map_err(|err| {
+                debug!("Failed get company types: {:?}", err);
+                ServiceError::InternalServerError
+            })
     }
 }

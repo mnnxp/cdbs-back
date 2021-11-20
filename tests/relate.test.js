@@ -487,4 +487,83 @@ describe('param', () => {
     expect(specPath).toBe(specPathSplit5);
     done();
   });
+
+  // Testing get company types
+  it('/graphql:Q Company types - BadRequest no token', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .send({
+        query: `query {
+            companyTypes {
+              name
+              langId
+              companyTypeId
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Token not found.'
+    );
+    expect(body.errors[0].path[0]).toBe('companyTypes');
+    done();
+  });
+
+  it('/graphql:Q Company types - OK', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `query {
+            companyTypes {
+              name
+              langId
+              companyTypeId
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    const {
+      data: { companyTypes }
+    } = body;
+    expect(companyTypes).toBeNonEmptyArray();
+    expect(companyTypes[0].langId).toBe(1);
+    done();
+  });
+
+  it('/graphql:Q Company types - OK', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .set(
+        'Accept-Language',
+        `ru`
+      )
+      .send({
+        query: `query {
+            companyTypes {
+              name
+              langId
+              companyTypeId
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    const {
+      data: { companyTypes }
+    } = body;
+    expect(companyTypes).toBeNonEmptyArray();
+    expect(companyTypes[0].langId).toBe(2);
+    done();
+  });
 });
