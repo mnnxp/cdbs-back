@@ -832,6 +832,66 @@ describe('company', () => {
     done();
   });
 
+  // Testing update company favicon
+  it('/graphql:M uploadCompanyFavicon - BadRequest no access', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `mutation  {
+            uploadCompanyFavicon(
+              companyUuid: "${companyUuidNoSupplier}"
+              filename: "test.test"
+            ){
+              fileUuid
+              filename
+              uploadUrl
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Access denied'
+    );
+    expect(body.errors[0].path[0]).toBe('uploadCompanyFavicon');
+    done();
+  });
+
+  it('/graphql:M uploadCompanyFavicon - Ok no access', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation  {
+            uploadCompanyFavicon(
+              companyUuid: "${companyUuidNoSupplier}"
+              filename: "${goodFilenameCertificateTest}"
+            ){
+              fileUuid
+              filename
+              uploadUrl
+            }
+          }`,
+        })
+        .expect(HttpStatus.OK)
+      debug('/graphql uploadCompanyFavicon=%o', body);
+      const {
+        data: { uploadCompanyFavicon },
+      } = body;
+      expect(uploadCompanyFavicon.fileUuid).toBeNonEmptyString();
+      expect(uploadCompanyFavicon.filename).toBe(goodFilenameCertificateTest);
+      expect(uploadCompanyFavicon.uploadUrl).toBeNonEmptyString();
+      done();
+  });
+
   // Testing company data  update
   it('/graphql:M putCompanyUpdate - BadRequest no token', async (done) => {
     const { body } = await agent
