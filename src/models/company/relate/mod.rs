@@ -3,3 +3,4 @@ pub(crate) mod company_fav;
 pub(crate) mod company_type;
 pub(crate) mod spec;
 pub(crate) mod supplier_component;
+pub(crate) mod favicon;

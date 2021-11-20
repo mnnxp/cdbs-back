@@ -70,6 +70,7 @@ fn write_addiction_data(
         // adding a record to user_certificate_ref table is done in fn add_certificate (../user/../certificate/../add.rs)
         ListObject::UserCertificate(_) => Ok(false),
         // adding a record to company_certificate_ref table is done in fn add_certificate (../company/../certificate/../add.rs)
+        ListObject::CompanyFavicon(_) => Ok(false),
         ListObject::CompanyCertificate(_) => Ok(false),
         ListObject::Component(component_uuid) => {   // <-- add addiction data in file_to_component
             use crate::schema::file_to_component::dsl::file_to_component;

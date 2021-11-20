@@ -29,6 +29,7 @@ pub enum ListObject {
     User(Uuid),
     UserCertificate(Uuid), // <-- addiction_uuid auth user
     Company(Uuid),
+    CompanyFavicon(Uuid),
     CompanyCertificate(Uuid),
     Component(Uuid),
     ComponentModification(Uuid),
@@ -43,6 +44,7 @@ impl ListObject {
             ListObject::User(uuid_object) => *uuid_object,
             ListObject::UserCertificate(uuid_object) => *uuid_object,
             ListObject::Company(uuid_object) => *uuid_object,
+            ListObject::CompanyFavicon(uuid_object) => *uuid_object,
             ListObject::CompanyCertificate(uuid_object) => *uuid_object,
             ListObject::Component(uuid_object) => *uuid_object,
             ListObject::ComponentModification(uuid_object) => *uuid_object,

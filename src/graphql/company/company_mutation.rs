@@ -86,6 +86,26 @@ impl CompanyMutation {
         )
     }
 
+    async fn upload_company_favicon(
+        &self,
+        cxt: &Context<'_>,
+        company_uuid: Uuid,
+        filename: String,
+    ) -> ServiceResult<UploadFile> {
+        use crate::models::company::relate::favicon::update_favicon;
+
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+
+        let conn: &PooledConnection = &get_conn(cxt)?;
+
+        update_favicon(
+            &logged_user_uuid,
+            &company_uuid,
+            &filename,
+            conn
+        )
+    }
+
     async fn upload_company_certificate(
         &self,
         cxt: &Context<'_>,
