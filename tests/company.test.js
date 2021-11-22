@@ -1854,13 +1854,7 @@ describe('company', () => {
                 phone: "${phoneRepresentation}",
                 regionId: ${regionIdRepresentation},
                 representationTypeId: ${representationTypeId}
-            }) {
-                uuid
-                companyUuid
-                name
-                address
-                phone
-            }
+            })
         }`,
       })
       .expect(HttpStatus.OK)
@@ -1887,12 +1881,7 @@ describe('company', () => {
             phone: "${phoneRepresentation}",
             regionId: ${regionIdRepresentation},
             representationTypeId: ${representationTypeId}
-          }) {
-            uuid
-            companyUuid
-            address
-            phone
-          }
+          })
         }`,
       })
       .expect(HttpStatus.OK)
@@ -1900,16 +1889,30 @@ describe('company', () => {
     const {
       data: { registerCompanyRepresent },
     } = body;
-    expect(registerCompanyRepresent).toContainAllKeys(
-      ["address", "phone", "uuid", "companyUuid"]
-    );
-    expect(registerCompanyRepresent.uuid).toBeNonEmptyString();
-    expect(registerCompanyRepresent.companyUuid).toBe(companyUuidSupplier);
-    expect(registerCompanyRepresent.address).toBe(addressRepresentation);
-    expect(registerCompanyRepresent.phone).toBe(phoneRepresentation);
+    expect(registerCompanyRepresent).toBe(true);
+    done();
+  });
+
+  it('/graphql:Q List companyRepresents - OK company uuid', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `query ListcompanyRepresents {
+            companyRepresents (companyUuid: "${companyUuidSupplier}"){
+                ${companyRepresentsListQuery}
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql all body=%o', body);
     // for test delete represent not owned user
-    // uuidRepresentArray.push(registerCompanyRepresent.uuid);
-    uuidRepresentFirst = registerCompanyRepresent.uuid;
+    uuidRepresentFirst = body.data.companyRepresents[0].uuid;
+    expect(body.data.companyRepresents).toBeNonEmptyArray();
+    expect(body.data.companyRepresents[0].companyUuid).toBe(companyUuidSupplier);
     done();
   });
 
@@ -1929,13 +1932,7 @@ describe('company', () => {
                 phone: "${phoneRepresentation}",
                 regionId: ${regionIdRepresentation},
                 representationTypeId: ${representationTypeId}
-            }) {
-                uuid
-                companyUuid
-                name
-                address
-                phone
-            }
+            })
         }`,
       })
       .expect(HttpStatus.OK)

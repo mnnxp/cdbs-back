@@ -7,7 +7,7 @@ use crate::models::company::{
     access::role_access::model::{IptRoleAccessData, DelRoleAccessData},
     certificate::model::{IptCompanyCertificateData, IptUpdateCompanyCertificateData, DelCompanyCertificateData},
     spec::model::IptCompanySpecData,
-    company_represent::model::{IptCompanyRepresentData, IptUpdateCompanyRepresentData, SlimCompanyRepresent},
+    company_represent::model::{IptCompanyRepresentData, IptUpdateCompanyRepresentData},
     member::model::{IptCompanyMemberData, SlimCompanyMember, DelCompanyMemberData},
     member::role::model::{IptRoleMemberData, IptUpdataNameRoleData, DelRoleMemberData},
     supplier_component::model::DelCompanyOfSuppliersData,
@@ -214,7 +214,7 @@ impl CompanyMutation {
         &self,
         cxt: &Context<'_>,
         data: IptCompanyRepresentData,
-    ) -> ServiceResult<SlimCompanyRepresent> {
+    ) -> ServiceResult<bool> {
         use crate::models::company::company_represent::service::register::create_company_represent;
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;

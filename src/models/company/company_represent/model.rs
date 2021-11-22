@@ -87,7 +87,7 @@ pub struct IptUpdateCompanyRepresentData {
     pub phone: Option<String>,
 }
 
-#[derive(Debug, Deserialize, Clone)]
+#[derive(Debug, Deserialize, Clone, SimpleObject)]
 pub struct CompanyRepresentData {
     pub company_uuid: Uuid,
     pub region_id: i32,
@@ -95,49 +95,6 @@ pub struct CompanyRepresentData {
     pub name: String,
     pub address: String,
     pub phone: String,
-}
-
-impl From<&IptCompanyRepresentData> for CompanyRepresentData {
-    fn from(ipt_data: &IptCompanyRepresentData) -> Self {
-        let IptCompanyRepresentData {
-            company_uuid,
-            region_id,
-            representation_type_id,
-            name,
-            address,
-            phone,
-        } = ipt_data;
-        CompanyRepresentData {
-            company_uuid: Uuid::parse_str(&company_uuid.to_string()).unwrap(),
-            region_id: *region_id,
-            representation_type_id: *representation_type_id,
-            name: name.to_string(),
-            address: address.to_string(),
-            phone: phone.to_string(),
-        }
-    }
-}
-
-#[Object]
-impl CompanyRepresentData {
-    async fn company_uuid(&self) -> ID {
-        self.company_uuid.into()
-    }
-    async fn region_id(&self) -> &i32 {
-        &self.region_id
-    }
-    async fn representation_type_id(&self) -> &i32 {
-        &self.representation_type_id
-    }
-    async fn name(&self) -> &String {
-        &self.name
-    }
-    async fn address(&self) -> &String {
-        &self.address
-    }
-    async fn phone(&self) -> &String {
-        &self.phone
-    }
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -168,9 +125,9 @@ impl SlimCompanyRepresent {
     }
 }
 
-impl From<CompanyRepresentData> for InsertableCompanyRepresent {
-    fn from(company_represent_data: CompanyRepresentData) -> Self {
-        let CompanyRepresentData {
+impl From<&IptCompanyRepresentData> for InsertableCompanyRepresent {
+    fn from(company_represent_data: &IptCompanyRepresentData) -> Self {
+        let IptCompanyRepresentData {
             company_uuid,
             region_id,
             representation_type_id,
@@ -184,12 +141,12 @@ impl From<CompanyRepresentData> for InsertableCompanyRepresent {
 
         Self {
             uuid: Uuid::new_v4(),
-            company_uuid,
-            region_id,
-            representation_type_id,
-            name,
-            address,
-            phone,
+            company_uuid: *company_uuid,
+            region_id: *region_id,
+            representation_type_id: *representation_type_id,
+            name: name.clone(),
+            address: address.clone(),
+            phone: phone.clone(),
         }
     }
 }
