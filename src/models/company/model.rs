@@ -58,6 +58,7 @@ pub struct CompanyAndRelatedData {
     // show certificates company
     pub company_certificates: Vec<CompanyCertificateAndFile>,
     pub company_specs: Vec<CompanySpecWithTranslation>,
+    pub type_access_id: i32, //TypeAccess
     pub is_supplier: bool,
     pub is_email_verified: bool,
     // count users to folloded the company

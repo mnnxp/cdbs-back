@@ -254,6 +254,9 @@ const nameComponent2 = "X Custom Geared Motor";
 const descriptionComponent = "graphqlcomment for component";
 const typeAccessIdComponent = 3;
 const typeAccessIdComponentPrivate = 1;
+const typeAccessId3 = 3;
+const typeAccessId2 = 2;
+const typeAccessId1 = 1;
 const componentTypeId = 2;
 const actualStatusIdComponent = 1;
 const isBaseComponent = true;
@@ -1067,6 +1070,162 @@ describe('company', () => {
     expect(company.timeZone).toBe(timeZoneUpdate);
     expect(company.region.regionId).toBe(regionUpdateId);
     expect(company.companyType.companyTypeId).toBe(companyTypeUpdateId);
+    done();
+  });
+
+  // Testing change company access
+  it('/graphql:M changeCompanyAccess - BadRequest fake uuid company', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `mutation {
+            changeCompanyAccess( data: {
+              companyUuid: "${uuidFake}"
+              newTypeAccessUuid: ${typeAccessId2}
+            })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql changeCompanyAccess=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Access denied'
+    );
+    expect(body.errors[0].path[0]).toBe('changeCompanyAccess');
+    done();
+  });
+
+  it('/graphql:M changeCompanyAccess - BadRequest access denied', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `mutation {
+            changeCompanyAccess( data: {
+              companyUuid: "${companyUuidSupplier}"
+              newTypeAccessUuid: ${typeAccessId2}
+            })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql changeCompanyAccess=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Access denied'
+    );
+    expect(body.errors[0].path[0]).toBe('changeCompanyAccess');
+    done();
+  });
+
+  it('/graphql:M changeCompanyAccess - OK', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation {
+            changeCompanyAccess( data: {
+              companyUuid: "${companyUuidSupplier}"
+              newTypeAccessUuid: ${typeAccessId2}
+            })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql changeCompanyAccess=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { changeCompanyAccess },
+    } = body;
+    expect(changeCompanyAccess).toBe(true);
+    done();
+  });
+
+  it('/graphql:Q Get full data Company - OK check change access', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+          query: `query companyQuery{
+            company(companyUuid: "${companyUuidSupplier}") {
+              uuid
+              ownerUser {
+                uuid
+              }
+              typeAccessId
+            }
+          }`,
+        })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { company },
+    } = body;
+    expect(company.uuid).toBe(companyUuidSupplier);
+    expect(company.ownerUser.uuid).toBe(authorizationUserFirst);
+    expect(company.typeAccessId).toBe(typeAccessId2);
+    done();
+  });
+
+  it('/graphql:M changeCompanyAccess - OK access already', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation {
+            changeCompanyAccess( data: {
+              companyUuid: "${companyUuidSupplier}"
+              newTypeAccessUuid: ${typeAccessId2}
+            })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql changeCompanyAccess=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { changeCompanyAccess },
+    } = body;
+    expect(changeCompanyAccess).toBe(false);
+    done();
+  });
+
+  it('/graphql:M changeCompanyAccess - OK return private access', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation {
+            changeCompanyAccess( data: {
+              companyUuid: "${companyUuidSupplier}"
+              newTypeAccessUuid: ${typeAccessId1}
+            })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql changeCompanyAccess=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { changeCompanyAccess },
+    } = body;
+    expect(changeCompanyAccess).toBe(true);
     done();
   });
 

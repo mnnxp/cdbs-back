@@ -301,6 +301,7 @@ impl CompanyAndRelatedData {
             company_type: company_type_with_translate,
             company_certificates: certificates_with_slimfile,
             company_specs: company_specs_with_translate,
+            type_access_id: company.type_access_id,
             is_supplier: company.is_supplier,
             is_email_verified: company.is_email_verified,
             subscribers: company_subscribers_count,

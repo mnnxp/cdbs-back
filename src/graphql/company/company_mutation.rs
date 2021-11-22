@@ -1,24 +1,17 @@
 use crate::database::{get_pool, get_conn, PooledConnection};
 use crate::errors::ServiceResult;
 use crate::models::user::access::logged::get_logged_user_uuid;
-use crate::models::company::model::{
-    IptCompanyData, IptUpdateCompanyData, SlimCompany
+use crate::models::company::{
+    model::{IptCompanyData, IptUpdateCompanyData, SlimCompany},
+    access::model::ChangeTypeAccessCompany,
+    access::role_access::model::{IptRoleAccessData, DelRoleAccessData},
+    certificate::model::{IptCompanyCertificateData, IptUpdateCompanyCertificateData, DelCompanyCertificateData},
+    spec::model::IptCompanySpecData,
+    company_represent::model::{IptCompanyRepresentData, IptUpdateCompanyRepresentData, SlimCompanyRepresent},
+    member::model::{IptCompanyMemberData, SlimCompanyMember, DelCompanyMemberData},
+    member::role::model::{IptRoleMemberData, IptUpdataNameRoleData, DelRoleMemberData},
+    supplier_component::model::DelCompanyOfSuppliersData,
 };
-use crate::models::company::access::role_access::model::{IptRoleAccessData, DelRoleAccessData};
-use crate::models::company::certificate::model::{
-    IptCompanyCertificateData, IptUpdateCompanyCertificateData, DelCompanyCertificateData
-};
-use crate::models::company::spec::model::IptCompanySpecData;
-use crate::models::company::company_represent::model::{
-    IptCompanyRepresentData, IptUpdateCompanyRepresentData, SlimCompanyRepresent
-};
-use crate::models::company::member::model::{
-    IptCompanyMemberData, SlimCompanyMember, DelCompanyMemberData
-};
-use crate::models::company::member::role::model::{
-    IptRoleMemberData, IptUpdataNameRoleData, DelRoleMemberData
-};
-use crate::models::company::supplier_component::model::DelCompanyOfSuppliersData;
 use crate::models::component::supplier::model::IptSupplierComponentData;
 use crate::models::relate_ref::file::model::UploadFile;
 
@@ -63,6 +56,26 @@ impl CompanyMutation {
         update_company_by_uuid(
             &logged_user_uuid,
             &company_uuid,
+            &data,
+            conn
+        )
+    }
+
+    /// Change company type access
+    async fn change_company_access(
+        &self,
+        cxt: &Context<'_>,
+        data: ChangeTypeAccessCompany,
+    ) -> ServiceResult<bool> {
+        use crate::models::company::access::manage::change_company_type_access;
+
+        // checking authorization and getting user uuid
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+
+        let conn: &PooledConnection = &get_conn(cxt)?;
+
+        change_company_type_access(
+            &logged_user_uuid,
             &data,
             conn
         )
