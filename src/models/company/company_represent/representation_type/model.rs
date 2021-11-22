@@ -29,7 +29,7 @@ pub struct IptRepresentationTypeData {
 }
 
 // RepresentationType translations
-#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, Clone, Default, Debug)]
+#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, Clone, Default, SimpleObject, Debug)]
 #[primary_key(representation_type_id, lang_id)]
 #[belongs_to(CompanyRepresent, foreign_key = "representation_type_id")]
 #[belongs_to(Language, foreign_key = "lang_id")]
@@ -38,19 +38,6 @@ pub struct RepresentationTypeTranslateList {
     pub representation_type_id: i32,
     pub lang_id: i32,
     pub representation_type: String,
-}
-
-#[Object]
-impl RepresentationTypeTranslateList {
-    async fn representation_type_id(&self) -> &i32 {
-        &self.representation_type_id
-    }
-    async fn lang_id(&self) -> &i32 {
-        &self.lang_id
-    }
-    async fn representation_type(&self) -> &String {
-        &self.representation_type
-    }
 }
 
 #[derive(Debug, Deserialize, Clone, InputObject)]

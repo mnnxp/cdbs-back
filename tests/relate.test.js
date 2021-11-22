@@ -566,4 +566,84 @@ describe('param', () => {
     expect(companyTypes[0].langId).toBe(2);
     done();
   });
+
+  // Testing get company represent types
+  it('/graphql:Q C Company represent types - BadRequest no token', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .send({
+        query: `query {
+            companyRepresentTypes {
+              representationType
+              langId
+              representationTypeId
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Token not found.'
+    );
+    expect(body.errors[0].path[0]).toBe('companyRepresentTypes');
+    done();
+  });
+
+  it('/graphql:Q Company represent types - OK', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `query {
+            companyRepresentTypes {
+              representationType
+              langId
+              representationTypeId
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    const {
+      data: { companyRepresentTypes }
+    } = body;
+    expect(companyRepresentTypes).toBeNonEmptyArray();
+    expect(companyRepresentTypes[0].langId).toBe(1);
+    done();
+  });
+
+  it('/graphql:Q Company represent types - OK', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .set(
+        'Accept-Language',
+        `ru`
+      )
+      .send({
+        query: `query {
+            companyRepresentTypes {
+              representationType
+              langId
+              representationTypeId
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    const {
+      data: { companyRepresentTypes }
+    } = body;
+    expect(companyRepresentTypes).toBeEmptyArray();
+    // expect(companyRepresentTypes).toBeNonEmptyArray();
+    // expect(companyRepresentTypes[0].langId).toBe(2);
+    done();
+  });
 });

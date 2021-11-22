@@ -7,6 +7,7 @@ use crate::models::company::model::{
 use crate::models::company;
 use crate::models::company::member::model::CompanyMemberAndRelatedData;
 use crate::models::company::member::role::model::RoleMemberAndRelatedData;
+use crate::models::company::company_represent::representation_type::model::RepresentationTypeTranslateList;
 use crate::models::company::company_type::model::CompanyTypeTranslateList;
 use crate::models::company::company_represent::model::CompanyRepresentAndRelatedData;
 use crate::models::company::company_represent::service as company_represent;
@@ -152,6 +153,23 @@ impl CompanyQuery {
         let conn: &PooledConnection = &get_conn(cxt)?;
 
         get_types_for_company(
+            &get_set_language(cxt),
+            conn
+        )
+    }
+
+    async fn company_represent_types(
+        &self,
+        cxt: &Context<'_>,
+    ) -> ServiceResult<Vec<RepresentationTypeTranslateList>> {
+        use company::company_represent::representation_type::service::list::get_types_for_represent;
+
+        // authorization check
+        check_authorized(cxt)?;
+
+        let conn: &PooledConnection = &get_conn(cxt)?;
+
+        get_types_for_represent(
             &get_set_language(cxt),
             conn
         )
