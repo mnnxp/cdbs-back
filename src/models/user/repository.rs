@@ -255,7 +255,7 @@ impl UserAndRelatedData {
             &user.type_access_id,
             set_lang_id,
             conn
-        ).expect("Error get set program");
+        ).expect("Error get set type access");
 
         // count subscribers user
         let subscribers: i32 = UserFav::get_count_followers_by_uuid(&user.uuid, conn)?;
