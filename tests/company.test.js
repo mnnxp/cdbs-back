@@ -1085,7 +1085,7 @@ describe('company', () => {
         query: `mutation {
             changeCompanyAccess( data: {
               companyUuid: "${uuidFake}"
-              newTypeAccessUuid: ${typeAccessId2}
+              newTypeAccessId: ${typeAccessId2}
             })
         }`,
       })
@@ -1110,7 +1110,7 @@ describe('company', () => {
         query: `mutation {
             changeCompanyAccess( data: {
               companyUuid: "${companyUuidSupplier}"
-              newTypeAccessUuid: ${typeAccessId2}
+              newTypeAccessId: ${typeAccessId2}
             })
         }`,
       })
@@ -1135,7 +1135,7 @@ describe('company', () => {
         query: `mutation {
             changeCompanyAccess( data: {
               companyUuid: "${companyUuidSupplier}"
-              newTypeAccessUuid: ${typeAccessId2}
+              newTypeAccessId: ${typeAccessId2}
             })
         }`,
       })
@@ -1190,7 +1190,7 @@ describe('company', () => {
         query: `mutation {
             changeCompanyAccess( data: {
               companyUuid: "${companyUuidSupplier}"
-              newTypeAccessUuid: ${typeAccessId2}
+              newTypeAccessId: ${typeAccessId2}
             })
         }`,
       })
@@ -1215,7 +1215,7 @@ describe('company', () => {
         query: `mutation {
             changeCompanyAccess( data: {
               companyUuid: "${companyUuidSupplier}"
-              newTypeAccessUuid: ${typeAccessId1}
+              newTypeAccessId: ${typeAccessId1}
             })
         }`,
       })

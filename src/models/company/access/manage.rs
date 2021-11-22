@@ -21,8 +21,8 @@ pub(crate) fn change_company_type_access(
     let change_access = diesel::update(company_ref
         .filter(uuid.eq(&data.company_uuid)
         .and(user_uuid.eq(logged_user_uuid))
-        .and(type_access_id.ne(&data.new_type_access_uuid))))
-        .set(type_access_id.eq(&data.new_type_access_uuid))
+        .and(type_access_id.ne(&data.new_type_access_id))))
+        .set(type_access_id.eq(&data.new_type_access_id))
         .execute(conn)
         .map_err(|err| {
             debug!("Failed get represent types: {:?}", err);

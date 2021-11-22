@@ -10,5 +10,5 @@ pub struct ChangeOwnerStandard {
 #[derive(Debug, Deserialize, InputObject)]
 pub struct ChangeTypeAccessStandard {
     pub standard_uuid: Uuid,
-    pub new_type_access_uuid: i32,
+    pub new_type_access_id: i32,
 }

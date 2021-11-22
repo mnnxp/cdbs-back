@@ -65,7 +65,7 @@ pub(crate) fn change_standard_type_access(
         let change_access = diesel::update(standard_ref
             .filter(uuid.eq(&data.standard_uuid)
             .and(user_uuid.eq(logged_user_uuid)))) // <-- на всякий пожарный :)
-            .set(type_access_id.eq(data.new_type_access_uuid))
+            .set(type_access_id.eq(data.new_type_access_id))
             .returning(type_access_id)
             .get_result::<i32>(conn);
 

@@ -2879,7 +2879,7 @@ describe('company', () => {
         query: `mutation {
             changeStandardAccess( data: {
               standardUuid: "${standardUuidSecond}"
-              newTypeAccessUuid: ${typeAccessId2}
+              newTypeAccessId: ${typeAccessId2}
             })
         }`,
       })
@@ -2904,7 +2904,7 @@ describe('company', () => {
         query: `mutation {
             changeStandardAccess( data: {
               standardUuid: "${standardUuidSecond}"
-              newTypeAccessUuid: ${typeAccessId2}
+              newTypeAccessId: ${typeAccessId2}
             })
         }`,
       })

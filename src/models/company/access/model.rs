@@ -10,5 +10,5 @@ use uuid::Uuid;
 #[derive(Debug, Deserialize, InputObject)]
 pub struct ChangeTypeAccessCompany {
     pub company_uuid: Uuid,
-    pub new_type_access_uuid: i32,
+    pub new_type_access_id: i32,
 }

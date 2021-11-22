@@ -6124,7 +6124,7 @@ describe('component', () => {
         query: `mutation {
             changeComponentAccess( data: {
               componentUuid: "${componentUuidNoStandard}"
-              newTypeAccessUuid: ${typeAccessId2}
+              newTypeAccessId: ${typeAccessId2}
             })
         }`,
       })
@@ -6149,7 +6149,7 @@ describe('component', () => {
         query: `mutation {
             changeComponentAccess( data: {
               componentUuid: "${componentUuidNoStandard}"
-              newTypeAccessUuid: ${typeAccessId2}
+              newTypeAccessId: ${typeAccessId2}
             })
         }`,
       })
