@@ -1986,9 +1986,7 @@ describe('company', () => {
           deleteCompanyRepresent(
             companyUuid: "${companyUuidSupplier}",
             companyRepresentUuid: "${uuidRepresentFirst}"
-          ){
-              ${companyRepresentQuery}
-          }
+          )
         }`,
       })
       .expect(HttpStatus.OK)
@@ -2013,9 +2011,7 @@ describe('company', () => {
           deleteCompanyRepresent(
             companyUuid: "${uuidFake}",
             companyRepresentUuid: "${uuidRepresentFirst}"
-          ){
-              ${companyRepresentQuery}
-          }
+          )
         }`,
       })
       .expect(HttpStatus.OK)
@@ -2040,16 +2036,14 @@ describe('company', () => {
           deleteCompanyRepresent(
             companyUuid: "${companyUuidSupplier}",
             companyRepresentUuid: "${uuidFake}"
-          ){
-              ${companyRepresentQuery}
-          }
+          )
         }`,
       })
       .expect(HttpStatus.OK)
     debug('/graphql body=%o', response1.body);
     expect(response1.body.data).toBeNull();
     expect(response1.body.errors[0].message).toBe(
-      'BadRequest: The representative not you or not found.'
+      'BadRequest: Not found representative'
     );
     expect(response1.body.errors[0].path[0]).toBe('deleteCompanyRepresent');
     done();
@@ -2089,9 +2083,7 @@ describe('company', () => {
           deleteCompanyRepresent(
             companyUuid: "${companyUuidSupplier}",
             companyRepresentUuid: "${uuidRepresentFirst}"
-          ){
-              ${companyRepresentQuery}
-          }
+          )
         }`,
       })
       .expect(HttpStatus.OK)
@@ -2099,15 +2091,7 @@ describe('company', () => {
     const {
       data: { deleteCompanyRepresent },
     } = body;
-    expect(deleteCompanyRepresent).toContainAllKeys(
-      ["address", "name", "phone", "uuid", "companyUuid"]
-    );
-    expect(deleteCompanyRepresent.uuid).toBe(uuidRepresentFirst);
-    expect(deleteCompanyRepresent.companyUuid).toBe(companyUuidSupplier);
-    expect(deleteCompanyRepresent.address).toBe(addressRepresentation);
-    expect(deleteCompanyRepresent.phone).toBe(phoneRepresentation);
-    // for test delete represent not owned user
-    uuidRepresentDelete = deleteCompanyRepresent.uuid;
+    expect(deleteCompanyRepresent).toBe(true);
     done();
   });
 

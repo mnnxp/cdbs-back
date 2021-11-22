@@ -242,7 +242,7 @@ impl CompanyMutation {
         cxt: &Context<'_>,
         company_uuid: Uuid,
         company_represent_uuid: Uuid,
-    ) -> ServiceResult<SlimCompanyRepresent> {
+    ) -> ServiceResult<bool> {
         use crate::models::company::company_represent::service::delete::delete_company_represent;
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;

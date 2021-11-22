@@ -1,5 +1,5 @@
 use crate::errors::{ServiceError, ServiceResult};
-use crate::models::company::company_represent::model::{CompanyRepresent, SlimCompanyRepresent};
+use crate::models::company::access::util::check_is_owner_with_err;
 use diesel::prelude::*;
 use uuid::Uuid;
 
@@ -8,42 +8,36 @@ pub(crate) fn delete_company_represent(
     target_company_uuid: &Uuid,
     target_represent_uuid: &Uuid,
     conn: &PgConnection,
-) -> ServiceResult<SlimCompanyRepresent> {
+) -> ServiceResult<bool> {
     use crate::schema::company_represent_ref::dsl::*;
 
-    let need_access_level = 1; // todo!(create enum for manage access level)
-
-    crate::models::company::access::util::check_company_access(
+    check_is_owner_with_err(
         logged_user_uuid,
         target_company_uuid,
-        &need_access_level,
-        conn,
+        conn
     )?;
 
     // debug!("fn target_company_uuid = {}", &target_company_uuid);
     // debug!("fn target_represent_uuid = {}", &target_represent_uuid);
 
     // find represent and check privileges for delete
-    let find_represent = company_represent_ref
-        .filter(company_uuid.eq(target_company_uuid))
-        .filter(uuid.eq(target_represent_uuid))
-        .execute(conn)
-        .unwrap_or(0);
+    let target_represent_uuid = company_represent_ref
+        .filter(company_uuid.eq(target_company_uuid)
+        .and(uuid.eq(target_represent_uuid)))
+        .select(uuid)
+        .first::<Uuid>(conn)
+        .map_err(|err| {
+            debug!("Failed search represent: {:?}", err);
+            ServiceError::BadRequest("Not found representative".to_string())
+        })?;
 
-    match find_represent as i32 {
-        1..=i32::MAX => {
-            // delete represent and save delete data for send response
-            let delete_company_represent: CompanyRepresent =
-                diesel::delete(
-                    company_represent_ref.filter(
-                        uuid.eq(target_represent_uuid)
-                    ))
-                    .get_result(conn)?;
-            // debug!("fn delete_company_represent ={:?}", &delete_company_represent);
-            Ok(delete_company_represent.into())
-        },
-        _ => Err(ServiceError::BadRequest(
-            "The representative not you or not found.".to_string(),
-        )),
-    }
+    let res = diesel::delete(company_represent_ref
+        .filter(uuid.eq(&target_represent_uuid)))
+        .execute(conn)
+        .map_err(|err| {
+            debug!("Failed delete represent: {:?}", err);
+            ServiceError::InternalServerError
+        })?;
+
+    Ok(res > 0)
 }
