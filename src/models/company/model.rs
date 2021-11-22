@@ -5,6 +5,7 @@ use super::spec::model::CompanySpecWithTranslation;
 use crate::models::user::model::ShowUserShort;
 use crate::models::relate_ref::file::model::DownloadFile;
 use crate::models::relate_ref::region::model::RegionTranslateList;
+use crate::models::relate_ref::type_access::model::TypeAccessTranslateList;
 use crate::schema::*;
 use async_graphql::types::ID;
 use async_graphql::*;
@@ -58,7 +59,7 @@ pub struct CompanyAndRelatedData {
     // show certificates company
     pub company_certificates: Vec<CompanyCertificateAndFile>,
     pub company_specs: Vec<CompanySpecWithTranslation>,
-    pub type_access_id: i32, //TypeAccess
+    pub type_access: TypeAccessTranslateList,
     pub is_supplier: bool,
     pub is_email_verified: bool,
     // count users to folloded the company

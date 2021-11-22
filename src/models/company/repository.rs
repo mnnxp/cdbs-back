@@ -8,6 +8,7 @@ use crate::models::company::spec::model::CompanySpecWithTranslation;
 use crate::models::company::access::util::check_company_access;
 use crate::models::relate_ref::region::model::RegionTranslateList;
 use crate::models::relate_ref::file::model::DownloadFile;
+use crate::models::relate_ref::type_access::model::TypeAccessTranslateList;
 use crate::schema::company_ref::dsl as company_ref;
 use diesel::prelude::*;
 use uuid::Uuid;
@@ -283,6 +284,13 @@ impl CompanyAndRelatedData {
             conn
         ).expect("Error loading spec company with translate");
 
+        // get type access set for company
+        let type_access: TypeAccessTranslateList = TypeAccessTranslateList::get_type_access_by_id(
+            &company.type_access_id,
+            set_lang_id,
+            conn
+        ).expect("Error get set type access");
+
         let result = CompanyAndRelatedData {
             uuid: company.uuid,
             orgname: company.orgname,
@@ -301,7 +309,7 @@ impl CompanyAndRelatedData {
             company_type: company_type_with_translate,
             company_certificates: certificates_with_slimfile,
             company_specs: company_specs_with_translate,
-            type_access_id: company.type_access_id,
+            type_access,
             is_supplier: company.is_supplier,
             is_email_verified: company.is_email_verified,
             subscribers: company_subscribers_count,

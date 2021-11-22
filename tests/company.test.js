@@ -116,6 +116,11 @@ companySpecs { \
     spec \
   } \
 } \
+typeAccess { \
+  typeAccessId \
+  langId \
+  name \
+} \
 isSupplier \
 isEmailVerified \
 subscribers \
@@ -1163,7 +1168,11 @@ describe('company', () => {
               ownerUser {
                 uuid
               }
-              typeAccessId
+              typeAccess {
+                typeAccessId
+                langId
+                name
+              }
             }
           }`,
         })
@@ -1175,7 +1184,7 @@ describe('company', () => {
     } = body;
     expect(company.uuid).toBe(companyUuidSupplier);
     expect(company.ownerUser.uuid).toBe(authorizationUserFirst);
-    expect(company.typeAccessId).toBe(typeAccessId2);
+    expect(company.typeAccess.typeAccessId).toBe(typeAccessId2);
     done();
   });
 
