@@ -1,11 +1,66 @@
 use crate::errors::{ServiceResult, ServiceError};
 use crate::models::relate_ref::spec::model::{
-    Spec, SpecTranslateList,
+    Spec, SpecTranslateList, SpecPath
 };
-use diesel::PgConnection;
+use diesel::{PgConnection, prelude::*};
+
+/// Gets full paths for specifications
+pub(crate) fn get_paths_specs(
+    spec_ids: &[i32],
+    split_char: &char,
+    limit: &i32,
+    offset: &i32,
+    set_lang_id: &i32,
+    conn: &PgConnection,
+) -> ServiceResult<Vec<SpecPath>> {
+    let select_ids = get_spec_ids(spec_ids, limit, offset, conn)?;
+    if select_ids.len() > 100 {
+        return Err(ServiceError::BadRequest("Not more 100 path in one query".to_string()));
+    }
+
+    let mut result: Vec<SpecPath> = Vec::new();
+    for sid in &select_ids {
+        result.push(SpecPath{
+            spec_id: *sid,
+            path: collect_path_spec(sid, split_char, set_lang_id, conn)?
+        });
+    }
+
+    Ok(result)
+}
+
+/// Gets spec ids from db without filter
+fn get_spec_ids(
+    spec_ids: &[i32],
+    limit: &i32,
+    offset: &i32,
+    conn: &PgConnection,
+) -> ServiceResult<Vec<i32>> {
+    use crate::schema::spec_ref::dsl as spec_ref;
+
+    let mut query = spec_ref::spec_ref.into_boxed();
+    if !spec_ids.is_empty() {
+        query = query.filter(spec_ref::id.eq_any(spec_ids));
+    }
+
+    let res_ids = query.select(spec_ref::id)
+        .offset(*offset as i64)
+        .limit(*limit as i64)
+        .load::<i32>(conn)
+        .map_err(|err| {
+            debug!("Failed get spec ids: {}", err);
+            ServiceError::InternalServerError
+        })?;
+
+    if !spec_ids.is_empty() && res_ids.is_empty() {
+        return Err(ServiceError::BadRequest("Spec not found".to_string()));
+    }
+
+    Ok(res_ids)
+}
 
 /// Collecting full path for specification
-pub(crate) fn collect_path_spec(
+fn collect_path_spec(
     spec_id: &i32,
     split_char: &char,
     set_lang_id: &i32,
@@ -16,7 +71,7 @@ pub(crate) fn collect_path_spec(
         conn
     ).map_err(|err| {
         debug!("Failed get parents ids: {}", err);
-        ServiceError::BadRequest("Spec not found".to_string())
+        ServiceError::InternalServerError
     })?;
 
     let target_specs_data = SpecTranslateList::get_by_ids(

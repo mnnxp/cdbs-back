@@ -4,10 +4,13 @@ use crate::errors::ServiceResult;
 use crate::database::{get_conn, PooledConnection};
 use crate::models::relate_ref::spec::service::{
     list::get_specs,
-    path::collect_path_spec,
+    path::get_paths_specs,
 };
-use crate::models::relate_ref::spec::model::SpecTranslateList;
+use crate::models::relate_ref::spec::model::{
+    SpecTranslateList, SpecPath
+};
 use crate::models::relate_ref::language::get_set_language;
+use crate::models::user::access::logged::check_authorized;
 
 #[derive(Default)]
 pub struct SpecQuery;
@@ -19,21 +22,21 @@ impl SpecQuery {
     async fn specs(
         &self,
         cxt: &Context<'_>,
-        spec_id: Option<Vec<i32>>,
+        spec_ids: Option<Vec<i32>>,
         limit: Option<i32>,
         offset: Option<i32>,
     ) -> ServiceResult<Vec<SpecTranslateList>> {
         // authorization check
-        crate::models::user::access::logged::check_authorized(cxt)?;
+        check_authorized(cxt)?;
 
-        let spec_id: Vec<i32> = spec_id.unwrap_or_default();
+        let spec_ids: Vec<i32> = spec_ids.unwrap_or_default();
         let limit: i32 = limit.unwrap_or(100);
         let offset: i32 = offset.unwrap_or(0);
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
         get_specs(
-            &spec_id,
+            &spec_ids,
             &limit,
             &offset,
             &get_set_language(cxt),
@@ -41,22 +44,29 @@ impl SpecQuery {
         )
     }
 
-    async fn spec_path(
+    async fn specs_paths(
         &self,
         cxt: &Context<'_>,
-        spec_id: i32,
+        spec_ids: Option<Vec<i32>>,
         split_char: Option<char>,
-    ) -> ServiceResult<String> {
+        limit: Option<i32>,
+        offset: Option<i32>,
+    ) -> ServiceResult<Vec<SpecPath>> {
         // authorization check
-        crate::models::user::access::logged::check_authorized(cxt)?;
+        check_authorized(cxt)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
+        let spec_ids: Vec<i32> = spec_ids.unwrap_or_default();
         let split_char: char = split_char.unwrap_or('/');
+        let limit: i32 = limit.unwrap_or(50);
+        let offset: i32 = offset.unwrap_or(0);
 
-        collect_path_spec(
-            &spec_id,
+        get_paths_specs(
+            &spec_ids,
             &split_char,
+            &limit,
+            &offset,
             &get_set_language(cxt),
             conn
         )

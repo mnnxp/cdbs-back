@@ -79,3 +79,9 @@ impl From<IptSpecTranslateListData> for InsertableSpec {
         }
     }
 }
+
+#[derive(Serialize, SimpleObject, Debug)]
+pub struct SpecPath {
+    pub spec_id: i32,
+    pub path: String,
+}
