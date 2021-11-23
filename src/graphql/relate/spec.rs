@@ -23,6 +23,7 @@ impl SpecQuery {
         &self,
         cxt: &Context<'_>,
         spec_ids: Option<Vec<i32>>,
+        specs_levels: Option<Vec<i32>>,
         limit: Option<i32>,
         offset: Option<i32>,
     ) -> ServiceResult<Vec<SpecTranslateList>> {
@@ -30,6 +31,7 @@ impl SpecQuery {
         check_authorized(cxt)?;
 
         let spec_ids: Vec<i32> = spec_ids.unwrap_or_default();
+        let specs_levels: Vec<i32> = specs_levels.unwrap_or_default();
         let limit: i32 = limit.unwrap_or(100);
         let offset: i32 = offset.unwrap_or(0);
 
@@ -37,6 +39,7 @@ impl SpecQuery {
 
         get_specs(
             &spec_ids,
+            &specs_levels,
             &limit,
             &offset,
             &get_set_language(cxt),

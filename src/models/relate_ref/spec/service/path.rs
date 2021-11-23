@@ -96,7 +96,7 @@ fn get_parents_ids(
     spec_id: &i32,
     conn: &PgConnection,
 ) -> ServiceResult<Vec<i32>> {
-    let mut spec_levels: Vec<i32> = vec![*spec_id];
+    let mut specs_levels: Vec<i32> = vec![*spec_id];
     let mut spec_id: i32 = *spec_id;
 
     loop {
@@ -106,15 +106,15 @@ fn get_parents_ids(
         )?;
 
         if spec.id == spec.parent_spec_id ||
-            spec_levels.len() > 50 {
+            specs_levels.len() > 50 {
             break;
         }
 
-        spec_levels.push(spec.parent_spec_id);
+        specs_levels.push(spec.parent_spec_id);
         spec_id = spec.parent_spec_id;
     }
 
-    Ok(spec_levels)
+    Ok(specs_levels)
 }
 
 /// Parsing specs data and collect patch for target lang

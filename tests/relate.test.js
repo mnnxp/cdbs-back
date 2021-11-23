@@ -40,9 +40,11 @@ var paramIdTest2 = 1000000;
 const langId1 = 1;
 const langId2 = 2;
 
+const specLevels3 = [247, 286, 437, 465, 480, 379, 400, 4];
 const specId5 = 5;
 const specPath5 = "ROOT / MECHANICS (DESIGN, MACHINERY) / MECHANICAL COMPONENTS / Mountings / Screws and bolts";
 const specPathSplit5 = "ROOT # MECHANICS (DESIGN, MACHINERY) # MECHANICAL COMPONENTS # Mountings # Screws and bolts";
+var specName4 = "";
 var specPath10 = "";
 
 async function cleanupParamDb() {
@@ -557,6 +559,225 @@ describe('param', () => {
     done();
   });
 
+  // Testing get specification
+  it('/graphql:Q Specs - BadRequest no token', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .send({
+        query: `query {
+            specs (specIds: 0){
+              specId
+              spec
+              langId
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Token not found.'
+    );
+    expect(body.errors[0].path[0]).toBe('specs');
+    done();
+  });
+
+  it('/graphql:Q Specs - BadRequest id zero', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `query {
+            specs (specIds: 0){
+              specId
+              spec
+              langId
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    const {
+      data: { specs }
+    } = body;
+    expect(specs).toBeEmptyArray();
+    done();
+  });
+
+  it('/graphql:Q Specs - OK', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `query {
+            specs (specIds: ${specId5}){
+              specId
+              spec
+              langId
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    const {
+      data: { specs }
+    } = body;
+    expect(specs[0].specId).toBe(specId5);
+    done();
+  });
+
+  it('/graphql:Q Specs - OK by level', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `query {
+            specs (
+              specsLevels: 4
+            ){
+              specId
+              spec
+              langId
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { specs }
+    } = body;
+    expect(specs).toBeNonEmptyArray();
+    done();
+  });
+
+  it('/graphql:Q Specs - OK filter all', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `query {
+            specs (
+              specIds: [${specLevels3}]
+              specsLevels: 4
+            ){
+              specId
+              spec
+              langId
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { specs }
+    } = body;
+    expect(specs).toBeEmptyArray();
+    done();
+  });
+
+  it('/graphql:Q Specs - OK by level with filter', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `query {
+            specs (
+              specIds: [${specLevels3}]
+              specsLevels: 3
+            ){
+              specId
+              spec
+              langId
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { specs }
+    } = body;
+    specName4 = specs[4].spec;
+    expect(specs).toBeNonEmptyArray();
+    done();
+  });
+
+  it('/graphql:Q Specs - OK without param', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `query {
+            specs {
+              specId
+              spec
+              langId
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { specs }
+    } = body;
+    expect(specs[1].spec).toBeNonEmptyString();
+    expect(specs.length).toBe(100);
+    done();
+  });
+
+  it('/graphql:Q Specs - OK with offset and limit', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `query {
+            specs(
+              specIds: [${specLevels3}]
+              specsLevels: 3
+              offset: 3
+              limit: 2
+            ){
+              specId
+              spec
+              langId
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { specs }
+    } = body;
+    expect(specs[1].spec).toBe(specName4);
+    expect(specs.length).toBe(2);
+    done();
+  });
+
   // Testing get company types
   it('/graphql:Q Company types - BadRequest no token', async (done) => {
     const { body } = await agent
@@ -637,7 +858,7 @@ describe('param', () => {
   });
 
   // Testing get company represent types
-  it('/graphql:Q C Company represent types - BadRequest no token', async (done) => {
+  it('/graphql:Q Company represent types - BadRequest no token', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .send({
