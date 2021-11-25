@@ -4,26 +4,12 @@ use async_graphql::*;
 
 // Language models
 
-#[derive(Debug, Serialize, Deserialize, Queryable)]
+#[derive(Debug, Serialize, Deserialize, Queryable, SimpleObject)]
 pub struct Language {
     pub id: i32,
     pub lang: String,
     pub langshort: String,
 }
-
-#[Object]
-impl Language {
-    async fn id(&self) -> &i32 {
-        &self.id
-    }
-    async fn lang(&self) -> &String {
-        &self.lang
-    }
-    async fn langshort(&self) -> &String {
-        &self.langshort
-    }
-}
-
 
 #[derive(Debug, Insertable)]
 #[table_name = "language_ref"]
@@ -36,11 +22,6 @@ pub struct InsertableLanguage {
 pub struct LanguageData {
     pub lang: String,
     pub langshort: String,
-}
-
-// for request
-pub struct SetLang {
-    pub lang_id: i32,
 }
 
 impl From<LanguageData> for InsertableLanguage {
@@ -80,14 +61,32 @@ impl From<&HeaderMap> for SetLang {
                 debug!("ACCEPT_LANGUAGE: {:?}", str_lang);
 
                 match str_lang.language {
-                    Some(x) if x == *"en" => 1,
+                    // Some(x) if x == *"en" => 1,
                     Some(x) if x == *"ru" => 2,
-                    Some(_) => 1,
-                    None => 1,
+                    // Some(_) => 1,
+                    _ => 1,
                 }
             }
         };
 
         Self { lang_id }
+    }
+}
+
+// for request
+pub struct SetLang {
+    pub lang_id: i32,
+}
+
+// for set lang search
+pub struct EngLangName {
+    pub eng_lang_name: String,
+}
+
+impl From<&str> for EngLangName {
+    fn from(name: &str) -> Self {
+        Self {
+            eng_lang_name: name.to_string()
+        }
     }
 }

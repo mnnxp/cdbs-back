@@ -1,6 +1,7 @@
 use crate::errors::{ServiceResult, ServiceError};
-use crate::models::relate_ref::spec::model::{
-    Spec, SpecTranslateList,
+use crate::models::relate_ref::{
+    language::model::EngLangName,
+    spec::model::{Spec, SpecTranslateList, SpecId}
 };
 use crate::schema::spec_translate_list::dsl as spec_translate_list;
 use crate::schema::spec_ref::dsl as spec_ref;
@@ -107,6 +108,32 @@ impl SpecTranslateList {
             .load::<SpecTranslateList>(conn)
             .map_err(|err| {
                 debug!("Failed get specs: {:?}", err);
+                ServiceError::InternalServerError
+            })
+    }
+}
+
+impl SpecId {
+    /// Gets list all spec ids which query text
+    pub(crate) fn get_list_by_name(
+        query_text: &str,
+        limit: &i32,
+        offset: &i32,
+        set_lang_id: &i32,
+        conn: &PgConnection,
+    ) -> ServiceResult<Vec<SpecId>> {
+        let EngLangName {eng_lang_name} = EngLangName::get_by_id(set_lang_id);
+
+        let query = format!("SELECT spec_id FROM spec_translate_list WHERE to_tsvector('{eng}', spec) @@ websearch_to_tsquery('{eng}', '{query}') LIMIT {limit} OFFSET {offset}",
+            eng=eng_lang_name,
+            query=query_text,
+            limit=limit,
+            offset=offset);
+        debug!("SQL query: {}", query);
+
+        diesel::sql_query(query).load::<SpecId>(conn)
+            .map_err(|err| {
+                debug!("Failed search specs: {:?}", err);
                 ServiceError::InternalServerError
             })
     }

@@ -42,9 +42,11 @@ const langId2 = 2;
 
 const specLevels3 = [247, 286, 437, 465, 480, 379, 400, 4];
 const specId5 = 5;
-const specPath5 = "ROOT / MECHANICS (DESIGN, MACHINERY) / MECHANICAL COMPONENTS / Mountings / Screws and bolts";
-const specPathSplit5 = "ROOT # MECHANICS (DESIGN, MACHINERY) # MECHANICAL COMPONENTS # Mountings # Screws and bolts";
+const specPath5Level5 = "ROOT/MECHANICS (DESIGN, MACHINERY)/MECHANICAL COMPONENTS/Mountings/Screws and bolts";
+const specPath5 = "MECHANICAL COMPONENTS/Mountings/Screws and bolts";
+const specPathSplit5 = "ROOT#MECHANICS (DESIGN, MACHINERY)#MECHANICAL COMPONENTS#Mountings#Screws and bolts";
 var specName4 = "";
+var specName5 = "";
 var specPath10 = "";
 
 async function cleanupParamDb() {
@@ -107,7 +109,7 @@ describe('param', () => {
                 timeZone: "Europe/Moscow",
                 regionId: 1,
                 programId: 1,
-            }) {
+            }){
                 uuid
                 programId
                 username
@@ -162,7 +164,7 @@ describe('param', () => {
                 timeZone: "Europe/Moscow",
                 regionId: 1,
                 programId: 5,
-            }) {
+            }){
                 uuid
                 programId
                 username
@@ -206,7 +208,7 @@ describe('param', () => {
             registerParam( data: {
                 langId: ${langId1},
                 paramname: "${paramNameTest}"
-            }) {
+            }){
               paramId
               paramname
             }
@@ -234,7 +236,7 @@ describe('param', () => {
             registerParam( data: {
                 langId: ${langId1},
                 paramname: "${paramNameTest}",
-            }) {
+            }){
               paramId
               langId
               paramname
@@ -268,7 +270,7 @@ describe('param', () => {
             registerParam( data: {
                 langId: ${langId1},
                 paramname: "${paramNameTest}"
-            }) {
+            }){
               paramId
               paramname
             }
@@ -296,7 +298,7 @@ describe('param', () => {
             registerParam( data: {
                 langId: ${langId1},
                 paramname: "${paramNameTest2}",
-            }) {
+            }){
               paramId
               paramname
             }
@@ -346,7 +348,7 @@ describe('param', () => {
       )
       .send({
         query: `query ListUserParams {
-            params (paramId: ${paramnameIndex}) {
+            params (paramId: ${paramnameIndex}){
                 paramId
                 paramname
             }
@@ -410,8 +412,11 @@ describe('param', () => {
       .post('/graphql')
       .send({
         query: `query {
-            specsPaths (specIds: 0){
+            specsPaths (arg:{
+              specIds: 0
+            }){
               specId
+              langId
               path
             }
         }`,
@@ -435,8 +440,11 @@ describe('param', () => {
       )
       .send({
         query: `query {
-            specsPaths (specIds: 0){
+            specsPaths (arg:{
+              specIds: 0
+            }){
               specId
+              langId
               path
             }
         }`,
@@ -460,8 +468,11 @@ describe('param', () => {
       )
       .send({
         query: `query {
-            specsPaths (specIds: ${specId5}){
+            specsPaths (arg:{
+              specIds: ${specId5}
+            }){
               specId
+              langId
               path
             }
         }`,
@@ -484,11 +495,13 @@ describe('param', () => {
       )
       .send({
         query: `query {
-            specsPaths (
+            specsPaths (arg:{
               specIds: ${specId5}
               splitChar: "#"
-            ){
+              depthLevel: 50
+            }){
               specId
+              langId
               path
             }
         }`,
@@ -512,8 +525,9 @@ describe('param', () => {
       )
       .send({
         query: `query {
-            specsPaths{
+            specsPaths {
               specId
+              langId
               path
             }
         }`,
@@ -526,7 +540,38 @@ describe('param', () => {
     } = body;
     specPath10 = specsPaths[10].path;
     expect(specsPaths[1].path).toBeNonEmptyString();
-    expect(specsPaths.length).toBe(50);
+    expect(specsPaths.length).toBe(30);
+    done();
+  });
+
+  it('/graphql:Q Specs paths - OK with set depthLevel', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `query {
+            specsPaths (arg:{
+              specIds: ${specId5}
+              depthLevel: 5
+            }){
+              specId
+              langId
+              path
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { specsPaths }
+    } = body;
+    expect(specsPaths[0].specId).toBe(specId5);
+    expect(specsPaths[0].path).toBe(specPath5Level5);
+    expect(specsPaths.length).toBe(1);
     done();
   });
 
@@ -539,11 +584,12 @@ describe('param', () => {
       )
       .send({
         query: `query {
-            specsPaths(
+            specsPaths (arg:{
                 offset: 9
                 limit: 10
-            ){
+            }){
               specId
+              langId
               path
             }
         }`,
@@ -565,7 +611,9 @@ describe('param', () => {
       .post('/graphql')
       .send({
         query: `query {
-            specs (specIds: 0){
+            specs (arg:{
+              specIds: 0
+            }){
               specId
               spec
               langId
@@ -591,7 +639,9 @@ describe('param', () => {
       )
       .send({
         query: `query {
-            specs (specIds: 0){
+            specs (arg:{
+              specIds: 0
+            }){
               specId
               spec
               langId
@@ -616,7 +666,9 @@ describe('param', () => {
       )
       .send({
         query: `query {
-            specs (specIds: ${specId5}){
+            specs (arg:{
+              specIds: ${specId5}
+            }){
               specId
               spec
               langId
@@ -628,6 +680,7 @@ describe('param', () => {
     const {
       data: { specs }
     } = body;
+    specName5 = specs[0].spec;
     expect(specs[0].specId).toBe(specId5);
     done();
   });
@@ -641,9 +694,9 @@ describe('param', () => {
       )
       .send({
         query: `query {
-            specs (
+            specs (arg:{
               specsLevels: 4
-            ){
+            }){
               specId
               spec
               langId
@@ -669,10 +722,10 @@ describe('param', () => {
       )
       .send({
         query: `query {
-            specs (
+            specs (arg:{
               specIds: [${specLevels3}]
               specsLevels: 4
-            ){
+            }){
               specId
               spec
               langId
@@ -698,10 +751,10 @@ describe('param', () => {
       )
       .send({
         query: `query {
-            specs (
+            specs (arg:{
               specIds: [${specLevels3}]
               specsLevels: 3
-            ){
+            }){
               specId
               spec
               langId
@@ -755,12 +808,12 @@ describe('param', () => {
       )
       .send({
         query: `query {
-            specs(
+            specs (arg:{
               specIds: [${specLevels3}]
               specsLevels: 3
               offset: 3
               limit: 2
-            ){
+            }){
               specId
               spec
               langId
@@ -775,6 +828,208 @@ describe('param', () => {
     } = body;
     expect(specs[1].spec).toBe(specName4);
     expect(specs.length).toBe(2);
+    done();
+  });
+
+  // Testing search specification
+  it('/graphql:Q searchSpecs - BadRequest no token', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .send({
+        query: `query {
+            searchSpecs (arg:{
+              text: "bolt"
+            }){
+              specId
+              path
+              langId
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Token not found.'
+    );
+    expect(body.errors[0].path[0]).toBe('searchSpecs');
+    done();
+  });
+
+  it('/graphql:Q searchSpecs - Ok empty str', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `query {
+            searchSpecs (arg:{
+              text: ""
+            }){
+              specId
+              path
+              langId
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    const {
+      data: { searchSpecs }
+    } = body;
+    expect(searchSpecs).toBeEmptyArray();
+    done();
+  });
+
+  it('/graphql:Q searchSpecs - OK', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `query {
+            searchSpecs (arg:{
+              text: "${specName5}"
+            }){
+              specId
+              path
+              langId
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    const {
+      data: { searchSpecs }
+    } = body;
+    expect(searchSpecs[0].specId).toBe(specId5);
+    done();
+  });
+
+  it('/graphql:Q searchSpecs paths - OK with custom split', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `query {
+            searchSpecs (arg:{
+              text: "${specName5}"
+              splitChar: "#"
+              depthLevel: 50
+            }){
+              specId
+              path
+              langId
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { searchSpecs }
+    } = body;
+    expect(searchSpecs[0].path).toBe(specPathSplit5);
+    done();
+  });
+
+  it('/graphql:Q searchSpecs - OK ru lang', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .set(
+        'Accept-Language',
+        `ru`
+      )
+      .send({
+        query: `query {
+            searchSpecs (arg:{
+              text: "болт"
+            }){
+              specId
+              path
+              langId
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { searchSpecs }
+    } = body;
+    expect(searchSpecs[1].path).toBeNonEmptyString();
+    expect(searchSpecs.length).toBe(5);
+    done();
+  });
+
+  it('/graphql:Q searchSpecs - OK with depthLevel 1', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `query {
+            searchSpecs (arg:{
+              text: "${specName4}"
+              depthLevel: 1
+            }){
+              specId
+              path
+              langId
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { searchSpecs }
+    } = body;
+    expect(searchSpecs[0].path).toBe(specName4);
+    done();
+  });
+
+  it('/graphql:Q searchSpecs - OK with offset and limit', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `query {
+            searchSpecs (arg:{
+              text: "bolt"
+              depthLevel: 1
+              offset: 1
+              limit: 2
+            }){
+              specId
+              path
+              langId
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { searchSpecs }
+    } = body;
+    expect(searchSpecs.length).toBe(1);
     done();
   });
 

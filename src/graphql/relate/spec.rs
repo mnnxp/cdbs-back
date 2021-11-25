@@ -5,9 +5,11 @@ use crate::database::{get_conn, PooledConnection};
 use crate::models::relate_ref::spec::service::{
     list::get_specs,
     path::get_paths_specs,
+    search::search_specs_by_name,
 };
 use crate::models::relate_ref::spec::model::{
-    SpecTranslateList, SpecPath
+    SpecTranslateList, SpecPath, IptSpecPathArg, SpecPathArg,
+    IptSearchSpecArg, SearchSpecArg, IptSpecArg, SpecArg
 };
 use crate::models::relate_ref::language::get_set_language;
 use crate::models::user::access::logged::check_authorized;
@@ -22,26 +24,20 @@ impl SpecQuery {
     async fn specs(
         &self,
         cxt: &Context<'_>,
-        spec_ids: Option<Vec<i32>>,
-        specs_levels: Option<Vec<i32>>,
-        limit: Option<i32>,
-        offset: Option<i32>,
+        arg: Option<IptSpecArg>,
     ) -> ServiceResult<Vec<SpecTranslateList>> {
         // authorization check
         check_authorized(cxt)?;
 
-        let spec_ids: Vec<i32> = spec_ids.unwrap_or_default();
-        let specs_levels: Vec<i32> = specs_levels.unwrap_or_default();
-        let limit: i32 = limit.unwrap_or(100);
-        let offset: i32 = offset.unwrap_or(0);
+        let arguments: SpecArg = match arg {
+            Some(data) => SpecArg::from(data),
+            None => SpecArg::default(),
+        };
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
         get_specs(
-            &spec_ids,
-            &specs_levels,
-            &limit,
-            &offset,
+            &arguments,
             &get_set_language(cxt),
             conn,
         )
@@ -50,26 +46,39 @@ impl SpecQuery {
     async fn specs_paths(
         &self,
         cxt: &Context<'_>,
-        spec_ids: Option<Vec<i32>>,
-        split_char: Option<char>,
-        limit: Option<i32>,
-        offset: Option<i32>,
+        arg: Option<IptSpecPathArg>,
     ) -> ServiceResult<Vec<SpecPath>> {
         // authorization check
         check_authorized(cxt)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
-        let spec_ids: Vec<i32> = spec_ids.unwrap_or_default();
-        let split_char: char = split_char.unwrap_or('/');
-        let limit: i32 = limit.unwrap_or(50);
-        let offset: i32 = offset.unwrap_or(0);
+        let arguments: SpecPathArg = match arg {
+            Some(data) => SpecPathArg::from(data),
+            None => SpecPathArg::default(),
+        };
 
         get_paths_specs(
-            &spec_ids,
-            &split_char,
-            &limit,
-            &offset,
+            &arguments,
+            &get_set_language(cxt),
+            conn
+        )
+    }
+
+    async fn search_specs(
+        &self,
+        cxt: &Context<'_>,
+        arg: IptSearchSpecArg,
+    ) -> ServiceResult<Vec<SpecPath>> {
+        // authorization check
+        check_authorized(cxt)?;
+
+        let conn: &PooledConnection = &get_conn(cxt)?;
+
+        let arguments: SearchSpecArg = SearchSpecArg::from(arg);
+
+        search_specs_by_name(
+            &arguments,
             &get_set_language(cxt),
             conn
         )

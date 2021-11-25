@@ -1,19 +1,25 @@
 use crate::errors::ServiceResult;
-use crate::models::relate_ref::spec::model::SpecTranslateList;
+use crate::models::relate_ref::spec::model::{
+    SpecTranslateList, SpecArg
+};
 use diesel::PgConnection;
 
 pub(crate) fn get_specs(
-    target_specs_ids: &[i32],
-    target_specs_levels: &[i32],
-    limit: &i32,
-    offset: &i32,
+    arguments: &SpecArg,
     set_lang_id: &i32,
     conn: &PgConnection,
 ) -> ServiceResult<Vec<SpecTranslateList>> {
-    match target_specs_levels.is_empty() {
+    let SpecArg {
+        spec_ids,
+        specs_levels,
+        limit,
+        offset,
+    } = arguments;
+
+    match specs_levels.is_empty() {
         true => {
             SpecTranslateList::get_by_ids(
-                target_specs_ids,
+                spec_ids,
                 limit,
                 offset,
                 set_lang_id,
@@ -22,8 +28,8 @@ pub(crate) fn get_specs(
         },
         false => {
             SpecTranslateList::get_by_parent_ids(
-                target_specs_ids,
-                target_specs_levels,
+                spec_ids,
+                specs_levels,
                 limit,
                 offset,
                 set_lang_id,

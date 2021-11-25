@@ -14,6 +14,6 @@ impl License {
         let target_vec_license_id: Vec<i32> = ComponentLicense::belonging_to(component)
             .select(license_to_component::license_id)
             .load::<i32>(conn)?;
-        License::get_license_by_vec_id(&target_vec_license_id, conn)
+        License::get_license_by_ids(&target_vec_license_id, conn)
     }
 }
