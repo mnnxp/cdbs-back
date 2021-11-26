@@ -1,13 +1,11 @@
 use crate::errors::{ServiceError, ServiceResult};
 use crate::models::relate_ref::keyword::model::{
-    Keyword,
-    IptKeywordData,
-    InsertableKeyword
+    Keyword, IptKeywordData, InsertableKeyword
 };
 use diesel::prelude::*;
 
 pub(crate) fn create_keyword(
-    new_keyword_data: IptKeywordData,
+    new_keyword_data: &IptKeywordData,
     conn: &PgConnection
 ) -> ServiceResult<Keyword> {
     use crate::schema::keyword_ref::dsl::*;
@@ -23,9 +21,13 @@ pub(crate) fn create_keyword(
 
     match flag_found_keyword {
         0 => {
-            Ok(diesel::insert_into(keyword_ref)
+            diesel::insert_into(keyword_ref)
                 .values(&new_keyword_data)
-                .get_result::<Keyword>(conn)?)
+                .get_result::<Keyword>(conn)
+                .map_err(|err| {
+                    debug!("Failed insert keyword: {:?}", err);
+                    ServiceError::InternalServerError
+                })
         },
         1..=i32::MAX => Err(ServiceError::BadRequest(
             format!("This keyword name is already there. Id: {}", flag_found_keyword))

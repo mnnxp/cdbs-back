@@ -31,15 +31,10 @@ pub struct IptKeywordData {
 }
 
 
-impl From<IptKeywordData> for InsertableKeyword {
-    fn from(ipt_data: IptKeywordData) -> Self {
-        let IptKeywordData {
-            keyword,
-            ..
-        } = ipt_data;
-
+impl From<&IptKeywordData> for InsertableKeyword {
+    fn from(data: &IptKeywordData) -> Self {
         Self {
-            keyword
+            keyword: data.keyword.clone()
         }
     }
 }

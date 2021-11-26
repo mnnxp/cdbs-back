@@ -4,7 +4,7 @@ use diesel::prelude::*;
 // use uuid::Uuid;
 
 pub(crate) fn create_program(
-    new_program_data: IptProgramData,
+    new_program_data: &IptProgramData,
     conn: &PgConnection
 ) -> ServiceResult<Program> {
     use crate::schema::program_ref::dsl::*;
@@ -22,10 +22,13 @@ pub(crate) fn create_program(
     match flag_found_program {
         0 => {
             let new_program_data: InsertableProgram = new_program_data.into();
-            let inserted_program_data: Program = diesel::insert_into(program_ref)
+            diesel::insert_into(program_ref)
                 .values(&new_program_data)
-                .get_result(conn)?;
-            Ok(inserted_program_data)
+                .get_result::<Program>(conn)
+                .map_err(|err| {
+                    debug!("Failed insert program: {:?}", err);
+                    ServiceError::InternalServerError
+                })
         },
         1..=i32::MAX => Err(ServiceError::BadRequest(
             format!("This program name is already there. Id: {}", flag_found_program))

@@ -1,9 +1,12 @@
 use crate::errors::ServiceResult;
 use crate::database::{get_pool, get_conn, PooledConnection};
 use crate::models::user::access::logged::get_logged_user_uuid;
-use crate::models::relate_ref::file::model::DownloadFile;
-use crate::models::relate_ref::file;
-
+use crate::models::relate_ref::file::{
+    model::DownloadFile,
+    service::list::get_url_by_file_uuid,
+    service::update::confirm_upload,
+    service::delete::delete_file_with_check_by_uuid,
+};
 use async_graphql::{self, Context, Object};
 use uuid::Uuid;
 
@@ -19,12 +22,12 @@ impl StorageQuery {
         &self, cxt: &Context<'_>,
         file_uuid: Uuid,
     ) -> ServiceResult<DownloadFile> {
-        let conn: &PooledConnection = &get_conn(cxt)?;
-
         // authorization check
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
-        file::service::list::get_url_by_file_uuid(
+        let conn: &PooledConnection = &get_conn(cxt)?;
+
+        get_url_by_file_uuid(
             &logged_user_uuid,
             &file_uuid,
             conn,
@@ -40,7 +43,6 @@ impl StorageMutation {
         cxt: &Context<'_>,
         file_uuids: Vec<Uuid>,
     ) -> ServiceResult<i32> {
-        let pool = get_pool(cxt)?;
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
@@ -48,10 +50,12 @@ impl StorageMutation {
             return Ok(0) // <-- Not found uuids, just return 0
         }
 
-        file::service::update::confirm_upload(
+        let pool = get_pool(cxt)?;
+
+        confirm_upload(
             &logged_user_uuid,
             &file_uuids,
-            pool
+            &pool
         ).await
     }
 
@@ -61,8 +65,6 @@ impl StorageMutation {
         cxt: &Context<'_>,
         file_uuid: Uuid,
     ) -> ServiceResult<bool> {
-        use file::service::delete::delete_file_with_check_by_uuid;
-
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
         let pool = get_pool(cxt)?;

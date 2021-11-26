@@ -13,7 +13,7 @@ use uuid::Uuid;
 pub(crate) async fn confirm_upload(
     target_user_uuid: &Uuid,
     file_uuids: &[Uuid],
-    pool: PgPool,
+    pool: &PgPool,
 ) -> ServiceResult<i32> {
     let conn = pool.get().unwrap();
 

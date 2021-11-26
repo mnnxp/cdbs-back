@@ -1,4 +1,4 @@
-use crate::errors::ServiceResult;
+use crate::errors::{ServiceResult, ServiceError};
 use crate::models::relate_ref::extension::model::Extension;
 use crate::schema::extension_ref::dsl as extension_ref;
 use diesel::prelude::*;
@@ -33,9 +33,13 @@ impl Extension {
         target_extension_id: &i32,
         conn: &PgConnection,
     ) -> ServiceResult<i32> {
-        Ok(extension_ref::extension_ref
+        extension_ref::extension_ref
             .filter(extension_ref::id.eq(target_extension_id))
             .select(extension_ref::program_id)
-            .first::<i32>(conn)?)
+            .first::<i32>(conn)
+            .map_err(|err| {
+                debug!("Failed get extension: {:?}", err);
+                ServiceError::InternalServerError
+            })
     }
 }

@@ -1,20 +1,14 @@
-// use crate::database::{db_connection, Pool};
-use crate::errors::{
-    ServiceError,
-    ServiceResult
-};
+use crate::errors::{ServiceResult, ServiceError};
 use crate::models::relate_ref::param::model::{
     InsertableParamTranslateList,
     IptParamTranslateListData,
     ParamTranslateList,
     Param
 };
-// use actix_web::web;
 use diesel::prelude::*;
-// use uuid::Uuid;
 
 pub(crate) fn create_param(
-    new_param_data: IptParamTranslateListData,
+    new_param_data: &IptParamTranslateListData,
     conn: &PgConnection
 ) -> ServiceResult<ParamTranslateList> {
     use crate::schema::param_translate_list::dsl::*;
@@ -34,7 +28,11 @@ pub(crate) fn create_param(
 
                 let new_param: Param = diesel::insert_into(param_ref)
                     .default_values()
-                    .get_result(conn)?;
+                    .get_result(conn)
+                    .map_err(|err| {
+                        debug!("Failed insert param: {:?}", err);
+                        ServiceError::InternalServerError
+                    })?;
 
                 new_param.id
             };
@@ -42,12 +40,15 @@ pub(crate) fn create_param(
             let new_param_data = InsertableParamTranslateList {
                 param_id: new_param_id,
                 lang_id: new_param_data.lang_id,
-                paramname: new_param_data.paramname,
+                paramname: new_param_data.paramname.clone(),
             };
-            let inserted_param_data: ParamTranslateList = diesel::insert_into(param_translate_list)
+            diesel::insert_into(param_translate_list)
                 .values(&new_param_data)
-                .get_result(conn)?;
-            Ok(inserted_param_data)
+                .get_result::<ParamTranslateList>(conn)
+                .map_err(|err| {
+                    debug!("Failed insert param: {:?}", err);
+                    ServiceError::InternalServerError
+                })
         },
         1..=i32::MAX => Err(ServiceError::BadRequest(
             format!("This param name is already there. Id: {}", flag_found_param))

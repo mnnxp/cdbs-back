@@ -30,15 +30,10 @@ pub struct IptProgramData {
     pub name: String,
 }
 
-impl From<IptProgramData> for InsertableProgram {
-    fn from(data: IptProgramData) -> Self {
-        let IptProgramData {
-            name,
-            ..
-        } = data;
-
+impl From<&IptProgramData> for InsertableProgram {
+    fn from(data: &IptProgramData) -> Self {
         Self {
-            name,
+            name: data.name.clone(),
         }
     }
 }

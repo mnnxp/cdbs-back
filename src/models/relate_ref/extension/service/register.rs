@@ -4,14 +4,10 @@ use diesel::prelude::*;
 // use uuid::Uuid;
 
 pub(crate) fn create_extension(
-    new_extension_data: IptExtensionData,
+    new_extension_data: &IptExtensionData,
     conn: &PgConnection
 ) -> ServiceResult<Extension> {
     use crate::schema::extension_ref::dsl::*;
-    // use crate::schema::extension_to_component::dsl::uuid as component_uuid;
-    // use crate::schema::extension_to_modification::dsl::uuid as modification_uuid;
-    // use diesel::dsl::count;
-
     let flag_found_extension = extension_ref
         .filter(extension.eq(&new_extension_data.extension))
         .select(id)
@@ -22,10 +18,13 @@ pub(crate) fn create_extension(
     match flag_found_extension {
         0 => {
             let new_extension_data: InsertableExtension = new_extension_data.into();
-            let inserted_extension_data: Extension = diesel::insert_into(extension_ref)
+            diesel::insert_into(extension_ref)
                 .values(&new_extension_data)
-                .get_result(conn)?;
-            Ok(inserted_extension_data)
+                .get_result::<Extension>(conn)
+                .map_err(|err| {
+                    debug!("Failed insert extension: {:?}", err);
+                    ServiceError::InternalServerError
+                })
         },
         1..=i32::MAX => Err(ServiceError::BadRequest(
             format!("This extension name is already there. Id: {}", flag_found_extension))

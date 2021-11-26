@@ -1,4 +1,3 @@
-// use crate::database::{db_connection, Pool};
 use crate::errors::{ServiceError, ServiceResult};
 use crate::models::relate_ref::spec::model::{
     InsertableSpecTranslateList,
@@ -7,12 +6,10 @@ use crate::models::relate_ref::spec::model::{
     InsertableSpec,
     Spec
 };
-// use actix_web::web;
-use diesel::prelude::*;
-// use uuid::Uuid;
+use diesel::{PgConnection, prelude::*};
 
 pub(crate) fn create_spec(
-    new_spec_data: IptSpecTranslateListData,
+    new_spec_data: &IptSpecTranslateListData,
     conn: &PgConnection
 ) -> ServiceResult<SpecTranslateList> {
     use crate::schema::spec_translate_list::dsl::*;
@@ -35,7 +32,11 @@ pub(crate) fn create_spec(
                 };
                 let new_spec: Spec = diesel::insert_into(spec_ref)
                     .values(&value_spec_data)
-                    .get_result(conn)?;
+                    .get_result(conn)
+                    .map_err(|err| {
+                        debug!("Failed insert spec: {:?}", err);
+                        ServiceError::InternalServerError
+                    })?;
 
                 new_spec.id
             };
@@ -45,10 +46,13 @@ pub(crate) fn create_spec(
                 lang_id: new_spec_data.lang_id,
                 spec: new_spec_data.spec,
             };
-            let inserted_spec_data: SpecTranslateList = diesel::insert_into(spec_translate_list)
+            diesel::insert_into(spec_translate_list)
                 .values(&new_spec_data)
-                .get_result(conn)?;
-            Ok(inserted_spec_data)
+                .get_result::<SpecTranslateList>(conn)
+                .map_err(|err| {
+                    debug!("Failed insert spec: {:?}", err);
+                    ServiceError::InternalServerError
+                })
         },
         1..=i32::MAX => Err(ServiceError::BadRequest(
             format!("This spec name is already there. Id: {}", flag_found_spec))

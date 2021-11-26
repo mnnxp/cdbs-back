@@ -50,15 +50,10 @@ pub struct InsertableSpecTranslateList {
     pub spec: String,
 }
 
-impl From<IptSpecTranslateListData> for InsertableSpec {
-    fn from(ipt_data: IptSpecTranslateListData) -> Self {
-        let IptSpecTranslateListData {
-            parent_spec_id,
-            ..
-        } = ipt_data;
-
+impl From<&IptSpecTranslateListData> for InsertableSpec {
+    fn from(data: &IptSpecTranslateListData) -> Self {
         Self {
-            parent_spec_id
+            parent_spec_id: data.parent_spec_id
         }
     }
 }

@@ -59,21 +59,12 @@ impl SlimLicense {
     }
 }
 
-impl From<LicenseData> for InsertableLicense {
-    fn from(data_license: LicenseData) -> Self {
-        let LicenseData {
-            name,
-            keyword,
-            publication_at,
-            ..
-        } = data_license;
-
-        // let updated_at = chrono::Local::now().naive_local();
-
+impl From<&LicenseData> for InsertableLicense {
+    fn from(data: &LicenseData) -> Self {
         Self {
-            name,
-            keyword,
-            publication_at,
+            name: data.name.clone(),
+            keyword: data.keyword.clone(),
+            publication_at: data.publication_at,
         }
     }
 }

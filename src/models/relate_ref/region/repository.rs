@@ -1,7 +1,7 @@
-use crate::errors::ServiceResult;
+use crate::errors::{ServiceResult, ServiceError};
 use crate::models::relate_ref::region::model::RegionTranslateList;
 use crate::schema::region_translate_list::dsl as region_translate_list;
-use diesel::prelude::*;
+use diesel::{PgConnection, prelude::*};
 
 impl RegionTranslateList {
     pub(crate) fn get_region_by_id(
@@ -19,9 +19,13 @@ impl RegionTranslateList {
             Ok(rn) => Ok(rn),
             Err(err) => {
                 debug!("Not found set lang for region: {:?}", err);
-                Ok(region_translate_list::region_translate_list
+                region_translate_list::region_translate_list
                     .filter(region_translate_list::region_id.eq(target_region_id))
-                    .first::<RegionTranslateList>(conn)?)
+                    .first::<RegionTranslateList>(conn)
+                    .map_err(|err| {
+                        debug!("Failed insert region: {:?}", err);
+                        ServiceError::InternalServerError
+                    })
             },
         }
     }
@@ -41,9 +45,13 @@ impl RegionTranslateList {
             Ok(rns) => Ok(rns),
             Err(err) => {
                 debug!("Not found set lang for regions: {:?}", err);
-                Ok(region_translate_list::region_translate_list
+                region_translate_list::region_translate_list
                     .filter(region_translate_list::region_id.eq_any(target_vec_region_id))
-                    .load::<RegionTranslateList>(conn)?)
+                    .load::<RegionTranslateList>(conn)
+                    .map_err(|err| {
+                        debug!("Failed insert region: {:?}", err);
+                        ServiceError::InternalServerError
+                    })
             },
         }
     }

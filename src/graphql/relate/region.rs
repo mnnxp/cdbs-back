@@ -1,9 +1,13 @@
 use async_graphql::{self, Context, Object};
-
 use crate::database::{get_conn, PooledConnection};
 use crate::errors::ServiceResult;
-use crate::models::relate_ref::region;
-use crate::models::relate_ref::region::model::{IptRegionTranslateListData, RegionTranslateList};
+use crate::models::user::access::logged::check_authorized;
+use crate::models::relate_ref::region::{
+    model::{IptRegionTranslateListData, RegionTranslateList},
+    service::list::get_regions,
+    service::register::create_region,
+};
+use crate::models::relate_ref::language::get_set_language;
 
 #[derive(Default)]
 pub struct RegionQuery;
@@ -28,11 +32,11 @@ impl RegionQuery {
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
-        region::service::list::get_regions(
-            region_id,
-            limit,
-            offset,
-            &crate::models::relate_ref::language::get_set_language(cxt),
+        get_regions(
+            &region_id,
+            &limit,
+            &offset,
+            &get_set_language(cxt),
             conn,
         )
     }
@@ -45,11 +49,10 @@ impl RegionMutation {
         cxt: &Context<'_>,
         data: IptRegionTranslateListData,
     ) -> ServiceResult<RegionTranslateList> {
-        use region::service::register::create_region;
+        check_authorized(cxt)?;
+
         let conn: &PooledConnection = &get_conn(cxt)?;
 
-        crate::models::user::access::logged::check_authorized(cxt)?;
-
-        create_region(data, conn)
+        create_region(&data, conn)
     }
 }

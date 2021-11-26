@@ -1,4 +1,4 @@
-use crate::errors::ServiceResult;
+use crate::errors::{ServiceResult, ServiceError};
 use crate::models::relate_ref::extension::model::Extension;
 use crate::models::relate_ref::program::model::Program;
 use crate::schema::program_ref::dsl as program_ref;
@@ -9,18 +9,26 @@ impl Program {
         target_program_id: &i32,
         conn: &PgConnection,
     ) -> ServiceResult<Program> {
-        Ok(program_ref::program_ref
+        program_ref::program_ref
             .filter(program_ref::id.eq(target_program_id))
-            .first::<Program>(conn)?)
+            .first::<Program>(conn)
+            .map_err(|err| {
+                debug!("Failed get program: {:?}", err);
+                ServiceError::InternalServerError
+            })
     }
 
     pub(crate) fn get_programs_by_ids(
         target_programs_ids: &[i32],
         conn: &PgConnection,
     ) -> ServiceResult<Vec<Program>> {
-        Ok(program_ref::program_ref
+        program_ref::program_ref
             .filter(program_ref::id.eq_any(target_programs_ids))
-            .load::<Program>(conn)?)
+            .load::<Program>(conn)
+            .map_err(|err| {
+                debug!("Failed get program: {:?}", err);
+                ServiceError::InternalServerError
+            })
     }
 
     /// Gets programs for target extension
@@ -33,8 +41,12 @@ impl Program {
             conn
         ).expect("Error get ext data");
 
-        Ok(program_ref::program_ref
+        program_ref::program_ref
             .filter(program_ref::id.eq(target_program_id))
-            .first::<Program>(conn)?)
+            .first::<Program>(conn)
+            .map_err(|err| {
+                debug!("Failed get program: {:?}", err);
+                ServiceError::InternalServerError
+            })
     }
 }

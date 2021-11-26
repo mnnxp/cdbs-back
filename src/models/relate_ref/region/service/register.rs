@@ -1,17 +1,14 @@
-use crate::errors::{
-    ServiceError,
-    ServiceResult
-};
+use crate::errors::{ServiceResult, ServiceError};
 use crate::models::relate_ref::region::model::{
     InsertableRegionTranslateList,
     IptRegionTranslateListData,
     RegionTranslateList,
     Region
 };
-use diesel::prelude::*;
+use diesel::{PgConnection, prelude::*};
 
 pub(crate) fn create_region(
-    new_region_data: IptRegionTranslateListData,
+    new_region_data: &IptRegionTranslateListData,
     conn: &PgConnection
 ) -> ServiceResult<RegionTranslateList> {
     use crate::schema::region_translate_list::dsl::*;
@@ -31,7 +28,11 @@ pub(crate) fn create_region(
 
                 let new_region: Region = diesel::insert_into(region_ref)
                     .default_values()
-                    .get_result(conn)?;
+                    .get_result(conn)
+                    .map_err(|err| {
+                        debug!("Failed insert region: {:?}", err);
+                        ServiceError::InternalServerError
+                    })?;
 
                 new_region.id
             };
@@ -39,12 +40,15 @@ pub(crate) fn create_region(
             let new_region_data = InsertableRegionTranslateList {
                 region_id: new_region_id,
                 lang_id: new_region_data.lang_id,
-                region: new_region_data.region,
+                region: new_region_data.region.clone(),
             };
-            let inserted_region_data: RegionTranslateList = diesel::insert_into(region_translate_list)
+            diesel::insert_into(region_translate_list)
                 .values(&new_region_data)
-                .get_result(conn)?;
-            Ok(inserted_region_data)
+                .get_result::<RegionTranslateList>(conn)
+                .map_err(|err| {
+                    debug!("Failed get program: {:?}", err);
+                    ServiceError::InternalServerError
+                })
         },
         1..=i32::MAX => Err(ServiceError::BadRequest(
             format!("This region name is already there. Id: {}", flag_found_region))

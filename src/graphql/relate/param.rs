@@ -2,8 +2,13 @@ use async_graphql::{self, Context, Object};
 
 use crate::database::{get_conn, PooledConnection};
 use crate::errors::ServiceResult;
-use crate::models::relate_ref::param;
-use crate::models::relate_ref::param::model::{IptParamTranslateListData, ParamTranslateList};
+use crate::models::user::access::logged::check_authorized;
+use crate::models::relate_ref::param::{
+    model::{IptParamTranslateListData, ParamTranslateList},
+    service::list::get_params,
+    service::register::create_param,
+};
+use crate::models::relate_ref::language::get_set_language;
 
 #[derive(Default)]
 pub struct ParamQuery;
@@ -20,7 +25,7 @@ impl ParamQuery {
         offset: Option<i32>,
     ) -> ServiceResult<Vec<ParamTranslateList>> {
         // authorization check
-        crate::models::user::access::logged::check_authorized(cxt)?;
+        check_authorized(cxt)?;
 
         let param_id: Vec<i32> = param_id.unwrap_or_default();
         let limit: i32 = limit.unwrap_or(100);
@@ -28,11 +33,11 @@ impl ParamQuery {
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
-        param::service::list::get_params(
-            param_id,
-            limit,
-            offset,
-            &crate::models::relate_ref::language::get_set_language(cxt),
+        get_params(
+            &param_id,
+            &limit,
+            &offset,
+            &get_set_language(cxt),
             conn,
         )
     }
@@ -45,11 +50,10 @@ impl ParamMutation {
         cxt: &Context<'_>,
         data: IptParamTranslateListData,
     ) -> ServiceResult<ParamTranslateList> {
-        use param::service::register::create_param;
+        check_authorized(cxt)?;
+
         let conn: &PooledConnection = &get_conn(cxt)?;
 
-        crate::models::user::access::logged::check_authorized(cxt)?;
-
-        create_param(data, conn)
+        create_param(&data, conn)
     }
 }

@@ -1,45 +1,8 @@
+use actix_web::http::{HeaderName, HeaderMap, header::LanguageTag};
 use crate::schema::*;
 use async_graphql::*;
 // use chrono::*;
 
-// Language models
-
-#[derive(Debug, Serialize, Deserialize, Queryable, SimpleObject)]
-pub struct Language {
-    pub id: i32,
-    pub lang: String,
-    pub langshort: String,
-}
-
-#[derive(Debug, Insertable)]
-#[table_name = "language_ref"]
-pub struct InsertableLanguage {
-    pub lang: String,
-    pub langshort: String,
-}
-
-#[derive(Debug, Serialize, Deserialize, Queryable, Clone, InputObject)]
-pub struct LanguageData {
-    pub lang: String,
-    pub langshort: String,
-}
-
-impl From<LanguageData> for InsertableLanguage {
-    fn from(ipt_data: LanguageData) -> Self {
-        let LanguageData {
-            lang,
-            langshort,
-            ..
-        } = ipt_data;
-
-        Self {
-            lang,
-            langshort,
-        }
-    }
-}
-
-use actix_web::http::{HeaderName, HeaderMap, header::LanguageTag};
 // use actix_web::http::{HeaderName, HeaderMap};
 lazy_static::lazy_static! {
     static ref ACCEPT_LANGUAGE: HeaderName =
@@ -70,6 +33,37 @@ impl From<&HeaderMap> for SetLang {
         };
 
         Self { lang_id }
+    }
+}
+
+// Language models
+
+#[derive(Debug, Serialize, Deserialize, Queryable, SimpleObject)]
+pub struct Language {
+    pub id: i32,
+    pub lang: String,
+    pub langshort: String,
+}
+
+#[derive(Debug, Insertable)]
+#[table_name = "language_ref"]
+pub struct InsertableLanguage {
+    pub lang: String,
+    pub langshort: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, Queryable, Clone, InputObject)]
+pub struct LanguageData {
+    pub lang: String,
+    pub langshort: String,
+}
+
+impl From<&LanguageData> for InsertableLanguage {
+    fn from(data: &LanguageData) -> Self {
+        Self {
+            lang: data.lang.clone(),
+            langshort: data.langshort.clone(),
+        }
     }
 }
 

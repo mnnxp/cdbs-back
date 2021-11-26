@@ -1,8 +1,11 @@
 use async_graphql::{self, Context, Object};
-
+use crate::database::{get_conn, PooledConnection};
 use crate::errors::ServiceResult;
-use crate::models::relate_ref::language;
-use crate::models::relate_ref::language::model::Language;
+use crate::models::user::access::logged::check_authorized;
+use crate::models::relate_ref::language::{
+    model::Language,
+    service::list::get_languages,
+};
 
 #[derive(Default)]
 pub struct LanguageQuery;
@@ -19,13 +22,15 @@ impl LanguageQuery {
         offset: Option<i32>,
     ) -> ServiceResult<Vec<Language>> {
         // authorization check
-        crate::models::user::access::logged::check_authorized(cxt)?;
+        check_authorized(cxt)?;
 
         let lang_id: Vec<i32> = lang_id.unwrap_or_default();
         let limit: i32 = limit.unwrap_or(100);
         let offset: i32 = offset.unwrap_or(0);
 
-        language::service::list::get_languages(cxt, lang_id, limit, offset)
+        let conn: &PooledConnection = &get_conn(cxt)?;
+
+        get_languages(&lang_id, &limit, &offset, conn)
     }
 }
 

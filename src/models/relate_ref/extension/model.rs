@@ -36,17 +36,11 @@ pub struct IptExtensionData {
     pub program_id: i32,
 }
 
-impl From<IptExtensionData> for InsertableExtension {
-    fn from(data: IptExtensionData) -> Self {
-        let IptExtensionData {
-            extension,
-            program_id,
-            ..
-        } = data;
-
+impl From<&IptExtensionData> for InsertableExtension {
+    fn from(data: &IptExtensionData) -> Self {
         Self {
-            extension,
-            program_id,
+            extension: data.extension.clone(),
+            program_id: data.program_id,
         }
     }
 }

@@ -1,4 +1,4 @@
-use crate::errors::ServiceResult;
+use crate::errors::{ServiceResult, ServiceError};
 use crate::models::relate_ref::param::model::ParamTranslateList;
 use crate::schema::param_translate_list::dsl as param_translate_list;
 use diesel::prelude::*;
@@ -19,9 +19,13 @@ impl ParamTranslateList {
             Ok(pms) => Ok(pms),
             Err(err) => {
                 debug!("Not found set lang for params: {:?}", err);
-                Ok(param_translate_list::param_translate_list
+                param_translate_list::param_translate_list
                     .filter(param_translate_list::param_id.eq_any(target_vec_param_id))
-                    .load::<ParamTranslateList>(conn)?)
+                    .load::<ParamTranslateList>(conn)
+                    .map_err(|err| {
+                        debug!("Failed get params: {:?}", err);
+                        ServiceError::InternalServerError
+                    })
             },
         }
     }
