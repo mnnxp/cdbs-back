@@ -1,4 +1,4 @@
-use crate::errors::ServiceResult;
+use crate::errors::{ServiceResult, ServiceError};
 use crate::models::user::notification::model::{
     NotificationData,
     InsertableNotification,
@@ -22,7 +22,10 @@ pub(crate) fn create_notification(
         .values(&insert_notification_data)
         .returning(notification_ref::id)
         .get_result::<i32>(conn)
-        .expect("Failed insert notification");
+        .map_err(|err| {
+            debug!("Failed insert notification: {:?}", err);
+            ServiceError::InternalServerError
+        })?;
 
     // debug!("fn input_user_uuid = {}", &input_user_uuid);
 
@@ -37,7 +40,10 @@ pub(crate) fn create_notification(
         .values(&row_notification_to_user)
         .returning(notification_to_user::notification_id)
         .get_result::<i32>(conn)
-        .expect("Failed insert notification data related with user");
+        .map_err(|err| {
+            debug!("Failed insert notification data related with user: {:?}", err);
+            ServiceError::InternalServerError
+        })?;
 
     Ok(true)
 }

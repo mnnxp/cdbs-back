@@ -1,6 +1,10 @@
 use crate::errors::{ServiceResult, ServiceError};
-use crate::models::user::access::hash::{
-    make_hash_salt, make_salt, verify,
+use crate::models::user::{
+    access::hash::{make_hash_salt, make_salt, verify},
+    notification::{
+        model::{NotificationType, NotificationData},
+        service::register::create_notification,
+    },
 };
 use crate::schema::user_ref::dsl as user_ref;
 use async_graphql::InputObject;
@@ -60,16 +64,6 @@ pub(crate) fn change_password(
         conn
     )?;
 
-    // match PASSWORD_REGEXP.is_match(&data.new_password) {
-    //     true => {},
-    //     false => {
-    //         // Err(ServiceError::BadRequest(
-    //         //     "Password not strong".to_string()
-    //         // ))
-    //         Ok(false)
-    //     },
-    // }
-
     update_password(
         logged_user_uuid,
         data.new_password.as_bytes(),
@@ -102,14 +96,14 @@ fn update_password(
             user_ref::updated_at.eq(chrono::Local::now().naive_local()),
         ))
         .execute(conn)
-        .expect("Failed updated password");
+        .map_err(|err| {
+            debug!("Failed update password: {:?}", err);
+            ServiceError::InternalServerError
+        })?;
 
     // debug!("Password updated: {:?}", res);
 
     // add notification for user
-    use crate::models::user::notification::model::{NotificationType, NotificationData};
-    use crate::models::user::notification::service::register::create_notification;
-
     create_notification(
         logged_user_uuid,
         &NotificationData {
@@ -117,9 +111,7 @@ fn update_password(
             degree_importance: NotificationType::Info,
         },
         conn,
-    ).expect("Failed add user notification");
-
-    Ok(true)
+    )
 }
 
 /// Compare password with password in database
