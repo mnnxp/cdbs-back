@@ -102,6 +102,7 @@ pub struct InsertableCompany {
     pub image_file_uuid: Uuid,
     pub region_id: i32,
     pub company_type_id: i32,
+    pub type_access_id: i32,
     pub is_supplier: bool,
     pub is_email_verified: bool,
     pub is_enabled: bool,
@@ -123,6 +124,7 @@ pub struct IptCompanyData {
     pub time_zone: String,
     pub region_id: i32,
     pub company_type_id: i32,
+    pub type_access_id: i32,
 }
 
 #[derive(Debug, Deserialize, Clone, InputObject)]
@@ -155,51 +157,8 @@ pub struct CompanyData {
     pub image_file_uuid: Uuid,
     pub region_id: i32,
     pub company_type_id: i32,
+    pub type_access_id: i32,
 }
-
-#[Object]
-impl CompanyData {
-    async fn orgname(&self) -> &String {
-        &self.orgname
-    }
-    async fn shortname(&self) -> &String {
-        &self.shortname
-    }
-    async fn inn(&self) -> &String {
-        &self.inn
-    }
-    async fn phone(&self) -> &String {
-        &self.phone
-    }
-    async fn email(&self) -> &String {
-        &self.email
-    }
-    async fn description(&self) -> &String {
-        &self.description
-    }
-    async fn address(&self) -> &String {
-        &self.address
-    }
-    async fn site_url(&self) -> &String {
-        &self.site_url
-    }
-    async fn time_zone(&self) -> &String {
-        &self.time_zone
-    }
-    async fn user_uuid(&self) -> ID {
-        self.user_uuid.into()
-    }
-    async fn image_file_uuid(&self) -> ID {
-        self.image_file_uuid.into()
-    }
-    async fn region_id(&self) -> &i32 {
-        &self.region_id
-    }
-    async fn company_type_id(&self) -> &i32 {
-        &self.company_type_id
-    }
-}
-
 
 #[derive(Debug, Serialize, Deserialize, Queryable, Clone)]
 pub struct SlimCompany {
@@ -237,6 +196,7 @@ impl From<CompanyData> for InsertableCompany {
             image_file_uuid,
             region_id,
             company_type_id,
+            type_access_id,
             ..
         } = company_data;
 
@@ -260,6 +220,7 @@ impl From<CompanyData> for InsertableCompany {
             image_file_uuid,
             region_id,
             company_type_id,
+            type_access_id,
             is_supplier,
             is_email_verified,
             is_enabled,

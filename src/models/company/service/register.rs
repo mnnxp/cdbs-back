@@ -32,6 +32,7 @@ pub(crate) fn create_company(
         image_file_uuid: target_image_file_uuid,
         region_id: data.region_id,
         company_type_id: data.company_type_id,
+        type_access_id: data.type_access_id,
     };
 
     let company: InsertableCompany = company_data.into();

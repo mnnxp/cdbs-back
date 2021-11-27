@@ -455,7 +455,8 @@ describe('company', () => {
             siteUrl: "${siteUrl}",
             timeZone: "${timeZone}",
             regionId: ${regionIdCompany},
-            companyTypeId: ${companyTypeId}
+            companyTypeId: ${companyTypeId},
+            typeAccessId: ${typeAccessId1}
           }) {
             uuid
             shortname
@@ -500,7 +501,8 @@ describe('company', () => {
             siteUrl: "${siteUrl}",
             timeZone: "${timeZone}",
             regionId: ${regionIdCompany},
-            companyTypeId: ${companyTypeId}
+            companyTypeId: ${companyTypeId},
+            typeAccessId: ${typeAccessId1}
           }) {
             uuid
             shortname
