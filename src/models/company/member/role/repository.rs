@@ -1,4 +1,4 @@
-use crate::errors::ServiceResult;
+use crate::errors::{ServiceResult, ServiceError};
 use crate::models::company::member::role::model::{
     RoleMember,
     RoleMemberTranslateList,
@@ -50,9 +50,13 @@ impl RoleMemberTranslateList {
     //         Ok(rn) => Ok(rn),
     //         Err(err) => {
     //             debug!("Not found set lang for role: {:?}", err);
-    //             Ok(role_member_translate_list
+    //             role_member_translate_list
     //                 .filter(role_member_id.eq(target_role_id))
-    //                 .first::<RoleMemberTranslateList>(conn)?)
+    //                 .first::<RoleMemberTranslateList>(conn)
+    //                 .map_err(|err| {
+    //                     debug!("Failed get role: {:?}", err);
+    //                     ServiceError::InternalServerError
+    //                 })
     //         },
     //     }
     // }
@@ -73,9 +77,13 @@ impl RoleMemberTranslateList {
             Ok(rns) => Ok(rns),
             Err(err) => {
                 debug!("Not found set lang for roles: {:?}", err);
-                Ok(role_member_translate_list
+                role_member_translate_list
                     .filter(role_member_id.eq_any(target_roles_ids))
-                    .load::<RoleMemberTranslateList>(conn)?)
+                    .load::<RoleMemberTranslateList>(conn)
+                    .map_err(|err| {
+                        debug!("Failed get role: {:?}", err);
+                        ServiceError::InternalServerError
+                    })
             },
         }
     }
@@ -150,7 +158,11 @@ impl TypeAccessTranslateList {
         let target_types_access_ids = role_access::role_access
             .filter(role_access::role_id.eq(target_role_id))
             .select(role_access::type_access_id)
-            .load::<i32>(conn)?;
+            .load::<i32>(conn)
+            .map_err(|err| {
+                debug!("Failed get role access: {:?}", err);
+                ServiceError::InternalServerError
+            })?;
 
         TypeAccessTranslateList::get_types_access_by_ids(
             &target_types_access_ids,

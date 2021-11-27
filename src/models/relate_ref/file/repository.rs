@@ -136,7 +136,7 @@ impl SlimFile {
         target_file_uuid: &Uuid,
         conn: &PgConnection,
     ) -> ServiceResult<SlimFile> {
-        Ok(file_ref::file_ref
+        file_ref::file_ref
             .filter(file_ref::uuid.eq(target_file_uuid))
             .select((
                 file_ref::uuid,
@@ -144,7 +144,11 @@ impl SlimFile {
                 file_ref::filesize,
                 file_ref::path_file,
             ))
-            .first::<SlimFile>(conn)?)
+            .first::<SlimFile>(conn)
+            .map_err(|err| {
+                debug!("Failed get file: {:?}", err);
+                ServiceError::InternalServerError
+            })
     }
 
     /// Collect SlimFiles data by target files uuids
@@ -152,7 +156,7 @@ impl SlimFile {
         target_files_uuids: &[Uuid],
         conn: &PgConnection,
     ) -> ServiceResult<Vec<SlimFile>> {
-        Ok(file_ref::file_ref
+        file_ref::file_ref
             .filter(file_ref::uuid.eq_any(target_files_uuids))
             .select((
                 file_ref::uuid,
@@ -160,7 +164,11 @@ impl SlimFile {
                 file_ref::filesize,
                 file_ref::path_file,
             ))
-            .load::<SlimFile>(conn)?)
+            .load::<SlimFile>(conn)
+            .map_err(|err| {
+                debug!("Failed get file: {:?}", err);
+                ServiceError::InternalServerError
+            })
     }
 }
 

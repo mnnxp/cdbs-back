@@ -1,5 +1,6 @@
-use crate::errors::ServiceResult;
+use crate::errors::{ServiceResult, ServiceError};
 use crate::models::relate_ref::type_access::model::TypeAccessTranslateList;
+use crate::schema::type_access_translate_list::dsl::*;
 use diesel::{PgConnection, prelude::*};
 
 pub(crate) fn get_type_access(
@@ -32,13 +33,15 @@ fn find_all_type_access(
     set_lang_id: &i32,
     conn: &PgConnection,
 ) -> ServiceResult<Vec<TypeAccessTranslateList>> {
-    use crate::schema::type_access_translate_list::dsl::*;
-
-    Ok(type_access_translate_list
+    type_access_translate_list
         .filter(lang_id.eq(set_lang_id))
         .limit(*limit as i64)
         .offset(*offset as i64)
-        .load::<TypeAccessTranslateList>(conn)?)
+        .load::<TypeAccessTranslateList>(conn)
+        .map_err(|err| {
+            debug!("Failed get type access: {:?}", err);
+            ServiceError::InternalServerError
+        })
 }
 
 fn find_type_access_ids(
@@ -48,12 +51,14 @@ fn find_type_access_ids(
     set_lang_id: &i32,
     conn: &PgConnection,
 ) -> ServiceResult<Vec<TypeAccessTranslateList>> {
-    use crate::schema::type_access_translate_list::dsl::*;
-
-    Ok(type_access_translate_list
+    type_access_translate_list
         .filter(type_access_id.eq_any(type_access_ids)
         .and(lang_id.eq(set_lang_id)))
         .limit(*limit as i64)
         .offset(*offset as i64)
-        .load::<TypeAccessTranslateList>(conn)?)
+        .load::<TypeAccessTranslateList>(conn)
+        .map_err(|err| {
+            debug!("Failed get type access: {:?}", err);
+            ServiceError::InternalServerError
+        })
 }

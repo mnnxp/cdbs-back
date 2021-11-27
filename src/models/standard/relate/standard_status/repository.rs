@@ -1,4 +1,4 @@
-use crate::errors::ServiceResult;
+use crate::errors::{ServiceResult, ServiceError};
 use crate::models::standard::standard_status::model::StandardStatusTranslateList;
 use crate::schema::standard_status_translate_list::dsl as standard_status_translate_list;
 use diesel::prelude::*;
@@ -20,9 +20,13 @@ impl StandardStatusTranslateList {
             Ok(sd_status) => Ok(sd_status),
             Err(err) => {
                 debug!("Not found set lang for standard status: {:?}", err);
-                Ok(standard_status_translate_list::standard_status_translate_list
+                standard_status_translate_list::standard_status_translate_list
                     .filter(standard_status_translate_list::standard_status_id.eq(target_standard_status_id))
-                    .first::<StandardStatusTranslateList>(conn)?)
+                    .first::<StandardStatusTranslateList>(conn)
+                    .map_err(|err| {
+                        debug!("Failed get standard status: {:?}", err);
+                        ServiceError::InternalServerError
+                    })
             },
         }
     }

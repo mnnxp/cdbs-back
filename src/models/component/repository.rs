@@ -1,4 +1,4 @@
-use crate::errors::ServiceResult;
+use crate::errors::{ServiceResult, ServiceError};
 use crate::models::component::model::{Component, ShowComponentShort, ComponentAndRelatedData};
 use crate::models::component::actual_status::model::ActualStatusTranslateList;
 use crate::models::component::component_type::model::ComponentTypeTranslateList;
@@ -22,10 +22,14 @@ impl Component {
         target_component_uuid: &Uuid,
         conn: &PgConnection,
     ) -> ServiceResult<Component> {
-        Ok(component_ref::component_ref
+        component_ref::component_ref
             .filter(component_ref::uuid.eq(target_component_uuid)
             .and(component_ref::is_delete.eq(false)))
-            .first::<Component>(conn)?)
+            .first::<Component>(conn)
+            .map_err(|err| {
+                debug!("Failed get component: {:?}", err);
+                ServiceError::InternalServerError
+            })
     }
 }
 

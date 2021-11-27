@@ -1,4 +1,4 @@
-use crate::errors::ServiceResult;
+use crate::errors::{ServiceResult, ServiceError};
 use crate::models::relate_ref::type_access::model::TypeAccessTranslateList;
 use crate::schema::type_access_translate_list::dsl::*;
 use diesel::prelude::*;
@@ -20,9 +20,13 @@ impl TypeAccessTranslateList {
             Ok(tat) => Ok(tat),
             Err(err) => {
                 debug!("Not found set lang for type_access: {:?}", err);
-                Ok(type_access_translate_list
+                type_access_translate_list
                     .filter(type_access_id.eq(target_type_access_id))
-                    .first::<TypeAccessTranslateList>(conn)?)
+                    .first::<TypeAccessTranslateList>(conn)
+                    .map_err(|err| {
+                        debug!("Failed get type access: {:?}", err);
+                        ServiceError::InternalServerError
+                    })
             },
         }
     }
@@ -43,9 +47,13 @@ impl TypeAccessTranslateList {
             Ok(tats) => Ok(tats),
             Err(err) => {
                 debug!("Not found set lang for type_access: {:?}", err);
-                Ok(type_access_translate_list
+                type_access_translate_list
                     .filter(type_access_id.eq_any(target_types_access_ids))
-                    .load::<TypeAccessTranslateList>(conn)?)
+                    .load::<TypeAccessTranslateList>(conn)
+                    .map_err(|err| {
+                        debug!("Failed get type access: {:?}", err);
+                        ServiceError::InternalServerError
+                    })
             },
         }
     }

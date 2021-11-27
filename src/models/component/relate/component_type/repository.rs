@@ -1,4 +1,4 @@
-use crate::errors::ServiceResult;
+use crate::errors::{ServiceResult, ServiceError};
 use crate::models::component::component_type::model::ComponentTypeTranslateList;
 use crate::schema::component_type_translate_list::dsl as component_type_translate_list;
 use diesel::prelude::*;
@@ -20,9 +20,13 @@ impl ComponentTypeTranslateList {
             Ok(ct_type) => Ok(ct_type),
             Err(err) => {
                 debug!("Not found set lang for component type: {:?}", err);
-                Ok(component_type_translate_list::component_type_translate_list
+                component_type_translate_list::component_type_translate_list
                     .filter(component_type_translate_list::component_type_id.eq(target_component_type_id))
-                    .first::<ComponentTypeTranslateList>(conn)?)
+                    .first::<ComponentTypeTranslateList>(conn)
+                    .map_err(|err| {
+                        debug!("Failed get component type: {:?}", err);
+                        ServiceError::InternalServerError
+                    })
             },
         }
     }

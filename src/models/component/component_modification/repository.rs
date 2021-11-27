@@ -1,4 +1,4 @@
-use crate::errors::ServiceResult;
+use crate::errors::{ServiceResult, ServiceError};
 use crate::models::component::model::Component;
 use crate::models::component::component_modification::model::{
     ComponentModification,
@@ -14,7 +14,12 @@ impl ComponentModification {
         conn: &PgConnection,
     ) -> ServiceResult<Vec<ComponentModification>> {
         // collect data for modifications the component
-        Ok(ComponentModification::belonging_to(component).load::<ComponentModification>(conn)?)
+        ComponentModification::belonging_to(component)
+            .load::<ComponentModification>(conn)
+            .map_err(|err| {
+                debug!("Failed get component modification: {:?}", err);
+                ServiceError::InternalServerError
+            })
     }
 }
 

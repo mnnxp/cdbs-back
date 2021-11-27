@@ -1,4 +1,4 @@
-use crate::errors::ServiceResult;
+use crate::errors::{ServiceResult, ServiceError};
 use crate::models::component::actual_status::model::ActualStatusTranslateList;
 use crate::schema::actual_status_translate_list::dsl as actual_status_translate_list;
 use diesel::prelude::*;
@@ -20,9 +20,13 @@ impl ActualStatusTranslateList {
             Ok(at_status) => Ok(at_status),
             Err(err) => {
                 debug!("Not found set lang for actual status: {:?}", err);
-                Ok(actual_status_translate_list::actual_status_translate_list
+                actual_status_translate_list::actual_status_translate_list
                     .filter(actual_status_translate_list::actual_status_id.eq(target_actual_status_id))
-                    .first::<ActualStatusTranslateList>(conn)?)
+                    .first::<ActualStatusTranslateList>(conn)
+                    .map_err(|err| {
+                        debug!("Failed get actual status: {:?}", err);
+                        ServiceError::InternalServerError
+                    })
             },
         }
     }
@@ -43,9 +47,13 @@ impl ActualStatusTranslateList {
             Ok(ats_status) => Ok(ats_status),
             Err(err) => {
                 debug!("Not found set lang for actuals status: {:?}", err);
-                Ok(actual_status_translate_list::actual_status_translate_list
+                actual_status_translate_list::actual_status_translate_list
                     .filter(actual_status_translate_list::actual_status_id.eq_any(target_vec_actual_status_id))
-                    .load::<ActualStatusTranslateList>(conn)?)
+                    .load::<ActualStatusTranslateList>(conn)
+                    .map_err(|err| {
+                        debug!("Failed get actual status: {:?}", err);
+                        ServiceError::InternalServerError
+                    })
             },
         }
     }

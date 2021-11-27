@@ -30,7 +30,7 @@ impl SlimUser {
         target_user_uuid: &Uuid,
         conn: &PgConnection,
     ) -> ServiceResult<SlimUser> {
-        Ok(user_ref::user_ref
+        user_ref::user_ref
             .filter(user_ref::uuid.eq(target_user_uuid)
             .and(user_ref::is_enabled.eq(true))
             .and(user_ref::is_delete.eq(false)))
@@ -39,7 +39,11 @@ impl SlimUser {
                 user_ref::username,
                 user_ref::program_id,
             ))
-            .first::<SlimUser>(conn)?)
+            .first::<SlimUser>(conn)
+            .map_err(|err| {
+                debug!("Failed get user: {:?}", err);
+                ServiceError::InternalServerError
+            })
     }
 }
 
@@ -49,7 +53,7 @@ impl UserQuery {
         target_user_uuid: &Uuid,
         conn: &PgConnection,
     ) -> ServiceResult<UserQuery> {
-        Ok(user_ref::user_ref
+        user_ref::user_ref
             .filter(user_ref::uuid.eq(target_user_uuid)
             .and(user_ref::is_enabled.eq(true))
             .and(user_ref::is_delete.eq(false)))
@@ -75,7 +79,11 @@ impl UserQuery {
                 user_ref::created_at,
                 user_ref::updated_at,
             ))
-            .first::<UserQuery>(conn)?)
+            .first::<UserQuery>(conn)
+            .map_err(|err| {
+                debug!("Failed get user: {:?}", err);
+                ServiceError::InternalServerError
+            })
     }
 }
 
@@ -85,8 +93,7 @@ impl UserShort {
         target_user_uuid: &Uuid,
         conn: &PgConnection,
     ) -> ServiceResult<UserShort> {
-
-    Ok(user_ref::user_ref
+    user_ref::user_ref
         .filter(user_ref::uuid.eq(target_user_uuid)
         .and(user_ref::is_enabled.eq(true))
         .and(user_ref::is_delete.eq(false)))
@@ -97,7 +104,11 @@ impl UserShort {
             user_ref::username,
             user_ref::image_file_uuid,
         ))
-        .first::<UserShort>(conn)?)
+        .first::<UserShort>(conn)
+        .map_err(|err| {
+            debug!("Failed get user: {:?}", err);
+            ServiceError::InternalServerError
+        })
     }
 }
 
