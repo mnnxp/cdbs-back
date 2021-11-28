@@ -3,8 +3,14 @@ use crate::models::standard::access::util::check_access_standard_for_user;
 use crate::models::user::standard_fav::model::{
     IptStandardFavData, InsertableStandardFav
 };
+use crate::models::user::notification::{
+    model::{NotificationType, NotificationData},
+    service::register::create_notification,
+};
 use crate::schema::standard_fav::dsl as standard_fav;
+use crate::schema::standard_ref::dsl as standard_ref;
 use diesel::prelude::*;
+use uuid::Uuid;
 
 pub(crate) fn add_standard_fav(
     data: &IptStandardFavData,
@@ -28,23 +34,19 @@ pub(crate) fn add_standard_fav(
         .first(conn);
 
     match check_fav {
-        Ok(fav) => {
-            if fav {
-                // if data already has
-                Ok(false)
-            } else {
-                // if have need row, just update is_enabled to true
-                diesel::update(standard_fav::standard_fav)
-                    .filter(standard_fav::standard_uuid.eq(&data.standard_uuid)
-                    .and(standard_fav::user_uuid.eq(&data.user_uuid)))
-                    .set(standard_fav::is_enabled.eq(true))
-                    .returning(standard_fav::is_enabled)
-                    .get_result(conn)
-                    .map_err(|err| {
-                        debug!("Failed add fav standard: {:?}", err);
-                        ServiceError::InternalServerError
-                    })
-            }
+        Ok(true) => Ok(false), // <-- if data already has
+        Ok(false) => {
+            // if have need row, just update is_enabled to true
+            diesel::update(standard_fav::standard_fav)
+                .filter(standard_fav::standard_uuid.eq(&data.standard_uuid)
+                .and(standard_fav::user_uuid.eq(&data.user_uuid)))
+                .set(standard_fav::is_enabled.eq(true))
+                .returning(standard_fav::is_enabled)
+                .get_result::<bool>(conn)
+                .map_err(|err| {
+                    debug!("Failed add fav standard: {:?}", err);
+                    ServiceError::InternalServerError
+                })
         },
         Err(err) => {
             debug!("Err check is_enabled: {:?}", err);
@@ -55,11 +57,37 @@ pub(crate) fn add_standard_fav(
             diesel::insert_into(standard_fav::standard_fav)
                 .values(insertable_fav)
                 .returning(standard_fav::is_enabled)
-                .get_result(conn)
+                .get_result::<bool>(conn)
                 .map_err(|err| {
                     debug!("Failed add fav standard: {:?}", err);
                     ServiceError::InternalServerError
-                })
+                })?;
+
+            new_notification(&data.standard_uuid, conn)
         },
     }
+}
+
+fn new_notification(
+    object_uuid: &Uuid,
+    conn: &PgConnection,
+) -> ServiceResult<bool> {
+    let user_uuid = standard_ref::standard_ref
+        .filter(standard_ref::uuid.eq(object_uuid))
+        .select(standard_ref::user_uuid)
+        .first::<Uuid>(conn)
+        .map_err(|err| {
+            debug!("Failed get owner company: {:?}", err);
+            ServiceError::InternalServerError
+        })?;
+
+    // add notification for user
+    create_notification(
+        &user_uuid,
+        &NotificationData {
+            notification: "New follower you standard".to_string(),
+            degree_importance: NotificationType::Info,
+        },
+        conn,
+    )
 }

@@ -1859,6 +1859,33 @@ describe('users', () => {
     done();
   });
 
+  it('/graphql:Q notifications - OK component follower', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenUserThree}`
+      )
+      .send({
+        query: `query  {
+            notifications {
+              ${showNotification}
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql notifications=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { notifications },
+    } = body;
+    expect(notifications[0].notification).toBe("New follower you component");
+    expect(notifications[0].degreeImportance.degreeImportanceId).toBe(5);
+    expect(notifications[0].degreeImportance.degree).toBe("info");
+    expect(notifications[0].isRead).toBe(false);
+    done();
+  });
+
   it('/graphql:M registerCompany - OK Supplier', async (done) => {
     const { body } = await agent
       .post('/graphql')
@@ -1903,6 +1930,51 @@ describe('users', () => {
       't',
       orgname,
     ]);
+  });
+
+  it('/graphql:M CompanyFav - Ok add for check notification', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenUserThree}`
+      )
+      .send({
+        query: `mutation {
+            addCompanyFav(companyUuid: "${companyUuidSupplier}")
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql addCompanyFav body=%o', body);
+    expect(body.data.addCompanyFav).toBe(true);
+    done();
+  });
+
+  it('/graphql:Q notifications - OK company follower', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenUserThree}`
+      )
+      .send({
+        query: `query  {
+            notifications {
+              ${showNotification}
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql notifications=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { notifications },
+    } = body;
+    expect(notifications[1].notification).toBe("New follower you company");
+    expect(notifications[1].degreeImportance.degreeImportanceId).toBe(5);
+    expect(notifications[1].degreeImportance.degree).toBe("info");
+    expect(notifications[1].isRead).toBe(false);
+    done();
   });
 
   it('/graphql:M registerStandard - OK', async (done) => {
@@ -1967,6 +2039,33 @@ describe('users', () => {
     done();
   });
 
+  it('/graphql:Q notifications - OK standard follower', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenUserThree}`
+      )
+      .send({
+        query: `query  {
+            notifications {
+              ${showNotification}
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql notifications=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { notifications },
+    } = body;
+    expect(notifications[2].notification).toBe("New follower you standard");
+    expect(notifications[2].degreeImportance.degreeImportanceId).toBe(5);
+    expect(notifications[2].degreeImportance.degree).toBe("info");
+    expect(notifications[2].isRead).toBe(false);
+    done();
+  });
+
   it('/graphql:M UserFav - Ok add', async (done) => {
     const { body } = await agent
       .post('/graphql')
@@ -1983,6 +2082,33 @@ describe('users', () => {
     debug('/graphql addUserFav body=%o', body);
     // expect(body).toBe(0);
     expect(body.data.addUserFav).toBe(true);
+    done();
+  });
+
+  it('/graphql:Q notifications - OK user follower', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenUserFour}`
+      )
+      .send({
+        query: `query  {
+            notifications {
+              ${showNotification}
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql notifications=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { notifications },
+    } = body;
+    expect(notifications[0].notification).toBe("New follower");
+    expect(notifications[0].degreeImportance.degreeImportanceId).toBe(5);
+    expect(notifications[0].degreeImportance.degree).toBe("info");
+    expect(notifications[0].isRead).toBe(false);
     done();
   });
 

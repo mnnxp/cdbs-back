@@ -3,6 +3,10 @@ use crate::models::user::access::util::check_access_user_for_user;
 use crate::models::user::user_fav::model::{
     IptUserFavData, InsertableUserFav
 };
+use crate::models::user::notification::{
+    model::{NotificationType, NotificationData},
+    service::register::create_notification,
+};
 use crate::schema::user_fav::dsl as user_fav;
 use diesel::prelude::*;
 
@@ -28,24 +32,20 @@ pub(crate) fn add_user_fav(
         .first(conn);
 
     match check_fav {
-        Ok(fav) => {
-            if fav {
-                // if data already has
-                Ok(false)
-            } else {
-                // if have need row, just update is_enabled to true
-                diesel::update(user_fav::user_fav)
-                    .filter(user_fav::user_favorite_uuid.eq(&data.user_favorite_uuid)
-                    .and(user_fav::user_follower_uuid.eq(&data.user_follower_uuid)))
-                    .set(user_fav::is_enabled.eq(true))
-                    .returning(user_fav::is_enabled)
-                    .get_result(conn)
-                    .map_err(|err| {
-                        debug!("Failed add fav user: {:?}", err);
-                        ServiceError::InternalServerError
-                    })
-            }
-        },
+        Ok(true) => Ok(false), // <-- if data already has
+        Ok(false) => {
+            // if have need row, just update is_enabled to true
+            diesel::update(user_fav::user_fav)
+                .filter(user_fav::user_favorite_uuid.eq(&data.user_favorite_uuid)
+                .and(user_fav::user_follower_uuid.eq(&data.user_follower_uuid)))
+                .set(user_fav::is_enabled.eq(true))
+                .returning(user_fav::is_enabled)
+                .get_result::<bool>(conn)
+                .map_err(|err| {
+                    debug!("Failed add fav user: {:?}", err);
+                    ServiceError::InternalServerError
+                })
+        }
         Err(err) => {
             debug!("Err check is_enabled: {:?}", err);
 
@@ -55,11 +55,21 @@ pub(crate) fn add_user_fav(
             diesel::insert_into(user_fav::user_fav)
                 .values(insertable_fav)
                 .returning(user_fav::is_enabled)
-                .get_result(conn)
+                .get_result::<bool>(conn)
                 .map_err(|err| {
                     debug!("Failed add fav user: {:?}", err);
                     ServiceError::InternalServerError
-                })
+                })?;
+
+            // add notification for user
+            create_notification(
+                &data.user_favorite_uuid,
+                &NotificationData {
+                    notification: "New follower".to_string(),
+                    degree_importance: NotificationType::Info,
+                },
+                conn,
+            )
         },
     }
 }
