@@ -103,17 +103,10 @@ region { \
   langId \
   region \
 } \
-createdAt \
-updatedAt \
 standardFiles { \
   uuid \
+  filename \
   parentFileUuid \
-  download { \
-    uuid \
-    filename \
-    filesize \
-    downloadUrl \
-  } \
   ownerUser { \
     uuid \
     username \
@@ -125,6 +118,7 @@ standardFiles { \
     } \
   } \
   contentType \
+  filesize \
   program { \
     id \
     name \
@@ -146,8 +140,8 @@ standardKeywords { \
 } \
 subscribers \
 isFollowed \
+createdAt \
 updatedAt \
-isFollowed \
 `;
 
 const standardsListQuery = ` \
@@ -923,7 +917,7 @@ describe('company', () => {
         query: `mutation {
           uploadStandardFiles(data: {
             standardUuid: "${standardUuidSecond}"
-            filename: "${badFilenameStandardFileTest}"
+            filenames: "${badFilenameStandardFileTest}"
           }) {
             fileUuid
             filename
@@ -952,7 +946,7 @@ describe('company', () => {
         query: `mutation {
           uploadStandardFiles(data: {
             standardUuid: "${standardUuidSecond}"
-            filename: [
+            filenames: [
               "${badFilenameStandardFileTest}"
               "${filenameStandardFileTest}"
             ]
@@ -991,7 +985,7 @@ describe('company', () => {
         query: `mutation {
           uploadStandardFiles(data: {
             standardUuid: "${standardUuidSecond}"
-            filename: "${badFilenameStandardFileTest}"
+            filenames: "${badFilenameStandardFileTest}"
           }) {
             fileUuid
             filename
@@ -1125,11 +1119,9 @@ describe('company', () => {
     } = body;
     expect(standard.uuid).toBe(standardUuidSecond);
     expect(standard.standardFiles[0].uuid).toBe(fileStandardFileTestUuid2);
+    expect(standard.standardFiles[0].filename).toBe(filenameStandardFileTest);
     expect(standard.standardFiles[0].parentFileUuid).toBeNonEmptyString();
     expect(standard.standardFiles[0].ownerUser.uuid).toBe(authorizationUserFirst);
-    expect(standard.standardFiles[0].download.filename).toBe(filenameStandardFileTest);
-    expect(standard.standardFiles[0].download.downloadUrl).toBeNonEmptyString();
-    expect(standard.standardFiles[0].download.filesize).toBe(0);
     expect(standard.standardFiles[0].contentType).toBeNonEmptyString();
     done();
   });

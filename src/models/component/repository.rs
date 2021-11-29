@@ -10,7 +10,7 @@ use crate::models::component::component_modification::model::{ComponentModificat
 use crate::models::standard::model::ShowStandardShort;
 use crate::models::relate_ref::license::model::License;
 use crate::models::relate_ref::keyword::model::Keyword;
-use crate::models::relate_ref::file::model::ShowFileForDownload;
+use crate::models::relate_ref::file::model::ShowFileRelatedData;
 use crate::schema::component_ref::dsl as component_ref;
 use crate::models::component::access::util::check_access_component_for_user;
 use diesel::prelude::*;
@@ -136,7 +136,7 @@ impl ShowComponentShort {
         ).expect("Error loading license");
 
         // get files for component
-        let files = ShowFileForDownload::for_component(
+        let files = ShowFileRelatedData::for_component(
             &component,
             conn
         ).expect("Error loading component_file");
@@ -299,7 +299,7 @@ impl ComponentAndRelatedData {
         ).expect("Error loading license");
 
         // get files for component
-        let files = ShowFileForDownload::for_component(
+        let files = ShowFileRelatedData::for_component(
             &component,
             conn
         ).expect("Error loading component files");

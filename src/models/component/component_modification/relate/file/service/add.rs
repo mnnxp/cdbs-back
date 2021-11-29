@@ -29,13 +29,13 @@ pub(crate) fn add_modification_files(
     )?;
 
     // return error if not found correct filename
-    if data.filename.is_empty() {
+    if data.filenames.is_empty() {
         return Err(ServiceError::BadRequest("Not found filename".to_string()))
     }
 
     let mut up_files: Vec<UploadFile> = Vec::new();
     // Get data for write information about the file before upload to storage
-    for filename in &data.filename {
+    for filename in &data.filenames {
         // insert row file in file_ref and addiction tables
         let slim_file = file::service::register::register(
             PreliminaryFileData::from_ipt_file_data( // <-- making data for insert

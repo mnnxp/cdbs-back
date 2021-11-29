@@ -1,17 +1,17 @@
 use crate::errors::{ServiceResult, ServiceError};
+use crate::models::user::model::ShowUserShort;
 use crate::models::relate_ref::file::model::{
     ListObject,
     PreliminaryFileData,
     ShowFile,
-    ShowFileForDownload,
+    ShowFileRelatedData,
     SlimFile,
 };
-use crate::schema::file_ref::dsl as file_ref;
-use crate::models::user::model::ShowUserShort;
 use crate::models::relate_ref::file::model::DownloadFile;
 use crate::models::relate_ref::program::model::Program;
 use crate::storage::model::StorageAccess;
 use crate::storage::presigned_url::download_presigned_url;
+use crate::schema::file_ref::dsl as file_ref;
 use diesel::prelude::*;
 use uuid::Uuid;
 
@@ -59,11 +59,11 @@ use uuid::Uuid;
 //     }
 // }
 
-impl ShowFileForDownload {
+impl ShowFileRelatedData {
     pub(crate) fn get_file_by_uuid(
         target_file_uuid: &Uuid,
         conn: &PgConnection,
-    ) -> ServiceResult<ShowFileForDownload> {
+    ) -> ServiceResult<ShowFileRelatedData> {
         let file_data: ShowFile = file_ref::file_ref
             .filter(file_ref::uuid.eq(target_file_uuid))
             .select((
@@ -87,24 +87,19 @@ impl ShowFileForDownload {
             conn
         ).expect("Error loading user");
 
-        // get download url for file
-        let download: DownloadFile = DownloadFile::get_by_show_file(
-            &file_data,
-            conn
-        ).expect("Error get presign-url");
-
         // get program by ext for file
         let program: Program = Program::get_program_for_ext(
             &file_data.id_ext,
             conn
         ).expect("Error loading user");
 
-        let result = ShowFileForDownload {
+        let result = ShowFileRelatedData {
             uuid: file_data.uuid,
+            filename: file_data.filename,
             parent_file_uuid: file_data.parent_file_uuid,
-            download,
             owner_user,
             content_type: file_data.content_type,
+            filesize: file_data.filesize,
             program,
             created_at: file_data.created_at,
             updated_at: file_data.updated_at,
@@ -116,11 +111,11 @@ impl ShowFileForDownload {
     pub(crate) fn get_file_by_uuids(
         target_files_uuids: &[Uuid],
         conn: &PgConnection,
-    ) -> ServiceResult<Vec<ShowFileForDownload>> {
-        let mut result: Vec<ShowFileForDownload> = Vec::new();
+    ) -> ServiceResult<Vec<ShowFileRelatedData>> {
+        let mut result: Vec<ShowFileRelatedData> = Vec::new();
 
         for tfu in target_files_uuids {
-            result.push(ShowFileForDownload::get_file_by_uuid(
+            result.push(ShowFileRelatedData::get_file_by_uuid(
                 tfu,
                 conn
             )?)
@@ -199,23 +194,23 @@ impl PreliminaryFileData {
 }
 
 impl DownloadFile {
-    /// Get DownloadFile with generated presigned_url from ShowFile data
-    pub(crate) fn get_by_show_file(
-        file: &ShowFile,
-        conn: &PgConnection,
-    ) -> ServiceResult<DownloadFile> {
-        let download_url = download_presigned_url(
-            &StorageAccess::get(conn)?,
-            &file.path_file,
-        )?;
-
-        Ok(DownloadFile{
-            uuid: file.uuid.to_owned(),
-            filename: file.filename.to_string(),
-            filesize: file.filesize.to_owned(),
-            download_url,
-        })
-    }
+    // /// Get DownloadFile with generated presigned_url from ShowFile data
+    // pub(crate) fn get_by_show_file(
+    //     file: &ShowFile,
+    //     conn: &PgConnection,
+    // ) -> ServiceResult<DownloadFile> {
+    //     let download_url = download_presigned_url(
+    //         &StorageAccess::get(conn)?,
+    //         &file.path_file,
+    //     )?;
+    //
+    //     Ok(DownloadFile{
+    //         uuid: file.uuid.to_owned(),
+    //         filename: file.filename.to_string(),
+    //         filesize: file.filesize.to_owned(),
+    //         download_url,
+    //     })
+    // }
 
     /// Get DownloadFile with generated presigned_url from SlimFile data
     pub(crate) fn get_by_slim_file(

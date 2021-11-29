@@ -127,13 +127,8 @@ componentParams { \
 } \
 files { \
   uuid \
+  filename \
   parentFileUuid \
-  download { \
-    uuid \
-    filename \
-    filesize \
-    downloadUrl \
-  } \
   ownerUser { \
     uuid \
     username \
@@ -145,6 +140,7 @@ files { \
     } \
   } \
   contentType \
+  filesize \
   program { \
     id \
     name \
@@ -273,13 +269,8 @@ licenses { \
 } \
 files { \
   uuid \
+  filename \
   parentFileUuid \
-  download { \
-    uuid \
-    filename \
-    filesize \
-    downloadUrl \
-  } \
   ownerUser { \
     uuid \
     username \
@@ -291,6 +282,7 @@ files { \
     } \
   } \
   contentType \
+  filesize \
   program { \
     id \
     name \
@@ -312,13 +304,8 @@ componentSuppliers { \
 const fileDataQuery = `
 file { \
   uuid \
+  filename \
   parentFileUuid \
-  download { \
-    uuid \
-    filename \
-    filesize \
-    downloadUrl \
-  } \
   ownerUser { \
     uuid \
     username \
@@ -330,6 +317,7 @@ file { \
     } \
   } \
   contentType \
+  filesize \
   program { \
     id \
     name \
@@ -3112,7 +3100,7 @@ describe('component', () => {
       .send({
           query: `mutation {
             uploadComponentFiles(data: {
-              filename: [
+              filenames: [
                 "${filename1}",
                 "${filename2}",
                 "${filename3}",
@@ -3147,7 +3135,7 @@ describe('component', () => {
       .send({
           query: `mutation {
             uploadComponentFiles(data: {
-              filename: [
+              filenames: [
                 "${filename1}",
                 "${filename2}",
                 "${filename3}",
@@ -4241,7 +4229,7 @@ describe('component', () => {
       .send({
           query: `mutation {
             uploadModificationFiles(data: {
-              filename: [
+              filenames: [
                 "${filename1}",
                 "${filename2}",
                 "${filename3}",
@@ -4890,7 +4878,7 @@ describe('component', () => {
             uploadFilesToFileset(
               data: {
                 filesetUuid: "${filesetForProgramUuid}"
-                filename: [
+                filenames: [
                   "${filename1}",
                   "${filename2}",
                   "${filename3}",
@@ -4953,8 +4941,7 @@ describe('component', () => {
     fileOfFilesetUuid = componentModificationFilesOfFileset[0].file.uuid;
     expect(componentModificationFilesOfFileset[0].filesetUuid).toBe(filesetForProgramUuid);
     expect(componentModificationFilesOfFileset[0].file.uuid).toBeNonEmptyString();
-    expect(componentModificationFilesOfFileset[0].file.download.filename).toBeNonEmptyString();
-    expect(componentModificationFilesOfFileset[0].file.download.downloadUrl).toBeNonEmptyString();
+    expect(componentModificationFilesOfFileset[0].file.filename).toBeNonEmptyString();
     done();
   });
 
@@ -4984,8 +4971,7 @@ describe('component', () => {
     fileOfFilesetUuid = componentModificationFilesOfFileset[0].file.uuid;
     expect(componentModificationFilesOfFileset[0].filesetUuid).toBe(filesetForProgramUuid);
     expect(componentModificationFilesOfFileset[0].file.uuid).toBeNonEmptyString();
-    expect(componentModificationFilesOfFileset[0].file.download.filename).toBeNonEmptyString();
-    expect(componentModificationFilesOfFileset[0].file.download.downloadUrl).toBeNonEmptyString();
+    expect(componentModificationFilesOfFileset[0].file.filename).toBeNonEmptyString();
     done();
   });
 

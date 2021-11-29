@@ -213,12 +213,13 @@ impl UploadFile {
 }
 
 #[derive(Debug, SimpleObject, Clone)]
-pub struct ShowFileForDownload {
+pub struct ShowFileRelatedData {
     pub uuid: Uuid,
+    pub filename: String,
     pub parent_file_uuid: Uuid,
-    pub download: DownloadFile,
     pub owner_user: ShowUserShort,
     pub content_type: String,
+    pub filesize: i64,
     pub program: Program,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,

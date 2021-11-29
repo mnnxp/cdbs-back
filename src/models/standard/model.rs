@@ -2,7 +2,7 @@ use super::standard_status::model::StandardStatusTranslateList;
 use super::spec::model::StandardSpecWithTranslation;
 use crate::models::company::model::ShowCompanyShort;
 use crate::models::user::model::ShowUserShort;
-use crate::models::relate_ref::file::model::{ShowFileForDownload, DownloadFile};
+use crate::models::relate_ref::file::model::{ShowFileRelatedData, DownloadFile};
 use crate::models::relate_ref::region::model::RegionTranslateList;
 use crate::models::relate_ref::keyword::model::Keyword;
 use crate::schema::*;
@@ -53,7 +53,7 @@ pub struct StandardAndRelatedData {
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
     // related data
-    pub standard_files: Vec<ShowFileForDownload>, // <-- documentation files, etc.
+    pub standard_files: Vec<ShowFileRelatedData>, // <-- documentation files, etc.
     pub standard_specs: Vec<StandardSpecWithTranslation>,
     pub standard_keywords: Vec<Keyword>,
     // count users to folloded the standard

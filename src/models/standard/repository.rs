@@ -6,7 +6,7 @@ use crate::models::standard::spec::model::StandardSpecWithTranslation;
 use crate::models::standard::access::util::check_access_standard_for_user;
 use crate::models::relate_ref::region::model::RegionTranslateList;
 use crate::models::relate_ref::keyword::model::Keyword;
-use crate::models::relate_ref::file::model::{ShowFileForDownload, DownloadFile};
+use crate::models::relate_ref::file::model::{ShowFileRelatedData, DownloadFile};
 use crate::schema::standard_ref::dsl as standard_ref;
 use diesel::prelude::*;
 use uuid::Uuid;
@@ -256,7 +256,7 @@ impl StandardAndRelatedData {
         ).expect("Error loading subscribers");
 
         // get files for standard
-        let standard_files = ShowFileForDownload::for_standard_by_uuid(
+        let standard_files = ShowFileRelatedData::for_standard_by_uuid(
             &standard.uuid,
             conn
         ).expect("Error loading standard files");

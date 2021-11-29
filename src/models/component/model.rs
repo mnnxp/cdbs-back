@@ -9,7 +9,7 @@ use crate::models::component::component_modification::model::ComponentModificati
 use crate::models::standard::model::ShowStandardShort;
 use crate::models::relate_ref::license::model::License;
 use crate::models::relate_ref::keyword::model::Keyword;
-use crate::models::relate_ref::file::model::ShowFileForDownload;
+use crate::models::relate_ref::file::model::ShowFileRelatedData;
 use async_graphql::types::ID;
 use async_graphql::*;
 use chrono::*;
@@ -91,7 +91,7 @@ pub struct ComponentAndRelatedData {
     // related data
     pub licenses: Vec<License>,
     pub component_params: Vec<ComponentParamWithTranslation>,
-    pub files: Vec<ShowFileForDownload>,
+    pub files: Vec<ShowFileRelatedData>,
     pub component_specs: Vec<ComponentSpecWithTranslation>,
     pub component_keywords: Vec<Keyword>,
     pub component_modifications: Vec<ComponentModificationAndRelatedData>,
@@ -116,7 +116,7 @@ pub struct ShowComponentShort {
     pub updated_at: NaiveDateTime,
     pub licenses: Vec<License>,
     // files for show image (models, draw)
-    pub files: Vec<ShowFileForDownload>,
+    pub files: Vec<ShowFileRelatedData>,
     // show first supplier company
     pub component_suppliers: Vec<ComponentSupplierRelatedData>,
 }

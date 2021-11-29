@@ -1,6 +1,6 @@
 use crate::schema::*;
 use crate::models::component::component_modification::fileset_for_program::model::FilesetProgram;
-use crate::models::relate_ref::file::model::ShowFileForDownload;
+use crate::models::relate_ref::file::model::ShowFileRelatedData;
 // use async_graphql::types::ID;
 use async_graphql::*;
 // use chrono::*;
@@ -9,7 +9,7 @@ use uuid::Uuid;
 #[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, PartialEq, Clone, Debug)]
 #[primary_key(fileset_uuid, file_uuid)]
 #[belongs_to(FilesetProgram, foreign_key = "fileset_uuid")]
-#[belongs_to(ShowFileForDownload, foreign_key = "file_uuid")]
+#[belongs_to(ShowFileRelatedData, foreign_key = "file_uuid")]
 #[table_name = "modification_file_from_fileset"]
 pub struct ModificationFileFromFileset {
     pub fileset_uuid: Uuid,
@@ -19,11 +19,11 @@ pub struct ModificationFileFromFileset {
 #[derive(Debug, SimpleObject, Clone)]
 pub struct ModificationFileFromFilesetRelatedData {
     pub fileset_uuid: Uuid,
-    pub files: Vec<ShowFileForDownload>,
+    pub files: Vec<ShowFileRelatedData>,
 }
 
-impl From<(ModificationFileFromFileset, Vec<ShowFileForDownload>)> for ModificationFileFromFilesetRelatedData {
-    fn from(data: (ModificationFileFromFileset, Vec<ShowFileForDownload>)) -> Self {
+impl From<(ModificationFileFromFileset, Vec<ShowFileRelatedData>)> for ModificationFileFromFilesetRelatedData {
+    fn from(data: (ModificationFileFromFileset, Vec<ShowFileRelatedData>)) -> Self {
         Self {
             fileset_uuid: data.0.fileset_uuid,
             files: data.1,
@@ -34,7 +34,7 @@ impl From<(ModificationFileFromFileset, Vec<ShowFileForDownload>)> for Modificat
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub struct IptModificationFileFromFilesetData {
     pub fileset_uuid: Uuid,
-    pub filename: Vec<String>,
+    pub filenames: Vec<String>,
 }
 
 #[derive(Debug, Deserialize, Clone, InputObject)]
@@ -53,5 +53,5 @@ pub struct InsertableModificationFileFromFileset {
 #[derive(SimpleObject, Clone, Debug)]
 pub struct FileOfFileset {
     pub fileset_uuid: Uuid,
-    pub file: ShowFileForDownload,
+    pub file: ShowFileRelatedData,
 }

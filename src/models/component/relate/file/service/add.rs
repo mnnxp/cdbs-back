@@ -27,13 +27,13 @@ pub(crate) fn add_component_files(
     )?;
 
     // return error if not correct file name
-    if data.filename.is_empty() {
+    if data.filenames.is_empty() {
         return Err(ServiceError::BadRequest("Bad filename".to_string()))
     }
 
     let mut up_files: Vec<UploadFile> = Vec::new();
     // Get data for write information about the file before upload to storage
-    for filename in &data.filename {
+    for filename in &data.filenames {
         let slim_file = file::service::register::register(
             PreliminaryFileData::from_ipt_file_data(
                 *logged_user_uuid,
