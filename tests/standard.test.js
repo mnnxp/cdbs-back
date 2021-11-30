@@ -1001,6 +1001,123 @@ describe('company', () => {
     done();
   });
 
+  // Testing get standard files
+  it('/graphql:M standardFiles - BadRequest not token', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .send({
+        query: `query {
+          standardFiles(arg: {
+            standardUuid: "${standardUuidSecond}"
+          }) {
+            uuid
+            filename
+            filesize
+            downloadUrl
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql standardFiles=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Token not found.'
+    );
+    expect(body.errors[0].path[0]).toBe('standardFiles');
+    done();
+  });
+
+  it('/graphql:M standardFiles - Ok', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `query {
+          standardFiles(arg: {
+            standardUuid: "${standardUuidSecond}"
+          }) {
+            uuid
+            filename
+            filesize
+            downloadUrl
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql standardFiles=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { standardFiles },
+    } = body;
+    expect(standardFiles[0].uuid).toBe(fileStandardFileTestUuid);
+    expect(standardFiles[1].uuid).toBe(fileStandardFileTestUuid2);
+    expect(standardFiles.length).toBe(2);
+    done();
+  });
+
+  it('/graphql:M standardFiles - Ok filter by uuid', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `query {
+          standardFiles(arg: {
+            standardUuid: "${standardUuidSecond}"
+            filesUuids: "${fileStandardFileTestUuid2}"
+          }) {
+            uuid
+            filename
+            filesize
+            downloadUrl
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql standardFiles=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { standardFiles },
+    } = body;
+    expect(standardFiles[0].uuid).toBe(fileStandardFileTestUuid2);
+    expect(standardFiles.length).toBe(1);
+    done();
+  });
+
+  it('/graphql:M standardFiles - BadRequest access denied', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `query {
+          standardFiles(arg: {
+            standardUuid: "${standardUuidSecond}"
+          }) {
+            uuid
+            filename
+            filesize
+            downloadUrl
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql standardFiles=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Access denied'
+    );
+    expect(body.errors[0].path[0]).toBe('standardFiles');
+    done();
+  });
+
   // Testing delete files of standard
   it('/graphql:M deleteStandardFiles - BadRequest not token', async (done) => {
     const { body } = await agent

@@ -340,3 +340,29 @@ impl From<IptStandardsArg> for StandardsArg {
         }
     }
 }
+
+#[derive(InputObject, Deserialize, Debug)]
+pub struct IptStandardFilesArg {
+    pub standard_uuid:  Uuid,
+    pub files_uuids: Option<Vec<Uuid>>,
+}
+
+#[derive(Debug)]
+pub struct StandardFilesArg {
+    pub standard_uuid:  Uuid,
+    pub files_uuids: Vec<Uuid>,
+}
+
+impl From<IptStandardFilesArg> for StandardFilesArg {
+    fn from(data: IptStandardFilesArg) -> Self {
+        let IptStandardFilesArg {
+            standard_uuid,
+            files_uuids,
+        } = data;
+
+        Self {
+            standard_uuid,
+            files_uuids: files_uuids.unwrap_or_default(),
+        }
+    }
+}

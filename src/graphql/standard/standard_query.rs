@@ -2,7 +2,10 @@ use crate::errors::ServiceResult;
 use crate::database::{get_conn, PooledConnection};
 use crate::models::user::access::logged::get_logged_user_uuid;
 use crate::models::standard::{
-    model::{ShowStandardShort, StandardAndRelatedData, StandardsArg, IptStandardsArg},
+    model::{
+        ShowStandardShort, StandardAndRelatedData, StandardsArg, IptStandardsArg,
+        StandardFilesArg, IptStandardFilesArg
+    },
     access::company::model::CompanyAccessStandardAndRelatedData,
     access::user::model::UserAccessStandardAndRelatedData,
 };
@@ -65,18 +68,20 @@ impl StandardQuery {
     async fn standard_files(
         &self,
         cxt: &Context<'_>,
-        standard_uuid: Uuid,
+        arg: IptStandardFilesArg,
     ) -> ServiceResult<Vec<DownloadFile>> {
         use crate::models::standard::file::service::list::get_standard_files;
 
         // authorization check
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
+        let arg: StandardFilesArg = arg.into();
+
         let conn: &PooledConnection = &get_conn(cxt)?;
 
         get_standard_files(
             &logged_user_uuid,
-            &standard_uuid,
+            &arg,
             conn
         )
     }
