@@ -1119,28 +1119,28 @@ describe('company', () => {
   });
 
   // Testing delete files of standard
-  it('/graphql:M deleteStandardFiles - BadRequest not token', async (done) => {
+  it('/graphql:M deleteStandardFile - BadRequest not token', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .send({
         query: `mutation {
-          deleteStandardFiles(data: {
+          deleteStandardFile(arg: {
             standardUuid: "${standardUuidSecond}"
             fileUuid: "${fileStandardFileTestUuid}"
           })
         }`,
       })
       .expect(HttpStatus.OK)
-    debug('/graphql deleteStandardFiles=%o', body);
+    debug('/graphql deleteStandardFile=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
       'BadRequest: Token not found.'
     );
-    expect(body.errors[0].path[0]).toBe('deleteStandardFiles');
+    expect(body.errors[0].path[0]).toBe('deleteStandardFile');
     done();
   });
 
-  it('/graphql:M deleteStandardFiles - Ok', async (done) => {
+  it('/graphql:M deleteStandardFile - Ok', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .set(
@@ -1149,23 +1149,23 @@ describe('company', () => {
       )
       .send({
         query: `mutation {
-          deleteStandardFiles(data: {
+          deleteStandardFile(arg: {
             standardUuid: "${standardUuidSecond}"
             fileUuid: "${fileStandardFileTestUuid}"
           })
         }`,
       })
       .expect(HttpStatus.OK)
-    debug('/graphql deleteStandardFiles=%o', body);
+    debug('/graphql deleteStandardFile=%o', body);
     // expect(body).toBe(0);
     const {
-      data: { deleteStandardFiles },
+      data: { deleteStandardFile },
     } = body;
-    expect(deleteStandardFiles).toBe(true);
+    expect(deleteStandardFile).toBe(true);
     done();
   });
 
-  it('/graphql:M deleteStandardFiles - Ok not found file', async (done) => {
+  it('/graphql:M deleteStandardFile - Ok not found file', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .set(
@@ -1174,23 +1174,23 @@ describe('company', () => {
       )
       .send({
         query: `mutation {
-          deleteStandardFiles(data: {
+          deleteStandardFile(arg: {
             standardUuid: "${standardUuidSecond}"
             fileUuid: "${fileStandardFileTestUuid}"
           })
         }`,
       })
       .expect(HttpStatus.OK)
-    debug('/graphql deleteStandardFiles=%o', body);
+    debug('/graphql deleteStandardFile=%o', body);
     // expect(body).toBe(0);
     const {
-      data: { deleteStandardFiles },
+      data: { deleteStandardFile },
     } = body;
-    expect(deleteStandardFiles).toBe(false);
+    expect(deleteStandardFile).toBe(false);
     done();
   });
 
-  it('/graphql:M deleteStandardFiles - BadRequest no access', async (done) => {
+  it('/graphql:M deleteStandardFile - BadRequest no access', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .set(
@@ -1199,7 +1199,7 @@ describe('company', () => {
       )
       .send({
         query: `mutation {
-          deleteStandardFiles(data: {
+          deleteStandardFile(arg: {
             standardUuid: "${standardUuidSecond}"
             fileUuid: "${fileStandardFileTestUuid}"
           })

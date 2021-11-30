@@ -285,10 +285,10 @@ impl StandardMutation {
         )
     }
 
-    async fn delete_standard_files(
+    async fn delete_standard_file(
         &self,
         cxt: &Context<'_>,
-        data: DeleteStandardFileData,
+        arg: DeleteStandardFileData,
     ) -> ServiceResult<bool> {
         use crate::models::standard::file::service::delete::delete_standard_file;
 
@@ -298,7 +298,7 @@ impl StandardMutation {
 
         delete_standard_file(
             &logged_user_uuid,
-            &data,
+            &arg,
             conn
         )
     }
