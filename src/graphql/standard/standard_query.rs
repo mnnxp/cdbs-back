@@ -1,11 +1,12 @@
 use crate::errors::ServiceResult;
 use crate::database::{get_conn, PooledConnection};
 use crate::models::user::access::logged::get_logged_user_uuid;
-use crate::models::standard::model::{
-    ShowStandardShort, StandardAndRelatedData, StandardsArg, IptStandardsArg,
+use crate::models::standard::{
+    model::{ShowStandardShort, StandardAndRelatedData, StandardsArg, IptStandardsArg},
+    access::company::model::CompanyAccessStandardAndRelatedData,
+    access::user::model::UserAccessStandardAndRelatedData,
 };
-use crate::models::standard::access::company::model::CompanyAccessStandardAndRelatedData;
-use crate::models::standard::access::user::model::UserAccessStandardAndRelatedData;
+use crate::models::relate_ref::file::model::DownloadFile;
 use crate::models::relate_ref::language::get_set_language;
 
 use async_graphql::{self, Context, Object};
@@ -58,6 +59,25 @@ impl StandardQuery {
             &standard_uuid,
             &get_set_language(cxt),
             conn,
+        )
+    }
+
+    async fn standard_files(
+        &self,
+        cxt: &Context<'_>,
+        standard_uuid: Uuid,
+    ) -> ServiceResult<Vec<DownloadFile>> {
+        use crate::models::standard::file::service::list::get_standard_files;
+
+        // authorization check
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+
+        let conn: &PooledConnection = &get_conn(cxt)?;
+
+        get_standard_files(
+            &logged_user_uuid,
+            &standard_uuid,
+            conn
         )
     }
 

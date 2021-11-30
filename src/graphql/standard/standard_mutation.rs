@@ -12,7 +12,7 @@ use crate::models::standard::access::user::model::{
 use crate::models::standard::spec::model::IptStandardSpecsData;
 use crate::models::standard::keyword::model::IptStandardKeywordsData;
 use crate::models::standard::file::model::{IptStandardFilesData, DeleteStandardFileData};
-use crate::models::relate_ref::file::model::{UploadFile, DownloadFile};
+use crate::models::relate_ref::file::model::UploadFile;
 use async_graphql::{self, Context, Object};
 use uuid::Uuid;
 
@@ -281,25 +281,6 @@ impl StandardMutation {
         add_standard_files(
             &logged_user_uuid,
             &data,
-            conn
-        )
-    }
-
-    async fn standard_files(
-        &self,
-        cxt: &Context<'_>,
-        standard_uuid: Uuid,
-    ) -> ServiceResult<Vec<DownloadFile>> {
-        use crate::models::standard::file::service::list::get_standard_files;
-
-        // authorization check
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
-
-        let conn: &PooledConnection = &get_conn(cxt)?;
-
-        get_standard_files(
-            &logged_user_uuid,
-            &standard_uuid,
             conn
         )
     }
