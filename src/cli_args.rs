@@ -16,19 +16,6 @@ pub struct Opt {
     #[structopt(long, env = "DATABASE_URL")]
     pub(crate) database_url: String,
 
-    /// Secret Key for Auth Cookie
-    #[structopt(
-        long,
-        env = "AUTH_SECRET_KEY",
-        default_value = "01230123012301230123012301230123"
-    )]
-    pub(crate) auth_secret_key: String,
-
-    /// Use secure cookie (HTTPS),
-    /// this can only be set if you have https
-    #[structopt(long, env = "HTTPS_COOKIE")]
-    pub(crate) secure_cookie: bool,
-
     /// Auth duration in hours,
     /// this is used for cookie and JWT
     #[structopt(long, env = "AUTH_DURATION_IN_HOUR", default_value = "24")]

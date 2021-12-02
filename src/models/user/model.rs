@@ -1,11 +1,12 @@
 use super::access::hash::{make_hash_salt, make_salt};
 use super::certificate::model::UserCertificateAndFile;
-use crate::models::relate_ref::file::model::DownloadFile;
-use crate::models::relate_ref::region::model::RegionTranslateList;
-use crate::models::relate_ref::program::model::Program;
-use crate::models::relate_ref::type_access::model::TypeAccessTranslateList;
+use crate::models::relate_ref::{
+    file::model::DownloadFile,
+    region::model::RegionTranslateList,
+    program::model::Program,
+    type_access::model::TypeAccessTranslateList,
+};
 use crate::schema::*;
-use async_graphql::types::ID;
 use async_graphql::*;
 use chrono::*;
 use uuid::Uuid;
@@ -13,27 +14,27 @@ use uuid::Uuid;
 #[derive(Debug, Queryable)]
 pub(crate) struct User {
     uuid: Uuid,
-    email: String,
+    // email: String,
     psw_hash: Vec<u8>,
     psw_salt: Vec<u8>,
-    firstname: String,
-    lastname: String,
-    secondname: String,
+    // firstname: String,
+    // lastname: String,
+    // secondname: String,
     username: String,
-    phone: String,
-    description: String,
-    address: String,
-    position: String, // todo!(in future: separate in table with translation)
-    time_zone: String,
-    image_file_uuid: Uuid,
-    region_id: i32,
+    // phone: String,
+    // description: String,
+    // address: String,
+    // position: String,
+    // time_zone: String,
+    // image_file_uuid: Uuid,
+    // region_id: i32,
     program_id: i32,
-    type_access_id: i32,
-    is_email_verified: bool,
-    is_enabled: bool,
-    is_delete: bool,
-    created_at: NaiveDateTime,
-    updated_at: NaiveDateTime,
+    // type_access_id: i32,
+    // is_email_verified: bool,
+    // is_enabled: bool,
+    // is_delete: bool,
+    // created_at: NaiveDateTime,
+    // updated_at: NaiveDateTime,
 }
 
 impl User {
@@ -288,24 +289,11 @@ impl From<&IptUserData> for InsertableUser {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, Queryable, Clone)]
+#[derive(Debug, Serialize, Deserialize, Queryable, Clone, SimpleObject)]
 pub struct SlimUser {
     pub uuid: Uuid,
     pub username: String,
     pub program_id: i32,
-}
-
-#[Object]
-impl SlimUser {
-    async fn uuid(&self) -> ID {
-        self.uuid.into()
-    }
-    async fn username(&self) -> &String {
-        &self.username
-    }
-    async fn program_id(&self) -> &i32 {
-        &self.program_id
-    }
 }
 
 impl From<User> for SlimUser {
@@ -356,7 +344,6 @@ impl From<(&UserShort, &DownloadFile)> for ShowUserShort {
         }
     }
 }
-
 
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub struct IptUpdateUserData {

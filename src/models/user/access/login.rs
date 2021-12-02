@@ -7,15 +7,15 @@ use diesel::prelude::*;
 
 // Login user with user/pass, return new token
 pub(crate) fn login_with_pass(
-    user_username: &str,
-    user_password: &str,
+    username: &str,
+    password: &str,
     conn: &PgConnection,
 ) -> ServiceResult<UserToken> {
     use crate::models::user::access::token::{generate, decode, write_token};
 
     let slim_user = login_check(
-        user_username,
-        user_password,
+        username,
+        password,
         conn
     )?;
 
@@ -40,18 +40,25 @@ pub(crate) fn login_with_pass(
 /// Compare password with password in database
 /// if check success return SlimUser for generate token
 fn login_check(
-    user_username: &str,
-    user_password: &str,
+    username: &str,
+    password: &str,
     conn: &PgConnection,
 ) -> ServiceResult<SlimUser> {
-    use crate::schema::user_ref::dsl::{username, user_ref};
+    use crate::schema::user_ref::dsl as user_ref;
 
-    let user = user_ref
-        .filter(username.eq(user_username))
+    let user = user_ref::user_ref
+        .filter(user_ref::username.eq(username))
+        .select((
+            user_ref::uuid,
+            user_ref::psw_hash,
+            user_ref::psw_salt,
+            user_ref::username,
+            user_ref::program_id,
+        ))
         .first::<User>(conn)
         .map_err(|_| ServiceError::Unauthorized)?;
 
-    match verify(user.get_psw_hash(), user.get_psw_salt(), user_password.as_bytes()) {
+    match verify(user.get_psw_hash(), user.get_psw_salt(), password.as_bytes()) {
         true => Ok(user.into()),
         false => Err(ServiceError::Unauthorized),
     }
