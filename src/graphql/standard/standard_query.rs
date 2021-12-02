@@ -1,11 +1,12 @@
 use crate::errors::ServiceResult;
 use crate::database::{get_conn, PooledConnection};
-use crate::models::user::access::logged::get_logged_user_uuid;
+use crate::models::user::access::logged::{get_logged_user_uuid, check_authorized};
 use crate::models::standard::{
     model::{
         ShowStandardShort, StandardAndRelatedData, StandardsArg, IptStandardsArg,
         StandardFilesArg, IptStandardFilesArg
     },
+    relate::standard_status::model::StandardStatusTranslateList,
     access::company::model::CompanyAccessStandardAndRelatedData,
     access::user::model::UserAccessStandardAndRelatedData,
 };
@@ -120,6 +121,25 @@ impl StandardQuery {
         get_users_list_access_standard(
             &logged_user_uuid,
             &standard_uuid,
+            &get_set_language(cxt),
+            conn
+        )
+    }
+
+    async fn standard_statuses(
+        &self,
+        cxt: &Context<'_>,
+        filter: Option<Vec<i32>>,
+    ) -> ServiceResult<Vec<StandardStatusTranslateList>> {
+        use crate::models::standard::relate::standard_status::service::list::get_standard_statuses;
+
+        // checking authorization
+        check_authorized(cxt)?;
+        let filter: Vec<i32> = filter.unwrap_or_default();
+        let conn: &PooledConnection = &get_conn(cxt)?;
+
+        get_standard_statuses(
+            &filter,
             &get_set_language(cxt),
             conn
         )

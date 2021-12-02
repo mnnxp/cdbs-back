@@ -91,7 +91,7 @@ impl ShowStandardShort {
         ).expect("Error loading company short data");
 
         // get standard type with translation for standard
-        let standard_status: StandardStatusTranslateList = StandardStatusTranslateList::get_standard_status_by_id(
+        let standard_status: StandardStatusTranslateList = StandardStatusTranslateList::get_by_id(
             &standard.standard_status_id,
             set_lang_id,
             conn
@@ -236,7 +236,7 @@ impl StandardAndRelatedData {
         // ).expect("Error loading type_access");
 
         // get standard type with translation for standard
-        let standard_status: StandardStatusTranslateList = StandardStatusTranslateList::get_standard_status_by_id(
+        let standard_status: StandardStatusTranslateList = StandardStatusTranslateList::get_by_id(
             &standard.standard_status_id,
             set_lang_id,
             conn

@@ -4,8 +4,8 @@ use crate::schema::standard_status_translate_list::dsl as standard_status_transl
 use diesel::prelude::*;
 
 impl StandardStatusTranslateList {
-    /// Get standard typeanization by id and set lang
-    pub(crate) fn get_standard_status_by_id(
+    /// Get standard status by id and set lang
+    pub(crate) fn get_by_id(
         target_standard_status_id: &i32,
         set_lang_id: &i32,
         conn: &PgConnection,
@@ -29,5 +29,28 @@ impl StandardStatusTranslateList {
                     })
             },
         }
+    }
+
+    /// Get standard statuses by ids and set lang
+    /// if filter empty return all statuses
+    pub(crate) fn get_by_ids(
+        filter: &[i32],
+        set_lang_id: &i32,
+        conn: &PgConnection,
+    ) -> ServiceResult<Vec<StandardStatusTranslateList>> {
+        let res = match filter.is_empty() {
+            true => standard_status_translate_list::standard_status_translate_list
+                .filter(standard_status_translate_list::lang_id.eq(set_lang_id))
+                .load::<StandardStatusTranslateList>(conn),
+            false => standard_status_translate_list::standard_status_translate_list
+                .filter(standard_status_translate_list::standard_status_id.eq_any(filter)
+                .and(standard_status_translate_list::lang_id.eq(set_lang_id)))
+                .load::<StandardStatusTranslateList>(conn),
+        };
+
+        res.map_err(|err| {
+            debug!("Failed get standard statuses: {:?}", err);
+            ServiceError::InternalServerError
+        })
     }
 }

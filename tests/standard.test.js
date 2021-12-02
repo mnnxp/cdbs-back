@@ -3272,7 +3272,7 @@ describe('company', () => {
       done();
   });
 
-  it('/graphql:M deleteStandard - OK data not found', async (done) => {
+  it('/graphql:M deleteStandard - BadRequest data not found', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .set(
@@ -3301,6 +3301,78 @@ describe('company', () => {
     expect(errors[0].message).toBe(
       "BadRequest: Not found standard"
     );
+    done();
+  });
+
+  // Testing get standard statuses
+  it('/graphql:Q standardStatuses - BadRequest not token', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .send({
+        query: `query {
+          standardStatuses {
+            standardStatusId
+            langId
+            name
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql - body=%o', body);
+    const { errors, data } = body;
+    expect(data).toBeNull();
+    expect(errors[0].message).toBe("BadRequest: Token not found.");
+    done();
+  });
+
+  it('/graphql:Q standardStatuses - OK get all', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `query {
+          standardStatuses {
+            standardStatusId
+            langId
+            name
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql - body=%o', body);
+    // expect(body).toBe(0);
+    const {data: { standardStatuses }} = body;
+    expect(standardStatuses).toBeNonEmptyArray();
+    done();
+  });
+
+  it('/graphql:Q standardStatuses - OK get with filter', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `query {
+          standardStatuses(
+            filter: [1,3,5555]
+          ){
+            standardStatusId
+            langId
+            name
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql - body=%o', body);
+    // expect(body).toBe(0);
+    const {data: { standardStatuses }} = body;
+    expect(standardStatuses[1].standardStatusId).toBe(3);
+    expect(standardStatuses.length).toBe(2);
     done();
   });
 });
