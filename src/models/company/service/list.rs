@@ -18,6 +18,7 @@ pub(crate) fn get_companies(
         filter_companies_uuids,
         user_uuid,
         favorite,
+        supplier,
         limit,
         offset,
     } = arguments;
@@ -69,6 +70,7 @@ pub(crate) fn get_companies(
     ShowCompanyShort::get_companies(
         logged_user_uuid,
         &target_companies_uuids,
+        supplier,
         limit,
         offset,
         set_lang_id,

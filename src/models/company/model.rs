@@ -253,6 +253,7 @@ pub struct IptCompaniesArg {
     pub companies_uuids:  Option<Vec<Uuid>>,
     pub user_uuid: Option<Uuid>,
     pub favorite: Option<bool>,
+    pub supplier: Option<bool>,
     pub limit: Option<i32>,
     pub offset: Option<i32>,
 }
@@ -262,6 +263,7 @@ pub struct CompaniesArg {
     pub filter_companies_uuids: Vec<Uuid>,
     pub user_uuid: Option<Uuid>,
     pub favorite: bool,
+    pub supplier: bool,
     pub limit: i32,
     pub offset: i32,
 }
@@ -272,6 +274,7 @@ impl Default for CompaniesArg {
             filter_companies_uuids: Vec::new(),
             user_uuid: None,
             favorite: false,
+            supplier: false,
             limit: 100,
             offset: 0,
         }
@@ -284,6 +287,7 @@ impl From<IptCompaniesArg> for CompaniesArg {
             companies_uuids,
             user_uuid,
             favorite,
+            supplier,
             limit,
             offset,
         } = data;
@@ -292,6 +296,7 @@ impl From<IptCompaniesArg> for CompaniesArg {
             filter_companies_uuids: companies_uuids.unwrap_or_default(),
             user_uuid,
             favorite: favorite.unwrap_or(false),
+            supplier: supplier.unwrap_or(false),
             limit: limit.unwrap_or(100),
             offset: offset.unwrap_or(0),
         }

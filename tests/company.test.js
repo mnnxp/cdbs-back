@@ -597,7 +597,7 @@ describe('company', () => {
     const response1 = await agent
       .post('/graphql')
       .send({
-        query: `query companies {
+        query: `query {
         	companies (arguments: {companiesUuids: [
             "${companyUuidSupplier}",
             "${companyUuidNoSupplier}"
@@ -624,7 +624,7 @@ describe('company', () => {
         `Bearer ${authorizationTokenFirst}`
       )
       .send({
-        query: `query companies {
+        query: `query {
         	companies (arguments: {companiesUuids: [
             "${companyUuidSupplier}",
             "${companyUuidNoSupplier}"
@@ -653,7 +653,7 @@ describe('company', () => {
         `Bearer ${authorizationTokenFirst}`
       )
       .send({
-        query: `query companies {
+        query: `query {
         	companies {
             ${companiesListQuery}
           }
@@ -697,7 +697,7 @@ describe('company', () => {
         `Bearer ${authorizationTokenFirst}`
       )
       .send({
-        query: `query companies {
+        query: `query {
         	companies (arguments: {
             favorite: true
           }){
@@ -743,7 +743,7 @@ describe('company', () => {
         `Bearer ${authorizationTokenFirst}`
       )
       .send({
-        query: `query companies {
+        query: `query {
           companies (arguments: {
             favorite: true
           }){
@@ -769,7 +769,7 @@ describe('company', () => {
         `Bearer ${authorizationTokenFirst}`
       )
       .send({
-        query: `query companies {
+        query: `query {
           companies (arguments: {
             userUuid: "${authorizationUserFirst}"
           }){
@@ -796,7 +796,7 @@ describe('company', () => {
         `Bearer ${authorizationTokenSecond}`
       )
       .send({
-        query: `query companies {
+        query: `query {
           companies (arguments: {
             userUuid: "${authorizationUserFirst}"
           }){
@@ -822,7 +822,7 @@ describe('company', () => {
         `Bearer ${authorizationTokenSecond}`
       )
       .send({
-        query: `query companies {
+        query: `query {
           companies (arguments: {
             userUuid: "${userUuidBase}"
           }){
@@ -3772,6 +3772,34 @@ describe('company', () => {
       data: { deleteCompanyRole },
     } = body;
     expect(deleteCompanyRole).toBe(0);
+    done();
+  });
+
+  it('/graphql:Q companies - OK List all public suppliers', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `query {
+        	companies (arguments: {
+            supplier: true
+          }){
+            ${companiesListQuery}
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { companies },
+    } = body;
+    expect(companies).toBeNonEmptyArray();
+    expect(companies[0].uuid).toBe(companyUuidBase);
+    expect(companies.length).toBe(1);
     done();
   });
 

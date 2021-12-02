@@ -1,25 +1,25 @@
 use crate::errors::{ServiceResult, ServiceError};
-use super::model::{
-    SlimUser,
-    UserQuery,
-    UserShort,
-    ShowUserShort,
-    UserAndRelatedData,
-    ShowUserAndRelatedData,
+use super::{
+    model::{
+        SlimUser, UserQuery, UserShort, ShowUserShort,
+        UserAndRelatedData, ShowUserAndRelatedData,
+    },
+    certificate::model::UserCertificateAndFile,
+    user_fav::model::UserFav,
+    access::util::check_access_user_for_user,
+    relate::util::{count_components_for_user,count_standards_for_user, count_companies_for_user},
 };
-use super::certificate::model::UserCertificateAndFile;
-use super::user_fav::model::UserFav;
-use super::access::util::check_access_user_for_user;
-use crate::models::company::model::ShowCompanyShort;
-use crate::models::component::model::ShowComponentShort;
-use crate::models::standard::model::ShowStandardShort;
-use crate::models::company::company_fav::model::CompanyFav;
-use crate::models::component::component_fav::model::ComponentFav;
-use crate::models::standard::standard_fav::model::StandardFav;
-use crate::models::relate_ref::file::model::DownloadFile;
-use crate::models::relate_ref::program::model::Program;
-use crate::models::relate_ref::region::model::RegionTranslateList;
-use crate::models::relate_ref::type_access::model::TypeAccessTranslateList;
+use crate::models::{
+    company::company_fav::model::CompanyFav,
+    component::component_fav::model::ComponentFav,
+    standard::standard_fav::model::StandardFav,
+    relate_ref::{
+        file::model::DownloadFile,
+        program::model::Program,
+        region::model::RegionTranslateList,
+        type_access::model::TypeAccessTranslateList,
+    },
+};
 use crate::schema::user_ref::dsl as user_ref;
 use diesel::prelude::*;
 use uuid::Uuid;
@@ -278,19 +278,19 @@ impl UserAndRelatedData {
         ).expect("Error loading spec user with translate");
 
         // counting companies owned by the user
-        let companies_count: i32 = ShowCompanyShort::get_count_by_user_uuid(
+        let companies_count = count_companies_for_user(
             target_user_uuid,
             conn
         ).expect("Error get count companies_count");
 
         // counting components owned by the user
-        let components_count: i32 = ShowComponentShort::get_count_by_user_uuid(
+        let components_count = count_components_for_user(
             target_user_uuid,
             conn
         ).expect("Error get count components_count");
 
         // counting standards owned by the user
-        let standards_count: i32 = ShowStandardShort::get_count_by_user_uuid(
+        let standards_count = count_standards_for_user(
             target_user_uuid,
             conn
         ).expect("Error get count standards_count");
@@ -340,9 +340,9 @@ impl UserAndRelatedData {
             updated_at: user.updated_at,
             certificates,
             subscribers,
-            companies_count,
-            components_count,
-            standards_count,
+            companies_count: companies_count as i32,
+            components_count: components_count as i32,
+            standards_count: standards_count as i32,
             fav_companies_count,
             fav_components_count,
             fav_standards_count,

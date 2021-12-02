@@ -37,6 +37,7 @@ impl ShowCompanyShort {
     pub(crate) fn get_companies(
         logged_user_uuid: &Uuid,
         filter_companies_uuids: &[Uuid],
+        supplier: &bool,
         limit: &i32,
         offset: &i32,
         set_lang_id: &i32,
@@ -46,6 +47,7 @@ impl ShowCompanyShort {
             true => {
                 ShowCompanyShort::get_all_public(
                     logged_user_uuid,
+                    supplier,
                     limit,
                     offset,
                     set_lang_id,
@@ -55,6 +57,7 @@ impl ShowCompanyShort {
             false => {
                 ShowCompanyShort::get_list_by_uuids(
                     filter_companies_uuids,
+                    supplier,
                     logged_user_uuid,
                     set_lang_id,
                     conn
@@ -146,6 +149,7 @@ impl ShowCompanyShort {
     /// Gets companies short data by vec uuids
     pub(crate) fn get_list_by_uuids(
         companies_uuids: &[Uuid],
+        supplier: &bool,
         logged_user_uuid: &Uuid,
         set_lang_id: &i32,
         conn: &PgConnection,
@@ -155,16 +159,20 @@ impl ShowCompanyShort {
 
         // collecting data for each company
         for target_company_uuid in companies_uuids.iter() {
-            match ShowCompanyShort::get_by_uuid(
+            let company = ShowCompanyShort::get_by_uuid(
                 target_company_uuid,
                 logged_user_uuid,
                 set_lang_id,
                 conn
-            ) {
-                Ok(value) => result.push(value),
-                Err(err) => {
-                    debug!("Failed get company short data: {:?}", err);
+            );
+
+            match company {
+                Ok(value) => match (value.is_supplier, supplier) {
+                    (_, false) => result.push(value),
+                    (true, true) => result.push(value),
+                    (false, true) => debug!("Skip company not supplier"),
                 },
+                Err(err) => debug!("Failed get company short data: {:?}", err),
             };
         }
         Ok(result)
@@ -173,15 +181,24 @@ impl ShowCompanyShort {
     /// Gets all public companies short data
     pub(crate) fn get_all_public(
         logged_user_uuid: &Uuid,
+        supplier: &bool,
         limit: &i32,
         offset: &i32,
         set_lang_id: &i32,
         conn: &PgConnection,
     ) -> ServiceResult<Vec<ShowCompanyShort>> {
-        let target_companies_uuids = company_ref::company_ref
-            .filter(company_ref::type_access_id.eq(3)
-            .and(company_ref::is_enabled.eq(true))
-            .and(company_ref::is_delete.eq(false)))
+        let mut query = company_ref::company_ref.into_boxed();
+        query = match supplier {
+            true => query.filter(company_ref::type_access_id.eq(3)
+                .and(company_ref::is_supplier.eq(true))
+                .and(company_ref::is_enabled.eq(true))
+                .and(company_ref::is_delete.eq(false))),
+            false => query.filter(company_ref::type_access_id.eq(3)
+                .and(company_ref::is_enabled.eq(true))
+                .and(company_ref::is_delete.eq(false))),
+        };
+
+        let target_companies_uuids = query
             .select(company_ref::uuid)
             .limit(*limit as i64)
             .offset(*offset as i64)
