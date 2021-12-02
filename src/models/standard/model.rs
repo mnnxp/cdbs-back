@@ -2,11 +2,13 @@ use super::standard_status::model::StandardStatusTranslateList;
 use super::spec::model::StandardSpecWithTranslation;
 use crate::models::company::model::ShowCompanyShort;
 use crate::models::user::model::ShowUserShort;
-use crate::models::relate_ref::file::model::{ShowFileRelatedData, DownloadFile};
-use crate::models::relate_ref::region::model::RegionTranslateList;
-use crate::models::relate_ref::keyword::model::Keyword;
+use crate::models::relate_ref::{
+    type_access::model::TypeAccessTranslateList,
+    file::model::{ShowFileRelatedData, DownloadFile},
+    region::model::RegionTranslateList,
+    keyword::model::Keyword,
+};
 use crate::schema::*;
-use async_graphql::types::ID;
 use async_graphql::*;
 use chrono::*;
 use uuid::Uuid;
@@ -47,7 +49,7 @@ pub struct StandardAndRelatedData {
     pub image_file: DownloadFile,
     pub owner_user: ShowUserShort,
     pub owner_company: ShowCompanyShort,
-    pub type_access_id: i32,
+    pub type_access: TypeAccessTranslateList,
     pub standard_status: StandardStatusTranslateList,
     pub region: RegionTranslateList,
     pub created_at: NaiveDateTime,
@@ -114,7 +116,7 @@ pub struct IptStandardData {
     pub region_id: i32,
 }
 
-#[derive(Debug, Deserialize, Clone)]
+#[derive(Debug, Clone)]
 pub struct StandardData {
     pub parent_standard_uuid: Uuid,
     pub classifier: String,
@@ -131,47 +133,7 @@ pub struct StandardData {
     pub region_id: i32,
 }
 
-#[Object]
-impl StandardData {
-    async fn parent_standard_uuid(&self) -> ID {
-        self.parent_standard_uuid.into()
-    }
-    async fn classifier(&self) -> &String {
-        &self.classifier
-    }
-    async fn name(&self) -> &String {
-        &self.name
-    }
-    async fn description(&self) -> &String {
-        &self.description
-    }
-    async fn specified_tolerance(&self) -> &String {
-        &self.specified_tolerance
-    }
-    async fn technical_committee(&self) -> &String {
-        &self.technical_committee
-    }
-    async fn publication_at(&self) -> &NaiveDateTime {
-        &self.publication_at
-    }
-    async fn image_file_uuid(&self) -> ID {
-        self.image_file_uuid.into()
-    }
-    async fn company_uuid(&self) -> ID {
-        self.company_uuid.into()
-    }
-    async fn type_access_id(&self) -> &i32 {
-        &self.type_access_id
-    }
-    async fn standard_status_id(&self) -> &i32 {
-        &self.standard_status_id
-    }
-    async fn region_id(&self) -> &i32 {
-        &self.region_id
-    }
-}
-
-#[derive(Debug, Serialize, Deserialize, Queryable, Clone)]
+#[derive(Debug, Serialize, Deserialize, Queryable, SimpleObject, Clone)]
 pub struct SlimStandard {
     pub uuid: Uuid,
     pub classifier: String,
@@ -180,31 +142,6 @@ pub struct SlimStandard {
     pub technical_committee: String,
     pub publication_at: NaiveDateTime,
     pub standard_status_id: i32,
-}
-
-#[Object]
-impl SlimStandard {
-    async fn uuid(&self) -> ID {
-        self.uuid.into()
-    }
-    async fn classifier(&self) -> &String {
-        &self.classifier
-    }
-    async fn name(&self) -> &String {
-        &self.name
-    }
-    async fn specified_tolerance(&self) -> &String {
-        &self.specified_tolerance
-    }
-    async fn technical_committee(&self) -> &String {
-        &self.technical_committee
-    }
-    async fn publication_at(&self) -> &NaiveDateTime {
-        &self.publication_at
-    }
-    async fn standard_status_id(&self) -> &i32 {
-        &self.standard_status_id
-    }
 }
 
 impl From<StandardData> for InsertableStandard {

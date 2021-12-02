@@ -4,9 +4,12 @@ use crate::models::standard::standard_status::model::StandardStatusTranslateList
 use crate::models::standard::standard_fav::model::StandardFav;
 use crate::models::standard::spec::model::StandardSpecWithTranslation;
 use crate::models::standard::access::util::check_access_standard_for_user;
-use crate::models::relate_ref::region::model::RegionTranslateList;
-use crate::models::relate_ref::keyword::model::Keyword;
-use crate::models::relate_ref::file::model::{ShowFileRelatedData, DownloadFile};
+use crate::models::relate_ref::{
+    type_access::model::TypeAccessTranslateList,
+    file::model::{ShowFileRelatedData, DownloadFile},
+    region::model::RegionTranslateList,
+    keyword::model::Keyword,
+};
 use crate::schema::standard_ref::dsl as standard_ref;
 use diesel::prelude::*;
 use uuid::Uuid;
@@ -227,13 +230,12 @@ impl StandardAndRelatedData {
             conn
         ).expect("Error loading company short data");
 
-        // todo!(need make access manager)
         // get standard type with translation for standard
-        // let type_access: TypeAccessTranslateList = TypeAccessTranslateList::get_standard_status_by_id(
-        //     &standard.type_access_id,
-        //     set_lang_id,
-        //     conn
-        // ).expect("Error loading type_access");
+        let type_access: TypeAccessTranslateList = TypeAccessTranslateList::get_type_access_by_id(
+            &standard.type_access_id,
+            set_lang_id,
+            conn
+        ).expect("Error loading type_access");
 
         // get standard type with translation for standard
         let standard_status: StandardStatusTranslateList = StandardStatusTranslateList::get_by_id(
@@ -293,7 +295,7 @@ impl StandardAndRelatedData {
             image_file,
             owner_user,
             owner_company,
-            type_access_id: standard.type_access_id,
+            type_access,
             standard_status,
             region,
             created_at: standard.created_at,

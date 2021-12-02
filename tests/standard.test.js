@@ -92,7 +92,11 @@ ownerCompany { \
   isFollowed \
   updatedAt \
 } \
-typeAccessId \
+typeAccess {
+  typeAccessId
+  langId
+  name
+} \
 standardStatus { \
   standardStatusId \
   langId \
@@ -3043,7 +3047,9 @@ describe('company', () => {
               ownerUser {
                 uuid
               }
-              typeAccessId
+              typeAccess{
+                typeAccessId
+              }
             }
           }`,
         })
@@ -3055,7 +3061,7 @@ describe('company', () => {
     } = body;
     expect(standard.uuid).toBe(standardUuidSecond);
     expect(standard.ownerUser.uuid).toBe(authorizationUserFirst);
-    expect(standard.typeAccessId).toBe(typeAccessId2);
+    expect(standard.typeAccess.typeAccessId).toBe(typeAccessId2);
     done();
   });
 
@@ -3124,7 +3130,9 @@ describe('company', () => {
               ownerUser {
                 uuid
               }
-              typeAccessId
+              typeAccess{
+                typeAccessId
+              }
             }
           }`,
         })
@@ -3136,7 +3144,7 @@ describe('company', () => {
     } = body;
     expect(standard.uuid).toBe(standardUuidSecond);
     expect(standard.ownerUser.uuid).toBe(authorizationUserFirst);
-    expect(standard.typeAccessId).toBe(typeAccessId2);
+    expect(standard.typeAccess.typeAccessId).toBe(typeAccessId2);
     done();
   });
 
