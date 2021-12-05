@@ -1,5 +1,5 @@
 use crate::errors::{ServiceResult, ServiceError};
-use crate::models::relate_ref::keyword::model::Keyword;
+use crate::models::relate_ref::keyword::model::{Keyword, KeywordId};
 use crate::schema::keyword_ref::dsl as keyword_ref;
 use diesel::prelude::*;
 
@@ -15,5 +15,23 @@ impl Keyword {
                 debug!("Failed get keyword: {:?}", err);
                 ServiceError::InternalServerError
             })
+    }
+}
+
+impl KeywordId {
+    pub(crate) fn get_by_name(
+        keyword: &str,
+        conn: &PgConnection,
+    ) -> ServiceResult<i32> {
+        let id = keyword_ref::keyword_ref
+            .filter(keyword_ref::keyword.eq(keyword))
+            .select(keyword_ref::id)
+            .first::<i32>(conn)
+            .map_err(|err| {
+                debug!("Failed get keyword: {:?}", err);
+                ServiceError::InternalServerError
+            })?;
+
+        Ok(id)
     }
 }

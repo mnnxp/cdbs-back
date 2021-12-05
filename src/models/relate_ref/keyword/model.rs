@@ -1,7 +1,7 @@
 use crate::schema::*;
 use async_graphql::*;
 
-#[derive(Identifiable, Serialize, Deserialize, Associations, Queryable, Clone, Debug)]
+#[derive(SimpleObject, Identifiable, Serialize, Deserialize, Associations, Queryable, Clone, Debug)]
 #[primary_key(id)]
 #[table_name = "keyword_ref"]
 pub struct Keyword {
@@ -9,14 +9,10 @@ pub struct Keyword {
     pub keyword: String,
 }
 
-#[Object]
-impl Keyword {
-    async fn id(&self) -> &i32 {
-        &self.id
-    }
-    async fn keyword(&self) -> &String {
-        &self.keyword
-    }
+#[derive(Serialize, Deserialize, Queryable, QueryableByName, Clone, Debug)]
+#[table_name = "keyword_ref"]
+pub struct KeywordId {
+    pub id: i32,
 }
 
 #[derive(Debug, Insertable)]

@@ -10,7 +10,7 @@ use crate::models::standard::access::user::model::{
     IptUserAccessStandardData, DelUserAccessStandardData
 };
 use crate::models::standard::spec::model::IptStandardSpecsData;
-use crate::models::standard::keyword::model::IptStandardKeywordsData;
+use crate::models::standard::keyword::model::{IptStandardKeywordsData, IptStandardKeywordsNames};
 use crate::models::standard::file::model::{IptStandardFilesData, DeleteStandardFileData};
 use crate::models::relate_ref::file::model::UploadFile;
 use async_graphql::{self, Context, Object};
@@ -235,7 +235,7 @@ impl StandardMutation {
         &self,
         cxt: &Context<'_>,
         data: IptStandardKeywordsData,
-    ) -> ServiceResult<i32> {
+    ) -> ServiceResult<usize> {
         use crate::models::standard::keyword::service::add::add_standard_keywords;
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
@@ -243,6 +243,24 @@ impl StandardMutation {
         let conn: &PooledConnection = &get_conn(cxt)?;
 
         add_standard_keywords(
+            &logged_user_uuid,
+            &data,
+            conn
+        )
+    }
+
+    async fn add_standard_keywords_by_names(
+        &self,
+        cxt: &Context<'_>,
+        data: IptStandardKeywordsNames,
+    ) -> ServiceResult<usize> {
+        use crate::models::standard::keyword::service::add::add_keywords_by_names;
+
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+
+        let conn: &PooledConnection = &get_conn(cxt)?;
+
+        add_keywords_by_names(
             &logged_user_uuid,
             &data,
             conn

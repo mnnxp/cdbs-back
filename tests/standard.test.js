@@ -235,6 +235,9 @@ const typesAccessIds23 = [2,3];
 // standard keywords
 const keywordIdsOk = [1,3,5];
 const keywordIdsDup = [1,2,3,4,5];
+const keywordNames = ["asd2","asd3","asd4"];
+const keywordNamesDup = ["asd2","asd3","asd4","asd5","asd6"];
+const keywordNamesBad = ["asd11","asd12345678","asd12"];
 
 // standard specs
 const specIdsOk = [10,30,55];
@@ -288,6 +291,12 @@ async function cleanupUserDb() {
   ]);
 }
 
+async function cleanupKeywordsDb() {
+  return global.knex.raw('DELETE FROM keyword_ref WHERE keyword in (?,?,?,?,?)', [
+    "asd2","asd3","asd4","asd5","asd6"
+  ]);
+}
+
 describe('company', () => {
   beforeAll(() => {
     cleanupCompanyRepresentDb();
@@ -295,6 +304,7 @@ describe('company', () => {
     cleanupCompanyDb();
     cleanupTokenDb();
     cleanupUserDb();
+    cleanupKeywordsDb();
     return;
   });
   afterAll(() => {
@@ -303,6 +313,7 @@ describe('company', () => {
     cleanupCompanyDb();
     cleanupTokenDb();
     cleanupUserDb();
+    cleanupKeywordsDb();
     return;
   });
 
@@ -1647,7 +1658,7 @@ describe('company', () => {
     done();
   });
 
-  it('/graphql:M addStandardKeywords - BadRequest all duplicates', async (done) => {
+  it('/graphql:M addStandardKeywords - OK all duplicates', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .set(
@@ -1664,11 +1675,10 @@ describe('company', () => {
       })
       .expect(HttpStatus.OK)
     debug('/graphql addStandardKeywords=%o', body);
-    expect(body.data).toBeNull();
-    expect(body.errors[0].message).toBe(
-      "BadRequest: This ids [1, 3, 5] already has"
-    );
-    expect(body.errors[0].path[0]).toBe('addStandardKeywords');
+    const {
+      data: { addStandardKeywords },
+    } = body;
+    expect(addStandardKeywords).toBe(0);
     done();
   });
 
@@ -1719,6 +1729,150 @@ describe('company', () => {
       "BadRequest: Access denied"
     );
     expect(body.errors[0].path[0]).toBe('addStandardKeywords');
+    done();
+  });
+
+  // Testing adding standard keywords by names
+  it('/graphql:M addStandardKeywordsByNames - BadRequest no token', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .send({
+        query: `mutation  {
+          addStandardKeywordsByNames(data: {
+            standardUuid: "${standardUuidSecond}"
+            keywords: ["asd2","asd3","asd4"]
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql addStandardKeywordsByNames=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Token not found.'
+    );
+    expect(body.errors[0].path[0]).toBe('addStandardKeywordsByNames');
+    done();
+  });
+
+  it('/graphql:M addStandardKeywordsByNames - OK', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation  {
+          addStandardKeywordsByNames(data: {
+            standardUuid: "${standardUuidFirst}"
+            keywords: ["asd2","asd3","asd4"]
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    const {
+      data: { addStandardKeywordsByNames },
+    } = body;
+    expect(addStandardKeywordsByNames).toBe(3);
+    done();
+  });
+
+  it('/graphql:M addStandardKeywordsByNames - OK with duplicate', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation  {
+          addStandardKeywordsByNames(data: {
+            standardUuid: "${standardUuidFirst}"
+            keywords: ["asd2","asd3","asd4","asd5","asd6"]
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    const {
+      data: { addStandardKeywordsByNames },
+    } = body;
+    expect(addStandardKeywordsByNames).toBe(2);
+    done();
+  });
+
+  it('/graphql:M addStandardKeywordsByNames - OK all duplicates', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation  {
+          addStandardKeywordsByNames(data: {
+            standardUuid: "${standardUuidFirst}"
+            keywords: ["asd2","asd3","asd4"]
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql addStandardKeywordsByNames=%o', body);
+    const {
+      data: { addStandardKeywordsByNames },
+    } = body;
+    expect(addStandardKeywordsByNames).toBe(0);
+    done();
+  });
+
+  it('/graphql:M addStandardKeywordsByNames - BadRequest not found id', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation  {
+          addStandardKeywordsByNames(data: {
+            standardUuid: "${standardUuidFirst}"
+            keywords: ["asd11","asd12345678","asd12"]
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql addStandardKeywordsByNames=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      "BadRequest: Keywords must be less than 10 symbols"
+    );
+    expect(body.errors[0].path[0]).toBe('addStandardKeywordsByNames');
+    done();
+  });
+
+  it('/graphql:M addStandardKeywordsByNames - BadRequest no access', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `mutation  {
+          addStandardKeywordsByNames(data: {
+            standardUuid: "${standardUuidFirst}"
+            keywords: ["asd2","asd3","asd4"]
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql addStandardKeywordsByNames=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      "BadRequest: Access denied"
+    );
+    expect(body.errors[0].path[0]).toBe('addStandardKeywordsByNames');
     done();
   });
 

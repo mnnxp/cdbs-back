@@ -55,6 +55,12 @@ pub struct IptStandardKeywordsData {
     pub keyword_ids: Vec<i32>,
 }
 
+#[derive(Debug, Deserialize, Clone, InputObject)]
+pub struct IptStandardKeywordsNames {
+    pub standard_uuid: Uuid,
+    pub keywords: Vec<String>,
+}
+
 impl From<&IptStandardKeywordsData> for Vec<InsertableStandardKeyword> {
     fn from(ipt_data: &IptStandardKeywordsData) -> Vec<InsertableStandardKeyword> {
         let IptStandardKeywordsData {

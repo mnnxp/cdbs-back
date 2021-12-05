@@ -1,37 +1,38 @@
 use crate::errors::{ServiceError, ServiceResult};
 use crate::models::relate_ref::keyword::model::{
-    Keyword, IptKeywordData, InsertableKeyword
+    Keyword, KeywordId, IptKeywordData, InsertableKeyword
 };
 use diesel::prelude::*;
 
 pub(crate) fn create_keyword(
-    new_keyword_data: &IptKeywordData,
+    new_keyword: &IptKeywordData,
     conn: &PgConnection
 ) -> ServiceResult<Keyword> {
-    use crate::schema::keyword_ref::dsl::*;
+    use crate::schema::keyword_ref::dsl as keyword_ref;
 
-    let new_keyword_data: InsertableKeyword = new_keyword_data.into();
+    if new_keyword.keyword.len() > 10 {
+        return Err(ServiceError::BadRequest(
+            "Keywords must be less than 10 symbols".to_string()
+        ));
+    }
 
-    let flag_found_keyword = keyword_ref
-        .filter(keyword.eq(&new_keyword_data.keyword))
-        .select(id)
-        .first::<i32>(conn).unwrap_or(0);
+    let check_keyword = KeywordId::get_by_name(&new_keyword.keyword, conn);
 
-    // debug!("fn create_keyword START SEARCH ={:?}", flag_found_keyword);
+    match check_keyword {
+        Ok(x) => Err(ServiceError::BadRequest(
+            format!("This keyword name is already there. Id: {}", x))
+        ),
+        Err(err) => {
+            debug!("Keyword not found: {:?}", err);
+            let new_keyword: InsertableKeyword = new_keyword.into();
 
-    match flag_found_keyword {
-        0 => {
-            diesel::insert_into(keyword_ref)
-                .values(&new_keyword_data)
+            diesel::insert_into(keyword_ref::keyword_ref)
+                .values(&new_keyword)
                 .get_result::<Keyword>(conn)
                 .map_err(|err| {
                     debug!("Failed insert keyword: {:?}", err);
                     ServiceError::InternalServerError
                 })
         },
-        1..=i32::MAX => Err(ServiceError::BadRequest(
-            format!("This keyword name is already there. Id: {}", flag_found_keyword))
-        ),
-        _ => Err(ServiceError::BadRequest("What?".to_string())),
     }
 }
