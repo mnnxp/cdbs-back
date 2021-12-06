@@ -28,6 +28,8 @@ pub(crate) fn add_standard_keywords(
     // creating structures for inserting records into a table
     let mut keywords: Vec<InsertableStandardKeyword> = data.into();
 
+    clear_duplicates(&mut keywords);
+
     match keywords.is_empty() {
         true => Err(ServiceError::BadRequest("Not found keywords".to_string())),
         false => {
@@ -90,4 +92,16 @@ pub(crate) fn add_keywords_by_names(
         },
         conn
     )
+}
+
+/// Clear duplicates
+fn clear_duplicates(keywords: &mut Vec<InsertableStandardKeyword>)  {
+    let mut already_seen = Vec::new();
+    keywords.retain(|item| match already_seen.contains(&item.keyword_id) {
+        true => false,
+        _ => {
+            already_seen.push(item.keyword_id);
+            true
+        }
+    })
 }
