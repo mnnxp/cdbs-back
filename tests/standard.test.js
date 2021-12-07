@@ -1425,15 +1425,120 @@ describe('company', () => {
     } = body;
     expect(standard.standardSpecs[0].spec.specId).toBe(10);
     expect(standard.standardSpecs[0].spec.spec).toBeNonEmptyString();
-    expect(standard.standardSpecs[1].spec.specId).toBe(30);
+    expect(standard.standardSpecs[1].spec.specId).toBe(22);
     expect(standard.standardSpecs[1].spec.spec).toBeNonEmptyString();
-    expect(standard.standardSpecs[2].spec.specId).toBe(55);
+    expect(standard.standardSpecs[2].spec.specId).toBe(30);
     expect(standard.standardSpecs[2].spec.spec).toBeNonEmptyString();
-    expect(standard.standardSpecs[3].spec.specId).toBe(22);
+    expect(standard.standardSpecs[3].spec.specId).toBe(44);
     expect(standard.standardSpecs[3].spec.spec).toBeNonEmptyString();
     expect(standard.standardSpecs[4].standardUuid).toBe(standardUuidFirst);
-    expect(standard.standardSpecs[4].spec.specId).toBe(44);
+    expect(standard.standardSpecs[4].spec.specId).toBe(55);
     expect(standard.standardSpecs[4].spec.spec).toBeNonEmptyString();
+    done();
+  });
+
+  // Testing get specs for standard
+  it('/graphql:M standardSpecs - BadRequest no token', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .send({
+        query: `query  {
+          standardSpecs(arg: {
+            standardUuid: "${standardUuidSecond}"
+          }){
+            standardUuid
+            spec {
+              specId
+              langId
+              spec
+            }
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql standardSpecs=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Token not found.'
+    );
+    expect(body.errors[0].path[0]).toBe('standardSpecs');
+    done();
+  });
+
+  it('/graphql:M standardSpecs - OK', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `query  {
+          standardSpecs(arg: {
+            standardUuid: "${standardUuidFirst}"
+          }){
+            standardUuid
+            spec {
+              specId
+              langId
+              spec
+            }
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    const {
+      data: { standardSpecs },
+    } = body;
+    expect(standardSpecs.length).toBe(5);
+    expect(standardSpecs[0].standardUuid).toBe(standardUuidFirst);
+    expect(standardSpecs[0].spec.specId).toBe(10);
+    expect(standardSpecs[0].spec.spec).toBeNonEmptyString();
+    expect(standardSpecs[1].spec.specId).toBe(22);
+    expect(standardSpecs[1].spec.spec).toBeNonEmptyString();
+    expect(standardSpecs[2].spec.specId).toBe(30);
+    expect(standardSpecs[2].spec.spec).toBeNonEmptyString();
+    expect(standardSpecs[3].spec.specId).toBe(44);
+    expect(standardSpecs[3].spec.spec).toBeNonEmptyString();
+    expect(standardSpecs[4].standardUuid).toBe(standardUuidFirst);
+    expect(standardSpecs[4].spec.specId).toBe(55);
+    expect(standardSpecs[4].spec.spec).toBeNonEmptyString();
+    done();
+  });
+
+  it('/graphql:M standardSpecs - OK with limit and offset', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `query  {
+          standardSpecs(arg: {
+            standardUuid: "${standardUuidFirst}"
+            limit: 1
+            offset: 3
+          }){
+            standardUuid
+            spec {
+              specId
+              langId
+              spec
+            }
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { standardSpecs },
+    } = body;
+    expect(standardSpecs.length).toBe(1);
+    expect(standardSpecs[0].spec.specId).toBe(22);
+    expect(standardSpecs[0].spec.spec).toBeNonEmptyString();
     done();
   });
 
@@ -1579,9 +1684,9 @@ describe('company', () => {
     } = body;
     expect(standard.standardSpecs.length).toBe(3);
     expect(standard.standardSpecs[0].standardUuid).toBe(standardUuidFirst);
-    expect(standard.standardSpecs[0].spec.specId).toBe(30);
+    expect(standard.standardSpecs[0].spec.specId).toBe(22);
     expect(standard.standardSpecs[0].spec.spec).toBeNonEmptyString();
-    expect(standard.standardSpecs[1].spec.specId).toBe(22);
+    expect(standard.standardSpecs[1].spec.specId).toBe(30);
     expect(standard.standardSpecs[1].spec.spec).toBeNonEmptyString();
     expect(standard.standardSpecs[2].spec.specId).toBe(44);
     expect(standard.standardSpecs[2].spec.spec).toBeNonEmptyString();

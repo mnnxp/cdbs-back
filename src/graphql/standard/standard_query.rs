@@ -6,6 +6,7 @@ use crate::models::standard::{
         ShowStandardShort, StandardAndRelatedData, StandardsArg, IptStandardsArg,
         StandardFilesArg, IptStandardFilesArg
     },
+    relate::spec::model::{StandardSpecWithTranslation, IptStandardSpecsArg, StandardSpecsArg},
     relate::standard_status::model::StandardStatusTranslateList,
     access::company::model::CompanyAccessStandardAndRelatedData,
     access::user::model::UserAccessStandardAndRelatedData,
@@ -83,6 +84,28 @@ impl StandardQuery {
         get_standard_files(
             &logged_user_uuid,
             &arg,
+            conn
+        )
+    }
+
+    async fn standard_specs(
+        &self,
+        cxt: &Context<'_>,
+        arg: IptStandardSpecsArg,
+    ) -> ServiceResult<Vec<StandardSpecWithTranslation>> {
+        use crate::models::standard::spec::service::list::get_standard_specs;
+
+        // authorization check
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+
+        let arg: StandardSpecsArg = arg.into();
+
+        let conn: &PooledConnection = &get_conn(cxt)?;
+
+        get_standard_specs(
+            &logged_user_uuid,
+            &arg,
+            &get_set_language(cxt),
             conn
         )
     }
