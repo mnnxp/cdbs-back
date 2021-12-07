@@ -7,7 +7,7 @@ use crate::models::standard::{
         StandardFilesArg, IptStandardFilesArg
     },
     relate::{
-        spec::model::{StandardSpecWithTranslation, IptStandardSpecsArg, StandardSpecsArg},
+        spec::model::{IptStandardSpecsArg, StandardSpecsArg},
         keyword::model::{IptStandardKeywordsArg, StandardKeywordsArg},
         standard_status::model::StandardStatusTranslateList,
     },
@@ -15,6 +15,7 @@ use crate::models::standard::{
     access::user::model::UserAccessStandardAndRelatedData,
 };
 use crate::models::relate_ref::{
+    spec::model::SpecTranslateList,
     keyword::model::Keyword,
     file::model::DownloadFile,
     language::get_set_language,
@@ -98,7 +99,7 @@ impl StandardQuery {
         &self,
         cxt: &Context<'_>,
         arg: IptStandardSpecsArg,
-    ) -> ServiceResult<Vec<StandardSpecWithTranslation>> {
+    ) -> ServiceResult<Vec<SpecTranslateList>> {
         use crate::models::standard::spec::service::list::get_standard_specs;
 
         // authorization check

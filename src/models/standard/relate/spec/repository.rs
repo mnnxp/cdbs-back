@@ -1,18 +1,18 @@
 use crate::errors::{ServiceResult, ServiceError};
 use crate::models::standard::model::Standard;
-use crate::models::standard::spec::model::{StandardSpec, StandardSpecWithTranslation, StandardSpecsArg};
+use crate::models::standard::spec::model::{StandardSpec, StandardSpecsArg};
 use crate::models::relate_ref::spec::model::SpecTranslateList;
 use crate::schema::spec_to_standard::dsl as spec_to_standard;
 use diesel::prelude::*;
 // use uuid::Uuid;
 
-impl StandardSpecWithTranslation {
+impl SpecTranslateList {
     /// Gets all specs for standard by uuid
     pub(crate) fn get_by_uuid(
         arg: &StandardSpecsArg,
         set_lang_id: &i32,
         conn: &PgConnection,
-    ) -> ServiceResult<Vec<StandardSpecWithTranslation>> {
+    ) -> ServiceResult<Vec<SpecTranslateList>> {
         let StandardSpecsArg {
             standard_uuid,
             limit,
@@ -35,23 +35,16 @@ impl StandardSpecWithTranslation {
         }
 
         // get specs with translation for standard
-        let spec_translate_list: Vec<SpecTranslateList> = SpecTranslateList::get_by_ids(
+        SpecTranslateList::get_by_ids(
             &specs_ids,
             &100,
             &0,
             set_lang_id,
             conn
-        )?;
-
-        let mut spec_standard_with_translate: Vec<StandardSpecWithTranslation> = Vec::new();
-        for x in spec_translate_list.iter() {
-            spec_standard_with_translate.push(StandardSpecWithTranslation {
-                spec: x.clone(),
-                standard_uuid: *standard_uuid,
-            })
-        }
-
-        Ok(spec_standard_with_translate)
+        ).map_err(|err| {
+            debug!("Failed get specs for standard: {:?}", err);
+            ServiceError::InternalServerError
+        })
     }
 
     /// Gets all specs for standard
@@ -59,34 +52,31 @@ impl StandardSpecWithTranslation {
         standard: &Standard,
         set_lang_id: &i32,
         conn: &PgConnection,
-    ) -> ServiceResult<Vec<StandardSpecWithTranslation>> {
+    ) -> ServiceResult<Vec<SpecTranslateList>> {
         let spec_standard: Vec<StandardSpec> = StandardSpec::belonging_to(standard)
             .load::<StandardSpec>(conn)
             .expect("Error loading spec_standard");
 
         // get specs for standard
-        let mut spec_ids_for_standard: Vec<i32> = Vec::new();
+        let mut specs_ids: Vec<i32> = Vec::new();
         for spec in spec_standard.iter() {
-            spec_ids_for_standard.push(spec.spec_id);
+            specs_ids.push(spec.spec_id);
+        }
+
+        if specs_ids.is_empty() {
+            return Ok(Vec::new()) // not found specs
         }
 
         // get specs with translation for standard
-        let spec_translate_list: Vec<SpecTranslateList> = SpecTranslateList::get_by_ids(
-            &spec_ids_for_standard,
+        SpecTranslateList::get_by_ids(
+            &specs_ids,
             &100,
             &0,
             set_lang_id,
             conn
-        )?;
-
-        let mut spec_standard_with_translate: Vec<StandardSpecWithTranslation> = Vec::new();
-        for x in spec_translate_list.iter() {
-            spec_standard_with_translate.push(StandardSpecWithTranslation {
-                spec: x.clone(),
-                standard_uuid: standard.uuid,
-            })
-        }
-
-        Ok(spec_standard_with_translate)
+        ).map_err(|err| {
+            debug!("Failed get specs for standard: {:?}", err);
+            ServiceError::InternalServerError
+        })
     }
 }

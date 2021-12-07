@@ -1,10 +1,12 @@
 use crate::errors::{ServiceResult, ServiceError};
-use crate::models::standard::model::{Standard, ShowStandardShort, StandardAndRelatedData};
-use crate::models::standard::standard_status::model::StandardStatusTranslateList;
-use crate::models::standard::standard_fav::model::StandardFav;
-use crate::models::standard::spec::model::StandardSpecWithTranslation;
-use crate::models::standard::access::util::check_access_standard_for_user;
+use crate::models::standard::{
+    model::{Standard, ShowStandardShort, StandardAndRelatedData},
+    standard_status::model::StandardStatusTranslateList,
+    standard_fav::model::StandardFav,
+    access::util::check_access_standard_for_user,
+};
 use crate::models::relate_ref::{
+    spec::model::SpecTranslateList,
     type_access::model::TypeAccessTranslateList,
     file::model::{ShowFileRelatedData, DownloadFile},
     region::model::RegionTranslateList,
@@ -264,7 +266,7 @@ impl StandardAndRelatedData {
         ).expect("Error loading standard files");
 
         // get specs with translation for standard
-        let standard_specs: Vec<StandardSpecWithTranslation> = StandardSpecWithTranslation::for_standard(
+        let standard_specs: Vec<SpecTranslateList> = SpecTranslateList::for_standard(
             &standard,
             set_lang_id,
             conn

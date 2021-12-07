@@ -1,5 +1,6 @@
 use crate::errors::ServiceResult;
-use crate::models::standard::spec::model::{StandardSpecWithTranslation, StandardSpecsArg};
+use crate::models::standard::spec::model::StandardSpecsArg;
+use crate::models::relate_ref::spec::model::SpecTranslateList;
 use crate::models::standard::access::util::check_access_standard_for_user;
 use diesel::prelude::*;
 use uuid::Uuid;
@@ -10,7 +11,7 @@ pub(crate) fn get_standard_specs(
     arg: &StandardSpecsArg,
     set_lang_id: &i32,
     conn: &PgConnection
-) -> ServiceResult<Vec<StandardSpecWithTranslation>> {
+) -> ServiceResult<Vec<SpecTranslateList>> {
 
     let need_access_level = 3; // todo!(create enum for manage access level)
 
@@ -21,7 +22,7 @@ pub(crate) fn get_standard_specs(
         conn
     )?;
 
-    StandardSpecWithTranslation::get_by_uuid(
+    SpecTranslateList::get_by_uuid(
         arg,
         set_lang_id,
         conn
