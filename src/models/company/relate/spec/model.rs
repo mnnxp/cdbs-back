@@ -1,13 +1,11 @@
 use crate::schema::*;
-use crate::models::relate_ref::spec::model::{Spec, SpecTranslateList};
+use crate::models::relate_ref::spec::model::Spec;
 use crate::models::company::model::Company;
-use async_graphql::types::ID;
 use async_graphql::*;
-// use chrono::*;
 use uuid::Uuid;
 
 // Spec company models
-#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, Clone, Debug)]
+#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, Clone, Debug, SimpleObject)]
 #[primary_key(company_uuid, spec_id)]
 #[belongs_to(Company, foreign_key = "company_uuid")]
 #[belongs_to(Spec, foreign_key = "spec_id")]
@@ -15,31 +13,6 @@ use uuid::Uuid;
 pub struct CompanySpec {
     pub spec_id: i32,
     pub company_uuid: Uuid,
-}
-
-#[Object]
-impl CompanySpec {
-    async fn spec_id(&self) -> &i32 {
-        &self.spec_id
-    }
-    async fn company_uuid(&self) -> ID {
-        self.company_uuid.into()
-    }
-}
-
-#[derive(Deserialize, SimpleObject, Clone, Debug)]
-pub struct CompanySpecWithTranslation {
-    pub spec: SpecTranslateList,
-    pub company_uuid: Uuid,
-}
-
-impl From<(CompanySpec, SpecTranslateList)> for CompanySpecWithTranslation {
-    fn from(data: (CompanySpec, SpecTranslateList)) -> Self {
-        Self {
-            spec: data.1,
-            company_uuid: data.0.company_uuid,
-        }
-    }
 }
 
 #[derive(Debug, Insertable)]
