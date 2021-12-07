@@ -109,12 +109,9 @@ companyCertificates { \
   description \
 } \
 companySpecs { \
-  companyUuid \
-  spec { \
-    specId \
-    langId \
-    spec \
-  } \
+  specId \
+  langId \
+  spec \
 } \
 typeAccess { \
   typeAccessId \
@@ -1683,17 +1680,16 @@ describe('company', () => {
     const {
       data: { company },
     } = body;
-    expect(company.companySpecs[0].spec.specId).toBe(10);
-    expect(company.companySpecs[0].spec.spec).toBeNonEmptyString();
-    expect(company.companySpecs[1].spec.specId).toBe(30);
-    expect(company.companySpecs[1].spec.spec).toBeNonEmptyString();
-    expect(company.companySpecs[2].spec.specId).toBe(55);
-    expect(company.companySpecs[2].spec.spec).toBeNonEmptyString();
-    expect(company.companySpecs[3].spec.specId).toBe(22);
-    expect(company.companySpecs[3].spec.spec).toBeNonEmptyString();
-    expect(company.companySpecs[4].companyUuid).toBe(companyUuidNoSupplier);
-    expect(company.companySpecs[4].spec.specId).toBe(44);
-    expect(company.companySpecs[4].spec.spec).toBeNonEmptyString();
+    expect(company.companySpecs[0].specId).toBe(10);
+    expect(company.companySpecs[0].spec).toBeNonEmptyString();
+    expect(company.companySpecs[1].specId).toBe(22);
+    expect(company.companySpecs[1].spec).toBeNonEmptyString();
+    expect(company.companySpecs[2].specId).toBe(30);
+    expect(company.companySpecs[2].spec).toBeNonEmptyString();
+    expect(company.companySpecs[3].specId).toBe(44);
+    expect(company.companySpecs[3].spec).toBeNonEmptyString();
+    expect(company.companySpecs[4].specId).toBe(55);
+    expect(company.companySpecs[4].spec).toBeNonEmptyString();
     done();
   });
 
@@ -1838,13 +1834,12 @@ describe('company', () => {
       data: { company },
     } = body;
     expect(company.companySpecs.length).toBe(3);
-    expect(company.companySpecs[0].companyUuid).toBe(companyUuidNoSupplier);
-    expect(company.companySpecs[0].spec.specId).toBe(30);
-    expect(company.companySpecs[0].spec.spec).toBeNonEmptyString();
-    expect(company.companySpecs[1].spec.specId).toBe(22);
-    expect(company.companySpecs[1].spec.spec).toBeNonEmptyString();
-    expect(company.companySpecs[2].spec.specId).toBe(44);
-    expect(company.companySpecs[2].spec.spec).toBeNonEmptyString();
+    expect(company.companySpecs[0].specId).toBe(22);
+    expect(company.companySpecs[0].spec).toBeNonEmptyString();
+    expect(company.companySpecs[1].specId).toBe(30);
+    expect(company.companySpecs[1].spec).toBeNonEmptyString();
+    expect(company.companySpecs[2].specId).toBe(44);
+    expect(company.companySpecs[2].spec).toBeNonEmptyString();
     done();
   });
 
@@ -1912,14 +1907,17 @@ describe('company', () => {
         `Bearer ${authorizationTokenFirst}`
       )
       .send({
-        query: `query ListcompanyRepresents {
-            companyRepresents (companyUuid: "${companyUuidSupplier}"){
+        query: `query {
+            companyRepresents (arg: {
+              companyUuid: "${companyUuidSupplier}"
+            }){
                 ${companyRepresentsListQuery}
             }
         }`,
       })
       .expect(HttpStatus.OK)
     debug('/graphql all body=%o', body);
+    // expect(body).toBe(0);
     // for test delete represent not owned user
     uuidRepresentFirst = body.data.companyRepresents[0].uuid;
     expect(body.data.companyRepresents).toBeNonEmptyArray();
@@ -2079,10 +2077,10 @@ describe('company', () => {
     const response1 = await agent
       .post('/graphql')
       .send({
-        query: `query ListcompanyRepresents {
-            companyRepresents (representsUuids: [
-              "${uuidRepresentFirst}"
-            ]){
+        query: `query {
+            companyRepresents (arg: {
+              representsUuids: ["${uuidRepresentFirst}"]
+            }){
                 ${companyRepresentsListQuery}
             }
         }`,
@@ -2105,8 +2103,10 @@ describe('company', () => {
         `Bearer ${authorizationTokenFirst}`
       )
       .send({
-        query: `query ListcompanyRepresents {
-            companyRepresents (companyUuid: "${companyUuidSupplier}"){
+        query: `query {
+            companyRepresents (arg: {
+              companyUuid: "${companyUuidSupplier}"
+            }){
                 ${companyRepresentsListQuery}
             }
         }`,
@@ -2126,16 +2126,17 @@ describe('company', () => {
         `Bearer ${authorizationTokenFirst}`
       )
       .send({
-        query: `query ListcompanyRepresents {
-            companyRepresents (representsUuids: [
-              "${uuidRepresentFirst}"
-            ]){
+        query: `query {
+            companyRepresents (arg: {
+              representsUuids: ["${uuidRepresentFirst}"]
+            }){
                 ${companyRepresentsListQuery}
             }
         }`,
       })
       .expect(HttpStatus.OK)
     debug('/graphql all body=%o', response1.body);
+    // expect(response1.body).toBe(0);
     expect(response1.body.data.companyRepresents).toBeNonEmptyArray();
     expect(response1.body.data.companyRepresents[0].companyUuid).toBe(companyUuidSupplier);
     done();
@@ -2216,25 +2217,52 @@ describe('company', () => {
     done();
   });
 
-  it('/graphql:Q Select companyRepresents with companyUuid - OK', async (done) => {
+  it('/graphql:Q companyRepresents - OK with companyUuid', async (done) => {
     const response1 = await agent
       .post('/graphql')
       .set(
         'Authorization',
-        `Bearer ${authorizationTokenSecond}`
+        `Bearer ${authorizationTokenFirst}`
       )
       .send({
-        query: `query ListcompanyRepresents {
-            companyRepresents (companyUuid: "${companyUuidSupplier}") {
+        query: `query {
+            companyRepresents ( arg: {
+              companyUuid: "${companyUuidSupplier}"
+            }){
               ${companyRepresentsListQuery}
             }
         }`,
       })
       .expect(HttpStatus.OK)
     debug('/graphql filter body=%o', response1.body);
+    // expect(response1.body).toBe(0);
     expect(response1.body.data.companyRepresents).toBeNonEmptyArray();
     expect(response1.body.data.companyRepresents[0].companyUuid).toBe(companyUuidSupplier);
     expect(response1.body.data.companyRepresents.pop().companyUuid).toBe(companyUuidSupplier);
+    done();
+  });
+
+  it('/graphql:Q  - BadRequest access denied', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `query {
+            companyRepresents ( arg: {
+              companyUuid: "${companyUuidSupplier}"
+            }){
+              ${companyRepresentsListQuery}
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql registerCompanyRole=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe('BadRequest: Access denied');
+    expect(body.errors[0].path[0]).toBe('companyRepresents');
     done();
   });
 
@@ -2270,8 +2298,10 @@ describe('company', () => {
         `Bearer ${authorizationTokenFirst}`
       )
       .send({
-        query: `query ListcompanyRepresents {
-            companyRepresents (companyUuid: "${companyUuidSupplier}") {
+        query: `query {
+            companyRepresents (arg: {
+              companyUuid: "${companyUuidSupplier}"
+            }){
               ${companyRepresentsListQuery}
             }
         }`,

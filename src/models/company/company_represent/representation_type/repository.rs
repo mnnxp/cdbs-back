@@ -4,7 +4,33 @@ use crate::schema::representation_type_translate_list::dsl::*;
 use diesel::prelude::*;
 
 impl RepresentationTypeTranslateList {
-    /// Get represent type with translate by ids
+    /// Get represent type with translate by id
+    pub fn get_by_id(
+        target_id: &i32,
+        set_lang_id: &i32,
+        conn: &PgConnection,
+    ) -> ServiceResult<RepresentationTypeTranslateList> {
+        let result = representation_type_translate_list
+            .filter(representation_type_id.eq(target_id)
+            .and(lang_id.eq(set_lang_id)))
+            .first::<RepresentationTypeTranslateList>(conn);
+
+        match result {
+            Ok(res) => Ok(res),
+            Err(err) => {
+                debug!("Not found set lang for represent: {:?}", err);
+                representation_type_translate_list
+                    .filter(representation_type_id.eq(target_id))
+                    .first::<RepresentationTypeTranslateList>(conn)
+                    .map_err(|err| {
+                        debug!("Failed get represent types: {:?}", err);
+                        ServiceError::InternalServerError
+                    })
+            },
+        }
+    }
+
+    /// Get represents type with translate by ids
     pub fn get_by_ids(
         target_ids: &[i32],
         set_lang_id: &i32,

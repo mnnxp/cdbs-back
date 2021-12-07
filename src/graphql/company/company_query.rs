@@ -1,18 +1,20 @@
 use crate::errors::ServiceResult;
 use crate::database::{get_conn, PooledConnection};
-use crate::models::user::access::logged::{get_logged_user_uuid, check_authorized};
-use crate::models::company::model::{
-    CompanyAndRelatedData, ShowCompanyShort, CompaniesArg, IptCompaniesArg,
-};
 use crate::models::company;
-use crate::models::company::member::model::CompanyMemberAndRelatedData;
-use crate::models::company::member::role::model::RoleMemberAndRelatedData;
-use crate::models::company::company_represent::representation_type::model::RepresentationTypeTranslateList;
-use crate::models::company::company_type::model::CompanyTypeTranslateList;
-use crate::models::company::company_represent::model::CompanyRepresentAndRelatedData;
-use crate::models::company::company_represent::service as company_represent;
-use crate::models::relate_ref::language::get_set_language;
-
+use crate::models::company::{
+    model::{CompanyAndRelatedData, ShowCompanyShort, CompaniesArg, IptCompaniesArg},
+    member::model::CompanyMemberAndRelatedData,
+    member::role::model::RoleMemberAndRelatedData,
+    company_type::model::CompanyTypeTranslateList,
+    spec::model::{IptCompanySpecsArg, CompanySpecsArg},
+    company_represent::model::{CompanyRepresentAndRelatedData, IptCompanyRepresentsArg, CompanyRepresentsArg},
+    company_represent::representation_type::model::RepresentationTypeTranslateList,
+};
+use crate::models::user::access::logged::{get_logged_user_uuid, check_authorized};
+use crate::models::relate_ref::{
+    spec::model::SpecTranslateList,
+    language::get_set_language,
+};
 use async_graphql::{self, Context, Object};
 use uuid::Uuid;
 
@@ -69,36 +71,23 @@ impl CompanyQuery {
     async fn company_represents(
         &self,
         cxt: &Context<'_>,
-        company_uuid: Option<Uuid>,
-        represents_uuids: Option<Vec<Uuid>>,
+        arg: IptCompanyRepresentsArg,
     ) -> ServiceResult<Vec<CompanyRepresentAndRelatedData>> {
-        // authorization check
-        crate::models::user::access::logged::check_authorized(cxt)?;
+        use company::company_represent::service::list::get_represents;
 
-        // todo!(check access)
+        // authorization check
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+
+        let arg: CompanyRepresentsArg = arg.into();
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
-        // Representative offices are selected by company uuid or by representative uuid
-        match (company_uuid, represents_uuids) {
-            (Some(company_uuid), None) => {
-                company_represent::list::get_by_company_uuid(
-                    &company_uuid,
-                    &get_set_language(cxt),
-                    conn,
-                )
-            }
-            (None, Some(represents_uuids)) => {
-                company_represent::list::get_represent_by_uuids(
-                    &represents_uuids,
-                    &get_set_language(cxt),
-                    conn,
-                )
-            }
-            _ => Err(crate::errors::ServiceError::BadRequest(
-                "You need to choose a company or a representative company".to_string(),
-            )),
-        }
+        get_represents(
+            &logged_user_uuid,
+            &arg,
+            &get_set_language(cxt),
+            conn
+        )
     }
 
     async fn company_members(
@@ -153,6 +142,28 @@ impl CompanyQuery {
         let conn: &PooledConnection = &get_conn(cxt)?;
 
         get_types_for_company(
+            &get_set_language(cxt),
+            conn
+        )
+    }
+
+    async fn company_specs(
+        &self,
+        cxt: &Context<'_>,
+        arg: IptCompanySpecsArg,
+    ) -> ServiceResult<Vec<SpecTranslateList>> {
+        use crate::models::company::spec::service::list::get_company_specs;
+
+        // authorization check
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+
+        let arg: CompanySpecsArg = arg.into();
+
+        let conn: &PooledConnection = &get_conn(cxt)?;
+
+        get_company_specs(
+            &logged_user_uuid,
+            &arg,
             &get_set_language(cxt),
             conn
         )

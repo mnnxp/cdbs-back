@@ -1,27 +1,27 @@
-use crate::errors::ServiceResult;
-// use crate::models::company::model::Company;
+use crate::errors::{ServiceResult, ServiceError};
 use crate::models::company::company_represent::model::{
-    CompanyRepresent,
-    CompanyRepresentAndRelatedData,
+    CompanyRepresent, CompanyRepresentAndRelatedData,
 };
 use crate::models::company::company_represent::representation_type::model::RepresentationTypeTranslateList;
 use crate::models::relate_ref::region::model::RegionTranslateList;
+use crate::schema::company_represent_ref::dsl as company_represent_ref;
 use diesel::prelude::*;
 use uuid::Uuid;
 
 impl CompanyRepresent {
     /// Gets company represent without related data by company uuid
     pub(crate) fn get_by_company_uuid(
-        target_company_uuid: &Uuid,
+        company_uuid: &Uuid,
         conn: &PgConnection,
     ) -> ServiceResult<Vec<CompanyRepresent>> {
-        use crate::schema::company_represent_ref::dsl::*;
-
         // collect data for represents the company
-        Ok(company_represent_ref
-            .filter(company_uuid.eq(target_company_uuid))
-            .load::<CompanyRepresent>(conn)?
-        )
+        company_represent_ref::company_represent_ref
+            .filter(company_represent_ref::company_uuid.eq(company_uuid))
+            .load::<CompanyRepresent>(conn)
+            .map_err(|err| {
+                debug!("Failed get company represents: {:?}", err);
+                ServiceError::InternalServerError
+            })
     }
 
     /// Gets company represent without related data by represents uuids
@@ -29,20 +29,52 @@ impl CompanyRepresent {
         represents_uuids: &[Uuid],
         conn: &PgConnection,
     ) -> ServiceResult<Vec<CompanyRepresent>> {
-        use crate::schema::company_represent_ref::dsl::*;
-
         // collect data for represents the company
-        Ok(company_represent_ref
-            .filter(uuid.eq_any(represents_uuids))
-            .load::<CompanyRepresent>(conn)?
-        )
+        company_represent_ref::company_represent_ref
+            .filter(company_represent_ref::uuid.eq_any(represents_uuids))
+            .load::<CompanyRepresent>(conn)
+            .map_err(|err| {
+                debug!("Failed get company represents: {:?}", err);
+                ServiceError::InternalServerError
+            })
     }
 }
 
 impl CompanyRepresentAndRelatedData {
+    /// Add company represents related data and translation for represent data
+    pub(crate) fn get_by_represent(
+        represent: &CompanyRepresent,
+        set_lang_id: &i32,
+        conn: &PgConnection,
+    ) -> ServiceResult<CompanyRepresentAndRelatedData> {
+        // get regions for company represent
+        let region = RegionTranslateList::get_region_by_id(
+            &represent.region_id,
+            set_lang_id,
+            conn
+        )?;
+
+        // get represent type for company represent
+        let representation_type = RepresentationTypeTranslateList::get_by_id(
+            &represent.representation_type_id,
+            set_lang_id,
+            conn
+        )?;
+
+        Ok(CompanyRepresentAndRelatedData {
+            uuid: represent.uuid.to_owned(),
+            company_uuid: represent.company_uuid.to_owned(),
+            region,
+            representation_type,
+            name: represent.name.to_string(),
+            address: represent.address.to_string(),
+            phone: represent.phone.to_string(),
+        })
+    }
+
     /// Gets company represents by company uuid
     /// with type and region data with translation for a given language
-    pub(crate) fn get_list_represents_by_company_uuid(
+    pub(crate) fn get_by_company_uuid(
         company_uuid: &Uuid,
         set_lang_id: &i32,
         conn: &PgConnection,
@@ -50,9 +82,9 @@ impl CompanyRepresentAndRelatedData {
         let company_represents = &CompanyRepresent::get_by_company_uuid(
             company_uuid,
             conn
-        ).unwrap();
+        )?;
 
-        CompanyRepresentAndRelatedData::get_related_data_for_represents(
+        CompanyRepresentAndRelatedData::get_by_represents(
             company_represents,
             set_lang_id,
             conn
@@ -61,7 +93,7 @@ impl CompanyRepresentAndRelatedData {
 
     /// Gets company represents by represents uuids
     /// with type and region data with translation for a given language
-    pub(crate) fn get_list_represents_by_uuids(
+    pub(crate) fn get_by_uuids(
         represents_uuids: &[Uuid],
         set_lang_id: &i32,
         conn: &PgConnection,
@@ -69,9 +101,9 @@ impl CompanyRepresentAndRelatedData {
         let company_represents = &CompanyRepresent::get_by_uuids(
             represents_uuids,
             conn
-        ).unwrap();
-
-        CompanyRepresentAndRelatedData::get_related_data_for_represents(
+        )?;
+        debug!("company_represents: {:?}", company_represents);
+        CompanyRepresentAndRelatedData::get_by_represents(
             company_represents,
             set_lang_id,
             conn
@@ -80,66 +112,21 @@ impl CompanyRepresentAndRelatedData {
 
     /// Gets company represents by company represents
     /// with type and region data with translation for a given language
-    pub(crate) fn get_related_data_for_represents(
+    pub(crate) fn get_by_represents(
         company_represents: &[CompanyRepresent],
         set_lang_id: &i32,
         conn: &PgConnection,
     ) -> ServiceResult<Vec<CompanyRepresentAndRelatedData>> {
-        let mut represent_region_list_id: Vec<i32> = Vec::new();
-        let mut represent_type_list_id: Vec<i32> = Vec::new();
-
-        // selecting represent regions and types for gets translate data
-        for represent in company_represents.iter() {
-            represent_region_list_id.push(represent.region_id);
-            represent_type_list_id.push(represent.representation_type_id);
-        }
-
-        // get regions for company represents
-        let represent_region_list_id = RegionTranslateList::get_region_by_vec_id(
-            &represent_region_list_id,
-            set_lang_id,
-            conn
-        )?;
-
-        // get represent type for company represents
-        let represent_type_list_id = RepresentationTypeTranslateList::get_by_ids(
-            &represent_type_list_id,
-            set_lang_id,
-            conn
-        )?;
-
-        // debug!("Company represent represent_type_list_id: {:#?}", represent_type_list_id);
-
-        let mut company_represent_with_type: Vec<CompanyRepresentAndRelatedData> = Vec::new();
+        debug!("company represent: {:?}", company_represents);
+        let mut company_represent_with_data: Vec<CompanyRepresentAndRelatedData> = Vec::new();
         for represent in company_represents {
-            let mut represent_region_data = &RegionTranslateList::default();
-            let mut represent_type_data = &RepresentationTypeTranslateList::default();
-
-            // find region with translate for target represent
-            for represent_region in &represent_region_list_id {
-                if represent.region_id == represent_region.region_id {
-                    represent_region_data = represent_region;
-                }
-            }
-
-            // find represent type with translate for target represent
-            for represent_type in &represent_type_list_id {
-                if represent.representation_type_id == represent_type.representation_type_id {
-                    represent_type_data = represent_type;
-                }
-            }
-
-            company_represent_with_type.push(CompanyRepresentAndRelatedData{
-                uuid: represent.uuid.to_owned(),
-                company_uuid: represent.company_uuid.to_owned(),
-                region:represent_region_data.to_owned(),
-                representation_type:  represent_type_data.to_owned(),
-                name: represent.name.to_string(),
-                address: represent.address.to_string(),
-                phone: represent.phone.to_string(),
-            })
+            company_represent_with_data.push(CompanyRepresentAndRelatedData::get_by_represent(
+                represent,
+                set_lang_id,
+                conn
+            )?)
         }
-
-        Ok(company_represent_with_type)
+        debug!("company represent with relate: {:?}", company_represent_with_data);
+        Ok(company_represent_with_data)
     }
 }

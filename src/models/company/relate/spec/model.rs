@@ -106,3 +106,33 @@ impl From<&IptCompanySpecData> for DelCompanySpec {
         }
     }
 }
+
+#[derive(InputObject, Deserialize, Debug)]
+pub struct IptCompanySpecsArg {
+    pub company_uuid:  Uuid,
+    pub limit: Option<i32>,
+    pub offset: Option<i32>,
+}
+
+#[derive(Debug)]
+pub struct CompanySpecsArg {
+    pub company_uuid:  Uuid,
+    pub limit: i32,
+    pub offset: i32,
+}
+
+impl From<IptCompanySpecsArg> for CompanySpecsArg {
+    fn from(data: IptCompanySpecsArg) -> Self {
+        let IptCompanySpecsArg {
+            company_uuid,
+            limit,
+            offset,
+        } = data;
+
+        Self {
+            company_uuid,
+            limit: limit.unwrap_or(100),
+            offset: offset.unwrap_or(0),
+        }
+    }
+}

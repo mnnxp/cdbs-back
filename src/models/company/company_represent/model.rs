@@ -171,3 +171,38 @@ impl From<CompanyRepresent> for SlimCompanyRepresent {
         }
     }
 }
+
+
+#[derive(InputObject, Deserialize, Debug)]
+pub struct IptCompanyRepresentsArg {
+    pub company_uuid: Option<Uuid>,
+    pub represents_uuids: Option<Vec<Uuid>>,
+    pub limit: Option<i32>,
+    pub offset: Option<i32>,
+}
+
+#[derive(Debug)]
+pub struct CompanyRepresentsArg {
+    pub company_uuid: Uuid,
+    pub represents_uuids: Vec<Uuid>,
+    pub limit: i32,
+    pub offset: i32,
+}
+
+impl From<IptCompanyRepresentsArg> for CompanyRepresentsArg {
+    fn from(data: IptCompanyRepresentsArg) -> Self {
+        let IptCompanyRepresentsArg {
+            company_uuid,
+            represents_uuids,
+            limit,
+            offset,
+        } = data;
+
+        Self {
+            company_uuid: company_uuid.unwrap_or_default(),
+            represents_uuids: represents_uuids.unwrap_or_default(),
+            limit: limit.unwrap_or(100),
+            offset: offset.unwrap_or(0),
+        }
+    }
+}

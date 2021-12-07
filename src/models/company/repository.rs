@@ -1,14 +1,19 @@
 use crate::errors::{ServiceResult, ServiceError};
-use crate::models::company::model::{Company, ShowCompanyShort, CompanyAndRelatedData};
-use crate::models::company::company_represent::model::CompanyRepresentAndRelatedData;
-use crate::models::company::certificate::model::CompanyCertificateAndFile;
-use crate::models::company::company_type::model::CompanyTypeTranslateList;
-use crate::models::company::company_fav::model::CompanyFav;
-use crate::models::company::spec::model::CompanySpecWithTranslation;
-use crate::models::company::access::util::check_company_access;
-use crate::models::relate_ref::region::model::RegionTranslateList;
-use crate::models::relate_ref::file::model::DownloadFile;
-use crate::models::relate_ref::type_access::model::TypeAccessTranslateList;
+use crate::models::company::{
+    model::{Company, ShowCompanyShort, CompanyAndRelatedData},
+    company_represent::model::CompanyRepresentAndRelatedData,
+    certificate::model::CompanyCertificateAndFile,
+    company_type::model::CompanyTypeTranslateList,
+    company_fav::model::CompanyFav,
+    company_fav::util::check_subscriber_by_uuid,
+    access::util::check_company_access,
+};
+use crate::models::relate_ref::{
+    region::model::RegionTranslateList,
+    file::model::DownloadFile,
+    spec::model::SpecTranslateList,
+    type_access::model::TypeAccessTranslateList,
+};
 use crate::schema::company_ref::dsl as company_ref;
 use diesel::prelude::*;
 use uuid::Uuid;
@@ -126,7 +131,7 @@ impl ShowCompanyShort {
         ).expect("Error loading company_type");
 
         // check whether the object is being tracked auth user
-        let is_followed = crate::models::company::company_fav::util::check_subscriber_by_uuid(
+        let is_followed = check_subscriber_by_uuid(
             target_company_uuid,
             logged_user_uuid,
             conn
@@ -168,9 +173,8 @@ impl ShowCompanyShort {
 
             match company {
                 Ok(value) => match (value.is_supplier, supplier) {
-                    (_, false) => result.push(value),
-                    (true, true) => result.push(value),
                     (false, true) => debug!("Skip company not supplier"),
+                    _ => result.push(value),
                 },
                 Err(err) => debug!("Failed get company short data: {:?}", err),
             };
@@ -258,7 +262,7 @@ impl CompanyAndRelatedData {
         ).expect("Error loading company file");
 
         // get company represents for company
-        let company_represents_with_related_data = CompanyRepresentAndRelatedData::get_list_represents_by_company_uuid(
+        let company_represents_with_related_data = CompanyRepresentAndRelatedData::get_by_company_uuid(
             &company.uuid,
             set_lang_id,
             conn
@@ -279,7 +283,7 @@ impl CompanyAndRelatedData {
         ).expect("Error loading company_type");
 
         // check whether the object is being tracked auth user
-        let is_followed = crate::models::company::company_fav::util::check_subscriber_by_uuid(
+        let is_followed = check_subscriber_by_uuid(
             target_company_uuid,
             logged_user_uuid,
             conn
@@ -295,7 +299,7 @@ impl CompanyAndRelatedData {
         ).expect("Error loading spec company with translate");
 
         // get specs with translation for company
-        let company_specs_with_translate: Vec<CompanySpecWithTranslation> = CompanySpecWithTranslation::for_company(
+        let company_specs_with_translate: Vec<SpecTranslateList> = SpecTranslateList::for_company(
             &company,
             set_lang_id,
             conn

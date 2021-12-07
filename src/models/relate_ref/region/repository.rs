@@ -29,30 +29,4 @@ impl RegionTranslateList {
             },
         }
     }
-
-    pub(crate) fn get_region_by_vec_id(
-        target_vec_region_id: &[i32],
-        set_lang_id: &i32,
-        conn: &PgConnection,
-    ) -> ServiceResult<Vec<RegionTranslateList>> {
-        let regions = region_translate_list::region_translate_list
-            .filter(region_translate_list::region_id.eq_any(target_vec_region_id)
-            .and(region_translate_list::lang_id.eq(set_lang_id)))
-            .load::<RegionTranslateList>(conn);
-
-        // if not found data for set lang
-        match regions {
-            Ok(rns) => Ok(rns),
-            Err(err) => {
-                debug!("Not found set lang for regions: {:?}", err);
-                region_translate_list::region_translate_list
-                    .filter(region_translate_list::region_id.eq_any(target_vec_region_id))
-                    .load::<RegionTranslateList>(conn)
-                    .map_err(|err| {
-                        debug!("Failed insert region: {:?}", err);
-                        ServiceError::InternalServerError
-                    })
-            },
-        }
-    }
 }

@@ -1,13 +1,14 @@
 use super::company_represent::model::CompanyRepresentAndRelatedData;
 use super::certificate::model::CompanyCertificateAndFile;
 use super::company_type::model::CompanyTypeTranslateList;
-use super::spec::model::CompanySpecWithTranslation;
 use crate::models::user::model::ShowUserShort;
-use crate::models::relate_ref::file::model::DownloadFile;
-use crate::models::relate_ref::region::model::RegionTranslateList;
-use crate::models::relate_ref::type_access::model::TypeAccessTranslateList;
+use crate::models::relate_ref::{
+    file::model::DownloadFile,
+    spec::model::SpecTranslateList,
+    region::model::RegionTranslateList,
+    type_access::model::TypeAccessTranslateList,
+};
 use crate::schema::*;
-use async_graphql::types::ID;
 use async_graphql::*;
 use chrono::*;
 use uuid::Uuid;
@@ -58,7 +59,7 @@ pub struct CompanyAndRelatedData {
     pub company_type: CompanyTypeTranslateList,
     // show certificates company
     pub company_certificates: Vec<CompanyCertificateAndFile>,
-    pub company_specs: Vec<CompanySpecWithTranslation>,
+    pub company_specs: Vec<SpecTranslateList>,
     pub type_access: TypeAccessTranslateList,
     pub is_supplier: bool,
     pub is_email_verified: bool,
@@ -160,24 +161,11 @@ pub struct CompanyData {
     pub type_access_id: i32,
 }
 
-#[derive(Debug, Serialize, Deserialize, Queryable, Clone)]
+#[derive(Debug, Serialize, Deserialize, Queryable, Clone, SimpleObject)]
 pub struct SlimCompany {
     pub uuid: Uuid,
     pub shortname: String,
     pub is_supplier: bool,
-}
-
-#[Object]
-impl SlimCompany {
-    async fn uuid(&self) -> ID {
-        self.uuid.into()
-    }
-    async fn shortname(&self) -> &String {
-        &self.shortname
-    }
-    async fn is_supplier(&self) -> &bool {
-        &self.is_supplier
-    }
 }
 
 impl From<CompanyData> for InsertableCompany {
