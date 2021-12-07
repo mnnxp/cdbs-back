@@ -1,8 +1,6 @@
 use crate::errors::{ServiceError, ServiceResult};
 use crate::models::standard::spec::model::{
-    StandardSpec,
-    IptStandardSpecsData,
-    InsertableStandardSpec
+    StandardSpec, IptStandardSpecsData, InsertableStandardSpec
 };
 use crate::models::standard::access::util::check_access_standard_for_user;
 use diesel::prelude::*;
@@ -25,7 +23,7 @@ pub(crate) fn add_standard_specs(
     )?;
 
     let mut count_insert_rows = 0; // <-- for accumulated count inserted rows
-    let mut error_kw_has: Vec<i32> = Vec::new(); // <-- for accumulated spec duplicates
+    let mut error_keywords_has: Vec<i32> = Vec::new(); // <-- for accumulated spec duplicates
 
     // creating structures for inserting records into a table
     let new_standard_specs: Vec<InsertableStandardSpec> = data.into();
@@ -42,27 +40,21 @@ pub(crate) fn add_standard_specs(
         let flag_found_spec = spec_to_standard
             .filter(standard_uuid.eq(&standard_kw.standard_uuid)
             .and(spec_id.eq(&standard_kw.spec_id)))
-            .execute(conn);
+            .execute(conn)
+            .map_err(|err| {
+                debug!("Failed check spec for standard: {:?}", err);
+                ServiceError::BadRequest("Failed check spec for standard".to_string())
+            })?;
 
-        match flag_found_spec {
-            Ok(x) if x == 0 => {
+        match flag_found_spec == 0 {
+            true => {
                 debug!("Inserted standard spec: {:?}", &standard_kw.spec_id);
-
                 insert_data.push(standard_kw);
-
                 count_insert_rows += 1;
             },
-            Ok(x) => {
-                debug!("Found standard spec in database: {:?}", x);
-
-                error_kw_has.push(standard_kw.spec_id);
-            },
-            Err(err) => {
-                debug!("Failed check spec for standard: {:?}", err);
-
-                return Err(ServiceError::BadRequest(
-                    "Failed check spec for standard".to_string()
-                ))
+            false => {
+                debug!("Found standard spec in database: {:?}", flag_found_spec);
+                error_keywords_has.push(standard_kw.spec_id);
             },
         }
     }
@@ -70,20 +62,18 @@ pub(crate) fn add_standard_specs(
     if insert_data.is_empty() {
         // return error if all spec duplicate
         return Err(ServiceError::BadRequest(
-            format!("This ids {:?} already has", error_kw_has)
+            format!("This ids {:?} already has", error_keywords_has)
         ))
     }
 
-    match diesel::insert_into(spec_to_standard)
+    diesel::insert_into(spec_to_standard)
         .values(&insert_data)
-        .get_result::<StandardSpec>(conn) {
-        Ok(_) => {
-            debug!("Completed, add {:?} specs", count_insert_rows);
-            Ok(count_insert_rows)
-        },
-        Err(err) => {
+        .get_result::<StandardSpec>(conn)
+        .map_err(|err| {
             debug!("Fail inserted spec: {:?}", err);
-            Err(ServiceError::InternalServerError)
-        }
-    }
+            ServiceError::InternalServerError
+        })?;
+
+    debug!("Completed, add {:?} specs", count_insert_rows);
+    Ok(count_insert_rows)
 }

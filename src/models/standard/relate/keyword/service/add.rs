@@ -94,7 +94,7 @@ pub(crate) fn add_keywords_by_names(
     )
 }
 
-/// Clear duplicates
+/// Clear duplicates keywords
 fn clear_duplicates(keywords: &mut Vec<InsertableStandardKeyword>)  {
     let mut already_seen = Vec::new();
     keywords.retain(|item| match already_seen.contains(&item.keyword_id) {
