@@ -1,21 +1,24 @@
-use crate::schema::*;
+use crate::models::component::{
+    component_type::model::ComponentTypeTranslateList,
+    actual_status::model::ActualStatusTranslateList,
+    param::model::ComponentParamWithTranslation,
+    supplier::model::ComponentSupplierRelatedData,
+    component_modification::model::ComponentModificationAndRelatedData,
+};
 use crate::models::user::model::ShowUserShort;
-use crate::models::component::component_type::model::ComponentTypeTranslateList;
-use crate::models::component::actual_status::model::ActualStatusTranslateList;
-use crate::models::component::param::model::ComponentParamWithTranslation;
-use crate::models::component::spec::model::ComponentSpecWithTranslation;
-use crate::models::component::supplier::model::ComponentSupplierRelatedData;
-use crate::models::component::component_modification::model::ComponentModificationAndRelatedData;
 use crate::models::standard::model::ShowStandardShort;
-use crate::models::relate_ref::license::model::License;
-use crate::models::relate_ref::keyword::model::Keyword;
-use crate::models::relate_ref::file::model::ShowFileRelatedData;
-use async_graphql::types::ID;
+use crate::models::relate_ref::{
+    license::model::License,
+    keyword::model::Keyword,
+    file::model::ShowFileRelatedData,
+    spec::model::SpecTranslateList,
+};
+use crate::schema::*;
 use async_graphql::*;
 use chrono::*;
 use uuid::Uuid;
 
-#[derive(Identifiable, Deserialize, Queryable, Debug)]
+#[derive(Identifiable, Deserialize, Queryable, SimpleObject, Debug)]
 #[primary_key(uuid)]
 #[table_name = "component_ref"]
 pub struct Component {
@@ -31,46 +34,6 @@ pub struct Component {
     pub is_delete: bool,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
-}
-
-#[Object]
-impl Component {
-    async fn uuid(&self) -> ID {
-        self.uuid.into()
-    }
-    async fn parent_component_uuid(&self) -> ID {
-        self.parent_component_uuid.into()
-    }
-    async fn name(&self) -> &String {
-        &self.name
-    }
-    async fn description(&self) -> &String {
-        &self.description
-    }
-    async fn user_uuid(&self) -> ID {
-        self.user_uuid.into()
-    }
-    async fn type_access_id(&self) -> &i32 {
-        &self.type_access_id
-    }
-    async fn component_type_id(&self) -> &i32 {
-        &self.component_type_id
-    }
-    async fn actual_status_id(&self) -> &i32 {
-        &self.actual_status_id
-    }
-    async fn is_base(&self) -> &bool {
-        &self.is_base
-    }
-    async fn is_delete(&self) -> &bool {
-        &self.is_delete
-    }
-    async fn created_at(&self) -> &NaiveDateTime {
-        &self.created_at
-    }
-    async fn updated_at(&self) -> &NaiveDateTime {
-        &self.updated_at
-    }
 }
 
 #[derive(Debug, SimpleObject)]
@@ -92,7 +55,7 @@ pub struct ComponentAndRelatedData {
     pub licenses: Vec<License>,
     pub component_params: Vec<ComponentParamWithTranslation>,
     pub files: Vec<ShowFileRelatedData>,
-    pub component_specs: Vec<ComponentSpecWithTranslation>,
+    pub component_specs: Vec<SpecTranslateList>,
     pub component_keywords: Vec<Keyword>,
     pub component_modifications: Vec<ComponentModificationAndRelatedData>,
     pub component_suppliers: Vec<ComponentSupplierRelatedData>,
@@ -161,7 +124,7 @@ pub struct IptComponentData {
     pub is_base: bool,
 }
 
-#[derive(Debug, Serialize, Queryable)]
+#[derive(Debug, Serialize, Queryable, SimpleObject)]
 pub struct SlimComponent {
     pub uuid: Uuid,
     pub name: String,
@@ -171,34 +134,6 @@ pub struct SlimComponent {
     pub actual_status_id: i32,
     pub is_base: bool,
     pub updated_at: NaiveDateTime,
-}
-
-#[Object]
-impl SlimComponent {
-    async fn uuid(&self) -> ID {
-        self.uuid.into()
-    }
-    async fn name(&self) -> &String {
-        &self.name
-    }
-    async fn description(&self) -> &String {
-        &self.description
-    }
-    async fn type_access_id(&self) -> &i32 {
-         &self.type_access_id
-    }
-    async fn component_type_id(&self) -> &i32 {
-        &self.component_type_id
-    }
-    async fn actual_status_id(&self) -> &i32 {
-        &self.actual_status_id
-    }
-    async fn is_base(&self) -> &bool {
-        &self.is_base
-    }
-    async fn updated_at(&self) -> &NaiveDateTime {
-        &self.updated_at
-    }
 }
 
 impl From<ComponentData> for InsertableComponent {

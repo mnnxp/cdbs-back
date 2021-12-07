@@ -1,17 +1,22 @@
-use async_graphql::{self, Context, Object};
-use uuid::Uuid;
-
 use crate::errors::ServiceResult;
 use crate::database::{get_conn, PooledConnection};
 use crate::models::user::access::logged::get_logged_user_uuid;
-use crate::models::component::access::company::model::CompanyAccessComponentAndRelatedData;
-use crate::models::component::access::user::model::UserAccessComponentAndRelatedData;
-use crate::models::component::component_modification;
-use crate::models::component::component_modification::fileset_for_program::model::FilesetProgramRelatedData;
-use crate::models::component::component_modification::modification_file_from_fileset::model::FileOfFileset;
-use crate::models::component::model::{ComponentAndRelatedData, ShowComponentShort, ComponentsArg, IptComponentsArg};
-use crate::models::relate_ref::file::model::DownloadFile;
-use crate::models::relate_ref::language::get_set_language;
+use crate::models::component::{
+    model::{ComponentAndRelatedData, ShowComponentShort, ComponentsArg, IptComponentsArg},
+    relate::spec::model::{IptComponentSpecsArg, ComponentSpecsArg},
+    component_modification,
+    component_modification::fileset_for_program::model::FilesetProgramRelatedData,
+    component_modification::modification_file_from_fileset::model::FileOfFileset,
+    access::company::model::CompanyAccessComponentAndRelatedData,
+    access::user::model::UserAccessComponentAndRelatedData,
+};
+use crate::models::relate_ref::{
+    file::model::DownloadFile,
+    spec::model::SpecTranslateList,
+    language::get_set_language,
+};
+use async_graphql::{self, Context, Object};
+use uuid::Uuid;
 
 #[derive(Default)]
 pub struct ComponentQuery;
@@ -117,6 +122,28 @@ impl ComponentQuery {
         get_component_files(
             &logged_user_uuid,
             &component_uuid,
+            conn
+        )
+    }
+
+    async fn component_specs(
+        &self,
+        cxt: &Context<'_>,
+        arg: IptComponentSpecsArg,
+    ) -> ServiceResult<Vec<SpecTranslateList>> {
+        use crate::models::component::spec::service::list::get_component_specs;
+
+        // authorization check
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+
+        let arg: ComponentSpecsArg = arg.into();
+
+        let conn: &PooledConnection = &get_conn(cxt)?;
+
+        get_component_specs(
+            &logged_user_uuid,
+            &arg,
+            &get_set_language(cxt),
             conn
         )
     }

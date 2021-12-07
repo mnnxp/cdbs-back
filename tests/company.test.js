@@ -1693,6 +1693,130 @@ describe('company', () => {
     done();
   });
 
+  // Testing get specs for company
+  it('/graphql:Q companySpecs - BadRequest no token', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .send({
+        query: `query  {
+          companySpecs(arg: {
+            companyUuid: "${companyUuidNoSupplier}"
+          }){
+            specId
+            langId
+            spec
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql companySpecs=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Token not found.'
+    );
+    expect(body.errors[0].path[0]).toBe('companySpecs');
+    done();
+  });
+
+  it('/graphql:Q companySpecs - OK', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `query  {
+          companySpecs(arg: {
+            companyUuid: "${companyUuidNoSupplier}"
+          }){
+            specId
+            langId
+            spec
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    const {
+      data: { companySpecs },
+    } = body;
+    expect(companySpecs.length).toBe(5);
+    expect(companySpecs[0].specId).toBe(10);
+    expect(companySpecs[0].spec).toBeNonEmptyString();
+    expect(companySpecs[1].specId).toBe(22);
+    expect(companySpecs[1].spec).toBeNonEmptyString();
+    expect(companySpecs[2].specId).toBe(30);
+    expect(companySpecs[2].spec).toBeNonEmptyString();
+    expect(companySpecs[3].specId).toBe(44);
+    expect(companySpecs[3].spec).toBeNonEmptyString();
+    expect(companySpecs[4].specId).toBe(55);
+    expect(companySpecs[4].spec).toBeNonEmptyString();
+    done();
+  });
+
+  it('/graphql:Q companySpecs - OK with limit and offset', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `query  {
+          companySpecs(arg: {
+            companyUuid: "${companyUuidNoSupplier}"
+            limit: 1
+            offset: 3
+          }){
+            specId
+            langId
+            spec
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { companySpecs },
+    } = body;
+    expect(companySpecs.length).toBe(1);
+    expect(companySpecs[0].specId).toBe(22);
+    expect(companySpecs[0].spec).toBeNonEmptyString();
+    done();
+  });
+
+  it('/graphql:Q companySpecs - OK not found specs', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `query  {
+          companySpecs(arg: {
+            companyUuid: "${companyUuidNoSupplier}"
+            limit: 50
+            offset: 500
+          }){
+            specId
+            langId
+            spec
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { companySpecs },
+    } = body;
+    expect(companySpecs).toBeEmptyArray();
+    done();
+  });
+
   // Testing delete company specs
   it('/graphql:M deleteCompanySpecs - BadRequest no token', async (done) => {
     const { body } = await agent

@@ -1,44 +1,82 @@
-use crate::errors::ServiceResult;
+use crate::errors::{ServiceResult, ServiceError};
 use crate::models::component::model::Component;
-use crate::models::component::spec::model::{ComponentSpec, ComponentSpecWithTranslation};
+use crate::models::component::spec::model::{ComponentSpec, ComponentSpecsArg};
 use crate::models::relate_ref::spec::model::SpecTranslateList;
+use crate::schema::spec_to_component::dsl as spec_to_component;
 use diesel::prelude::*;
+// use uuid::Uuid;
 
-impl ComponentSpecWithTranslation {
-    pub(crate) fn for_component(
-        component: &Component,
+impl SpecTranslateList {
+    /// Gets all specs for component by uuid
+    pub(crate) fn for_component_by_uuid(
+        arg: &ComponentSpecsArg,
         set_lang_id: &i32,
         conn: &PgConnection,
-    ) -> ServiceResult<Vec<ComponentSpecWithTranslation>> {
-        let component_spec: Vec<ComponentSpec> = ComponentSpec::belonging_to(component)
-            .load::<ComponentSpec>(conn)
-            .expect("Error loading component_spec");
+    ) -> ServiceResult<Vec<SpecTranslateList>> {
+        let ComponentSpecsArg {
+            component_uuid,
+            limit,
+            offset,
+        } = arg;
 
-        // get specs for component
-        let mut spec_ids_for_component: Vec<i32> = Vec::new();
-        for spec in component_spec.iter() {
-            spec_ids_for_component.push(spec.spec_id);
+        let specs_ids = spec_to_component::spec_to_component
+            .filter(spec_to_component::component_uuid.eq(component_uuid))
+            .select(spec_to_component::spec_id)
+            .limit(*limit as i64)
+            .offset(*offset as i64)
+            .load::<i32>(conn)
+            .map_err(|err| {
+                debug!("Failed get specs for component: {:?}", err);
+                ServiceError::InternalServerError
+            })?;
+
+        if specs_ids.is_empty() {
+            return Ok(Vec::new()) // not found specs
         }
 
         // get specs with translation for component
-        let spec_translate_list: Vec<SpecTranslateList> = SpecTranslateList::get_by_ids(
-            &spec_ids_for_component,
+        SpecTranslateList::get_by_ids(
+            &specs_ids,
             &100,
             &0,
             set_lang_id,
             conn
-        )?;
+        ).map_err(|err| {
+            debug!("Failed get specs for component: {:?}", err);
+            ServiceError::InternalServerError
+        })
+    }
 
-        let mut component_spec_with_translate: Vec<ComponentSpecWithTranslation> = Vec::new();
-        for x in component_spec.iter() {
-            for y in spec_translate_list.iter() {
-                if x.spec_id == y.spec_id {
-                    let res: ComponentSpecWithTranslation = (x.to_owned(),y.clone()).into();
-                    component_spec_with_translate.push(res)
-                }
-            }
+    /// Gets all specs for component
+    pub(crate) fn for_component(
+        component: &Component,
+        set_lang_id: &i32,
+        conn: &PgConnection,
+    ) -> ServiceResult<Vec<SpecTranslateList>> {
+        let spec_component: Vec<ComponentSpec> = ComponentSpec::belonging_to(component)
+            .load::<ComponentSpec>(conn)
+            .expect("Error loading spec_component");
+
+        // get specs for component
+        let mut specs_ids: Vec<i32> = Vec::new();
+        for spec in spec_component.iter() {
+            specs_ids.push(spec.spec_id);
         }
 
-        Ok(component_spec_with_translate)
+        if specs_ids.is_empty() {
+            return Ok(Vec::new()) // not found specs
+        }
+
+        // get specs with translation for component
+        SpecTranslateList::get_by_ids(
+            &specs_ids,
+            &100,
+            &0,
+            set_lang_id,
+            conn
+        ).map_err(|err| {
+            debug!("Failed get specs for component: {:?}", err);
+            ServiceError::InternalServerError
+        })
     }
 }

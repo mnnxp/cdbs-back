@@ -149,12 +149,9 @@ files { \
   updatedAt \
 } \
 componentSpecs { \
-  spec { \
-    specId \
-    langId \
-    spec \
-  } \
-  componentUuid \
+  specId \
+  langId \
+  spec \
 } \
 componentKeywords { \
   id \
@@ -1876,18 +1873,140 @@ describe('component', () => {
     const {
       component: { componentSpecs },
     } = body.data;
-    expect(componentSpecs[0].componentUuid).toBe(componentUuidNoStandard);
-    expect(componentSpecs[0].spec.specId).toBe(10);
-    expect(componentSpecs[0].spec.spec).toBeNonEmptyString();
-    expect(componentSpecs[1].spec.specId).toBe(30);
-    expect(componentSpecs[1].spec.spec).toBeNonEmptyString();
-    expect(componentSpecs[2].spec.specId).toBe(55);
-    expect(componentSpecs[2].spec.spec).toBeNonEmptyString();
-    expect(componentSpecs[3].spec.specId).toBe(22);
-    expect(componentSpecs[3].spec.spec).toBeNonEmptyString();
-    expect(componentSpecs[4].componentUuid).toBe(componentUuidNoStandard);
-    expect(componentSpecs[4].spec.specId).toBe(44);
-    expect(componentSpecs[4].spec.spec).toBeNonEmptyString();
+    expect(componentSpecs[0].specId).toBe(10);
+    expect(componentSpecs[0].spec).toBeNonEmptyString();
+    expect(componentSpecs[1].specId).toBe(22);
+    expect(componentSpecs[1].spec).toBeNonEmptyString();
+    expect(componentSpecs[2].specId).toBe(30);
+    expect(componentSpecs[2].spec).toBeNonEmptyString();
+    expect(componentSpecs[3].specId).toBe(44);
+    expect(componentSpecs[3].spec).toBeNonEmptyString();
+    expect(componentSpecs[4].specId).toBe(55);
+    expect(componentSpecs[4].spec).toBeNonEmptyString();
+    done();
+  });
+
+  // Testing get specs for component
+  it('/graphql:Q componentSpecs - BadRequest no token', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .send({
+        query: `query  {
+          componentSpecs(arg: {
+            componentUuid: "${componentUuidNoStandard}"
+          }){
+            specId
+            langId
+            spec
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql componentSpecs=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Token not found.'
+    );
+    expect(body.errors[0].path[0]).toBe('componentSpecs');
+    done();
+  });
+
+  it('/graphql:Q componentSpecs - OK', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `query  {
+          componentSpecs(arg: {
+            componentUuid: "${componentUuidNoStandard}"
+          }){
+            specId
+            langId
+            spec
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    const {
+      data: { componentSpecs },
+    } = body;
+    expect(componentSpecs.length).toBe(5);
+    expect(componentSpecs[0].specId).toBe(10);
+    expect(componentSpecs[0].spec).toBeNonEmptyString();
+    expect(componentSpecs[1].specId).toBe(22);
+    expect(componentSpecs[1].spec).toBeNonEmptyString();
+    expect(componentSpecs[2].specId).toBe(30);
+    expect(componentSpecs[2].spec).toBeNonEmptyString();
+    expect(componentSpecs[3].specId).toBe(44);
+    expect(componentSpecs[3].spec).toBeNonEmptyString();
+    expect(componentSpecs[4].specId).toBe(55);
+    expect(componentSpecs[4].spec).toBeNonEmptyString();
+    done();
+  });
+
+  it('/graphql:Q componentSpecs - OK with limit and offset', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `query  {
+          componentSpecs(arg: {
+            componentUuid: "${componentUuidNoStandard}"
+            limit: 1
+            offset: 3
+          }){
+            specId
+            langId
+            spec
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { componentSpecs },
+    } = body;
+    expect(componentSpecs.length).toBe(1);
+    expect(componentSpecs[0].specId).toBe(22);
+    expect(componentSpecs[0].spec).toBeNonEmptyString();
+    done();
+  });
+
+  it('/graphql:Q componentSpecs - OK not found specs', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `query  {
+          componentSpecs(arg: {
+            componentUuid: "${componentUuidNoStandard}"
+            limit: 50
+            offset: 500
+          }){
+            specId
+            langId
+            spec
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { componentSpecs },
+    } = body;
+    expect(componentSpecs).toBeEmptyArray();
     done();
   });
 

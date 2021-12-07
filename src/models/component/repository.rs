@@ -1,18 +1,22 @@
 use crate::errors::{ServiceResult, ServiceError};
-use crate::models::component::model::{Component, ShowComponentShort, ComponentAndRelatedData};
-use crate::models::component::actual_status::model::ActualStatusTranslateList;
-use crate::models::component::component_type::model::ComponentTypeTranslateList;
-use crate::models::component::param::model::ComponentParamWithTranslation;
-use crate::models::component::component_fav::model::ComponentFav;
-use crate::models::component::spec::model::ComponentSpecWithTranslation;
-use crate::models::component::supplier::model::ComponentSupplierRelatedData;
-use crate::models::component::component_modification::model::{ComponentModification, ComponentModificationAndRelatedData};
+use crate::models::component::{
+    model::{Component, ShowComponentShort, ComponentAndRelatedData},
+    actual_status::model::ActualStatusTranslateList,
+    component_type::model::ComponentTypeTranslateList,
+    param::model::ComponentParamWithTranslation,
+    component_fav::model::ComponentFav,
+    supplier::model::ComponentSupplierRelatedData,
+    component_modification::model::{ComponentModification, ComponentModificationAndRelatedData},
+    access::util::check_access_component_for_user,
+};
 use crate::models::standard::model::ShowStandardShort;
-use crate::models::relate_ref::license::model::License;
-use crate::models::relate_ref::keyword::model::Keyword;
-use crate::models::relate_ref::file::model::ShowFileRelatedData;
+use crate::models::relate_ref::{
+    license::model::License,
+    file::model::ShowFileRelatedData,
+    keyword::model::Keyword,
+    spec::model::SpecTranslateList,
+};
 use crate::schema::component_ref::dsl as component_ref;
-use crate::models::component::access::util::check_access_component_for_user;
 use diesel::prelude::*;
 use uuid::Uuid;
 
@@ -305,7 +309,7 @@ impl ComponentAndRelatedData {
         ).expect("Error loading component files");
 
         // get specs with translation for component
-        let component_specs: Vec<ComponentSpecWithTranslation> = ComponentSpecWithTranslation::for_component(
+        let component_specs: Vec<SpecTranslateList> = SpecTranslateList::for_component(
             &component,
             set_lang_id,
             conn

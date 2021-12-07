@@ -105,3 +105,33 @@ impl From<&IptComponentSpecData> for DeleteComponentSpec {
         }
     }
 }
+
+#[derive(InputObject, Deserialize, Debug)]
+pub struct IptComponentSpecsArg {
+    pub component_uuid:  Uuid,
+    pub limit: Option<i32>,
+    pub offset: Option<i32>,
+}
+
+#[derive(Debug)]
+pub struct ComponentSpecsArg {
+    pub component_uuid:  Uuid,
+    pub limit: i32,
+    pub offset: i32,
+}
+
+impl From<IptComponentSpecsArg> for ComponentSpecsArg {
+    fn from(data: IptComponentSpecsArg) -> Self {
+        let IptComponentSpecsArg {
+            component_uuid,
+            limit,
+            offset,
+        } = data;
+
+        Self {
+            component_uuid,
+            limit: limit.unwrap_or(100),
+            offset: offset.unwrap_or(0),
+        }
+    }
+}
