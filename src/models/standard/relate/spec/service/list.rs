@@ -22,7 +22,7 @@ pub(crate) fn get_standard_specs(
         conn
     )?;
 
-    SpecTranslateList::get_by_uuid(
+    SpecTranslateList::for_standard_by_uuid(
         arg,
         set_lang_id,
         conn

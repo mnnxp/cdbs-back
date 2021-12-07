@@ -23,15 +23,13 @@ impl KeywordId {
         keyword: &str,
         conn: &PgConnection,
     ) -> ServiceResult<i32> {
-        let id = keyword_ref::keyword_ref
+        keyword_ref::keyword_ref
             .filter(keyword_ref::keyword.eq(keyword))
             .select(keyword_ref::id)
             .first::<i32>(conn)
             .map_err(|err| {
                 debug!("Failed get keyword: {:?}", err);
                 ServiceError::InternalServerError
-            })?;
-
-        Ok(id)
+            })
     }
 }

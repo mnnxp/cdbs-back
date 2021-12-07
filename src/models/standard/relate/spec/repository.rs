@@ -8,7 +8,7 @@ use diesel::prelude::*;
 
 impl SpecTranslateList {
     /// Gets all specs for standard by uuid
-    pub(crate) fn get_by_uuid(
+    pub(crate) fn for_standard_by_uuid(
         arg: &StandardSpecsArg,
         set_lang_id: &i32,
         conn: &PgConnection,
