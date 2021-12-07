@@ -1438,7 +1438,7 @@ describe('company', () => {
   });
 
   // Testing get specs for standard
-  it('/graphql:M standardSpecs - BadRequest no token', async (done) => {
+  it('/graphql:Q standardSpecs - BadRequest no token', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .send({
@@ -1465,7 +1465,7 @@ describe('company', () => {
     done();
   });
 
-  it('/graphql:M standardSpecs - OK', async (done) => {
+  it('/graphql:Q standardSpecs - OK', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .set(
@@ -1507,7 +1507,7 @@ describe('company', () => {
     done();
   });
 
-  it('/graphql:M standardSpecs - OK with limit and offset', async (done) => {
+  it('/graphql:Q standardSpecs - OK with limit and offset', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .set(
@@ -1539,6 +1539,39 @@ describe('company', () => {
     expect(standardSpecs.length).toBe(1);
     expect(standardSpecs[0].spec.specId).toBe(22);
     expect(standardSpecs[0].spec.spec).toBeNonEmptyString();
+    done();
+  });
+
+  it('/graphql:Q standardSpecs - OK not found specs', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `query  {
+          standardSpecs(arg: {
+            standardUuid: "${standardUuidFirst}"
+            limit: 50
+            offset: 500
+          }){
+            standardUuid
+            spec {
+              specId
+              langId
+              spec
+            }
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { standardSpecs },
+    } = body;
+    expect(standardSpecs).toBeEmptyArray();
     done();
   });
 
@@ -2008,6 +2041,127 @@ describe('company', () => {
     expect(body.data.standard.standardKeywords[3].keyword).toBeNonEmptyString();
     expect(body.data.standard.standardKeywords[4].id).toBe(5);
     expect(body.data.standard.standardKeywords[4].keyword).toBeNonEmptyString();
+    done();
+  });
+
+  // Testing get keywords for standard
+  it('/graphql:Q standardKeywords - BadRequest no token', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .send({
+        query: `query  {
+          standardKeywords(arg: {
+            standardUuid: "${standardUuidSecond}"
+          }){
+            id
+            keyword
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql standardKeywords=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Token not found.'
+    );
+    expect(body.errors[0].path[0]).toBe('standardKeywords');
+    done();
+  });
+
+  it('/graphql:Q standardKeywords - OK', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `query  {
+          standardKeywords(arg: {
+            standardUuid: "${standardUuidFirst}"
+          }){
+            id
+            keyword
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    const {
+      data: { standardKeywords },
+    } = body;
+    expect(standardKeywords[0].id).toBe(1);
+    expect(standardKeywords[0].keyword).toBeNonEmptyString();
+    expect(standardKeywords[1].id).toBe(2);
+    expect(standardKeywords[1].keyword).toBeNonEmptyString();
+    expect(standardKeywords[2].id).toBe(3);
+    expect(standardKeywords[2].keyword).toBeNonEmptyString();
+    expect(standardKeywords[3].id).toBe(4);
+    expect(standardKeywords[3].keyword).toBeNonEmptyString();
+    expect(standardKeywords[4].id).toBe(5);
+    expect(standardKeywords[4].keyword).toBeNonEmptyString();
+    done();
+  });
+
+  it('/graphql:Q standardKeywords - OK with limit and offset', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `query  {
+          standardKeywords(arg: {
+            standardUuid: "${standardUuidFirst}"
+            limit: 2
+            offset: 3
+          }){
+            id
+            keyword
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { standardKeywords },
+    } = body;
+    expect(standardKeywords.length).toBe(2);
+    expect(standardKeywords[0].id).toBe(2);
+    expect(standardKeywords[0].keyword).toBeNonEmptyString();
+    expect(standardKeywords[1].id).toBe(4);
+    expect(standardKeywords[1].keyword).toBeNonEmptyString();
+    done();
+  });
+
+  it('/graphql:Q standardKeywords - OK not found keywords', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `query  {
+          standardKeywords(arg: {
+            standardUuid: "${standardUuidFirst}"
+            limit: 5
+            offset: 500
+          }){
+            id
+            keyword
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { standardKeywords },
+    } = body;
+    expect(standardKeywords).toBeEmptyArray();
     done();
   });
 

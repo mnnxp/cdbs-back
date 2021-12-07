@@ -6,13 +6,19 @@ use crate::models::standard::{
         ShowStandardShort, StandardAndRelatedData, StandardsArg, IptStandardsArg,
         StandardFilesArg, IptStandardFilesArg
     },
-    relate::spec::model::{StandardSpecWithTranslation, IptStandardSpecsArg, StandardSpecsArg},
-    relate::standard_status::model::StandardStatusTranslateList,
+    relate::{
+        spec::model::{StandardSpecWithTranslation, IptStandardSpecsArg, StandardSpecsArg},
+        keyword::model::{IptStandardKeywordsArg, StandardKeywordsArg},
+        standard_status::model::StandardStatusTranslateList,
+    },
     access::company::model::CompanyAccessStandardAndRelatedData,
     access::user::model::UserAccessStandardAndRelatedData,
 };
-use crate::models::relate_ref::file::model::DownloadFile;
-use crate::models::relate_ref::language::get_set_language;
+use crate::models::relate_ref::{
+    keyword::model::Keyword,
+    file::model::DownloadFile,
+    language::get_set_language,
+};
 
 use async_graphql::{self, Context, Object};
 use uuid::Uuid;
@@ -106,6 +112,27 @@ impl StandardQuery {
             &logged_user_uuid,
             &arg,
             &get_set_language(cxt),
+            conn
+        )
+    }
+
+    async fn standard_keywords(
+        &self,
+        cxt: &Context<'_>,
+        arg: IptStandardKeywordsArg,
+    ) -> ServiceResult<Vec<Keyword>> {
+        use crate::models::standard::keyword::service::list::get_standard_keywords;
+
+        // authorization check
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+
+        let arg: StandardKeywordsArg = arg.into();
+
+        let conn: &PooledConnection = &get_conn(cxt)?;
+
+        get_standard_keywords(
+            &logged_user_uuid,
+            &arg,
             conn
         )
     }

@@ -30,6 +30,10 @@ impl StandardSpecWithTranslation {
                 ServiceError::InternalServerError
             })?;
 
+        if specs_ids.is_empty() {
+            return Ok(Vec::new()) // not found specs
+        }
+
         // get specs with translation for standard
         let spec_translate_list: Vec<SpecTranslateList> = SpecTranslateList::get_by_ids(
             &specs_ids,

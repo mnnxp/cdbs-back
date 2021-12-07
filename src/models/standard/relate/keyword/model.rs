@@ -112,3 +112,33 @@ impl From<&IptStandardKeywordsData> for DeleteStandardKeywords {
         }
     }
 }
+
+#[derive(InputObject, Deserialize, Debug)]
+pub struct IptStandardKeywordsArg {
+    pub standard_uuid:  Uuid,
+    pub limit: Option<i32>,
+    pub offset: Option<i32>,
+}
+
+#[derive(Debug)]
+pub struct StandardKeywordsArg {
+    pub standard_uuid:  Uuid,
+    pub limit: i32,
+    pub offset: i32,
+}
+
+impl From<IptStandardKeywordsArg> for StandardKeywordsArg {
+    fn from(data: IptStandardKeywordsArg) -> Self {
+        let IptStandardKeywordsArg {
+            standard_uuid,
+            limit,
+            offset,
+        } = data;
+
+        Self {
+            standard_uuid,
+            limit: limit.unwrap_or(100),
+            offset: offset.unwrap_or(0),
+        }
+    }
+}
