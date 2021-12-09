@@ -2690,8 +2690,7 @@ describe('component', () => {
       )
       .send({
         query: `mutation standardQuery {
-          registerStandard( data: {
-            parentStandardUuid: "${parentStandardUuid}",
+          registerStandard(arg: {
             classifier: "${classifierStandard}",
             name: "${nameStandard}",
             description: "${descriptionStandard}",
@@ -2702,15 +2701,7 @@ describe('component', () => {
             typeAccessId: ${typeAccessId3},
             standardStatusId: ${standardStatusId},
             regionId: ${regionId}
-          }) {
-            uuid
-            classifier
-            name
-            specifiedTolerance
-            technicalCommittee
-            publicationAt
-            standardStatusId
-          }
+          })
         }`,
       })
       .expect(HttpStatus.OK)
@@ -2718,9 +2709,8 @@ describe('component', () => {
     const {
       data: { registerStandard },
     } = body;
-    standardUuidFirst = registerStandard.uuid;
-    expect(registerStandard.uuid).toBeNonEmptyString();
-    expect(registerStandard.name).toBe(nameStandard);
+    standardUuidFirst = registerStandard;
+    expect(registerStandard).toBeNonEmptyString();
     done();
   });
 

@@ -1986,8 +1986,7 @@ describe('users', () => {
       )
       .send({
         query: `mutation standardQuery {
-          registerStandard( data: {
-            parentStandardUuid: "${parentStandardUuid}",
+          registerStandard(arg: {
             classifier: "${classifierStandard}",
             name: "${nameStandard}",
             description: "${descriptionStandard}",
@@ -1998,15 +1997,7 @@ describe('users', () => {
             typeAccessId: ${typeAccessId3},
             standardStatusId: ${standardStatusId},
             regionId: ${regionId}
-          }) {
-            uuid
-            classifier
-            name
-            specifiedTolerance
-            technicalCommittee
-            publicationAt
-            standardStatusId
-          }
+          })
         }`,
       })
       .expect(HttpStatus.OK)
@@ -2015,9 +2006,8 @@ describe('users', () => {
     const {
       data: { registerStandard },
     } = body;
-    standardUuidForFav = registerStandard.uuid;
-    expect(registerStandard.uuid).toBeNonEmptyString();
-    expect(registerStandard.name).toBe(nameStandard);
+    standardUuidForFav = registerStandard;
+    expect(registerStandard).toBeNonEmptyString();
     done();
   });
 
@@ -2940,7 +2930,7 @@ describe('users', () => {
       )
       .send({
         query: `mutation standardQuery {
-          registerStandard( data: {
+          registerStandard(arg: {
             classifier: "${classifierStandard}",
             name: "${nameStandard}",
             description: "${descriptionStandard}",
@@ -2951,15 +2941,7 @@ describe('users', () => {
             typeAccessId: ${typeAccessId2},
             standardStatusId: ${standardStatusId},
             regionId: ${regionId}
-          }) {
-            uuid
-            classifier
-            name
-            specifiedTolerance
-            technicalCommittee
-            publicationAt
-            standardStatusId
-          }
+          })
         }`,
       })
       .expect(HttpStatus.OK)
@@ -2968,9 +2950,8 @@ describe('users', () => {
     const {
       data: { registerStandard },
     } = body;
-    standardUuidFirst = registerStandard.uuid;
-    expect(registerStandard.uuid).toBeNonEmptyString();
-    expect(registerStandard.name).toBe(nameStandard);
+    standardUuidFirst = registerStandard;
+    expect(registerStandard).toBeNonEmptyString();
     done();
   });
 

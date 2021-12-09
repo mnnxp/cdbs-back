@@ -1,9 +1,7 @@
 use crate::errors::{ServiceError, ServiceResult};
-use crate::models::standard::model::{
-    IptStandardData,
-    InsertableStandard,
-    SlimStandard,
-    StandardData
+use crate::models::standard::{
+    model::{IptStandardData, InsertableStandard, StandardData},
+    access::util::check_access_standard_for_user,
 };
 use crate::models::company::{
     access::util::check_company_access,
@@ -18,7 +16,7 @@ pub(crate) fn create_standard(
     logged_user_uuid: &Uuid,
     data: &IptStandardData,
     conn: &PgConnection
-) -> ServiceResult<SlimStandard> {
+) -> ServiceResult<Uuid> {
     let need_access_level = 2; // todo!(create enum for manage access level)
 
     check_company_access(
@@ -34,7 +32,15 @@ pub(crate) fn create_standard(
     )?;
 
     let parent_standard_uuid = match data.parent_standard_uuid {
-        Some(parent) => parent,
+        Some(ref parent_standard_uuid) => {
+            check_access_standard_for_user(
+                logged_user_uuid,
+                parent_standard_uuid,
+                &3, // need_access_level
+                conn
+            )?;
+            *parent_standard_uuid
+        },
         None => Uuid::parse_str("303ec2aa-2066-42e3-93fb-de4fb9344bcb")?, // <-- todo!(get uuid root standard)
     };
 
@@ -58,27 +64,12 @@ pub(crate) fn create_standard(
 
     let data: InsertableStandard = new_standard_data.into();
 
-    let inserted_data = diesel::insert_into(standard_ref::standard_ref)
+    diesel::insert_into(standard_ref::standard_ref)
         .values(&data)
-        .returning((
-            standard_ref::uuid,
-            standard_ref::classifier,
-            standard_ref::name,
-            standard_ref::specified_tolerance,
-            standard_ref::technical_committee,
-            standard_ref::publication_at,
-            standard_ref::standard_status_id,
-        ))
-        .get_result::<SlimStandard>(conn);
-
-    match inserted_data {
-        Ok(x) => Ok(x),
-        Err(err) => {
+        .returning(standard_ref::uuid)
+        .get_result::<Uuid>(conn)
+        .map_err(|err| {
             debug!("Failed created standard: {:?}", err);
-
-            Err(ServiceError::BadRequest(
-                "Failed created standard".to_string()
-            ))
-        },
-    }
+            ServiceError::InternalServerError
+        })
 }

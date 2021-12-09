@@ -520,7 +520,38 @@ describe('company', () => {
       .post('/graphql')
       .send({
         query: `mutation standardQuery {
-          registerStandard( data: {
+          registerStandard(arg: {
+            classifier: "${classifierStandard}",
+            name: "${nameStandard}",
+            description: "${descriptionStandard}",
+            specifiedTolerance: "${specifiedTolerance}",
+            technicalCommittee: "${technicalCommittee}",
+            publicationAt: "${publicationAt}",
+            companyUuid: "${companyUuidSupplier}",
+            typeAccessId: ${typeAccessId3},
+            standardStatusId: ${standardStatusId},
+            regionId: ${regionId}
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql - body=%o', body);
+    const { errors, data } = body;
+    expect(data).toBeNull();
+    expect(errors[0].message).toBe("BadRequest: Token not found.");
+    done();
+  });
+
+  it('/graphql:M registerStandard - BadRequest access denied', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation standardQuery {
+          registerStandard(arg: {
             parentStandardUuid: "${parentStandardUuid}",
             classifier: "${classifierStandard}",
             name: "${nameStandard}",
@@ -532,22 +563,14 @@ describe('company', () => {
             typeAccessId: ${typeAccessId3},
             standardStatusId: ${standardStatusId},
             regionId: ${regionId}
-          }) {
-            uuid
-            classifier
-            name
-            specifiedTolerance
-            technicalCommittee
-            publicationAt
-            standardStatusId
-          }
+          })
         }`,
       })
       .expect(HttpStatus.OK)
-    debug('/graphql - body=%o', body);
+    debug('/graphql registerStandard=%o', body);
     const { errors, data } = body;
     expect(data).toBeNull();
-    expect(errors[0].message).toBe("BadRequest: Token not found.");
+    expect(errors[0].message).toBe("BadRequest: Access denied");
     done();
   });
 
@@ -560,8 +583,7 @@ describe('company', () => {
       )
       .send({
         query: `mutation standardQuery {
-          registerStandard( data: {
-            parentStandardUuid: "${parentStandardUuid}",
+          registerStandard(arg: {
             classifier: "${classifierStandard}",
             name: "${nameStandard}",
             description: "${descriptionStandard}",
@@ -572,25 +594,17 @@ describe('company', () => {
             typeAccessId: ${typeAccessId3},
             standardStatusId: ${standardStatusId},
             regionId: ${regionId}
-          }) {
-            uuid
-            classifier
-            name
-            specifiedTolerance
-            technicalCommittee
-            publicationAt
-            standardStatusId
-          }
+          })
         }`,
       })
       .expect(HttpStatus.OK)
     debug('/graphql registerStandard=%o', body);
+    // expect(body).toBe(0);
     const {
       data: { registerStandard },
     } = body;
-    expect(registerStandard.uuid).toBeNonEmptyString();
-    expect(registerStandard.name).toBe(nameStandard);
-    standardUuidFirst = registerStandard.uuid;
+    expect(registerStandard).toBeNonEmptyString();
+    standardUuidFirst = registerStandard;
     done();
   });
 
@@ -603,7 +617,7 @@ describe('company', () => {
       )
       .send({
         query: `mutation standardQuery {
-          registerStandard( data: {
+          registerStandard(arg: {
             classifier: "${classifierStandard}",
             name: "${nameStandard}",
             description: "${descriptionStandard}",
@@ -614,15 +628,7 @@ describe('company', () => {
             typeAccessId: ${typeAccessId1},
             standardStatusId: ${standardStatusId},
             regionId: ${regionId}
-          }) {
-            uuid
-            classifier
-            name
-            specifiedTolerance
-            technicalCommittee
-            publicationAt
-            standardStatusId
-          }
+          })
         }`,
       })
       .expect(HttpStatus.OK)
@@ -630,8 +636,7 @@ describe('company', () => {
     const {
       data: { registerStandard },
     } = body;
-    expect(registerStandard.uuid).toBeNonEmptyString();
-    expect(registerStandard.name).toBe(nameStandard);
+    expect(registerStandard).toBeNonEmptyString();
     done();
   });
 
@@ -644,8 +649,8 @@ describe('company', () => {
       )
       .send({
         query: `mutation standardQuery {
-          registerStandard( data: {
-            parentStandardUuid: "${parentStandardUuid}",
+          registerStandard(arg: {
+            parentStandardUuid: "${standardUuidFirst}",
             classifier: "${classifierStandard}",
             name: "${nameStandard}",
             description: "${descriptionStandard}",
@@ -656,15 +661,7 @@ describe('company', () => {
             typeAccessId: ${typeAccessId1},
             standardStatusId: ${standardStatusId},
             regionId: ${regionId}
-          }) {
-            uuid
-            classifier
-            name
-            specifiedTolerance
-            technicalCommittee
-            publicationAt
-            standardStatusId
-          }
+          })
         }`,
       })
       .expect(HttpStatus.OK)
@@ -672,9 +669,8 @@ describe('company', () => {
     const {
       data: { registerStandard },
     } = body;
-    expect(registerStandard.uuid).toBeNonEmptyString();
-    expect(registerStandard.name).toBe(nameStandard);
-    standardUuidSecond = registerStandard.uuid;
+    expect(registerStandard).toBeNonEmptyString();
+    standardUuidSecond = registerStandard;
     done();
   });
 
@@ -687,8 +683,8 @@ describe('company', () => {
       )
       .send({
         query: `mutation standardQuery {
-          registerStandard( data: {
-            parentStandardUuid: "${parentStandardUuid}",
+          registerStandard(arg: {
+            parentStandardUuid: "${standardUuidFirst}",
             classifier: "${classifierStandard}",
             name: "${nameStandard}",
             description: "${descriptionStandard}",
@@ -699,15 +695,7 @@ describe('company', () => {
             typeAccessId: ${typeAccessId3},
             standardStatusId: ${standardStatusId},
             regionId: ${regionId}
-          }) {
-            uuid
-            classifier
-            name
-            specifiedTolerance
-            technicalCommittee
-            publicationAt
-            standardStatusId
-          }
+          })
         }`,
       })
       .expect(HttpStatus.OK)
@@ -727,8 +715,8 @@ describe('company', () => {
       )
       .send({
         query: `mutation standardQuery {
-          registerStandard( data: {
-            parentStandardUuid: "${parentStandardUuid}",
+          registerStandard(arg: {
+            parentStandardUuid: "${standardUuidFirst}",
             classifier: "${classifierStandard}",
             name: "${nameStandard}",
             description: "${descriptionStandard}",
@@ -739,15 +727,7 @@ describe('company', () => {
             typeAccessId: ${typeAccessId3},
             standardStatusId: ${standardStatusId},
             regionId: ${regionId}
-          }) {
-            uuid
-            classifier
-            name
-            specifiedTolerance
-            technicalCommittee
-            publicationAt
-            standardStatusId
-          }
+          })
         }`,
       })
       .expect(HttpStatus.OK)
@@ -3552,17 +3532,7 @@ describe('company', () => {
       )
       .send({
         query: `mutation {
-          deleteStandard(
-            standardUuid: "${standardUuidFirst}"
-          ) {
-            uuid
-            classifier
-            name
-            specifiedTolerance
-            technicalCommittee
-            publicationAt
-            standardStatusId
-          }
+          deleteStandard(standardUuid: "${standardUuidFirst}")
         }`,
       })
       .expect(HttpStatus.OK)
@@ -3582,17 +3552,7 @@ describe('company', () => {
       )
       .send({
         query: `mutation {
-          deleteStandard(
-            standardUuid: "${standardUuidSecond}"
-          ) {
-            uuid
-            classifier
-            name
-            specifiedTolerance
-            technicalCommittee
-            publicationAt
-            standardStatusId
-          }
+          deleteStandard(standardUuid: "${standardUuidSecond}")
         }`,
       })
       .expect(HttpStatus.OK)
@@ -3600,42 +3560,6 @@ describe('company', () => {
     const { errors, data } = body;
     expect(data).toBeNull();
     expect(errors[0].message).toBe("BadRequest: Access denied");
-    done();
-  });
-
-  it('/graphql:M deleteStandard - OK delete first', async (done) => {
-    const { body } = await agent
-      .post('/graphql')
-      .set(
-        'Authorization',
-        `Bearer ${authorizationTokenFirst}`
-      )
-      .send({
-        query: `mutation {
-          deleteStandard(
-            standardUuid: "${standardUuidFirst}"
-          ) {
-            uuid
-            classifier
-            name
-            specifiedTolerance
-            technicalCommittee
-            publicationAt
-            standardStatusId
-          }
-        }`,
-      })
-      .expect(HttpStatus.OK)
-    debug('/graphql deleteStandard=%o', body);
-    // expect(body).toBe(0);
-    const {
-      data: { deleteStandard },
-    } = body;
-    expect(deleteStandard).toContainAllKeys([
-      'uuid', 'classifier', 'name', 'specifiedTolerance',
-      'technicalCommittee', 'publicationAt', 'standardStatusId',
-    ]);
-    expect(deleteStandard.uuid).toBe(standardUuidFirst);
     done();
   });
 
@@ -3648,17 +3572,7 @@ describe('company', () => {
       )
       .send({
         query: `mutation {
-          deleteStandard(
-            standardUuid: "${standardUuidSecond}"
-          ) {
-            uuid
-            classifier
-            name
-            specifiedTolerance
-            technicalCommittee
-            publicationAt
-            standardStatusId
-          }
+          deleteStandard(standardUuid: "${standardUuidSecond}")
         }`,
       })
       .expect(HttpStatus.OK)
@@ -3666,12 +3580,30 @@ describe('company', () => {
       const {
         data: { deleteStandard },
       } = body;
-      expect(deleteStandard).toContainAllKeys([
-        'uuid', 'classifier', 'name', 'specifiedTolerance',
-        'technicalCommittee', 'publicationAt', 'standardStatusId',
-      ]);
-      expect(deleteStandard.uuid).toBe(standardUuidSecond);
+      expect(deleteStandard).toBe(standardUuidSecond);
       done();
+  });
+
+  it('/graphql:M deleteStandard - OK delete first', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation {
+          deleteStandard(standardUuid: "${standardUuidFirst}")
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql deleteStandard=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { deleteStandard },
+    } = body;
+    expect(deleteStandard).toBe(standardUuidFirst);
+    done();
   });
 
   it('/graphql:M deleteStandard - BadRequest data not found', async (done) => {
@@ -3683,17 +3615,7 @@ describe('company', () => {
       )
       .send({
         query: `mutation {
-          deleteStandard(
-            standardUuid: "${standardUuidSecond}"
-          ) {
-            uuid
-            classifier
-            name
-            specifiedTolerance
-            technicalCommittee
-            publicationAt
-            standardStatusId
-          }
+          deleteStandard(standardUuid: "${standardUuidSecond}")
         }`,
       })
       .expect(HttpStatus.OK)

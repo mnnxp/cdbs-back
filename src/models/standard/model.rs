@@ -133,17 +133,6 @@ pub struct StandardData {
     pub region_id: i32,
 }
 
-#[derive(Debug, Serialize, Deserialize, Queryable, SimpleObject, Clone)]
-pub struct SlimStandard {
-    pub uuid: Uuid,
-    pub classifier: String,
-    pub name: String,
-    pub specified_tolerance: String,
-    pub technical_committee: String,
-    pub publication_at: NaiveDateTime,
-    pub standard_status_id: i32,
-}
-
 impl From<StandardData> for InsertableStandard {
     fn from(company_data: StandardData) -> Self {
         let StandardData {
@@ -186,31 +175,6 @@ impl From<StandardData> for InsertableStandard {
             is_delete: false,
             created_at: chrono::Local::now().naive_local(),
             updated_at: chrono::Local::now().naive_local(),
-        }
-    }
-}
-
-impl From<Standard> for SlimStandard {
-    fn from(company: Standard) -> Self {
-        let Standard {
-            uuid,
-            classifier,
-            name,
-            specified_tolerance,
-            technical_committee,
-            publication_at,
-            standard_status_id,
-            ..
-        } = company;
-
-        Self {
-            uuid,
-            classifier,
-            name,
-            specified_tolerance,
-            technical_committee,
-            publication_at,
-            standard_status_id,
         }
     }
 }

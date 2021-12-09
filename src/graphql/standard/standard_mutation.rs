@@ -1,17 +1,15 @@
 use crate::errors::ServiceResult;
 use crate::database::{get_conn, PooledConnection};
 use crate::models::user::access::logged::get_logged_user_uuid;
-use crate::models::standard::model::{IptStandardData, IptUpdateStandardData, SlimStandard};
-use crate::models::standard::access::model::{ChangeOwnerStandard, ChangeTypeAccessStandard};
-use crate::models::standard::access::company::model::{
-    IptCompanyAccessStandardData, DelCompanyAccessStandardData
+use crate::models::standard::{
+    model::{IptStandardData, IptUpdateStandardData},
+    access::model::{ChangeOwnerStandard, ChangeTypeAccessStandard},
+    access::company::model::{IptCompanyAccessStandardData, DelCompanyAccessStandardData},
+    access::user::model::{IptUserAccessStandardData, DelUserAccessStandardData},
+    spec::model::IptStandardSpecsData,
+    keyword::model::{IptStandardKeywordsData, IptStandardKeywordsNames},
+    file::model::{IptStandardFilesData, DeleteStandardFileData},
 };
-use crate::models::standard::access::user::model::{
-    IptUserAccessStandardData, DelUserAccessStandardData
-};
-use crate::models::standard::spec::model::IptStandardSpecsData;
-use crate::models::standard::keyword::model::{IptStandardKeywordsData, IptStandardKeywordsNames};
-use crate::models::standard::file::model::{IptStandardFilesData, DeleteStandardFileData};
 use crate::models::relate_ref::file::model::UploadFile;
 use async_graphql::{self, Context, Object};
 use uuid::Uuid;
@@ -24,8 +22,8 @@ impl StandardMutation {
     async fn register_standard(
         &self,
         cxt: &Context<'_>,
-        data: IptStandardData,
-    ) -> ServiceResult<SlimStandard> {
+        arg: IptStandardData,
+    ) -> ServiceResult<Uuid> {
         use crate::models::standard::service::register::create_standard;
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
@@ -34,7 +32,7 @@ impl StandardMutation {
 
         create_standard(
             &logged_user_uuid,
-            &data,
+            &arg,
             conn
         )
     }
@@ -103,7 +101,7 @@ impl StandardMutation {
         &self,
         cxt: &Context<'_>,
         standard_uuid: Uuid,
-    ) -> ServiceResult<SlimStandard> {
+    ) -> ServiceResult<Uuid> {
         use crate::models::standard::service::delete::del_standard_data;
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
