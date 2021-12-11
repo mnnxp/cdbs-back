@@ -2974,22 +2974,14 @@ describe('company', () => {
       )
       .send({
         query: `mutation  {
-            registerComponent( data: {
-                parentComponentUuid: "${parentComponentUuid}",
+            registerComponent(data: {
                 name: "${nameComponent}",
                 description: "${descriptionComponent}",
                 typeAccessId: ${typeAccessIdComponent},
                 componentTypeId: ${componentTypeId},
                 actualStatusId: ${actualStatusIdComponent},
                 isBase: ${isBaseComponent}
-            }) {
-                uuid
-                name
-                description
-                actualStatusId
-                isBase
-                updatedAt
-            }
+            })
         }`,
       })
       .expect(HttpStatus.OK)
@@ -2997,15 +2989,8 @@ describe('company', () => {
     const {
       data: { registerComponent },
     } = body;
-    componentUuidStandard = registerComponent.uuid;
-    expect(registerComponent).toContainAllKeys([
-      "description", "actualStatusId", "isBase", "name", "updatedAt", "uuid"
-    ]);
-    expect(registerComponent.uuid).toBeNonEmptyString();
-    expect(registerComponent.name).toBe(nameComponent);
-    expect(registerComponent.description).toBe(descriptionComponent);
-    expect(registerComponent.isBase).toBe(isBaseComponent);
-    expect(registerComponent.actualStatusId).toBe(actualStatusIdComponent);
+    componentUuidStandard = registerComponent;
+    expect(registerComponent).toBeNonEmptyString();
     done();
   });
 
@@ -3018,22 +3003,14 @@ describe('company', () => {
       )
       .send({
         query: `mutation  {
-            registerComponent( data: {
-                parentComponentUuid: "${parentComponentUuid}",
+            registerComponent(data: {
                 name: "${nameComponent2}",
                 description: "${descriptionComponent}",
                 typeAccessId: ${typeAccessIdComponentPrivate},
                 componentTypeId: ${componentTypeId},
                 actualStatusId: ${actualStatusIdComponent},
                 isBase: ${isBaseComponent0}
-            }) {
-                uuid
-                name
-                description
-                actualStatusId
-                isBase
-                updatedAt
-            }
+            })
         }`,
       })
       .expect(HttpStatus.OK)
@@ -3041,15 +3018,8 @@ describe('company', () => {
     const {
       data: { registerComponent },
     } = body;
-    componentUuidNoStandard = registerComponent.uuid;
-    expect(registerComponent).toContainAllKeys([
-      "description", "actualStatusId", "isBase", "name", "updatedAt", "uuid"
-    ]);
-    expect(registerComponent.uuid).toBeNonEmptyString();
-    expect(registerComponent.name).toBe(nameComponent2);
-    expect(registerComponent.description).toBe(descriptionComponent);
-    expect(registerComponent.isBase).toBe(isBaseComponent0);
-    expect(registerComponent.actualStatusId).toBe(actualStatusIdComponent);
+    componentUuidNoStandard = registerComponent;
+    expect(registerComponent).toBeNonEmptyString();
     done();
   });
 

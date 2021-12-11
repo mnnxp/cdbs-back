@@ -11,6 +11,7 @@ use crate::models::component::{
 };
 use crate::models::standard::model::ShowStandardShort;
 use crate::models::relate_ref::{
+    type_access::model::TypeAccessTranslateList,
     license::model::License,
     file::model::ShowFileRelatedData,
     keyword::model::Keyword,
@@ -112,6 +113,13 @@ impl ShowComponentShort {
             conn
         ).expect("Error loading slim_user");
 
+        // get component type with translation
+        let type_access: TypeAccessTranslateList = TypeAccessTranslateList::get_type_access_by_id(
+            &component.type_access_id,
+            set_lang_id,
+            conn
+        ).expect("Error loading type_access");
+
         // get component type with translation for component
         let component_type: ComponentTypeTranslateList = ComponentTypeTranslateList::get_component_type_by_id(
             &component.component_type_id,
@@ -156,7 +164,7 @@ impl ShowComponentShort {
             name: component.name,
             description: component.description,
             owner_user,
-            type_access_id: component.type_access_id,
+            type_access,
             component_type,
             actual_status,
             is_followed,
@@ -257,13 +265,12 @@ impl ComponentAndRelatedData {
             conn
         ).expect("Error loading slim_user");
 
-        // todo!(need make access manager)
-        // get component type with translation for component
-        // let type_access: TypeAccessTranslateList = TypeAccessTranslateList::get_component_type_by_id(
-        //     &component.type_access_id,
-        //     set_lang_id,
-        //     conn
-        // ).expect("Error loading type_access");
+        // get component type with translation
+        let type_access: TypeAccessTranslateList = TypeAccessTranslateList::get_type_access_by_id(
+            &component.type_access_id,
+            set_lang_id,
+            conn
+        ).expect("Error loading type_access");
 
         // get component type with translation for component
         let component_type: ComponentTypeTranslateList = ComponentTypeTranslateList::get_component_type_by_id(
@@ -354,7 +361,7 @@ impl ComponentAndRelatedData {
             name: component.name,
             description: component.description,
             owner_user,
-            type_access_id: component.type_access_id,
+            type_access,
             component_type,
             actual_status,
             is_base: component.is_base,

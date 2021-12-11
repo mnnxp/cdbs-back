@@ -1,11 +1,9 @@
-use crate::errors::ServiceResult;
-use crate::models::component::model::{
-    IptComponentData,
-    InsertableComponent,
-    SlimComponent,
-    Component,
-    ComponentData
+use crate::errors::{ServiceResult, ServiceError};
+use crate::models::component::{
+    model::{IptComponentData, InsertableComponent, ComponentData},
+    access::util::check_access_component_for_user,
 };
+use crate::schema::component_ref::dsl as component_ref;
 use diesel::prelude::*;
 use uuid::Uuid;
 
@@ -13,11 +11,18 @@ pub(crate) fn create_component(
     logged_user_uuid: &Uuid,
     data: &IptComponentData,
     conn: &PgConnection
-) -> ServiceResult<SlimComponent> {
-    use crate::schema::component_ref::dsl::component_ref;
+) -> ServiceResult<Uuid> {
 
     let parent_component_uuid = match data.parent_component_uuid {
-        Some(x) => x,
+        Some(ref parent_component_uuid) => {
+            check_access_component_for_user(
+                logged_user_uuid,
+                parent_component_uuid,
+                &3, // need_access_level
+                conn
+            )?;
+            *parent_component_uuid
+        },
         None => Uuid::parse_str("a5953fd9-7393-4f1e-a899-06b5e159dbf1")?,
     };
 
@@ -34,9 +39,12 @@ pub(crate) fn create_component(
 
     let component: InsertableComponent = component_data.into();
 
-    let inserted_component: Component = diesel::insert_into(component_ref)
+    diesel::insert_into(component_ref::component_ref)
         .values(&component)
-        .get_result(conn)?;
-
-    Ok(inserted_component.into())
+        .returning(component_ref::uuid)
+        .get_result(conn)
+        .map_err(|err| {
+            debug!("Failed created standard: {:?}", err);
+            ServiceError::InternalServerError
+        })
 }

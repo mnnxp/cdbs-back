@@ -8,6 +8,7 @@ use crate::models::component::{
 use crate::models::user::model::ShowUserShort;
 use crate::models::standard::model::ShowStandardShort;
 use crate::models::relate_ref::{
+    type_access::model::TypeAccessTranslateList,
     license::model::License,
     keyword::model::Keyword,
     file::model::ShowFileRelatedData,
@@ -43,7 +44,7 @@ pub struct ComponentAndRelatedData {
     pub name: String,
     pub description: String,
     pub owner_user: ShowUserShort,
-    pub type_access_id: i32, //TypeAccess
+    pub type_access: TypeAccessTranslateList,
     pub component_type: ComponentTypeTranslateList,
     pub actual_status: ActualStatusTranslateList,
     pub is_base: bool,
@@ -63,14 +64,13 @@ pub struct ComponentAndRelatedData {
     pub component_standards: Vec<ShowStandardShort>,
 }
 
-
 #[derive(Debug, SimpleObject)]
 pub struct ShowComponentShort {
     pub uuid: Uuid,
     pub name: String,
     pub description: String,
     pub owner_user: ShowUserShort,
-    pub type_access_id: i32, //TypeAccess
+    pub type_access: TypeAccessTranslateList,
     pub component_type: ComponentTypeTranslateList,
     pub actual_status: ActualStatusTranslateList,
     // for display the checkbox "favorites"
@@ -124,18 +124,6 @@ pub struct IptComponentData {
     pub is_base: bool,
 }
 
-#[derive(Debug, Serialize, Queryable, SimpleObject)]
-pub struct SlimComponent {
-    pub uuid: Uuid,
-    pub name: String,
-    pub description: String,
-    pub type_access_id: i32,
-    pub component_type_id: i32,
-    pub actual_status_id: i32,
-    pub is_base: bool,
-    pub updated_at: NaiveDateTime,
-}
-
 impl From<ComponentData> for InsertableComponent {
     fn from(data_component: ComponentData) -> Self {
         let ComponentData {
@@ -163,33 +151,6 @@ impl From<ComponentData> for InsertableComponent {
             is_delete: false,
             created_at: chrono::Local::now().naive_local(),
             updated_at: chrono::Local::now().naive_local(),
-        }
-    }
-}
-
-impl From<Component> for SlimComponent {
-    fn from(component: Component) -> Self {
-        let Component {
-            uuid,
-            name,
-            description,
-            type_access_id,
-            component_type_id,
-            actual_status_id,
-            is_base,
-            updated_at,
-            ..
-        } = component;
-
-        Self {
-            uuid,
-            name,
-            description,
-            type_access_id,
-            component_type_id,
-            actual_status_id,
-            is_base,
-            updated_at,
         }
     }
 }

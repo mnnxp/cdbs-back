@@ -96,7 +96,11 @@ ownerUser { \
     downloadUrl \
   } \
 } \
-typeAccessId \
+typeAccess { \
+  typeAccessId \
+  langId \
+  name \
+} \
 componentType { \
   componentTypeId \
   langId \
@@ -251,7 +255,11 @@ ownerUser { \
     downloadUrl \
   } \
 } \
-typeAccessId \
+typeAccess { \
+  typeAccessId \
+  langId \
+  name \
+} \
 componentType { \
   componentType \
 } \
@@ -653,7 +661,7 @@ describe('component', () => {
       .post('/graphql')
       .send({
         query: `mutation  {
-            registerComponent( data: {
+            registerComponent(data: {
                 parentComponentUuid: "${parentComponentUuid}",
                 name: "${nameComponent}",
                 description: "${descriptionComponent}",
@@ -661,14 +669,7 @@ describe('component', () => {
                 componentTypeId: ${componentTypeId},
                 actualStatusId: ${actualStatusIdComponent},
                 isBase: ${isBaseComponent}
-            }) {
-                uuid
-                name
-                description
-                actualStatusId
-                isBase
-                updatedAt
-            }
+            })
         }`,
       })
       .expect(HttpStatus.OK)
@@ -677,6 +678,34 @@ describe('component', () => {
     expect(body.errors[0].message).toBe(
       'BadRequest: Token not found.'
     );
+    expect(body.errors[0].path[0]).toBe('registerComponent');
+    done();
+  });
+
+  it('/graphql:M registerComponent - BadRequest not access parent component', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation  {
+            registerComponent(data: {
+                parentComponentUuid: "${parentComponentUuid}",
+                name: "${nameComponent}",
+                description: "${descriptionComponent}",
+                typeAccessId: ${typeAccessIdComponent},
+                componentTypeId: ${componentTypeId},
+                actualStatusId: ${actualStatusIdComponent},
+                isBase: ${isBaseComponent}
+            })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql registerComponent=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe('BadRequest: Access denied');
     expect(body.errors[0].path[0]).toBe('registerComponent');
     done();
   });
@@ -690,22 +719,14 @@ describe('component', () => {
       )
       .send({
         query: `mutation  {
-            registerComponent( data: {
-                parentComponentUuid: "${parentComponentUuid}",
+            registerComponent(data: {
                 name: "${nameComponent}",
                 description: "${descriptionComponent}",
                 typeAccessId: ${typeAccessIdComponent},
                 componentTypeId: ${componentTypeId},
                 actualStatusId: ${actualStatusIdComponent},
                 isBase: ${isBaseComponent}
-            }) {
-                uuid
-                name
-                description
-                actualStatusId
-                isBase
-                updatedAt
-            }
+            })
         }`,
       })
       .expect(HttpStatus.OK)
@@ -713,15 +734,8 @@ describe('component', () => {
     const {
       data: { registerComponent },
     } = body;
-    componentUuidStandard = registerComponent.uuid;
-    expect(registerComponent).toContainAllKeys([
-      "description", "actualStatusId", "isBase", "name", "updatedAt", "uuid"
-    ]);
-    expect(registerComponent.uuid).toBeNonEmptyString();
-    expect(registerComponent.name).toBe(nameComponent);
-    expect(registerComponent.description).toBe(descriptionComponent);
-    expect(registerComponent.isBase).toBe(isBaseComponent);
-    expect(registerComponent.actualStatusId).toBe(actualStatusIdComponent);
+    componentUuidStandard = registerComponent;
+    expect(registerComponent).toBeNonEmptyString();
     done();
   });
 
@@ -734,21 +748,14 @@ describe('component', () => {
       )
       .send({
         query: `mutation  {
-            registerComponent( data: {
+            registerComponent(data: {
                 name: "${nameComponent2}",
                 description: "${descriptionComponent}",
                 typeAccessId: ${typeAccessIdComponentPrivate},
                 componentTypeId: ${componentTypeId},
                 actualStatusId: ${actualStatusIdComponent},
                 isBase: ${isBaseComponent0}
-            }) {
-                uuid
-                name
-                description
-                actualStatusId
-                isBase
-                updatedAt
-            }
+            })
         }`,
       })
       .expect(HttpStatus.OK)
@@ -756,15 +763,8 @@ describe('component', () => {
     const {
       data: { registerComponent },
     } = body;
-    expect(registerComponent).toContainAllKeys([
-      "description", "actualStatusId", "isBase", "name", "updatedAt", "uuid"
-    ]);
-    expect(registerComponent.uuid).toBeNonEmptyString();
-    expect(registerComponent.name).toBe(nameComponent2);
-    expect(registerComponent.description).toBe(descriptionComponent);
-    expect(registerComponent.isBase).toBe(isBaseComponent0);
-    expect(registerComponent.actualStatusId).toBe(actualStatusIdComponent);
-    componentUuidNoStandard = registerComponent.uuid;
+    componentUuidNoStandard = registerComponent;
+    expect(registerComponent).toBeNonEmptyString();
     done();
   });
 
@@ -777,21 +777,14 @@ describe('component', () => {
       )
       .send({
         query: `mutation  {
-            registerComponent( data: {
+            registerComponent(data: {
                 name: "${nameComponent}",
                 description: "${descriptionComponent}",
                 typeAccessId: ${typeAccessIdComponentPrivate},
                 componentTypeId: ${componentTypeId},
                 actualStatusId: ${actualStatusIdComponent},
                 isBase: ${isBaseComponent0}
-            }) {
-                uuid
-                name
-                description
-                actualStatusId
-                isBase
-                updatedAt
-            }
+            })
         }`,
       })
       .expect(HttpStatus.OK)
@@ -799,14 +792,7 @@ describe('component', () => {
     const {
       data: { registerComponent },
     } = body;
-    expect(registerComponent).toContainAllKeys([
-      "description", "actualStatusId", "isBase", "name", "updatedAt", "uuid"
-    ]);
-    expect(registerComponent.uuid).toBeNonEmptyString();
-    expect(registerComponent.name).toBe(nameComponent);
-    expect(registerComponent.description).toBe(descriptionComponent);
-    expect(registerComponent.isBase).toBe(isBaseComponent0);
-    expect(registerComponent.actualStatusId).toBe(actualStatusIdComponent);
+    expect(registerComponent).toBeNonEmptyString();
     // componentUuidNoStandard = registerComponent.uuid;
     done();
   });
@@ -2395,13 +2381,6 @@ describe('component', () => {
     const {
       data: { component },
     } = body;
-    expect(component).toContainAllKeys(
-       ["actualStatus", "componentKeywords", "componentModifications",
-       "componentParams", "componentSpecs", "componentStandards",
-       "componentSuppliers", "componentType", "description", "files", "isBase",
-       "isFollowed", "licenses", "name", "ownerUser", "parentComponentUuid",
-       "subscribers", "typeAccessId", "updatedAt", "uuid"]
-    );
     expect(component.uuid).toBe(componentUuidStandard);
     expect(component.parentComponentUuid).toBe(parentComponentUuid);
     expect(component.ownerUser.uuid).toBeNonEmptyString();
@@ -3745,18 +3724,13 @@ describe('component', () => {
       .post('/graphql')
       .send({
         query: `mutation {
-          registerComponentModification( data: {
+          registerComponentModification(data: {
             modificationName: "${modificationName}",
             componentUuid: "${componentUuidNoStandard}",
             parentModificationUuid: "${parentModificationUuid}",
             description: "${descriptionModification}",
             actualStatusId: ${actualStatusIdModification}
-          }) {
-            uuid
-            modificationName
-            description
-            updatedAt
-          }
+          })
         }`,
       })
       .expect(HttpStatus.OK)
@@ -3778,18 +3752,13 @@ describe('component', () => {
       )
       .send({
         query: `mutation {
-          registerComponentModification( data: {
+          registerComponentModification(data: {
             modificationName: "${modificationName}",
             componentUuid: "${componentUuidStandard}",
             parentModificationUuid: "${parentModificationUuid}",
             description: "${descriptionModification}",
             actualStatusId: ${actualStatusIdModification}
-          }) {
-            uuid
-            componentUuid
-            modificationName
-            description
-          }
+          })
         }`,
       })
       .expect(HttpStatus.OK)
@@ -3797,14 +3766,8 @@ describe('component', () => {
     const {
       data: { registerComponentModification },
     } = body;
-    componentModificationUuidFirst = registerComponentModification.uuid;
-    expect(registerComponentModification).toContainAllKeys(
-      ["uuid", "componentUuid", "modificationName", "description"]
-    );
-    expect(registerComponentModification.uuid).not.toBeNull();
-    expect(registerComponentModification.componentUuid).toBe(componentUuidStandard);
-    expect(registerComponentModification.modificationName).toBe(modificationName);
-    expect(registerComponentModification.description).toBe(descriptionModification);
+    componentModificationUuidFirst = registerComponentModification;
+    expect(registerComponentModification).toBeNonEmptyString();
     done();
   });
 
@@ -3817,18 +3780,13 @@ describe('component', () => {
       )
       .send({
         query: `mutation {
-          registerComponentModification( data: {
+          registerComponentModification(data: {
             modificationName: "${modificationName}",
             componentUuid: "${componentUuidNoStandard}",
             parentModificationUuid: "${parentModificationUuid}",
             description: "${descriptionModification}",
             actualStatusId: ${actualStatusIdModification}
-          }) {
-            uuid
-            componentUuid
-            modificationName
-            description
-          }
+          })
         }`,
       })
       .expect(HttpStatus.OK)
@@ -3836,14 +3794,8 @@ describe('component', () => {
     const {
       data: { registerComponentModification },
     } = body;
-    componentModificationUuidSecond = registerComponentModification.uuid;
-    expect(registerComponentModification).toContainAllKeys(
-      ["uuid", "componentUuid", "modificationName", "description"]
-    );
-    expect(registerComponentModification.uuid).not.toBeNull();
-    expect(registerComponentModification.componentUuid).toBe(componentUuidNoStandard);
-    expect(registerComponentModification.modificationName).toBe(modificationName);
-    expect(registerComponentModification.description).toBe(descriptionModification);
+    componentModificationUuidSecond = registerComponentModification;
+    expect(registerComponentModification).toBeNonEmptyString();
     done();
   });
 
@@ -3856,18 +3808,13 @@ describe('component', () => {
       )
       .send({
         query: `mutation {
-          registerComponentModification( data: {
+          registerComponentModification(data: {
             modificationName: "${modificationName}",
             componentUuid: "${componentUuidStandard}",
             parentModificationUuid: "${componentModificationUuidFirst}",
             description: "${descriptionModification}",
             actualStatusId: ${actualStatusIdModification}
-          }) {
-            uuid
-            componentUuid
-            modificationName
-            description
-          }
+          })
         }`,
       })
       .expect(HttpStatus.OK)
@@ -3875,13 +3822,7 @@ describe('component', () => {
     const {
       data: { registerComponentModification },
     } = body;
-    expect(registerComponentModification).toContainAllKeys(
-      ["uuid", "componentUuid", "modificationName", "description"]
-    );
-    expect(registerComponentModification.uuid).not.toBe(componentModificationUuidFirst);
-    expect(registerComponentModification.componentUuid).toBe(componentUuidStandard);
-    expect(registerComponentModification.modificationName).toBe(modificationName);
-    expect(registerComponentModification.description).toBe(descriptionModification);
+    expect(registerComponentModification).toBeNonEmptyString();
     done();
   });
 
@@ -3894,18 +3835,13 @@ describe('component', () => {
       )
       .send({
         query: `mutation {
-          registerComponentModification( data: {
+          registerComponentModification(data: {
             modificationName: "${modificationName}",
             componentUuid: "${componentUuidNoStandard}",
             parentModificationUuid: "${parentModificationUuid}",
             description: "${descriptionModification}",
             actualStatusId: ${actualStatusIdModification}
-          }) {
-            uuid
-            componentUuid
-            modificationName
-            description
-          }
+          })
         }`,
       })
       .expect(HttpStatus.OK)
@@ -6092,13 +6028,7 @@ describe('component', () => {
             deleteComponentModification(data: {
               componentUuid: "${componentUuidStandard}"
               modificationUuid: "${componentModificationUuidFirst}"
-            }) {
-              uuid
-              componentUuid
-              modificationName
-              description
-              updatedAt
-            }
+            })
         }`,
       })
       .expect(HttpStatus.OK)
@@ -6123,13 +6053,7 @@ describe('component', () => {
             deleteComponentModification(data: {
               componentUuid: "${componentUuidStandard}"
               modificationUuid: "${componentModificationUuidFirst}"
-            }) {
-              uuid
-              componentUuid
-              modificationName
-              description
-              updatedAt
-            }
+            })
         }`,
       })
       .expect(HttpStatus.OK)
@@ -6154,13 +6078,7 @@ describe('component', () => {
             deleteComponentModification(data: {
               componentUuid: "${componentUuidStandard}"
               modificationUuid: "${componentModificationUuidFirst}"
-            }) {
-              uuid
-              componentUuid
-              modificationName
-              description
-              updatedAt
-            }
+            })
         }`,
       })
       .expect(HttpStatus.OK)
@@ -6169,12 +6087,7 @@ describe('component', () => {
     const {
       data: { deleteComponentModification },
     } = body;
-    expect(deleteComponentModification).toContainAllKeys([
-      "componentUuid", "description", "modificationName", "updatedAt", "uuid"
-    ]);
-    expect(deleteComponentModification.uuid).toBe(componentModificationUuidFirst);
-    expect(deleteComponentModification.modificationName).toBe(nameModificationForUpdate);
-    expect(deleteComponentModification.description).toBe(descriptionModificationForUpdate);
+    expect(deleteComponentModification).toBeNonEmptyString();
     done();
   });
 
@@ -6190,21 +6103,13 @@ describe('component', () => {
             deleteComponentModification(data: {
               componentUuid: "${componentUuidStandard}"
               modificationUuid: "${componentModificationUuidFirst}"
-            }) {
-              uuid
-              componentUuid
-              modificationName
-              description
-              updatedAt
-            }
+            })
         }`,
       })
       .expect(HttpStatus.OK)
     debug('/graphql body=%o', body);
     expect(body.data).toBeNull();
-    expect(body.errors[0].message).toBe(
-      'BadRequest: Failed delete component modification'
-    );
+    expect(body.errors[0].message).toBe('Internal Server Error');
     expect(body.errors[0].path[0]).toBe('deleteComponentModification');
     done();
   });
@@ -6274,7 +6179,9 @@ describe('component', () => {
               ownerUser {
                 uuid
               }
-              typeAccessId
+              typeAccess {
+                typeAccessId
+              }
             }
           }`,
         })
@@ -6286,7 +6193,7 @@ describe('component', () => {
     } = body;
     expect(component.uuid).toBe(componentUuidNoStandard);
     expect(component.ownerUser.uuid).toBe(authorizationUserSecond);
-    expect(component.typeAccessId).toBe(typeAccessId2);
+    expect(component.typeAccess.typeAccessId).toBe(typeAccessId2);
     done();
   });
 
@@ -6355,7 +6262,9 @@ describe('component', () => {
               ownerUser {
                 uuid
               }
-              typeAccessId
+              typeAccess {
+                typeAccessId
+              }
             }
           }`,
         })
@@ -6367,7 +6276,7 @@ describe('component', () => {
     } = body;
     expect(component.uuid).toBe(componentUuidNoStandard);
     expect(component.ownerUser.uuid).toBe(authorizationUserFirst);
-    expect(component.typeAccessId).toBe(typeAccessId2);
+    expect(component.typeAccess.typeAccessId).toBe(typeAccessId2);
     done();
   });
 
@@ -6377,14 +6286,7 @@ describe('component', () => {
       .post('/graphql')
       .send({
         query: `mutation  {
-            deleteComponent( componentUuid: "${componentUuidStandard}") {
-                uuid
-                name
-                description
-                actualStatusId
-                isBase
-                updatedAt
-            }
+            deleteComponent(componentUuid: "${componentUuidStandard}")
         }`,
       })
       .expect(HttpStatus.OK)
@@ -6406,22 +6308,13 @@ describe('component', () => {
       )
       .send({
         query: `mutation  {
-            deleteComponent( componentUuid: "${componentUuidStandard}") {
-                uuid
-                name
-                description
-                actualStatusId
-                isBase
-                updatedAt
-            }
+            deleteComponent(componentUuid: "${componentUuidStandard}")
         }`,
       })
       .expect(HttpStatus.OK)
     debug('/graphql body=%o', body);
     expect(body.data).toBeNull();
-    expect(body.errors[0].message).toBe(
-      'BadRequest: Failed delete component'
-    );
+    expect(body.errors[0].message).toBe('Internal Server Error');
     expect(body.errors[0].path[0]).toBe('deleteComponent');
     done();
   });
@@ -6435,14 +6328,7 @@ describe('component', () => {
       )
       .send({
         query: `mutation  {
-            deleteComponent( componentUuid: "${componentUuidStandard}") {
-                uuid
-                name
-                description
-                actualStatusId
-                isBase
-                updatedAt
-            }
+            deleteComponent(componentUuid: "${componentUuidStandard}")
         }`,
       })
       .expect(HttpStatus.OK)
@@ -6451,14 +6337,7 @@ describe('component', () => {
     const {
       data: { deleteComponent },
     } = body;
-    expect(deleteComponent).toContainAllKeys([
-      "description", "actualStatusId", "isBase", "name", "updatedAt", "uuid"
-    ]);
-    expect(deleteComponent.uuid).toBeNonEmptyString();
-    expect(deleteComponent.name).toBe(nameComponent);
-    expect(deleteComponent.description).toBe(descriptionComponent);
-    expect(deleteComponent.isBase).toBe(isBaseComponent);
-    expect(deleteComponent.actualStatusId).toBe(actualStatusIdComponent);
+    expect(deleteComponent).toBeNonEmptyString();
     done();
   });
 
@@ -6471,22 +6350,13 @@ describe('component', () => {
       )
       .send({
         query: `mutation  {
-            deleteComponent( componentUuid: "${componentUuidStandard}") {
-                uuid
-                name
-                description
-                actualStatusId
-                isBase
-                updatedAt
-            }
+            deleteComponent(componentUuid: "${componentUuidStandard}")
         }`,
       })
       .expect(HttpStatus.OK)
     debug('/graphql body=%o', body);
     expect(body.data).toBeNull();
-    expect(body.errors[0].message).toBe(
-      'BadRequest: Failed delete component'
-    );
+    expect(body.errors[0].message).toBe('Internal Server Error');
     expect(body.errors[0].path[0]).toBe('deleteComponent');
     done();
   });

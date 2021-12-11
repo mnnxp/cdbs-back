@@ -3,12 +3,11 @@ use crate::models::component::component_modification::param::model::Modification
 use crate::models::component::component_modification::fileset_for_program::model::FilesetProgramRelatedData;
 use crate::models::component::model::Component;
 use crate::schema::*;
-use async_graphql::types::ID;
 use async_graphql::*;
 use chrono::*;
 use uuid::Uuid;
 
-#[derive(Identifiable, Deserialize, Queryable, Associations, PartialEq, Clone, Debug)]
+#[derive(Identifiable, Deserialize, Queryable, Associations, PartialEq, Clone, SimpleObject, Debug)]
 #[primary_key(uuid)]
 #[belongs_to(Component, foreign_key = "component_uuid")]
 #[table_name = "component_modification_list"]
@@ -22,37 +21,6 @@ pub struct ComponentModification {
     pub is_delete: bool,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
-}
-
-#[Object]
-impl ComponentModification {
-    async fn uuid(&self) -> ID {
-        self.uuid.into()
-    }
-    async fn component_uuid(&self) -> ID {
-        self.component_uuid.into()
-    }
-    async fn parent_modification_uuid(&self) -> ID {
-        self.parent_modification_uuid.into()
-    }
-    async fn modification_name(&self) -> &String {
-        &self.modification_name
-    }
-    async fn description(&self) -> &String {
-        &self.description
-    }
-    async fn actual_status_id(&self) -> &i32 {
-        &self.actual_status_id
-    }
-    async fn is_delete(&self) -> &bool {
-        &self.is_delete
-    }
-    async fn created_at(&self) -> &NaiveDateTime {
-        &self.created_at
-    }
-    async fn updated_at(&self) -> &NaiveDateTime {
-        &self.updated_at
-    }
 }
 
 #[derive(Deserialize, SimpleObject, Debug)]
@@ -169,32 +137,4 @@ pub struct IptUpdateComponentModificationData {
 pub struct DelComponentModificationData {
     pub component_uuid: Uuid,
     pub modification_uuid: Uuid,
-}
-
-#[derive(Debug, Serialize, Queryable, Clone)]
-pub struct SlimComponentModification {
-    pub uuid: Uuid,
-    pub component_uuid: Uuid,
-    pub modification_name: String,
-    pub description: String,
-    pub updated_at: NaiveDateTime,
-}
-
-#[Object]
-impl SlimComponentModification {
-    async fn uuid(&self) -> ID {
-        self.uuid.into()
-    }
-    async fn component_uuid(&self) -> ID {
-        self.component_uuid.into()
-    }
-    async fn modification_name(&self) -> &String {
-        &self.modification_name
-    }
-    async fn description(&self) -> &String {
-        &self.description
-    }
-    async fn updated_at(&self) -> &NaiveDateTime {
-        &self.updated_at
-    }
 }

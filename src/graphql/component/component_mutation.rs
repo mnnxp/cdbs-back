@@ -1,48 +1,39 @@
 use crate::database::{get_conn, PooledConnection};
 use crate::errors::ServiceResult;
 use crate::models::user::access::logged::get_logged_user_uuid;
-use crate::models::component::model::{IptComponentData, SlimComponent, IptUpdateComponentData};
-use crate::models::component::access::model::{
-    ChangeOwnerComponent, ChangeTypeAccessComponent,
-};
-use crate::models::component::access::company::model::{
-    IptCompanyAccessComponentData, DelCompanyAccessComponentData
-};
-use crate::models::component::access::user::model::{
-    IptUserAccessComponentData, DelUserAccessComponentData
-};
-use crate::models::component::keyword as component_keyword;
-use crate::models::component::keyword::model::IptComponentKeywordData;
-use crate::models::component::license::model::IptComponentLicenseData;
-use crate::models::component::param as component_param;
-use crate::models::component::param::model::{IptComponentParamData, DelComponentParamData};
-use crate::models::component::spec as component_spec;
-use crate::models::component::spec::model::IptComponentSpecData;
-use crate::models::component::file as component_file;
-use crate::models::component::file::model::{IptComponentFileData, DelComponentFileData};
-use crate::models::component::supplier as component_supplier;
-use crate::models::component::supplier::model::DelSuppliersComponentData;
-use crate::models::component::standard as component_standard;
-use crate::models::component::standard::model::{
-    IptStandardToComponentData, DelStandardToComponentData
-};
-use crate::models::component::component_modification;
-use crate::models::component::component_modification::modification_file_from_fileset::model::{
-    IptModificationFileFromFilesetData, DelModificationFileFromFilesetData,
-};
-use crate::models::component::component_modification::model::{
-    IptComponentModificationData, IptUpdateComponentModificationData,
-    SlimComponentModification, DelComponentModificationData
-};
-use crate::models::component::component_modification::param::model::{
-    IptModificationParamData, DelModificationParamData,
-};
-use crate::models::component::component_modification::file::model::{
-    IptModificationFileData, DelModificationFileData
-};
-use crate::models::component::component_modification::fileset_for_program as fileset_program;
-use crate::models::component::component_modification::fileset_for_program::model::{
-    IptFilesetProgramData, FilesetProgram, DelFilesetProgramData,
+use crate::models::component::{
+    model::{IptComponentData, IptUpdateComponentData},
+    access::model::{ChangeOwnerComponent, ChangeTypeAccessComponent},
+    access::company::model::{
+        IptCompanyAccessComponentData, DelCompanyAccessComponentData
+    },
+    access::user::model::{IptUserAccessComponentData, DelUserAccessComponentData},
+    keyword as component_keyword,
+    keyword::model::IptComponentKeywordData,
+    license::model::IptComponentLicenseData,
+    param as component_param,
+    param::model::{IptComponentParamData, DelComponentParamData},
+    spec as component_spec,
+    spec::model::IptComponentSpecData,
+    file as component_file,
+    file::model::{IptComponentFileData, DelComponentFileData},
+    supplier as component_supplier,
+    supplier::model::DelSuppliersComponentData,
+    standard as component_standard,
+    standard::model::{IptStandardToComponentData, DelStandardToComponentData},
+    component_modification,
+    component_modification::{
+        modification_file_from_fileset::model::{
+            IptModificationFileFromFilesetData, DelModificationFileFromFilesetData
+        },
+        model::{IptComponentModificationData, IptUpdateComponentModificationData, DelComponentModificationData},
+        param::model::{IptModificationParamData, DelModificationParamData},
+        file::model::{IptModificationFileData, DelModificationFileData},
+        fileset_for_program as fileset_program,
+        fileset_for_program::model::{
+            IptFilesetProgramData, FilesetProgram, DelFilesetProgramData,
+        },
+    },
 };
 use crate::models::relate_ref::file::model::UploadFile;
 
@@ -58,7 +49,7 @@ impl ComponentMutation {
         &self,
         cxt: &Context<'_>,
         data: IptComponentData,
-    ) -> ServiceResult<SlimComponent> {
+    ) -> ServiceResult<Uuid> {
         use crate::models::component::service::register::create_component;
 
         // checking authorization and getting user uuid
@@ -138,7 +129,7 @@ impl ComponentMutation {
         &self,
         cxt: &Context<'_>,
         component_uuid: Uuid,
-    ) -> ServiceResult<SlimComponent> {
+    ) -> ServiceResult<Uuid> {
         use crate::models::component::service::delete::del_component;
 
         // checking authorization and getting user uuid
@@ -469,7 +460,7 @@ impl ComponentMutation {
         &self,
         cxt: &Context<'_>,
         data: IptComponentModificationData,
-    ) -> ServiceResult<SlimComponentModification> {
+    ) -> ServiceResult<Uuid> {
         use component_modification::service::register::create_component_modification;
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
@@ -508,7 +499,7 @@ impl ComponentMutation {
         &self,
         cxt: &Context<'_>,
         data: DelComponentModificationData,
-    ) -> ServiceResult<SlimComponentModification> {
+    ) -> ServiceResult<Uuid> {
         use component_modification::service::delete::del_component_modification;
 
         // checking authorization and getting user uuid
