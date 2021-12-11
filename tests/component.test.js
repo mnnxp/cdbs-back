@@ -3328,7 +3328,7 @@ describe('component', () => {
       )
       .send({
           query: `mutation {
-            deleteComponentFile(data: {
+            deleteComponentFile(arg: {
               fileUuid: "${fileUuid1}"
               componentUuid: "${componentUuidNoStandard}"
             })
@@ -3353,7 +3353,7 @@ describe('component', () => {
       )
       .send({
           query: `mutation {
-            deleteComponentFile(data: {
+            deleteComponentFile(arg: {
               fileUuid: "${fileUuid2}"
               componentUuid: "${componentUuidNoStandard}"
             })
@@ -3377,7 +3377,7 @@ describe('component', () => {
       )
       .send({
           query: `mutation {
-            deleteComponentFile(data: {
+            deleteComponentFile(arg: {
               fileUuid: "${fileUuid3}"
               componentUuid: "${componentUuidNoStandard}"
             })
@@ -3401,7 +3401,7 @@ describe('component', () => {
       )
       .send({
           query: `mutation {
-            deleteComponentFile(data: {
+            deleteComponentFile(arg: {
               fileUuid: "${fileUuid4}"
               componentUuid: "${componentUuidNoStandard}"
             })
@@ -3425,7 +3425,7 @@ describe('component', () => {
       )
       .send({
           query: `mutation {
-            deleteComponentFile(data: {
+            deleteComponentFile(arg: {
               fileUuid: "${fileUuid5}"
               componentUuid: "${componentUuidNoStandard}"
             })
@@ -4376,7 +4376,7 @@ describe('component', () => {
       )
       .send({
           query: `mutation {
-            deleteModificationFile(data: {
+            deleteModificationFile(arg: {
               fileUuid: "${fileUuid1}"
               modificationUuid: "${componentModificationUuidSecond}"
             })
@@ -4400,7 +4400,7 @@ describe('component', () => {
       )
       .send({
           query: `mutation {
-            deleteModificationFile(data: {
+            deleteModificationFile(arg: {
               fileUuid: "${fileUuid2}"
               modificationUuid: "${componentModificationUuidSecond}"
             })
@@ -4424,7 +4424,7 @@ describe('component', () => {
       )
       .send({
           query: `mutation {
-            deleteModificationFile(data: {
+            deleteModificationFile(arg: {
               fileUuid: "${fileUuid3}"
               modificationUuid: "${componentModificationUuidSecond}"
             })
@@ -4448,7 +4448,7 @@ describe('component', () => {
       )
       .send({
           query: `mutation {
-            deleteModificationFile(data: {
+            deleteModificationFile(arg: {
               fileUuid: "${fileUuid4}"
               modificationUuid: "${componentModificationUuidSecond}"
             })
@@ -4472,7 +4472,7 @@ describe('component', () => {
       )
       .send({
           query: `mutation {
-            deleteModificationFile(data: {
+            deleteModificationFile(arg: {
               fileUuid: "${fileUuid5}"
               modificationUuid: "${componentModificationUuidSecond}"
             })

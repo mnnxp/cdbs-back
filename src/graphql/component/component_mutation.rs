@@ -387,7 +387,7 @@ impl ComponentMutation {
     async fn delete_component_file(
         &self,
         cxt: &Context<'_>,
-        data: DelComponentFileData,
+        arg: DelComponentFileData,
     ) -> ServiceResult<bool> {
         use component_file::service::delete::delete_component_file;
 
@@ -397,7 +397,7 @@ impl ComponentMutation {
 
         delete_component_file(
             &logged_user_uuid,
-            &data,
+            &arg,
             conn
         )
     }
@@ -571,7 +571,7 @@ impl ComponentMutation {
     async fn delete_modification_file(
         &self,
         cxt: &Context<'_>,
-        data: DelModificationFileData,
+        arg: DelModificationFileData,
     ) -> ServiceResult<bool> {
         use component_modification::file::service::delete::delete_modification_file;
 
@@ -581,7 +581,7 @@ impl ComponentMutation {
 
         delete_modification_file(
             &logged_user_uuid,
-            &data,
+            &arg,
             conn
         )
     }
