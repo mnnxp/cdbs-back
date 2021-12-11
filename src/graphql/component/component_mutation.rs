@@ -14,7 +14,7 @@ use crate::models::component::{
     param as component_param,
     param::model::{IptComponentParamData, DelComponentParamData},
     spec as component_spec,
-    spec::model::IptComponentSpecData,
+    spec::model::IptComponentSpecsData,
     file as component_file,
     file::model::{IptComponentFileData, DelComponentFileData},
     supplier as component_supplier,
@@ -297,7 +297,7 @@ impl ComponentMutation {
     async fn add_component_specs(
         &self,
         cxt: &Context<'_>,
-        data: IptComponentSpecData,
+        data: IptComponentSpecsData,
     ) -> ServiceResult<i32> {
         use component_spec::service::add::add_component_specs;
 
@@ -315,7 +315,7 @@ impl ComponentMutation {
     async fn delete_component_specs(
         &self,
         cxt: &Context<'_>,
-        data: IptComponentSpecData,
+        data: IptComponentSpecsData,
     ) -> ServiceResult<i32> {
         use component_spec::service::delete::del_component_specs;
 

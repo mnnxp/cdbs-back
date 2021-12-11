@@ -3,15 +3,15 @@ use crate::errors::{
     ServiceError,
 };
 use crate::models::component::spec::model::{
-    IptComponentSpecData,
-    DeleteComponentSpec
+    IptComponentSpecsData,
+    DeleteComponentSpecs
 };
 use diesel::prelude::*;
 use uuid::Uuid;
 
 pub(crate) fn del_component_specs(
     logged_user_uuid: &Uuid,
-    data: &IptComponentSpecData,
+    data: &IptComponentSpecsData,
     conn: &PgConnection
 ) -> ServiceResult<i32> {
     use crate::schema::spec_to_component::dsl::*;
@@ -26,7 +26,7 @@ pub(crate) fn del_component_specs(
     )?;
 
     // creating structures for delete records
-    let del_specs: DeleteComponentSpec = data.into();
+    let del_specs: DeleteComponentSpecs = data.into();
 
     if del_specs.spec_ids.is_empty() {
         // return error if not found correct specs

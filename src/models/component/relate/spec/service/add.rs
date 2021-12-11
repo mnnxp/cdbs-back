@@ -4,7 +4,7 @@ use crate::errors::{
 };
 use crate::models::component::spec::model::{
     ComponentSpec,
-    IptComponentSpecData,
+    IptComponentSpecsData,
     InsertableComponentSpec
 };
 use diesel::prelude::*;
@@ -12,7 +12,7 @@ use uuid::Uuid;
 
 pub(crate) fn add_component_specs(
     logged_user_uuid: &Uuid,
-    data: &IptComponentSpecData,
+    data: &IptComponentSpecsData,
     conn: &PgConnection
 ) -> ServiceResult<i32> {
     use crate::schema::spec_to_component::dsl::*;

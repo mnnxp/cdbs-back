@@ -16,7 +16,7 @@ pub struct ComponentSpec {
 }
 
 #[derive(Debug, Deserialize, Clone, InputObject)]
-pub struct IptComponentSpecData {
+pub struct IptComponentSpecsData {
     pub component_uuid: Uuid,
     pub spec_ids: Vec<i32>,
 }
@@ -28,9 +28,9 @@ pub struct InsertableComponentSpec {
     pub spec_id: i32,
 }
 
-impl From<&IptComponentSpecData> for Vec<InsertableComponentSpec> {
-    fn from(ipt_data: &IptComponentSpecData) -> Vec<InsertableComponentSpec> {
-        let IptComponentSpecData {
+impl From<&IptComponentSpecsData> for Vec<InsertableComponentSpec> {
+    fn from(ipt_data: &IptComponentSpecsData) -> Vec<InsertableComponentSpec> {
+        let IptComponentSpecsData {
             component_uuid,
             spec_ids,
             ..
@@ -51,14 +51,14 @@ impl From<&IptComponentSpecData> for Vec<InsertableComponentSpec> {
 }
 
 #[derive(Debug, Clone)]
-pub struct DeleteComponentSpec {
+pub struct DeleteComponentSpecs {
     pub component_uuid: Uuid,
     pub spec_ids: Vec<i32>,
 }
 
-impl From<&IptComponentSpecData> for DeleteComponentSpec {
-    fn from(ipt_data: &IptComponentSpecData) -> Self {
-        let IptComponentSpecData {
+impl From<&IptComponentSpecsData> for DeleteComponentSpecs {
+    fn from(ipt_data: &IptComponentSpecsData) -> Self {
+        let IptComponentSpecsData {
             component_uuid,
             spec_ids,
             ..
