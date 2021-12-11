@@ -3074,110 +3074,6 @@ describe('component', () => {
     done();
   });
 
-  // it('/graphql:M addStandardToComponent - BadRequest no access', async (done) => {
-  //   const { body } = await agent
-  //     .post('/graphql')
-  //     .set(
-  //       'Authorization',
-  //       `Bearer ${authorizationTokenSecond}`
-  //     )
-  //     .send({
-  //       query: `mutation  {
-  //           addStandardToComponent( data: {
-  //               componentUuid: "${componentUuidStandard}",
-  //               standardUuid: "${parentStandardUuid}"
-  //           })
-  //       }`,
-  //     })
-  //     .expect(HttpStatus.OK)
-  //   debug('/graphql  body=%o', body);
-  //   const { errors, data } = body;
-  //   expect(data).toBeNull();
-  //   expect(errors[0].message).toBe("BadRequest: Access denied");
-  //   expect(body.errors[0].path[0]).toBe('addStandardToComponent');
-  //   done();
-  // });
-
-  // Testing component files
-  it('/graphql:Q ComponentFiles - BadRequest no token', async (done) => {
-    const { body } = await agent
-      .post('/graphql')
-      .send({
-          query: `query componentQuery{
-            componentFiles(componentUuid: "${componentUuidNoStandard}") {
-              uuid
-              filename
-              filesize
-              downloadUrl
-            }
-          }`,
-        })
-      .expect(HttpStatus.OK)
-    debug('/graphql componentFiles=%o', body);
-    expect(body.data).toBeNull();
-    expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
-    );
-    expect(body.errors[0].path[0]).toBe('componentFiles');
-    done();
-  });
-
-  it('/graphql:Q ComponentFiles - BadRequest no access', async (done) => {
-    const { body } = await agent
-      .post('/graphql')
-      .set(
-        'Authorization',
-        `Bearer ${authorizationTokenSecond}`
-      )
-      .send({
-          query: `query componentQuery{
-            componentFiles(componentUuid: "${parentComponentUuid}") {
-              uuid
-              filename
-              filesize
-              downloadUrl
-            }
-          }`,
-        })
-      .expect(HttpStatus.OK)
-    debug('/graphql  body=%o', body);
-    const { errors, data } = body;
-    expect(data).toBeNull();
-    expect(errors[0].message).toBe("BadRequest: Access denied");
-    expect(body.errors[0].path[0]).toBe('componentFiles');
-    done();
-  });
-
-  // it('/graphql:Q ComponentFiles - OK with parentComponentUuid', async (done) => {
-  //   const { body } = await agent
-  //     .post('/graphql')
-  //     .set(
-  //       'Authorization',
-  //       `Bearer ${authorizationTokenSecond}`
-  //     )
-  //     .send({
-  //         query: `query componentQuery{
-  //           componentFiles(componentUuid: "${parentComponentUuid}") {
-  //             uuid
-  //             filename
-  //             filesize
-  //             downloadUrl
-  //           }
-  //         }`,
-  //       })
-  //     .expect(HttpStatus.OK)
-  //   debug('/graphql componentFiles=%o', body);
-  //   const {
-  //     data: { componentFiles },
-  //   } = body;
-  //   expect(componentFiles).toBeNonEmptyArray();
-  //   expect(componentFiles[0].uuid).toBeNonEmptyString();
-  //   expect(componentFiles[0].filename).toBeNonEmptyString();
-  //   expect(componentFiles[0].filesize).toBe(0);
-  //   expect(componentFiles[0].downloadUrl).toBeNonEmptyString();
-  //   done();
-  // });
-
   it('/graphql:M uploadComponentFiles - BadRequest no access', async (done) => {
     const { body } = await agent
       .post('/graphql')
@@ -3262,6 +3158,7 @@ describe('component', () => {
     done();
   });
 
+  // Testing get component files
   it('/graphql:Q ComponentFiles - OK 5 files', async (done) => {
     const { body } = await agent
       .post('/graphql')
@@ -3271,7 +3168,9 @@ describe('component', () => {
       )
       .send({
           query: `query componentQuery{
-            componentFiles(componentUuid: "${componentUuidNoStandard}") {
+            componentFiles(arg: {
+              componentUuid: "${componentUuidNoStandard}"
+            }){
               uuid
               filename
               filesize
@@ -3281,6 +3180,7 @@ describe('component', () => {
         })
       .expect(HttpStatus.OK)
     debug('/graphql componentFiles=%o', body);
+    // expect(body).toBe(0);
     const {
       data: { componentFiles },
     } = body;
@@ -3305,6 +3205,120 @@ describe('component', () => {
     done();
   });
 
+  it('/graphql:Q componentFiles - BadRequest not token', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .send({
+        query: `query {
+          componentFiles(arg: {
+            componentUuid: "${componentUuidNoStandard}"
+          }) {
+            uuid
+            filename
+            filesize
+            downloadUrl
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql componentFiles=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Token not found.'
+    );
+    expect(body.errors[0].path[0]).toBe('componentFiles');
+    done();
+  });
+
+  it('/graphql:Q componentFiles - Ok', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `query {
+          componentFiles(arg: {
+            componentUuid: "${componentUuidNoStandard}"
+          }) {
+            uuid
+            filename
+            filesize
+            downloadUrl
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql componentFiles=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { componentFiles },
+    } = body;
+    expect(componentFiles[0].uuid).toBe(fileUuid1);
+    expect(componentFiles[1].uuid).toBe(fileUuid2);
+    expect(componentFiles.length).toBe(5);
+    done();
+  });
+
+  it('/graphql:Q componentFiles - Ok filter by uuid', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `query {
+          componentFiles(arg: {
+            componentUuid: "${componentUuidNoStandard}"
+            filesUuids: "${fileUuid2}"
+          }) {
+            uuid
+            filename
+            filesize
+            downloadUrl
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql componentFiles=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { componentFiles },
+    } = body;
+    expect(componentFiles[0].uuid).toBe(fileUuid2);
+    expect(componentFiles.length).toBe(1);
+    done();
+  });
+
+  it('/graphql:Q componentFiles - BadRequest access denied', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `query {
+          componentFiles(arg: {
+            componentUuid: "${parentComponentUuid}"
+          }) {
+            uuid
+            filename
+            filesize
+            downloadUrl
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql componentFiles=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe('BadRequest: Access denied');
+    expect(body.errors[0].path[0]).toBe('componentFiles');
+    done();
+  });
+
   it('/graphql:M deleteComponentFile - OK delete file 1', async (done) => {
     const { body } = await agent
       .post('/graphql')
@@ -3322,6 +3336,7 @@ describe('component', () => {
         })
       .expect(HttpStatus.OK)
     debug('/graphql deleteComponentFile=%o', body);
+    // expect(body).toBe(0);
     const {
       data: { deleteComponentFile },
     } = body;
@@ -3434,7 +3449,9 @@ describe('component', () => {
       )
       .send({
           query: `query componentQuery{
-            componentFiles(componentUuid: "${componentUuidNoStandard}") {
+            componentFiles(arg: {
+              componentUuid: "${componentUuidNoStandard}"
+            }){
               uuid
               filename
               filesize

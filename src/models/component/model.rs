@@ -223,3 +223,29 @@ impl From<IptComponentsArg> for ComponentsArg {
         }
     }
 }
+
+#[derive(InputObject, Deserialize, Debug)]
+pub struct IptComponentFilesArg {
+    pub component_uuid:  Uuid,
+    pub files_uuids: Option<Vec<Uuid>>,
+}
+
+#[derive(Debug)]
+pub struct ComponentFilesArg {
+    pub component_uuid:  Uuid,
+    pub files_uuids: Vec<Uuid>,
+}
+
+impl From<IptComponentFilesArg> for ComponentFilesArg {
+    fn from(data: IptComponentFilesArg) -> Self {
+        let IptComponentFilesArg {
+            component_uuid,
+            files_uuids,
+        } = data;
+
+        Self {
+            component_uuid,
+            files_uuids: files_uuids.unwrap_or_default(),
+        }
+    }
+}

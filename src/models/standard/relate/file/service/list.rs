@@ -1,4 +1,4 @@
-use crate::errors::ServiceResult;
+use crate::errors::{ServiceResult, ServiceError};
 use crate::models::relate_ref::file::{
     model::DownloadFile,
     service::list::get_urls_by_files_uuids,
@@ -31,20 +31,28 @@ pub(crate) fn get_standard_files(
         conn,
     )?;
 
-    let target_file_uuids: Vec<Uuid> = match files_uuids.is_empty() {
+    let target_files_uuids: Vec<Uuid> = match files_uuids.is_empty() {
         true => file_to_standard::file_to_standard
             .filter(file_to_standard::standard_uuid.eq(standard_uuid))
             .select(file_to_standard::file_uuid)
-            .load::<Uuid>(conn)?,
+            .load::<Uuid>(conn)
+            .map_err(|err| {
+                debug!("Failed get files for standard: {:?}", err);
+                ServiceError::InternalServerError
+            })?,
         false => file_to_standard::file_to_standard
             .filter(file_to_standard::standard_uuid.eq(standard_uuid)
             .and(file_to_standard::file_uuid.eq_any(files_uuids)))
             .select(file_to_standard::file_uuid)
-            .load::<Uuid>(conn)?,
+            .load::<Uuid>(conn)
+            .map_err(|err| {
+                debug!("Failed get files for standard: {:?}", err);
+                ServiceError::InternalServerError
+            })?,
     };
 
     get_urls_by_files_uuids(
-        &target_file_uuids,
+        &target_files_uuids,
         conn
     )
 }

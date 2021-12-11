@@ -994,7 +994,7 @@ describe('company', () => {
   });
 
   // Testing get standard files
-  it('/graphql:M standardFiles - BadRequest not token', async (done) => {
+  it('/graphql:Q standardFiles - BadRequest not token', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .send({
@@ -1019,7 +1019,7 @@ describe('company', () => {
     done();
   });
 
-  it('/graphql:M standardFiles - Ok', async (done) => {
+  it('/graphql:Q standardFiles - Ok', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .set(
@@ -1050,7 +1050,7 @@ describe('company', () => {
     done();
   });
 
-  it('/graphql:M standardFiles - Ok filter by uuid', async (done) => {
+  it('/graphql:Q standardFiles - Ok filter by uuid', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .set(
@@ -1081,7 +1081,7 @@ describe('company', () => {
     done();
   });
 
-  it('/graphql:M standardFiles - BadRequest access denied', async (done) => {
+  it('/graphql:Q standardFiles - BadRequest access denied', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .set(

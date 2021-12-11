@@ -2,7 +2,10 @@ use crate::errors::ServiceResult;
 use crate::database::{get_conn, PooledConnection};
 use crate::models::user::access::logged::get_logged_user_uuid;
 use crate::models::component::{
-    model::{ComponentAndRelatedData, ShowComponentShort, ComponentsArg, IptComponentsArg},
+    model::{
+        ComponentAndRelatedData, ShowComponentShort,
+        ComponentsArg, IptComponentsArg, IptComponentFilesArg, ComponentFilesArg
+    },
     relate::spec::model::{IptComponentSpecsArg, ComponentSpecsArg},
     component_modification,
     component_modification::fileset_for_program::model::FilesetProgramRelatedData,
@@ -110,18 +113,18 @@ impl ComponentQuery {
     async fn component_files(
         &self,
         cxt: &Context<'_>,
-        component_uuid: Uuid,
+        arg: IptComponentFilesArg,
     ) -> ServiceResult<Vec<DownloadFile>> {
         use crate::models::component::file::service::list::get_component_files;
 
         // authorization check
         let logged_user_uuid: Uuid = get_logged_user_uuid(cxt, true)?;
-
+        let arg: ComponentFilesArg = arg.into();
         let conn: &PooledConnection = &get_conn(cxt)?;
 
         get_component_files(
             &logged_user_uuid,
-            &component_uuid,
+            &arg,
             conn
         )
     }
