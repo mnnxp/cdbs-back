@@ -9,7 +9,7 @@ use crate::models::component::{
     },
     access::user::model::{IptUserAccessComponentData, DelUserAccessComponentData},
     keyword as component_keyword,
-    keyword::model::IptComponentKeywordData,
+    keyword::model::{IptComponentKeywordsData, IptComponentKeywordsNames},
     license::model::IptComponentLicenseData,
     param as component_param,
     param::model::{IptComponentParamData, DelComponentParamData},
@@ -333,8 +333,8 @@ impl ComponentMutation {
     async fn add_component_keywords(
         &self,
         cxt: &Context<'_>,
-        data: IptComponentKeywordData,
-    ) -> ServiceResult<i32> {
+        data: IptComponentKeywordsData,
+    ) -> ServiceResult<usize> {
         use component_keyword::service::add::add_component_keywords;
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
@@ -348,10 +348,28 @@ impl ComponentMutation {
         )
     }
 
+    async fn add_component_keywords_by_names(
+        &self,
+        cxt: &Context<'_>,
+        data: IptComponentKeywordsNames,
+    ) -> ServiceResult<usize> {
+        use crate::models::component::keyword::service::add::add_keywords_by_names;
+
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+
+        let conn: &PooledConnection = &get_conn(cxt)?;
+
+        add_keywords_by_names(
+            &logged_user_uuid,
+            &data,
+            conn
+        )
+    }
+
     async fn delete_component_keywords(
         &self,
         cxt: &Context<'_>,
-        data: IptComponentKeywordData,
+        data: IptComponentKeywordsData,
     ) -> ServiceResult<i32> {
         use component_keyword::service::delete::del_component_keywords;
 

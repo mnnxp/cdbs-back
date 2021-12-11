@@ -3,7 +3,7 @@ use crate::errors::{
     ServiceError,
 };
 use crate::models::component::keyword::model::{
-    IptComponentKeywordData,
+    IptComponentKeywordsData,
     DeleteComponentKeyword
 };
 use diesel::prelude::*;
@@ -11,7 +11,7 @@ use uuid::Uuid;
 
 pub(crate) fn del_component_keywords(
     logged_user_uuid: &Uuid,
-    data: &IptComponentKeywordData,
+    data: &IptComponentKeywordsData,
     conn: &PgConnection
 ) -> ServiceResult<i32> {
     use crate::schema::keyword_to_component::dsl::*;

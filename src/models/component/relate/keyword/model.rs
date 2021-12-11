@@ -43,9 +43,15 @@ impl From<(ComponentKeyword, Keyword)> for ComponentKeywordRelatedData {
 }
 
 #[derive(Debug, Deserialize, Clone, InputObject)]
-pub struct IptComponentKeywordData {
+pub struct IptComponentKeywordsData {
     pub component_uuid: Uuid,
     pub keyword_ids: Vec<i32>,
+}
+
+#[derive(Debug, Deserialize, Clone, InputObject)]
+pub struct IptComponentKeywordsNames {
+    pub component_uuid: Uuid,
+    pub keywords: Vec<String>,
 }
 
 #[derive(Debug, Insertable)]
@@ -55,9 +61,9 @@ pub struct InsertableComponentKeyword {
     pub keyword_id: i32,
 }
 
-impl From<&IptComponentKeywordData> for Vec<InsertableComponentKeyword> {
-    fn from(ipt_data: &IptComponentKeywordData) -> Vec<InsertableComponentKeyword> {
-        let IptComponentKeywordData {
+impl From<&IptComponentKeywordsData> for Vec<InsertableComponentKeyword> {
+    fn from(ipt_data: &IptComponentKeywordsData) -> Vec<InsertableComponentKeyword> {
+        let IptComponentKeywordsData {
             component_uuid,
             keyword_ids,
             ..
@@ -85,9 +91,9 @@ pub struct DeleteComponentKeyword {
     pub keyword_ids: Vec<i32>,
 }
 
-impl From<&IptComponentKeywordData> for DeleteComponentKeyword {
-    fn from(ipt_data: &IptComponentKeywordData) -> Self {
-        let IptComponentKeywordData {
+impl From<&IptComponentKeywordsData> for DeleteComponentKeyword {
+    fn from(ipt_data: &IptComponentKeywordsData) -> Self {
+        let IptComponentKeywordsData {
             component_uuid,
             keyword_ids,
             ..

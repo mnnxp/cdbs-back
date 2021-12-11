@@ -1279,11 +1279,10 @@ describe('component', () => {
       })
       .expect(HttpStatus.OK)
     debug('/graphql addComponentKeywords=%o', body);
-    expect(body.data).toBeNull();
-    expect(body.errors[0].message).toBe(
-      "BadRequest: This ids [1, 3, 5] already has"
-    );
-    expect(body.errors[0].path[0]).toBe('addComponentKeywords');
+    const {
+      data: { addComponentKeywords },
+    } = body;
+    expect(addComponentKeywords).toBe(0);
     done();
   });
 
