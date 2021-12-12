@@ -92,10 +92,22 @@ pub struct InsertableComponentModification {
     pub updated_at: NaiveDateTime,
 }
 
+impl InsertableComponentModification {
+    /// Change parent uuid to base for insert new row
+    pub(crate) fn parent_uuid_to_base(&mut self) {
+        self.parent_modification_uuid = Uuid::parse_str("aba22d59-4f6c-44a4-9a37-2d38f0e577a8").unwrap();
+    }
+
+    // /// Change parent uuid for insert new row
+    // pub(crate) fn change_parent_uuid(&mut self, new_uuid: &Uuid) {
+    //     self.parent_modification_uuid = *new_uuid;
+    // }
+}
+
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub struct IptComponentModificationData {
     pub component_uuid: Uuid,
-    pub parent_modification_uuid: Uuid,
+    pub parent_modification_uuid: Option<Uuid>,
     pub modification_name: String,
     pub description: String,
     pub actual_status_id: i32,
@@ -111,10 +123,16 @@ impl From<&IptComponentModificationData> for InsertableComponentModification {
             actual_status_id,
         } = ipt_data;
 
+        let uuid = Uuid::new_v4();
+        let parent_modification_uuid = match parent_modification_uuid {
+            Some(parent_uuid) => *parent_uuid,
+            None => uuid,
+        };
+
         Self {
-            uuid: Uuid::new_v4(),
+            uuid,
             component_uuid: *component_uuid,
-            parent_modification_uuid: *parent_modification_uuid,
+            parent_modification_uuid,
             modification_name: modification_name.to_string(),
             description: description.to_string(),
             actual_status_id: *actual_status_id,
