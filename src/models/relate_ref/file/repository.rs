@@ -270,18 +270,12 @@ impl DownloadFile {
         }
 
         for tfu in target_files_uuids {
-            let res = DownloadFile::get_by_file_uuid(
-                tfu,
-                conn
-            );
+            let res = DownloadFile::get_by_file_uuid(tfu, conn).map_err(|err| {
+                debug!("Failed get data DownloadFile: {:?}", err);
+                ServiceError::InternalServerError
+            })?;
 
-            match res {
-                Ok(value) => collect_res.push(value),
-                Err(err) => {
-                    debug!("Failed get data DownloadFile: {:?}", err);
-                    return Err(ServiceError::InternalServerError);
-                },
-            }
+            collect_res.push(res);
         }
 
         Ok(collect_res)

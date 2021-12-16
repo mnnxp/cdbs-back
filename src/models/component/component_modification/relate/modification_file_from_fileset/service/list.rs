@@ -6,7 +6,7 @@ use crate::models::component::{
     },
     access::util::check_access_component_for_user,
 };
-use crate::models::relate_ref::file::model::ShowFileRelatedData;
+use crate::models::relate_ref::file::model::{ShowFileRelatedData, DownloadFile};
 use crate::schema::modification_file_from_fileset::dsl as modification_file_from_fileset;
 use diesel::prelude::*;
 use uuid::Uuid;
@@ -16,6 +16,35 @@ pub(crate) fn get_files_of_fileset(
     arguments: &FileOfFilesetArg,
     conn: &PgConnection,
 ) -> ServiceResult<Vec<ShowFileRelatedData>> {
+    let collect_file_uuids = get_file_uuids(logged_user_uuid, arguments, conn)?;
+
+    ShowFileRelatedData::get_file_by_uuids(&collect_file_uuids, conn)
+        .map_err(|err| {
+            debug!("Error get files of fileset: {:?}", err);
+            ServiceError::InternalServerError
+        })
+}
+
+pub(crate) fn get_fileset_files(
+    logged_user_uuid: &Uuid,
+    arguments: &FileOfFilesetArg,
+    conn: &PgConnection,
+) -> ServiceResult<Vec<DownloadFile>> {
+    let collect_file_uuids = get_file_uuids(logged_user_uuid, arguments, conn)?;
+
+    DownloadFile::get_by_files_uuids(&collect_file_uuids, conn)
+        .map_err(|err| {
+            debug!("Error get files of fileset: {:?}", err);
+            ServiceError::InternalServerError
+        })
+}
+
+/// Gets uuids from target files for get files data or dowload urls
+fn get_file_uuids(
+    logged_user_uuid: &Uuid,
+    arguments: &FileOfFilesetArg,
+    conn: &PgConnection,
+) -> ServiceResult<Vec<Uuid>> {
     let FileOfFilesetArg {
         fileset_uuid,
         file_uuids,
@@ -44,17 +73,10 @@ pub(crate) fn get_files_of_fileset(
             .and(modification_file_from_fileset::file_uuid.eq_any(file_uuids))),
     }
 
-    let collect_file_uuids: Vec<Uuid> = query
-        .select(modification_file_from_fileset::file_uuid)
+    query.select(modification_file_from_fileset::file_uuid)
         .limit(*limit as i64)
         .offset(*offset as i64)
         .load::<Uuid>(conn)
-        .map_err(|err| {
-            debug!("Error get files of fileset: {:?}", err);
-            ServiceError::InternalServerError
-        })?;
-
-    ShowFileRelatedData::get_file_by_uuids(&collect_file_uuids, conn)
         .map_err(|err| {
             debug!("Error get files of fileset: {:?}", err);
             ServiceError::InternalServerError

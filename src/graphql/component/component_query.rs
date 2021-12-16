@@ -8,8 +8,10 @@ use crate::models::component::{
     },
     relate::spec::model::{IptComponentSpecsArg, ComponentSpecsArg},
     component_modification,
-    component_modification::fileset_for_program::model::FilesetProgramRelatedData,
-    component_modification::modification_file_from_fileset::model::{IptFileOfFilesetArg, FileOfFilesetArg},
+    component_modification::{
+        fileset_for_program::model::{FilesetProgramRelatedData, IptFilesetProgramArg, FilesetProgramArg},
+        modification_file_from_fileset::model::{IptFileOfFilesetArg, FileOfFilesetArg},
+    },
     access::company::model::CompanyAccessComponentAndRelatedData,
     access::user::model::UserAccessComponentAndRelatedData,
 };
@@ -173,26 +175,17 @@ impl ComponentQuery {
     async fn component_modification_filesets(
         &self,
         cxt: &Context<'_>,
-        modification_uuid: Uuid,
-        program_id: Option<Vec<i32>>,
-        limit: Option<i32>,
-        offset: Option<i32>,
+        arg: IptFilesetProgramArg,
     ) -> ServiceResult<Vec<FilesetProgramRelatedData>> {
         use component_modification::fileset_for_program::service::list::get_modification_filesets;
 
         let logged_user_uuid: Uuid = get_logged_user_uuid(cxt, true)?;
-
+        let arg: FilesetProgramArg = FilesetProgramArg::from(arg);
         let conn: &PooledConnection = &get_conn(cxt)?;
-
-        let limit: i32 = limit.unwrap_or(100);
-        let offset: i32 = offset.unwrap_or(0);
 
         get_modification_filesets(
             &logged_user_uuid,
-            &modification_uuid,
-            &program_id,
-            &limit,
-            &offset,
+            &arg,
             conn
         )
     }
@@ -209,6 +202,24 @@ impl ComponentQuery {
         let conn: &PooledConnection = &get_conn(cxt)?;
 
         get_files_of_fileset(
+            &logged_user_uuid,
+            &arguments,
+            conn
+        )
+    }
+
+    async fn component_modification_fileset_files(
+        &self,
+        cxt: &Context<'_>,
+        arg: IptFileOfFilesetArg,
+    ) -> ServiceResult<Vec<DownloadFile>> {
+        use component_modification::modification_file_from_fileset::service::list::get_fileset_files;
+
+        let logged_user_uuid: Uuid = get_logged_user_uuid(cxt, true)?;
+        let arguments: FileOfFilesetArg = FileOfFilesetArg::from(arg);
+        let conn: &PooledConnection = &get_conn(cxt)?;
+
+        get_fileset_files(
             &logged_user_uuid,
             &arguments,
             conn

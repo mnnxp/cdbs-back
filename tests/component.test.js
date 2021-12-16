@@ -330,6 +330,13 @@ createdAt \
 updatedAt \
 `;
 
+const downloadFileFields = ` \
+uuid \
+filename \
+filesize \
+downloadUrl \
+`;
+
 var componentUuidNoStandard = "";
 var componentUuidStandard = "";
 var fileUuid1 = "";
@@ -3168,10 +3175,7 @@ describe('component', () => {
             componentFiles(arg: {
               componentUuid: "${componentUuidNoStandard}"
             }){
-              uuid
-              filename
-              filesize
-              downloadUrl
+              ${downloadFileFields}
             }
           }`,
         })
@@ -3449,10 +3453,7 @@ describe('component', () => {
             componentFiles(arg: {
               componentUuid: "${componentUuidNoStandard}"
             }){
-              uuid
-              filename
-              filesize
-              downloadUrl
+              ${downloadFileFields}
             }
           }`,
         })
@@ -4235,10 +4236,7 @@ describe('component', () => {
       .send({
           query: `query {
             componentModificationFiles(modificationUuid: "${componentModificationUuidSecond}") {
-              uuid
-              filename
-              filesize
-              downloadUrl
+              ${downloadFileFields}
             }
           }`,
         })
@@ -4262,10 +4260,7 @@ describe('component', () => {
       .send({
           query: `query {
             componentModificationFiles(modificationUuid: "${parentModificationUuid}") {
-              uuid
-              filename
-              filesize
-              downloadUrl
+              ${downloadFileFields}
             }
           }`,
         })
@@ -4331,10 +4326,7 @@ describe('component', () => {
       .send({
           query: `query {
             componentModificationFiles(modificationUuid: "${componentModificationUuidSecond}") {
-              uuid
-              filename
-              filesize
-              downloadUrl
+              ${downloadFileFields}
             }
           }`,
         })
@@ -4494,10 +4486,7 @@ describe('component', () => {
       .send({
           query: `query {
             componentModificationFiles(modificationUuid: "${componentModificationUuidSecond}") {
-              uuid
-              filename
-              filesize
-              downloadUrl
+              ${downloadFileFields}
             }
           }`,
         })
@@ -4511,40 +4500,15 @@ describe('component', () => {
     done();
   });
 
-  // it('/graphql:Q ModificationFiles - BadRequest no access', async (done) => {
-  //   const { body } = await agent
-  //     .post('/graphql')
-  //     .set(
-  //       'Authorization',
-  //       `Bearer ${authorizationTokenFirst}`
-  //     )
-  //     .send({
-  //         query: `query {
-  //           componentModificationFiles(modificationUuid: "${componentModificationUuidSecond}") {
-  //             uuid
-  //             filename
-  //             filesize
-  //             downloadUrl
-  //           }
-  //         }`,
-  //       })
-  //     .expect(HttpStatus.OK)
-  //   debug('/graphql componentModificationFiles=%o', body);
-  //   expect(body.data).toBeNull();
-  //   expect(body.errors[0].message).toBe("BadRequest: Access denied");
-  //   expect(body.errors[0].path[0]).toBe('componentModificationFiles');
-  //   done();
-  // });
-
   // Testing component modification fileset
   it('/graphql:Q componentModificationFilesets - BadRequest no token', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .send({
           query: `query {
-            componentModificationFilesets(
+            componentModificationFilesets(arg: {
               modificationUuid: "${componentModificationUuidSecond}"
-            ) {
+            }){
               modificationUuid
               uuid
               program {
@@ -4573,9 +4537,9 @@ describe('component', () => {
       )
       .send({
           query: `query {
-            componentModificationFilesets(
+            componentModificationFilesets(arg: {
               modificationUuid: "${parentModificationUuid}"
-            ) {
+            }){
               modificationUuid
               uuid
               program {
@@ -4698,9 +4662,9 @@ describe('component', () => {
       )
       .send({
           query: `query {
-            componentModificationFilesets(
+            componentModificationFilesets(arg: {
               modificationUuid: "${componentModificationUuidSecond}"
-            ) {
+            }){
               modificationUuid
               uuid
               program {
@@ -4731,10 +4695,10 @@ describe('component', () => {
       )
       .send({
           query: `query {
-            componentModificationFilesets(
+            componentModificationFilesets(arg: {
               modificationUuid: "${componentModificationUuidSecond}"
-              programId: [5,7]
-            ) {
+              programIds: [5,7]
+            }){
               modificationUuid
               uuid
               program {
@@ -4768,10 +4732,10 @@ describe('component', () => {
       )
       .send({
           query: `query {
-            componentModificationFilesets(
+            componentModificationFilesets(arg: {
               modificationUuid: "${componentModificationUuidSecond}"
-              programId: [1,2,5,8]
-            ) {
+              programIds: [1,2,5,8]
+            }){
               modificationUuid
               uuid
               program {
@@ -4804,10 +4768,10 @@ describe('component', () => {
       )
       .send({
           query: `query {
-            componentModificationFilesets(
+            componentModificationFilesets(arg: {
               modificationUuid: "${componentModificationUuidSecond}"
-              programId: [1,2,3]
-            ) {
+              programIds: [1,2,3]
+            }){
               modificationUuid
               uuid
               program {
@@ -4833,7 +4797,7 @@ describe('component', () => {
       .send({
           query: `query {
             componentModificationFilesOfFileset(arg: {
-              filesetUuid: "${componentModificationUuidSecond}"
+              filesetUuid: "${filesetForProgramUuid}"
               fileUuids: []
             }){
               ${fileDataQuery}
@@ -5003,6 +4967,242 @@ describe('component', () => {
     fileOfFilesetUuid = componentModificationFilesOfFileset[0].uuid;
     expect(componentModificationFilesOfFileset[0].uuid).toBeNonEmptyString();
     expect(componentModificationFilesOfFileset[0].filename).toBeNonEmptyString();
+    done();
+  });
+
+  // Testing component modification fileset files
+  it('/graphql:Q componentModificationFilesetFiles - BadRequest no token', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .send({
+          query: `query {
+            componentModificationFilesetFiles(arg: {
+              filesetUuid: "${filesetForProgramUuid}"
+            }){
+              ${downloadFileFields}
+            }
+          }`,
+        })
+      .expect(HttpStatus.OK)
+    debug('/graphql componentModificationFilesetFiles=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Token not found.'
+    );
+    expect(body.errors[0].path[0]).toBe('componentModificationFilesetFiles');
+    done();
+  });
+
+  it('/graphql:Q componentModificationFilesetFiles - BadRequest no access', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+          query: `query {
+            componentModificationFilesetFiles(arg: {
+              filesetUuid: "${parentModificationUuid}"
+            }){
+              ${downloadFileFields}
+            }
+          }`,
+        })
+      .expect(HttpStatus.OK)
+    debug('/graphql  body=%o', body);
+    const { errors, data } = body;
+    expect(data).toBeNull();
+    expect(errors[0].message).toBe("BadRequest: Not found fileset data");
+    expect(body.errors[0].path[0]).toBe('componentModificationFilesetFiles');
+    done();
+  });
+
+  it('/graphql:Q componentModificationFilesetFiles - OK all files of fileset', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+          query: `query {
+            componentModificationFilesetFiles(arg: {
+              filesetUuid: "${filesetForProgramUuid}"
+            }){
+              ${downloadFileFields}
+            }
+          }`,
+        })
+      .expect(HttpStatus.OK)
+    debug('/graphql componentModificationFilesetFiles=%o', body);
+    const {
+      data: { componentModificationFilesetFiles },
+    } = body;
+    expect(componentModificationFilesetFiles[0].uuid).toBe(fileUuid1);
+    expect(componentModificationFilesetFiles[0].downloadUrl).toBeNonEmptyString();
+    expect(componentModificationFilesetFiles[1].uuid).toBe(fileUuid2);
+    expect(componentModificationFilesetFiles[1].downloadUrl).toBeNonEmptyString();
+    expect(componentModificationFilesetFiles[2].uuid).toBe(fileUuid3);
+    expect(componentModificationFilesetFiles[2].downloadUrl).toBeNonEmptyString();
+    expect(componentModificationFilesetFiles[3].uuid).toBe(fileUuid4);
+    expect(componentModificationFilesetFiles[3].downloadUrl).toBeNonEmptyString();
+    expect(componentModificationFilesetFiles.length).toBe(4);
+    done();
+  });
+
+  it('/graphql:Q componentModificationFilesetFiles - OK 2 files', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+          query: `query {
+            componentModificationFilesetFiles(arg: {
+              filesetUuid: "${filesetForProgramUuid}"
+              fileUuids: [
+                "${fileUuid2}",
+                "${fileUuid3}",
+              ]
+            }){
+              ${downloadFileFields}
+            }
+          }`,
+        })
+      .expect(HttpStatus.OK)
+    debug('/graphql componentModificationFilesetFiles=%o', body);
+    const {
+      data: { componentModificationFilesetFiles },
+    } = body;
+    expect(componentModificationFilesetFiles[0].uuid).toBe(fileUuid2);
+    expect(componentModificationFilesetFiles[0].downloadUrl).toBeNonEmptyString();
+    expect(componentModificationFilesetFiles[1].uuid).toBe(fileUuid3);
+    expect(componentModificationFilesetFiles[1].downloadUrl).toBeNonEmptyString();
+    expect(componentModificationFilesetFiles.length).toBe(2);
+    done();
+  });
+
+  it('/graphql:Q componentModificationFilesetFiles - Ok select 2 filesets', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+          query: `query {
+            componentModificationFilesetFiles(arg: {
+              filesetUuid: "${filesetForProgramUuid}"
+              fileUuids: [
+                "${fileUuid2}",
+                "${fileUuid3}",
+              ]
+            }){
+              ${downloadFileFields}
+            }
+          }`,
+        })
+      .expect(HttpStatus.OK)
+    debug('/graphql componentModificationFilesetFiles=%o', body);
+    const {
+      data: { componentModificationFilesetFiles },
+    } = body;
+    expect(componentModificationFilesetFiles[0].uuid).toBe(fileUuid2);
+    expect(componentModificationFilesetFiles[0].downloadUrl).toBeNonEmptyString();
+    expect(componentModificationFilesetFiles[1].uuid).toBe(fileUuid3);
+    expect(componentModificationFilesetFiles[1].downloadUrl).toBeNonEmptyString();
+    expect(componentModificationFilesetFiles.length).toBe(2);
+    done();
+  });
+
+  it('/graphql:Q componentModificationFilesetFiles - Ok found 1', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+          query: `query {
+            componentModificationFilesetFiles(arg: {
+              filesetUuid: "${filesetForProgramUuid}"
+              fileUuids: [
+                "${filesetForProgramUuid}",
+                "${fileUuid4}",
+              ]
+            }){
+              ${downloadFileFields}
+            }
+          }`,
+        })
+      .expect(HttpStatus.OK)
+    debug('/graphql componentModificationFilesetFiles=%o', body);
+    const {
+      data: { componentModificationFilesetFiles },
+    } = body;
+    expect(componentModificationFilesetFiles[0].uuid).toBe(fileUuid4);
+    expect(componentModificationFilesetFiles[0].downloadUrl).toBeNonEmptyString();
+    expect(componentModificationFilesetFiles.length).toBe(1);
+    done();
+  });
+
+  it('/graphql:Q componentModificationFilesetFiles - Ok not found files', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+          query: `query {
+            componentModificationFilesetFiles(arg: {
+              filesetUuid: "${filesetForProgramUuid}"
+              fileUuids: [
+                "${componentModificationFilesetsSecond}",
+                "${filesetForProgramUuid}",
+              ]
+            }){
+              ${downloadFileFields}
+            }
+          }`,
+        })
+      .expect(HttpStatus.OK)
+    debug('/graphql componentModificationFilesetFiles=%o', body);
+    const {
+      data: { componentModificationFilesetFiles },
+    } = body;
+    expect(componentModificationFilesetFiles).toBeEmptyArray();
+    done();
+  });
+
+  it('/graphql:Q componentModificationFilesetFiles - BadRequest not found fileset', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+          query: `query {
+            componentModificationFilesetFiles(arg: {
+              filesetUuid: "${fileUuid1}"
+              fileUuids: [
+                "${fileUuid2}",
+                "${fileUuid3}",
+              ]
+            }){
+              ${downloadFileFields}
+            }
+          }`,
+        })
+      .expect(HttpStatus.OK)
+    debug('/graphql  body=%o', body);
+    const { errors, data } = body;
+    expect(data).toBeNull();
+    expect(errors[0].message).toBe("BadRequest: Not found fileset data");
+    expect(body.errors[0].path[0]).toBe('componentModificationFilesetFiles');
     done();
   });
 

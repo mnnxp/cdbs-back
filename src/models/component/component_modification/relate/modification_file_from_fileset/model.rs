@@ -50,7 +50,6 @@ pub struct InsertableModificationFileFromFileset {
     pub file_uuid: Uuid,
 }
 
-
 #[derive(InputObject, Deserialize, Debug)]
 pub struct IptFileOfFilesetArg {
     pub fileset_uuid: Uuid,

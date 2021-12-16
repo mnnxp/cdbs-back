@@ -81,3 +81,37 @@ impl From<&IptFilesetProgramData> for InsertableFilesetProgram {
         }
     }
 }
+
+#[derive(InputObject, Deserialize, Debug)]
+pub struct IptFilesetProgramArg {
+    pub modification_uuid: Uuid,
+    pub program_ids: Option<Vec<i32>>,
+    pub limit: Option<i32>,
+    pub offset: Option<i32>,
+}
+
+#[derive(Debug)]
+pub struct FilesetProgramArg {
+    pub modification_uuid: Uuid,
+    pub program_ids: Vec<i32>,
+    pub limit: i32,
+    pub offset: i32,
+}
+
+impl From<IptFilesetProgramArg> for FilesetProgramArg {
+    fn from(data: IptFilesetProgramArg) -> Self {
+        let IptFilesetProgramArg {
+            modification_uuid,
+            program_ids,
+            limit,
+            offset,
+        } = data;
+
+        Self {
+            modification_uuid,
+            program_ids: program_ids.unwrap_or_default(),
+            limit: limit.unwrap_or(100),
+            offset: offset.unwrap_or(0),
+        }
+    }
+}
