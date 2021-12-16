@@ -307,29 +307,27 @@ componentSuppliers { \
 `;
 
 const fileDataQuery = `
-file { \
+uuid \
+filename \
+parentFileUuid \
+ownerUser { \
   uuid \
-  filename \
-  parentFileUuid \
-  ownerUser { \
+  username \
+  imageFile { \
     uuid \
-    username \
-    imageFile { \
-      uuid \
-      filename \
-      filesize \
-      downloadUrl \
-    } \
+    filename \
+    filesize \
+    downloadUrl \
   } \
-  contentType \
-  filesize \
-  program { \
-    id \
-    name \
-  } \
-  createdAt \
-  updatedAt \
 } \
+contentType \
+filesize \
+program { \
+  id \
+  name \
+} \
+createdAt \
+updatedAt \
 `;
 
 var componentUuidNoStandard = "";
@@ -4601,14 +4599,10 @@ describe('component', () => {
       .post('/graphql')
       .send({
           query: `mutation {
-            registerModificationFileset(data: {
+            registerModificationFileset(arg: {
               modificationUuid: "${componentModificationUuidSecond}"
               programId: 7
-            }){
-              modificationUuid
-              uuid
-              programId
-            }
+            })
           }`,
         })
       .expect(HttpStatus.OK)
@@ -4630,14 +4624,10 @@ describe('component', () => {
       )
       .send({
           query: `mutation {
-            registerModificationFileset(data: {
+            registerModificationFileset(arg: {
               modificationUuid: "${componentModificationUuidSecond}"
               programId: 7
-            }){
-              modificationUuid
-              uuid
-              programId
-            }
+            })
           }`,
         })
       .expect(HttpStatus.OK)
@@ -4645,14 +4635,12 @@ describe('component', () => {
     const {
       data: { registerModificationFileset },
     } = body;
-    filesetForProgramUuid = registerModificationFileset.uuid;
-    expect(registerModificationFileset.modificationUuid).toBe(componentModificationUuidSecond);
-    expect(registerModificationFileset.uuid).toBeNonEmptyString();
-    expect(registerModificationFileset.programId).toBe(7);
+    filesetForProgramUuid = registerModificationFileset;
+    expect(registerModificationFileset).toBeNonEmptyString();
     done();
   });
 
-  it('/graphql:M registerModificationFileset - BadRequest duplicate fileset', async (done) => {
+  it('/graphql:M registerModificationFileset - Ok return found uuid of duplicate fileset', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .set(
@@ -4661,23 +4649,18 @@ describe('component', () => {
       )
       .send({
           query: `mutation {
-            registerModificationFileset(data: {
+            registerModificationFileset(arg: {
               modificationUuid: "${componentModificationUuidSecond}"
               programId: 7
-            }){
-              modificationUuid
-              uuid
-              programId
-            }
+            })
           }`,
         })
       .expect(HttpStatus.OK)
     debug('/graphql registerModificationFileset=%o', body);
-    expect(body.data).toBeNull();
-    expect(body.errors[0].message).toBe(
-      `BadRequest: The modification has a set of files for this program: ${filesetForProgramUuid}`
-    );
-    expect(body.errors[0].path[0]).toBe('registerModificationFileset');
+    const {
+      data: { registerModificationFileset },
+    } = body;
+    expect(registerModificationFileset).toBe(filesetForProgramUuid);
     done();
   });
 
@@ -4690,14 +4673,10 @@ describe('component', () => {
       )
       .send({
           query: `mutation {
-            registerModificationFileset(data: {
+            registerModificationFileset(arg: {
               modificationUuid: "${componentModificationUuidSecond}"
               programId: 5
-            }){
-              modificationUuid
-              uuid
-              programId
-            }
+            })
           }`,
         })
       .expect(HttpStatus.OK)
@@ -4705,10 +4684,8 @@ describe('component', () => {
     const {
       data: { registerModificationFileset },
     } = body;
-    filesetForProgramUuid = registerModificationFileset.uuid;
-    expect(registerModificationFileset.modificationUuid).toBe(componentModificationUuidSecond);
-    expect(registerModificationFileset.uuid).toBeNonEmptyString();
-    expect(registerModificationFileset.programId).toBe(5);
+    filesetForProgramUuid = registerModificationFileset;
+    expect(registerModificationFileset).toBeNonEmptyString();
     done();
   });
 
@@ -4855,11 +4832,10 @@ describe('component', () => {
       .post('/graphql')
       .send({
           query: `query {
-            componentModificationFilesOfFileset(
+            componentModificationFilesOfFileset(arg: {
               filesetUuid: "${componentModificationUuidSecond}"
               fileUuids: []
-            ) {
-              filesetUuid
+            }){
               ${fileDataQuery}
             }
           }`,
@@ -4883,10 +4859,9 @@ describe('component', () => {
       )
       .send({
           query: `query {
-            componentModificationFilesOfFileset(
+            componentModificationFilesOfFileset(arg: {
               filesetUuid: "${baseFilesetUuid}"
-            ) {
-              filesetUuid
+            }){
               ${fileDataQuery}
             }
           }`,
@@ -4909,10 +4884,9 @@ describe('component', () => {
       )
       .send({
           query: `query {
-            componentModificationFilesOfFileset(
+            componentModificationFilesOfFileset(arg: {
               filesetUuid: "${componentModificationFilesetsSecond}"
-            ) {
-              filesetUuid
+            }){
               ${fileDataQuery}
             }
           }`,
@@ -4986,10 +4960,9 @@ describe('component', () => {
       )
       .send({
           query: `query {
-            componentModificationFilesOfFileset(
+            componentModificationFilesOfFileset(arg: {
               filesetUuid: "${filesetForProgramUuid}"
-            ) {
-              filesetUuid
+            }){
               ${fileDataQuery}
             }
           }`,
@@ -4999,10 +4972,9 @@ describe('component', () => {
     const {
       data: { componentModificationFilesOfFileset },
     } = body;
-    fileOfFilesetUuid = componentModificationFilesOfFileset[0].file.uuid;
-    expect(componentModificationFilesOfFileset[0].filesetUuid).toBe(filesetForProgramUuid);
-    expect(componentModificationFilesOfFileset[0].file.uuid).toBeNonEmptyString();
-    expect(componentModificationFilesOfFileset[0].file.filename).toBeNonEmptyString();
+    fileOfFilesetUuid = componentModificationFilesOfFileset[0].uuid;
+    expect(componentModificationFilesOfFileset[0].uuid).toBeNonEmptyString();
+    expect(componentModificationFilesOfFileset[0].filename).toBeNonEmptyString();
     done();
   });
 
@@ -5015,11 +4987,10 @@ describe('component', () => {
       )
       .send({
           query: `query {
-            componentModificationFilesOfFileset(
+            componentModificationFilesOfFileset(arg: {
               filesetUuid: "${filesetForProgramUuid}"
               fileUuids: ["${fileOfFilesetUuid}"]
-            ) {
-              filesetUuid
+            }){
               ${fileDataQuery}
             }
           }`,
@@ -5029,10 +5000,9 @@ describe('component', () => {
     const {
       data: { componentModificationFilesOfFileset },
     } = body;
-    fileOfFilesetUuid = componentModificationFilesOfFileset[0].file.uuid;
-    expect(componentModificationFilesOfFileset[0].filesetUuid).toBe(filesetForProgramUuid);
-    expect(componentModificationFilesOfFileset[0].file.uuid).toBeNonEmptyString();
-    expect(componentModificationFilesOfFileset[0].file.filename).toBeNonEmptyString();
+    fileOfFilesetUuid = componentModificationFilesOfFileset[0].uuid;
+    expect(componentModificationFilesOfFileset[0].uuid).toBeNonEmptyString();
+    expect(componentModificationFilesOfFileset[0].filename).toBeNonEmptyString();
     done();
   });
 
@@ -5133,10 +5103,9 @@ describe('component', () => {
       )
       .send({
           query: `query {
-            componentModificationFilesOfFileset(
+            componentModificationFilesOfFileset(arg: {
               filesetUuid: "${filesetForProgramUuid}"
-            ) {
-              filesetUuid
+            }){
               ${fileDataQuery}
             }
           }`,
@@ -5146,7 +5115,6 @@ describe('component', () => {
     const {
       data: { componentModificationFilesOfFileset },
     } = body;
-    expect(componentModificationFilesOfFileset[0].filesetUuid).toBe(filesetForProgramUuid);
     expect(componentModificationFilesOfFileset.length).toBe(2);
     done();
   });
@@ -5231,10 +5199,9 @@ describe('component', () => {
       )
       .send({
           query: `query {
-            componentModificationFilesOfFileset(
+            componentModificationFilesOfFileset(arg: {
               filesetUuid: "${filesetForProgramUuid}"
-            ) {
-              filesetUuid
+            }){
               ${fileDataQuery}
             }
           }`,

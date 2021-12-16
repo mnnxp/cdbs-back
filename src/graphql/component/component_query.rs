@@ -9,12 +9,12 @@ use crate::models::component::{
     relate::spec::model::{IptComponentSpecsArg, ComponentSpecsArg},
     component_modification,
     component_modification::fileset_for_program::model::FilesetProgramRelatedData,
-    component_modification::modification_file_from_fileset::model::FileOfFileset,
+    component_modification::modification_file_from_fileset::model::{IptFileOfFilesetArg, FileOfFilesetArg},
     access::company::model::CompanyAccessComponentAndRelatedData,
     access::user::model::UserAccessComponentAndRelatedData,
 };
 use crate::models::relate_ref::{
-    file::model::DownloadFile,
+    file::model::{DownloadFile, ShowFileRelatedData},
     spec::model::SpecTranslateList,
     language::get_set_language,
 };
@@ -200,26 +200,17 @@ impl ComponentQuery {
     async fn component_modification_files_of_fileset(
         &self,
         cxt: &Context<'_>,
-        fileset_uuid: Uuid,
-        file_uuids: Option<Vec<Uuid>>,
-        limit: Option<i32>,
-        offset: Option<i32>,
-    ) -> ServiceResult<Vec<FileOfFileset>> {
+        arg: IptFileOfFilesetArg,
+    ) -> ServiceResult<Vec<ShowFileRelatedData>> {
         use component_modification::modification_file_from_fileset::service::list::get_files_of_fileset;
 
         let logged_user_uuid: Uuid = get_logged_user_uuid(cxt, true)?;
-
+        let arguments: FileOfFilesetArg = FileOfFilesetArg::from(arg);
         let conn: &PooledConnection = &get_conn(cxt)?;
-
-        let limit: i32 = limit.unwrap_or(100);
-        let offset: i32 = offset.unwrap_or(0);
 
         get_files_of_fileset(
             &logged_user_uuid,
-            &fileset_uuid,
-            &file_uuids,
-            &limit,
-            &offset,
+            &arguments,
             conn
         )
     }

@@ -30,9 +30,7 @@ use crate::models::component::{
         param::model::{IptModificationParamData, DelModificationParamData},
         file::model::{IptModificationFileData, DelModificationFileData},
         fileset_for_program as fileset_program,
-        fileset_for_program::model::{
-            IptFilesetProgramData, FilesetProgram, DelFilesetProgramData,
-        },
+        fileset_for_program::model::{IptFilesetProgramData, DelFilesetProgramData},
     },
 };
 use crate::models::relate_ref::file::model::UploadFile;
@@ -607,8 +605,8 @@ impl ComponentMutation {
     async fn register_modification_fileset(
         &self,
         cxt: &Context<'_>,
-        data: IptFilesetProgramData,
-    ) -> ServiceResult<FilesetProgram> {
+        arg: IptFilesetProgramData,
+    ) -> ServiceResult<Uuid> {
         use fileset_program::service::add::create_modification_fileset;
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
@@ -617,7 +615,7 @@ impl ComponentMutation {
 
         create_modification_fileset(
             &logged_user_uuid,
-            &data,
+            &arg,
             conn
         )
     }

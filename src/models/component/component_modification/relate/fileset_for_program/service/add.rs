@@ -1,65 +1,59 @@
-use crate::errors::{
-    ServiceError,
-    ServiceResult
+use crate::errors::{ServiceError, ServiceResult};
+use crate::models::component::{
+    component_modification::{
+        fileset_for_program::model::{IptFilesetProgramData, InsertableFilesetProgram},
+        util::get_component_by_modification,
+    },
+    access::util::check_access_component_for_user,
 };
-use crate::models::component::component_modification::fileset_for_program::model::{
-    FilesetProgram,
-    IptFilesetProgramData,
-    InsertableFilesetProgram
-};
-use crate::models::component::component_modification::util::get_component_by_modification;
-use crate::models::component::access::util::check_access_component_for_user;
+use crate::schema::fileset_for_program::dsl as fileset_for_program;
 use diesel::prelude::*;
 use uuid::Uuid;
 
 /// Creating a new set of files for the program
-/// if found duplicate (modification and program) return error with fileset_uuid
+/// if found uuid for modification and program return Ok(fileset_uuid)
 pub(crate) fn create_modification_fileset(
     logged_user_uuid: &Uuid,
-    data: &IptFilesetProgramData,
+    arg: &IptFilesetProgramData,
     conn: &PgConnection
-) -> ServiceResult<FilesetProgram> {
-    use crate::schema::fileset_for_program::dsl::*;
+) -> ServiceResult<Uuid> {
 
     let need_access_level = 1; // todo!(create enum for manage access level)
 
     check_access_component_for_user(
         logged_user_uuid,
-        &get_component_by_modification(&data.modification_uuid, conn)?,
+        &get_component_by_modification(&arg.modification_uuid, conn)?,
         &need_access_level,
         conn
     )?;
 
-    let find_fileset = &fileset_for_program
-        .filter(modification_uuid.eq(&data.modification_uuid)
-        .and(program_id.eq(&data.program_id)))
-        .select(uuid)
+    let find_fileset = &fileset_for_program::fileset_for_program
+        .filter(fileset_for_program::modification_uuid.eq(&arg.modification_uuid)
+        .and(fileset_for_program::program_id.eq(&arg.program_id)))
+        .select(fileset_for_program::uuid)
         .limit(1)
-        .load::<Uuid>(conn);
-
-    // debug!("Find fileset: {:?}", find_fileset);
-
-    let find_fileset = match find_fileset {
-        Ok(set) => &*set,
-        Err(err) => {
+        .load::<Uuid>(conn)
+        .map_err(|err| {
             debug!("Not found target fileset_for_program: {:?}", err);
-            return Err(ServiceError::BadRequest(
-                "Error with connect database".to_string()
-            ))
-        }
-    };
+            ServiceError::InternalServerError
+        })?;
 
-    match find_fileset.get(0).take() {
-        Some(x) => Err(ServiceError::BadRequest(
-            format!("The modification has a set of files for this program: {:?}", x)
-        )),
+    match find_fileset.first() {
+        Some(x) => {
+            debug!("The modification has a set of files for this program: {:?}", x);
+            Ok(*x)
+        },
         None => {
-            let data: InsertableFilesetProgram = data.into();
+            let data: InsertableFilesetProgram = arg.into();
 
-            let inserted_param_data: FilesetProgram = diesel::insert_into(fileset_for_program)
+            diesel::insert_into(fileset_for_program::fileset_for_program)
                 .values(&data)
-                .get_result(conn)?;
-            Ok(inserted_param_data)
+                .returning(fileset_for_program::uuid)
+                .get_result::<Uuid>(conn)
+                .map_err(|err| {
+                    debug!("Failed insert fileset_for_program: {:?}", err);
+                    ServiceError::InternalServerError
+                })
         },
     }
 }

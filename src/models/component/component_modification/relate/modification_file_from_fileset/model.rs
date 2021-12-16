@@ -50,8 +50,37 @@ pub struct InsertableModificationFileFromFileset {
     pub file_uuid: Uuid,
 }
 
-#[derive(SimpleObject, Clone, Debug)]
-pub struct FileOfFileset {
+
+#[derive(InputObject, Deserialize, Debug)]
+pub struct IptFileOfFilesetArg {
     pub fileset_uuid: Uuid,
-    pub file: ShowFileRelatedData,
+    pub file_uuids: Option<Vec<Uuid>>,
+    pub limit: Option<i32>,
+    pub offset: Option<i32>,
+}
+
+#[derive(Debug)]
+pub struct FileOfFilesetArg {
+    pub fileset_uuid: Uuid,
+    pub file_uuids: Vec<Uuid>,
+    pub limit: i32,
+    pub offset: i32,
+}
+
+impl From<IptFileOfFilesetArg> for FileOfFilesetArg {
+    fn from(data: IptFileOfFilesetArg) -> Self {
+        let IptFileOfFilesetArg {
+            fileset_uuid,
+            file_uuids,
+            limit,
+            offset,
+        } = data;
+
+        Self {
+            fileset_uuid,
+            file_uuids: file_uuids.unwrap_or_default(),
+            limit: limit.unwrap_or(100),
+            offset: offset.unwrap_or(0),
+        }
+    }
 }
