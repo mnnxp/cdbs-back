@@ -1,4 +1,5 @@
 use crate::errors::{ServiceResult, ServiceError};
+use crate::schema::file_ref::dsl as file_ref;
 use diesel::prelude::*;
 use uuid::Uuid;
 
@@ -9,24 +10,16 @@ pub(crate) fn check_file_owner_err(
     file_uuid: &Uuid,
     conn: &PgConnection
 ) -> ServiceResult<bool> {
-    use crate::schema::file_ref::dsl as file_ref;
-
     // find file with target user
-    let res_search = file_ref::file_ref
+    let filesize: i64 = file_ref::file_ref
         .filter(file_ref::uuid.eq(file_uuid)
         .and(file_ref::user_uuid.eq(user_uuid)))
-        .execute(conn);
-
-    match res_search {
-        Ok(x) => {
-            debug!("Found file: {:?}", x);
-            Ok(true)
-        },
-        Err(err) => {
+        .select(file_ref::filesize)
+        .first(conn)
+        .map_err(|err| {
             debug!("Not found file: {:?}", err);
-            Err(ServiceError::BadRequest(
-                "Not found file".to_string()
-            ))
-        },
-    }
+            ServiceError::BadRequest("Access denied".to_string())
+        })?;
+
+    Ok(filesize > 0)
 }
