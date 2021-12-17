@@ -20,4 +20,8 @@ pub struct Opt {
     /// this is used for cookie and JWT
     #[structopt(long, env = "AUTH_DURATION_IN_HOUR", default_value = "24")]
     pub(crate) auth_duration_in_hour: u16,
+
+    /// Expiration upload/download URL
+    #[structopt(long, env = "EXP_PRESIGNED_URL")]
+    pub(crate) expiration_presigned_url: u64,
 }

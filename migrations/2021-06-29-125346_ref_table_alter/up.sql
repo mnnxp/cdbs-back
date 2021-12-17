@@ -24,3 +24,5 @@ ALTER TABLE spec_translate_list ADD CONSTRAINT spec_translate_list_fk1 FOREIGN K
 
 ALTER TABLE type_of_change_translate_list ADD CONSTRAINT type_of_change_translate_list_fk0 FOREIGN KEY (type_of_change_id) REFERENCES type_of_change_ref(id) ON DELETE CASCADE;
 ALTER TABLE type_of_change_translate_list ADD CONSTRAINT type_of_change_translate_list_fk1 FOREIGN KEY (lang_id) REFERENCES language_ref(id) ON DELETE CASCADE;
+
+ALTER TABLE presigned_url_ref ADD CONSTRAINT presigned_url_ref_fk0 FOREIGN KEY (file_uuid) REFERENCES file_ref(uuid) ON DELETE CASCADE;

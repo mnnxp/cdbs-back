@@ -1,6 +1,6 @@
 use crate::schema::*;
 use chrono::*;
-// use uuid::Uuid;
+use uuid::Uuid;
 
 #[derive(Insertable, Serialize, Deserialize, Queryable, Clone, Debug)]
 #[table_name = "storage_access_ref"]
@@ -51,4 +51,12 @@ impl From<rusoto_s3::HeadObjectOutput> for FileHeaders {
             updated_at: last_modified.map(|date_str| NaiveDateTime::parse_from_str(date_str.as_str(), "%a, %d %b %Y %H:%M:%S GMT").unwrap()),
         }
     }
+}
+
+#[derive(Insertable, Debug)]
+#[table_name = "presigned_url_ref"]
+pub(crate) struct InsertablePresignedUrl {
+    pub(crate) file_uuid: Uuid,
+    pub(crate) presigned_url: String,
+    pub(crate) expiration_at: NaiveDateTime,
 }

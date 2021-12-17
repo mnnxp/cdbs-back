@@ -8,8 +8,9 @@ use crate::models::relate_ref::{
     program::model::Program,
 };
 use crate::storage::model::StorageAccess;
-use crate::storage::presigned_url::download_presigned_url;
+use crate::storage::presigned_url::{download_presigned_url, save_presign_url};
 use crate::schema::file_ref::dsl as file_ref;
+use crate::schema::presigned_url_ref::dsl as presigned_url_ref;
 use diesel::prelude::*;
 use uuid::Uuid;
 
@@ -153,10 +154,28 @@ impl DownloadFile {
         file: &SlimFile,
         conn: &PgConnection,
     ) -> ServiceResult<DownloadFile> {
-        let download_url = download_presigned_url(
-            &StorageAccess::get(conn)?,
-            &file.path_file,
-        )?;
+        let naive_local_now = chrono::Local::now().naive_local();
+
+        let get_url_from_db = presigned_url_ref::presigned_url_ref
+            .filter(presigned_url_ref::file_uuid.eq(&file.uuid)
+            .and(presigned_url_ref::expiration_at.gt(naive_local_now)))
+            .select(presigned_url_ref::presigned_url)
+            .first::<String>(conn);
+
+        let download_url = match get_url_from_db {
+            Ok(url) => url,
+            Err(err) => {
+                debug!("Failed get presigned_url: {:?}", err);
+                // generate new url
+                let presigned_url = download_presigned_url(
+                    &StorageAccess::get(conn)?,
+                    &file.path_file,
+                )?;
+                // save presigned url to database
+                save_presign_url(&file.uuid, &presigned_url, conn)?;
+                presigned_url
+            },
+        };
 
         Ok(DownloadFile{
             uuid: file.uuid.to_owned(),
@@ -178,20 +197,7 @@ impl DownloadFile {
             conn
         )?;
 
-        let download_url = download_presigned_url(
-            &StorageAccess::get(conn)?,
-            &file.path_file,
-        ).map_err(|err| {
-            debug!("Failed get download data for file: {:?}", err);
-            ServiceError::InternalServerError
-        })?;
-
-        Ok(DownloadFile{
-            uuid: file.uuid.to_owned(),
-            filename: file.filename.to_string(),
-            filesize: file.filesize.to_owned(),
-            download_url,
-        })
+        DownloadFile::get_by_slim_file(&file, conn)
     }
 
     /// Get structures of DownloadFile by files uuids
@@ -223,31 +229,10 @@ impl DownloadFile {
         slim_files: &[SlimFile],
         conn: &PgConnection,
     ) -> ServiceResult<Vec<DownloadFile>> {
-        let storage_access = &StorageAccess::get(conn)?;
-
         let mut result: Vec<DownloadFile> = Vec::new();
 
         for sf in slim_files {
-            match download_presigned_url(
-                storage_access,
-                &sf.path_file,
-            ) {
-                Ok(download_url) => result.push(DownloadFile {
-                    uuid: sf.uuid.to_owned(),
-                    filename: sf.filename.to_string(),
-                    filesize: sf.filesize.to_owned(),
-                    download_url,
-                }),
-                Err(err) => {
-                    debug!("Fail get presigned url: {:?}", err);
-                    result.push(DownloadFile {
-                        uuid: sf.uuid.to_owned(),
-                        filename: sf.filename.to_string(),
-                        filesize: sf.filesize.to_owned(),
-                        download_url: "Failed get url".to_string(),
-                    })
-                },
-            }
+            result.push(DownloadFile::get_by_slim_file(sf, conn)?);
         }
 
         debug!("Gets presigned urls: {:?}", result);

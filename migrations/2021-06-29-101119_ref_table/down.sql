@@ -17,3 +17,4 @@ DROP TABLE spec_ref;
 DROP TABLE spec_translate_list;
 DROP TABLE keyword_ref;
 DROP TABLE storage_access_ref;
+DROP TABLE presigned_url_ref;

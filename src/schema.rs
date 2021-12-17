@@ -445,6 +445,14 @@ table! {
 }
 
 table! {
+    presigned_url_ref (file_uuid) {
+        file_uuid -> Uuid,
+        presigned_url -> Varchar,
+        expiration_at -> Timestamp,
+    }
+}
+
+table! {
     program_ref (id) {
         id -> Int4,
         name -> Varchar,
@@ -815,6 +823,7 @@ joinable!(param_translate_list -> language_ref (lang_id));
 joinable!(param_translate_list -> param_ref (param_id));
 joinable!(permission_to_license -> license_permission_ref (permission_id));
 joinable!(permission_to_license -> license_ref (license_id));
+joinable!(presigned_url_ref -> file_ref (file_uuid));
 joinable!(region_translate_list -> language_ref (lang_id));
 joinable!(region_translate_list -> region_ref (region_id));
 joinable!(representation_type_translate_list -> language_ref (lang_id));
@@ -917,6 +926,7 @@ allow_tables_to_appear_in_same_query!(
     param_to_modification,
     param_translate_list,
     permission_to_license,
+    presigned_url_ref,
     program_ref,
     region_ref,
     region_translate_list,

@@ -71,5 +71,5 @@ pub(crate) fn check_write_data(
         .filter(file_ref::user_uuid.eq(user_uuid))
         .execute(conn).unwrap_or(0);
 
-    matches!(search_result as i32, 1)
+    matches!(search_result, 1)
 }

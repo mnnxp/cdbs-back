@@ -142,3 +142,11 @@ CREATE TABLE storage_access_ref (
   UNIQUE (application_key_id, application_key),
   CONSTRAINT storage_access_ref_pk PRIMARY KEY (id)
 );
+
+/* presigned urls для доступа к объету в хранилище */
+CREATE TABLE presigned_url_ref (
+  file_uuid UUID NOT NULL UNIQUE, /* идентификатор объекта/файла */
+  presigned_url VARCHAR(512) NOT NULL, /* ссылка для доступа к файлу */
+  expiration_at TIMESTAMP NOT NULL, /* дата окончания действия доступа */
+  CONSTRAINT presigned_url_ref_pk PRIMARY KEY (file_uuid)
+);
