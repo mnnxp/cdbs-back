@@ -1085,7 +1085,7 @@ describe('users', () => {
     const {
       data: { putUserUpdate },
     } = body;
-    expect(putUserUpdate).toBe(13);
+    expect(putUserUpdate).toBe(12);
     done();
   });
 
@@ -1194,7 +1194,7 @@ describe('users', () => {
     const {
       data: { putUserUpdate },
     } = body;
-    expect(putUserUpdate).toBe(2);
+    expect(putUserUpdate).toBe(1);
     done();
   });
 
@@ -2811,7 +2811,7 @@ describe('users', () => {
     } = body;
     // expect(body).toBe(0);
     expect(users).toBeNonEmptyArray();
-    expect(users.length).toBe(2);
+    expect(users.length).toBe(1);
     done();
   });
 

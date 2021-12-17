@@ -1114,7 +1114,7 @@ describe('component', () => {
     const {
       data: { putComponentUpdate },
     } = body;
-    expect(putComponentUpdate).toBe(4);
+    expect(putComponentUpdate).toBe(3);
     done();
   });
 
@@ -1176,7 +1176,7 @@ describe('component', () => {
     const {
       data: { putComponentUpdate },
     } = body;
-    expect(putComponentUpdate).toBe(4);
+    expect(putComponentUpdate).toBe(3);
     done();
   });
 
@@ -3931,7 +3931,7 @@ describe('component', () => {
     const {
       data: { putComponentModificationUpdate },
     } = body;
-    expect(putComponentModificationUpdate).toBe(4);
+    expect(putComponentModificationUpdate).toBe(3);
     done();
   });
 
@@ -5485,7 +5485,7 @@ describe('component', () => {
     const {
       data: { putComponentUpdate },
     } = body;
-    expect(putComponentUpdate).toBe(5);
+    expect(putComponentUpdate).toBe(4);
     done();
   });
 
@@ -5706,7 +5706,7 @@ describe('component', () => {
     const {
       data: { putComponentUpdate },
     } = body;
-    expect(putComponentUpdate).toBe(4);
+    expect(putComponentUpdate).toBe(3);
     done();
   });
 
@@ -6094,7 +6094,7 @@ describe('component', () => {
     const {
       data: { putComponentUpdate },
     } = body;
-    expect(putComponentUpdate).toBe(6);
+    expect(putComponentUpdate).toBe(5);
     done();
   });
 

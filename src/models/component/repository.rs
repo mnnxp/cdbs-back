@@ -153,11 +153,7 @@ impl ShowComponentShort {
         let files = {
             let image_uuids: Vec<Uuid> = get_files_by_ext(
                 &component.uuid,
-                &FileByExtArg{
-                    ext_id: 1, // (image)
-                    limit: 1,
-                    offset: 0,
-                },
+                &FileByExtArg::image(),
                 conn
             )?;
 

@@ -26,102 +26,67 @@ pub(crate) fn update_company_represent_by_uuid(
 
     // update column region_id
     if let Some(value) = &data.region_id {
-        let res = diesel::update(company_represent_ref::company_represent_ref
+        count_update_columns += diesel::update(company_represent_ref::company_represent_ref
             .filter(company_represent_ref::uuid.eq(target_company_represent_uuid)
             .and(company_represent_ref::region_id.ne(value))))
             .set(company_represent_ref::region_id.eq(value))
-            .execute(conn);
-
-        match res {
-            Ok(up_item) => count_update_columns += up_item,
-            Err(err) => {
+            .execute(conn)
+            .map_err(|err| {
                 debug!("Failed update data: {:?}", err);
-
-                return Err(ServiceError::BadRequest(
-                    "Failed update data".to_string()
-                ))
-            },
-        }
+                ServiceError::BadRequest("Failed update data".to_string())
+            })?;
     }
 
     // update column representation_type_id
     if let Some(value) = &data.representation_type_id {
-        let res = diesel::update(company_represent_ref::company_represent_ref
+        count_update_columns += diesel::update(company_represent_ref::company_represent_ref
             .filter(company_represent_ref::uuid.eq(target_company_represent_uuid)
             .and(company_represent_ref::representation_type_id.ne(value))))
             .set(company_represent_ref::representation_type_id.eq(value))
-            .execute(conn);
-
-        match res {
-            Ok(up_item) => count_update_columns += up_item,
-            Err(err) => {
+            .execute(conn)
+            .map_err(|err| {
                 debug!("Failed update data: {:?}", err);
-
-                return Err(ServiceError::BadRequest(
-                    "Failed update data".to_string()
-                ))
-            },
-        }
+                ServiceError::BadRequest("Failed update data".to_string())
+            })?;
     }
 
     // update column name
     if let Some(value) = &data.name {
-        let res = diesel::update(company_represent_ref::company_represent_ref
+        count_update_columns += diesel::update(company_represent_ref::company_represent_ref
             .filter(company_represent_ref::uuid.eq(target_company_represent_uuid)
             .and(company_represent_ref::name.ne(value))))
             .set(company_represent_ref::name.eq(value))
-            .execute(conn);
-
-        match res {
-            Ok(up_item) => count_update_columns += up_item,
-            Err(err) => {
+            .execute(conn)
+            .map_err(|err| {
                 debug!("Failed update data: {:?}", err);
-
-                return Err(ServiceError::BadRequest(
-                    "Failed update data".to_string()
-                ))
-            },
-        }
+                ServiceError::BadRequest("Failed update data".to_string())
+            })?;
     }
 
     // update column address
     if let Some(value) = &data.address {
-        let res = diesel::update(company_represent_ref::company_represent_ref
+        count_update_columns += diesel::update(company_represent_ref::company_represent_ref
             .filter(company_represent_ref::uuid.eq(target_company_represent_uuid)
             .and(company_represent_ref::address.ne(value))))
             .set(company_represent_ref::address.eq(value))
-            .execute(conn);
-
-        match res {
-            Ok(up_item) => count_update_columns += up_item,
-            Err(err) => {
+            .execute(conn)
+            .map_err(|err| {
                 debug!("Failed update data: {:?}", err);
-
-                return Err(ServiceError::BadRequest(
-                    "Failed update data".to_string()
-                ))
-            },
-        }
+                ServiceError::BadRequest("Failed update data".to_string())
+            })?;
     }
 
     // update column phone
     if let Some(value) = &data.phone {
-        let res = diesel::update(company_represent_ref::company_represent_ref
+        count_update_columns += diesel::update(company_represent_ref::company_represent_ref
             .filter(company_represent_ref::uuid.eq(target_company_represent_uuid)
             .and(company_represent_ref::phone.ne(value))))
             .set(company_represent_ref::phone.eq(value))
-            .execute(conn);
-
-        match res {
-            Ok(up_item) => count_update_columns += up_item,
-            Err(err) => {
+            .execute(conn)
+            .map_err(|err| {
                 debug!("Failed update data: {:?}", err);
-
-                return Err(ServiceError::BadRequest(
-                    "Failed update data".to_string()
-                ))
-            },
-        }
+                ServiceError::BadRequest("Failed update data".to_string())
+            })?;
     }
 
     // new date for updated_at in company_represent_ref table if update more one column

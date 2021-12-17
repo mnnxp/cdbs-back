@@ -239,3 +239,14 @@ pub(crate) struct FileByExtArg {
     pub(crate) limit: i64,
     pub(crate) offset: i64,
 }
+
+impl FileByExtArg {
+    /// Get struct for get 1th image
+    pub(crate) fn image() -> Self {
+        Self{
+            ext_id: 2, // (image)
+            limit: 1,
+            offset: 0,
+        }
+    }
+}

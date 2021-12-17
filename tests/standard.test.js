@@ -768,7 +768,7 @@ describe('company', () => {
     const {
       data: { putStandardUpdate },
     } = body;
-    expect(putStandardUpdate).toBe(9);
+    expect(putStandardUpdate).toBe(8);
     done();
   });
 
@@ -864,7 +864,7 @@ describe('company', () => {
     const {
       data: { putStandardUpdate },
     } = body;
-    expect(putStandardUpdate).toBe(9);
+    expect(putStandardUpdate).toBe(8);
     done();
   });
 
@@ -2764,7 +2764,7 @@ describe('company', () => {
     const {
       data: { putStandardUpdate },
     } = body;
-    expect(putStandardUpdate).toBe(8);
+    expect(putStandardUpdate).toBe(7);
     done();
   });
 
@@ -3170,7 +3170,7 @@ describe('company', () => {
     const {
       data: { putStandardUpdate },
     } = body;
-    expect(putStandardUpdate).toBe(5);
+    expect(putStandardUpdate).toBe(4);
     done();
   });
 

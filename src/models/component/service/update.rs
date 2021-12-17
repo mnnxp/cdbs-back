@@ -28,121 +28,79 @@ pub(crate) fn update_component_by_uuid(
 
     // update column parent_component_uuid
     if let Some(value) = &data.parent_component_uuid {
-        let res = diesel::update(component_ref::component_ref
+        count_update_columns += diesel::update(component_ref::component_ref
             .filter(component_ref::uuid.eq(target_component_uuid)
             .and(component_ref::parent_component_uuid.ne(value))))
             .set(component_ref::parent_component_uuid.eq(value))
-            .execute(conn);
-
-        match res {
-            Ok(up_item) => count_update_columns += up_item,
-            Err(err) => {
+            .execute(conn)
+            .map_err(|err| {
                 debug!("Failed update data: {:?}", err);
-
-                return Err(ServiceError::BadRequest(
-                    "Failed update data".to_string()
-                ))
-            },
-        }
+                ServiceError::BadRequest("Failed update data".to_string())
+            })?;
     }
 
     // update column name
     if let Some(value) = &data.name {
-        let res = diesel::update(component_ref::component_ref
+        count_update_columns += diesel::update(component_ref::component_ref
             .filter(component_ref::uuid.eq(target_component_uuid)
             .and(component_ref::name.ne(value))))
             .set(component_ref::name.eq(value))
-            .execute(conn);
-
-        match res {
-            Ok(up_item) => count_update_columns += up_item,
-            Err(err) => {
+            .execute(conn)
+            .map_err(|err| {
                 debug!("Failed update data: {:?}", err);
-
-                return Err(ServiceError::BadRequest(
-                    "Failed update data".to_string()
-                ))
-            },
-        }
+                ServiceError::BadRequest("Failed update data".to_string())
+            })?;
     }
 
     // update column description
     if let Some(value) = &data.description {
-        let res = diesel::update(component_ref::component_ref
+        count_update_columns += diesel::update(component_ref::component_ref
             .filter(component_ref::uuid.eq(target_component_uuid)
             .and(component_ref::description.ne(value))))
             .set(component_ref::description.eq(value))
-            .execute(conn);
-
-        match res {
-            Ok(up_item) => count_update_columns += up_item,
-            Err(err) => {
+            .execute(conn)
+            .map_err(|err| {
                 debug!("Failed update data: {:?}", err);
-
-                return Err(ServiceError::BadRequest(
-                    "Failed update data".to_string()
-                ))
-            },
-        }
+                ServiceError::BadRequest("Failed update data".to_string())
+            })?;
     }
 
     // update column component_type_id
     if let Some(value) = &data.component_type_id {
-        let res = diesel::update(component_ref::component_ref
+        count_update_columns += diesel::update(component_ref::component_ref
             .filter(component_ref::uuid.eq(target_component_uuid)
             .and(component_ref::component_type_id.ne(value))))
             .set(component_ref::component_type_id.eq(value))
-            .execute(conn);
-
-        match res {
-            Ok(up_item) => count_update_columns += up_item,
-            Err(err) => {
+            .execute(conn)
+            .map_err(|err| {
                 debug!("Failed update data: {:?}", err);
-
-                return Err(ServiceError::BadRequest(
-                    "Failed update data".to_string()
-                ))
-            },
-        }
+                ServiceError::BadRequest("Failed update data".to_string())
+            })?;
     }
 
     // update column actual_status_id
     if let Some(value) = &data.actual_status_id {
-        let res = diesel::update(component_ref::component_ref
+        count_update_columns += diesel::update(component_ref::component_ref
             .filter(component_ref::uuid.eq(target_component_uuid)
             .and(component_ref::actual_status_id.ne(value))))
             .set(component_ref::actual_status_id.eq(value))
-            .execute(conn);
-
-        match res {
-            Ok(up_item) => count_update_columns += up_item,
-            Err(err) => {
+            .execute(conn)
+            .map_err(|err| {
                 debug!("Failed update data: {:?}", err);
-
-                return Err(ServiceError::BadRequest(
-                    "Failed update data".to_string()
-                ))
-            },
-        }
+                ServiceError::BadRequest("Failed update data".to_string())
+            })?;
     }
 
     // new date for updated_at in component_ref table if update more one column
     if count_update_columns > 0 {
-        let res = diesel::update(component_ref::component_ref
+        diesel::update(component_ref::component_ref
             .filter(component_ref::uuid.eq(target_component_uuid)))
             .set(component_ref::updated_at.eq(chrono::Local::now().naive_local()))
-            .execute(conn);
-
-        match res {
-            Ok(up_item) => count_update_columns += up_item,
-            Err(err) => {
+            .execute(conn)
+            .map_err(|err| {
                 debug!("Failed update data: {:?}", err);
-
-                return Err(ServiceError::BadRequest(
-                    "Failed update data".to_string()
-                ))
-            },
-        }
+                ServiceError::BadRequest("Failed update data".to_string())
+            })?;
 
         debug!("Count update columns: {:?}", count_update_columns);
 
