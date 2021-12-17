@@ -1,63 +1,17 @@
 use crate::errors::{ServiceResult, ServiceError};
 use crate::models::user::model::ShowUserShort;
-use crate::models::relate_ref::file::model::{
-    ListObject,
-    PreliminaryFileData,
-    ShowFile,
-    ShowFileRelatedData,
-    SlimFile,
+use crate::models::relate_ref::{
+    file::model::{
+        ListObject, PreliminaryFileData, ShowFile,
+        ShowFileRelatedData, DownloadFile, SlimFile,
+    },
+    program::model::Program,
 };
-use crate::models::relate_ref::file::model::DownloadFile;
-use crate::models::relate_ref::program::model::Program;
 use crate::storage::model::StorageAccess;
 use crate::storage::presigned_url::download_presigned_url;
 use crate::schema::file_ref::dsl as file_ref;
 use diesel::prelude::*;
 use uuid::Uuid;
-
-// impl ShowFile {
-//     pub(crate) fn get_file_by_uuid(
-//         target_file_uuid: &Uuid,
-//         conn: &PgConnection,
-//     ) -> ServiceResult<ShowFile> {
-//         Ok(file_ref::file_ref
-//             .filter(file_ref::uuid.eq(target_file_uuid))
-//             .select((
-//                 file_ref::uuid,
-//                 file_ref::parent_file_uuid,
-//                 file_ref::user_uuid,
-//                 file_ref::filename,
-//                 file_ref::content_type,
-//                 file_ref::id_ext,
-//                 file_ref::filesize,
-//                 file_ref::path_file,
-//                 file_ref::created_at,
-//                 file_ref::updated_at,
-//             ))
-//             .first::<ShowFile>(conn)?)
-//     }
-//
-//     pub(crate) fn get_file_by_uuids(
-//         target_files_uuids: &[Uuid],
-//         conn: &PgConnection,
-//     ) -> ServiceResult<Vec<ShowFile>> {
-//         Ok(file_ref::file_ref
-//             .filter(file_ref::uuid.eq_any(target_files_uuids))
-//             .select((
-//                 file_ref::uuid,
-//                 file_ref::parent_file_uuid,
-//                 file_ref::user_uuid,
-//                 file_ref::filename,
-//                 file_ref::content_type,
-//                 file_ref::id_ext,
-//                 file_ref::filesize,
-//                 file_ref::path_file,
-//                 file_ref::created_at,
-//                 file_ref::updated_at,
-//             ))
-//             .load::<ShowFile>(conn)?)
-//     }
-// }
 
 impl ShowFileRelatedData {
     pub(crate) fn get_file_by_uuid(
@@ -194,24 +148,6 @@ impl PreliminaryFileData {
 }
 
 impl DownloadFile {
-    // /// Get DownloadFile with generated presigned_url from ShowFile data
-    // pub(crate) fn get_by_show_file(
-    //     file: &ShowFile,
-    //     conn: &PgConnection,
-    // ) -> ServiceResult<DownloadFile> {
-    //     let download_url = download_presigned_url(
-    //         &StorageAccess::get(conn)?,
-    //         &file.path_file,
-    //     )?;
-    //
-    //     Ok(DownloadFile{
-    //         uuid: file.uuid.to_owned(),
-    //         filename: file.filename.to_string(),
-    //         filesize: file.filesize.to_owned(),
-    //         download_url,
-    //     })
-    // }
-
     /// Get DownloadFile with generated presigned_url from SlimFile data
     pub(crate) fn get_by_slim_file(
         file: &SlimFile,

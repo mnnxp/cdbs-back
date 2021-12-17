@@ -8,12 +8,14 @@ use crate::models::component::{
     supplier::model::ComponentSupplierRelatedData,
     component_modification::model::{ComponentModification, ComponentModificationAndRelatedData},
     access::util::check_access_component_for_user,
+    util::get_files_by_ext,
 };
+use crate::models::user::model::ShowUserShort;
 use crate::models::standard::model::ShowStandardShort;
 use crate::models::relate_ref::{
     type_access::model::TypeAccessTranslateList,
     license::model::License,
-    file::model::ShowFileRelatedData,
+    file::model::{ShowFileRelatedData, DownloadFile, FileByExtArg},
     keyword::model::Keyword,
     spec::model::SpecTranslateList,
 };
@@ -108,7 +110,7 @@ impl ShowComponentShort {
         ).expect("Failed get Component data");
 
         // get component owner
-        let owner_user = crate::models::user::model::ShowUserShort::get_without_check_by_uuid(
+        let owner_user = ShowUserShort::get_without_check_by_uuid(
             &component.user_uuid,
             conn
         ).expect("Error loading slim_user");
@@ -148,10 +150,20 @@ impl ShowComponentShort {
         ).expect("Error loading license");
 
         // get files for component
-        let files = ShowFileRelatedData::for_component(
-            &component,
-            conn
-        ).expect("Error loading component_file");
+        let files = {
+            let image_uuids: Vec<Uuid> = get_files_by_ext(
+                &component.uuid,
+                &FileByExtArg{
+                    ext_id: 1, // (image)
+                    limit: 1,
+                    offset: 0,
+                },
+                conn
+            )?;
+
+            DownloadFile::get_by_files_uuids(&image_uuids, conn)
+                .expect("Error loading component_file")
+        };
 
         // collect data for supplier component
         let component_suppliers: Vec<ComponentSupplierRelatedData> = ComponentSupplierRelatedData::get_first_supplier(
@@ -260,7 +272,7 @@ impl ComponentAndRelatedData {
         ).expect("Error loading component");
 
         // get component owner
-        let owner_user = crate::models::user::model::ShowUserShort::get_without_check_by_uuid(
+        let owner_user = ShowUserShort::get_without_check_by_uuid(
             &component.user_uuid,
             conn
         ).expect("Error loading slim_user");

@@ -11,7 +11,7 @@ use crate::models::relate_ref::{
     type_access::model::TypeAccessTranslateList,
     license::model::License,
     keyword::model::Keyword,
-    file::model::ShowFileRelatedData,
+    file::model::{ShowFileRelatedData, DownloadFile},
     spec::model::SpecTranslateList,
 };
 use crate::schema::*;
@@ -79,7 +79,7 @@ pub struct ShowComponentShort {
     pub updated_at: NaiveDateTime,
     pub licenses: Vec<License>,
     // files for show image (models, draw)
-    pub files: Vec<ShowFileRelatedData>,
+    pub files: Vec<DownloadFile>,
     // show first supplier company
     pub component_suppliers: Vec<ComponentSupplierRelatedData>,
 }

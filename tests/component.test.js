@@ -275,25 +275,8 @@ licenses { \
 files { \
   uuid \
   filename \
-  parentFileUuid \
-  ownerUser { \
-    uuid \
-    username \
-    imageFile { \
-      uuid \
-      filename \
-      filesize \
-      downloadUrl \
-    } \
-  } \
-  contentType \
   filesize \
-  program { \
-    id \
-    name \
-  } \
-  createdAt \
-  updatedAt \
+  downloadUrl \
 } \
 componentSuppliers { \
   componentUuid \

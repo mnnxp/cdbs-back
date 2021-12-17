@@ -1,40 +1,34 @@
 use crate::errors::{ServiceResult, ServiceError};
+use crate::models::relate_ref::file::model::FileByExtArg;
+use crate::schema::component_ref::dsl as component_ref;
 use diesel::prelude::*;
 use uuid::Uuid;
 
 /// Checking whether the component has flag is_base
 /// return true or false
 pub fn check_is_base(
-    target_component_uuid: &Uuid,
+    component_uuid: &Uuid,
     conn: &PgConnection
 ) -> ServiceResult<bool> {
-    use crate::schema::component_ref::dsl::*;
-
-    let get_component_status = component_ref
-        .filter(uuid.eq(target_component_uuid))
-        .select(is_base)
-        .get_result::<bool>(conn);
-
-    match get_component_status {
-        Ok(true) => Ok(true),
-        Ok(false) => Ok(false),
-        _ => Err(ServiceError::BadRequest(
-            "Failed check data".to_string(),
-        )),
-    }
+    component_ref::component_ref
+        .filter(component_ref::uuid.eq(component_uuid))
+        .select(component_ref::is_base)
+        .get_result::<bool>(conn)
+        .map_err(|err| {
+            debug!("Failed get component status {:?}", err);
+            ServiceError::BadRequest("Failed check data".to_string())
+        })
 }
 
 /// Checking whether the component has flag is_base
 /// return err if not base
 pub fn check_is_base_with_err(
-    target_component_uuid: &Uuid,
+    component_uuid: &Uuid,
     conn: &PgConnection
 ) -> ServiceResult<bool> {
-    use crate::schema::component_ref::dsl::*;
-
-    let get_component_status = component_ref
-        .filter(uuid.eq(target_component_uuid))
-        .select(is_base)
+    let get_component_status = component_ref::component_ref
+        .filter(component_ref::uuid.eq(component_uuid))
+        .select(component_ref::is_base)
         .first::<bool>(conn);
 
     match get_component_status {
@@ -46,4 +40,35 @@ pub fn check_is_base_with_err(
             "Failed check data".to_string(),
         )),
     }
+}
+
+// Get files uuids for a component by uuid with filter by extension
+pub(crate) fn get_files_by_ext(
+    component_uuid: &Uuid,
+    arg: &FileByExtArg,
+    conn: &PgConnection
+) -> ServiceResult<Vec<Uuid>> {
+    use crate::schema::file_ref::dsl as file_ref;
+    use crate::schema::file_to_component::dsl as file_to_component;
+
+    let file_uuids = file_to_component::file_to_component
+        .filter(file_to_component::component_uuid.eq(component_uuid))
+        .select(file_to_component::file_uuid)
+        .limit(arg.limit)
+        .offset(arg.offset)
+        .load::<Uuid>(conn)
+        .map_err(|err| {
+            debug!("Failed get component files {:?}", err);
+            ServiceError::InternalServerError
+        })?;
+
+    file_ref::file_ref
+        .filter(file_ref::uuid.eq_any(file_uuids)
+        .and(file_ref::id_ext.eq(&arg.ext_id)))
+        .select(file_ref::uuid)
+        .load::<Uuid>(conn)
+        .map_err(|err| {
+            debug!("Failed get image files {:?}", err);
+            ServiceError::InternalServerError
+        })
 }

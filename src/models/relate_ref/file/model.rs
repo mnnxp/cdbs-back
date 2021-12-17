@@ -232,3 +232,10 @@ pub struct DownloadFile {
     pub filesize: i64,
     pub download_url: String,
 }
+
+#[derive(Debug)]
+pub(crate) struct FileByExtArg {
+    pub(crate) ext_id: i32,
+    pub(crate) limit: i64,
+    pub(crate) offset: i64,
+}
