@@ -1,5 +1,6 @@
 use crate::errors::{ServiceResult, ServiceError};
 // use crate::models::company::member::role::model::RoleMember;
+use crate::schema::company_ref::dsl as company_ref;
 use diesel::prelude::*;
 use uuid::Uuid;
 
@@ -8,23 +9,18 @@ pub fn check_is_owner(
     target_user_uuid: &Uuid,
     target_company_uuid: &Uuid,
     conn: &PgConnection
-) -> bool {
-    use crate::schema::company_ref::dsl::*;
-
-    let check_owner_company = company_ref
-        .filter(user_uuid.eq(target_user_uuid)
-        .and(uuid.eq(target_company_uuid)))
+) -> ServiceResult<bool> {
+    let check_owner_company = company_ref::company_ref
+        .filter(company_ref::user_uuid.eq(target_user_uuid)
+        .and(company_ref::uuid.eq(target_company_uuid)))
         .limit(1)
-        .execute(conn);
+        .execute(conn)
+        .map_err(|err| {
+            debug!("Failed check owner company: {:?}", err);
+            ServiceError::InternalServerError
+        })?;
 
-    match check_owner_company {
-        Ok(count) if count == 1 => true,
-        Ok(_) => false,
-        Err(err) => {
-            debug!("Failed check data: {:?}", err);
-            false
-        },
-    }
+    Ok(check_owner_company == 1)
 }
 
 /// Checking companies for user owner,
@@ -33,23 +29,18 @@ pub fn check_is_owner_any(
     target_user_uuid: &Uuid,
     target_companies_uuids: &[Uuid],
     conn: &PgConnection
-) -> bool {
-    use crate::schema::company_ref::dsl::*;
-
-    let check_owner_companies = company_ref
-        .filter(user_uuid.eq(target_user_uuid)
-        .and(uuid.eq_any(target_companies_uuids)))
+) -> ServiceResult<bool> {
+    let check_owner_companies = company_ref::company_ref
+        .filter(company_ref::user_uuid.eq(target_user_uuid)
+        .and(company_ref::uuid.eq_any(target_companies_uuids)))
         .limit(1)
-        .execute(conn);
+        .execute(conn)
+        .map_err(|err| {
+            debug!("Failed check owner companies: {:?}", err);
+            ServiceError::InternalServerError
+        })?;
 
-    match check_owner_companies {
-        Ok(count) if count == 1 => true,
-        Ok(_) => false,
-        Err(err) => {
-            debug!("Failed check data: {:?}", err);
-            false
-        },
-    }
+    Ok(check_owner_companies == 1)
 }
 
 /// Checking onwed company
@@ -59,12 +50,149 @@ pub fn check_is_owner_with_err(
     target_company_uuid: &Uuid,
     conn: &PgConnection
 ) -> ServiceResult<bool> {
-    match check_is_owner(target_user_uuid, target_company_uuid, conn) {
+    match check_is_owner(target_user_uuid, target_company_uuid, conn)? {
         true => Ok(true),
-        false => Err(ServiceError::BadRequest(
-            "Access denied".to_string(),
-        )),
+        false => Err(ServiceError::BadRequest("Access denied".to_string())),
     }
+}
+
+/// Checking the availability of the required access level
+/// with ownership check
+pub(crate) fn check_company_access(
+    target_user_uuid: &Uuid,
+    target_company_uuid: &Uuid,
+    required_access: &i32,
+    conn: &PgConnection,
+) -> ServiceResult<bool> {
+    // if request to view a public company
+    if required_access == &3 {
+        let access_type_company = get_access_type_company(target_company_uuid, conn)?;
+        // if target company is public
+        if access_type_company == 3 {
+            return Ok(true)
+        }
+    }
+
+    // check user on owner company
+    if check_is_owner(target_user_uuid, target_company_uuid, conn)? {
+        return Ok(true)
+    }
+
+    let member_role_in_company_id = member_role_in_company(
+        target_user_uuid,
+        target_company_uuid,
+        conn,
+    )?;
+
+    let found_type_access_id: i32 = get_type_access_id(
+        &member_role_in_company_id,
+        conn
+    )?;
+
+    match &found_type_access_id < required_access {
+        true => Ok(true),
+        false => Err(ServiceError::BadRequest("Access denied".to_string())),
+    }
+}
+
+/// Get role member for select user in target company
+pub(crate) fn member_role_in_company(
+    target_user_uuid: &Uuid,
+    target_company_uuid: &Uuid,
+    conn: &PgConnection,
+) -> ServiceResult<i32> {
+    use crate::schema::company_member_list::dsl::*;
+
+    // find role_id user
+    company_member_list
+        .filter(company_uuid.eq(target_company_uuid))
+        .filter(user_uuid.eq(target_user_uuid))
+        .select(role_id)
+        .first(conn)
+        .map_err(|err| {
+            debug!("Failed get member role data: {:?}", err);
+            // ServiceError::InternalServerError
+            ServiceError::BadRequest("Access denied".to_string())
+        })
+}
+
+/// Get type_access_id for target role_id
+pub(crate) fn get_type_access_id(
+    target_role_id: &i32,
+    conn: &PgConnection,
+) -> ServiceResult<i32> {
+    use crate::schema::role_access::dsl::*;
+
+    // find level access for role_id
+    role_access
+        .filter(role_id.eq(target_role_id))
+        .select(type_access_id)
+        .first(conn)
+        .map_err(|err| {
+            debug!("Failed get type access: {:?}", err);
+            ServiceError::InternalServerError
+        })
+}
+
+/// Get role IDs for desired level access
+pub(crate) fn get_roles_ids_for_access(
+    required_access: &i32,
+    conn: &PgConnection
+) -> ServiceResult<Vec<i32>> {
+    use crate::schema::role_access::dsl::*;
+
+    role_access
+        .filter(type_access_id.le(required_access)) // <-- filter access < or = required_access
+        .select(role_id)
+        .load(conn)
+        .map_err(|err| {
+            debug!("Failed get role access: {:?}", err);
+            ServiceError::InternalServerError
+        })
+}
+
+/// Check have user among companies employees with a suitable role
+pub(crate) fn check_clerk_with_suitable_role(
+    target_user_uuid: &Uuid,
+    target_companies_uuids: &[Uuid],
+    need_roles_ids: &[i32],
+    conn: &PgConnection
+) -> ServiceResult<bool> {
+    use crate::schema::company_member_list::dsl::*;
+
+    // if user owner any of companies
+    if check_is_owner_any(target_user_uuid, target_companies_uuids, conn)? {
+        return Ok(true)
+    }
+
+    let find_provided_role = company_member_list
+        .filter(user_uuid.eq(target_user_uuid)
+        .and(company_uuid.eq_any(target_companies_uuids)
+        .and(role_id.eq_any(need_roles_ids))))
+        .limit(1)
+        .execute(conn)
+        .map_err(|err| {
+            debug!("Failed get suitable role: {:?}", err);
+            ServiceError::InternalServerError
+        })?;
+
+    Ok(find_provided_role == 1)
+}
+
+/// Gets access type for company
+pub(crate) fn get_access_type_company(
+    target_company_uuid: &Uuid,
+    conn: &PgConnection
+) -> ServiceResult<i32> {
+    company_ref::company_ref
+        .filter(company_ref::uuid.eq(target_company_uuid)
+        .and(company_ref::is_delete.eq(false)))
+        .select(company_ref::type_access_id)
+        .first::<i32>(conn)
+        .map_err(|err| {
+            debug!("Not found data: {:?}", err);
+            ServiceError::InternalServerError
+        })
 }
 
 // /// Gets list of users uuids that have need level access to a company
@@ -106,157 +234,3 @@ pub fn check_is_owner_with_err(
 //         },
 //     }
 // }
-
-/// Checking the availability of the required access level
-/// with ownership check
-pub(crate) fn check_company_access(
-    target_user_uuid: &Uuid,
-    target_company_uuid: &Uuid,
-    required_access: &i32,
-    conn: &PgConnection,
-) -> ServiceResult<bool> {
-    // if request to view a public company
-    if required_access == &3 {
-        let access_type_company = get_access_type_company(target_company_uuid, conn)?;
-        // if target company is public
-        if access_type_company == 3 {
-            return Ok(true)
-        }
-    }
-
-    // check user on owner company
-    if check_is_owner(
-        target_user_uuid,
-        target_company_uuid,
-        conn
-    ) {
-        return Ok(true)
-    }
-
-    let found_type_access_id: i32 = get_type_access_id(
-        &member_role_in_company(
-            target_user_uuid,
-            target_company_uuid,
-            conn,
-        ),
-        conn
-    );
-
-    match found_type_access_id {
-        1..=i32::MAX => {
-            // debug!("get_type_access_id ({:?}) < required_access ({:?})", &get_type_access_id, &required_access);
-            if &found_type_access_id < required_access {
-                Ok(true)
-            } else {
-                Err(ServiceError::BadRequest(
-                    "Access denied".to_string(),
-                ))
-            }
-        }
-        _ => Err(ServiceError::BadRequest("Access denied".to_string())),
-    }
-}
-
-/// Get role member for select user in target company
-pub(crate) fn member_role_in_company(
-    target_user_uuid: &Uuid,
-    target_company_uuid: &Uuid,
-    conn: &PgConnection,
-) -> i32 {
-    use crate::schema::company_member_list::dsl::*;
-
-    // find role_id user
-    company_member_list
-        .filter(company_uuid.eq(target_company_uuid))
-        .filter(user_uuid.eq(target_user_uuid))
-        .select(role_id)
-        .first(conn)
-        .unwrap_or(0)
-}
-
-/// Search type_access_id for target role_id
-pub(crate) fn get_type_access_id(
-    target_role_id: &i32,
-    conn: &PgConnection,
-) -> i32 {
-    use crate::schema::role_access::dsl::*;
-
-    // find level access for role_id
-    role_access
-        .filter(role_id.eq(target_role_id))
-        .select(type_access_id)
-        .first(conn)
-        .unwrap_or(0)
-}
-
-/// Get role IDs for desired level access
-pub(crate) fn get_roles_ids_for_access(
-    required_access: &i32,
-    conn: &PgConnection
-) -> ServiceResult<Vec<i32>> {
-    use crate::schema::role_access::dsl::*;
-
-    let roles_ids = role_access
-        .filter(type_access_id.le(required_access)) // <-- filter access < or = required_access
-        .select(role_id)
-        .load(conn);
-
-    match roles_ids {
-        Ok(rs_ids) => Ok(rs_ids),
-        Err(err) => {
-            debug!("Failed get data: {:?}", err);
-            Err(ServiceError::BadRequest(
-                "Failed get data".to_string()
-            ))
-        },
-    }
-}
-
-/// Check have user among companies employees with a suitable role
-pub(crate) fn check_clerk_with_suitable_role(
-    target_user_uuid: &Uuid,
-    target_companies_uuids: &[Uuid],
-    need_roles_ids: &[i32],
-    conn: &PgConnection
-) -> bool {
-    use crate::schema::company_member_list::dsl::*;
-
-    // if user owner any of companies
-    if check_is_owner_any(target_user_uuid, target_companies_uuids, conn) {
-        return true
-    }
-
-    let find_provided_role = company_member_list
-        .filter(user_uuid.eq(target_user_uuid)
-        .and(company_uuid.eq_any(target_companies_uuids)
-        .and(role_id.eq_any(need_roles_ids))))
-        .limit(1)
-        .execute(conn);
-
-    match find_provided_role {
-        Ok(provided_role) if provided_role == 1 => true,
-        Ok(_) => false,
-        Err(err) => {
-            debug!("Failed get data: {:?}", err);
-            false
-        },
-    }
-}
-
-/// Gets access type for company
-pub(crate) fn get_access_type_company(
-    target_company_uuid: &Uuid,
-    conn: &PgConnection
-) -> ServiceResult<i32> {
-    use crate::schema::company_ref::dsl::*;
-
-    company_ref
-        .filter(uuid.eq(target_company_uuid)
-        .and(is_delete.eq(false)))
-        .select(type_access_id)
-        .first::<i32>(conn)
-        .map_err(|err| {
-            debug!("Not found data: {:?}", err);
-            ServiceError::InternalServerError
-        })
-}

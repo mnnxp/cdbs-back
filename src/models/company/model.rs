@@ -88,31 +88,43 @@ pub struct ShowCompanyShort {
 
 #[derive(Debug, Insertable)]
 #[table_name = "company_ref"]
-pub struct InsertableCompany {
-    pub uuid: Uuid,
-    pub orgname: String,
-    pub shortname: String,
-    pub inn: String,
-    pub phone: String,
-    pub email: String,
-    pub description: String,
-    pub address: String,
-    pub site_url: String,
-    pub time_zone: String,
-    pub user_uuid: Uuid,
-    pub image_file_uuid: Uuid,
-    pub region_id: i32,
-    pub company_type_id: i32,
-    pub type_access_id: i32,
-    pub is_supplier: bool,
-    pub is_email_verified: bool,
-    pub is_enabled: bool,
-    pub is_delete: bool,
-    pub created_at: NaiveDateTime,
-    pub updated_at: NaiveDateTime,
+pub(crate) struct InsertableCompany {
+    uuid: Uuid,
+    orgname: String,
+    shortname: String,
+    inn: String,
+    phone: String,
+    email: String,
+    description: String,
+    address: String,
+    site_url: String,
+    time_zone: String,
+    user_uuid: Uuid,
+    image_file_uuid: Uuid,
+    region_id: i32,
+    company_type_id: i32,
+    type_access_id: i32,
+    is_supplier: bool,
+    is_email_verified: bool,
+    is_enabled: bool,
+    is_delete: bool,
+    created_at: NaiveDateTime,
+    updated_at: NaiveDateTime,
 }
 
-#[derive(Debug, Deserialize, Clone, InputObject)]
+impl InsertableCompany {
+    /// Set user uuid (for set logged user as owner)
+    pub(crate) fn set_user_uuid(&mut self, user_uuid: &Uuid) {
+        self.user_uuid = *user_uuid;
+    }
+
+    /// Set image uuid (for set default image)
+    pub(crate) fn set_image_uuid(&mut self) {
+        self.image_file_uuid = Uuid::parse_str("bc1c2151-86d0-4656-9c9d-d016dd584297").unwrap();
+    }
+}
+
+#[derive(Debug, Deserialize, InputObject)]
 pub struct IptCompanyData {
     pub orgname: String,
     pub shortname: String,
@@ -126,6 +138,49 @@ pub struct IptCompanyData {
     pub region_id: i32,
     pub company_type_id: i32,
     pub type_access_id: i32,
+}
+
+impl From<&IptCompanyData> for InsertableCompany {
+    fn from(ipt_data: &IptCompanyData) -> Self {
+        let IptCompanyData {
+            orgname,
+            shortname,
+            inn,
+            phone,
+            email,
+            description,
+            address,
+            site_url,
+            time_zone,
+            region_id,
+            company_type_id,
+            type_access_id,
+        } = ipt_data;
+
+        Self {
+            uuid: Uuid::new_v4(),
+            orgname: orgname.clone(),
+            shortname: shortname.clone(),
+            inn: inn.clone(),
+            phone: phone.clone(),
+            email: email.clone(),
+            description: description.clone(),
+            address: address.clone(),
+            site_url: site_url.clone(),
+            time_zone: time_zone.clone(),
+            user_uuid: Uuid::nil(),
+            image_file_uuid: Uuid::nil(),
+            region_id: *region_id,
+            company_type_id: *company_type_id,
+            type_access_id: *type_access_id,
+            is_supplier: false,
+            is_email_verified: false,
+            is_enabled: true,
+            is_delete: false,
+            created_at: chrono::Local::now().naive_local(),
+            updated_at: chrono::Local::now().naive_local(),
+        }
+    }
 }
 
 #[derive(Debug, Deserialize, Clone, InputObject)]
@@ -143,80 +198,11 @@ pub struct IptUpdateCompanyData {
     pub company_type_id: Option<i32>,
 }
 
-#[derive(Debug, Deserialize, Clone)]
-pub struct CompanyData {
-    pub orgname: String,
-    pub shortname: String,
-    pub inn: String,
-    pub phone: String,
-    pub email: String,
-    pub description: String,
-    pub address: String,
-    pub site_url: String,
-    pub time_zone: String,
-    pub user_uuid: Uuid,
-    pub image_file_uuid: Uuid,
-    pub region_id: i32,
-    pub company_type_id: i32,
-    pub type_access_id: i32,
-}
-
 #[derive(Debug, Serialize, Deserialize, Queryable, Clone, SimpleObject)]
 pub struct SlimCompany {
     pub uuid: Uuid,
     pub shortname: String,
     pub is_supplier: bool,
-}
-
-impl From<CompanyData> for InsertableCompany {
-    fn from(company_data: CompanyData) -> Self {
-        let CompanyData {
-            orgname,
-            shortname,
-            inn,
-            phone,
-            email,
-            description,
-            address,
-            site_url,
-            time_zone,
-            user_uuid,
-            image_file_uuid,
-            region_id,
-            company_type_id,
-            type_access_id,
-            ..
-        } = company_data;
-
-        let is_supplier = false;
-        let is_email_verified = false;
-        let is_enabled = true;
-        let is_delete = false;
-
-        Self {
-            uuid: Uuid::new_v4(),
-            orgname,
-            shortname,
-            inn,
-            phone,
-            email,
-            description,
-            address,
-            site_url,
-            time_zone,
-            user_uuid,
-            image_file_uuid,
-            region_id,
-            company_type_id,
-            type_access_id,
-            is_supplier,
-            is_email_verified,
-            is_enabled,
-            is_delete,
-            created_at: chrono::Local::now().naive_local(),
-            updated_at: chrono::Local::now().naive_local(),
-        }
-    }
 }
 
 impl From<Company> for SlimCompany {

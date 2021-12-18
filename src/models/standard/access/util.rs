@@ -1,4 +1,5 @@
 use crate::errors::{ServiceResult, ServiceError};
+use crate::schema::standard_ref::dsl as standard_ref;
 use diesel::prelude::*;
 use uuid::Uuid;
 
@@ -7,24 +8,18 @@ pub fn check_is_owner(
     target_user_uuid: &Uuid,
     target_standard_uuid: &Uuid,
     conn: &PgConnection
-) -> bool {
-    use crate::schema::standard_ref::dsl::*;
-
-    let check_owner_standard = standard_ref
-        .filter(user_uuid.eq(target_user_uuid)
-        .and(uuid.eq(target_standard_uuid)))
+) -> ServiceResult<bool> {
+    let check_owner_standard = standard_ref::standard_ref
+        .filter(standard_ref::user_uuid.eq(target_user_uuid)
+        .and(standard_ref::uuid.eq(target_standard_uuid)))
         .limit(1)
-        .execute(conn);
+        .execute(conn)
+        .map_err(|err| {
+            debug!("Failed get owner standard: {:?}", err);
+            ServiceError::InternalServerError
+        })?;
 
-    match check_owner_standard {
-        Ok(count) if count == 1 => true,
-        Ok(_) => false,
-        Err(err) => {
-            debug!("Failed check data: {:?}", err);
-            // Err(ServiceError::BadRequest("Failed check data".to_string()))
-            false
-        },
-    }
+    Ok(check_owner_standard == 1)
 }
 
 /// Checking onwed standard
@@ -34,11 +29,9 @@ pub fn check_is_owner_with_err(
     target_standard_uuid: &Uuid,
     conn: &PgConnection
 ) -> ServiceResult<bool> {
-    match check_is_owner(target_user_uuid, target_standard_uuid, conn) {
+    match check_is_owner(target_user_uuid, target_standard_uuid, conn)? {
         true => Ok(true),
-        false => Err(ServiceError::BadRequest(
-            "Access denied".to_string(),
-        )),
+        false => Err(ServiceError::BadRequest("Access denied".to_string())),
     }
 }
 
@@ -60,7 +53,7 @@ pub(crate) fn check_access_standard_for_user(
     }
 
     // ownership check for ownership_check is true
-    if check_is_owner(target_user_uuid, target_standard_uuid, conn) {
+    if check_is_owner(target_user_uuid, target_standard_uuid, conn)? {
         return Ok(true)
     }
 
@@ -70,7 +63,7 @@ pub(crate) fn check_access_standard_for_user(
         target_standard_uuid,
         need_access_level,
         conn
-    ) {
+    )? {
         return Ok(true)
     }
 
@@ -84,9 +77,7 @@ pub(crate) fn check_access_standard_for_user(
     };
 
     // not found need access level for target user
-    Err(ServiceError::BadRequest(
-        "Access denied".to_string()
-    ))
+    Err(ServiceError::BadRequest("Access denied".to_string()))
 }
 
 /// Checking the required level of user access to the standard
@@ -95,27 +86,21 @@ pub(crate) fn check_user_access_to_standard(
     target_standard_uuid: &Uuid,
     need_access_level: &i32,
     conn: &PgConnection
-) -> bool {
+) -> ServiceResult<bool> {
     use crate::schema::user_access_to_standard::dsl::*;
 
-    let check_res = user_access_to_standard
+    let result_check = user_access_to_standard
         .filter(standard_uuid.eq(target_standard_uuid)
         .and(user_uuid.eq(target_user_uuid)))
         .select(type_access_id)
-        .first::<i32>(conn);
+        .limit(1)
+        .load::<i32>(conn)
+        .map_err(|err| {
+            debug!("Failed check user access to standard: {:?}", err);
+            ServiceError::InternalServerError
+        })?;
 
-    match check_res {
-        Ok(ref tai) if need_access_level >= tai => true, // <-- access < or = need_access_level
-        Ok(tai) => {
-            debug!("Found inappropriate access: {:?}", tai);
-            false
-        },
-        Err(err) => {
-            debug!("Failed check data: {:?}", err);
-            // Err(ServiceError::BadRequest("Failed check data".to_string()))
-            false
-        },
-    }
+    Ok(matches!(result_check.first(), Some(x) if need_access_level >= x))
 }
 
 /// Сhecking the availability of user access provided by the company
@@ -134,16 +119,12 @@ pub(crate) fn check_user_access_provided_by_company(
         conn
     )?;
 
-    if check_clerk_with_suitable_role(
+    check_clerk_with_suitable_role(
         target_user_uuid,
         &target_companis_uuids,
         &get_roles_ids_for_access(need_access_level, conn)?,
         conn
-    ) {
-        return Ok(true)
-    }
-
-    Ok(false)
+    )
 }
 
 /// Gets list of companies that have need level access to a standard
@@ -158,20 +139,16 @@ pub(crate) fn get_companies_have_access_to_standard(
         .filter(standard_uuid.eq(target_standard_uuid)
         .and(type_access_id.le(need_access_level))) // <-- access < or = need_access_level
         .select(company_uuid)
-        .load(conn);
+        .load::<Uuid>(conn)
+        .map_err(|err| {
+            debug!("Failed get companies list with access to standard: {:?}", err);
+            ServiceError::InternalServerError
+        })?;
 
-    match companies_uuids {
-        Ok(cs_uuids) if !cs_uuids.is_empty() => Ok(cs_uuids),
+    match companies_uuids.is_empty() {
         // not found companies with need access
-        Ok(_) => Err(ServiceError::BadRequest(
-            "Access denied".to_string()
-        )),
-        Err(err) => {
-            debug!("Failed check data: {:?}", err);
-            Err(ServiceError::BadRequest(
-                "Failed check data".to_string()
-            ))
-        },
+        true => Err(ServiceError::BadRequest("Access denied".to_string())),
+        false => Ok(companies_uuids),
     }
 }
 

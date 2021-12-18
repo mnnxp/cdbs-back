@@ -36,7 +36,7 @@ pub(crate) async fn confirm_upload(
             target_user_uuid,
             &file_d.path_file,
             &conn,
-        ) {
+        )? {
             // todo!(getting metadata  by file id from client for validation)
             let file_h = object_headers(&storage_access, &file_d.path_file)
                 .await

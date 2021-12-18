@@ -1,13 +1,12 @@
 use crate::errors::{ServiceError, ServiceResult};
 use crate::models::component::access::user::model::{
-    UserAccessComponent,
     UserAccessComponentAndRelatedData,
     IptUserAccessComponentData,
     InsertableUserAccessComponent,
     DelUserAccessComponentData,
 };
-use crate::models::component::access::util::check_is_owner;
-use crate::schema::user_access_to_component::dsl::*;
+use crate::models::component::access::util::check_is_owner_with_err;
+use crate::schema::user_access_to_component::dsl as user_access_to_component;
 use diesel::prelude::*;
 use uuid::Uuid;
 
@@ -19,29 +18,14 @@ pub(crate) fn get_users_list_access_component(
     conn: &PgConnection,
 ) -> ServiceResult<Vec<UserAccessComponentAndRelatedData>> {
     // 1. проверить пользователя на владение компонентом
-    if !check_is_owner(logged_user_uuid, target_component_uuid, conn) {
-        return Err(ServiceError::BadRequest("Access denied".to_string()))
-    }
+    check_is_owner_with_err(logged_user_uuid, target_component_uuid, conn)?;
 
     // 2. получить список пользователей с доступом к компоненту
-    let list_users_with_access = UserAccessComponentAndRelatedData::from_component_by_uuid(
+    UserAccessComponentAndRelatedData::from_component_by_uuid(
         target_component_uuid,
         set_lang_id,
         conn
-    );
-
-    match list_users_with_access {
-        Ok(res) => {
-            debug!("Get users have access: {:?}", res);
-            Ok(res)
-        },
-        Err(err) => {
-            debug!("Failed get users list have access to component: {:?}", err);
-            Err(ServiceError::BadRequest(
-                "Failed get users list have access to component".to_string()
-            ))
-        },
-    }
+    )
 }
 
 /// Manage component access for user
@@ -51,42 +35,38 @@ pub(crate) fn set_user_access_component(
     conn: &PgConnection,
 ) -> ServiceResult<bool> {
     // 1. проверить пользователя на владение компонентом
-    if !check_is_owner(logged_user_uuid, &data.component_uuid, conn) {
-        return Err(ServiceError::BadRequest("Access denied".to_string()))
-    }
+    check_is_owner_with_err(logged_user_uuid, &data.component_uuid, conn)?;
 
-    // 2. изменить или добавить доступ для указанного пользователя
-    let set_access = diesel::update(user_access_to_component
-        .filter(component_uuid.eq(&data.component_uuid)
-        .and(user_uuid.eq(&data.user_uuid))))
-        .set((
-            type_access_id.eq(data.type_access_id),
-            is_enabled.eq(true),
-            updated_at.eq(chrono::Local::now().naive_local())
-        )).execute(conn);
+    let get_access = user_access_to_component::user_access_to_component
+        .filter(user_access_to_component::component_uuid.eq(&data.component_uuid)
+        .and(user_access_to_component::user_uuid.eq(&data.user_uuid)))
+        .limit(1)
+        .execute(conn)
+        .map_err(|err| {
+            debug!("Failed ready access: {:?}", err);
+            ServiceError::InternalServerError
+        })?;
 
-    match set_access {
-        Ok(0) => {
-            // доступ не найден, добавить новую запись
-            if add_user_access_component(
-                data,
-                conn
-            )? { return Ok(true) }
-
-            Err(ServiceError::BadRequest(
-                "Failed set access for target user".to_string()
-            ))
-        },
-        Ok(x) => {
-            debug!("Set access for target user: {:?}", x);
-            Ok(true)
-        },
-        Err(err) => {
-            debug!("Failed set access for target user: {:?}", err);
-            Err(ServiceError::BadRequest(
-                "Failed set access for target user".to_string()
-            ))
-        },
+    match get_access {
+        1 => {
+            // 2. изменить доступ для указанного пользователя
+            diesel::update(user_access_to_component::user_access_to_component
+                .filter(user_access_to_component::component_uuid.eq(&data.component_uuid)
+                .and(user_access_to_component::user_uuid.eq(&data.user_uuid))))
+                .set((
+                    user_access_to_component::type_access_id.eq(data.type_access_id),
+                    user_access_to_component::is_enabled.eq(true),
+                    user_access_to_component::updated_at.eq(chrono::Local::now().naive_local())
+                ))
+                .returning(user_access_to_component::is_enabled)
+                .get_result::<bool>(conn)
+                .map_err(|err| {
+                    debug!("Failed set user access: {:?}", err);
+                    ServiceError::InternalServerError
+                })
+        }
+        // доступ не найден, добавить новую запись
+        _ => add_user_access_component(data, conn),
     }
 }
 
@@ -98,23 +78,14 @@ fn add_user_access_component(
 ) -> ServiceResult<bool> {
     let insert_data: InsertableUserAccessComponent = data.into();
 
-    let add_new_access: Result<UserAccessComponent, diesel::result::Error> =
-        diesel::insert_into(user_access_to_component)
-            .values(insert_data)
-            .get_result(conn);
-
-    match add_new_access {
-        Ok(x) => {
-            debug!("Completed add new access for target user: {:?}", x);
-            Ok(true)
-        },
-        Err(err) => {
+    diesel::insert_into(user_access_to_component::user_access_to_component)
+        .values(&insert_data)
+        .returning(user_access_to_component::is_enabled)
+        .get_result(conn)
+        .map_err(|err| {
             debug!("Failed add access for target user: {:?}", err);
-            Err(ServiceError::BadRequest(
-                "Failed add access for target user".to_string()
-            ))
-        },
-    }
+            ServiceError::InternalServerError
+        })
 }
 
 /// Remove access component for user
@@ -124,32 +95,21 @@ pub(crate) fn del_user_access_component(
     conn: &PgConnection,
 ) -> ServiceResult<bool> {
     // 1. проверить пользователя на владение компонентом
-    if !check_is_owner(logged_user_uuid, &data.component_uuid, conn) {
-        return Err(ServiceError::BadRequest("Access denied".to_string()))
-    }
+    check_is_owner_with_err(logged_user_uuid, &data.component_uuid, conn)?;
 
     // 2. деактивировать доступ для указанного пользователя
-    let del_access = diesel::delete(user_access_to_component)
-        .filter(component_uuid.eq(&data.component_uuid)
-        .and(user_uuid.eq(&data.user_uuid)))
-        .execute(conn);
+    let del_access = diesel::delete(user_access_to_component::user_access_to_component)
+        .filter(user_access_to_component::component_uuid.eq(&data.component_uuid)
+        .and(user_access_to_component::user_uuid.eq(&data.user_uuid)))
+        .execute(conn)
+        .map_err(|err| {
+            debug!("Failed delete access for target user: {:?}", err);
+            ServiceError::InternalServerError
+        })?;
 
     match del_access {
-        Ok(0) => {
-            // доступ не найден
-            Err(ServiceError::BadRequest(
-                "Access not found for user".to_string()
-            ))
-        },
-        Ok(x) => {
-            debug!("Delete access for target user: {:?}", x);
-            Ok(true)
-        },
-        Err(err) => {
-            debug!("Failed delete access for target user: {:?}", err);
-            Err(ServiceError::BadRequest(
-                "Failed delete access for target user".to_string()
-            ))
-        },
+        1 => Ok(true),
+        // доступ не найден
+        _ => Err(ServiceError::BadRequest("Access not found for user".to_string())),
     }
 }

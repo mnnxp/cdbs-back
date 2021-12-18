@@ -2,7 +2,8 @@ use crate::errors::{ServiceError, ServiceResult};
 use crate::models::standard::access::model::{
     ChangeOwnerStandard, ChangeTypeAccessStandard,
 };
-use crate::models::standard::access::util::check_is_owner;
+use crate::models::standard::access::util::check_is_owner_with_err;
+use crate::schema::standard_ref::dsl as standard_ref;
 use diesel::prelude::*;
 use uuid::Uuid;
 
@@ -12,39 +13,26 @@ pub(crate) fn change_standard_owner_user(
     data: &ChangeOwnerStandard,
     conn: &PgConnection,
 ) -> ServiceResult<bool> {
-    use crate::schema::standard_ref::dsl::*;
-
     // 1. проверить пользователя на владение стандартом
-    if check_is_owner(
+    check_is_owner_with_err(
         logged_user_uuid,
         &data.standard_uuid,
         conn
-    ) {
-        // 2. изменить владельца компонента
-        let change_owner = diesel::update(standard_ref
-            .filter(uuid.eq(&data.standard_uuid)
-            .and(user_uuid.eq(logged_user_uuid)))) // <-- на всякий пожарный :)
-            .set(user_uuid.eq(data.new_owner_user_uuid))
-            .returning(user_uuid)
-            .get_result::<Uuid>(conn);
+    )?;
 
-        match change_owner {
-            Ok(x) => {
-                debug!("Change standard owner, new owner: {:?}", x);
+    // 2. изменить владельца компонента
+    let change_owner = diesel::update(standard_ref::standard_ref
+        .filter(standard_ref::uuid.eq(&data.standard_uuid)
+        .and(standard_ref::user_uuid.eq(logged_user_uuid)))) // <-- на всякий пожарный :)
+        .set(standard_ref::user_uuid.eq(&data.new_owner_user_uuid))
+        .returning(standard_ref::user_uuid)
+        .get_result::<Uuid>(conn)
+        .map_err(|err| {
+            debug!("Failed change owner standard: {:?}", err);
+            ServiceError::InternalServerError
+        })?;
 
-                return Ok(true)
-            },
-            Err(err) => {
-                debug!("Failed change owner: {:?}", err);
-
-                return Err(ServiceError::BadRequest(
-                    "Failed change owner".to_string()
-                ))
-            },
-        }
-    }
-
-    Err(ServiceError::BadRequest("Access denied".to_string()))
+    Ok(change_owner == data.new_owner_user_uuid)
 }
 
 /// Change standard type_access
@@ -53,37 +41,24 @@ pub(crate) fn change_standard_type_access(
     data: &ChangeTypeAccessStandard,
     conn: &PgConnection,
 ) -> ServiceResult<bool> {
-    use crate::schema::standard_ref::dsl::*;
-
     // 1. проверить пользователя на владение стандартом
-    if check_is_owner(
+    check_is_owner_with_err(
         logged_user_uuid,
         &data.standard_uuid,
         conn
-    ) {
-        // 2. изменить тип доступа компонента
-        let change_access = diesel::update(standard_ref
-            .filter(uuid.eq(&data.standard_uuid)
-            .and(user_uuid.eq(logged_user_uuid)))) // <-- на всякий пожарный :)
-            .set(type_access_id.eq(data.new_type_access_id))
-            .returning(type_access_id)
-            .get_result::<i32>(conn);
+    )?;
 
-        match change_access {
-            Ok(x) => {
-                debug!("Change standard access, new access: {:?}", x);
+    // 2. изменить тип доступа компонента
+    let change_access = diesel::update(standard_ref::standard_ref
+        .filter(standard_ref::uuid.eq(&data.standard_uuid)
+        .and(standard_ref::user_uuid.eq(logged_user_uuid)))) // <-- на всякий пожарный :)
+        .set(standard_ref::type_access_id.eq(&data.new_type_access_id))
+        .returning(standard_ref::type_access_id)
+        .get_result::<i32>(conn)
+        .map_err(|err| {
+            debug!("Failed change access standard: {:?}", err);
+            ServiceError::InternalServerError
+        })?;
 
-                return Ok(true)
-            },
-            Err(err) => {
-                debug!("Failed change access: {:?}", err);
-
-                return Err(ServiceError::BadRequest(
-                    "Failed change access".to_string()
-                ))
-            },
-        }
-    }
-
-    Err(ServiceError::BadRequest("Access denied".to_string()))
+    Ok(change_access == data.new_type_access_id)
 }

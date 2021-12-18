@@ -1,9 +1,10 @@
 use crate::errors::{ServiceError, ServiceResult};
 use crate::models::company::member::model::{
-    CompanyMember, IptCompanyMemberData, InsertableCompanyMember, SlimCompanyMember,
+    IptCompanyMemberData, InsertableCompanyMember
 };
 use crate::models::company::access::util::check_company_access;
 use crate::models::company::member::role::util::check_role_of_company;
+use crate::schema::company_member_list::dsl as company_member_list;
 use diesel::prelude::*;
 use uuid::Uuid;
 
@@ -11,21 +12,16 @@ pub fn add_company_member(
     logged_user_uuid: &Uuid,
     data: &IptCompanyMemberData,
     conn: &PgConnection,
-) -> ServiceResult<SlimCompanyMember> {
-    use crate::schema::company_member_list::dsl::company_member_list;
-
+) -> ServiceResult<bool> {
     // need top level access for change component main data
     let need_access_level = 1; // todo!(create enum for manage access level)
 
-    if !check_company_access(
+    check_company_access(
         logged_user_uuid,
         &data.company_uuid,
         &need_access_level,
         conn,
-    )? {
-        // return error if user not have access level
-        return Err(ServiceError::BadRequest("Access denied".to_string()))
-    }
+    )?;
 
     check_role_of_company(
         &data.company_uuid,
@@ -33,9 +29,29 @@ pub fn add_company_member(
         conn
     )?;
 
-    let company_member: InsertableCompanyMember = data.into();
-    let inserted_company_member: CompanyMember = diesel::insert_into(company_member_list)
-        .values(&company_member)
-        .get_result(conn)?;
-    Ok(inserted_company_member.into())
+    let check_has_member = company_member_list::company_member_list
+        .filter(company_member_list::user_uuid.eq(&data.user_uuid))
+        .limit(1)
+        .execute(conn)
+        .map_err(|err| {
+            debug!("Failed delete company: {:?}", err);
+            ServiceError::InternalServerError
+        })?;
+
+    match check_has_member {
+        0 => {
+            let insert_data: InsertableCompanyMember = data.into();
+            diesel::insert_into(company_member_list::company_member_list)
+                .values(&insert_data)
+                .returning(company_member_list::is_enabled)
+                .get_result(conn)
+                .map_err(|err| {
+                    debug!("Failed delete company: {:?}", err);
+                    ServiceError::InternalServerError
+                })
+        },
+        _ => Err(ServiceError::BadRequest(
+            "The user has already member in the company".to_string(),
+        )),
+    }
 }

@@ -1,4 +1,4 @@
-use crate::errors::ServiceResult;
+use crate::errors::{ServiceResult, ServiceError};
 use crate::models::component::access::user::model::{
     UserAccessComponent, UserAccessComponentAndRelatedData
 };
@@ -16,7 +16,11 @@ impl UserAccessComponentAndRelatedData {
     ) -> ServiceResult<Vec<UserAccessComponentAndRelatedData>> {
         let list_users_with_access = user_access_to_component
             .filter(component_uuid.eq(target_component_uuid))
-            .load::<UserAccessComponent>(conn)?;
+            .load::<UserAccessComponent>(conn)
+            .map_err(|err| {
+                debug!("Failed get list accesses for component: {:?}", err);
+                ServiceError::InternalServerError
+            })?;
 
         let mut target_types_access_ids: Vec<i32> = Vec::new();
         for x in list_users_with_access.iter() {
@@ -33,16 +37,15 @@ impl UserAccessComponentAndRelatedData {
         for x in list_users_with_access {
             for type_access in &type_access_with_translate {
                 if x.type_access_id == type_access.type_access_id {
-                    res.push(
-                        UserAccessComponentAndRelatedData{
-                            component_uuid: x.component_uuid,
-                            user_uuid: x.user_uuid,
-                            type_access: type_access.clone(),
-                            is_enabled: x.is_enabled,
-                            created_at: x.created_at,
-                            updated_at: x.updated_at,
-                        }
-                    )
+                    res.push(UserAccessComponentAndRelatedData{
+                        component_uuid: x.component_uuid,
+                        user_uuid: x.user_uuid,
+                        type_access: type_access.clone(),
+                        is_enabled: x.is_enabled,
+                        created_at: x.created_at,
+                        updated_at: x.updated_at,
+                    });
+                    break;
                 }
             }
         }

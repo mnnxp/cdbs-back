@@ -81,24 +81,46 @@ pub struct ShowStandardShort {
 
 #[derive(Debug, Insertable)]
 #[table_name = "standard_ref"]
-pub struct InsertableStandard {
-    pub uuid: Uuid,
-    pub parent_standard_uuid: Uuid,
-    pub classifier: String,
-    pub name: String,
-    pub description: String,
-    pub specified_tolerance: String,
-    pub technical_committee: String,
-    pub publication_at: NaiveDateTime,
-    pub image_file_uuid: Uuid,
-    pub user_uuid: Uuid,
-    pub company_uuid: Uuid,
-    pub type_access_id: i32,
-    pub standard_status_id: i32,
-    pub region_id: i32,
-    pub is_delete: bool,
-    pub created_at: NaiveDateTime,
-    pub updated_at: NaiveDateTime,
+pub(crate) struct InsertableStandard {
+    uuid: Uuid,
+    parent_standard_uuid: Uuid,
+    classifier: String,
+    name: String,
+    description: String,
+    specified_tolerance: String,
+    technical_committee: String,
+    publication_at: NaiveDateTime,
+    image_file_uuid: Uuid,
+    user_uuid: Uuid,
+    company_uuid: Uuid,
+    type_access_id: i32,
+    standard_status_id: i32,
+    region_id: i32,
+    is_delete: bool,
+    created_at: NaiveDateTime,
+    updated_at: NaiveDateTime,
+}
+
+impl InsertableStandard {
+    /// Check parent standard uuid on nil
+    pub(crate) fn parent_uuid_is_nil(&self) -> bool {
+        self.parent_standard_uuid.is_nil()
+    }
+
+    /// Change parent uuid to base for insert new row
+    pub(crate) fn parent_uuid_to_base(&mut self) {
+        self.parent_standard_uuid = Uuid::parse_str("303ec2aa-2066-42e3-93fb-de4fb9344bcb").unwrap();
+    }
+
+    /// Set image uuid (for set default image)
+    pub(crate) fn set_image_uuid(&mut self) {
+        self.image_file_uuid = Uuid::parse_str("bc1c2151-86d0-4656-9c9d-d016dd584297").unwrap();
+    }
+
+    /// Set user uuid (for set logged user as owner)
+    pub(crate) fn set_user_uuid(&mut self, user_uuid: &Uuid) {
+        self.user_uuid = *user_uuid;
+    }
 }
 
 #[derive(Debug, Deserialize, Clone, InputObject)]
@@ -116,26 +138,9 @@ pub struct IptStandardData {
     pub region_id: i32,
 }
 
-#[derive(Debug, Clone)]
-pub struct StandardData {
-    pub parent_standard_uuid: Uuid,
-    pub classifier: String,
-    pub name: String,
-    pub description: String,
-    pub specified_tolerance: String,
-    pub technical_committee: String,
-    pub publication_at: NaiveDateTime,
-    pub image_file_uuid: Uuid,
-    pub user_uuid: Uuid,
-    pub company_uuid: Uuid,
-    pub type_access_id: i32,
-    pub standard_status_id: i32,
-    pub region_id: i32,
-}
-
-impl From<StandardData> for InsertableStandard {
-    fn from(company_data: StandardData) -> Self {
-        let StandardData {
+impl From<&IptStandardData> for InsertableStandard {
+    fn from(ipt_data: &IptStandardData) -> Self {
+        let IptStandardData {
             parent_standard_uuid,
             classifier,
             name,
@@ -143,35 +148,32 @@ impl From<StandardData> for InsertableStandard {
             specified_tolerance,
             technical_committee,
             publication_at,
-            image_file_uuid,
-            user_uuid,
             company_uuid,
             type_access_id,
             standard_status_id,
             region_id,
-            ..
-        } = company_data;
+        } = ipt_data;
 
-        // let parent_standard_uuid = Uuid::parse_str(&parent_standard_uuid).unwrap();
-        // let image_file_uuid = Uuid::parse_str(&image_file_uuid).unwrap();
-        // let user_uuid = Uuid::parse_str(&user_uuid).unwrap();
-        // let company_uuid = Uuid::parse_str(&company_uuid).unwrap();
+        let parent_standard_uuid = match parent_standard_uuid {
+            Some(parent_uuid) => *parent_uuid,
+            None => Uuid::nil(),
+        };
 
         Self {
             uuid: Uuid::new_v4(),
             parent_standard_uuid,
-            classifier,
-            name,
-            description,
-            specified_tolerance,
-            technical_committee,
-            publication_at,
-            image_file_uuid,
-            user_uuid,
-            company_uuid,
-            type_access_id,
-            standard_status_id,
-            region_id,
+            classifier: classifier.clone(),
+            name: name.clone(),
+            description: description.clone(),
+            specified_tolerance: specified_tolerance.clone(),
+            technical_committee: technical_committee.clone(),
+            publication_at: *publication_at,
+            image_file_uuid: Uuid::nil(),
+            user_uuid: Uuid::nil(),
+            company_uuid: *company_uuid,
+            type_access_id: *type_access_id,
+            standard_status_id: *standard_status_id,
+            region_id: *region_id,
             is_delete: false,
             created_at: chrono::Local::now().naive_local(),
             updated_at: chrono::Local::now().naive_local(),

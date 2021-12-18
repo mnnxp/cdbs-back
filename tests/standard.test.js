@@ -450,11 +450,7 @@ describe('company', () => {
             regionId: ${regionIdCompany},
             companyTypeId: ${companyTypeId},
             typeAccessId: ${typeAccessId1}
-          }) {
-            uuid
-            shortname
-            isSupplier
-          }
+          })
         }`,
       })
       .expect(HttpStatus.OK)
@@ -462,10 +458,8 @@ describe('company', () => {
     const {
       data: { registerCompany },
     } = body;
-    expect(registerCompany.uuid).toBeNonEmptyString();
-    expect(registerCompany.shortname).toBe(shortname);
-    expect(registerCompany.isSupplier).toBe(false);
-    companyUuidSupplier = registerCompany.uuid;
+    expect(registerCompany).toBeNonEmptyString();
+    companyUuidSupplier = registerCompany;
     done();
     // change supplier status on 1
     await global.knex.raw('UPDATE company_ref SET is_supplier=? WHERE orgname=?', [
@@ -496,11 +490,7 @@ describe('company', () => {
             regionId: ${regionIdCompany},
             companyTypeId: ${companyTypeId},
             typeAccessId: ${typeAccessId1}
-          }) {
-            uuid
-            shortname
-            isSupplier
-          }
+          })
         }`,
       })
       .expect(HttpStatus.OK)
@@ -508,10 +498,8 @@ describe('company', () => {
     const {
       data: { registerCompany },
     } = body;
-    expect(registerCompany.uuid).toBeNonEmptyString();
-    expect(registerCompany.shortname).toBe(shortname);
-    expect(registerCompany.isSupplier).toBe(false);
-    companyUuidNoSupplier = registerCompany.uuid;
+    expect(registerCompany).toBeNonEmptyString();
+    companyUuidNoSupplier = registerCompany;
     done();
   });
 
@@ -547,7 +535,7 @@ describe('company', () => {
       .post('/graphql')
       .set(
         'Authorization',
-        `Bearer ${authorizationTokenFirst}`
+        `Bearer ${authorizationTokenSecond}`
       )
       .send({
         query: `mutation standardQuery {
@@ -2577,17 +2565,11 @@ describe('company', () => {
       )
       .send({
         query: `mutation  {
-            addCompanyMember(
-              data: {
+            addCompanyMember(data: {
                 companyUuid: "${companyUuidNoSupplier}"
                 userUuid: "${authorizationUserSecond}"
                 roleId: ${newRoleId}
-              }
-            ) {
-              companyUuid
-              userUuid
-              roleId
-            }
+            })
         }`,
       })
       .expect(HttpStatus.OK)
@@ -2596,9 +2578,7 @@ describe('company', () => {
     const {
       data: { addCompanyMember },
     } = body;
-    expect(addCompanyMember.companyUuid).toBe(companyUuidNoSupplier);
-    expect(addCompanyMember.userUuid).toBe(authorizationUserSecond);
-    expect(addCompanyMember.roleId).toBe(newRoleId);
+    expect(addCompanyMember).toBe(true);
     done();
   });
 

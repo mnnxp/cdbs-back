@@ -7,24 +7,20 @@ pub fn check_is_owner(
     target_user_uuid: &Uuid,
     target_component_uuid: &Uuid,
     conn: &PgConnection
-) -> bool {
+) -> ServiceResult<bool> {
     use crate::schema::component_ref::dsl::*;
 
     let check_owner_component = component_ref
         .filter(user_uuid.eq(target_user_uuid)
         .and(uuid.eq(target_component_uuid)))
         .limit(1)
-        .execute(conn);
+        .execute(conn)
+        .map_err(|err| {
+            debug!("Failed check owner component: {:?}", err);
+            ServiceError::InternalServerError
+        })?;
 
-    match check_owner_component {
-        Ok(count) if count == 1 => true,
-        Ok(_) => false,
-        Err(err) => {
-            debug!("Failed check data: {:?}", err);
-            // Err(ServiceError::BadRequest("Failed check data".to_string()))
-            false
-        },
-    }
+    Ok(check_owner_component == 1)
 }
 
 /// Checking onwed component
@@ -34,11 +30,9 @@ pub fn check_is_owner_with_err(
     target_component_uuid: &Uuid,
     conn: &PgConnection
 ) -> ServiceResult<bool> {
-    match check_is_owner(target_user_uuid, target_component_uuid, conn) {
+    match check_is_owner(target_user_uuid, target_component_uuid, conn)? {
         true => Ok(true),
-        false => Err(ServiceError::BadRequest(
-            "Access denied".to_string(),
-        )),
+        false => Err(ServiceError::BadRequest("Access denied".to_string())),
     }
 }
 
@@ -63,7 +57,7 @@ pub(crate) fn check_access_component_for_user(
     }
 
     // ownership check for ownership_check is true
-    if check_is_owner(target_user_uuid, target_component_uuid, conn) {
+    if check_is_owner(target_user_uuid, target_component_uuid, conn)? {
         return Ok(true)
     }
 
@@ -75,7 +69,7 @@ pub(crate) fn check_access_component_for_user(
         target_component_uuid,
         need_access_level,
         conn
-    ) {
+    )? {
         return Ok(true)
     }
 
@@ -86,18 +80,15 @@ pub(crate) fn check_access_component_for_user(
     // 3.4 поиск пользователя среди сотрудников компаний в company_member_list с подходящей ролью:
     // фильтр пользователя, список компаний, список ролей)
     // checking the availability of user access provided by the company
-    if check_user_access_provided_by_company(target_user_uuid,
+    match check_user_access_provided_by_company(target_user_uuid,
         target_component_uuid,
         need_access_level,
         conn
     )? {
-        return Ok(true)
-    };
-
-    // not found need access level for target user
-    Err(ServiceError::BadRequest(
-        "Access denied".to_string()
-    ))
+        true => Ok(true),
+        // not found need access level for target user
+        false => Err(ServiceError::BadRequest("Access denied".to_string()))
+    }
 }
 
 /// Checking the required level of user access to the component
@@ -106,7 +97,7 @@ pub(crate) fn check_user_access_to_component(
     target_component_uuid: &Uuid,
     need_access_level: &i32,
     conn: &PgConnection
-) -> bool {
+) -> ServiceResult<bool> {
     use crate::schema::user_access_to_component::dsl::*;
     // 2. проверить наличие доступа к компоненту,
     // установленного в user_access_to_component
@@ -115,20 +106,14 @@ pub(crate) fn check_user_access_to_component(
         .filter(component_uuid.eq(target_component_uuid)
         .and(user_uuid.eq(target_user_uuid)))
         .select(type_access_id)
-        .first::<i32>(conn);
+        .limit(1)
+        .load::<i32>(conn)
+        .map_err(|err| {
+            debug!("Failed check access component for user: {:?}", err);
+            ServiceError::InternalServerError
+        })?;
 
-    match check_res {
-        Ok(ref tai) if need_access_level >= tai => true, // <-- access < or = need_access_level
-        Ok(tai) => {
-            debug!("Found inappropriate access: {:?}", tai);
-            false
-        },
-        Err(err) => {
-            debug!("Failed check data: {:?}", err);
-            // Err(ServiceError::BadRequest("Failed check data".to_string()))
-            false
-        },
-    }
+    Ok(matches!(check_res.first(), Some(x) if need_access_level >= x))
 }
 
 /// Сhecking the availability of user access provided by the company
@@ -154,16 +139,12 @@ pub(crate) fn check_user_access_provided_by_company(
     // 3.3 получить список ролей с подходящим доступом role_access
     // 3.4 поиск пользователя среди сотрудников компаний в company_member_list с подходящей ролью:
     // фильтр пользователя, список компаний, список ролей)
-    if check_clerk_with_suitable_role(
+    check_clerk_with_suitable_role(
         target_user_uuid,
         &target_companis_uuids,
         &get_roles_ids_for_access(need_access_level, conn)?,
         conn
-    ) {
-        return Ok(true)
-    }
-
-    Ok(false)
+    )
 }
 
 /// Gets list of companies that have need level access to a component
@@ -181,20 +162,15 @@ pub(crate) fn get_companies_have_access_to_component(
         .filter(component_uuid.eq(target_component_uuid)
         .and(type_access_id.le(need_access_level))) // <-- access < or = need_access_level
         .select(company_uuid)
-        .load(conn);
+        .load(conn)
+        .map_err(|err| {
+            debug!("Failed get companies uuids for check: {:?}", err);
+            ServiceError::InternalServerError
+        })?;
 
-    match companies_uuids {
-        Ok(cs_uuids) if !cs_uuids.is_empty() => Ok(cs_uuids),
-        // not found companies with need access
-        Ok(_) => Err(ServiceError::BadRequest(
-            "Access denied".to_string()
-        )),
-        Err(err) => {
-            debug!("Failed check data: {:?}", err);
-            Err(ServiceError::BadRequest(
-                "Failed check data".to_string()
-            ))
-        },
+    match companies_uuids.is_empty() {
+        true => Err(ServiceError::BadRequest("Access denied".to_string())),
+        false => Ok(companies_uuids)
     }
 }
 

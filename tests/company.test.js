@@ -454,11 +454,7 @@ describe('company', () => {
             regionId: ${regionIdCompany},
             companyTypeId: ${companyTypeId},
             typeAccessId: ${typeAccessId1}
-          }) {
-            uuid
-            shortname
-            isSupplier
-          }
+          })
         }`,
       })
       .expect(HttpStatus.OK)
@@ -466,10 +462,8 @@ describe('company', () => {
     const {
       data: { registerCompany },
     } = body;
-    expect(registerCompany.uuid).toBeNonEmptyString();
-    expect(registerCompany.shortname).toBe(shortname);
-    expect(registerCompany.isSupplier).toBe(false);
-    companyUuidSupplier = registerCompany.uuid;
+    expect(registerCompany).toBeNonEmptyString();
+    companyUuidSupplier = registerCompany;
     done();
     // change supplier status on 1
     await global.knex.raw('UPDATE company_ref SET is_supplier=? WHERE orgname=?', [
@@ -500,11 +494,7 @@ describe('company', () => {
             regionId: ${regionIdCompany},
             companyTypeId: ${companyTypeId},
             typeAccessId: ${typeAccessId1}
-          }) {
-            uuid
-            shortname
-            isSupplier
-          }
+          })
         }`,
       })
       .expect(HttpStatus.OK)
@@ -512,10 +502,8 @@ describe('company', () => {
     const {
       data: { registerCompany },
     } = body;
-    expect(registerCompany.uuid).toBeNonEmptyString();
-    expect(registerCompany.shortname).toBe(shortname);
-    expect(registerCompany.isSupplier).toBe(false);
-    companyUuidNoSupplier = registerCompany.uuid;
+    expect(registerCompany).toBeNonEmptyString();
+    companyUuidNoSupplier = registerCompany;
     done();
   });
 
@@ -3310,17 +3298,11 @@ describe('company', () => {
       .post('/graphql')
       .send({
         query: `mutation  {
-            addCompanyMember(
-              data: {
-                companyUuid: "${companyUuidNoSupplier}"
-                userUuid: "${authorizationUserSecond}"
-                roleId: ${firstAccess}
-              }
-            ) {
-              companyUuid
-              userUuid
-              roleId
-            }
+            addCompanyMember(data: {
+              companyUuid: "${companyUuidNoSupplier}"
+              userUuid: "${authorizationUserSecond}"
+              roleId: ${firstAccess}
+            })
         }`,
       })
       .expect(HttpStatus.OK)
@@ -3342,17 +3324,11 @@ describe('company', () => {
       )
       .send({
         query: `mutation  {
-            addCompanyMember(
-              data: {
-                companyUuid: "${companyUuidNoSupplier}"
-                userUuid: "${authorizationUserSecond}"
-                roleId: ${firstAccess}
-              }
-            ) {
-              companyUuid
-              userUuid
-              roleId
-            }
+            addCompanyMember(data: {
+              companyUuid: "${companyUuidNoSupplier}"
+              userUuid: "${authorizationUserSecond}"
+              roleId: ${firstAccess}
+            })
         }`,
       })
       .expect(HttpStatus.OK)
@@ -3374,17 +3350,11 @@ describe('company', () => {
       )
       .send({
         query: `mutation  {
-            addCompanyMember(
-              data: {
-                companyUuid: "${companyUuidNoSupplier}"
-                userUuid: "${authorizationUserSecond}"
-                roleId: ${firstAccess}
-              }
-            ) {
-              companyUuid
-              userUuid
-              roleId
-            }
+            addCompanyMember(data: {
+              companyUuid: "${companyUuidNoSupplier}"
+              userUuid: "${authorizationUserSecond}"
+              roleId: ${firstAccess}
+            })
         }`,
       })
       .expect(HttpStatus.OK)
@@ -3406,17 +3376,11 @@ describe('company', () => {
       )
       .send({
         query: `mutation  {
-            addCompanyMember(
-              data: {
-                companyUuid: "${companyUuidNoSupplier}"
-                userUuid: "${authorizationUserSecond}"
-                roleId: ${newRoleId}
-              }
-            ) {
-              companyUuid
-              userUuid
-              roleId
-            }
+            addCompanyMember(data: {
+              companyUuid: "${companyUuidNoSupplier}"
+              userUuid: "${authorizationUserSecond}"
+              roleId: ${newRoleId}
+            })
         }`,
       })
       .expect(HttpStatus.OK)
@@ -3425,9 +3389,33 @@ describe('company', () => {
     const {
       data: { addCompanyMember },
     } = body;
-    expect(addCompanyMember.companyUuid).toBe(companyUuidNoSupplier);
-    expect(addCompanyMember.userUuid).toBe(authorizationUserSecond);
-    expect(addCompanyMember.roleId).toBe(newRoleId);
+    expect(addCompanyMember).toBe(true);
+    done();
+  });
+
+  it('/graphql:M addCompanyMember - OK already has', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation  {
+            addCompanyMember(data: {
+              companyUuid: "${companyUuidNoSupplier}"
+              userUuid: "${authorizationUserSecond}"
+              roleId: ${newRoleId}
+            })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql addCompanyMember=%o', body);
+    // expect(body).toBe(0);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: The user has already member in the company'
+    );
     done();
   });
 
@@ -3693,15 +3681,10 @@ describe('company', () => {
       .post('/graphql')
       .send({
         query: `mutation  {
-            deleteCompanyMember(
-              data: {
-                companyUuid: "${companyUuidNoSupplier}"
-                userUuid: "${authorizationUserSecond}"
-              }
-            ) {
-              companyUuid
-              userUuid
-            }
+            deleteCompanyMember(data: {
+              companyUuid: "${companyUuidNoSupplier}"
+              userUuid: "${authorizationUserSecond}"
+            })
         }`,
       })
       .expect(HttpStatus.OK)
@@ -3723,15 +3706,10 @@ describe('company', () => {
       )
       .send({
         query: `mutation  {
-            deleteCompanyMember(
-              data: {
-                companyUuid: "${companyUuidNoSupplier}"
-                userUuid: "${authorizationUserSecond}"
-              }
-            ) {
-              companyUuid
-              userUuid
-            }
+            deleteCompanyMember(data: {
+              companyUuid: "${companyUuidNoSupplier}"
+              userUuid: "${authorizationUserSecond}"
+            })
         }`,
       })
       .expect(HttpStatus.OK)
@@ -3753,15 +3731,10 @@ describe('company', () => {
       )
       .send({
         query: `mutation  {
-            deleteCompanyMember(
-              data: {
-                companyUuid: "${companyUuidNoSupplier}"
-                userUuid: "${authorizationUserSecond}"
-              }
-            ) {
-              companyUuid
-              userUuid
-            }
+            deleteCompanyMember(data: {
+              companyUuid: "${companyUuidNoSupplier}"
+              userUuid: "${authorizationUserSecond}"
+            })
         }`,
       })
       .expect(HttpStatus.OK)
@@ -3770,8 +3743,32 @@ describe('company', () => {
     const {
       data: { deleteCompanyMember },
     } = body;
-    expect(deleteCompanyMember.companyUuid).toBe(companyUuidNoSupplier);
-    expect(deleteCompanyMember.userUuid).toBe(authorizationUserSecond);
+    expect(deleteCompanyMember).toBe(true);
+    done();
+  });
+
+  it('/graphql:M deleteCompanyMember - OK not found company member', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation  {
+            deleteCompanyMember(data: {
+              companyUuid: "${companyUuidNoSupplier}"
+              userUuid: "${authorizationUserSecond}"
+            })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql deleteCompanyMember=%o', body);
+    // expect(body).toBe(0);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: The user not found in the company'
+    );
     done();
   });
 
@@ -3933,11 +3930,7 @@ describe('company', () => {
       .post('/graphql')
       .send({
         query: `mutation  {
-            deleteCompany( companyUuid: "${companyUuidSupplier}") {
-                uuid
-                shortname
-                isSupplier
-            }
+            deleteCompany(companyUuid: "${companyUuidSupplier}")
         }`,
       })
       .expect(HttpStatus.OK)
@@ -3959,19 +3952,13 @@ describe('company', () => {
       )
       .send({
         query: `mutation  {
-            deleteCompany( companyUuid: "${companyUuidSupplier}") {
-                uuid
-                shortname
-                isSupplier
-            }
+            deleteCompany(companyUuid: "${companyUuidSupplier}")
         }`,
       })
       .expect(HttpStatus.OK)
     debug('/graphql body=%o', body);
     expect(body.data).toBeNull();
-    expect(body.errors[0].message).toBe(
-      'BadRequest: Failed delete company'
-    );
+    expect(body.errors[0].message).toBe('Internal Server Error');
     expect(body.errors[0].path[0]).toBe('deleteCompany');
     done();
   });
@@ -3985,11 +3972,7 @@ describe('company', () => {
       )
       .send({
         query: `mutation  {
-            deleteCompany( companyUuid: "${companyUuidSupplier}") {
-                uuid
-                shortname
-                isSupplier
-            }
+            deleteCompany(companyUuid: "${companyUuidSupplier}")
         }`,
       })
       .expect(HttpStatus.OK)
@@ -3998,10 +3981,7 @@ describe('company', () => {
     const {
       data: { deleteCompany },
     } = body;
-    expect(deleteCompany).toContainAllKeys(["uuid", "shortname", "isSupplier"]);
-    expect(deleteCompany.uuid).toBe(companyUuidSupplier);
-    expect(deleteCompany.shortname).toBe(shortname);
-    expect(deleteCompany.isSupplier).toBe(true);
+    expect(deleteCompany).toBe(companyUuidSupplier);
     done();
   });
 
@@ -4014,19 +3994,13 @@ describe('company', () => {
       )
       .send({
         query: `mutation  {
-            deleteCompany( companyUuid: "${companyUuidSupplier}") {
-                uuid
-                shortname
-                isSupplier
-            }
+            deleteCompany(companyUuid: "${companyUuidSupplier}")
         }`,
       })
       .expect(HttpStatus.OK)
     debug('/graphql body=%o', body);
     expect(body.data).toBeNull();
-    expect(body.errors[0].message).toBe(
-      'BadRequest: Failed delete company'
-    );
+    expect(body.errors[0].message).toBe('Internal Server Error');
     expect(body.errors[0].path[0]).toBe('deleteCompany');
     done();
   });

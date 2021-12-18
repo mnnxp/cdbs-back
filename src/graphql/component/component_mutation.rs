@@ -23,10 +23,10 @@ use crate::models::component::{
     standard::model::{IptStandardToComponentData, DelStandardToComponentData},
     component_modification,
     component_modification::{
+        model::{IptComponentModificationData, IptUpdateComponentModificationData, DelComponentModificationData},
         modification_file_from_fileset::model::{
             IptModificationFileFromFilesetData, DelModificationFileFromFilesetData
         },
-        model::{IptComponentModificationData, IptUpdateComponentModificationData, DelComponentModificationData},
         param::model::{IptModificationParamData, DelModificationParamData},
         file::model::{IptModificationFileData, DelModificationFileData},
         fileset_for_program as fileset_program,

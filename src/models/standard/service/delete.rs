@@ -12,7 +12,7 @@ pub(crate) fn del_standard_data(
     conn: &PgConnection
 ) -> ServiceResult<Uuid> {
     // check ownership standard
-    if !check_is_owner(logged_user_uuid, del_standard_uuid, conn) {
+    if !check_is_owner(logged_user_uuid, del_standard_uuid, conn)? {
         // if user not ownership standard
         let owner_company_uuid = standard_ref::standard_ref
             .filter(standard_ref::uuid.eq(del_standard_uuid))

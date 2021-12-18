@@ -23,18 +23,8 @@ pub(crate) fn create_component_modification(
 
     let mut insert_data: InsertableComponentModification = data.into();
 
-    match &data.parent_modification_uuid {
-        Some(_) => {
-            diesel::insert_into(component_modification_list::component_modification_list)
-                .values(&insert_data)
-                .returning(component_modification_list::uuid)
-                .get_result::<Uuid>(conn)
-                .map_err(|err| {
-                    debug!("Error create modification data: {:?}", err);
-                    ServiceError::InternalServerError
-                })
-        },
-        None => {
+    match insert_data.parent_uuid_is_nil() {
+        true => {
             // debug!("insert_data before: {:#?}", insert_data);
             insert_data.parent_uuid_to_base();
             // debug!("insert_data after: {:#?}", insert_data);
@@ -55,6 +45,16 @@ pub(crate) fn create_component_modification(
                 .get_result::<Uuid>(conn)
                 .map_err(|err| {
                     debug!("Error change parent modification uuid: {:?}", err);
+                    ServiceError::InternalServerError
+                })
+        },
+        false => {
+            diesel::insert_into(component_modification_list::component_modification_list)
+                .values(&insert_data)
+                .returning(component_modification_list::uuid)
+                .get_result::<Uuid>(conn)
+                .map_err(|err| {
+                    debug!("Error create modification data: {:?}", err);
                     ServiceError::InternalServerError
                 })
         },

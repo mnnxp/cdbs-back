@@ -1894,11 +1894,7 @@ describe('users', () => {
             regionId: ${regionIdCompany},
             companyTypeId: ${companyTypeId},
             typeAccessId: ${typeAccessId1}
-          }) {
-            uuid
-            shortname
-            isSupplier
-          }
+          })
         }`,
       })
       .expect(HttpStatus.OK)
@@ -1906,10 +1902,8 @@ describe('users', () => {
     const {
       data: { registerCompany },
     } = body;
-    expect(registerCompany.uuid).toBeNonEmptyString();
-    expect(registerCompany.shortname).toBe(shortname);
-    expect(registerCompany.isSupplier).toBe(false);
-    companyUuidSupplier = registerCompany.uuid;
+    expect(registerCompany).toBeNonEmptyString();
+    companyUuidSupplier = registerCompany;
     done();
     // change supplier status on 1
     await global.knex.raw('UPDATE company_ref SET is_supplier=? WHERE orgname=?', [
@@ -2477,11 +2471,7 @@ describe('users', () => {
             regionId: ${regionIdCompany},
             companyTypeId: ${companyTypeId},
             typeAccessId: ${typeAccessId1}
-          }) {
-            uuid
-            shortname
-            isSupplier
-          }
+          })
         }`,
       })
       .expect(HttpStatus.OK)
@@ -2489,10 +2479,8 @@ describe('users', () => {
     const {
       data: { registerCompany },
     } = body;
-    expect(registerCompany.uuid).toBeNonEmptyString();
-    expect(registerCompany.shortname).toBe(shortname);
-    expect(registerCompany.isSupplier).toBe(false);
-    companyUuidSupplier = registerCompany.uuid;
+    expect(registerCompany).toBeNonEmptyString();
+    companyUuidSupplier = registerCompany;
     done();
     // change supplier status on 1
     await global.knex.raw('UPDATE company_ref SET is_supplier=? WHERE orgname=?', [
@@ -2536,17 +2524,11 @@ describe('users', () => {
       )
       .send({
         query: `mutation  {
-            addCompanyMember(
-              data: {
+            addCompanyMember(data: {
                 companyUuid: "${companyUuidSupplier}"
                 userUuid: "${userUuidSecond}"
                 roleId: ${newRoleId}
-              }
-            ) {
-              companyUuid
-              userUuid
-              roleId
-            }
+            })
         }`,
       })
       .expect(HttpStatus.OK)
@@ -2555,9 +2537,7 @@ describe('users', () => {
     const {
       data: { addCompanyMember },
     } = body;
-    expect(addCompanyMember.companyUuid).toBe(companyUuidSupplier);
-    expect(addCompanyMember.userUuid).toBe(userUuidSecond);
-    expect(addCompanyMember.roleId).toBe(newRoleId);
+    expect(addCompanyMember).toBe(true);
     done();
   });
 
@@ -2703,17 +2683,11 @@ describe('users', () => {
       )
       .send({
         query: `mutation  {
-            addCompanyMember(
-              data: {
+            addCompanyMember(data: {
                 companyUuid: "${companyUuidSupplier}"
                 userUuid: "${userUuidThree}"
                 roleId: ${newRoleId}
-              }
-            ) {
-              companyUuid
-              userUuid
-              roleId
-            }
+            })
         }`,
       })
       .expect(HttpStatus.OK)
@@ -2722,9 +2696,7 @@ describe('users', () => {
     const {
       data: { addCompanyMember },
     } = body;
-    expect(addCompanyMember.companyUuid).toBe(companyUuidSupplier);
-    expect(addCompanyMember.userUuid).toBe(userUuidThree);
-    expect(addCompanyMember.roleId).toBe(newRoleId);
+    expect(addCompanyMember).toBe(true);
     done();
   });
 
@@ -2853,15 +2825,10 @@ describe('users', () => {
       )
       .send({
         query: `mutation  {
-            deleteCompanyMember(
-              data: {
+            deleteCompanyMember(data: {
                 companyUuid: "${companyUuidSupplier}"
                 userUuid: "${userUuidSecond}"
-              }
-            ) {
-              companyUuid
-              userUuid
-            }
+            })
         }`,
       })
       .expect(HttpStatus.OK)
@@ -2870,8 +2837,7 @@ describe('users', () => {
     const {
       data: { deleteCompanyMember },
     } = body;
-    expect(deleteCompanyMember.companyUuid).toBe(companyUuidSupplier);
-    expect(deleteCompanyMember.userUuid).toBe(userUuidSecond);
+    expect(deleteCompanyMember).toBe(true);
     done();
   });
 
@@ -2884,15 +2850,10 @@ describe('users', () => {
       )
       .send({
         query: `mutation  {
-            deleteCompanyMember(
-              data: {
+            deleteCompanyMember(data: {
                 companyUuid: "${companyUuidSupplier}"
                 userUuid: "${userUuidThree}"
-              }
-            ) {
-              companyUuid
-              userUuid
-            }
+            })
         }`,
       })
       .expect(HttpStatus.OK)
@@ -2901,8 +2862,7 @@ describe('users', () => {
     const {
       data: { deleteCompanyMember },
     } = body;
-    expect(deleteCompanyMember.companyUuid).toBe(companyUuidSupplier);
-    expect(deleteCompanyMember.userUuid).toBe(userUuidThree);
+    expect(deleteCompanyMember).toBe(true);
     done();
   });
 
@@ -3057,11 +3017,7 @@ describe('users', () => {
       )
       .send({
         query: `mutation  {
-            deleteCompany( companyUuid: "${companyUuidSupplier}") {
-                uuid
-                shortname
-                isSupplier
-            }
+            deleteCompany(companyUuid: "${companyUuidSupplier}")
         }`,
       })
       .expect(HttpStatus.OK)
@@ -3070,10 +3026,7 @@ describe('users', () => {
     const {
       data: { deleteCompany },
     } = body;
-    expect(deleteCompany).toContainAllKeys(["uuid", "shortname", "isSupplier"]);
-    expect(deleteCompany.uuid).toBe(companyUuidSupplier);
-    expect(deleteCompany.shortname).toBe(shortname);
-    expect(deleteCompany.isSupplier).toBe(true);
+    expect(deleteCompany).toBe(companyUuidSupplier);
     done();
   });
 

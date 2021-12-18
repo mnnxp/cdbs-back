@@ -1,4 +1,5 @@
 use crate::errors::{ServiceResult, ServiceError};
+use crate::schema::user_ref::dsl as user_ref;
 use diesel::prelude::*;
 use uuid::Uuid;
 
@@ -7,21 +8,14 @@ pub(crate) fn get_access_type_user(
     target_user_uuid: &Uuid,
     conn: &PgConnection
 ) -> ServiceResult<i32> {
-    use crate::schema::user_ref::dsl as user_ref;
-
-    let get_access = user_ref::user_ref
+    user_ref::user_ref
         .filter(user_ref::uuid.eq(target_user_uuid))
         .select(user_ref::type_access_id)
-        .first::<i32>(conn);
-
-    match get_access {
-        Ok(x) => Ok(x),
-        Err(err) => {
+        .first::<i32>(conn)
+        .map_err(|err| {
             debug!("Failed get access for user: {:?}", err);
-
-            Err(ServiceError::InternalServerError)
-        },
-    }
+            ServiceError::InternalServerError
+        })
 }
 
 /// Check access to user for logged user
@@ -56,7 +50,7 @@ pub(crate) fn check_access_user_for_user(
         logged_user_uuid,
         target_user_uuid,
         conn
-    ) {
+    )? {
         return Ok(true)
     };
 
@@ -66,7 +60,7 @@ pub(crate) fn check_access_user_for_user(
         logged_user_uuid,
         target_user_uuid,
         conn
-    ) {
+    )? {
         return Ok(true)
     };
 
@@ -76,7 +70,7 @@ pub(crate) fn check_access_user_for_user(
         logged_user_uuid,
         target_user_uuid,
         conn
-    ) {
+    )? {
         return Ok(true)
     };
 
@@ -86,7 +80,7 @@ pub(crate) fn check_access_user_for_user(
         target_user_uuid,
         logged_user_uuid,
         conn
-    ) {
+    )? {
         return Ok(true)
     };
 
@@ -95,7 +89,7 @@ pub(crate) fn check_access_user_for_user(
         logged_user_uuid,
         target_user_uuid,
         conn
-    ) {
+    )? {
         return Ok(true)
     };
 
@@ -105,7 +99,7 @@ pub(crate) fn check_access_user_for_user(
         logged_user_uuid,
         target_user_uuid,
         conn
-    ) {
+    )? {
         return Ok(true)
     };
 
@@ -115,7 +109,7 @@ pub(crate) fn check_access_user_for_user(
         target_user_uuid,
         logged_user_uuid,
         conn
-    ) {
+    )? {
         return Ok(true)
     };
 
@@ -130,7 +124,7 @@ fn users_has_one_company(
     logged_user_uuid: &Uuid,
     target_user_uuid: &Uuid,
     conn: &PgConnection,
-) -> bool {
+) -> ServiceResult<bool> {
     use crate::schema::company_member_list::dsl as company_member_list;
 
     // get companies for first user
@@ -146,9 +140,12 @@ fn users_has_one_company(
         .and(company_member_list::company_uuid.eq_any(&target_companies)))
         .limit(1)
         .execute(conn)
-        .expect("Failed check companies for user on database");
+        .map_err(|err| {
+            debug!("Failed check companies for user on database: {:?}", err);
+            ServiceError::InternalServerError
+        })?;
 
-    matches!(res_check, 1_usize)
+    Ok(res_check == 1)
 }
 
 /// Check if logged user is a member of target user company
@@ -156,7 +153,7 @@ fn member_in_company_user(
     logged_user_uuid: &Uuid,
     target_user_uuid: &Uuid,
     conn: &PgConnection,
-) -> bool {
+) -> ServiceResult<bool> {
     use crate::schema::company_ref::dsl as company_ref;
     use crate::schema::company_member_list::dsl as company_member_list;
 
@@ -173,9 +170,12 @@ fn member_in_company_user(
         .and(company_member_list::company_uuid.eq_any(&target_companies)))
         .limit(1)
         .execute(conn)
-        .expect("Failed check members on database");
+        .map_err(|err| {
+            debug!("Failed check members on database: {:?}", err);
+            ServiceError::InternalServerError
+        })?;
 
-    matches!(res_check, 1_usize)
+    Ok(res_check == 1)
 }
 
 /// Check user have access to component other user
@@ -183,7 +183,7 @@ fn user_have_access_component_user(
     logged_user_uuid: &Uuid,
     target_user_uuid: &Uuid,
     conn: &PgConnection,
-) -> bool {
+) -> ServiceResult<bool> {
     use crate::schema::component_ref::dsl as component_ref;
     use crate::schema::user_access_to_component::dsl as user_access_to_component;
 
@@ -200,9 +200,12 @@ fn user_have_access_component_user(
         .and(user_access_to_component::component_uuid.eq_any(&target_components)))
         .limit(1)
         .execute(conn)
-        .expect("Failed check components for user on database");
+        .map_err(|err| {
+            debug!("Failed check components for user on database: {:?}", err);
+            ServiceError::InternalServerError
+        })?;
 
-    matches!(res_check, 1_usize)
+    Ok(res_check == 1)
 }
 
 /// Check user have access to standard other user
@@ -210,7 +213,7 @@ fn user_have_access_standard_user(
     logged_user_uuid: &Uuid,
     target_user_uuid: &Uuid,
     conn: &PgConnection,
-) -> bool {
+) -> ServiceResult<bool> {
     use crate::schema::standard_ref::dsl as standard_ref;
     use crate::schema::user_access_to_standard::dsl as user_access_to_standard;
 
@@ -227,7 +230,10 @@ fn user_have_access_standard_user(
         .and(user_access_to_standard::standard_uuid.eq_any(&target_standards)))
         .limit(1)
         .execute(conn)
-        .expect("Failed check standards for user on database");
+        .map_err(|err| {
+            debug!("Failed check standards for user on database: {:?}", err);
+            ServiceError::InternalServerError
+        })?;
 
-    matches!(res_check, 1_usize)
+    Ok(res_check == 1)
 }

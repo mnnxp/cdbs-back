@@ -19,5 +19,5 @@ pub(crate) fn check_subscriber_by_uuid(
             ServiceError::InternalServerError
         })?;
 
-    Ok(matches!(check_subscriber, x if x > 0))
+    Ok(check_subscriber > 0)
 }

@@ -1,5 +1,5 @@
 use crate::errors::{ServiceResult, ServiceError};
-use crate::models::company::model::SlimCompany;
+use crate::schema::company_ref::dsl as company_ref;
 use diesel::prelude::*;
 use uuid::Uuid;
 
@@ -13,26 +13,14 @@ pub(crate) fn del_company(
     logged_user_uuid: &Uuid,
     del_company_uuid: &Uuid,
     conn: &PgConnection
-) -> ServiceResult<SlimCompany> {
-    use crate::schema::company_ref::dsl::*;
-
-    let delete_company = diesel::delete(company_ref
-        .filter(user_uuid.eq(logged_user_uuid) // <-- only companies the user
-        .and(uuid.eq(del_company_uuid))))
-        .returning((
-            uuid,
-            shortname,
-            is_supplier,
-        ))
-        .get_result::<SlimCompany>(conn);
-
-    match delete_company {
-        Ok(res) => Ok(res),
-        Err(err) => {
+) -> ServiceResult<Uuid> {
+    diesel::delete(company_ref::company_ref
+        .filter(company_ref::user_uuid.eq(logged_user_uuid) // <-- only companies the user
+        .and(company_ref::uuid.eq(del_company_uuid))))
+        .returning(company_ref::uuid)
+        .get_result::<Uuid>(conn)
+        .map_err(|err| {
             debug!("Failed delete company: {:?}", err);
-            Err(ServiceError::BadRequest(
-                "Failed delete company".to_string()
-            ))
-        }
-    }
+            ServiceError::InternalServerError
+        })
 }

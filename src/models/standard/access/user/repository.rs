@@ -1,4 +1,4 @@
-use crate::errors::ServiceResult;
+use crate::errors::{ServiceResult, ServiceError};
 use crate::models::standard::access::user::model::{
     UserAccessStandard, UserAccessStandardAndRelatedData
 };
@@ -16,7 +16,11 @@ impl UserAccessStandardAndRelatedData {
     ) -> ServiceResult<Vec<UserAccessStandardAndRelatedData>> {
         let list_users_with_access = user_access_to_standard
             .filter(standard_uuid.eq(target_standard_uuid))
-            .load::<UserAccessStandard>(conn)?;
+            .load::<UserAccessStandard>(conn)
+            .map_err(|err| {
+                debug!("Failed get users list with access: {:?}", err);
+                ServiceError::InternalServerError
+            })?;
 
         let mut target_types_access_ids: Vec<i32> = Vec::new();
         for x in list_users_with_access.iter() {
@@ -33,16 +37,15 @@ impl UserAccessStandardAndRelatedData {
         for x in list_users_with_access {
             for type_access in &type_access_with_translate {
                 if x.type_access_id == type_access.type_access_id {
-                    res.push(
-                        UserAccessStandardAndRelatedData{
-                            standard_uuid: x.standard_uuid,
-                            user_uuid: x.user_uuid,
-                            type_access: type_access.clone(),
-                            is_enabled: x.is_enabled,
-                            created_at: x.created_at,
-                            updated_at: x.updated_at,
-                        }
-                    )
+                    res.push(UserAccessStandardAndRelatedData{
+                        standard_uuid: x.standard_uuid,
+                        user_uuid: x.user_uuid,
+                        type_access: type_access.clone(),
+                        is_enabled: x.is_enabled,
+                        created_at: x.created_at,
+                        updated_at: x.updated_at,
+                    });
+                    break;
                 }
             }
         }

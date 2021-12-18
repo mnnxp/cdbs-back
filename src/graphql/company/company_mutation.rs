@@ -2,13 +2,13 @@ use crate::database::{get_pool, get_conn, PooledConnection};
 use crate::errors::ServiceResult;
 use crate::models::user::access::logged::get_logged_user_uuid;
 use crate::models::company::{
-    model::{IptCompanyData, IptUpdateCompanyData, SlimCompany},
+    model::{IptCompanyData, IptUpdateCompanyData},
     access::model::ChangeTypeAccessCompany,
     access::role_access::model::{IptRoleAccessData, DelRoleAccessData},
     certificate::model::{IptCompanyCertificateData, IptUpdateCompanyCertificateData, DelCompanyCertificateData},
     spec::model::IptCompanySpecData,
     company_represent::model::{IptCompanyRepresentData, IptUpdateCompanyRepresentData},
-    member::model::{IptCompanyMemberData, SlimCompanyMember, DelCompanyMemberData},
+    member::model::{IptCompanyMemberData, DelCompanyMemberData},
     member::role::model::{IptRoleMemberData, IptUpdataNameRoleData, DelRoleMemberData},
     supplier_component::model::DelCompanyOfSuppliersData,
 };
@@ -27,7 +27,7 @@ impl CompanyMutation {
         &self,
         cxt: &Context<'_>,
         data: IptCompanyData,
-    ) -> ServiceResult<SlimCompany> {
+    ) -> ServiceResult<Uuid> {
         use crate::models::company::service::register::create_company;
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
@@ -85,7 +85,7 @@ impl CompanyMutation {
         &self,
         cxt: &Context<'_>,
         company_uuid: Uuid,
-    ) -> ServiceResult<SlimCompany> {
+    ) -> ServiceResult<Uuid> {
         use crate::models::company::service::delete::del_company;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
@@ -274,7 +274,7 @@ impl CompanyMutation {
         &self,
         cxt: &Context<'_>,
         data: IptCompanyMemberData,
-    ) -> ServiceResult<SlimCompanyMember> {
+    ) -> ServiceResult<bool> {
         use crate::models::company::member::service::add::add_company_member;
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
@@ -311,7 +311,7 @@ impl CompanyMutation {
         &self,
         cxt: &Context<'_>,
         data: DelCompanyMemberData,
-    ) -> ServiceResult<SlimCompanyMember> {
+    ) -> ServiceResult<bool> {
         use crate::models::company::member::service::delete::del_company_member;
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;

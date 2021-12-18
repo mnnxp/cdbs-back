@@ -85,11 +85,11 @@ impl UserMutation {
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
-        Ok(change_access_type_user(
+        change_access_type_user(
             &logged_user_uuid,
             &new_type_access,
             conn
-        ))
+        )
     }
 
     async fn put_user_update(

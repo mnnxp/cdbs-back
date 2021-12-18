@@ -13,13 +13,18 @@ impl TypeAccessTranslateList {
         let type_access = type_access_translate_list
             .filter(type_access_id.eq(target_type_access_id)
             .and(lang_id.eq(set_lang_id)))
-            .first::<TypeAccessTranslateList>(conn);
+            .limit(1)
+            .load::<TypeAccessTranslateList>(conn)
+            .map_err(|err| {
+                debug!("Failed get type access: {:?}", err);
+                ServiceError::InternalServerError
+            })?;
 
         // if not found data for set lang
-        match type_access {
-            Ok(tat) => Ok(tat),
-            Err(err) => {
-                debug!("Not found set lang for type_access: {:?}", err);
+        match type_access.first() {
+            Some(x) => Ok(x.clone()),
+            None => {
+                debug!("Not found set lang for type_access");
                 type_access_translate_list
                     .filter(type_access_id.eq(target_type_access_id))
                     .first::<TypeAccessTranslateList>(conn)
@@ -40,13 +45,16 @@ impl TypeAccessTranslateList {
         let type_access = type_access_translate_list
             .filter(type_access_id.eq_any(target_types_access_ids)
             .and(lang_id.eq(set_lang_id)))
-            .load::<TypeAccessTranslateList>(conn);
+            .load::<TypeAccessTranslateList>(conn)
+            .map_err(|err| {
+                debug!("Failed get type access: {:?}", err);
+                ServiceError::InternalServerError
+            })?;
 
         // if not found data for set lang
-        match type_access {
-            Ok(tats) => Ok(tats),
-            Err(err) => {
-                debug!("Not found set lang for type_access: {:?}", err);
+        match type_access.is_empty() {
+            true => {
+                debug!("Not found set lang for type_access");
                 type_access_translate_list
                     .filter(type_access_id.eq_any(target_types_access_ids))
                     .load::<TypeAccessTranslateList>(conn)
@@ -55,6 +63,7 @@ impl TypeAccessTranslateList {
                         ServiceError::InternalServerError
                     })
             },
+            false => Ok(type_access),
         }
     }
 }

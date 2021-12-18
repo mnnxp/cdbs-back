@@ -20,12 +20,18 @@ pub(crate) fn create_type_access(
         .filter(lang_id.eq(&data.lang_id)
         .and(name.eq(&data.name)))
         .select(type_access_id)
-        .first::<i32>(conn).unwrap_or(0);
+        .limit(1)
+        .load::<i32>(conn)
+        .map_err(|err| {
+            debug!("Not found data: {:?}", err);
+            ServiceError::InternalServerError
+        })?;
 
     // debug!("fn create_type_access START SEARCH ={:?}", flag_found_type_access);
 
-    match flag_found_type_access {
-        0 => {
+    match flag_found_type_access.first() {
+        Some(x) => Err(ServiceError::BadRequest(format!("This type_access name is already there. Id: {}", x))),
+        None => {
             let new_type_access_id = {
                 use crate::schema::type_access_ref::dsl::*;
 
@@ -46,9 +52,5 @@ pub(crate) fn create_type_access(
                 .get_result(conn)?;
             Ok(inserted_type_access_data)
         },
-        1.. => Err(ServiceError::BadRequest(
-            format!("This type_access name is already there. Id: {}", flag_found_type_access))
-        ),
-        _ => Err(ServiceError::BadRequest("What?".to_string())),
     }
 }

@@ -86,31 +86,36 @@ pub struct ShowComponentShort {
 
 #[derive(Debug, Insertable)]
 #[table_name = "component_ref"]
-pub struct InsertableComponent {
-    pub uuid: Uuid,
-    pub parent_component_uuid: Uuid,
-    pub name: String,
-    pub description: String,
-    pub user_uuid: Uuid,
-    pub type_access_id: i32,
-    pub component_type_id: i32,
-    pub actual_status_id: i32,
-    pub is_base: bool,
-    pub is_delete: bool,
-    pub created_at: NaiveDateTime,
-    pub updated_at: NaiveDateTime,
+pub(crate) struct InsertableComponent {
+    uuid: Uuid,
+    parent_component_uuid: Uuid,
+    name: String,
+    description: String,
+    user_uuid: Uuid,
+    type_access_id: i32,
+    component_type_id: i32,
+    actual_status_id: i32,
+    is_base: bool,
+    is_delete: bool,
+    created_at: NaiveDateTime,
+    updated_at: NaiveDateTime,
 }
 
-#[derive(Debug)]
-pub struct ComponentData {
-    pub parent_component_uuid: Uuid,
-    pub name: String,
-    pub description: String,
-    pub user_uuid: Uuid,
-    pub type_access_id: i32,
-    pub component_type_id: i32,
-    pub actual_status_id: i32,
-    pub is_base: bool,
+impl InsertableComponent {
+    /// Check parent component uuid on nil
+    pub(crate) fn parent_uuid_is_nil(&self) -> bool {
+        self.parent_component_uuid.is_nil()
+    }
+
+    /// Change parent uuid to base for insert new row
+    pub(crate) fn parent_uuid_to_base(&mut self) {
+        self.parent_component_uuid = Uuid::parse_str("a5953fd9-7393-4f1e-a899-06b5e159dbf1").unwrap();
+    }
+
+    /// Set user uuid (for set logged user as owner)
+    pub(crate) fn set_user_uuid(&mut self, user_uuid: &Uuid) {
+        self.user_uuid = *user_uuid;
+    }
 }
 
 #[derive(Debug, Deserialize, InputObject)]
@@ -124,30 +129,34 @@ pub struct IptComponentData {
     pub is_base: bool,
 }
 
-impl From<ComponentData> for InsertableComponent {
-    fn from(data_component: ComponentData) -> Self {
-        let ComponentData {
+impl From<&IptComponentData> for InsertableComponent {
+    fn from(ipt_data: &IptComponentData) -> Self {
+        let IptComponentData {
             parent_component_uuid,
             name,
             description,
-            user_uuid,
             type_access_id,
             component_type_id,
             actual_status_id,
             is_base,
             ..
-        } = data_component;
+        } = ipt_data;
+
+        let parent_component_uuid = match parent_component_uuid {
+            Some(parent_uuid) => *parent_uuid,
+            None => Uuid::nil(),
+        };
 
         Self {
             uuid: Uuid::new_v4(),
             parent_component_uuid,
-            name,
-            description,
-            user_uuid,
-            type_access_id,
-            component_type_id,
-            actual_status_id,
-            is_base,
+            name: name.clone(),
+            description: description.clone(),
+            user_uuid: Uuid::nil(),
+            type_access_id: *type_access_id,
+            component_type_id: *component_type_id,
+            actual_status_id: *actual_status_id,
+            is_base: *is_base,
             is_delete: false,
             created_at: chrono::Local::now().naive_local(),
             updated_at: chrono::Local::now().naive_local(),
