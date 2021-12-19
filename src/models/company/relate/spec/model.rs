@@ -41,7 +41,7 @@ impl From<&IptCompanySpecData> for Vec<InsertableCompanySpec> {
         for sc_id in spec_ids {
             if sc_id > &0 {
                 res.push(InsertableCompanySpec {
-                    company_uuid: company_uuid.to_owned(),
+                    company_uuid: *company_uuid,
                     spec_id: *sc_id,
                 })
             }
@@ -74,7 +74,7 @@ impl From<&IptCompanySpecData> for DelCompanySpec {
         }
 
         Self{
-            company_uuid: company_uuid.to_owned(),
+            company_uuid: *company_uuid,
             spec_ids: good_spec_ids,
         }
     }

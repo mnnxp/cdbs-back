@@ -1,7 +1,7 @@
 use crate::errors::{ServiceError, ServiceResult};
-use crate::models::component::param::model::{
-    IptComponentParamData,
-    InsertableComponentParam
+use crate::models::component::{
+    param::model::{IptComponentParamData, InsertableComponentParam},
+    access::util::check_access_component_for_user,
 };
 use crate::models::relate_ref::param::model::IptParamData;
 use crate::schema::param_to_component::dsl::*;
@@ -15,10 +15,9 @@ pub(crate) fn put_component_params(
     data: &IptComponentParamData,
     conn: &PgConnection
 ) -> ServiceResult<i32> {
-
     let need_access_level = 1; // todo!(create enum for manage access level)
 
-    crate::models::component::access::util::check_access_component_for_user(
+    check_access_component_for_user(
         logged_user_uuid,
         &data.component_uuid,
         &need_access_level,
@@ -38,69 +37,48 @@ pub(crate) fn put_component_params(
 
     for param_d in &data.params {
         if param_d.param_id > 0 { // <-- additionally we check the correctness of the id
-            match param_to_component
+            let get_param = param_to_component
                 .filter(component_uuid.eq(&data.component_uuid)
                 .and(param_id.eq(&param_d.param_id)))
-                .execute(conn) {
-                Ok(ex) => {
-                    if ex > 0 {
-                        update_params.push(param_d.to_owned())     // <-- already has param need update
-                    } else {
-                        let insertable_data = InsertableComponentParam {
-                            component_uuid: data.component_uuid,
-                            param_id: param_d.param_id,
-                            value: param_d.value.to_string(),
-                        };
-                        new_params.push(insertable_data)        // <-- need insert new param
-                    }
-                },
-                Err(err) => {
+                .execute(conn)
+                .map_err(|err| {
                     debug!("Fail check param data: {:?} ", err);
-                    return Err(ServiceError::BadRequest(
-                        "Fail check param data".to_string()
-                    ))
+                    ServiceError::InternalServerError
+                })?;
+
+            match get_param {
+                0 => {
+                    let insertable_data = InsertableComponentParam {
+                        component_uuid: data.component_uuid,
+                        param_id: param_d.param_id,
+                        value: param_d.value.to_string(),
+                    };
+                    new_params.push(insertable_data)        // <-- need insert new param
                 },
+                _ => update_params.push(param_d.clone()),     // <-- already has param need update
             }
         }
     }
 
     // adding new params
     if !new_params.is_empty() {
-        match adding_new_component_params(&new_params, conn) {
-            x if x > 0 => count_changed_rows += x,
-            _ => {
-                return Err(ServiceError::BadRequest(
-                    "Fail insert rows".to_string()
-                ))
-            },
-        }
+        count_changed_rows += adding_new_component_params(&new_params, conn)?;
     }
 
     // updating params values
     if !update_params.is_empty() {
         // Return error if found duplication of existing data detected
-        if check_duplicated_params(
-            &data.component_uuid,
-            &update_params,
-            conn,
-        ) {
+        if check_duplicated_params(&data.component_uuid, &update_params, conn)? {
             return Err(ServiceError::BadRequest(
                 "Duplication of existing data detected".to_string()
             ))
         }
 
-        match update_component_params_values(
+        count_changed_rows += update_component_params_values(
             &data.component_uuid,
             &update_params,
             conn
-        ) {
-            x if x > 0 => count_changed_rows += x,
-            _ => {
-                return Err(ServiceError::BadRequest(
-                    "Fail updated rows".to_string()
-                ))
-            },
-        }
+        )?;
     }
 
     Ok(count_changed_rows as i32)
@@ -110,24 +88,14 @@ pub(crate) fn put_component_params(
 fn adding_new_component_params (
     data: &[InsertableComponentParam],
     conn: &PgConnection
-) -> usize {
-    let insert_params = diesel::insert_into(param_to_component)
+) -> ServiceResult<usize> {
+    diesel::insert_into(param_to_component)
         .values(data)
-        .execute(conn);
-
-    match insert_params {
-        Ok(count) => {
-            debug!("Inserted {:?} rows", count);
-            count   // <-- return count
-        },
-        Err(err) => {
+        .execute(conn)
+        .map_err(|err| {
             debug!("Fail Inserted rows:  {:?}", err);
-            // return Err(ServiceError::BadRequest(
-            //     "Fail insert rows".to_string()
-            // ))
-            0       // <-- return 0
-        },
-    }
+            ServiceError::InternalServerError
+        })
 }
 
 /// Update params values from array InsertableComponentParam's
@@ -136,7 +104,7 @@ fn update_component_params_values(
     target_component_uuid: &Uuid,
     data: &[IptParamData],
     conn: &PgConnection
-) -> usize {
+) -> ServiceResult<usize> {
     let mut res: usize = 0;
 
     for param_d in data {
@@ -144,23 +112,17 @@ fn update_component_params_values(
             .filter(component_uuid.eq(target_component_uuid)
             .and(param_id.eq(&param_d.param_id))))
             .set(value.eq(param_d.value.to_string()))
-            .execute(conn);
-
-        match insert_params {
-            Ok(count) => {
-                debug!("Updated {:?} rows", count);
-                res += count;
-            },
-            Err(err) => {
+            .execute(conn)
+            .map_err(|err| {
                 debug!("Fail updated rows:  {:?}", err);
-                // return Err(ServiceError::BadRequest(
-                //     "Fail updated rows".to_string()
-                // ))
-            },
-        }
+                ServiceError::InternalServerError
+            })?;
+
+        debug!("Updated {:?} rows", insert_params);
+        res += insert_params;
     }
 
-    res // <-- return count
+    Ok(res) // <-- return count
 }
 
 /// Find duplicate params data
@@ -169,25 +131,23 @@ fn check_duplicated_params(
     target_component_uuid: &Uuid,
     data: &[IptParamData],
     conn: &PgConnection
-) -> bool {
+) -> ServiceResult<bool> {
     for param_d in data {
         let duplicate_params = param_to_component
             .filter(component_uuid.eq(target_component_uuid)
             .and(param_id.eq(&param_d.param_id)
             .and(value.eq(&param_d.value))))
-            .execute(conn);
+            .execute(conn)
+            .map_err(|err| {
+                debug!("Fail updated rows:  {:?}", err);
+                ServiceError::InternalServerError
+            })?;
 
-        match duplicate_params {
-            Ok(count) if count > 0 => {
-                debug!("Found {:?} duplicates rows", count);
-                return true
-            },
-            Ok(_) => (), // <-- just next
-            Err(err) => {
-                debug!("Fail seatch duplicates rows:  {:?}", err);
-            },
+        if duplicate_params > 0 {
+            debug!("Found {:?} duplicates rows", duplicate_params);
+            return Ok(true)
         }
     }
 
-    false // <-- not found duplicates
+    Ok(false) // <-- not found duplicates
 }

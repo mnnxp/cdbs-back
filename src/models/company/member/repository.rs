@@ -1,9 +1,10 @@
-use crate::errors::ServiceResult;
+use crate::errors::{ServiceResult, ServiceError};
 // use crate::models::company::model::Company;
 use crate::models::company::member::model::{
     CompanyMember, CompanyMemberAndRelatedData,
 };
 use crate::models::company::member::role::model::RoleMemberAndRelatedData;
+use crate::schema::company_member_list::dsl as company_member_list;
 use diesel::prelude::*;
 use uuid::Uuid;
 
@@ -14,13 +15,14 @@ impl CompanyMember {
         target_company_uuid: &Uuid,
         conn: &PgConnection,
     ) -> ServiceResult<Vec<CompanyMember>> {
-        use crate::schema::company_member_list::dsl::*;
-
         // collect data for members the company
-        Ok(company_member_list
-            .filter(company_uuid.eq(target_company_uuid))
-            .load::<CompanyMember>(conn)?
-        )
+        company_member_list::company_member_list
+            .filter(company_member_list::company_uuid.eq(target_company_uuid))
+            .load::<CompanyMember>(conn)
+            .map_err(|err| {
+                debug!("Failed get company_member_list: {:?} ", err);
+                ServiceError::InternalServerError
+            })
     }
 }
 
@@ -35,7 +37,7 @@ impl CompanyMemberAndRelatedData {
         let company_members = &CompanyMember::get_by_company_uuid(
             company_uuid,
             conn
-        ).unwrap();
+        )?;
 
         CompanyMemberAndRelatedData::get_related_data_for_members(
             company_members,

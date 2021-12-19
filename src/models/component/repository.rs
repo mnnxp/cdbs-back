@@ -318,8 +318,8 @@ impl ComponentAndRelatedData {
         ).expect("Error loading license");
 
         // get files for component
-        let files = ShowFileRelatedData::for_component(
-            &component,
+        let files = ShowFileRelatedData::by_component_uuid(
+            &component.uuid,
             conn
         ).expect("Error loading component files");
 

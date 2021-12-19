@@ -62,8 +62,8 @@ impl CompanyRepresentAndRelatedData {
         )?;
 
         Ok(CompanyRepresentAndRelatedData {
-            uuid: represent.uuid.to_owned(),
-            company_uuid: represent.company_uuid.to_owned(),
+            uuid: represent.uuid,
+            company_uuid: represent.company_uuid,
             region,
             representation_type,
             name: represent.name.to_string(),

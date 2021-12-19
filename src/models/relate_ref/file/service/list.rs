@@ -39,16 +39,10 @@ pub(crate) fn get_urls_by_files_uuids(
     }
 
     // get files data by uuids, return error if have fail
-    let slim_files = match SlimFile::get_by_files_uuids(
+    let slim_files = SlimFile::get_by_files_uuids(
         target_file_uuids,
         conn,
-    ) {
-        Ok(data) => data,
-        Err(err) => {
-            debug!("Fail get presigned url: {:?}", err);
-            return Err(ServiceError::BadRequest("Fail get files data".to_string()))
-        },
-    };
+    )?;
 
     DownloadFile::get_by_slim_files(
         &slim_files,

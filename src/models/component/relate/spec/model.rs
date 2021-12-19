@@ -41,7 +41,7 @@ impl From<&IptComponentSpecsData> for Vec<InsertableComponentSpec> {
         for spec_id in spec_ids {
             if spec_id > &0 { // <-- additionally we check the correctness of the key
                 res.push(InsertableComponentSpec {
-                    component_uuid: component_uuid.to_owned(),
+                    component_uuid: *component_uuid,
                     spec_id: *spec_id,
                 })
             }
@@ -73,7 +73,7 @@ impl From<&IptComponentSpecsData> for DeleteComponentSpecs {
         }
 
         Self{
-            component_uuid: component_uuid.to_owned(),
+            component_uuid: *component_uuid,
             spec_ids: good_spec_ids,
         }
     }

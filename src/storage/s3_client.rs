@@ -22,8 +22,8 @@ pub(crate) async fn get_object_headers_by_path(
     path_file: &str,
 ) -> ServiceResult<HeadObjectOutput> {
     let req = rusoto_s3::HeadObjectRequest{
-        bucket: bucket.to_owned(),
-        key: path_file.to_owned(),
+        bucket: bucket.to_string(),
+        key: path_file.to_string(),
         ..Default::default()
     };
 
@@ -58,8 +58,8 @@ pub(crate) async fn delete_object_by_path(
     path_file: &str,
 ) -> bool {
     let req = rusoto_s3::DeleteObjectRequest {
-        bucket: bucket.to_owned(),
-        key: path_file.to_owned(),
+        bucket: bucket.to_string(),
+        key: path_file.to_string(),
         ..Default::default()
     };
 

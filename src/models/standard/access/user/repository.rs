@@ -22,32 +22,22 @@ impl UserAccessStandardAndRelatedData {
                 ServiceError::InternalServerError
             })?;
 
-        let mut target_types_access_ids: Vec<i32> = Vec::new();
-        for x in list_users_with_access.iter() {
-            target_types_access_ids.push(x.type_access_id.to_owned());
-        }
-
-        let type_access_with_translate = TypeAccessTranslateList::get_types_access_by_ids(
-            &target_types_access_ids,
-            set_lang_id,
-            conn
-        )?;
-
         let mut res: Vec<UserAccessStandardAndRelatedData> = Vec::new();
         for x in list_users_with_access {
-            for type_access in &type_access_with_translate {
-                if x.type_access_id == type_access.type_access_id {
-                    res.push(UserAccessStandardAndRelatedData{
-                        standard_uuid: x.standard_uuid,
-                        user_uuid: x.user_uuid,
-                        type_access: type_access.clone(),
-                        is_enabled: x.is_enabled,
-                        created_at: x.created_at,
-                        updated_at: x.updated_at,
-                    });
-                    break;
-                }
-            }
+            let type_access = TypeAccessTranslateList::get_type_access_by_id(
+                &x.type_access_id,
+                set_lang_id,
+                conn
+            )?;
+
+            res.push(UserAccessStandardAndRelatedData{
+                standard_uuid: x.standard_uuid,
+                user_uuid: x.user_uuid,
+                type_access: type_access.clone(),
+                is_enabled: x.is_enabled,
+                created_at: x.created_at,
+                updated_at: x.updated_at,
+            });
         }
 
         Ok(res)

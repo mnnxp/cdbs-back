@@ -84,8 +84,8 @@ impl Aws {
         expires: u64,
     ) -> ServiceResult<String> {
         let req = rusoto_s3::PutObjectRequest{
-            bucket: bucket.to_owned(),
-            key: path_file.to_owned(),
+            bucket: bucket.to_string(),
+            key: path_file.to_string(),
             // content_length: Some(79_i64),
             ..Default::default()
         };
@@ -110,8 +110,8 @@ impl Aws {
     //     expires: u64,
     // ) -> ServiceResult<String> {
     //     let req = rusoto_s3::UploadPartRequest{
-    //         bucket: bucket.to_owned(),
-    //         key: path_file.to_owned(),
+    //         bucket: bucket.to_string(),
+    //         key: path_file.to_string(),
     //         part_number: 1_i64,
     //         upload_id: "None".to_string(),
     //         content_length: Some(79_i64),

@@ -72,7 +72,7 @@ impl From<&IptComponentKeywordsData> for Vec<InsertableComponentKeyword> {
         for kw_id in keyword_ids {
             if kw_id > &0 { // <-- additionally we check the correctness of the key
                 res.push(InsertableComponentKeyword {
-                    component_uuid: component_uuid.to_owned(),
+                    component_uuid: *component_uuid,
                     keyword_id: *kw_id,
                 })
             }

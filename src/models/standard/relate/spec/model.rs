@@ -41,7 +41,7 @@ impl From<&IptStandardSpecsData> for Vec<InsertableStandardSpec> {
         for spec_id in spec_ids {
             if spec_id > &0 { // <-- additionally we check the correctness of the key
                 res.push(InsertableStandardSpec {
-                    standard_uuid: standard_uuid.to_owned(),
+                    standard_uuid: *standard_uuid,
                     spec_id: *spec_id,
                 })
             }
@@ -74,7 +74,7 @@ impl From<&IptStandardSpecsData> for DeleteStandardSpecs {
         }
 
         Self{
-            standard_uuid: standard_uuid.to_owned(),
+            standard_uuid: *standard_uuid,
             spec_ids: good_spec_ids,
         }
     }

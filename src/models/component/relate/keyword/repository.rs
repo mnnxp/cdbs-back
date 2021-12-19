@@ -1,4 +1,4 @@
-use crate::errors::ServiceResult;
+use crate::errors::{ServiceResult, ServiceError};
 use crate::models::component::model::Component;
 use crate::models::component::keyword::model::ComponentKeyword;
 use crate::models::relate_ref::keyword::model::Keyword;
@@ -13,7 +13,12 @@ impl Keyword {
     ) -> ServiceResult<Vec<Keyword>> {
         let target_vec_keyword_id: Vec<i32> = ComponentKeyword::belonging_to(component)
             .select(keyword_to_component::keyword_id)
-            .load::<i32>(conn)?;
+            .load::<i32>(conn)
+            .map_err(|err| {
+                debug!("Failed get keyword_ids: {:?}", err);
+                ServiceError::InternalServerError
+            })?;
+
         Keyword::get_by_ids(&target_vec_keyword_id, conn)
     }
 }

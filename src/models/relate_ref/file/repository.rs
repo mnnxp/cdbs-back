@@ -183,9 +183,9 @@ impl DownloadFile {
         };
 
         Ok(DownloadFile{
-            uuid: file.uuid.to_owned(),
-            filename: file.filename.to_string(),
-            filesize: file.filesize.to_owned(),
+            uuid: file.uuid,
+            filename: file.filename.clone(),
+            filesize: file.filesize,
             download_url,
         })
     }

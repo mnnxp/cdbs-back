@@ -1,13 +1,11 @@
-use crate::errors::ServiceResult;
+use crate::errors::{ServiceResult, ServiceError};
 use crate::models::user::certificate::model::{
-    UserCertificate,
-    IptUserCertificateData,
-    InsertableUserCertificate,
+    UserCertificate, IptUserCertificateData, InsertableUserCertificate
 };
+use crate::models::relate_ref::file as file;
 use crate::models::relate_ref::file::model::{
     ListObject, PreliminaryFileData, UploadFile
 };
-use crate::models::relate_ref::file as file;
 use crate::schema::user_certificate_ref::dsl::*;
 use crate::storage::model::StorageAccess;
 use crate::storage::presigned_url::upload_presigned_url;
@@ -44,9 +42,13 @@ pub(crate) fn add_certificate(
 
     // debug!("fn create_favorite START SEARCH ={:?}", flag_found_favorite);
 
-    let user_inserted_certificate: UserCertificate = diesel::insert_into(user_certificate_ref)
+    let user_inserted_certificate = diesel::insert_into(user_certificate_ref)
         .values(new_user_certificate)
-        .get_result(conn)?;
+        .get_result::<UserCertificate>(conn)
+        .map_err(|err| {
+            debug!("Failed insert certificate data: {:?}", err);
+            ServiceError::InternalServerError
+        })?;
 
     debug!("User inserted certificate: {:?}", user_inserted_certificate);
 

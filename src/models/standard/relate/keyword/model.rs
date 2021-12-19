@@ -70,7 +70,7 @@ impl From<&IptStandardKeywordsData> for Vec<InsertableStandardKeyword> {
         for keyword_id in keyword_ids {
             if keyword_id > &0 { // <-- additionally we check the correctness of the key
                 res.push(InsertableStandardKeyword {
-                    standard_uuid: standard_uuid.to_owned(),
+                    standard_uuid: *standard_uuid,
                     keyword_id: *keyword_id,
                 })
             }
@@ -103,7 +103,7 @@ impl From<&IptStandardKeywordsData> for DeleteStandardKeywords {
         }
 
         Self{
-            standard_uuid: standard_uuid.to_owned(),
+            standard_uuid: *standard_uuid,
             keyword_ids: good_keyword_ids,
         }
     }

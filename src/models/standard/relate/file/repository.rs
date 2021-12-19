@@ -1,4 +1,4 @@
-use crate::errors::ServiceResult;
+use crate::errors::{ServiceResult, ServiceError};
 use crate::models::relate_ref::file::model::ShowFileRelatedData;
 use crate::schema::file_to_standard::dsl as file_to_standard;
 use diesel::prelude::*;
@@ -13,7 +13,11 @@ impl ShowFileRelatedData {
         let target_files_uuids: Vec<Uuid> = file_to_standard::file_to_standard
             .filter(file_to_standard::standard_uuid.eq(standard_uuid))
             .select(file_to_standard::file_uuid)
-            .load::<Uuid>(conn)?;
+            .load::<Uuid>(conn)
+            .map_err(|err| {
+                debug!("Failed get file_to_standard uuids: {:?}", err);
+                ServiceError::InternalServerError
+            })?;
 
         ShowFileRelatedData::get_file_by_uuids(
             &target_files_uuids,

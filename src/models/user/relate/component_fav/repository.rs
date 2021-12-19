@@ -1,4 +1,4 @@
-use crate::errors::ServiceResult;
+use crate::errors::{ServiceResult, ServiceError};
 use crate::models::component::component_fav::model::ComponentFav;
 use crate::schema::component_fav::dsl as component_fav;
 use diesel::prelude::*;
@@ -10,9 +10,14 @@ impl ComponentFav {
         target_user_uuid: &Uuid,
         conn: &PgConnection,
     ) -> ServiceResult<i32> {
-        Ok(component_fav::component_fav
+        let count = component_fav::component_fav
             .filter(component_fav::user_uuid.eq(target_user_uuid)
             .and(component_fav::is_enabled.eq(true)))
-            .execute(conn)? as i32)
+            .execute(conn)
+            .map_err(|err| {
+                debug!("Fail count company_fav: {:?} ", err);
+                ServiceError::InternalServerError
+            })?;
+        Ok(count as i32)
     }
 }

@@ -38,17 +38,14 @@ pub(crate) fn upload_presigned_url(
         crate::cli_args::Opt::from_args()
     };
 
-    let presigned_url = Aws::from(access_storage).get_upload_signed_url(
+    Aws::from(access_storage).get_upload_signed_url(
         &access_storage.bucket,
         path_file,
         opt.expiration_presigned_url,
     ).map_err(|err| {
         debug!("Failed make presign-url: {:#?}", err);
         ServiceError::InternalServerError
-    })?;
-
-    debug!("Presigned url for upload: {:#?}", presigned_url);
-    Ok(presigned_url)
+    })
 }
 
 /// Save presign url for download to database

@@ -71,7 +71,7 @@ impl From<&IptRoleAccessData> for Vec<InsertableRoleAccess> {
 
         for tai in types_access_ids {
             res.push(InsertableRoleAccess {
-                role_id: role_id.to_owned(),
+                role_id: *role_id,
                 type_access_id: *tai,
             })
         }
