@@ -375,6 +375,7 @@ impl ComponentAndRelatedData {
             is_base: component.is_base,
             subscribers,
             is_followed,
+            created_at: component.created_at,
             updated_at: component.updated_at,
             component_params,
             licenses,

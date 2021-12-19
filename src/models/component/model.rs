@@ -51,6 +51,7 @@ pub struct ComponentAndRelatedData {
     pub subscribers: i32,
     // for display the checkbox "favorites"
     pub is_followed: bool,
+    pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
     // related data
     pub licenses: Vec<License>,
