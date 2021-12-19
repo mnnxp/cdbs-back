@@ -1,65 +1,50 @@
-use crate::errors::ServiceResult;
-use crate::models::component::component_modification::model::ComponentModification;
-use crate::models::component::component_modification::fileset_for_program::model::{FilesetProgram, FilesetProgramRelatedData};
+use crate::errors::{ServiceResult, ServiceError};
+use crate::models::component::component_modification::fileset_for_program::model::{
+    FilesetProgram, FilesetProgramRelatedData
+};
 use crate::models::relate_ref::program::model::Program;
+use crate::schema::fileset_for_program::dsl as fileset_for_program;
 use diesel::prelude::*;
+use uuid::Uuid;
 
 impl FilesetProgramRelatedData {
-    /// Find set of files for programs without list files
-    pub(crate) fn for_component_modification_list(
-        component_modification: &[ComponentModification],
+    /// Get filesets by modification uuid
+    pub(crate) fn by_modification_uuid(
+        component_modification_uuid: &Uuid,
         conn: &PgConnection,
-    ) -> ServiceResult<Vec<Vec<FilesetProgramRelatedData>>> {
-        let filesets_program_for_modification: Vec<Vec<FilesetProgram>> = FilesetProgram::belonging_to(component_modification)
+    ) -> ServiceResult<Vec<FilesetProgramRelatedData>> {
+        let filesets = fileset_for_program::fileset_for_program
+            .filter(fileset_for_program::modification_uuid.eq(component_modification_uuid))
             .load::<FilesetProgram>(conn)
-            .expect("Error loading filesets_program_for_modification")
-            .grouped_by(component_modification);
+            .map_err(|err| {
+                debug!("Failed get actual status: {:?}", err);
+                ServiceError::InternalServerError
+            })?;
 
-        // debug!("Component modification filesets_program_for_modification: {:#?}", filesets_program_for_modification);
-
-        let mut program_id_for_set: Vec<i32> = Vec::new();
-        for x in filesets_program_for_modification.iter() {
-            for y in x.iter() {
-                program_id_for_set.push(y.program_id);
-            }
-        }
-
-        let mut filesets_program_with_relate: Vec<Vec<FilesetProgramRelatedData>> = Vec::new();
-        for filesets in filesets_program_for_modification.iter() {
-            filesets_program_with_relate.push(
-                FilesetProgramRelatedData::for_filesets(filesets, conn)?
-            )
-        }
-
-        Ok(filesets_program_with_relate)
+        FilesetProgramRelatedData::for_filesets(&filesets, conn)
     }
 
-    /// Gest filesets for program without list files
-    /// by modification_uuid with filter program_id
+    /// Get program translate data for fileset
+    pub(crate) fn for_fileset(
+        filesets: &FilesetProgram,
+        conn: &PgConnection,
+    ) -> ServiceResult<FilesetProgramRelatedData> {
+        Ok(FilesetProgramRelatedData{
+            uuid: filesets.uuid,
+            modification_uuid: filesets.modification_uuid,
+            program: Program::get_program_by_id(&filesets.program_id, conn)?,
+        })
+    }
+
+    /// Get program translate data for filesets list
     pub(crate) fn for_filesets(
         filesets: &[FilesetProgram],
         conn: &PgConnection,
     ) -> ServiceResult<Vec<FilesetProgramRelatedData>> {
-
-        // get programs ids for filesets component modification
-        let mut program_ids_for_set: Vec<i32> = Vec::new();
-        for set in filesets {
-            program_ids_for_set.push(set.program_id);
-        }
-
-        // get program for filesets component modification
-        let program_for_filesets: Vec<Program> = Program::get_programs_by_ids(&program_ids_for_set, conn)?;
-
-        let mut filesets_program_with_relate: Vec<FilesetProgramRelatedData> = Vec::new();
+        let mut result: Vec<FilesetProgramRelatedData> = Vec::new();
         for x in filesets {
-            for y in &program_for_filesets {
-                if x.program_id == y.id {
-                    let res: FilesetProgramRelatedData = (x.to_owned(),y.clone()).into();
-                    filesets_program_with_relate.push(res)
-                }
-            }
+            result.push(FilesetProgramRelatedData::for_fileset(x, conn)?);
         }
-
-        Ok(filesets_program_with_relate)
+        Ok(result)
     }
 }

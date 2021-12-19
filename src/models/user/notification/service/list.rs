@@ -134,27 +134,23 @@ fn agregate_notifications(
 
     let mut res: Vec<ShowNotification> = Vec::new();
     for notif in get_data_list.iter() {
-        let mut notif_to_user = &NotificationToUser::default();
-        let mut degree_translate = &DegreeImportanceTranslateList::default();
+        let mut data = ShowNotification::new(notif);
 
-        for y in get_list {
-            if notif.id == y.notification_id {
-                notif_to_user = y;
+        for x in get_list {
+            if notif.id == x.notification_id {
+                data.put_is_read(&x.is_read);
                 break;
             }
         }
 
-        for z in &get_degrees_list {
-            if notif.degree_importance_id == z.degree_importance_id {
-                degree_translate = z;
-                // debug!("degree_translate in for: {:?}", degree_translate);
+        for y in &get_degrees_list {
+            if notif.degree_importance_id == y.degree_importance_id {
+                data.put_degree_importance(y);
                 break;
             }
         }
 
-        // debug!("degree_translate out for: {:?}", degree_translate);
-
-        res.push((notif, notif_to_user, degree_translate).into());
+        res.push(data);
     }
 
     Ok(res)

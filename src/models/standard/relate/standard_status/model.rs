@@ -10,13 +10,6 @@ pub struct StandardStatus {
     pub id: i32,
 }
 
-#[Object]
-impl StandardStatus {
-    async fn id(&self) -> &i32 {
-        &self.id
-    }
-}
-
 #[derive(Debug, Insertable)]
 #[table_name = "standard_status_ref"]
 pub struct InsertableStandardStatus {
@@ -29,7 +22,8 @@ pub struct IptStandardStatusData {
 }
 
 // StandardStatus translations
-#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, Clone, Debug)]
+#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations)]
+#[derive(SimpleObject, Clone, Debug)]
 #[primary_key(standard_status_id, lang_id)]
 #[belongs_to(Standard, foreign_key = "standard_status_id")]
 #[belongs_to(Language, foreign_key = "lang_id")]
@@ -38,19 +32,6 @@ pub struct StandardStatusTranslateList {
     pub standard_status_id: i32,
     pub lang_id: i32,
     pub name: String,
-}
-
-#[Object]
-impl StandardStatusTranslateList {
-    async fn standard_status_id(&self) -> &i32 {
-        &self.standard_status_id
-    }
-    async fn lang_id(&self) -> &i32 {
-        &self.lang_id
-    }
-    async fn name(&self) -> &String {
-        &self.name
-    }
 }
 
 #[derive(Debug, Deserialize, Clone, InputObject)]

@@ -49,31 +49,26 @@ pub struct ShowNotification {
     pub is_read: bool,
 }
 
-impl From<(&Notification, &NotificationToUser, &DegreeImportanceTranslateList)> for ShowNotification {
-    fn from(data: (&Notification, &NotificationToUser, &DegreeImportanceTranslateList)) -> Self {
-        if data.1.notification_id != data.0.id {
-            debug!("Filed data.1.notification_id and data.0.id: {:?} != {:?}",
-                &data.1.notification_id,
-                &data.0.id)
+impl ShowNotification {
+    /// Create struct with Notification data, related data set default
+    pub(crate) fn new(data: &Notification) -> Self {
+        Self{
+            id: data.id,
+            notification: data.notification.clone(),
+            degree_importance: Default::default(),
+            created_at: data.created_at,
+            is_read: false,
         }
+    }
 
-        if data.0.degree_importance_id != data.2.degree_importance_id {
-            debug!("Filed data.0 and data.2: {:?} != {:?}",
-                &data.0.degree_importance_id,
-                &data.2.degree_importance_id)
-        }
+    /// Change is_read in norification data
+    pub(crate) fn put_is_read(&mut self, is_read: &bool) {
+        self.is_read = *is_read;
+    }
 
-        Self {
-            id: data.0.id,
-            notification: data.0.notification.to_string(),
-            degree_importance: DegreeImportanceTranslateList {
-                degree_importance_id: data.2.degree_importance_id,
-                lang_id: data.2.lang_id,
-                degree: data.2.degree.to_string(),
-            },
-            created_at: data.0.created_at,
-            is_read: data.1.is_read,
-        }
+    /// Change degree_importance data
+    pub(crate) fn put_degree_importance(&mut self, degree_importance: &DegreeImportanceTranslateList) {
+        self.degree_importance = degree_importance.clone();
     }
 }
 
@@ -116,7 +111,8 @@ impl From<&NotificationData> for InsertableNotification {
     }
 }
 
-#[derive(Identifiable, Serialize, Associations, Queryable, Default, Clone, Debug, SimpleObject)]
+#[derive(Identifiable, Serialize, Associations, Queryable)]
+#[derive(Default, Clone, Debug, SimpleObject)]
 #[primary_key(degree_importance_id, lang_id)]
 #[table_name = "degree_importance_translate_list"]
 pub struct DegreeImportanceTranslateList {

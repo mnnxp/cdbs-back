@@ -1,7 +1,6 @@
 use crate::schema::*;
 use crate::models::company::model::Company;
 use crate::models::relate_ref::file::model::DownloadFile;
-// use async_graphql::types::ID;
 use async_graphql::*;
 // use chrono::*;
 use uuid::Uuid;

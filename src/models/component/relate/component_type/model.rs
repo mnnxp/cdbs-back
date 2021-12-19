@@ -10,13 +10,6 @@ pub struct ComponentType {
     pub id: i32,
 }
 
-#[Object]
-impl ComponentType {
-    async fn id(&self) -> &i32 {
-        &self.id
-    }
-}
-
 #[derive(Debug, Insertable)]
 #[table_name = "component_type_ref"]
 pub struct InsertableComponentType {
@@ -29,7 +22,7 @@ pub struct IptComponentTypeData {
 }
 
 // ComponentType translations
-#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, Debug)]
+#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, SimpleObject, Debug)]
 #[primary_key(component_type_id, lang_id)]
 #[belongs_to(Component, foreign_key = "component_type_id")]
 #[belongs_to(ComponentType, foreign_key = "component_type_id")]
@@ -39,19 +32,6 @@ pub struct ComponentTypeTranslateList {
     pub component_type_id: i32,
     pub lang_id: i32,
     pub component_type: String,
-}
-
-#[Object]
-impl ComponentTypeTranslateList {
-    async fn component_type_id(&self) -> &i32 {
-        &self.component_type_id
-    }
-    async fn lang_id(&self) -> &i32 {
-        &self.lang_id
-    }
-    async fn component_type(&self) -> &String {
-        &self.component_type
-    }
 }
 
 #[derive(Debug, Deserialize, Clone, InputObject)]

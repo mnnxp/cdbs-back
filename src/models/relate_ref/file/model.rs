@@ -1,5 +1,4 @@
 use crate::schema::*;
-use async_graphql::types::ID;
 use async_graphql::*;
 use chrono::*;
 use uuid::Uuid;
@@ -192,24 +191,11 @@ impl From<File> for SlimFile {
     }
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, SimpleObject)]
 pub struct UploadFile {
     pub file_uuid: Uuid,
     pub filename: String,
     pub upload_url: String,
-}
-
-#[Object]
-impl UploadFile {
-    async fn file_uuid(&self) -> ID {
-        self.file_uuid.into()
-    }
-    async fn filename(&self) -> &String {
-        &self.filename
-    }
-    async fn upload_url(&self) -> &String {
-        &self.upload_url
-    }
 }
 
 #[derive(Debug, SimpleObject, Clone)]
@@ -225,7 +211,7 @@ pub struct ShowFileRelatedData {
     pub updated_at: NaiveDateTime,
 }
 
-#[derive(Serialize, SimpleObject, Clone, Debug)]
+#[derive(Serialize, SimpleObject, Clone, Default, Debug)]
 pub struct DownloadFile {
     pub uuid: Uuid,
     pub filename: String,

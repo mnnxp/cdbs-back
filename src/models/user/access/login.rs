@@ -32,7 +32,7 @@ pub(crate) fn login_with_pass(
             let new_data = decode(token.as_str())?;
 
             // insert data new token into the table
-            write_token(token, new_data, conn)
+            write_token(&slim_user.uuid, token, new_data, conn)
         }
     }
 }

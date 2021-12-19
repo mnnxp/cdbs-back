@@ -1,7 +1,8 @@
 use crate::schema::*;
 use async_graphql::*;
 
-#[derive(Identifiable, Serialize, Deserialize, Queryable, Clone, Debug)]
+#[derive(Identifiable, Serialize, Deserialize, Queryable)]
+#[derive(SimpleObject, Clone, Default, Debug)]
 #[primary_key(id)]
 #[table_name = "program_ref"]
 pub struct Program {
@@ -9,20 +10,10 @@ pub struct Program {
     pub name: String,
 }
 
-#[Object]
-impl Program {
-    async fn id(&self) -> &i32 {
-        &self.id
-    }
-    async fn name(&self) -> &String {
-        &self.name
-    }
-}
-
 #[derive(Debug, Insertable)]
 #[table_name = "program_ref"]
-pub struct InsertableProgram {
-    pub name: String,
+pub(crate) struct InsertableProgram {
+    name: String,
 }
 
 #[derive(Debug, Deserialize, Clone, InputObject)]

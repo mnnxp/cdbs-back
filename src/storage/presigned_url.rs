@@ -64,31 +64,28 @@ pub(crate) fn save_presign_url(
     };
 
     // in db the url action time less than the real one
-    let extension_time = match opt.expiration_presigned_url {
+    let expiration_at = match opt.expiration_presigned_url {
         800.. => opt.expiration_presigned_url - 400,
         _ => opt.expiration_presigned_url,
     };
-    let naive_local_extension = Local::now().naive_local() + Duration::seconds(extension_time as i64);
+    let new_expiration_at = Local::now().naive_local() + Duration::seconds(expiration_at as i64);
 
     // save new presigned_url for download to db
-    let update_url_to_db = diesel::update(presigned_url_ref::presigned_url_ref)
+    let check_old_url = presigned_url_ref::presigned_url_ref
         .filter(presigned_url_ref::file_uuid.eq(file_uuid))
-        .set((
-            presigned_url_ref::presigned_url.eq(presigned_url),
-            presigned_url_ref::expiration_at.eq(naive_local_extension)
-        ))
+        .limit(1)
         .execute(conn)
         .map_err(|err| {
-            debug!("Failed update presigned_url {:?}", err);
+            debug!("Failed check old presigned_url {:?}", err);
             ServiceError::InternalServerError
         })?;
 
-    match update_url_to_db {
+    match check_old_url {
         0 => {
             let insert_data = InsertablePresignedUrl{
                 file_uuid: *file_uuid,
                 presigned_url: presigned_url.to_string(),
-                expiration_at: naive_local_extension,
+                expiration_at: new_expiration_at,
             };
 
             diesel::insert_into(presigned_url_ref::presigned_url_ref)
@@ -99,6 +96,19 @@ pub(crate) fn save_presign_url(
                     ServiceError::InternalServerError
                 })
         },
-        x => Ok(x),
+        x => {
+            debug!("Found old presigned_url: {:?}", x);
+            diesel::update(presigned_url_ref::presigned_url_ref)
+                .filter(presigned_url_ref::file_uuid.eq(file_uuid))
+                .set((
+                    presigned_url_ref::presigned_url.eq(presigned_url),
+                    presigned_url_ref::expiration_at.eq(new_expiration_at)
+                ))
+                .execute(conn)
+                .map_err(|err| {
+                    debug!("Failed update presigned_url {:?}", err);
+                    ServiceError::InternalServerError
+                })
+        },
     }
 }

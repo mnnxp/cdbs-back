@@ -104,7 +104,7 @@ impl ShowComponentShort {
         conn: &PgConnection,
     ) -> ServiceResult<ShowComponentShort> {
         // get target component
-        let component: Component = Component::get_component_by_uuid(
+        let component = Component::get_component_by_uuid(
             target_component_uuid,
             conn
         ).expect("Failed get Component data");
@@ -116,21 +116,21 @@ impl ShowComponentShort {
         ).expect("Error loading slim_user");
 
         // get component type with translation
-        let type_access: TypeAccessTranslateList = TypeAccessTranslateList::get_type_access_by_id(
+        let type_access = TypeAccessTranslateList::get_type_access_by_id(
             &component.type_access_id,
             set_lang_id,
             conn
         ).expect("Error loading type_access");
 
         // get component type with translation for component
-        let component_type: ComponentTypeTranslateList = ComponentTypeTranslateList::get_component_type_by_id(
+        let component_type = ComponentTypeTranslateList::get_component_type_by_id(
             &component.component_type_id,
             set_lang_id,
             conn
         ).expect("Error loading component_type");
 
         // get actual status with translation for component
-        let actual_status: ActualStatusTranslateList = ActualStatusTranslateList::get_actual_status_by_id(
+        let actual_status = ActualStatusTranslateList::get_by_id(
             &component.actual_status_id,
             set_lang_id,
             conn
@@ -144,7 +144,7 @@ impl ShowComponentShort {
         ).expect("Error get is_followed");
 
         // get licenses for component
-        let licenses: Vec<License> = License::get_by_component(
+        let licenses = License::get_by_component(
             &component,
             conn
         ).expect("Error loading license");
@@ -162,8 +162,8 @@ impl ShowComponentShort {
         };
 
         // collect data for supplier component
-        let component_suppliers: Vec<ComponentSupplierRelatedData> = ComponentSupplierRelatedData::get_first_supplier(
-            &component,
+        let component_suppliers = ComponentSupplierRelatedData::get_first_supplier(
+            &component.uuid,
             conn
         ).expect("Error loading supplier_component_with_relate");
 
@@ -262,7 +262,7 @@ impl ComponentAndRelatedData {
         )?;
 
         // collect data for component
-        let component: Component = Component::get_component_by_uuid(
+        let component = Component::get_component_by_uuid(
             target_component_uuid,
             conn
         ).expect("Error loading component");
@@ -274,21 +274,21 @@ impl ComponentAndRelatedData {
         ).expect("Error loading slim_user");
 
         // get component type with translation
-        let type_access: TypeAccessTranslateList = TypeAccessTranslateList::get_type_access_by_id(
+        let type_access = TypeAccessTranslateList::get_type_access_by_id(
             &component.type_access_id,
             set_lang_id,
             conn
         ).expect("Error loading type_access");
 
         // get component type with translation for component
-        let component_type: ComponentTypeTranslateList = ComponentTypeTranslateList::get_component_type_by_id(
+        let component_type = ComponentTypeTranslateList::get_component_type_by_id(
             &component.component_type_id,
             set_lang_id,
             conn
         ).expect("Error loading component_type");
 
         // get actual status with translation for component
-        let actual_status: ActualStatusTranslateList = ActualStatusTranslateList::get_actual_status_by_id(
+        let actual_status = ActualStatusTranslateList::get_by_id(
             &component.actual_status_id,
             set_lang_id,
             conn
@@ -305,14 +305,14 @@ impl ComponentAndRelatedData {
         ).expect("Error get is_followed");
 
         // get params with translation for component
-        let component_params: Vec<ComponentParamWithTranslation> = ComponentParamWithTranslation::for_component(
-            &component,
+        let component_params = ComponentParamWithTranslation::by_component_uuid(
+            &component.uuid,
             set_lang_id,
             conn
         ).expect("Error loading params component with translate");
 
         // get licenses for component
-        let licenses: Vec<License> = License::get_by_component(
+        let licenses = License::get_by_component(
             &component,
             conn
         ).expect("Error loading license");
@@ -324,39 +324,39 @@ impl ComponentAndRelatedData {
         ).expect("Error loading component files");
 
         // get specs with translation for component
-        let component_specs: Vec<SpecTranslateList> = SpecTranslateList::for_component(
+        let component_specs = SpecTranslateList::for_component(
             &component,
             set_lang_id,
             conn
         ).expect("Error loading spec component with translate");
 
         // get keywords for component
-        let component_keywords: Vec<Keyword> = Keyword::get_by_component(
+        let component_keywords = Keyword::get_by_component(
             &component,
             conn
         ).expect("Error loading component keywords");
 
         // collect data for modifications the component
-        let component_modifications: Vec<ComponentModification> = ComponentModification::for_component_without_related_data(
+        let component_modifications = ComponentModification::for_component_without_related_data(
             &component,
             conn
         ).expect("Error loading component modifications");
 
         // get list component modifications with related data and translation
-        let component_modifications: Vec<ComponentModificationAndRelatedData> = ComponentModificationAndRelatedData::for_component_modification_list(
+        let component_modifications = ComponentModificationAndRelatedData::for_modifications(
             &component_modifications,
             set_lang_id,
             conn
         ).expect("Error loading component modifications with related data");
 
         // collect data for supplier component
-        let component_suppliers: Vec<ComponentSupplierRelatedData> = ComponentSupplierRelatedData::for_component(
-            &component,
+        let component_suppliers = ComponentSupplierRelatedData::by_component_uuid(
+            &component.uuid,
             conn
         ).expect("Error loading supplier component with relate");
 
         // collect data for component standards
-        let component_standards: Vec<ShowStandardShort> = ShowStandardShort::for_component(
+        let component_standards = ShowStandardShort::for_component(
             target_component_uuid,
             logged_user_uuid,
             set_lang_id,

@@ -198,7 +198,7 @@ pub struct IptUpdateCompanyData {
     pub company_type_id: Option<i32>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Queryable, Clone, SimpleObject)]
+#[derive(Debug, Serialize, Deserialize, Queryable, Clone, Default, SimpleObject)]
 pub struct SlimCompany {
     pub uuid: Uuid,
     pub shortname: String,

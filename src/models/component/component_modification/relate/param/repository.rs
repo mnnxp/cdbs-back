@@ -1,47 +1,36 @@
-use crate::errors::ServiceResult;
-use crate::models::component::component_modification::model::ComponentModification;
-use crate::models::component::component_modification::param::model::{ModificationParam, ModificationParamWithTranslation};
+use crate::errors::{ServiceResult, ServiceError};
+use crate::models::component::component_modification::{
+    model::ComponentModification,
+    param::model::{ModificationParam, ModificationParamWithTranslation},
+};
 use crate::models::relate_ref::param::model::ParamTranslateList;
 use diesel::prelude::*;
 
 impl ModificationParamWithTranslation {
-    pub(crate) fn for_component_modification_list(
-        component_modification: &[ComponentModification],
+    /// Get parameter translate for modification
+    pub(crate) fn for_modificaiton(
+        component_modification: &ComponentModification,
         set_lang_id: &i32,
         conn: &PgConnection,
-    ) -> ServiceResult<Vec<Vec<ModificationParamWithTranslation>>> {
-        // get params with grouped by modification
-        let component_modification_param: Vec<Vec<ModificationParam>> = ModificationParam::belonging_to(component_modification)
+    ) -> ServiceResult<Vec<ModificationParamWithTranslation>> {
+        let modification_params = ModificationParam::belonging_to(component_modification)
             .load::<ModificationParam>(conn)
-            .expect("Error loading component_modification_param")
-            .grouped_by(component_modification);
+            .map_err(|err| {
+                debug!("Failed get modification params: {:?}", err);
+                ServiceError::InternalServerError
+            })?;
 
-
-        // parsing list of id param for component modification
-        let mut param_ids_component_modification: Vec<i32> = Vec::new();
-        for x in component_modification_param.iter() {
-            for y in x.iter() {
-                param_ids_component_modification.push(y.param_id);
-            }
+        let mut result: Vec<ModificationParamWithTranslation> = Vec::new();
+        for x in modification_params.iter() {
+            let mut data = ModificationParamWithTranslation::new(x);
+            data.put_param_translate(ParamTranslateList::get_by_id(
+                &x.param_id,
+                set_lang_id,
+                conn
+            )?);
+            result.push(data);
         }
 
-        // get param with translation for component modification
-        let param_translate_list: Vec<ParamTranslateList> = ParamTranslateList::get_by_ids(&param_ids_component_modification, set_lang_id, conn)?;
-
-        let mut component_modification_param_with_translate: Vec<Vec<ModificationParamWithTranslation>> = Vec::new();
-        for w in component_modification_param.iter() {
-            for x in w.iter() {
-                let mut vec_values: Vec<ModificationParamWithTranslation> = Vec::new();
-                for y in param_translate_list.iter() {
-                    if x.param_id == y.param_id {
-                        let res: ModificationParamWithTranslation = (x.to_owned(),y.clone()).into();
-                        vec_values.push(res)
-                    }
-                }
-                component_modification_param_with_translate.push(vec_values)
-            }
-        }
-
-        Ok(component_modification_param_with_translate)
+        Ok(result)
     }
 }

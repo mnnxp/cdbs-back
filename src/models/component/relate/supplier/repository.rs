@@ -1,82 +1,57 @@
-use crate::errors::ServiceResult;
-use crate::models::component::model::Component;
+use crate::errors::{ServiceResult, ServiceError};
 use crate::models::component::supplier::model::{SupplierComponent, ComponentSupplierRelatedData};
 use crate::models::company::model::SlimCompany;
-use crate::schema::company_ref::dsl as company_ref;
+use crate::schema::supplier_to_component::dsl as supplier_to_component;
 use diesel::prelude::*;
 use uuid::Uuid;
 
 impl ComponentSupplierRelatedData {
-    pub(crate) fn for_component(
-        component: &Component,
+    /// Get suppliers list by component uuid
+    pub(crate) fn by_component_uuid(
+        component_uuid: &Uuid,
         conn: &PgConnection,
     ) -> ServiceResult<Vec<ComponentSupplierRelatedData>> {
-        let supplier_component: Vec<SupplierComponent> = SupplierComponent::belonging_to(component)
+        let component_suppliers = supplier_to_component::supplier_to_component
+            .filter(supplier_to_component::component_uuid.eq(component_uuid))
             .load::<SupplierComponent>(conn)
-            .expect("Error loading supplier_component");
+            .map_err(|err| {
+                debug!("Failed get supplier_component: {:?}", err);
+                ServiceError::InternalServerError
+            })?;
 
-        let mut uuid_supplier_list: Vec<Uuid> = Vec::new();
-        for supplier in supplier_component.iter() {
-            uuid_supplier_list.push(supplier.company_uuid);
+        let mut suppliers_list: Vec<ComponentSupplierRelatedData> = Vec::new();
+        for x in component_suppliers.iter() {
+            let mut data = ComponentSupplierRelatedData::new(x);
+            data.put_supplier(SlimCompany::get_by_uuid(&x.company_uuid, conn)?);
+            // debug!("get supplier: {:?}", data);
+            suppliers_list.push(data);
         }
 
-        let slim_company_supplier: Vec<SlimCompany> = company_ref::company_ref
-            .filter(company_ref::uuid.eq_any(uuid_supplier_list))
-            .select((
-                company_ref::uuid,
-                company_ref::shortname,
-                company_ref::is_supplier,
-            ))
-            .load::<SlimCompany>(conn)
-            .expect("Error loading slim_company_supplier");
-
-        let mut supplier_component_with_relate: Vec<ComponentSupplierRelatedData> = Vec::new();
-        for x in supplier_component.iter() {
-            for y in slim_company_supplier.iter() {
-                if x.company_uuid == y.uuid {
-                    let res: ComponentSupplierRelatedData = (x.clone(),y.clone()).into();
-                    supplier_component_with_relate.push(res)
-                }
-            }
-        }
-
-        Ok(supplier_component_with_relate)
+        Ok(suppliers_list)
     }
 
     /// Get the first company associated with target component
     pub(crate) fn get_first_supplier(
-        component: &Component,
+        component_uuid: &Uuid,
         conn: &PgConnection,
     ) -> ServiceResult<Vec<ComponentSupplierRelatedData>> {
-        let find_supplier_component: Result<SupplierComponent, _> = SupplierComponent::belonging_to(component)
-            .first(conn);
+        let supplier_component = supplier_to_component::supplier_to_component
+            .filter(supplier_to_component::component_uuid.eq(component_uuid))
+            .limit(1)
+            .load::<SupplierComponent>(conn)
+            .map_err(|err| {
+                debug!("Failed get supplier_component: {:?}", err);
+                ServiceError::InternalServerError
+            })?;
 
-        match find_supplier_component {
-            Ok(supplier_component) => {
-                let slim_company_supplier: SlimCompany = company_ref::company_ref
-                    .filter(company_ref::uuid.eq(&supplier_component.company_uuid))
-                    .select((
-                        company_ref::uuid,
-                        company_ref::shortname,
-                        company_ref::is_supplier,
-                    ))
-                    .first::<SlimCompany>(conn)
-                    .expect("Error loading slim_company_supplier");
-
-                match slim_company_supplier.shortname.is_empty() {
-                    false => Ok(vec![ComponentSupplierRelatedData::from((
-                        supplier_component,
-                        slim_company_supplier
-                    ))]),
-                    _ => Ok(Vec::new()),
-                }
+        match supplier_component.first() {
+            Some(x) => {
+                let mut data = ComponentSupplierRelatedData::new(x);
+                data.put_supplier(SlimCompany::get_by_uuid(&x.company_uuid, conn)?);
+                // debug!("get first supplier: {:?}", data);
+                Ok(vec![data])
             },
-            Err(e) => {
-                debug!("Error loading supplier_component: {:#?}", e.to_string());
-                Ok(Vec::new())
-            },
+            None => Ok(Vec::new()),
         }
-
-
     }
 }

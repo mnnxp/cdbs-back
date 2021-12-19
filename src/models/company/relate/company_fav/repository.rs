@@ -1,4 +1,4 @@
-use crate::errors::ServiceResult;
+use crate::errors::{ServiceResult, ServiceError};
 use crate::models::company::company_fav::model::CompanyFav;
 // use crate::models::user::model::ShowUserShort;
 use crate::schema::company_fav::dsl as company_fav;
@@ -11,8 +11,13 @@ impl CompanyFav {
         target_company_uuid: &Uuid,
         conn: &PgConnection,
     ) -> ServiceResult<i32> {
-        Ok(company_fav::company_fav
+        let count = company_fav::company_fav
             .filter(company_fav::company_uuid.eq(target_company_uuid))
-            .execute(conn)? as i32)
+            .execute(conn)
+            .map_err(|err| {
+                debug!("Failed count followers: {:?}", err);
+                ServiceError::InternalServerError
+            })?;
+        Ok(count as i32)
     }
 }

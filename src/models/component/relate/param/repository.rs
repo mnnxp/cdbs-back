@@ -1,39 +1,33 @@
-use crate::errors::ServiceResult;
-use crate::models::component::model::Component;
+use crate::errors::{ServiceResult, ServiceError};
 use crate::models::component::param::model::{ComponentParam, ComponentParamWithTranslation};
 use crate::models::relate_ref::param::model::ParamTranslateList;
+use crate::schema::param_to_component::dsl as param_to_component;
 use diesel::prelude::*;
+use uuid::Uuid;
 
 impl ComponentParamWithTranslation {
-    pub(crate) fn for_component(
-        component: &Component,
+    /// Get params for component by uuid
+    pub(crate) fn by_component_uuid(
+        component_uuid: &Uuid,
         set_lang_id: &i32,
         conn: &PgConnection,
     ) -> ServiceResult<Vec<ComponentParamWithTranslation>> {
         // get params component for component
-        let component_param: Vec<ComponentParam> = ComponentParam::belonging_to(component)
+        let component_param = param_to_component::param_to_component
+            .filter(param_to_component::component_uuid.eq(component_uuid))
             .load::<ComponentParam>(conn)
-            .expect("Error loading component_param");
+            .map_err(|err| {
+                debug!("Failed get param_to_component: {:?}", err);
+                ServiceError::InternalServerError
+            })?;
 
-        // get params for component
-        let mut param_ids_component: Vec<i32> = Vec::new();
-        for param in component_param.iter() {
-            param_ids_component.push(param.param_id);
-        }
-
-        // get params with translation for component
-        let param_translate_list: Vec<ParamTranslateList> = ParamTranslateList::get_by_ids(&param_ids_component, set_lang_id, conn)?;
-
-        let mut component_param_with_translate: Vec<ComponentParamWithTranslation> = Vec::new();
+        let mut result: Vec<ComponentParamWithTranslation> = Vec::new();
         for x in component_param.iter() {
-            for y in param_translate_list.iter() {
-                if x.param_id == y.param_id {
-                    let res: ComponentParamWithTranslation = (x.to_owned(),y.clone()).into();
-                    component_param_with_translate.push(res)
-                }
-            }
+            let mut data = ComponentParamWithTranslation::new(x);
+            data.put_param_translate(ParamTranslateList::get_by_id(&x.param_id, set_lang_id, conn)?);
+            result.push(data);
         }
 
-        Ok(component_param_with_translate)
+        Ok(result)
     }
 }

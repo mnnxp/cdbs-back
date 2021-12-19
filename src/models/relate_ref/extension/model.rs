@@ -1,26 +1,13 @@
 use crate::schema::*;
 use async_graphql::*;
 
-#[derive(Identifiable, Serialize, Deserialize, Queryable, Debug)]
+#[derive(Identifiable, Serialize, Deserialize, Queryable, SimpleObject, Debug)]
 #[primary_key(id)]
 #[table_name = "extension_ref"]
 pub struct Extension {
     pub id: i32,
     pub extension: String,
     pub program_id: i32,
-}
-
-#[Object]
-impl Extension {
-    async fn id(&self) -> &i32 {
-        &self.id
-    }
-    async fn extension(&self) -> &String {
-        &self.extension
-    }
-    async fn program_id(&self) -> &i32 {
-        &self.program_id
-    }
 }
 
 #[derive(Debug, Insertable)]

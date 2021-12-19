@@ -1,13 +1,13 @@
 use crate::schema::*;
 use crate::models::relate_ref::keyword::model::Keyword;
 use crate::models::standard::model::Standard;
-use async_graphql::types::ID;
 use async_graphql::*;
 // use chrono::*;
 use uuid::Uuid;
 
 // Keyword standard models
-#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, Clone, Debug)]
+#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations)]
+#[derive(SimpleObject, Clone, Debug)]
 #[primary_key(standard_uuid, keyword_id)]
 #[belongs_to(Standard, foreign_key = "standard_uuid")]
 #[belongs_to(Keyword, foreign_key = "keyword_id")]
@@ -17,30 +17,26 @@ pub struct StandardKeyword {
     pub keyword_id: i32,
 }
 
-#[Object]
-impl StandardKeyword {
-    async fn keyword_id(&self) -> &i32 {
-        &self.keyword_id
-    }
-    async fn standard_uuid(&self) -> ID {
-        self.standard_uuid.into()
-    }
-}
-
 #[derive(Deserialize, SimpleObject, Clone, Debug)]
 pub struct StandardKeywordRelatedData {
     pub keyword: Keyword,
     pub standard_uuid: Uuid,
 }
 
-impl From<(StandardKeyword, Keyword)> for StandardKeywordRelatedData {
-    fn from(data: (StandardKeyword, Keyword)) -> Self {
-        Self {
-            keyword: data.1,
-            standard_uuid: data.0.standard_uuid,
-        }
-    }
-}
+// impl StandardKeywordRelatedData {
+//     /// Create struct with StandardKeyword data, Keyword data set default
+//     pub(crate) fn new(standard_uuid: &Uuid) -> Self {
+//         Self{
+//             keyword: Default::default(),
+//             standard_uuid: *standard_uuid,
+//         }
+//     }
+//
+//     /// Change keyword data
+//     pub(crate) fn put_keyword(&mut self, keyword: Keyword) {
+//         self.keyword = keyword;
+//     }
+// }
 
 #[derive(Debug, Insertable)]
 #[table_name = "keyword_to_standard"]

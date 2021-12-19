@@ -1,13 +1,12 @@
 use crate::schema::*;
 use crate::models::component::model::Component;
 use crate::models::relate_ref::file::model::ShowFileRelatedData;
-use async_graphql::types::ID;
 use async_graphql::*;
 // use chrono::*;
 use uuid::Uuid;
 
 // Structures for Component
-#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, Debug)]
+#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, SimpleObject, Debug)]
 #[primary_key(file_uuid, component_uuid)]
 #[belongs_to(ShowFileRelatedData, foreign_key = "file_uuid")]
 #[belongs_to(Component, foreign_key = "component_uuid")]
@@ -15,16 +14,6 @@ use uuid::Uuid;
 pub struct ComponentFile {
     pub file_uuid: Uuid,
     pub component_uuid: Uuid,
-}
-
-#[Object]
-impl ComponentFile {
-    async fn file_uuid(&self) -> ID {
-        self.file_uuid.into()
-    }
-    async fn component_uuid(&self) -> ID {
-        self.component_uuid.into()
-    }
 }
 
 #[derive(Debug, Insertable)]

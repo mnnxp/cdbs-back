@@ -1,11 +1,13 @@
 use crate::errors::{ServiceResult, ServiceError};
-use crate::models::component::model::Component;
-use crate::models::component::component_modification::model::{
-    ComponentModification,
-    ComponentModificationWithActualStatus,
-    ComponentModificationAndRelatedData,
+use crate::models::component::{
+    model::Component,
+    actual_status::model::ActualStatusTranslateList,
+    component_modification::{
+        model::{ComponentModification, ComponentModificationAndRelatedData},
+        param::model::ModificationParamWithTranslation,
+        fileset_for_program::model::FilesetProgramRelatedData,
+    },
 };
-use crate::models::component::actual_status::model::ActualStatusTranslateList;
 use diesel::prelude::*;
 
 impl ComponentModification {
@@ -23,94 +25,47 @@ impl ComponentModification {
     }
 }
 
-impl ComponentModificationWithActualStatus {
-    pub(crate) fn for_component_modification_list(
-        component_modification: &[ComponentModification],
-        set_lang_id: &i32,
-        conn: &PgConnection,
-    ) -> ServiceResult<Vec<ComponentModificationWithActualStatus>> {
-        let mut id_status_modification: Vec<i32> = Vec::new();
-        for modification in component_modification.iter() {
-            id_status_modification.push(modification.actual_status_id);
-        }
-
-        let actual_status_modification: Vec<ActualStatusTranslateList> = ActualStatusTranslateList::get_actual_status_by_vec_id(&id_status_modification, set_lang_id, conn)?;
-
-        // debug!("Component modification actual_status_modification: {:#?}", actual_status_modification);
-
-        let mut component_modification_with_status: Vec<ComponentModificationWithActualStatus> = Vec::new();
-        for x in component_modification.iter() {
-            for y in actual_status_modification.iter() {
-                if x.actual_status_id == y.actual_status_id {
-                    let res: ComponentModificationWithActualStatus = (x.clone(),y.clone()).into();
-                    component_modification_with_status.push(res)
-                }
-            }
-        }
-
-        Ok(component_modification_with_status)
-    }
-}
-
-
 impl ComponentModificationAndRelatedData {
-    pub(crate) fn for_component_modification_list(
-        component_modification: &[ComponentModification],
+    /// Get related data for component modification
+    pub(crate) fn for_modification(
+        component_modification: &ComponentModification,
+        set_lang_id: &i32,
+        conn: &PgConnection
+    ) -> ServiceResult<ComponentModificationAndRelatedData> {
+        let mut data = ComponentModificationAndRelatedData::new(component_modification);
+
+        // set actual status with translation for list component modification
+        data.put_actual_status(&ActualStatusTranslateList::get_by_id(
+            &component_modification.actual_status_id,
+            set_lang_id,
+            conn
+        )?);
+
+        // get sets of files for programs for component modification list
+        data.put_fileset_program(FilesetProgramRelatedData::by_modification_uuid(
+            &component_modification.uuid,
+            conn
+        )?);
+
+        // get sets of files for programs for component modification list
+        data.put_modification_params(ModificationParamWithTranslation::for_modificaiton(
+            component_modification,
+            set_lang_id,
+            conn
+        )?);
+
+        Ok(data)
+    }
+
+    pub(crate) fn for_modifications(
+        component_modifications: &[ComponentModification],
         set_lang_id: &i32,
         conn: &PgConnection,
     ) -> ServiceResult<Vec<ComponentModificationAndRelatedData>> {
-        use crate::models::component::component_modification::param::model::ModificationParamWithTranslation;
-        use crate::models::component::component_modification::fileset_for_program::model::FilesetProgramRelatedData;
-
-        // get actual status with translation for list component modification
-        let component_modification_with_status: Vec<ComponentModificationWithActualStatus> = ComponentModificationWithActualStatus::for_component_modification_list(
-            component_modification,
-            set_lang_id,
-            conn
-        ).expect("Error load component_modification_with_status");
-
-        // get param with translation for component modification
-        let component_modification_param_with_translate: Vec<Vec<ModificationParamWithTranslation>> = ModificationParamWithTranslation::for_component_modification_list(
-            component_modification,
-            set_lang_id,
-            conn
-        ).expect("Error load component_modification_param_with_translate");
-
-        // debug!("Component modification component_modification_param_with_translate: {:#?}", component_modification_param_with_translate);
-
-        // get sets of files for programs for component modification list
-        let filesets_program_with_relate: Vec<Vec<FilesetProgramRelatedData>> = FilesetProgramRelatedData::for_component_modification_list(
-            component_modification,
-            conn
-        ).expect("Error load filesets_program_with_relate");
-
-        // debug!("Component modification filesets_program_component_modification: {:#?}", filesets_program_component_modification);
-
-        let mut component_modification_with_relate: Vec<ComponentModificationAndRelatedData> = Vec::new();
-        for w in component_modification_with_status.iter() {
-            let mut vec_values_set: Vec<FilesetProgramRelatedData> = Vec::new();
-            for x in filesets_program_with_relate.iter() {
-                for y in x.iter() {
-                    if w.modification.uuid == y.modification_uuid {
-                        vec_values_set.push(y.to_owned())
-                    }
-                }
-            }
-            let mut vec_values_param: Vec<ModificationParamWithTranslation> = Vec::new();
-            for x in component_modification_param_with_translate.iter() {
-                for y in x.iter() {
-                    if w.modification.uuid == y.modification_uuid {
-                        vec_values_param.push(y.to_owned())
-                    }
-                }
-            }
-            component_modification_with_relate.push((
-                w.clone(),
-                vec_values_set,
-                vec_values_param
-            ).into())
+        let mut result: Vec<ComponentModificationAndRelatedData> = Vec::new();
+        for x in component_modifications.iter() {
+            result.push(ComponentModificationAndRelatedData::for_modification(x, set_lang_id, conn)?);
         }
-
-        Ok(component_modification_with_relate)
+        Ok(result)
     }
 }

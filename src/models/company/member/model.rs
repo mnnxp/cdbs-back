@@ -4,12 +4,12 @@ use crate::models::company::model::Company;
 use crate::models::company::member::role::model::{
     RoleMember, RoleMemberAndRelatedData
 };
-use async_graphql::types::ID;
 use async_graphql::*;
 use chrono::*;
 use uuid::Uuid;
 
-#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, Clone, Debug)]
+#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations)]
+#[derive(SimpleObject, Clone, Debug)]
 #[primary_key(company_uuid, user_uuid)]
 #[belongs_to(Company, foreign_key = "company_uuid")]
 #[belongs_to(UserQuery, foreign_key = "user_uuid")]
@@ -22,28 +22,6 @@ pub struct CompanyMember {
     pub is_enabled: bool,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
-}
-
-#[Object]
-impl CompanyMember {
-    async fn company_uuid(&self) -> ID {
-        self.company_uuid.into()
-    }
-    async fn user_uuid(&self) -> ID {
-        self.user_uuid.into()
-    }
-    async fn role_id(&self) -> &i32 {
-        &self.role_id
-    }
-    async fn is_enabled(&self) -> &bool {
-        &self.is_enabled
-    }
-    async fn created_at(&self) -> &NaiveDateTime {
-        &self.created_at
-    }
-    async fn updated_at(&self) -> &NaiveDateTime {
-        &self.updated_at
-    }
 }
 
 #[derive(Debug, Deserialize, SimpleObject)]

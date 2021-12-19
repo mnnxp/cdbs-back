@@ -1,13 +1,12 @@
 use crate::schema::*;
 use crate::models::standard::model::Standard;
 use crate::models::relate_ref::file::model::ShowFileRelatedData;
-use async_graphql::types::ID;
 use async_graphql::*;
 // use chrono::*;
 use uuid::Uuid;
 
 // Structures for Standard
-#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, Debug)]
+#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, SimpleObject, Debug)]
 #[primary_key(file_uuid, standard_uuid)]
 #[belongs_to(ShowFileRelatedData, foreign_key = "file_uuid")]
 #[belongs_to(Standard, foreign_key = "standard_uuid")]
@@ -15,16 +14,6 @@ use uuid::Uuid;
 pub struct StandardFile {
     pub file_uuid: Uuid,
     pub standard_uuid: Uuid,
-}
-
-#[Object]
-impl StandardFile {
-    async fn file_uuid(&self) -> ID {
-        self.file_uuid.into()
-    }
-    async fn standard_uuid(&self) -> ID {
-        self.standard_uuid.into()
-    }
 }
 
 #[derive(Debug, Insertable)]
@@ -48,7 +37,6 @@ impl From<StandardFile> for InsertableStandardFile {
         }
     }
 }
-
 
 #[derive(InputObject, Deserialize, Debug)]
 pub struct IptStandardFilesData {

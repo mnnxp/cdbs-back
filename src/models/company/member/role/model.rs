@@ -1,27 +1,16 @@
 use crate::schema::*;
 use crate::models::relate_ref::language::model::Language;
 use crate::models::relate_ref::type_access::model::TypeAccessTranslateList;
-use async_graphql::types::ID;
 use async_graphql::*;
 use uuid::Uuid;
 
 // RoleMember models
-#[derive(Identifiable, Serialize, Deserialize, Associations, Queryable, Debug)]
+#[derive(Identifiable, Serialize, Deserialize, Associations, Queryable, SimpleObject, Debug)]
 #[primary_key(id)]
 #[table_name = "role_member_list"]
 pub struct RoleMember {
     pub id: i32,
     pub company_uuid: Uuid,
-}
-
-#[Object]
-impl RoleMember {
-    async fn id(&self) -> &i32 {
-        &self.id
-    }
-    async fn company_uuid(&self) -> ID {
-        self.company_uuid.into()
-    }
 }
 
 #[derive(Debug, Insertable)]
@@ -32,7 +21,8 @@ pub struct InsertableRoleMember {
 }
 
 // RoleMember translations
-#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, Default, Clone, Debug)]
+#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations)]
+#[derive(SimpleObject, Default, Clone, Debug)]
 #[primary_key(role_member_id, lang_id)]
 #[belongs_to(RoleMember, foreign_key = "role_member_id")]
 #[belongs_to(Language, foreign_key = "lang_id")]
@@ -41,19 +31,6 @@ pub struct RoleMemberTranslateList {
     pub role_member_id: i32,
     pub lang_id: i32,
     pub name: String,
-}
-
-#[Object]
-impl RoleMemberTranslateList {
-    async fn role_member_id(&self) -> &i32 {
-        &self.role_member_id
-    }
-    async fn lang_id(&self) -> &i32 {
-        &self.lang_id
-    }
-    async fn name(&self) -> &String {
-        &self.name
-    }
 }
 
 #[derive(Debug, Deserialize, Clone, Default, SimpleObject)]

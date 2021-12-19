@@ -2,11 +2,11 @@ use crate::schema::*;
 use crate::models::company::model::Company;
 use crate::models::company::company_represent::representation_type::model::RepresentationTypeTranslateList;
 use crate::models::relate_ref::region::model::RegionTranslateList;
-use async_graphql::types::ID;
 use async_graphql::*;
 use uuid::Uuid;
 
-#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, Clone, Debug)]
+#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations)]
+#[derive(SimpleObject, Clone, Debug)]
 #[primary_key(uuid)]
 #[belongs_to(Company, foreign_key = "company_uuid")]
 #[table_name = "company_represent_ref"]
@@ -18,31 +18,6 @@ pub struct CompanyRepresent {
     pub name: String,
     pub address: String,
     pub phone: String,
-}
-
-#[Object]
-impl CompanyRepresent {
-    async fn uuid(&self) -> ID {
-        self.uuid.into()
-    }
-    async fn company_uuid(&self) -> ID {
-        self.company_uuid.into()
-    }
-    async fn region_id(&self) -> &i32 {
-        &self.region_id
-    }
-    async fn representation_type_id(&self) -> &i32 {
-        &self.representation_type_id
-    }
-    async fn name(&self) -> &String {
-        &self.name
-    }
-    async fn address(&self) -> &String {
-        &self.address
-    }
-    async fn phone(&self) -> &String {
-        &self.phone
-    }
 }
 
 #[derive(Debug, Deserialize, SimpleObject)]
@@ -97,32 +72,13 @@ pub struct CompanyRepresentData {
     pub phone: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, SimpleObject)]
 pub struct SlimCompanyRepresent {
     pub uuid: Uuid,
     pub company_uuid: Uuid,
     pub name: String,
     pub address: String,
     pub phone: String,
-}
-
-#[Object]
-impl SlimCompanyRepresent {
-    async fn uuid(&self) -> ID {
-        self.uuid.into()
-    }
-    async fn company_uuid(&self) -> ID {
-        self.company_uuid.into()
-    }
-    async fn name(&self) -> &String {
-        &self.name
-    }
-    async fn address(&self) -> &String {
-        &self.address
-    }
-    async fn phone(&self) -> &String {
-        &self.phone
-    }
 }
 
 impl From<&IptCompanyRepresentData> for InsertableCompanyRepresent {

@@ -1,6 +1,6 @@
 use crate::errors::{ServiceResult, ServiceError};
 use crate::models::company::{
-    model::{Company, ShowCompanyShort, CompanyAndRelatedData},
+    model::{Company, SlimCompany, ShowCompanyShort, CompanyAndRelatedData},
     company_represent::model::CompanyRepresentAndRelatedData,
     certificate::model::CompanyCertificateAndFile,
     company_type::model::CompanyTypeTranslateList,
@@ -17,6 +17,29 @@ use crate::models::relate_ref::{
 use crate::schema::company_ref::dsl as company_ref;
 use diesel::prelude::*;
 use uuid::Uuid;
+
+impl SlimCompany {
+    /// Get slim company data by company uuid
+    pub(crate) fn get_by_uuid(
+        company_uuid: &Uuid,
+        conn: &PgConnection,
+    ) -> ServiceResult<SlimCompany> {
+        company_ref::company_ref
+            .filter(company_ref::uuid.eq(company_uuid)
+            .and(company_ref::is_enabled.eq(true))
+            .and(company_ref::is_delete.eq(false)))
+            .select((
+                company_ref::uuid,
+                company_ref::shortname,
+                company_ref::is_supplier,
+            ))
+            .first::<SlimCompany>(conn)
+            .map_err(|err| {
+                debug!("Failed get slim company: {:?}", err);
+                ServiceError::InternalServerError
+            })
+    }
+}
 
 impl Company {
     /// Get company data from company_ref table by uuid

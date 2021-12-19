@@ -1,7 +1,6 @@
 use crate::schema::*;
 use crate::models::component::component_modification::fileset_for_program::model::FilesetProgram;
 use crate::models::relate_ref::file::model::ShowFileRelatedData;
-// use async_graphql::types::ID;
 use async_graphql::*;
 // use chrono::*;
 use uuid::Uuid;
@@ -22,14 +21,20 @@ pub struct ModificationFileFromFilesetRelatedData {
     pub files: Vec<ShowFileRelatedData>,
 }
 
-impl From<(ModificationFileFromFileset, Vec<ShowFileRelatedData>)> for ModificationFileFromFilesetRelatedData {
-    fn from(data: (ModificationFileFromFileset, Vec<ShowFileRelatedData>)) -> Self {
-        Self {
-            fileset_uuid: data.0.fileset_uuid,
-            files: data.1,
-        }
-    }
-}
+// impl ModificationFileFromFilesetRelatedData {
+//     /// Create struct with FilesetProgram data, Program data set default
+//     pub(crate) fn new(fileset_uuid: &Uuid) -> Self {
+//         Self{
+//             fileset_uuid: *fileset_uuid,
+//             files: Vec::new(),
+//         }
+//     }
+//
+//     /// Change files data
+//     pub(crate) fn put_files(&mut self, files: Vec<ShowFileRelatedData>) {
+//         self.files = files;
+//     }
+// }
 
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub struct IptModificationFileFromFilesetData {

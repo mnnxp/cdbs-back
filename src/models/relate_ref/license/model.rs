@@ -2,7 +2,7 @@ use crate::schema::*;
 use async_graphql::*;
 use chrono::*;
 
-#[derive(Identifiable, Serialize, Deserialize, Queryable, Debug)]
+#[derive(Identifiable, Serialize, Deserialize, Queryable, SimpleObject, Debug)]
 #[primary_key(id)]
 #[table_name = "license_ref"]
 pub struct License {
@@ -10,22 +10,6 @@ pub struct License {
     pub name: String,
     pub keyword: String,
     pub publication_at: NaiveDateTime,
-}
-
-#[Object]
-impl License {
-    async fn id(&self) -> &i32 {
-        &self.id
-    }
-    async fn name(&self) -> &String {
-        &self.name
-    }
-    async fn keyword(&self) -> &String {
-        &self.keyword
-    }
-    async fn publication_at(&self) -> &NaiveDateTime {
-        &self.publication_at
-    }
 }
 
 #[derive(Debug, Insertable)]
@@ -43,20 +27,10 @@ pub struct LicenseData {
     pub publication_at: NaiveDateTime,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, SimpleObject, Clone)]
 pub struct SlimLicense {
     pub id: i32,
     pub keyword: String,
-}
-
-#[Object]
-impl SlimLicense {
-    async fn id(&self) -> &i32 {
-        &self.id
-    }
-    async fn keyword(&self) -> &String {
-        &self.keyword
-    }
 }
 
 impl From<&LicenseData> for InsertableLicense {

@@ -333,15 +333,21 @@ pub struct ShowUserShort {
     pub image_file: DownloadFile,
 }
 
-impl From<(&UserShort, &DownloadFile)> for ShowUserShort {
-    fn from(data: (&UserShort, &DownloadFile)) -> Self {
-        Self {
-            uuid: data.0.uuid,
-            firstname: data.0.firstname.to_string(),
-            lastname: data.0.lastname.to_string(),
-            username: data.0.username.to_string(),
-            image_file: data.1.to_owned(),
+impl ShowUserShort {
+    /// Create struct with UserShort data, DownloadFile data set default
+    pub(crate) fn new(data: &UserShort) -> Self {
+        Self{
+            uuid: data.uuid,
+            firstname: data.firstname.clone(),
+            lastname: data.lastname.clone(),
+            username: data.username.clone(),
+            image_file: Default::default(),
         }
+    }
+
+    /// Change image_file data
+    pub(crate) fn put_image_file(&mut self, image_file: DownloadFile) {
+        self.image_file = image_file;
     }
 }
 

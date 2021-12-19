@@ -1,4 +1,4 @@
-use crate::errors::ServiceResult;
+use crate::errors::{ServiceResult, ServiceError};
 use crate::models::component::model::Component;
 use crate::models::component::license::model::ComponentLicense;
 use crate::models::relate_ref::license::model::License;
@@ -11,9 +11,13 @@ impl License {
         component: &Component,
         conn: &PgConnection,
     ) -> ServiceResult<Vec<License>> {
-        let target_vec_license_id: Vec<i32> = ComponentLicense::belonging_to(component)
+        let licenses_ids: Vec<i32> = ComponentLicense::belonging_to(component)
             .select(license_to_component::license_id)
-            .load::<i32>(conn)?;
-        License::get_license_by_ids(&target_vec_license_id, conn)
+            .load::<i32>(conn)
+            .map_err(|err| {
+                debug!("Fail load license ids: {:?}", err);
+                ServiceError::InternalServerError
+            })?;
+        License::get_license_by_ids(&licenses_ids, conn)
     }
 }

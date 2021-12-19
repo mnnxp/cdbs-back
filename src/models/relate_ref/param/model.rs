@@ -12,13 +12,6 @@ pub struct Param {
     pub id: i32,
 }
 
-#[Object]
-impl Param {
-    async fn id(&self) -> &i32 {
-        &self.id
-    }
-}
-
 #[derive(Debug, Insertable)]
 #[table_name = "param_ref"]
 pub struct InsertableParam {
@@ -26,7 +19,8 @@ pub struct InsertableParam {
 }
 
 // Param translations
-#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, Clone, Debug)]
+#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations)]
+#[derive(SimpleObject, Clone, Default, Debug)]
 #[primary_key(param_id, lang_id)]
 #[belongs_to(Param, foreign_key = "param_id")]
 #[belongs_to(ComponentParam, foreign_key = "param_id")]
@@ -37,19 +31,6 @@ pub struct ParamTranslateList {
     pub param_id: i32,
     pub lang_id: i32,
     pub paramname: String,
-}
-
-#[Object]
-impl ParamTranslateList {
-    async fn param_id(&self) -> &i32 {
-        &self.param_id
-    }
-    async fn lang_id(&self) -> &i32 {
-        &self.lang_id
-    }
-    async fn paramname(&self) -> &String {
-        &self.paramname
-    }
 }
 
 #[derive(Debug, Deserialize, Clone, InputObject)]

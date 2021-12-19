@@ -1,10 +1,10 @@
+use crate::jwt::model::Claims;
 use crate::schema::*;
-use async_graphql::types::ID;
 use async_graphql::*;
 use chrono::*;
 use uuid::Uuid;
 
-#[derive(Debug, Queryable)]
+#[derive(Debug, Queryable, SimpleObject)]
 pub struct UserToken {
     pub user_uuid: Uuid,
     pub token: String,
@@ -15,25 +15,26 @@ pub struct UserToken {
 #[derive(Debug, Insertable)]
 #[table_name = "user_token_ref"]
 pub(super) struct InsertableUserToken {
-    pub(super) user_uuid: Uuid,
-    pub(super) token: String,
-    pub(super) created_at: NaiveDateTime,
-    pub(super) expiration_at: NaiveDateTime,
+    user_uuid: Uuid,
+    token: String,
+    created_at: NaiveDateTime,
+    expiration_at: NaiveDateTime,
 }
 
-#[Object]
-impl UserToken {
-    async fn user_uuid(&self) -> ID {
-        self.user_uuid.into()
+impl InsertableUserToken {
+    /// Create based on data without token
+    pub(super) fn new(user_uuid: &Uuid, jwt: &Claims) -> Self {
+        Self{
+            user_uuid: *user_uuid,
+            token: String::new(),
+            created_at: NaiveDateTime::from_timestamp(jwt.iat, 0),
+            expiration_at: NaiveDateTime::from_timestamp(jwt.exp, 0),
+        }
     }
-    async fn token(&self) -> &String {
-        &self.token
-    }
-    async fn created_at(&self) -> &NaiveDateTime {
-        &self.created_at
-    }
-    async fn expiration_at(&self) -> &NaiveDateTime {
-        &self.expiration_at
+
+    /// Change token data
+    pub(super) fn put_token(&mut self, token: &str) {
+        self.token = token.to_string();
     }
 }
 

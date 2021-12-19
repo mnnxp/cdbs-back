@@ -140,27 +140,15 @@ impl ShowUserShort {
         target_user_uuid: &Uuid,
         conn: &PgConnection,
     ) -> ServiceResult<ShowUserShort> {
-        let user_data = user_ref::user_ref
-            .filter(user_ref::uuid.eq(target_user_uuid)
-            .and(user_ref::is_enabled.eq(true))
-            .and(user_ref::is_delete.eq(false)))
-            .select((
-                user_ref::uuid,
-                user_ref::firstname,
-                user_ref::lastname,
-                user_ref::username,
-                user_ref::image_file_uuid,
-            ))
-            .first::<UserShort>(conn)
-            .expect("Faile get user_data");
+        let user_data = UserShort::get_by_uuid(target_user_uuid, conn)?;
 
-        Ok(ShowUserShort::from((
-            &user_data,
-            &DownloadFile::get_by_file_uuid(
-                &user_data.image_file_uuid,
-                conn
-            ).expect("Failed get UserCertificateAndFile for ShowUserShort")
-        )))
+        let mut data = ShowUserShort::new(&user_data);
+        data.put_image_file(DownloadFile::get_by_file_uuid(
+            &user_data.image_file_uuid,
+            conn
+        )?);
+
+        Ok(data)
     }
 
     /// get ShowUserShort data of public users
@@ -191,15 +179,13 @@ impl ShowUserShort {
 
         let mut users_with_image: Vec<ShowUserShort> = Vec::new();
         for user in users.iter() {
-            let download_favicon = DownloadFile::get_by_file_uuid(
-                    &user.image_file_uuid,
-                    conn
-                ).unwrap();
+            let mut data = ShowUserShort::new(user);
+            data.put_image_file(DownloadFile::get_by_file_uuid(
+                &user.image_file_uuid,
+                conn
+            )?);
 
-            users_with_image.push(ShowUserShort::from((
-                user,
-                &download_favicon,
-            )));
+            users_with_image.push(data);
         }
 
         Ok(users_with_image)

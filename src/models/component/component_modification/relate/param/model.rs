@@ -1,14 +1,13 @@
-use crate::models::component::component_modification::model::ComponentModification;
-use crate::models::relate_ref::param::model::{
-    ParamTranslateList, IptParamData
+use crate::models::{
+    component::component_modification::model::ComponentModification,
+    relate_ref::param::model::{ParamTranslateList, IptParamData},
 };
 use crate::schema::*;
-
-use async_graphql::types::ID;
 use async_graphql::*;
 use uuid::Uuid;
 
-#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, PartialEq, Clone, Debug)]
+#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations)]
+#[derive(PartialEq, Clone, Debug, SimpleObject)]
 #[primary_key(modification_uuid)]
 #[belongs_to(ComponentModification, foreign_key = "modification_uuid")]
 #[belongs_to(ParamTranslateList, foreign_key = "param_id")]
@@ -19,33 +18,26 @@ pub struct ModificationParam {
     pub value: String,
 }
 
-#[Object]
-impl ModificationParam {
-    async fn modification_uuid(&self) -> ID {
-        self.modification_uuid.into()
-    }
-    async fn param_id(&self) -> &i32 {
-        &self.param_id
-    }
-    async fn value(&self) -> &String {
-        &self.value
-    }
-}
-
-#[derive(Debug, Deserialize, SimpleObject, Clone)]
+#[derive(Debug, Deserialize, SimpleObject, Clone, Default)]
 pub struct ModificationParamWithTranslation {
     pub modification_uuid: Uuid,
     pub param: ParamTranslateList,
     pub value: String,
 }
 
-impl From<(ModificationParam, ParamTranslateList)> for ModificationParamWithTranslation {
-    fn from(data: (ModificationParam, ParamTranslateList)) -> Self {
+impl ModificationParamWithTranslation {
+    /// Set modification uuid and param value without param translate
+    pub(crate) fn new(data: &ModificationParam) -> Self {
         Self {
-            modification_uuid: data.0.modification_uuid,
-            param: data.1,
-            value: data.0.value,
+            modification_uuid: data.modification_uuid,
+            value: data.value.clone(),
+            ..Default::default()
         }
+    }
+
+    /// Change modification param
+    pub(crate) fn put_param_translate(&mut self, param: ParamTranslateList) {
+        self.param = param;
     }
 }
 

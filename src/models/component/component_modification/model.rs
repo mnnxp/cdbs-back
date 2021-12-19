@@ -1,7 +1,11 @@
-use crate::models::component::relate::actual_status::model::ActualStatusTranslateList;
-use crate::models::component::component_modification::param::model::ModificationParamWithTranslation;
-use crate::models::component::component_modification::fileset_for_program::model::FilesetProgramRelatedData;
-use crate::models::component::model::Component;
+use crate::models::component::{
+    model::Component,
+    component_modification::{
+        param::model::ModificationParamWithTranslation,
+        fileset_for_program::model::FilesetProgramRelatedData,
+    },
+    relate::actual_status::model::ActualStatusTranslateList,
+};
 use crate::schema::*;
 use async_graphql::*;
 use chrono::*;
@@ -31,52 +35,44 @@ pub struct ComponentModificationAndRelatedData {
     pub modification_name: String,
     pub description: String,
     pub actual_status: ActualStatusTranslateList,
-    // pub actual_status_id: i32,
+    pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
     pub filesets_for_program: Vec<FilesetProgramRelatedData>,
     pub modification_params: Vec<ModificationParamWithTranslation>,
 }
 
-impl From<(
-    ComponentModificationWithActualStatus,
-    Vec<FilesetProgramRelatedData>,
-    Vec<ModificationParamWithTranslation>
-)> for ComponentModificationAndRelatedData {
-    fn from(data: (
-        ComponentModificationWithActualStatus,
-        Vec<FilesetProgramRelatedData>,
-        Vec<ModificationParamWithTranslation>
-    )) -> Self {
-        Self {
-            uuid: data.0.modification.uuid,
-            component_uuid: data.0.modification.component_uuid,
-            parent_modification_uuid: data.0.modification.parent_modification_uuid,
-            modification_name: data.0.modification.modification_name,
-            description: data.0.modification.description,
-            actual_status: data.0.actual_status,
-            // actual_status_id: data.0.modification.actual_status_id,
-            updated_at: data.0.modification.updated_at,
-            filesets_for_program: data.1,
-            modification_params: data.2,
+impl ComponentModificationAndRelatedData {
+    /// Create struct with data ComponentModification, set default data for related data
+    pub(crate) fn new(data: &ComponentModification) -> Self {
+        Self{
+            uuid: data.uuid,
+            component_uuid: data.component_uuid,
+            parent_modification_uuid: data.parent_modification_uuid,
+            modification_name: data.modification_name.clone(),
+            description: data.description.clone(),
+            actual_status: Default::default(),
+            created_at: data.created_at,
+            updated_at: data.updated_at,
+            filesets_for_program: Vec::new(),
+            modification_params: Vec::new(),
         }
     }
-}
 
-#[derive(Deserialize, Clone, Debug)]
-pub struct ComponentModificationWithActualStatus {
-    pub modification: ComponentModification,
-    pub actual_status: ActualStatusTranslateList,
-}
+    /// Change actual satus data
+    pub(crate) fn put_actual_status(&mut self, actual_status: &ActualStatusTranslateList) {
+        self.actual_status = actual_status.clone();
+    }
 
-impl From<(ComponentModification, ActualStatusTranslateList)> for ComponentModificationWithActualStatus {
-    fn from(data: (ComponentModification, ActualStatusTranslateList)) -> Self {
-        Self {
-            modification: data.0,
-            actual_status: data.1,
-        }
+    /// Change filesets data
+    pub(crate) fn put_fileset_program(&mut self, fileset: Vec<FilesetProgramRelatedData>) {
+        self.filesets_for_program = fileset;
+    }
+
+    /// Change modification params
+    pub(crate) fn put_modification_params(&mut self, params: Vec<ModificationParamWithTranslation>) {
+        self.modification_params = params;
     }
 }
-
 
 #[derive(Debug, Insertable)]
 #[table_name = "component_modification_list"]

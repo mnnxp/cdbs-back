@@ -1,65 +1,42 @@
 use crate::errors::{ServiceResult, ServiceError};
 use crate::models::company::member::role::model::{
-    RoleMember,
-    RoleMemberTranslateList,
-    RoleMemberAndRelatedData,
+    RoleMemberTranslateList, RoleMemberAndRelatedData,
 };
 use crate::models::relate_ref::type_access::model::TypeAccessTranslateList;
 use crate::schema::role_member_translate_list::dsl::*;
 use diesel::prelude::*;
 
-impl RoleMember {
-    // /// Get roles IDs have target access level
-    // pub(crate) fn get_roles_for_type_access(
-    //     target_type_access: &i32,
-    //     conn: &PgConnection,
-    // ) -> Vec<i32> {
-    //     use crate::schema::role_access::dsl::*;
-    //
-    //     let role = role_access
-    //         .filter(type_access_id.le(target_type_access))
-    //         .select(role_id)
-    //         .load::<i32>(conn);
-    //
-    //     // if not found data for set lang
-    //     match role {
-    //         Ok(rl) => rl,
-    //         Err(err) => {
-    //             debug!("Not found suitable roles: {:?}", err);
-    //
-    //             Vec::new()
-    //         },
-    //     }
-    // }
-}
-
 impl RoleMemberTranslateList {
-    // /// Get role data with translate by role id
-    // pub(crate) fn get_role_by_id(
-    //     target_role_id: &i32,
-    //     set_lang_id: &i32,
-    //     conn: &PgConnection,
-    // ) -> ServiceResult<RoleMemberTranslateList> {
-    //     let role = role_member_translate_list
-    //         .filter(role_member_id.eq(target_role_id)
-    //         .and(lang_id.eq(set_lang_id)))
-    //         .first::<RoleMemberTranslateList>(conn);
-    //
-    //     // if not found data for set lang
-    //     match role {
-    //         Ok(rn) => Ok(rn),
-    //         Err(err) => {
-    //             debug!("Not found set lang for role: {:?}", err);
-    //             role_member_translate_list
-    //                 .filter(role_member_id.eq(target_role_id))
-    //                 .first::<RoleMemberTranslateList>(conn)
-    //                 .map_err(|err| {
-    //                     debug!("Failed get role: {:?}", err);
-    //                     ServiceError::InternalServerError
-    //                 })
-    //         },
-    //     }
-    // }
+    /// Get role data with translate by role id
+    pub(crate) fn get_by_id(
+        target_role_id: &i32,
+        set_lang_id: &i32,
+        conn: &PgConnection,
+    ) -> ServiceResult<RoleMemberTranslateList> {
+        let role = role_member_translate_list
+            .filter(role_member_id.eq(target_role_id)
+            .and(lang_id.eq(set_lang_id)))
+            .limit(1)
+            .load::<RoleMemberTranslateList>(conn)
+            .map_err(|err| {
+                debug!("Failed get role member: {:?}", err);
+                ServiceError::InternalServerError
+            })?;
+
+        match role.first() {
+            Some(x) => Ok(x.clone()),
+            None => {
+                debug!("Not found set lang for role");
+                role_member_translate_list
+                    .filter(role_member_id.eq(target_role_id))
+                    .first::<RoleMemberTranslateList>(conn)
+                    .map_err(|err| {
+                        debug!("Failed get role: {:?}", err);
+                        ServiceError::InternalServerError
+                    })
+            },
+        }
+    }
 
     /// Get roles data with translate by roles IDs
     pub(crate) fn get_roles_by_ids(
@@ -70,13 +47,16 @@ impl RoleMemberTranslateList {
         let roles = role_member_translate_list
             .filter(role_member_id.eq_any(target_roles_ids)
             .and(lang_id.eq(set_lang_id)))
-            .load::<RoleMemberTranslateList>(conn);
+            .load::<RoleMemberTranslateList>(conn)
+            .map_err(|err| {
+                debug!("Failed get role access: {:?}", err);
+                ServiceError::InternalServerError
+            })?;
 
         // if not found data for set lang
-        match roles {
-            Ok(rns) => Ok(rns),
-            Err(err) => {
-                debug!("Not found set lang for roles: {:?}", err);
+        match roles.is_empty() {
+            true => {
+                debug!("Not found set lang for roles");
                 role_member_translate_list
                     .filter(role_member_id.eq_any(target_roles_ids))
                     .load::<RoleMemberTranslateList>(conn)
@@ -85,35 +65,36 @@ impl RoleMemberTranslateList {
                         ServiceError::InternalServerError
                     })
             },
+            false => Ok(roles),
         }
     }
 }
 
 impl RoleMemberAndRelatedData {
-    // /// Get role by id for set lang
-    // pub fn get_role_by_id(
-    //     target_role_id: &i32,
-    //     set_lang_id: &i32,
-    //     conn: &PgConnection,
-    // ) -> ServiceResult<RoleMemberAndRelatedData> {
-    //     let role = RoleMemberTranslateList::get_role_by_id(
-    //         target_role_id,
-    //         set_lang_id,
-    //         conn
-    //     )?;
-    //
-    //     let access = TypeAccessTranslateList::get_by_role_id(
-    //         target_role_id,
-    //         set_lang_id,
-    //         conn
-    //     )?;
-    //
-    //     // if found data return RoleMemberAndRelatedData
-    //     Ok(RoleMemberAndRelatedData {
-    //         role,
-    //         access,
-    //     })
-    // }
+    /// Get role by id for set lang
+    pub fn get_by_id(
+        target_role_id: &i32,
+        set_lang_id: &i32,
+        conn: &PgConnection,
+    ) -> ServiceResult<RoleMemberAndRelatedData> {
+        let role = RoleMemberTranslateList::get_by_id(
+            target_role_id,
+            set_lang_id,
+            conn
+        )?;
+
+        let access = TypeAccessTranslateList::get_by_role_id(
+            target_role_id,
+            set_lang_id,
+            conn
+        )?;
+
+        // if found data return RoleMemberAndRelatedData
+        Ok(RoleMemberAndRelatedData {
+            role,
+            access,
+        })
+    }
 
     /// Get roles by IDs for set lang
     pub(crate) fn get_roles_by_ids(

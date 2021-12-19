@@ -10,13 +10,6 @@ pub struct RepresentationType {
     pub id: i32,
 }
 
-#[Object]
-impl RepresentationType {
-    async fn id(&self) -> &i32 {
-        &self.id
-    }
-}
-
 #[derive(Debug, Insertable)]
 #[table_name = "representation_type_ref"]
 pub struct InsertableRepresentationType {

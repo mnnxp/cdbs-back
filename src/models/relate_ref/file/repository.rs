@@ -160,12 +160,17 @@ impl DownloadFile {
             .filter(presigned_url_ref::file_uuid.eq(&file.uuid)
             .and(presigned_url_ref::expiration_at.gt(naive_local_now)))
             .select(presigned_url_ref::presigned_url)
-            .first::<String>(conn);
-
-        let download_url = match get_url_from_db {
-            Ok(url) => url,
-            Err(err) => {
+            .limit(1)
+            .load::<String>(conn)
+            .map_err(|err| {
                 debug!("Failed get presigned_url: {:?}", err);
+                ServiceError::InternalServerError
+            })?;
+
+        let download_url = match get_url_from_db.first() {
+            Some(url) => url.clone(),
+            None => {
+                debug!("Failed get presigned_url");
                 // generate new url
                 let presigned_url = download_presigned_url(
                     &StorageAccess::get(conn)?,

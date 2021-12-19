@@ -3,13 +3,13 @@ use crate::models::component::model::Component;
 use crate::models::relate_ref::param::model::{
     ParamTranslateList, IptParamData
 };
-use async_graphql::types::ID;
 use async_graphql::*;
 // use chrono::*;
 use uuid::Uuid;
 
 // Param component models
-#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, Clone, Debug)]
+#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations)]
+#[derive(SimpleObject, Clone, Debug)]
 #[primary_key(component_uuid, param_id)]
 #[belongs_to(Component, foreign_key = "component_uuid")]
 #[belongs_to(ParamTranslateList, foreign_key = "param_id")]
@@ -20,19 +20,6 @@ pub struct ComponentParam {
     pub value: String,
 }
 
-#[Object]
-impl ComponentParam {
-    async fn component_uuid(&self) -> ID {
-        self.component_uuid.into()
-    }
-    async fn param_id(&self) -> &i32 {
-        &self.param_id
-    }
-    async fn value(&self) -> &String {
-        &self.value
-    }
-}
-
 #[derive(Debug, Deserialize, SimpleObject, Clone)]
 pub struct ComponentParamWithTranslation {
     pub component_uuid: Uuid,
@@ -40,13 +27,19 @@ pub struct ComponentParamWithTranslation {
     pub value: String,
 }
 
-impl From<(ComponentParam, ParamTranslateList)> for ComponentParamWithTranslation {
-    fn from(data: (ComponentParam, ParamTranslateList)) -> Self {
+impl ComponentParamWithTranslation {
+    /// Set component uuid and param value without param translate
+    pub(crate) fn new(data: &ComponentParam) -> Self {
         Self {
-            component_uuid: data.0.component_uuid,
-            param: data.1,
-            value: data.0.value,
+            component_uuid: data.component_uuid,
+            param: Default::default(),
+            value: data.value.clone(),
         }
+    }
+
+    /// Change component param
+    pub(crate) fn put_param_translate(&mut self, param: ParamTranslateList) {
+        self.param = param;
     }
 }
 

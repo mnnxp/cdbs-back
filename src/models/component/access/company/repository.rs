@@ -1,4 +1,4 @@
-use crate::errors::ServiceResult;
+use crate::errors::{ServiceResult, ServiceError};
 use crate::models::component::access::company::model::{
     CompanyAccessComponent, CompanyAccessComponentAndRelatedData
 };
@@ -16,35 +16,27 @@ impl CompanyAccessComponentAndRelatedData {
     ) -> ServiceResult<Vec<CompanyAccessComponentAndRelatedData>> {
         let list_companies_with_access = company_access_to_component
             .filter(component_uuid.eq(target_component_uuid))
-            .load::<CompanyAccessComponent>(conn)?;
-
-        let mut target_types_access_ids: Vec<i32> = Vec::new();
-        for x in list_companies_with_access.iter() {
-            target_types_access_ids.push(x.type_access_id.to_owned());
-        }
-
-        let type_access_with_translate = TypeAccessTranslateList::get_types_access_by_ids(
-            &target_types_access_ids,
-            set_lang_id,
-            conn
-        )?;
+            .load::<CompanyAccessComponent>(conn)
+            .map_err(|err| {
+                debug!("Failed get list companies with access: {:?}", err);
+                ServiceError::InternalServerError
+            })?;
 
         let mut res: Vec<CompanyAccessComponentAndRelatedData> = Vec::new();
         for x in list_companies_with_access {
-            for type_access in &type_access_with_translate {
-                if x.type_access_id == type_access.type_access_id {
-                    res.push(
-                        CompanyAccessComponentAndRelatedData{
-                            component_uuid: x.component_uuid,
-                            company_uuid: x.company_uuid,
-                            type_access: type_access.clone(),
-                            is_enabled: x.is_enabled,
-                            created_at: x.created_at,
-                            updated_at: x.updated_at,
-                        }
-                    )
-                }
-            }
+            let type_access = TypeAccessTranslateList::get_type_access_by_id(
+                &x.type_access_id,
+                set_lang_id,
+                conn
+            )?;
+            res.push(CompanyAccessComponentAndRelatedData{
+                component_uuid: x.component_uuid,
+                company_uuid: x.company_uuid,
+                type_access: type_access.clone(),
+                is_enabled: x.is_enabled,
+                created_at: x.created_at,
+                updated_at: x.updated_at,
+            });
         }
 
         Ok(res)

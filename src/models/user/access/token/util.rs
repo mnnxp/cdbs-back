@@ -1,13 +1,13 @@
 use crate::errors::{ServiceResult, ServiceError};
-use crate::models::user::access::model::{
-    UserToken, InsertableUserToken
-};
 use crate::database::{get_conn, PooledConnection};
-use crate::models::user::model::SlimUser;
+use crate::models::user::{
+    model::SlimUser,
+    access::model::{UserToken, InsertableUserToken},
+};
 use crate::jwt::model::{Token, Claims};
-// use std::convert::TryFrom;
+use crate::schema::user_token_ref::dsl as user_token_ref;
 use async_graphql::Context;
-use chrono::NaiveDateTime;
+// use chrono::NaiveDateTime;
 use diesel::prelude::*;
 use uuid::Uuid;
 
@@ -30,12 +30,13 @@ pub(crate) fn show_tokens(
     logged_user_uuid: &Uuid,
     conn: &PgConnection,
 ) -> ServiceResult<Vec<UserToken>> {
-    use crate::schema::user_token_ref::dsl::*;
-
-    user_token_ref
-        .filter(user_uuid.eq(logged_user_uuid))
+    user_token_ref::user_token_ref
+        .filter(user_token_ref::user_uuid.eq(logged_user_uuid))
         .load(conn)
-        .map_err(|e| ServiceError::BadRequest(e.to_string()))
+        .map_err(|err| {
+            debug!("Failed get token {:?}", err);
+            ServiceError::InternalServerError
+        })
 }
 
 /// get SlimUser from Claims
@@ -78,7 +79,7 @@ pub(crate) fn update(
             None => Err(ServiceError::InternalServerError),
             Some(ref token) => {
                 // insert data new token into the table
-                write_token(token, new_data, conn)?;
+                write_token(&user.uuid, token, new_data, conn)?;
                 Ok(new_token)
             }
         }
@@ -92,13 +93,13 @@ pub(crate) fn delete_token(
     target_token: &str,
     conn: &PgConnection
 ) -> ServiceResult<UserToken> {
-    use crate::schema::user_token_ref::dsl::*;
-
-    let delete_token: UserToken = diesel::delete(user_token_ref)
-        .filter(token.eq(&target_token))
-        .get_result(conn)?;
-
-    Ok(delete_token)
+    diesel::delete(user_token_ref::user_token_ref)
+        .filter(user_token_ref::token.eq(&target_token))
+        .get_result::<UserToken>(conn)
+        .map_err(|err| {
+            debug!("Failed delete token: {:?}", err);
+            ServiceError::InternalServerError
+        })
 }
 
 /// delete target token to table user_token_ref of database
@@ -107,21 +108,16 @@ pub(crate) fn delete_user_token(
     target_token: &str,
     conn: &PgConnection,
 ) -> ServiceResult<bool> {
-    use crate::schema::user_token_ref::dsl::*;
-
-    let delete_token = diesel::delete(user_token_ref)
-        .filter(user_uuid.eq(&logged_user_uuid)
-        .and(token.eq(&target_token)))
-        .execute(conn);
-
-    match delete_token {
-        Ok(0) => Ok(false),
-        Ok(_) => Ok(true),
-        Err(err) => {
+    let delete_token = diesel::delete(user_token_ref::user_token_ref)
+        .filter(user_token_ref::user_uuid.eq(&logged_user_uuid)
+        .and(user_token_ref::token.eq(&target_token)))
+        .execute(conn)
+        .map_err(|err| {
             debug!("Failed delete token: {:?}", err);
-            Err(ServiceError::InternalServerError)
-        },
-    }
+            ServiceError::InternalServerError
+        })?;
+
+    Ok(delete_token > 0)
 }
 
 /// delete tokens to table user_token_ref of database
@@ -129,59 +125,49 @@ pub(crate) fn delete_all_tokens(
     target_user_uuid: &Uuid,
     conn: &PgConnection,
 ) -> ServiceResult<i32> {
-    use crate::schema::user_token_ref::dsl::*;
-
-    let del_tokens = diesel::delete(user_token_ref)
-        .filter(user_uuid.eq_all(target_user_uuid))
-        .execute(conn);
-
-    match del_tokens {
-        Ok(x) => Ok(x as i32),
-        Err(err) => {
+    let del_tokens = diesel::delete(user_token_ref::user_token_ref)
+        .filter(user_token_ref::user_uuid.eq_all(target_user_uuid))
+        .execute(conn)
+        .map_err(|err| {
             debug!("Failed delete tokens: {:?}", err);
+            ServiceError::InternalServerError
+        })?;
 
-            Err(ServiceError::InternalServerError)
-        },
-    }
+    Ok(del_tokens as i32)
 }
 
 /// write token to table user_token_ref of database
 pub(crate) fn write_token(
+    logged_user_uuid: &Uuid,
     new_token: &str,
     jwt: Claims,
     conn: &PgConnection,
 ) -> ServiceResult<UserToken> {
-    use crate::schema::user_token_ref::dsl::user_token_ref;
-    use crate::schema::user_token_ref::dsl::token;
-
-    // find duplicate token
-    let find_token = user_token_ref
-        .filter(token.eq(new_token))
-        .execute(conn);
+    // get duplicate token
+    let check_token = user_token_ref::user_token_ref
+        .filter(user_token_ref::token.eq(new_token))
+        .execute(conn)
+        .map_err(|err| {
+            debug!("Failed check token: {:?}", err);
+            ServiceError::InternalServerError
+        })?;
 
     // check for no duplicate token
-    match find_token {
-        Ok(0) => {
-            // creating a structure for writing token to a table
-            let user_token = InsertableUserToken {
-                user_uuid: Uuid::parse_str(&jwt.sub)?,
-                token: new_token.to_string(),
-                created_at: NaiveDateTime::from_timestamp(jwt.iat, 0),
-                expiration_at: NaiveDateTime::from_timestamp(jwt.exp, 0),
-            };
-
-            let inserted_token: UserToken = diesel::insert_into(user_token_ref)
-            .values(&user_token)
-            .get_result(conn)?;
-            Ok(inserted_token)
+    match check_token {
+        // creating a structure for writing token to a table
+        0 => {
+            let mut data = InsertableUserToken::new(logged_user_uuid, &jwt);
+            data.put_token(new_token);
+            diesel::insert_into(user_token_ref::user_token_ref)
+                .values(&data)
+                .get_result::<UserToken>(conn)
+                .map_err(|err| {
+                    debug!("Failed check token: {:?}", err);
+                    ServiceError::InternalServerError
+                })
         },
-        Ok(1) => Err(ServiceError::BadRequest("Please, try again later.".to_string())),
-        Ok(_) => Err(ServiceError::BadRequest("Duplicate token found.".to_string())),
-        Err(err) => {
-            debug!("Failed check token: {:?}", err);
-
-            Err(ServiceError::InternalServerError)
-        },
+        1 => Err(ServiceError::BadRequest("Please, try again later.".to_string())),
+        _ => Err(ServiceError::InternalServerError), // found duplicates token
     }
 }
 
@@ -190,16 +176,18 @@ pub(crate) fn check_token(
     target_token: &str,
     conn: &PgConnection,
 ) -> ServiceResult<bool> {
-    use crate::schema::user_token_ref::dsl::*;
-
     let naive_local_now = chrono::Local::now().naive_local();
 
-    let find_token = user_token_ref
-        .filter(token.eq(target_token)
-        .and(expiration_at.gt(naive_local_now)))
-        .execute(conn).unwrap();
+    let get_token = user_token_ref::user_token_ref
+        .filter(user_token_ref::token.eq(target_token)
+        .and(user_token_ref::expiration_at.gt(naive_local_now)))
+        .execute(conn)
+        .map_err(|err| {
+            debug!("Failed check token: {:?}", err);
+            ServiceError::InternalServerError
+        })?;
 
-    match find_token as i32 {
+    match get_token {
         0 => Ok(false),
         1 => Ok(true),
         _ => Err(ServiceError::BadRequest("Duplicate token found.".to_string())),
@@ -211,11 +199,12 @@ pub(crate) fn whose_token(
     target_token: &str,
     conn: &PgConnection,
 ) -> ServiceResult<Uuid> {
-    use crate::schema::user_token_ref::dsl::*;
-
-    user_token_ref
-        .filter(token.eq(target_token))
-        .select(user_uuid)
+    user_token_ref::user_token_ref
+        .filter(user_token_ref::token.eq(target_token))
+        .select(user_token_ref::user_uuid)
         .first(conn)
-        .map_err(|e| ServiceError::BadRequest(e.to_string()))
+        .map_err(|err| {
+            debug!("Failed get token: {:?}", err);
+            ServiceError::InternalServerError
+        })
 }

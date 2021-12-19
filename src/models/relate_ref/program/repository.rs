@@ -18,19 +18,6 @@ impl Program {
             })
     }
 
-    pub(crate) fn get_programs_by_ids(
-        target_programs_ids: &[i32],
-        conn: &PgConnection,
-    ) -> ServiceResult<Vec<Program>> {
-        program_ref::program_ref
-            .filter(program_ref::id.eq_any(target_programs_ids))
-            .load::<Program>(conn)
-            .map_err(|err| {
-                debug!("Failed get program: {:?}", err);
-                ServiceError::InternalServerError
-            })
-    }
-
     /// Gets programs for target extension
     pub(crate) fn get_program_for_ext(
         target_ext_id: &i32,

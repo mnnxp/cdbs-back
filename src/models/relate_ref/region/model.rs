@@ -13,13 +13,6 @@ pub struct Region {
     pub id: i32,
 }
 
-#[Object]
-impl Region {
-    async fn id(&self) -> &i32 {
-        &self.id
-    }
-}
-
 #[derive(Debug, Insertable)]
 #[table_name = "region_ref"]
 pub struct InsertableRegion {
@@ -27,7 +20,8 @@ pub struct InsertableRegion {
 }
 
 // Region translations
-#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, Clone, Default, Debug)]
+#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations)]
+#[derive(SimpleObject, Clone, Default, Debug)]
 #[primary_key(region_id, lang_id)]
 #[belongs_to(Region, foreign_key = "region_id")]
 #[belongs_to(Company, foreign_key = "region_id")]
@@ -39,19 +33,6 @@ pub struct RegionTranslateList {
     pub region_id: i32,
     pub lang_id: i32,
     pub region: String,
-}
-
-#[Object]
-impl RegionTranslateList {
-    async fn region_id(&self) -> &i32 {
-        &self.region_id
-    }
-    async fn lang_id(&self) -> &i32 {
-        &self.lang_id
-    }
-    async fn region(&self) -> &String {
-        &self.region
-    }
 }
 
 #[derive(Debug, Deserialize, Clone, InputObject)]

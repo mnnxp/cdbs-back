@@ -1,13 +1,13 @@
 use crate::schema::*;
 use crate::models::standard::model::Standard;
 use crate::models::user::model::UserQuery;
-use async_graphql::types::ID;
 use async_graphql::*;
 use chrono::*;
 use uuid::Uuid;
 
 // Favorites user models
-#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, Clone, Debug)]
+#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations)]
+#[derive(SimpleObject, Clone, Debug)]
 #[primary_key(standard_uuid, user_uuid)]
 #[belongs_to(Standard, foreign_key = "standard_uuid")]
 #[belongs_to(UserQuery, foreign_key = "user_uuid")]
@@ -17,22 +17,6 @@ pub struct StandardFav {
     pub user_uuid: Uuid,
     pub is_enabled: bool,
     pub created_at: NaiveDateTime,
-}
-
-#[Object]
-impl StandardFav {
-    async fn standard_uuid(&self) -> ID {
-        self.standard_uuid.into()
-    }
-    async fn user_uuid(&self) -> ID {
-        self.user_uuid.into()
-    }
-    async fn is_enabled(&self) -> &bool {
-        &self.is_enabled
-    }
-    async fn created_at(&self) -> &NaiveDateTime {
-        &self.created_at
-    }
 }
 
 #[derive(Debug, Deserialize, Clone, InputObject)]

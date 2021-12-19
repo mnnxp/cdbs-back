@@ -1,13 +1,13 @@
 use crate::schema::*;
 use crate::models::relate_ref::keyword::model::Keyword;
 use crate::models::component::model::Component;
-use async_graphql::types::ID;
 use async_graphql::*;
 // use chrono::*;
 use uuid::Uuid;
 
 // Keyword component models
-#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, Clone, Debug)]
+#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations)]
+#[derive(SimpleObject, Clone, Debug)]
 #[primary_key(component_uuid, keyword_id)]
 #[belongs_to(Component, foreign_key = "component_uuid")]
 #[belongs_to(Keyword, foreign_key = "keyword_id")]
@@ -17,30 +17,26 @@ pub struct ComponentKeyword {
     pub keyword_id: i32,
 }
 
-#[Object]
-impl ComponentKeyword {
-    async fn keyword_id(&self) -> &i32 {
-        &self.keyword_id
-    }
-    async fn component_uuid(&self) -> ID {
-        self.component_uuid.into()
-    }
-}
-
 #[derive(Deserialize, SimpleObject, Clone, Debug)]
 pub struct ComponentKeywordRelatedData {
     pub keyword: Keyword,
     pub component_uuid: Uuid,
 }
 
-impl From<(ComponentKeyword, Keyword)> for ComponentKeywordRelatedData {
-    fn from(data: (ComponentKeyword, Keyword)) -> Self {
-        Self {
-            keyword: data.1,
-            component_uuid: data.0.component_uuid,
-        }
-    }
-}
+// impl ComponentKeywordRelatedData {
+//     /// Create struct with ComponentKeyword data, Keyword data set default
+//     pub(crate) fn new(component_uuid: &Uuid) -> Self {
+//         Self{
+//             keyword: Default::default(),
+//             component_uuid: *component_uuid,
+//         }
+//     }
+//
+//     /// Change keyword data
+//     pub(crate) fn put_keyword(&mut self, keyword: Keyword) {
+//         self.keyword = keyword;
+//     }
+// }
 
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub struct IptComponentKeywordsData {
