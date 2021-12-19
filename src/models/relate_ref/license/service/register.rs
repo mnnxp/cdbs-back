@@ -1,5 +1,6 @@
 use crate::errors::{ServiceError, ServiceResult};
 use crate::models::relate_ref::license::model::{InsertableLicense, License, LicenseData};
+use crate::schema::license_ref::dsl as license_ref;
 use diesel::prelude::*;
 // use uuid::Uuid;
 
@@ -7,19 +8,23 @@ pub(crate) fn create_license(
     new_license_data: &LicenseData,
     conn: &PgConnection
 ) -> ServiceResult<License> {
-    use crate::schema::license_ref::dsl::*;
+    let flag_found = license_ref::license_ref
+        .filter(license_ref::keyword.eq(&new_license_data.keyword))
+        .select(license_ref::id)
+        .limit(1)
+        .load::<i32>(conn)
+        .map_err(|err| {
+            debug!("Failed check license: {:?}", err);
+            ServiceError::InternalServerError
+        })?;
 
-    let flag_found_license = license_ref
-        .filter(keyword.eq(&new_license_data.keyword))
-        .select(id)
-        .first::<i32>(conn).unwrap_or(0);
-
-    // debug!("fn create_license START SEARCH ={:?}", flag_found_license);
-
-    match flag_found_license {
-        0 => {
+    match flag_found.first() {
+        Some(x) => {
+            Err(ServiceError::BadRequest(format!("This license name is already there. Id: {}", x)))
+        },
+        None => {
             let new_license_data: InsertableLicense = new_license_data.into();
-            diesel::insert_into(license_ref)
+            diesel::insert_into(license_ref::license_ref)
                 .values(&new_license_data)
                 .get_result::<License>(conn)
                 .map_err(|err| {
@@ -27,9 +32,5 @@ pub(crate) fn create_license(
                     ServiceError::InternalServerError
                 })
         },
-        1..=i32::MAX => Err(ServiceError::BadRequest(
-            format!("This license name is already there. Id: {}", flag_found_license))
-        ),
-        _ => Err(ServiceError::BadRequest("What?".to_string())),
     }
 }

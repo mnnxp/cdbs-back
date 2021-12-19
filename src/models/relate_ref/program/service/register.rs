@@ -1,5 +1,8 @@
 use crate::errors::{ServiceError, ServiceResult};
-use crate::models::relate_ref::program::model::{InsertableProgram, Program, IptProgramData};
+use crate::models::relate_ref::program::model::{
+    InsertableProgram, Program, IptProgramData
+};
+use crate::schema::program_ref::dsl as program_ref;
 use diesel::prelude::*;
 // use uuid::Uuid;
 
@@ -7,22 +10,23 @@ pub(crate) fn create_program(
     new_program_data: &IptProgramData,
     conn: &PgConnection
 ) -> ServiceResult<Program> {
-    use crate::schema::program_ref::dsl::*;
-    // use crate::schema::program_to_component::dsl::uuid as component_uuid;
-    // use crate::schema::program_to_modification::dsl::uuid as modification_uuid;
-    // use diesel::dsl::count;
+    let flag_found = program_ref::program_ref
+        .filter(program_ref::name.eq(&new_program_data.name))
+        .select(program_ref::id)
+        .limit(1)
+        .load::<i32>(conn)
+        .map_err(|err| {
+            debug!("Failed check program: {:?}", err);
+            ServiceError::InternalServerError
+        })?;
 
-    let flag_found_program = program_ref
-        .filter(name.eq(&new_program_data.name))
-        .select(id)
-        .first::<i32>(conn).unwrap_or(0);
-
-    // debug!("fn create_program START SEARCH ={:?}", flag_found_program);
-
-    match flag_found_program {
-        0 => {
+    match flag_found.first() {
+        Some(x) => {
+            Err(ServiceError::BadRequest(format!("This program name is already there. Id: {}", x)))
+        },
+        None => {
             let new_program_data: InsertableProgram = new_program_data.into();
-            diesel::insert_into(program_ref)
+            diesel::insert_into(program_ref::program_ref)
                 .values(&new_program_data)
                 .get_result::<Program>(conn)
                 .map_err(|err| {
@@ -30,9 +34,5 @@ pub(crate) fn create_program(
                     ServiceError::InternalServerError
                 })
         },
-        1..=i32::MAX => Err(ServiceError::BadRequest(
-            format!("This program name is already there. Id: {}", flag_found_program))
-        ),
-        _ => Err(ServiceError::BadRequest("What?".to_string())),
     }
 }

@@ -18,7 +18,7 @@ pub(crate) fn create_language(
         .values(&new_language_data)
         .get_result::<Language>(conn)
         .map_err(|err| {
-            debug!("Failed insert keyword: {:?}", err);
+            debug!("Failed insert language: {:?}", err);
             ServiceError::InternalServerError
         })
 }
