@@ -95,7 +95,7 @@ describe('param', () => {
       .post('/graphql')
       .send({
         query: `mutation  {
-            registerUser( data: {
+            registerUser(args: {
                 email: "testemail@mail.ru",
                 firstname: "test_firstname",
                 lastname: "test_lastname",
@@ -150,7 +150,7 @@ describe('param', () => {
       .post('/graphql')
       .send({
         query: `mutation  {
-            registerUser( data: {
+            registerUser(args: {
                 email: "testemail@mail.ru",
                 firstname: "test_firstname",
                 lastname: "test_lastname",
@@ -205,7 +205,7 @@ describe('param', () => {
       .post('/graphql')
       .send({
         query: `mutation  {
-            registerParam( data: {
+            registerParam(args: {
                 langId: ${langId1},
                 paramname: "${paramNameTest}"
             }){
@@ -233,7 +233,7 @@ describe('param', () => {
       )
       .send({
         query: `mutation  {
-            registerParam( data: {
+            registerParam(args: {
                 langId: ${langId1},
                 paramname: "${paramNameTest}",
             }){
@@ -267,7 +267,7 @@ describe('param', () => {
       )
       .send({
         query: `mutation  {
-            registerParam( data: {
+            registerParam(args: {
                 langId: ${langId1},
                 paramname: "${paramNameTest}"
             }){
@@ -295,7 +295,7 @@ describe('param', () => {
       )
       .send({
         query: `mutation  {
-            registerParam( data: {
+            registerParam(args: {
                 langId: ${langId1},
                 paramname: "${paramNameTest2}",
             }){
@@ -348,7 +348,9 @@ describe('param', () => {
       )
       .send({
         query: `query ListUserParams {
-            params (paramId: ${paramnameIndex}){
+            params(args:{
+              paramIds: ${paramnameIndex}
+            }){
                 paramId
                 paramname
             }
@@ -356,6 +358,7 @@ describe('param', () => {
       })
       .expect(HttpStatus.OK)
     debug('/graphql body=%o', response1.body);
+    // expect(response1.body).toBe(0);
     expect(response1.body.data.params).toBeNonEmptyArray();
     expect(response1.body.data.params[0].paramId).toBe(paramnameIndex);
     expect(response1.body.data.params[0].paramname).toBe(paramname);
@@ -371,7 +374,9 @@ describe('param', () => {
       )
       .send({
         query: `query ListUserParams {
-            params (paramId: [1, ${paramnameIndex}]) {
+            params(args:{
+              paramIds: [1, ${paramnameIndex}]
+            }){
                 paramId
                 paramname
             }
@@ -390,7 +395,9 @@ describe('param', () => {
       .post('/graphql')
       .send({
         query: `query ListUserParams {
-            params (paramId: [1, ${paramnameIndex}]) {
+            params(args:{
+              paramIds: [1, ${paramnameIndex}]
+            }){
                 paramId
                 paramname
             }
@@ -412,7 +419,7 @@ describe('param', () => {
       .post('/graphql')
       .send({
         query: `query {
-            specsPaths (arg:{
+            specsPaths (args:{
               specIds: 0
             }){
               specId
@@ -440,7 +447,7 @@ describe('param', () => {
       )
       .send({
         query: `query {
-            specsPaths (arg:{
+            specsPaths (args:{
               specIds: 0
             }){
               specId
@@ -468,7 +475,7 @@ describe('param', () => {
       )
       .send({
         query: `query {
-            specsPaths (arg:{
+            specsPaths (args:{
               specIds: ${specId5}
             }){
               specId
@@ -495,7 +502,7 @@ describe('param', () => {
       )
       .send({
         query: `query {
-            specsPaths (arg:{
+            specsPaths (args:{
               specIds: ${specId5}
               splitChar: "#"
               depthLevel: 50
@@ -553,7 +560,7 @@ describe('param', () => {
       )
       .send({
         query: `query {
-            specsPaths (arg:{
+            specsPaths (args:{
               specIds: ${specId5}
               depthLevel: 5
             }){
@@ -584,7 +591,7 @@ describe('param', () => {
       )
       .send({
         query: `query {
-            specsPaths (arg:{
+            specsPaths (args:{
                 offset: 9
                 limit: 10
             }){
@@ -611,7 +618,7 @@ describe('param', () => {
       .post('/graphql')
       .send({
         query: `query {
-            specs (arg:{
+            specs (args:{
               specIds: 0
             }){
               specId
@@ -639,7 +646,7 @@ describe('param', () => {
       )
       .send({
         query: `query {
-            specs (arg:{
+            specs (args:{
               specIds: 0
             }){
               specId
@@ -666,7 +673,7 @@ describe('param', () => {
       )
       .send({
         query: `query {
-            specs (arg:{
+            specs (args:{
               specIds: ${specId5}
             }){
               specId
@@ -694,7 +701,7 @@ describe('param', () => {
       )
       .send({
         query: `query {
-            specs (arg:{
+            specs (args:{
               specsLevels: 4
             }){
               specId
@@ -722,7 +729,7 @@ describe('param', () => {
       )
       .send({
         query: `query {
-            specs (arg:{
+            specs (args:{
               specIds: [${specLevels3}]
               specsLevels: 4
             }){
@@ -751,7 +758,7 @@ describe('param', () => {
       )
       .send({
         query: `query {
-            specs (arg:{
+            specs (args:{
               specIds: [${specLevels3}]
               specsLevels: 3
             }){
@@ -808,7 +815,7 @@ describe('param', () => {
       )
       .send({
         query: `query {
-            specs (arg:{
+            specs (args:{
               specIds: [${specLevels3}]
               specsLevels: 3
               offset: 3
@@ -837,7 +844,7 @@ describe('param', () => {
       .post('/graphql')
       .send({
         query: `query {
-            searchSpecs (arg:{
+            searchSpecs (args:{
               text: "bolt"
             }){
               specId
@@ -865,7 +872,7 @@ describe('param', () => {
       )
       .send({
         query: `query {
-            searchSpecs (arg:{
+            searchSpecs (args:{
               text: ""
             }){
               specId
@@ -892,7 +899,7 @@ describe('param', () => {
       )
       .send({
         query: `query {
-            searchSpecs (arg:{
+            searchSpecs (args:{
               text: "${specName5}"
             }){
               specId
@@ -919,7 +926,7 @@ describe('param', () => {
       )
       .send({
         query: `query {
-            searchSpecs (arg:{
+            searchSpecs (args:{
               text: "${specName5}"
               splitChar: "#"
               depthLevel: 50
@@ -953,7 +960,7 @@ describe('param', () => {
       )
       .send({
         query: `query {
-            searchSpecs (arg:{
+            searchSpecs (args:{
               text: "болт"
             }){
               specId
@@ -982,7 +989,7 @@ describe('param', () => {
       )
       .send({
         query: `query {
-            searchSpecs (arg:{
+            searchSpecs (args:{
               text: "${specName4}"
               depthLevel: 1
             }){
@@ -1011,7 +1018,7 @@ describe('param', () => {
       )
       .send({
         query: `query {
-            searchSpecs (arg:{
+            searchSpecs (args:{
               text: "bolt"
               depthLevel: 1
               offset: 1

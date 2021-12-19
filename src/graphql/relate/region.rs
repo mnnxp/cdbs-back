@@ -3,7 +3,7 @@ use crate::database::{get_conn, PooledConnection};
 use crate::errors::ServiceResult;
 use crate::models::user::access::logged::check_authorized;
 use crate::models::relate_ref::region::{
-    model::{IptRegionTranslateListData, RegionTranslateList},
+    model::{IptRegionTranslateListData, RegionTranslateList, IptRegionArg, RegionArg},
     service::list::get_regions,
     service::register::create_region,
 };
@@ -19,26 +19,16 @@ impl RegionQuery {
     async fn regions(
         &self,
         cxt: &Context<'_>,
-        region_id: Option<Vec<i32>>,
-        limit: Option<i32>,
-        offset: Option<i32>,
+        args: Option<IptRegionArg>,
     ) -> ServiceResult<Vec<RegionTranslateList>> {
-        // authorization check
-        // user::util::check_authorized(cxt)?;
-
-        let region_id: Vec<i32> = region_id.unwrap_or_default();
-        let limit: i32 = limit.unwrap_or(100);
-        let offset: i32 = offset.unwrap_or(0);
+        let arguments = match args {
+            Some(x) => RegionArg::from(x),
+            None => RegionArg::default(),
+        };
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
-        get_regions(
-            &region_id,
-            &limit,
-            &offset,
-            &get_set_language(cxt),
-            conn,
-        )
+        get_regions(&arguments, &get_set_language(cxt), conn)
     }
 }
 
@@ -47,12 +37,12 @@ impl RegionMutation {
     async fn register_region(
         &self,
         cxt: &Context<'_>,
-        data: IptRegionTranslateListData,
+        args: IptRegionTranslateListData,
     ) -> ServiceResult<RegionTranslateList> {
         check_authorized(cxt)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
-        create_region(&data, conn)
+        create_region(&args, conn)
     }
 }

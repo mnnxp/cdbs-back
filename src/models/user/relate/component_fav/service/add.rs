@@ -13,33 +13,39 @@ use diesel::prelude::*;
 use uuid::Uuid;
 
 pub(crate) fn add_component_fav(
-    data: &IptComponentFavData,
+    logged_user_uuid: &Uuid,
+    component_uuid: &Uuid,
     conn: &PgConnection,
 ) -> ServiceResult<bool> {
     let need_access_level = 3; // todo!(create enum for manage access level)
 
     // check access user for component
     check_access_component_for_user(
-        &data.user_uuid,
-        &data.component_uuid,
+        logged_user_uuid,
+        component_uuid,
         &need_access_level,
         conn
     )?;
 
     // if have need row, just update is_enabled to true
     let check_fav = component_fav::component_fav
-        .filter(component_fav::component_uuid.eq(&data.component_uuid)
-        .and(component_fav::user_uuid.eq(&data.user_uuid)))
+        .filter(component_fav::component_uuid.eq(component_uuid)
+        .and(component_fav::user_uuid.eq(logged_user_uuid)))
         .select(component_fav::is_enabled)
-        .first(conn);
+        .limit(1)
+        .load(conn)
+        .map_err(|err| {
+            debug!("Failed check fav component: {:?}", err);
+            ServiceError::InternalServerError
+        })?;
 
-    match check_fav {
-        Ok(true) => Ok(false), // <-- if data already has
-        Ok(false) => {
+    match check_fav.first() {
+        Some(true) => Ok(false), // <-- if data already has
+        Some(false) => {
             // if have need row, just update is_enabled to true
             diesel::update(component_fav::component_fav)
-                .filter(component_fav::component_uuid.eq(&data.component_uuid)
-                .and(component_fav::user_uuid.eq(&data.user_uuid)))
+                .filter(component_fav::component_uuid.eq(component_uuid)
+                .and(component_fav::user_uuid.eq(logged_user_uuid)))
                 .set(component_fav::is_enabled.eq(true))
                 .returning(component_fav::is_enabled)
                 .get_result::<bool>(conn)
@@ -48,8 +54,11 @@ pub(crate) fn add_component_fav(
                     ServiceError::InternalServerError
                 })
         },
-        Err(err) => {
-            debug!("Err check is_enabled: {:?}", err);
+        None => {
+            let data = IptComponentFavData{
+                user_uuid: *logged_user_uuid,
+                component_uuid: *component_uuid,
+            };
 
             // add flag and date created
             let insertable_fav: InsertableComponentFav = data.into();
@@ -63,7 +72,7 @@ pub(crate) fn add_component_fav(
                     ServiceError::InternalServerError
                 })?;
 
-            new_notification(&data.component_uuid, conn)
+            new_notification(component_uuid, conn)
         },
     }
 }

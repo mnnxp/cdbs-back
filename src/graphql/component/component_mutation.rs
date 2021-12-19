@@ -46,7 +46,7 @@ impl ComponentMutation {
     async fn register_component(
         &self,
         cxt: &Context<'_>,
-        data: IptComponentData,
+        args: IptComponentData,
     ) -> ServiceResult<Uuid> {
         use crate::models::component::service::register::create_component;
 
@@ -57,7 +57,7 @@ impl ComponentMutation {
 
         create_component(
             &logged_user_uuid,
-            &data,
+            &args,
             conn
         )
     }
@@ -66,7 +66,7 @@ impl ComponentMutation {
     async fn transfer_component_ownership(
         &self,
         cxt: &Context<'_>,
-        data: ChangeOwnerComponent,
+        args: ChangeOwnerComponent,
     ) -> ServiceResult<bool> {
         use crate::models::component::access::manage::change_component_owner_user;
 
@@ -77,7 +77,7 @@ impl ComponentMutation {
 
         change_component_owner_user(
             &logged_user_uuid,
-            &data,
+            &args,
             conn
         )
     }
@@ -86,7 +86,7 @@ impl ComponentMutation {
     async fn change_component_access(
         &self,
         cxt: &Context<'_>,
-        data: ChangeTypeAccessComponent,
+        args: ChangeTypeAccessComponent,
     ) -> ServiceResult<bool> {
         use crate::models::component::access::manage::change_component_type_access;
 
@@ -97,7 +97,7 @@ impl ComponentMutation {
 
         change_component_type_access(
             &logged_user_uuid,
-            &data,
+            &args,
             conn
         )
     }
@@ -106,7 +106,7 @@ impl ComponentMutation {
         &self,
         cxt: &Context<'_>,
         component_uuid: Uuid,
-        data: IptUpdateComponentData,
+        args: IptUpdateComponentData,
     ) -> ServiceResult<i32> {
         use crate::models::component::service::update::update_component_by_uuid;
 
@@ -118,7 +118,7 @@ impl ComponentMutation {
         update_component_by_uuid(
             &logged_user_uuid,
             &component_uuid,
-            &data,
+            &args,
             conn
         )
     }
@@ -146,7 +146,7 @@ impl ComponentMutation {
     async fn set_company_access_component(
         &self,
         cxt: &Context<'_>,
-        data: IptCompanyAccessComponentData,
+        args: IptCompanyAccessComponentData,
     ) -> ServiceResult<bool> {
         use crate::models::component::access::company::manage::set_company_access_component;
 
@@ -157,7 +157,7 @@ impl ComponentMutation {
 
         set_company_access_component(
             &logged_user_uuid,
-            &data,
+            &args,
             conn
         )
     }
@@ -165,7 +165,7 @@ impl ComponentMutation {
     async fn delete_company_access_component(
         &self,
         cxt: &Context<'_>,
-        data: DelCompanyAccessComponentData,
+        args: DelCompanyAccessComponentData,
     ) -> ServiceResult<bool> {
         use crate::models::component::access::company::manage::del_company_access_component;
 
@@ -176,7 +176,7 @@ impl ComponentMutation {
 
         del_company_access_component(
             &logged_user_uuid,
-            &data,
+            &args,
             conn
         )
     }
@@ -184,7 +184,7 @@ impl ComponentMutation {
     async fn set_user_access_component(
         &self,
         cxt: &Context<'_>,
-        data: IptUserAccessComponentData,
+        args: IptUserAccessComponentData,
     ) -> ServiceResult<bool> {
         use crate::models::component::access::user::manage::set_user_access_component;
 
@@ -195,7 +195,7 @@ impl ComponentMutation {
 
         set_user_access_component(
             &logged_user_uuid,
-            &data,
+            &args,
             conn
         )
     }
@@ -203,7 +203,7 @@ impl ComponentMutation {
     async fn delete_user_access_component(
         &self,
         cxt: &Context<'_>,
-        data: DelUserAccessComponentData,
+        args: DelUserAccessComponentData,
     ) -> ServiceResult<bool> {
         use crate::models::component::access::user::manage::del_user_access_component;
 
@@ -214,7 +214,7 @@ impl ComponentMutation {
 
         del_user_access_component(
             &logged_user_uuid,
-            &data,
+            &args,
             conn
         )
     }
@@ -223,7 +223,7 @@ impl ComponentMutation {
     async fn put_component_params(
         &self,
         cxt: &Context<'_>,
-        data: IptComponentParamData,
+        args: IptComponentParamData,
     ) -> ServiceResult<i32> {
         use component_param::service::change::put_component_params;
 
@@ -233,7 +233,7 @@ impl ComponentMutation {
 
         put_component_params(
             &logged_user_uuid,
-            &data,
+            &args,
             conn
         )
     }
@@ -241,7 +241,7 @@ impl ComponentMutation {
     async fn delete_component_params(
         &self,
         cxt: &Context<'_>,
-        data: DelComponentParamData,
+        args: DelComponentParamData,
     ) -> ServiceResult<i32> {
         use component_param::service::delete::del_component_params;
 
@@ -251,7 +251,7 @@ impl ComponentMutation {
 
         del_component_params(
             &logged_user_uuid,
-            &data,
+            &args,
             conn
         )
     }
@@ -259,7 +259,7 @@ impl ComponentMutation {
     async fn add_component_license(
         &self,
         cxt: &Context<'_>,
-        data: IptComponentLicenseData,
+        args: IptComponentLicenseData,
     ) -> ServiceResult<bool> {
         use crate::models::component::license::service::add::add_component_license;
 
@@ -269,7 +269,7 @@ impl ComponentMutation {
 
         add_component_license(
             &logged_user_uuid,
-            &data,
+            &args,
             conn
         )
     }
@@ -277,7 +277,7 @@ impl ComponentMutation {
     async fn delete_component_license(
         &self,
         cxt: &Context<'_>,
-        data: IptComponentLicenseData,
+        args: IptComponentLicenseData,
     ) -> ServiceResult<i32> {
         use crate::models::component::license::service::delete::del_component_license;
 
@@ -287,7 +287,7 @@ impl ComponentMutation {
 
         del_component_license(
             &logged_user_uuid,
-            &data,
+            &args,
             conn
         )
     }
@@ -295,7 +295,7 @@ impl ComponentMutation {
     async fn add_component_specs(
         &self,
         cxt: &Context<'_>,
-        data: IptComponentSpecsData,
+        args: IptComponentSpecsData,
     ) -> ServiceResult<i32> {
         use component_spec::service::add::add_component_specs;
 
@@ -305,7 +305,7 @@ impl ComponentMutation {
 
         add_component_specs(
             &logged_user_uuid,
-            &data,
+            &args,
             conn
         )
     }
@@ -313,7 +313,7 @@ impl ComponentMutation {
     async fn delete_component_specs(
         &self,
         cxt: &Context<'_>,
-        data: IptComponentSpecsData,
+        args: IptComponentSpecsData,
     ) -> ServiceResult<i32> {
         use component_spec::service::delete::del_component_specs;
 
@@ -323,7 +323,7 @@ impl ComponentMutation {
 
         del_component_specs(
             &logged_user_uuid,
-            &data,
+            &args,
             conn
         )
     }
@@ -331,7 +331,7 @@ impl ComponentMutation {
     async fn add_component_keywords(
         &self,
         cxt: &Context<'_>,
-        data: IptComponentKeywordsData,
+        args: IptComponentKeywordsData,
     ) -> ServiceResult<usize> {
         use component_keyword::service::add::add_component_keywords;
 
@@ -341,7 +341,7 @@ impl ComponentMutation {
 
         add_component_keywords(
             &logged_user_uuid,
-            &data,
+            &args,
             conn
         )
     }
@@ -349,7 +349,7 @@ impl ComponentMutation {
     async fn add_component_keywords_by_names(
         &self,
         cxt: &Context<'_>,
-        data: IptComponentKeywordsNames,
+        args: IptComponentKeywordsNames,
     ) -> ServiceResult<usize> {
         use crate::models::component::keyword::service::add::add_keywords_by_names;
 
@@ -359,7 +359,7 @@ impl ComponentMutation {
 
         add_keywords_by_names(
             &logged_user_uuid,
-            &data,
+            &args,
             conn
         )
     }
@@ -367,7 +367,7 @@ impl ComponentMutation {
     async fn delete_component_keywords(
         &self,
         cxt: &Context<'_>,
-        data: IptComponentKeywordsData,
+        args: IptComponentKeywordsData,
     ) -> ServiceResult<i32> {
         use component_keyword::service::delete::del_component_keywords;
 
@@ -377,7 +377,7 @@ impl ComponentMutation {
 
         del_component_keywords(
             &logged_user_uuid,
-            &data,
+            &args,
             conn
         )
     }
@@ -385,7 +385,7 @@ impl ComponentMutation {
     async fn upload_component_files(
         &self,
         cxt: &Context<'_>,
-        data: IptComponentFileData,
+        args: IptComponentFileData,
     ) -> ServiceResult<Vec<UploadFile>> {
         use component_file::service::add::add_component_files;
 
@@ -395,7 +395,7 @@ impl ComponentMutation {
 
         add_component_files(
             &logged_user_uuid,
-            &data,
+            &args,
             conn
         )
     }
@@ -403,7 +403,7 @@ impl ComponentMutation {
     async fn delete_component_file(
         &self,
         cxt: &Context<'_>,
-        arg: DelComponentFileData,
+        args: DelComponentFileData,
     ) -> ServiceResult<bool> {
         use component_file::service::delete::delete_component_file;
 
@@ -413,7 +413,7 @@ impl ComponentMutation {
 
         delete_component_file(
             &logged_user_uuid,
-            &arg,
+            &args,
             conn
         )
     }
@@ -421,7 +421,7 @@ impl ComponentMutation {
     async fn delete_suppliers_component(
         &self,
         cxt: &Context<'_>,
-        data: DelSuppliersComponentData,
+        args: DelSuppliersComponentData,
     ) -> ServiceResult<i32> {
         use component_supplier::service::delete::del_suppliers_component;
 
@@ -431,7 +431,7 @@ impl ComponentMutation {
 
         del_suppliers_component(
             &logged_user_uuid,
-            &data,
+            &args,
             conn
         )
     }
@@ -439,7 +439,7 @@ impl ComponentMutation {
     async fn add_standard_to_component(
         &self,
         cxt: &Context<'_>,
-        data: IptStandardToComponentData,
+        args: IptStandardToComponentData,
     ) -> ServiceResult<bool> {
         use component_standard::service::add::add_standard_to_component;
 
@@ -449,7 +449,7 @@ impl ComponentMutation {
 
         add_standard_to_component(
             &logged_user_uuid,
-            &data,
+            &args,
             conn
         )
     }
@@ -457,7 +457,7 @@ impl ComponentMutation {
     async fn delete_standards_component(
         &self,
         cxt: &Context<'_>,
-        data: DelStandardToComponentData,
+        args: DelStandardToComponentData,
     ) -> ServiceResult<i32> {
         use component_standard::service::delete::del_standards_component;
 
@@ -467,7 +467,7 @@ impl ComponentMutation {
 
         del_standards_component(
             &logged_user_uuid,
-            &data,
+            &args,
             conn
         )
     }
@@ -475,7 +475,7 @@ impl ComponentMutation {
     async fn register_component_modification(
         &self,
         cxt: &Context<'_>,
-        data: IptComponentModificationData,
+        args: IptComponentModificationData,
     ) -> ServiceResult<Uuid> {
         use component_modification::service::register::create_component_modification;
 
@@ -485,7 +485,7 @@ impl ComponentMutation {
 
         create_component_modification(
             &logged_user_uuid,
-            &data,
+            &args,
             conn
         )
     }
@@ -494,7 +494,7 @@ impl ComponentMutation {
         &self,
         cxt: &Context<'_>,
         component_modification_uuid: Uuid,
-        data: IptUpdateComponentModificationData,
+        args: IptUpdateComponentModificationData,
     ) -> ServiceResult<i32> {
         use component_modification::service::update::update_modification_data;
 
@@ -506,7 +506,7 @@ impl ComponentMutation {
         update_modification_data(
             &logged_user_uuid,
             &component_modification_uuid,
-            &data,
+            &args,
             conn
         )
     }
@@ -514,7 +514,7 @@ impl ComponentMutation {
     async fn delete_component_modification(
         &self,
         cxt: &Context<'_>,
-        data: DelComponentModificationData,
+        args: DelComponentModificationData,
     ) -> ServiceResult<Uuid> {
         use component_modification::service::delete::del_component_modification;
 
@@ -525,7 +525,7 @@ impl ComponentMutation {
 
         del_component_modification(
             &logged_user_uuid,
-            &data,
+            &args,
             conn
         )
     }
@@ -533,7 +533,7 @@ impl ComponentMutation {
     async fn put_modification_params(
         &self,
         cxt: &Context<'_>,
-        data: IptModificationParamData,
+        args: IptModificationParamData,
     ) -> ServiceResult<i32> {
         use component_modification::param::service::change::put_modification_params;
 
@@ -543,7 +543,7 @@ impl ComponentMutation {
 
         put_modification_params(
             &logged_user_uuid,
-            &data,
+            &args,
             conn
         )
     }
@@ -551,7 +551,7 @@ impl ComponentMutation {
     async fn delete_modification_params(
         &self,
         cxt: &Context<'_>,
-        data: DelModificationParamData,
+        args: DelModificationParamData,
     ) -> ServiceResult<i32> {
         use component_modification::param::service::delete::del_modification_params;
 
@@ -561,7 +561,7 @@ impl ComponentMutation {
 
         del_modification_params(
             &logged_user_uuid,
-            &data,
+            &args,
             conn
         )
     }
@@ -569,7 +569,7 @@ impl ComponentMutation {
     async fn upload_modification_files(
         &self,
         cxt: &Context<'_>,
-        data: IptModificationFileData,
+        args: IptModificationFileData,
     ) -> ServiceResult<Vec<UploadFile>> {
         use component_modification::file::service::add::add_modification_files;
 
@@ -579,7 +579,7 @@ impl ComponentMutation {
 
         add_modification_files(
             &logged_user_uuid,
-            &data,
+            &args,
             conn
         )
     }
@@ -587,7 +587,7 @@ impl ComponentMutation {
     async fn delete_modification_file(
         &self,
         cxt: &Context<'_>,
-        arg: DelModificationFileData,
+        args: DelModificationFileData,
     ) -> ServiceResult<bool> {
         use component_modification::file::service::delete::delete_modification_file;
 
@@ -597,7 +597,7 @@ impl ComponentMutation {
 
         delete_modification_file(
             &logged_user_uuid,
-            &arg,
+            &args,
             conn
         )
     }
@@ -605,7 +605,7 @@ impl ComponentMutation {
     async fn register_modification_fileset(
         &self,
         cxt: &Context<'_>,
-        arg: IptFilesetProgramData,
+        args: IptFilesetProgramData,
     ) -> ServiceResult<Uuid> {
         use fileset_program::service::add::create_modification_fileset;
 
@@ -615,7 +615,7 @@ impl ComponentMutation {
 
         create_modification_fileset(
             &logged_user_uuid,
-            &arg,
+            &args,
             conn
         )
     }
@@ -623,7 +623,7 @@ impl ComponentMutation {
     async fn delete_modification_fileset(
         &self,
         cxt: &Context<'_>,
-        data: DelFilesetProgramData,
+        args: DelFilesetProgramData,
     ) -> ServiceResult<bool> {
         use fileset_program::service::delete::del_modification_fileset;
 
@@ -633,7 +633,7 @@ impl ComponentMutation {
 
         del_modification_fileset(
             &logged_user_uuid,
-            &data,
+            &args,
             conn
         )
     }
@@ -641,7 +641,7 @@ impl ComponentMutation {
     async fn upload_files_to_fileset(
         &self,
         cxt: &Context<'_>,
-        data: IptModificationFileFromFilesetData,
+        args: IptModificationFileFromFilesetData,
     ) -> ServiceResult<Vec<UploadFile>> {
         use component_modification::modification_file_from_fileset::service::add::add_files_of_modification_set;
 
@@ -651,7 +651,7 @@ impl ComponentMutation {
 
         add_files_of_modification_set(
             &logged_user_uuid,
-            &data,
+            &args,
             conn
         )
     }
@@ -659,7 +659,7 @@ impl ComponentMutation {
     async fn delete_files_from_fileset(
         &self,
         cxt: &Context<'_>,
-        data: DelModificationFileFromFilesetData,
+        args: DelModificationFileFromFilesetData,
     ) -> ServiceResult<bool> {
         use component_modification::modification_file_from_fileset::service::delete::del_file_from_fileset;
 
@@ -669,7 +669,7 @@ impl ComponentMutation {
 
         del_file_from_fileset(
             &logged_user_uuid,
-            &data,
+            &args,
             conn
         )
     }

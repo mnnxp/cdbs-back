@@ -6,10 +6,6 @@ use crate::models::user::model::IptUpdateUserData;
 use crate::models::user::certificate::model::{
     IptUserCertificateData, IptUpdateUserCertificateData, DelUserCertificateData
 };
-use crate::models::user::company_fav::model::IptCompanyFavData;
-use crate::models::user::component_fav::model::IptComponentFavData;
-use crate::models::user::standard_fav::model::IptStandardFavData;
-use crate::models::user::user_fav::model::IptUserFavData;
 use crate::models::user::model::{IptUserData, SlimUser};
 use crate::models::relate_ref::file::model::UploadFile;
 
@@ -25,14 +21,14 @@ impl UserMutation {
     async fn register_user(
         &self,
         cxt: &Context<'_>,
-        data: IptUserData,
+        args: IptUserData,
     ) -> ServiceResult<SlimUser> {
         use crate::models::user::service::register::create_user;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
         create_user(
-            &data,
+            &args,
             conn
         )
     }
@@ -59,7 +55,7 @@ impl UserMutation {
     async fn put_update_password(
         &self,
         cxt: &Context<'_>,
-        data: IptUpdatePassword,
+        args: IptUpdatePassword,
     ) -> ServiceResult<bool> {
         use crate::models::user::access::password::change_password;
 
@@ -69,7 +65,7 @@ impl UserMutation {
 
         change_password(
             &logged_user_uuid,
-            &data,
+            &args,
             conn
         )
     }
@@ -95,7 +91,7 @@ impl UserMutation {
     async fn put_user_update(
         &self,
         cxt: &Context<'_>,
-        data: IptUpdateUserData,
+        args: IptUpdateUserData,
     ) -> ServiceResult<i32> {
         use crate::models::user::service::update::update_user;
 
@@ -105,7 +101,7 @@ impl UserMutation {
 
         update_user(
             &logged_user_uuid,
-            &data,
+            &args,
             conn
         )
     }
@@ -150,7 +146,7 @@ impl UserMutation {
     async fn update_user_certificate(
         &self,
         cxt: &Context<'_>,
-        data: IptUpdateUserCertificateData,
+        args: IptUpdateUserCertificateData,
     ) -> ServiceResult<bool> {
         use crate::models::user::certificate::service::update::update_certificate_description;
 
@@ -160,7 +156,7 @@ impl UserMutation {
 
         update_certificate_description(
             &logged_user_uuid,
-            &data,
+            &args,
             conn
         )
     }
@@ -168,7 +164,7 @@ impl UserMutation {
     async fn delete_user_certificate(
         &self,
         cxt: &Context<'_>,
-        data: DelUserCertificateData,
+        args: DelUserCertificateData,
     ) -> ServiceResult<bool> {
         use crate::models::user::certificate::service::delete::del_certificate_description;
 
@@ -178,7 +174,7 @@ impl UserMutation {
 
         del_certificate_description(
             &logged_user_uuid,
-            &data,
+            &args,
             &pool
         ).await
     }
@@ -195,10 +191,8 @@ impl UserMutation {
         let conn: &PooledConnection = &get_conn(cxt)?;
 
         add_company_fav(
-            &IptCompanyFavData {
-                company_uuid,
-                user_uuid: logged_user_uuid
-            },
+            &logged_user_uuid,
+            &company_uuid,
             conn,
         )
     }
@@ -215,10 +209,8 @@ impl UserMutation {
         let conn: &PooledConnection = &get_conn(cxt)?;
 
         delete_company_fav(
-            &IptCompanyFavData {
-                company_uuid,
-                user_uuid: logged_user_uuid
-            },
+            &logged_user_uuid,
+            &company_uuid,
             conn,
         )
     }
@@ -235,10 +227,8 @@ impl UserMutation {
         let conn: &PooledConnection = &get_conn(cxt)?;
 
         add_component_fav(
-            &IptComponentFavData {
-                component_uuid,
-                user_uuid: logged_user_uuid
-            },
+            &logged_user_uuid,
+            &component_uuid,
             conn,
         )
     }
@@ -255,10 +245,8 @@ impl UserMutation {
         let conn: &PooledConnection = &get_conn(cxt)?;
 
         delete_component_fav(
-            &IptComponentFavData {
-                component_uuid,
-                user_uuid: logged_user_uuid
-            },
+            &logged_user_uuid,
+            &component_uuid,
             conn,
         )
     }
@@ -275,10 +263,8 @@ impl UserMutation {
         let conn: &PooledConnection = &get_conn(cxt)?;
 
         add_standard_fav(
-            &IptStandardFavData {
-                standard_uuid,
-                user_uuid: logged_user_uuid
-            },
+            &logged_user_uuid,
+            &standard_uuid,
             conn,
         )
     }
@@ -295,10 +281,8 @@ impl UserMutation {
         let conn: &PooledConnection = &get_conn(cxt)?;
 
         delete_standard_fav(
-            &IptStandardFavData {
-                standard_uuid,
-                user_uuid: logged_user_uuid
-            },
+            &logged_user_uuid,
+            &standard_uuid,
             conn,
         )
     }
@@ -315,10 +299,8 @@ impl UserMutation {
         let conn: &PooledConnection = &get_conn(cxt)?;
 
         add_user_fav(
-            &IptUserFavData {
-                user_favorite_uuid: user_uuid,
-                user_follower_uuid: logged_user_uuid
-            },
+            &logged_user_uuid,
+            &user_uuid,
             conn,
         )
     }
@@ -335,10 +317,8 @@ impl UserMutation {
         let conn: &PooledConnection = &get_conn(cxt)?;
 
         delete_user_fav(
-            &IptUserFavData {
-                user_favorite_uuid: user_uuid,
-                user_follower_uuid: logged_user_uuid
-            },
+            &logged_user_uuid,
+            &user_uuid,
             conn,
         )
     }

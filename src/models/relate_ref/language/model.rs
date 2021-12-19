@@ -84,3 +84,43 @@ impl From<&str> for EngLangName {
         }
     }
 }
+
+#[derive(InputObject, Deserialize, Debug)]
+pub struct IptLanguageArg {
+    pub lang_ids:  Option<Vec<i32>>,
+    pub limit: Option<i32>,
+    pub offset: Option<i32>,
+}
+
+#[derive(Debug)]
+pub struct LanguageArg {
+    pub lang_ids: Vec<i32>,
+    pub limit: i32,
+    pub offset: i32,
+}
+
+impl Default for LanguageArg {
+    fn default() -> Self {
+        Self {
+            lang_ids: Vec::new(),
+            limit: 100,
+            offset: 0,
+        }
+    }
+}
+
+impl From<IptLanguageArg> for LanguageArg {
+    fn from(data: IptLanguageArg) -> Self {
+        let IptLanguageArg {
+            lang_ids,
+            limit,
+            offset,
+        } = data;
+
+        Self {
+            lang_ids: lang_ids.unwrap_or_default(),
+            limit: limit.unwrap_or(100),
+            offset: offset.unwrap_or(0),
+        }
+    }
+}

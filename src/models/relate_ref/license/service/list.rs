@@ -1,17 +1,17 @@
 use crate::errors::{ServiceResult, ServiceError};
-use crate::models::relate_ref::license::model::License;
+use crate::models::relate_ref::license::model::{
+    License, LicenseArg
+};
 use crate::schema::license_ref::dsl as license_ref;
 use diesel::{PgConnection, prelude::*};
 
 pub(crate) fn get_licenses(
-    license_id_search: &[i32],
-    limit: &i32,
-    offset: &i32,
+    args: &LicenseArg,
     conn: &PgConnection,
 ) -> ServiceResult<Vec<License>> {
-    match license_id_search.is_empty()  {
-        true => find_all_license(limit, offset, conn),
-        false => find_license_id(license_id_search, limit, offset, conn)
+    match args.license_ids.is_empty()  {
+        true => find_all_license(&args.limit, &args.offset, conn),
+        false => find_license_id(args, conn)
     }
 }
 
@@ -31,15 +31,13 @@ fn find_all_license(
 }
 
 fn find_license_id(
-    license_id_search: &[i32],
-    limit: &i32,
-    offset: &i32,
+    args: &LicenseArg,
     conn: &PgConnection,
 ) -> ServiceResult<Vec<License>> {
     license_ref::license_ref
-        .filter(license_ref::id.eq_any(license_id_search))
-        .limit(*limit as i64)
-        .offset(*offset as i64)
+        .filter(license_ref::id.eq_any(&args.license_ids))
+        .limit(args.limit as i64)
+        .offset(args.offset as i64)
         .load::<License>(conn)
         .map_err(|err| {
             debug!("Failed get licenses: {:?}", err);

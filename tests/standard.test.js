@@ -321,7 +321,7 @@ describe('company', () => {
       .post('/graphql')
       .send({
         query: `mutation  {
-            registerUser( data: {
+            registerUser(args: {
                 email: "testemail@mail.ru",
                 firstname: "test_firstname",
                 lastname: "test_lastname",
@@ -377,7 +377,7 @@ describe('company', () => {
       .post('/graphql')
       .send({
         query: `mutation  {
-            registerUser( data: {
+            registerUser(args: {
                 email: "testemail@mail.ru",
                 firstname: "test_firstname",
                 lastname: "test_lastname",
@@ -437,7 +437,7 @@ describe('company', () => {
       )
       .send({
         query: `mutation newCompany {
-         registerCompany( data: {
+         registerCompany(args: {
             orgname: "${orgname}",
             shortname: "${shortname}",
             inn: "${inn}",
@@ -477,7 +477,7 @@ describe('company', () => {
       )
       .send({
         query: `mutation newCompany {
-         registerCompany( data: {
+         registerCompany(args: {
             orgname: "${orgname2}",
             shortname: "${shortname}",
             inn: "${inn}",
@@ -508,7 +508,7 @@ describe('company', () => {
       .post('/graphql')
       .send({
         query: `mutation standardQuery {
-          registerStandard(arg: {
+          registerStandard(args: {
             classifier: "${classifierStandard}",
             name: "${nameStandard}",
             description: "${descriptionStandard}",
@@ -539,7 +539,7 @@ describe('company', () => {
       )
       .send({
         query: `mutation standardQuery {
-          registerStandard(arg: {
+          registerStandard(args: {
             parentStandardUuid: "${parentStandardUuid}",
             classifier: "${classifierStandard}",
             name: "${nameStandard}",
@@ -571,7 +571,7 @@ describe('company', () => {
       )
       .send({
         query: `mutation standardQuery {
-          registerStandard(arg: {
+          registerStandard(args: {
             classifier: "${classifierStandard}",
             name: "${nameStandard}",
             description: "${descriptionStandard}",
@@ -605,7 +605,7 @@ describe('company', () => {
       )
       .send({
         query: `mutation standardQuery {
-          registerStandard(arg: {
+          registerStandard(args: {
             classifier: "${classifierStandard}",
             name: "${nameStandard}",
             description: "${descriptionStandard}",
@@ -637,7 +637,7 @@ describe('company', () => {
       )
       .send({
         query: `mutation standardQuery {
-          registerStandard(arg: {
+          registerStandard(args: {
             parentStandardUuid: "${standardUuidFirst}",
             classifier: "${classifierStandard}",
             name: "${nameStandard}",
@@ -671,7 +671,7 @@ describe('company', () => {
       )
       .send({
         query: `mutation standardQuery {
-          registerStandard(arg: {
+          registerStandard(args: {
             parentStandardUuid: "${standardUuidFirst}",
             classifier: "${classifierStandard}",
             name: "${nameStandard}",
@@ -703,7 +703,7 @@ describe('company', () => {
       )
       .send({
         query: `mutation standardQuery {
-          registerStandard(arg: {
+          registerStandard(args: {
             parentStandardUuid: "${standardUuidFirst}",
             classifier: "${classifierStandard}",
             name: "${nameStandard}",
@@ -738,7 +738,7 @@ describe('company', () => {
         query: `mutation {
           putStandardUpdate(
             standardUuid: "${standardUuidSecond}"
-            data: {
+            args: {
               classifier: "BES-test-2021",
               name: "name test for upda",
               description: "description test for upda",
@@ -771,7 +771,7 @@ describe('company', () => {
         query: `mutation {
           putStandardUpdate(
             standardUuid: "${standardUuidSecond}"
-            data: {
+            args: {
               classifier: "${classifierStandard}",
               name: "${nameStandard}",
               description: "${descriptionStandard}",
@@ -803,7 +803,7 @@ describe('company', () => {
         query: `mutation {
           putStandardUpdate(
             standardUuid: "${standardUuidSecond}"
-            data: {
+            args: {
               classifier: "${classifierStandard}",
               name: "${nameStandard}",
               description: "${descriptionStandard}",
@@ -835,7 +835,7 @@ describe('company', () => {
         query: `mutation {
           putStandardUpdate(
             standardUuid: "${standardUuidSecond}"
-            data: {
+            args: {
               classifier: "${classifierStandard}",
               name: "${nameStandard}",
               description: "${descriptionStandard}",
@@ -867,7 +867,7 @@ describe('company', () => {
         query: `mutation {
           putStandardUpdate(
             standardUuid: "${standardUuidSecond}"
-            data: {
+            args: {
               classifier: "${classifierStandard}",
               name: "${nameStandard}",
               description: "${descriptionStandard}",
@@ -895,7 +895,7 @@ describe('company', () => {
       .post('/graphql')
       .send({
         query: `mutation {
-          uploadStandardFiles(data: {
+          uploadStandardFiles(args: {
             standardUuid: "${standardUuidSecond}"
             filenames: "${badFilenameStandardFileTest}"
           }) {
@@ -924,7 +924,7 @@ describe('company', () => {
       )
       .send({
         query: `mutation {
-          uploadStandardFiles(data: {
+          uploadStandardFiles(args: {
             standardUuid: "${standardUuidSecond}"
             filenames: [
               "${badFilenameStandardFileTest}"
@@ -963,7 +963,7 @@ describe('company', () => {
       )
       .send({
         query: `mutation {
-          uploadStandardFiles(data: {
+          uploadStandardFiles(args: {
             standardUuid: "${standardUuidSecond}"
             filenames: "${badFilenameStandardFileTest}"
           }) {
@@ -987,7 +987,7 @@ describe('company', () => {
       .post('/graphql')
       .send({
         query: `query {
-          standardFiles(arg: {
+          standardFiles(args: {
             standardUuid: "${standardUuidSecond}"
           }) {
             uuid
@@ -1016,7 +1016,7 @@ describe('company', () => {
       )
       .send({
         query: `query {
-          standardFiles(arg: {
+          standardFiles(args: {
             standardUuid: "${standardUuidSecond}"
           }) {
             uuid
@@ -1047,7 +1047,7 @@ describe('company', () => {
       )
       .send({
         query: `query {
-          standardFiles(arg: {
+          standardFiles(args: {
             standardUuid: "${standardUuidSecond}"
             filesUuids: "${fileStandardFileTestUuid2}"
           }) {
@@ -1078,7 +1078,7 @@ describe('company', () => {
       )
       .send({
         query: `query {
-          standardFiles(arg: {
+          standardFiles(args: {
             standardUuid: "${standardUuidSecond}"
           }) {
             uuid
@@ -1104,7 +1104,7 @@ describe('company', () => {
       .post('/graphql')
       .send({
         query: `mutation {
-          deleteStandardFile(arg: {
+          deleteStandardFile(args: {
             standardUuid: "${standardUuidSecond}"
             fileUuid: "${fileStandardFileTestUuid}"
           })
@@ -1129,7 +1129,7 @@ describe('company', () => {
       )
       .send({
         query: `mutation {
-          deleteStandardFile(arg: {
+          deleteStandardFile(args: {
             standardUuid: "${standardUuidSecond}"
             fileUuid: "${fileStandardFileTestUuid}"
           })
@@ -1154,7 +1154,7 @@ describe('company', () => {
       )
       .send({
         query: `mutation {
-          deleteStandardFile(arg: {
+          deleteStandardFile(args: {
             standardUuid: "${standardUuidSecond}"
             fileUuid: "${fileStandardFileTestUuid}"
           })
@@ -1179,7 +1179,7 @@ describe('company', () => {
       )
       .send({
         query: `mutation {
-          deleteStandardFile(arg: {
+          deleteStandardFile(args: {
             standardUuid: "${standardUuidSecond}"
             fileUuid: "${fileStandardFileTestUuid}"
           })
@@ -1229,7 +1229,7 @@ describe('company', () => {
       .post('/graphql')
       .send({
         query: `mutation  {
-          addStandardSpecs(data: {
+          addStandardSpecs(args: {
             standardUuid: "${standardUuidFirst}"
             specIds: [${specIdsOk}]
           })
@@ -1254,7 +1254,7 @@ describe('company', () => {
       )
       .send({
         query: `mutation  {
-          addStandardSpecs(data: {
+          addStandardSpecs(args: {
             standardUuid: "${standardUuidFirst}"
             specIds: [${specIdsOk}]
           })
@@ -1278,7 +1278,7 @@ describe('company', () => {
       )
       .send({
         query: `mutation  {
-          addStandardSpecs(data: {
+          addStandardSpecs(args: {
             standardUuid: "${standardUuidFirst}"
             specIds: [${specIdsDup}]
           })
@@ -1302,7 +1302,7 @@ describe('company', () => {
       )
       .send({
         query: `mutation  {
-          addStandardSpecs(data: {
+          addStandardSpecs(args: {
             standardUuid: "${standardUuidFirst}"
             specIds: [${specIdsOk}]
           })
@@ -1327,7 +1327,7 @@ describe('company', () => {
       )
       .send({
         query: `mutation  {
-          addStandardSpecs(data: {
+          addStandardSpecs(args: {
             standardUuid: "${standardUuidFirst}"
             specIds: [${idErr}]
           })
@@ -1352,7 +1352,7 @@ describe('company', () => {
       )
       .send({
         query: `mutation  {
-          addStandardSpecs(data: {
+          addStandardSpecs(args: {
             standardUuid: "${standardUuidFirst}"
             specIds: [${idErr}]
           })
@@ -1407,7 +1407,7 @@ describe('company', () => {
       .post('/graphql')
       .send({
         query: `query  {
-          standardSpecs(arg: {
+          standardSpecs(args: {
             standardUuid: "${standardUuidSecond}"
           }){
             specId
@@ -1435,7 +1435,7 @@ describe('company', () => {
       )
       .send({
         query: `query  {
-          standardSpecs(arg: {
+          standardSpecs(args: {
             standardUuid: "${standardUuidFirst}"
           }){
             specId
@@ -1472,7 +1472,7 @@ describe('company', () => {
       )
       .send({
         query: `query  {
-          standardSpecs(arg: {
+          standardSpecs(args: {
             standardUuid: "${standardUuidFirst}"
             limit: 1
             offset: 3
@@ -1504,7 +1504,7 @@ describe('company', () => {
       )
       .send({
         query: `query  {
-          standardSpecs(arg: {
+          standardSpecs(args: {
             standardUuid: "${standardUuidFirst}"
             limit: 50
             offset: 500
@@ -1531,7 +1531,7 @@ describe('company', () => {
       .post('/graphql')
       .send({
         query: `mutation  {
-          deleteStandardSpecs(data: {
+          deleteStandardSpecs(args: {
             standardUuid: "${standardUuidFirst}"
             specIds: [${specIdsDel}]
           })
@@ -1556,7 +1556,7 @@ describe('company', () => {
       )
       .send({
         query: `mutation  {
-          deleteStandardSpecs(data: {
+          deleteStandardSpecs(args: {
             standardUuid: "${standardUuidFirst}"
             specIds: [${specIdsDel}]
           })
@@ -1580,7 +1580,7 @@ describe('company', () => {
       )
       .send({
         query: `mutation  {
-          deleteStandardSpecs(data: {
+          deleteStandardSpecs(args: {
             standardUuid: "${standardUuidFirst}"
             specIds: [${specIdsDel}]
           })
@@ -1604,7 +1604,7 @@ describe('company', () => {
       )
       .send({
         query: `mutation  {
-          deleteStandardSpecs(data: {
+          deleteStandardSpecs(args: {
             standardUuid: "${standardUuidFirst}"
             specIds: [${idErr}]
           })
@@ -1629,7 +1629,7 @@ describe('company', () => {
       )
       .send({
         query: `mutation  {
-          deleteStandardSpecs(data: {
+          deleteStandardSpecs(args: {
             standardUuid: "${standardUuidFirst}"
             specIds: [${idErr}]
           })
@@ -1681,7 +1681,7 @@ describe('company', () => {
       .post('/graphql')
       .send({
         query: `mutation  {
-          addStandardKeywords(data: {
+          addStandardKeywords(args: {
             standardUuid: "${standardUuidSecond}"
             keywordIds: [${keywordIdsOk}]
           })
@@ -1706,7 +1706,7 @@ describe('company', () => {
       )
       .send({
         query: `mutation  {
-          addStandardKeywords(data: {
+          addStandardKeywords(args: {
             standardUuid: "${standardUuidFirst}"
             keywordIds: [${keywordIdsOk}]
           })
@@ -1730,7 +1730,7 @@ describe('company', () => {
       )
       .send({
         query: `mutation  {
-          addStandardKeywords(data: {
+          addStandardKeywords(args: {
             standardUuid: "${standardUuidFirst}"
             keywordIds: [${keywordIdsDup}]
           })
@@ -1754,7 +1754,7 @@ describe('company', () => {
       )
       .send({
         query: `mutation  {
-          addStandardKeywords(data: {
+          addStandardKeywords(args: {
             standardUuid: "${standardUuidFirst}"
             keywordIds: [${keywordIdsOk}]
           })
@@ -1778,7 +1778,7 @@ describe('company', () => {
       )
       .send({
         query: `mutation  {
-          addStandardKeywords(data: {
+          addStandardKeywords(args: {
             standardUuid: "${standardUuidFirst}"
             keywordIds: [${idErr}]
           })
@@ -1803,7 +1803,7 @@ describe('company', () => {
       )
       .send({
         query: `mutation  {
-          addStandardKeywords(data: {
+          addStandardKeywords(args: {
             standardUuid: "${standardUuidFirst}"
             keywordIds: [${idErr}]
           })
@@ -1825,7 +1825,7 @@ describe('company', () => {
       .post('/graphql')
       .send({
         query: `mutation  {
-          addStandardKeywordsByNames(data: {
+          addStandardKeywordsByNames(args: {
             standardUuid: "${standardUuidSecond}"
             keywords: ["asd2","asd3","asd4"]
           })
@@ -1850,7 +1850,7 @@ describe('company', () => {
       )
       .send({
         query: `mutation  {
-          addStandardKeywordsByNames(data: {
+          addStandardKeywordsByNames(args: {
             standardUuid: "${standardUuidFirst}"
             keywords: ["asd2","asd3","asd4"]
           })
@@ -1874,7 +1874,7 @@ describe('company', () => {
       )
       .send({
         query: `mutation  {
-          addStandardKeywordsByNames(data: {
+          addStandardKeywordsByNames(args: {
             standardUuid: "${standardUuidFirst}"
             keywords: ["asd2","asd3","asd4","asd5","asd6"]
           })
@@ -1898,7 +1898,7 @@ describe('company', () => {
       )
       .send({
         query: `mutation  {
-          addStandardKeywordsByNames(data: {
+          addStandardKeywordsByNames(args: {
             standardUuid: "${standardUuidFirst}"
             keywords: ["asd2","asd3","asd4"]
           })
@@ -1922,7 +1922,7 @@ describe('company', () => {
       )
       .send({
         query: `mutation  {
-          addStandardKeywordsByNames(data: {
+          addStandardKeywordsByNames(args: {
             standardUuid: "${standardUuidFirst}"
             keywords: ["asd11","asd12345678","asd12"]
           })
@@ -1947,7 +1947,7 @@ describe('company', () => {
       )
       .send({
         query: `mutation  {
-          addStandardKeywordsByNames(data: {
+          addStandardKeywordsByNames(args: {
             standardUuid: "${standardUuidFirst}"
             keywords: ["asd2","asd3","asd4"]
           })
@@ -1999,7 +1999,7 @@ describe('company', () => {
       .post('/graphql')
       .send({
         query: `query  {
-          standardKeywords(arg: {
+          standardKeywords(args: {
             standardUuid: "${standardUuidSecond}"
           }){
             id
@@ -2026,7 +2026,7 @@ describe('company', () => {
       )
       .send({
         query: `query  {
-          standardKeywords(arg: {
+          standardKeywords(args: {
             standardUuid: "${standardUuidFirst}"
           }){
             id
@@ -2061,7 +2061,7 @@ describe('company', () => {
       )
       .send({
         query: `query  {
-          standardKeywords(arg: {
+          standardKeywords(args: {
             standardUuid: "${standardUuidFirst}"
             limit: 2
             offset: 3
@@ -2094,7 +2094,7 @@ describe('company', () => {
       )
       .send({
         query: `query  {
-          standardKeywords(arg: {
+          standardKeywords(args: {
             standardUuid: "${standardUuidFirst}"
             limit: 5
             offset: 500
@@ -2120,7 +2120,7 @@ describe('company', () => {
       .post('/graphql')
       .send({
         query: `mutation  {
-          deleteStandardKeywords(data: {
+          deleteStandardKeywords(args: {
             standardUuid: "${standardUuidFirst}"
             keywordIds: [${keywordIdsOk}]
           })
@@ -2145,7 +2145,7 @@ describe('company', () => {
       )
       .send({
         query: `mutation  {
-          deleteStandardKeywords(data: {
+          deleteStandardKeywords(args: {
             standardUuid: "${standardUuidFirst}"
             keywordIds: [${keywordIdsOk}]
           })
@@ -2169,7 +2169,7 @@ describe('company', () => {
       )
       .send({
         query: `mutation  {
-          deleteStandardKeywords(data: {
+          deleteStandardKeywords(args: {
             standardUuid: "${standardUuidFirst}"
             keywordIds: [${idErr}]
           })
@@ -2194,7 +2194,7 @@ describe('company', () => {
       )
       .send({
         query: `mutation  {
-          deleteStandardKeywords(data: {
+          deleteStandardKeywords(args: {
             standardUuid: "${standardUuidFirst}"
             keywordIds: [${idErr}]
           })
@@ -2216,7 +2216,7 @@ describe('company', () => {
       .post('/graphql')
       .send({
         query: `query selectStandardQuery{
-          standards (arguments: {
+          standards (args: {
             standardsUuids: "${standardUuidSecond}"
           }) {
             ${standardsListQuery}
@@ -2264,7 +2264,7 @@ describe('company', () => {
       )
       .send({
         query: `query selectStandardQuery{
-          standards (arguments: {
+          standards (args: {
             standardsUuids: ["${standardUuidFirst}"]
           }) {
             ${standardsListQuery}
@@ -2290,7 +2290,7 @@ describe('company', () => {
       )
       .send({
         query: `query selectStandardQuery{
-          standards (arguments: {
+          standards (args: {
             standardsUuids: "${standardUuidSecond}"
           }) {
             ${standardsListQuery}
@@ -2315,7 +2315,7 @@ describe('company', () => {
       )
       .send({
         query: `query selectComponentQuery{
-          standards (arguments: {
+          standards (args: {
             companyUuid: "${companyUuidNoSupplier}"
             favorite:  true
           }) {
@@ -2369,7 +2369,7 @@ describe('company', () => {
       )
       .send({
         query: `query selectStandardQuery{
-          standards (arguments: {
+          standards (args: {
             companyUuid: "${companyUuidSupplier}"
           }){
             ${standardsListQuery}
@@ -2397,7 +2397,7 @@ describe('company', () => {
       )
       .send({
         query: `query selectStandardQuery{
-          standards (arguments: {
+          standards (args: {
             companyUuid: "${companyUuidNoSupplier}"
           }){
             ${standardsListQuery}
@@ -2425,7 +2425,7 @@ describe('company', () => {
       .send({
         query: `mutation  {
             setCompanyAccessStandard(
-              data: {
+              args: {
                 standardUuid: "${standardUuidFirst}"
                 companyUuid: "${companyUuidNoSupplier}"
                 typeAccessId: ${typeAccessId2}
@@ -2454,7 +2454,7 @@ describe('company', () => {
         query: `mutation  {
             putStandardUpdate(
               standardUuid: "${standardUuidFirst}"
-              data: {
+              args: {
                 classifier: "${classifierStandard}",
                 name: "${nameStandard}",
                 description: "${descriptionStandard}",
@@ -2487,7 +2487,7 @@ describe('company', () => {
       .send({
         query: `mutation  {
             setCompanyAccessStandard(
-              data: {
+              args: {
                 standardUuid: "${standardUuidFirst}"
                 companyUuid: "${companyUuidNoSupplier}"
                 typeAccessId: ${typeAccessId1}
@@ -2514,7 +2514,7 @@ describe('company', () => {
       )
       .send({
         query: `mutation  {
-            registerCompanyRole( data: {
+            registerCompanyRole(args: {
               companyUuid: "${companyUuidNoSupplier}"
               langId: ${langId}
               name: "${nameRole}"
@@ -2540,7 +2540,7 @@ describe('company', () => {
       )
       .send({
         query: `mutation  {
-            addAccessRole( data: {
+            addAccessRole(args: {
               roleId: ${newRoleId}
               typesAccessIds: [${typesAccessIds23}]
             })
@@ -2565,7 +2565,7 @@ describe('company', () => {
       )
       .send({
         query: `mutation  {
-            addCompanyMember(data: {
+            addCompanyMember(args: {
                 companyUuid: "${companyUuidNoSupplier}"
                 userUuid: "${authorizationUserSecond}"
                 roleId: ${newRoleId}
@@ -2626,7 +2626,7 @@ describe('company', () => {
       )
       .send({
         query: `mutation  {
-            addAccessRole( data: {
+            addAccessRole(args: {
               roleId: ${newRoleId}
               typesAccessIds: ${typeAccessId1}
             })
@@ -2690,7 +2690,7 @@ describe('company', () => {
         query: `mutation  {
             putStandardUpdate(
               standardUuid: "${standardUuidFirst}"
-              data: {
+              args: {
                 classifier: "${classifierStandard}",
                 name: "${nameStandard}",
                 description: "${descriptionStandard}",
@@ -2725,7 +2725,7 @@ describe('company', () => {
         query: `mutation  {
             putStandardUpdate(
               standardUuid: "${standardUuidFirst}"
-              data: {
+              args: {
                 classifier: "${classifierStandard2}",
                 name: "${nameStandard2}",
                 description: "${descriptionStandard2}",
@@ -2759,7 +2759,7 @@ describe('company', () => {
       .send({
         query: `mutation  {
             deleteCompanyAccessStandard(
-              data: {
+              args: {
                 standardUuid: "${standardUuidFirst}"
                 companyUuid: "${companyUuidNoSupplier}"
               }
@@ -2786,7 +2786,7 @@ describe('company', () => {
       .send({
         query: `mutation  {
             deleteCompanyAccessStandard(
-              data: {
+              args: {
                 standardUuid: "${standardUuidFirst}"
                 companyUuid: "${companyUuidNoSupplier}"
               }
@@ -2815,7 +2815,7 @@ describe('company', () => {
         query: `mutation  {
             putStandardUpdate(
               standardUuid: "${standardUuidFirst}"
-              data: {
+              args: {
                 classifier: "${classifierStandard}",
                 name: "${nameStandard}",
               }
@@ -2843,7 +2843,7 @@ describe('company', () => {
         query: `mutation  {
             putStandardUpdate(
               standardUuid: "${standardUuidFirst}"
-              data: {
+              args: {
                 classifier: "${classifierStandard}",
                 name: "${nameStandard}",
                 description: "${descriptionStandard}",
@@ -2879,7 +2879,7 @@ describe('company', () => {
       .send({
         query: `mutation  {
             setUserAccessStandard(
-              data: {
+              args: {
                 standardUuid: "${standardUuidFirst}"
                 userUuid: "${authorizationUserSecond}"
                 typeAccessId: ${typeAccessId2}
@@ -2906,7 +2906,7 @@ describe('company', () => {
       )
       .send({
         query: `query selectStandardQuery{
-          standards (arguments: {
+          standards (args: {
             standardsUuids: "${uuidFake}"
           }) {
             ${standardsListQuery}
@@ -2932,7 +2932,7 @@ describe('company', () => {
       )
       .send({
         query: `query selectStandardQuery{
-          standards (arguments: {
+          standards (args: {
             standardsUuids: "${standardUuidFirst}"
           }) {
             ${standardsListQuery}
@@ -2961,7 +2961,7 @@ describe('company', () => {
         query: `mutation  {
             putStandardUpdate(
               standardUuid: "${standardUuidFirst}"
-              data: {
+              args: {
                 classifier: "${classifierStandard}",
                 name: "${nameStandard}",
                 description: "${descriptionStandard}",
@@ -2995,7 +2995,7 @@ describe('company', () => {
       .send({
         query: `mutation  {
             setUserAccessStandard(
-              data: {
+              args: {
                 standardUuid: "${standardUuidFirst}"
                 userUuid: "${authorizationUserSecond}"
                 typeAccessId: ${typeAccessId1}
@@ -3096,7 +3096,7 @@ describe('company', () => {
         query: `mutation  {
             putStandardUpdate(
               standardUuid: "${standardUuidFirst}"
-              data: {
+              args: {
                 classifier: "${classifierStandard2}",
                 name: "${nameStandard2}",
                 description: "${descriptionStandard2}",
@@ -3131,7 +3131,7 @@ describe('company', () => {
         query: `mutation  {
             putStandardUpdate(
               standardUuid: "${standardUuidFirst}"
-              data: {
+              args: {
                 classifier: "${classifierStandard}",
                 name: "${nameStandard2}",
                 description: "${descriptionStandard}",
@@ -3182,7 +3182,7 @@ describe('company', () => {
       )
       .send({
         query: `query {
-          standards (arguments: {
+          standards (args: {
             favorite: true
           }) {
             ${standardsListQuery}
@@ -3228,7 +3228,7 @@ describe('company', () => {
       )
       .send({
         query: `query {
-          standards (arguments: {
+          standards (args: {
             favorite: true
           }) {
             ${standardsListQuery}
@@ -3256,7 +3256,7 @@ describe('company', () => {
       .send({
         query: `mutation  {
             deleteUserAccessStandard(
-              data: {
+              args: {
                 standardUuid: "${standardUuidFirst}"
                 userUuid: "${authorizationUserSecond}"
               }
@@ -3283,7 +3283,7 @@ describe('company', () => {
       .send({
         query: `mutation  {
             deleteUserAccessStandard(
-              data: {
+              args: {
                 standardUuid: "${standardUuidFirst}"
                 userUuid: "${authorizationUserSecond}"
               }
@@ -3312,7 +3312,7 @@ describe('company', () => {
         query: `mutation  {
             putStandardUpdate(
               standardUuid: "${standardUuidFirst}"
-              data: {
+              args: {
                 classifier: "${classifierStandard}",
                 name: "${nameStandard}",
                 description: "${descriptionStandard}",
@@ -3346,7 +3346,7 @@ describe('company', () => {
       )
       .send({
         query: `mutation {
-            changeStandardAccess( data: {
+            changeStandardAccess(args: {
               standardUuid: "${standardUuidSecond}"
               newTypeAccessId: ${typeAccessId2}
             })
@@ -3371,7 +3371,7 @@ describe('company', () => {
       )
       .send({
         query: `mutation {
-            changeStandardAccess( data: {
+            changeStandardAccess(args: {
               standardUuid: "${standardUuidSecond}"
               newTypeAccessId: ${typeAccessId2}
             })
@@ -3429,7 +3429,7 @@ describe('company', () => {
       )
       .send({
         query: `mutation {
-            transferStandardOwnership( data: {
+            transferStandardOwnership(args: {
               standardUuid: "${standardUuidSecond}"
               newOwnerUserUuid: "${authorizationUserFirst}"
             })
@@ -3454,7 +3454,7 @@ describe('company', () => {
       )
       .send({
         query: `mutation {
-            transferStandardOwnership( data: {
+            transferStandardOwnership(args: {
               standardUuid: "${standardUuidSecond}"
               newOwnerUserUuid: "${authorizationUserFirst}"
             })

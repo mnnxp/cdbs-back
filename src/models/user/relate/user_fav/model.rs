@@ -32,17 +32,16 @@ pub struct InsertableUserFav {
     pub created_at: NaiveDateTime,
 }
 
-impl From<&IptUserFavData> for InsertableUserFav {
-    fn from(ipt_data: &IptUserFavData) -> Self {
+impl From<IptUserFavData> for InsertableUserFav {
+    fn from(ipt_data: IptUserFavData) -> Self {
         let IptUserFavData {
             user_favorite_uuid,
             user_follower_uuid,
-            ..
         } = ipt_data;
 
         Self {
-            user_favorite_uuid: *user_favorite_uuid,
-            user_follower_uuid: *user_follower_uuid,
+            user_favorite_uuid,
+            user_follower_uuid,
             is_enabled: true,
             created_at: chrono::Local::now().naive_local(),
         }

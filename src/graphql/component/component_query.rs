@@ -31,15 +31,15 @@ impl ComponentQuery {
     async fn components(
         &self,
         cxt: &Context<'_>,
-        arguments: Option<IptComponentsArg>
+        args: Option<IptComponentsArg>
     ) -> ServiceResult<Vec<ShowComponentShort>> {
         use crate::models::component::service::list::get_components;
 
         // authorization check
         let logged_user_uuid: Uuid = get_logged_user_uuid(cxt, true)?;
 
-        let arguments: ComponentsArg = match arguments {
-            Some(args) => ComponentsArg::from(args),
+        let arguments: ComponentsArg = match args {
+            Some(x) => ComponentsArg::from(x),
             None => ComponentsArg::default(),
         };
 
@@ -115,18 +115,18 @@ impl ComponentQuery {
     async fn component_files(
         &self,
         cxt: &Context<'_>,
-        arg: IptComponentFilesArg,
+        args: IptComponentFilesArg,
     ) -> ServiceResult<Vec<DownloadFile>> {
         use crate::models::component::file::service::list::get_component_files;
 
         // authorization check
         let logged_user_uuid: Uuid = get_logged_user_uuid(cxt, true)?;
-        let arg: ComponentFilesArg = arg.into();
+        let arguments: ComponentFilesArg = args.into();
         let conn: &PooledConnection = &get_conn(cxt)?;
 
         get_component_files(
             &logged_user_uuid,
-            &arg,
+            &arguments,
             conn
         )
     }
@@ -134,20 +134,20 @@ impl ComponentQuery {
     async fn component_specs(
         &self,
         cxt: &Context<'_>,
-        arg: IptComponentSpecsArg,
+        args: IptComponentSpecsArg,
     ) -> ServiceResult<Vec<SpecTranslateList>> {
         use crate::models::component::spec::service::list::get_component_specs;
 
         // authorization check
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
-        let arg: ComponentSpecsArg = arg.into();
+        let arguments: ComponentSpecsArg = args.into();
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
         get_component_specs(
             &logged_user_uuid,
-            &arg,
+            &arguments,
             &get_set_language(cxt),
             conn
         )
@@ -175,17 +175,17 @@ impl ComponentQuery {
     async fn component_modification_filesets(
         &self,
         cxt: &Context<'_>,
-        arg: IptFilesetProgramArg,
+        args: IptFilesetProgramArg,
     ) -> ServiceResult<Vec<FilesetProgramRelatedData>> {
         use component_modification::fileset_for_program::service::list::get_modification_filesets;
 
         let logged_user_uuid: Uuid = get_logged_user_uuid(cxt, true)?;
-        let arg: FilesetProgramArg = FilesetProgramArg::from(arg);
+        let arguments = FilesetProgramArg::from(args);
         let conn: &PooledConnection = &get_conn(cxt)?;
 
         get_modification_filesets(
             &logged_user_uuid,
-            &arg,
+            &arguments,
             conn
         )
     }
@@ -193,12 +193,12 @@ impl ComponentQuery {
     async fn component_modification_files_of_fileset(
         &self,
         cxt: &Context<'_>,
-        arg: IptFileOfFilesetArg,
+        args: IptFileOfFilesetArg,
     ) -> ServiceResult<Vec<ShowFileRelatedData>> {
         use component_modification::modification_file_from_fileset::service::list::get_files_of_fileset;
 
         let logged_user_uuid: Uuid = get_logged_user_uuid(cxt, true)?;
-        let arguments: FileOfFilesetArg = FileOfFilesetArg::from(arg);
+        let arguments: FileOfFilesetArg = FileOfFilesetArg::from(args);
         let conn: &PooledConnection = &get_conn(cxt)?;
 
         get_files_of_fileset(
@@ -211,12 +211,12 @@ impl ComponentQuery {
     async fn component_modification_fileset_files(
         &self,
         cxt: &Context<'_>,
-        arg: IptFileOfFilesetArg,
+        args: IptFileOfFilesetArg,
     ) -> ServiceResult<Vec<DownloadFile>> {
         use component_modification::modification_file_from_fileset::service::list::get_fileset_files;
 
         let logged_user_uuid: Uuid = get_logged_user_uuid(cxt, true)?;
-        let arguments: FileOfFilesetArg = FileOfFilesetArg::from(arg);
+        let arguments: FileOfFilesetArg = FileOfFilesetArg::from(args);
         let conn: &PooledConnection = &get_conn(cxt)?;
 
         get_fileset_files(

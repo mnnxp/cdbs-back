@@ -1,6 +1,7 @@
 use crate::errors::{ServiceResult, ServiceError};
 use crate::models::user::model::{
-    SlimUser, ShowUserShort, UserAndRelatedData, ShowUserAndRelatedData, UsersArg,
+    SlimUser, ShowUserShort, UserAndRelatedData,
+    ShowUserAndRelatedData, UsersArg, IptGetUserArg
 };
 use diesel::PgConnection;
 use uuid::Uuid;
@@ -8,28 +9,23 @@ use uuid::Uuid;
 /// Gets user data by uuid or username
 pub(crate) fn get_user_data (
     logged_user_uuid: &Uuid,
-    user_uuid: &Option<Uuid>,
-    username: &Option<String>,
+    args: &IptGetUserArg,
     set_lang_id: &i32,
     conn: &PgConnection,
 ) -> ServiceResult<ShowUserAndRelatedData> {
-    match (user_uuid, username) {
-        (Some(ref uu), _) => {
-            ShowUserAndRelatedData::get_user_by_uuid(
-                logged_user_uuid,
-                uu,
-                set_lang_id,
-                conn,
-            )
-        },
-        (_, Some(ref un)) => {
-            find_user_by_username(
-                logged_user_uuid,
-                un,
-                set_lang_id,
-                conn,
-            )
-        },
+    match (&args.user_uuid, &args.username) {
+        (Some(user_uuid), _) => ShowUserAndRelatedData::get_user_by_uuid(
+            logged_user_uuid,
+            user_uuid,
+            set_lang_id,
+            conn,
+        ),
+        (_, Some(username)) => find_user_by_username(
+            logged_user_uuid,
+            username,
+            set_lang_id,
+            conn,
+        ),
         _ => {
             Err(ServiceError::BadRequest(
                 "Need set userUuid or username".to_string()

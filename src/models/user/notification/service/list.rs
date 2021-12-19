@@ -1,6 +1,7 @@
 use crate::errors::{ServiceResult, ServiceError};
 use crate::models::user::notification::model::{
-    Notification, NotificationToUser, ShowNotification, DegreeImportanceTranslateList,
+    Notification, NotificationToUser, ShowNotification,
+    DegreeImportanceTranslateList, NotificationArg,
 };
 use crate::schema::notification_ref::dsl as notification_ref;
 use crate::schema::notification_to_user::dsl as notification_to_user;
@@ -10,43 +11,26 @@ use uuid::Uuid;
 
 pub(crate) fn get_notifications(
     logged_user_uuid: &Uuid,
-    target_ids: &[i32],
-    limit: &i64,
-    offset: &i64,
+    args: &NotificationArg,
     conn: &PgConnection,
 ) -> ServiceResult<Vec<ShowNotification>> {
-    match target_ids.is_empty() {
-        true => {
-            get_all(
-                logged_user_uuid,
-                limit,
-                offset,
-                conn
-            )
-        },
-        false => {
-            get_by_ids(
-                logged_user_uuid,
-                target_ids,
-                limit,
-                offset,
-                conn
-            )
-        },
+    match args.notification_ids.is_empty() {
+        true => get_all( logged_user_uuid, &args.limit, &args.offset, conn),
+        false => get_by_ids(logged_user_uuid, args, conn),
     }
 }
 
 /// Gets all notification for target user
 fn get_all(
     logged_user_uuid: &Uuid,
-    limit: &i64,
-    offset: &i64,
+    limit: &i32,
+    offset: &i32,
     conn: &PgConnection,
 ) -> ServiceResult<Vec<ShowNotification>> {
     let get_list = notification_to_user::notification_to_user
         .filter(notification_to_user::user_uuid.eq(logged_user_uuid))
-        .limit(*limit)
-        .offset(*offset)
+        .limit(*limit as i64)
+        .offset(*offset as i64)
         .load::<NotificationToUser>(conn)
         .map_err(|err| {
             debug!("Failed get notifications: {:?}", err);
@@ -76,16 +60,14 @@ fn get_all(
 /// Gets notification for target user by ids list
 fn get_by_ids(
     logged_user_uuid: &Uuid,
-    target_ids: &[i32],
-    limit: &i64,
-    offset: &i64,
+    args: &NotificationArg,
     conn: &PgConnection,
 ) -> ServiceResult<Vec<ShowNotification>> {
     let get_list = notification_to_user::notification_to_user
         .filter(notification_to_user::user_uuid.eq(logged_user_uuid)
-        .and(notification_to_user::notification_id.eq_any(target_ids)))
-        .limit(*limit)
-        .offset(*offset)
+        .and(notification_to_user::notification_id.eq_any(&args.notification_ids)))
+        .limit(args.limit as i64)
+        .offset(args.offset as i64)
         .load::<NotificationToUser>(conn)
         .map_err(|err| {
             debug!("Failed get notifications: {:?}", err);

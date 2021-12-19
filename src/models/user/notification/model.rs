@@ -120,3 +120,43 @@ pub struct DegreeImportanceTranslateList {
     pub lang_id: i32,
     pub degree: String,
 }
+
+#[derive(InputObject, Deserialize, Debug)]
+pub struct IptNotificationArg {
+    pub notification_ids:  Option<Vec<i32>>,
+    pub limit: Option<i32>,
+    pub offset: Option<i32>,
+}
+
+#[derive(Debug)]
+pub struct NotificationArg {
+    pub notification_ids: Vec<i32>,
+    pub limit: i32,
+    pub offset: i32,
+}
+
+impl Default for NotificationArg {
+    fn default() -> Self {
+        Self {
+            notification_ids: Vec::new(),
+            limit: 100,
+            offset: 0,
+        }
+    }
+}
+
+impl From<IptNotificationArg> for NotificationArg {
+    fn from(data: IptNotificationArg) -> Self {
+        let IptNotificationArg {
+            notification_ids,
+            limit,
+            offset,
+        } = data;
+
+        Self {
+            notification_ids: notification_ids.unwrap_or_default(),
+            limit: limit.unwrap_or(100),
+            offset: offset.unwrap_or(0),
+        }
+    }
+}

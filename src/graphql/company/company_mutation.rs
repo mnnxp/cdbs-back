@@ -26,26 +26,21 @@ impl CompanyMutation {
     async fn register_company(
         &self,
         cxt: &Context<'_>,
-        data: IptCompanyData,
+        args: IptCompanyData,
     ) -> ServiceResult<Uuid> {
         use crate::models::company::service::register::create_company;
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
-
         let conn: &PooledConnection = &get_conn(cxt)?;
 
-        create_company(
-            &logged_user_uuid,
-            &data,
-            conn
-        )
+        create_company(&logged_user_uuid, &args, conn)
     }
 
     async fn put_company_update(
         &self,
         cxt: &Context<'_>,
         company_uuid: Uuid,
-        data: IptUpdateCompanyData,
+        args: IptUpdateCompanyData,
     ) -> ServiceResult<i32> {
         use crate::models::company::service::update::update_company_by_uuid;
 
@@ -56,7 +51,7 @@ impl CompanyMutation {
         update_company_by_uuid(
             &logged_user_uuid,
             &company_uuid,
-            &data,
+            &args,
             conn
         )
     }
@@ -65,7 +60,7 @@ impl CompanyMutation {
     async fn change_company_access(
         &self,
         cxt: &Context<'_>,
-        data: ChangeTypeAccessCompany,
+        args: ChangeTypeAccessCompany,
     ) -> ServiceResult<bool> {
         use crate::models::company::access::manage::change_company_type_access;
 
@@ -76,7 +71,7 @@ impl CompanyMutation {
 
         change_company_type_access(
             &logged_user_uuid,
-            &data,
+            &args,
             conn
         )
     }
@@ -141,7 +136,7 @@ impl CompanyMutation {
     async fn update_company_certificate(
         &self,
         cxt: &Context<'_>,
-        data: IptUpdateCompanyCertificateData,
+        args: IptUpdateCompanyCertificateData,
     ) -> ServiceResult<bool> {
         use crate::models::company::certificate::service::update::update_certificate_description;
 
@@ -151,7 +146,7 @@ impl CompanyMutation {
 
         update_certificate_description(
             &logged_user_uuid,
-            &data,
+            &args,
             conn
         )
     }
@@ -159,7 +154,7 @@ impl CompanyMutation {
     async fn delete_company_certificate(
         &self,
         cxt: &Context<'_>,
-        data: DelCompanyCertificateData,
+        args: DelCompanyCertificateData,
     ) -> ServiceResult<bool> {
         use crate::models::company::certificate::service::delete::del_certificate_description;
 
@@ -169,7 +164,7 @@ impl CompanyMutation {
 
         del_certificate_description(
             &logged_user_uuid,
-            &data,
+            &args,
             &pool
         ).await
     }
@@ -177,7 +172,7 @@ impl CompanyMutation {
     async fn add_company_specs(
         &self,
         cxt: &Context<'_>,
-        data: IptCompanySpecData,
+        args: IptCompanySpecData,
     ) -> ServiceResult<i32> {
         use crate::models::company::spec::service::add::add_company_specs;
 
@@ -187,7 +182,7 @@ impl CompanyMutation {
 
         add_company_specs(
             &logged_user_uuid,
-            &data,
+            &args,
             conn
         )
     }
@@ -195,7 +190,7 @@ impl CompanyMutation {
     async fn delete_company_specs(
         &self,
         cxt: &Context<'_>,
-        data: IptCompanySpecData,
+        args: IptCompanySpecData,
     ) -> ServiceResult<i32> {
         use crate::models::company::spec::service::delete::del_company_specs;
 
@@ -205,7 +200,7 @@ impl CompanyMutation {
 
         del_company_specs(
             &logged_user_uuid,
-            &data,
+            &args,
             conn
         )
     }
@@ -213,7 +208,7 @@ impl CompanyMutation {
     async fn register_company_represent(
         &self,
         cxt: &Context<'_>,
-        data: IptCompanyRepresentData,
+        args: IptCompanyRepresentData,
     ) -> ServiceResult<bool> {
         use crate::models::company::company_represent::service::register::create_company_represent;
 
@@ -223,7 +218,7 @@ impl CompanyMutation {
 
         create_company_represent(
             &logged_user_uuid,
-            &data,
+            &args,
             conn
         )
     }
@@ -233,7 +228,7 @@ impl CompanyMutation {
         cxt: &Context<'_>,
         company_uuid: Uuid,
         company_represent_uuid: Uuid,
-        data: IptUpdateCompanyRepresentData,
+        args: IptUpdateCompanyRepresentData,
     ) -> ServiceResult<i32> {
         use crate::models::company::company_represent::service::update::update_company_represent_by_uuid;
 
@@ -245,7 +240,7 @@ impl CompanyMutation {
             &logged_user_uuid,
             &company_uuid,
             &company_represent_uuid,
-            &data,
+            &args,
             conn
         )
     }
@@ -273,7 +268,7 @@ impl CompanyMutation {
     async fn add_company_member(
         &self,
         cxt: &Context<'_>,
-        data: IptCompanyMemberData,
+        args: IptCompanyMemberData,
     ) -> ServiceResult<bool> {
         use crate::models::company::member::service::add::add_company_member;
 
@@ -283,7 +278,7 @@ impl CompanyMutation {
 
         add_company_member(
             &logged_user_uuid,
-            &data,
+            &args,
             conn
         )
     }
@@ -292,7 +287,7 @@ impl CompanyMutation {
     async fn change_role_member(
         &self,
         cxt: &Context<'_>,
-        data: IptCompanyMemberData,
+        args: IptCompanyMemberData,
     ) -> ServiceResult<bool> {
         use crate::models::company::member::service::change::change_role_member;
 
@@ -302,7 +297,7 @@ impl CompanyMutation {
 
         change_role_member(
             &logged_user_uuid,
-            &data,
+            &args,
             conn
         )
     }
@@ -310,7 +305,7 @@ impl CompanyMutation {
     async fn delete_company_member(
         &self,
         cxt: &Context<'_>,
-        data: DelCompanyMemberData,
+        args: DelCompanyMemberData,
     ) -> ServiceResult<bool> {
         use crate::models::company::member::service::delete::del_company_member;
 
@@ -320,7 +315,7 @@ impl CompanyMutation {
 
         del_company_member(
             &logged_user_uuid,
-            &data,
+            &args,
             conn
         )
     }
@@ -328,7 +323,7 @@ impl CompanyMutation {
     async fn register_company_role(
         &self,
         cxt: &Context<'_>,
-        data: IptRoleMemberData,
+        args: IptRoleMemberData,
     ) -> ServiceResult<i32> {
         use crate::models::company::member::role::service::register::create_role_member;
 
@@ -338,7 +333,7 @@ impl CompanyMutation {
 
         create_role_member(
             &logged_user_uuid,
-            &data,
+            &args,
             conn
         )
     }
@@ -346,7 +341,7 @@ impl CompanyMutation {
     async fn change_name_role_company(
         &self,
         cxt: &Context<'_>,
-        data: IptUpdataNameRoleData,
+        args: IptUpdataNameRoleData,
     ) -> ServiceResult<bool> {
         use crate::models::company::member::role::service::update::change_name_role_company;
 
@@ -356,7 +351,7 @@ impl CompanyMutation {
 
         change_name_role_company(
             &logged_user_uuid,
-            &data,
+            &args,
             conn
         )
     }
@@ -364,7 +359,7 @@ impl CompanyMutation {
     async fn delete_company_role(
         &self,
         cxt: &Context<'_>,
-        data: DelRoleMemberData,
+        args: DelRoleMemberData,
     ) -> ServiceResult<i32> {
         use crate::models::company::member::role::service::delete::del_role_member;
 
@@ -374,7 +369,7 @@ impl CompanyMutation {
 
         del_role_member(
             &logged_user_uuid,
-            &data,
+            &args,
             conn
         )
     }
@@ -382,7 +377,7 @@ impl CompanyMutation {
     async fn add_access_role(
         &self,
         cxt: &Context<'_>,
-        data: IptRoleAccessData,
+        args: IptRoleAccessData,
     ) -> ServiceResult<bool> {
         use crate::models::company::access::role_access::service::register::create_role_access;
 
@@ -392,7 +387,7 @@ impl CompanyMutation {
 
         create_role_access(
             &logged_user_uuid,
-            &data,
+            &args,
             conn
         )
     }
@@ -400,7 +395,7 @@ impl CompanyMutation {
     async fn delete_access_role(
         &self,
         cxt: &Context<'_>,
-        data: DelRoleAccessData,
+        args: DelRoleAccessData,
     ) -> ServiceResult<i32> {
         use crate::models::company::access::role_access::service::delete::del_role_access;
 
@@ -410,7 +405,7 @@ impl CompanyMutation {
 
         del_role_access(
             &logged_user_uuid,
-            &data,
+            &args,
             conn
         )
     }
@@ -419,7 +414,7 @@ impl CompanyMutation {
     async fn add_component_supplier(
         &self,
         cxt: &Context<'_>,
-        data: IptSupplierComponentData,
+        args: IptSupplierComponentData,
     ) -> ServiceResult<bool> {
         use crate::models::company::supplier_component::add::add_company_to_suppliers;
 
@@ -429,7 +424,7 @@ impl CompanyMutation {
 
         add_company_to_suppliers(
             &logged_user_uuid,
-            &data,
+            &args,
             conn
         )
     }
@@ -438,7 +433,7 @@ impl CompanyMutation {
     async fn set_company_owner_supplier(
         &self,
         cxt: &Context<'_>,
-        data: IptSupplierComponentData,
+        args: IptSupplierComponentData,
     ) -> ServiceResult<bool> {
         use crate::models::company::supplier_component::add::set_company_owner_supplier;
 
@@ -448,7 +443,7 @@ impl CompanyMutation {
 
         set_company_owner_supplier(
             &logged_user_uuid,
-            &data,
+            &args,
             conn
         )
     }
@@ -457,7 +452,7 @@ impl CompanyMutation {
     async fn delete_supplier_company(
         &self,
         cxt: &Context<'_>,
-        data: DelCompanyOfSuppliersData,
+        args: DelCompanyOfSuppliersData,
     ) -> ServiceResult<bool> {
         use crate::models::company::supplier_component::delete::del_company_of_suppliers;
 
@@ -467,7 +462,7 @@ impl CompanyMutation {
 
         del_company_of_suppliers(
             &logged_user_uuid,
-            &data,
+            &args,
             conn
         )
     }

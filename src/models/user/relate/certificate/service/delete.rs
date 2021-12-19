@@ -15,22 +15,15 @@ pub(crate) async fn del_certificate_description(
     let conn = pool.get().unwrap();
 
     // delete row user certificate
-    let del_row_cert = diesel::delete(user_certificate_ref::user_certificate_ref
+    let file_uuid = diesel::delete(user_certificate_ref::user_certificate_ref
         .filter(user_certificate_ref::user_uuid.eq(logged_user_uuid)
         .and(user_certificate_ref::file_uuid.eq(&data.file_uuid))))
         .returning(user_certificate_ref::file_uuid)
-        .get_result::<Uuid>(&conn);
-
-    let file_uuid = match del_row_cert {
-        Ok(x) => x,
-        Err(err) => {
+        .get_result::<Uuid>(&conn)
+        .map_err(|err| {
             debug!("Failed remove certificate data: {:?}", err);
-
-            return Err(ServiceError::BadRequest(
-                "Failed remove certificate data".to_string()
-            ))
-        },
-    };
+            ServiceError::BadRequest("Failed remove certificate data".to_string())
+        })?;
 
     // delete file rows and file in storage
     delete_file_by_uuid(&file_uuid, pool).await

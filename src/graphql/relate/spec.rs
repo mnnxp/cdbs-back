@@ -24,64 +24,52 @@ impl SpecQuery {
     async fn specs(
         &self,
         cxt: &Context<'_>,
-        arg: Option<IptSpecArg>,
+        args: Option<IptSpecArg>,
     ) -> ServiceResult<Vec<SpecTranslateList>> {
         // authorization check
         check_authorized(cxt)?;
 
-        let arguments: SpecArg = match arg {
-            Some(data) => SpecArg::from(data),
+        let arguments: SpecArg = match args {
+            Some(x) => SpecArg::from(x),
             None => SpecArg::default(),
         };
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
-        get_specs(
-            &arguments,
-            &get_set_language(cxt),
-            conn,
-        )
+        get_specs(&arguments, &get_set_language(cxt), conn)
     }
 
     async fn specs_paths(
         &self,
         cxt: &Context<'_>,
-        arg: Option<IptSpecPathArg>,
+        args: Option<IptSpecPathArg>,
     ) -> ServiceResult<Vec<SpecPath>> {
         // authorization check
         check_authorized(cxt)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
-        let arguments: SpecPathArg = match arg {
-            Some(data) => SpecPathArg::from(data),
+        let arguments: SpecPathArg = match args {
+            Some(x) => SpecPathArg::from(x),
             None => SpecPathArg::default(),
         };
 
-        get_paths_specs(
-            &arguments,
-            &get_set_language(cxt),
-            conn
-        )
+        get_paths_specs(&arguments, &get_set_language(cxt), conn)
     }
 
     async fn search_specs(
         &self,
         cxt: &Context<'_>,
-        arg: IptSearchSpecArg,
+        args: IptSearchSpecArg,
     ) -> ServiceResult<Vec<SpecPath>> {
         // authorization check
         check_authorized(cxt)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
-        let arguments: SearchSpecArg = SearchSpecArg::from(arg);
+        let arguments: SearchSpecArg = SearchSpecArg::from(args);
 
-        search_specs_by_name(
-            &arguments,
-            &get_set_language(cxt),
-            conn
-        )
+        search_specs_by_name(&arguments, &get_set_language(cxt), conn)
     }
 }
 

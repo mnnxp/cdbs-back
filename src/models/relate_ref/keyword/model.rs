@@ -35,3 +35,43 @@ impl From<&IptKeywordData> for InsertableKeyword {
         }
     }
 }
+
+#[derive(InputObject, Deserialize, Debug)]
+pub struct IptKeywordArg {
+    pub keyword_ids:  Option<Vec<i32>>,
+    pub limit: Option<i32>,
+    pub offset: Option<i32>,
+}
+
+#[derive(Debug)]
+pub struct KeywordArg {
+    pub keyword_ids: Vec<i32>,
+    pub limit: i32,
+    pub offset: i32,
+}
+
+impl Default for KeywordArg {
+    fn default() -> Self {
+        Self {
+            keyword_ids: Vec::new(),
+            limit: 100,
+            offset: 0,
+        }
+    }
+}
+
+impl From<IptKeywordArg> for KeywordArg {
+    fn from(data: IptKeywordArg) -> Self {
+        let IptKeywordArg {
+            keyword_ids,
+            limit,
+            offset,
+        } = data;
+
+        Self {
+            keyword_ids: keyword_ids.unwrap_or_default(),
+            limit: limit.unwrap_or(100),
+            offset: offset.unwrap_or(0),
+        }
+    }
+}

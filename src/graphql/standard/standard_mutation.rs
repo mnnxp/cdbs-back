@@ -22,7 +22,7 @@ impl StandardMutation {
     async fn register_standard(
         &self,
         cxt: &Context<'_>,
-        arg: IptStandardData,
+        args: IptStandardData,
     ) -> ServiceResult<Uuid> {
         use crate::models::standard::service::register::create_standard;
 
@@ -32,7 +32,7 @@ impl StandardMutation {
 
         create_standard(
             &logged_user_uuid,
-            &arg,
+            &args,
             conn
         )
     }
@@ -41,7 +41,7 @@ impl StandardMutation {
     async fn transfer_standard_ownership(
         &self,
         cxt: &Context<'_>,
-        data: ChangeOwnerStandard,
+        args: ChangeOwnerStandard,
     ) -> ServiceResult<bool> {
         use crate::models::standard::access::manage::change_standard_owner_user;
 
@@ -52,7 +52,7 @@ impl StandardMutation {
 
         change_standard_owner_user(
             &logged_user_uuid,
-            &data,
+            &args,
             conn
         )
     }
@@ -61,7 +61,7 @@ impl StandardMutation {
     async fn change_standard_access(
         &self,
         cxt: &Context<'_>,
-        data: ChangeTypeAccessStandard,
+        args: ChangeTypeAccessStandard,
     ) -> ServiceResult<bool> {
         use crate::models::standard::access::manage::change_standard_type_access;
 
@@ -72,7 +72,7 @@ impl StandardMutation {
 
         change_standard_type_access(
             &logged_user_uuid,
-            &data,
+            &args,
             conn
         )
     }
@@ -81,7 +81,7 @@ impl StandardMutation {
         &self,
         cxt: &Context<'_>,
         standard_uuid: Uuid,
-        data: IptUpdateStandardData,
+        args: IptUpdateStandardData,
     ) -> ServiceResult<i32> {
         use crate::models::standard::service::update::update_standard_data;
 
@@ -92,7 +92,7 @@ impl StandardMutation {
         update_standard_data(
             &logged_user_uuid,
             &standard_uuid,
-            &data,
+            &args,
             conn
         )
     }
@@ -119,7 +119,7 @@ impl StandardMutation {
     async fn set_company_access_standard(
         &self,
         cxt: &Context<'_>,
-        data: IptCompanyAccessStandardData,
+        args: IptCompanyAccessStandardData,
     ) -> ServiceResult<bool> {
         use crate::models::standard::access::company::manage::set_company_access_standard;
 
@@ -130,7 +130,7 @@ impl StandardMutation {
 
         set_company_access_standard(
             &logged_user_uuid,
-            &data,
+            &args,
             conn
         )
     }
@@ -138,7 +138,7 @@ impl StandardMutation {
     async fn delete_company_access_standard(
         &self,
         cxt: &Context<'_>,
-        data: DelCompanyAccessStandardData,
+        args: DelCompanyAccessStandardData,
     ) -> ServiceResult<bool> {
         use crate::models::standard::access::company::manage::del_company_access_standard;
 
@@ -149,7 +149,7 @@ impl StandardMutation {
 
         del_company_access_standard(
             &logged_user_uuid,
-            &data,
+            &args,
             conn
         )
     }
@@ -157,7 +157,7 @@ impl StandardMutation {
     async fn set_user_access_standard(
         &self,
         cxt: &Context<'_>,
-        data: IptUserAccessStandardData,
+        args: IptUserAccessStandardData,
     ) -> ServiceResult<bool> {
         use crate::models::standard::access::user::manage::set_user_access_standard;
 
@@ -168,7 +168,7 @@ impl StandardMutation {
 
         set_user_access_standard(
             &logged_user_uuid,
-            &data,
+            &args,
             conn
         )
     }
@@ -176,7 +176,7 @@ impl StandardMutation {
     async fn delete_user_access_standard(
         &self,
         cxt: &Context<'_>,
-        data: DelUserAccessStandardData,
+        args: DelUserAccessStandardData,
     ) -> ServiceResult<bool> {
         use crate::models::standard::access::user::manage::del_user_access_standard;
 
@@ -187,7 +187,7 @@ impl StandardMutation {
 
         del_user_access_standard(
             &logged_user_uuid,
-            &data,
+            &args,
             conn
         )
     }
@@ -196,7 +196,7 @@ impl StandardMutation {
     async fn add_standard_specs(
         &self,
         cxt: &Context<'_>,
-        data: IptStandardSpecsData,
+        args: IptStandardSpecsData,
     ) -> ServiceResult<i32> {
         use crate::models::standard::spec::service::add::add_standard_specs;
 
@@ -206,7 +206,7 @@ impl StandardMutation {
 
         add_standard_specs(
             &logged_user_uuid,
-            &data,
+            &args,
             conn
         )
     }
@@ -214,7 +214,7 @@ impl StandardMutation {
     async fn delete_standard_specs(
         &self,
         cxt: &Context<'_>,
-        data: IptStandardSpecsData,
+        args: IptStandardSpecsData,
     ) -> ServiceResult<i32> {
         use crate::models::standard::spec::service::delete::del_standard_specs;
 
@@ -224,7 +224,7 @@ impl StandardMutation {
 
         del_standard_specs(
             &logged_user_uuid,
-            &data,
+            &args,
             conn
         )
     }
@@ -232,7 +232,7 @@ impl StandardMutation {
     async fn add_standard_keywords(
         &self,
         cxt: &Context<'_>,
-        data: IptStandardKeywordsData,
+        args: IptStandardKeywordsData,
     ) -> ServiceResult<usize> {
         use crate::models::standard::keyword::service::add::add_standard_keywords;
 
@@ -242,7 +242,7 @@ impl StandardMutation {
 
         add_standard_keywords(
             &logged_user_uuid,
-            &data,
+            &args,
             conn
         )
     }
@@ -250,7 +250,7 @@ impl StandardMutation {
     async fn add_standard_keywords_by_names(
         &self,
         cxt: &Context<'_>,
-        data: IptStandardKeywordsNames,
+        args: IptStandardKeywordsNames,
     ) -> ServiceResult<usize> {
         use crate::models::standard::keyword::service::add::add_keywords_by_names;
 
@@ -260,7 +260,7 @@ impl StandardMutation {
 
         add_keywords_by_names(
             &logged_user_uuid,
-            &data,
+            &args,
             conn
         )
     }
@@ -268,7 +268,7 @@ impl StandardMutation {
     async fn delete_standard_keywords(
         &self,
         cxt: &Context<'_>,
-        data: IptStandardKeywordsData,
+        args: IptStandardKeywordsData,
     ) -> ServiceResult<i32> {
         use crate::models::standard::keyword::service::delete::del_standard_keywords;
 
@@ -278,7 +278,7 @@ impl StandardMutation {
 
         del_standard_keywords(
             &logged_user_uuid,
-            &data,
+            &args,
             conn
         )
     }
@@ -286,7 +286,7 @@ impl StandardMutation {
     async fn upload_standard_files(
         &self,
         cxt: &Context<'_>,
-        data: IptStandardFilesData,
+        args: IptStandardFilesData,
     ) -> ServiceResult<Vec<UploadFile>> {
         use crate::models::standard::file::service::add::add_standard_files;
 
@@ -296,7 +296,7 @@ impl StandardMutation {
 
         add_standard_files(
             &logged_user_uuid,
-            &data,
+            &args,
             conn
         )
     }
@@ -304,7 +304,7 @@ impl StandardMutation {
     async fn delete_standard_file(
         &self,
         cxt: &Context<'_>,
-        arg: DeleteStandardFileData,
+        args: DeleteStandardFileData,
     ) -> ServiceResult<bool> {
         use crate::models::standard::file::service::delete::delete_standard_file;
 
@@ -314,7 +314,7 @@ impl StandardMutation {
 
         delete_standard_file(
             &logged_user_uuid,
-            &arg,
+            &args,
             conn
         )
     }

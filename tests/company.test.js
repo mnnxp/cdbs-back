@@ -325,7 +325,7 @@ describe('company', () => {
       .post('/graphql')
       .send({
         query: `mutation  {
-            registerUser( data: {
+            registerUser(args: {
                 email: "testemail@mail.ru",
                 firstname: "test_firstname",
                 lastname: "test_lastname",
@@ -381,7 +381,7 @@ describe('company', () => {
       .post('/graphql')
       .send({
         query: `mutation  {
-            registerUser( data: {
+            registerUser(args: {
                 email: "testemail@mail.ru",
                 firstname: "test_firstname",
                 lastname: "test_lastname",
@@ -441,7 +441,7 @@ describe('company', () => {
       )
       .send({
         query: `mutation newCompany {
-         registerCompany( data: {
+         registerCompany(args: {
             orgname: "${orgname}",
             shortname: "${shortname}",
             inn: "${inn}",
@@ -481,7 +481,7 @@ describe('company', () => {
       )
       .send({
         query: `mutation newCompany {
-         registerCompany( data: {
+         registerCompany(args: {
             orgname: "${orgname2}",
             shortname: "${shortname}",
             inn: "${inn}",
@@ -583,7 +583,7 @@ describe('company', () => {
       .post('/graphql')
       .send({
         query: `query {
-        	companies (arguments: {companiesUuids: [
+        	companies (args: {companiesUuids: [
             "${companyUuidSupplier}",
             "${companyUuidNoSupplier}"
           ]}) {
@@ -610,7 +610,7 @@ describe('company', () => {
       )
       .send({
         query: `query {
-        	companies (arguments: {companiesUuids: [
+        	companies (args: {companiesUuids: [
             "${companyUuidSupplier}",
             "${companyUuidNoSupplier}"
           ]}) {
@@ -683,7 +683,7 @@ describe('company', () => {
       )
       .send({
         query: `query {
-        	companies (arguments: {
+        	companies (args: {
             favorite: true
           }){
             ${companiesListQuery}
@@ -729,7 +729,7 @@ describe('company', () => {
       )
       .send({
         query: `query {
-          companies (arguments: {
+          companies (args: {
             favorite: true
           }){
             ${companiesListQuery}
@@ -755,7 +755,7 @@ describe('company', () => {
       )
       .send({
         query: `query {
-          companies (arguments: {
+          companies (args: {
             userUuid: "${authorizationUserFirst}"
           }){
             ${companiesListQuery}
@@ -782,7 +782,7 @@ describe('company', () => {
       )
       .send({
         query: `query {
-          companies (arguments: {
+          companies (args: {
             userUuid: "${authorizationUserFirst}"
           }){
             ${companiesListQuery}
@@ -808,7 +808,7 @@ describe('company', () => {
       )
       .send({
         query: `query {
-          companies (arguments: {
+          companies (args: {
             userUuid: "${userUuidBase}"
           }){
             ${companiesListQuery}
@@ -895,7 +895,7 @@ describe('company', () => {
         query: `mutation  {
             putCompanyUpdate(
               companyUuid: "${companyUuidNoSupplier}"
-              data: {
+              args: {
                 orgname: "${orgnameUpdate}"
                 shortname: "${shortnameUpdate}"
                 inn: "${innUpdate}"
@@ -907,8 +907,7 @@ describe('company', () => {
                 timeZone: "${timeZoneUpdate}"
                 regionId: ${regionUpdateId}
                 companyTypeId: ${companyTypeUpdateId}
-              }
-            )
+            })
         }`,
       })
       .expect(HttpStatus.OK)
@@ -932,7 +931,7 @@ describe('company', () => {
         query: `mutation  {
             putCompanyUpdate(
               companyUuid: "${companyUuidNoSupplier}"
-              data: {
+              args: {
                 orgname: "${orgnameUpdate}"
                 shortname: "${shortnameUpdate}"
                 inn: "${innUpdate}"
@@ -944,8 +943,7 @@ describe('company', () => {
                 timeZone: "${timeZoneUpdate}"
                 regionId: ${regionUpdateId}
                 companyTypeId: ${companyTypeUpdateId}
-              }
-            )
+            })
         }`,
       })
       .expect(HttpStatus.OK)
@@ -969,7 +967,7 @@ describe('company', () => {
         query: `mutation  {
             putCompanyUpdate(
               companyUuid: "${companyUuidNoSupplier}"
-              data: {
+              args: {
                 orgname: "${orgnameUpdate}"
                 shortname: "${shortnameUpdate}"
                 inn: "${innUpdate}"
@@ -981,8 +979,7 @@ describe('company', () => {
                 timeZone: "${timeZoneUpdate}"
                 regionId: ${regionUpdateId}
                 companyTypeId: ${companyTypeUpdateId}
-              }
-            )
+            })
         }`,
       })
       .expect(HttpStatus.OK)
@@ -1006,7 +1003,7 @@ describe('company', () => {
         query: `mutation  {
             putCompanyUpdate(
               companyUuid: "${companyUuidNoSupplier}"
-              data: {
+              args: {
                 orgname: "${orgnameUpdate}"
                 shortname: "${shortnameUpdate}"
                 inn: "${innUpdate}"
@@ -1018,8 +1015,7 @@ describe('company', () => {
                 timeZone: "${timeZoneUpdate}"
                 regionId: ${regionUpdateId}
                 companyTypeId: ${companyTypeUpdateId}
-              }
-            )
+            })
         }`,
       })
       .expect(HttpStatus.OK)
@@ -1075,7 +1071,7 @@ describe('company', () => {
       )
       .send({
         query: `mutation {
-            changeCompanyAccess( data: {
+            changeCompanyAccess(args: {
               companyUuid: "${uuidFake}"
               newTypeAccessId: ${typeAccessId2}
             })
@@ -1100,7 +1096,7 @@ describe('company', () => {
       )
       .send({
         query: `mutation {
-            changeCompanyAccess( data: {
+            changeCompanyAccess(args: {
               companyUuid: "${companyUuidSupplier}"
               newTypeAccessId: ${typeAccessId2}
             })
@@ -1125,7 +1121,7 @@ describe('company', () => {
       )
       .send({
         query: `mutation {
-            changeCompanyAccess( data: {
+            changeCompanyAccess(args: {
               companyUuid: "${companyUuidSupplier}"
               newTypeAccessId: ${typeAccessId2}
             })
@@ -1184,7 +1180,7 @@ describe('company', () => {
       )
       .send({
         query: `mutation {
-            changeCompanyAccess( data: {
+            changeCompanyAccess(args: {
               companyUuid: "${companyUuidSupplier}"
               newTypeAccessId: ${typeAccessId2}
             })
@@ -1209,7 +1205,7 @@ describe('company', () => {
       )
       .send({
         query: `mutation {
-            changeCompanyAccess( data: {
+            changeCompanyAccess(args: {
               companyUuid: "${companyUuidSupplier}"
               newTypeAccessId: ${typeAccessId1}
             })
@@ -1338,7 +1334,7 @@ describe('company', () => {
       .post('/graphql')
       .send({
         query: `mutation {
-          updateCompanyCertificate(data: {
+          updateCompanyCertificate(args: {
             companyUuid: "${companyUuidNoSupplier}"
             fileUuid: "${fileCertificateTestUuid}"
             description: "${descriptionCertificateTest}"
@@ -1364,7 +1360,7 @@ describe('company', () => {
       )
       .send({
         query: `mutation {
-          updateCompanyCertificate(data: {
+          updateCompanyCertificate(args: {
             companyUuid: "${companyUuidNoSupplier}"
             fileUuid: "${fileCertificateTestUuid}"
             description: "${descriptionCertificateTest}"
@@ -1388,7 +1384,7 @@ describe('company', () => {
       )
       .send({
         query: `mutation {
-          updateCompanyCertificate(data: {
+          updateCompanyCertificate(args: {
             companyUuid: "${companyUuidNoSupplier}"
             fileUuid: "${fileCertificateTestUuid}"
             description: "test of the test description"
@@ -1413,7 +1409,7 @@ describe('company', () => {
       )
       .send({
         query: `mutation {
-          updateCompanyCertificate(data: {
+          updateCompanyCertificate(args: {
             companyUuid: "${companyUuidNoSupplier}"
             fileUuid: "${fileCertificateTestUuid}"
             description: "${descriptionCertificateTest}"
@@ -1438,7 +1434,7 @@ describe('company', () => {
       )
       .send({
         query: `mutation {
-          updateCompanyCertificate(data: {
+          updateCompanyCertificate(args: {
             companyUuid: "${companyUuidNoSupplier}"
             fileUuid: "${fileCertificateTestUuid}"
             description: "${descriptionCertificateTest}"
@@ -1509,7 +1505,7 @@ describe('company', () => {
       .post('/graphql')
       .send({
         query: `mutation  {
-          addCompanySpecs(data: {
+          addCompanySpecs(args: {
             companyUuid: "${companyUuidNoSupplier}"
             specIds: [${specIdsOk}]
           })
@@ -1534,7 +1530,7 @@ describe('company', () => {
       )
       .send({
         query: `mutation  {
-          addCompanySpecs(data: {
+          addCompanySpecs(args: {
             companyUuid: "${companyUuidNoSupplier}"
             specIds: [${specIdsOk}]
           })
@@ -1558,7 +1554,7 @@ describe('company', () => {
       )
       .send({
         query: `mutation  {
-          addCompanySpecs(data: {
+          addCompanySpecs(args: {
             companyUuid: "${companyUuidNoSupplier}"
             specIds: [${specIdsDup}]
           })
@@ -1582,7 +1578,7 @@ describe('company', () => {
       )
       .send({
         query: `mutation  {
-          addCompanySpecs(data: {
+          addCompanySpecs(args: {
             companyUuid: "${companyUuidNoSupplier}"
             specIds: [${specIdsOk}]
           })
@@ -1607,7 +1603,7 @@ describe('company', () => {
       )
       .send({
         query: `mutation  {
-          addCompanySpecs(data: {
+          addCompanySpecs(args: {
             companyUuid: "${companyUuidNoSupplier}"
             specIds: [${idErr}]
           })
@@ -1632,7 +1628,7 @@ describe('company', () => {
       )
       .send({
         query: `mutation  {
-          addCompanySpecs(data: {
+          addCompanySpecs(args: {
             companyUuid: "${companyUuidNoSupplier}"
             specIds: [${idErr}]
           })
@@ -1687,7 +1683,7 @@ describe('company', () => {
       .post('/graphql')
       .send({
         query: `query  {
-          companySpecs(arg: {
+          companySpecs(args: {
             companyUuid: "${companyUuidNoSupplier}"
           }){
             specId
@@ -1715,7 +1711,7 @@ describe('company', () => {
       )
       .send({
         query: `query  {
-          companySpecs(arg: {
+          companySpecs(args: {
             companyUuid: "${companyUuidNoSupplier}"
           }){
             specId
@@ -1752,7 +1748,7 @@ describe('company', () => {
       )
       .send({
         query: `query  {
-          companySpecs(arg: {
+          companySpecs(args: {
             companyUuid: "${companyUuidNoSupplier}"
             limit: 1
             offset: 3
@@ -1784,7 +1780,7 @@ describe('company', () => {
       )
       .send({
         query: `query  {
-          companySpecs(arg: {
+          companySpecs(args: {
             companyUuid: "${companyUuidNoSupplier}"
             limit: 50
             offset: 500
@@ -1811,7 +1807,7 @@ describe('company', () => {
       .post('/graphql')
       .send({
         query: `mutation  {
-          deleteCompanySpecs(data: {
+          deleteCompanySpecs(args: {
             companyUuid: "${companyUuidNoSupplier}"
             specIds: [${specIdsDel}]
           })
@@ -1836,7 +1832,7 @@ describe('company', () => {
       )
       .send({
         query: `mutation  {
-          deleteCompanySpecs(data: {
+          deleteCompanySpecs(args: {
             companyUuid: "${companyUuidNoSupplier}"
             specIds: [${specIdsDel}]
           })
@@ -1860,7 +1856,7 @@ describe('company', () => {
       )
       .send({
         query: `mutation  {
-          deleteCompanySpecs(data: {
+          deleteCompanySpecs(args: {
             companyUuid: "${companyUuidNoSupplier}"
             specIds: [${specIdsDel}]
           })
@@ -1884,7 +1880,7 @@ describe('company', () => {
       )
       .send({
         query: `mutation  {
-          deleteCompanySpecs(data: {
+          deleteCompanySpecs(args: {
             companyUuid: "${companyUuidNoSupplier}"
             specIds: [${idErr}]
           })
@@ -1909,7 +1905,7 @@ describe('company', () => {
       )
       .send({
         query: `mutation  {
-          deleteCompanySpecs(data: {
+          deleteCompanySpecs(args: {
             companyUuid: "${companyUuidNoSupplier}"
             specIds: [${idErr}]
           })
@@ -1965,7 +1961,7 @@ describe('company', () => {
       )
       .send({
         query: `mutation  {
-            registerCompanyRepresent( data: {
+            registerCompanyRepresent(args: {
                 companyUuid: "${companyUuidNoSupplier}",
                 name: "${nameRepresentationFirst}",
                 address: "${addressRepresentation}",
@@ -1992,7 +1988,7 @@ describe('company', () => {
       )
       .send({
         query: `mutation companyRepresentQuery {
-          registerCompanyRepresent( data: {
+          registerCompanyRepresent(args: {
             companyUuid: "${companyUuidSupplier}",
             name: "${nameRepresentationFirst}",
             address: "${addressRepresentation}",
@@ -2020,7 +2016,7 @@ describe('company', () => {
       )
       .send({
         query: `query {
-            companyRepresents (arg: {
+            companyRepresents(args: {
               companyUuid: "${companyUuidSupplier}"
             }){
                 ${companyRepresentsListQuery}
@@ -2046,7 +2042,7 @@ describe('company', () => {
       )
       .send({
         query: `mutation  {
-            registerCompanyRepresent( data: {
+            registerCompanyRepresent(args: {
                 companyUuid: "${companyUuidNoSupplier}",
                 name: "${nameRepresentationFirst}",
                 address: "${addressRepresentation}",
@@ -2077,7 +2073,7 @@ describe('company', () => {
             updateCompanyRepresent(
               companyUuid: "${companyUuidNoSupplier}",
               companyRepresentUuid: "${uuidRepresentFirst}",
-              data: {
+              args: {
                 name: "${nameRepresentationFirst}",
                 address: "${addressRepresentation}",
                 phone: "${phoneRepresentation}",
@@ -2106,7 +2102,7 @@ describe('company', () => {
             updateCompanyRepresent(
               companyUuid: "${companyUuidNoSupplier}",
               companyRepresentUuid: "${uuidRepresentFirst}",
-              data: {
+              args: {
                 name: "random data",
                 address: "random data",
                 phone: "+7777777777777777",
@@ -2137,7 +2133,7 @@ describe('company', () => {
             updateCompanyRepresent(
               companyUuid: "${companyUuidNoSupplier}",
               companyRepresentUuid: "${uuidRepresentFirst}",
-              data: {
+              args: {
                 name: "${nameRepresentationFirst}",
                 address: "${addressRepresentation}",
                 phone: "${phoneRepresentation}",
@@ -2168,7 +2164,7 @@ describe('company', () => {
             updateCompanyRepresent(
               companyUuid: "${companyUuidNoSupplier}",
               companyRepresentUuid: "${uuidRepresentFirst}",
-              data: {
+              args: {
                 name: "${nameRepresentationFirst}",
                 address: "${addressRepresentation}",
                 phone: "${phoneRepresentation}",
@@ -2190,7 +2186,7 @@ describe('company', () => {
       .post('/graphql')
       .send({
         query: `query {
-            companyRepresents (arg: {
+            companyRepresents(args: {
               representsUuids: ["${uuidRepresentFirst}"]
             }){
                 ${companyRepresentsListQuery}
@@ -2216,7 +2212,7 @@ describe('company', () => {
       )
       .send({
         query: `query {
-            companyRepresents (arg: {
+            companyRepresents(args: {
               companyUuid: "${companyUuidSupplier}"
             }){
                 ${companyRepresentsListQuery}
@@ -2239,7 +2235,7 @@ describe('company', () => {
       )
       .send({
         query: `query {
-            companyRepresents (arg: {
+            companyRepresents(args: {
               representsUuids: ["${uuidRepresentFirst}"]
             }){
                 ${companyRepresentsListQuery}
@@ -2338,7 +2334,7 @@ describe('company', () => {
       )
       .send({
         query: `query {
-            companyRepresents ( arg: {
+            companyRepresents(args: {
               companyUuid: "${companyUuidSupplier}"
             }){
               ${companyRepresentsListQuery}
@@ -2363,7 +2359,7 @@ describe('company', () => {
       )
       .send({
         query: `query {
-            companyRepresents ( arg: {
+            companyRepresents(args: {
               companyUuid: "${companyUuidSupplier}"
             }){
               ${companyRepresentsListQuery}
@@ -2411,7 +2407,7 @@ describe('company', () => {
       )
       .send({
         query: `query {
-            companyRepresents (arg: {
+            companyRepresents(args: {
               companyUuid: "${companyUuidSupplier}"
             }){
               ${companyRepresentsListQuery}
@@ -2430,7 +2426,7 @@ describe('company', () => {
       .post('/graphql')
       .send({
         query: `mutation {
-          deleteCompanyCertificate(data: {
+          deleteCompanyCertificate(args: {
             companyUuid: "${companyUuidNoSupplier}"
             fileUuid: "${fileCertificateTestUuid}"
           })
@@ -2455,7 +2451,7 @@ describe('company', () => {
       )
       .send({
         query: `mutation {
-          deleteCompanyCertificate(data: {
+          deleteCompanyCertificate(args: {
             companyUuid: "${companyUuidNoSupplier}"
             fileUuid: "${fileCertificateTestUuid}"
           })
@@ -2478,7 +2474,7 @@ describe('company', () => {
       )
       .send({
         query: `mutation {
-          deleteCompanyCertificate(data: {
+          deleteCompanyCertificate(args: {
             companyUuid: "${companyUuidNoSupplier}"
             fileUuid: "${fileCertificateTestUuid}"
           })
@@ -2502,7 +2498,7 @@ describe('company', () => {
       )
       .send({
         query: `mutation {
-          deleteCompanyCertificate(data: {
+          deleteCompanyCertificate(args: {
             companyUuid: "${companyUuidNoSupplier}"
             fileUuid: "${fileCertificateTestUuid}"
           })
@@ -2524,7 +2520,7 @@ describe('company', () => {
       .post('/graphql')
       .send({
         query: `mutation  {
-            registerCompanyRole( data: {
+            registerCompanyRole(args: {
               companyUuid: "${companyUuidNoSupplier}"
               langId: ${langId}
               name: "${nameRole}"
@@ -2550,7 +2546,7 @@ describe('company', () => {
       )
       .send({
         query: `mutation  {
-            registerCompanyRole( data: {
+            registerCompanyRole(args: {
               companyUuid: "${companyUuidNoSupplier}"
               langId: ${langId}
               name: "${nameRole}"
@@ -2576,7 +2572,7 @@ describe('company', () => {
       )
       .send({
         query: `mutation  {
-            registerCompanyRole( data: {
+            registerCompanyRole(args: {
               companyUuid: "${companyUuidNoSupplier}"
               langId: ${langId}
               name: "${nameRole}"
@@ -2602,7 +2598,7 @@ describe('company', () => {
       )
       .send({
         query: `mutation  {
-            registerCompanyRole( data: {
+            registerCompanyRole(args: {
               companyUuid: "${companyUuidNoSupplier}"
               langId: ${langId}
               name: "${nameRole2}"
@@ -2628,7 +2624,7 @@ describe('company', () => {
       )
       .send({
         query: `mutation  {
-            registerCompanyRole( data: {
+            registerCompanyRole(args: {
               companyUuid: "${companyUuidNoSupplier}"
               langId: ${langId}
               name: "${nameRole}"
@@ -2651,7 +2647,7 @@ describe('company', () => {
       .post('/graphql')
       .send({
         query: `mutation  {
-            changeNameRoleCompany( data: {
+            changeNameRoleCompany(args: {
               companyUuid: "${companyUuidNoSupplier}"
               roleId: ${newRoleId2}
               langId: ${langId}
@@ -2678,7 +2674,7 @@ describe('company', () => {
       )
       .send({
         query: `mutation  {
-            changeNameRoleCompany( data: {
+            changeNameRoleCompany(args: {
               companyUuid: "${companyUuidNoSupplier}"
               roleId: ${newRoleId2}
               langId: ${langId}
@@ -2705,7 +2701,7 @@ describe('company', () => {
       )
       .send({
         query: `mutation  {
-            changeNameRoleCompany( data: {
+            changeNameRoleCompany(args: {
               companyUuid: "${companyUuidNoSupplier}"
               roleId: ${newRoleId2}
               langId: ${langId}
@@ -2732,7 +2728,7 @@ describe('company', () => {
       )
       .send({
         query: `mutation  {
-            changeNameRoleCompany( data: {
+            changeNameRoleCompany(args: {
               companyUuid: "${companyUuidNoSupplier}"
               roleId: ${newRoleId2}
               langId: ${langId}
@@ -2759,7 +2755,7 @@ describe('company', () => {
       )
       .send({
         query: `mutation  {
-            changeNameRoleCompany( data: {
+            changeNameRoleCompany(args: {
               companyUuid: "${companyUuidNoSupplier}"
               roleId: ${newRoleId2}
               langId: ${langId}
@@ -2861,7 +2857,7 @@ describe('company', () => {
       .post('/graphql')
       .send({
         query: `mutation  {
-            addAccessRole( data: {
+            addAccessRole(args: {
               roleId: ${newRoleId}
               typesAccessIds: [1, 3]
             })
@@ -2886,7 +2882,7 @@ describe('company', () => {
       )
       .send({
         query: `mutation  {
-            addAccessRole( data: {
+            addAccessRole(args: {
               roleId: ${newRoleId}
               typesAccessIds: [1, 3]
             })
@@ -2911,7 +2907,7 @@ describe('company', () => {
       )
       .send({
         query: `mutation  {
-            addAccessRole( data: {
+            addAccessRole(args: {
               roleId: ${newRoleId}
               typesAccessIds: [1, 3, 2]
             })
@@ -2936,7 +2932,7 @@ describe('company', () => {
       )
       .send({
         query: `mutation  {
-            addAccessRole( data: {
+            addAccessRole(args: {
               roleId: ${newRoleId}
               typesAccessIds: [1, 3]
             })
@@ -2962,7 +2958,7 @@ describe('company', () => {
       )
       .send({
         query: `mutation  {
-            registerComponent(data: {
+            registerComponent(args: {
                 name: "${nameComponent}",
                 description: "${descriptionComponent}",
                 typeAccessId: ${typeAccessIdComponent},
@@ -2991,7 +2987,7 @@ describe('company', () => {
       )
       .send({
         query: `mutation  {
-            registerComponent(data: {
+            registerComponent(args: {
                 name: "${nameComponent2}",
                 description: "${descriptionComponent}",
                 typeAccessId: ${typeAccessIdComponentPrivate},
@@ -3026,7 +3022,7 @@ describe('company', () => {
       )
       .send({
         query: `mutation  {
-            setCompanyOwnerSupplier( data: {
+            setCompanyOwnerSupplier(args: {
                 componentUuid: "${componentUuidNoStandard}",
                 companyUuid: "${companyUuidNoSupplier}",
                 description: "description for supplier component",
@@ -3057,7 +3053,7 @@ describe('company', () => {
       )
       .send({
         query: `mutation  {
-            setCompanyOwnerSupplier( data: {
+            setCompanyOwnerSupplier(args: {
                 componentUuid: "${componentUuidStandard}",
                 companyUuid: "${companyUuidSupplier}",
                 description: "description for supplier component",
@@ -3083,7 +3079,7 @@ describe('company', () => {
       )
       .send({
         query: `mutation  {
-            setCompanyOwnerSupplier( data: {
+            setCompanyOwnerSupplier(args: {
                 componentUuid: "${componentUuidNoStandard}",
                 companyUuid: "${companyUuidSupplier}",
                 description: "description for supplier component",
@@ -3106,7 +3102,7 @@ describe('company', () => {
       .post('/graphql')
       .send({
         query: `mutation  {
-          deleteSupplierCompany( data: {
+          deleteSupplierCompany(args: {
               companyUuid: "${companyUuidNoSupplier}",
               componentUuid: "${componentUuidNoStandard}",
           })
@@ -3131,7 +3127,7 @@ describe('company', () => {
       )
       .send({
         query: `mutation  {
-          deleteSupplierCompany( data: {
+          deleteSupplierCompany(args: {
               companyUuid: "${companyUuidNoSupplier}",
               componentUuid: "${componentUuidNoStandard}",
           })
@@ -3156,7 +3152,7 @@ describe('company', () => {
       )
       .send({
         query: `mutation  {
-          deleteSupplierCompany( data: {
+          deleteSupplierCompany(args: {
               companyUuid: "${companyUuidNoSupplier}",
               componentUuid: "${componentUuidNoStandard}",
           })
@@ -3181,7 +3177,7 @@ describe('company', () => {
       )
       .send({
         query: `mutation  {
-          deleteSupplierCompany( data: {
+          deleteSupplierCompany(args: {
               companyUuid: "${companyUuidNoSupplier}",
               componentUuid: "${componentUuidNoStandard}",
           })
@@ -3202,7 +3198,7 @@ describe('company', () => {
       .post('/graphql')
       .send({
         query: `mutation  {
-            deleteAccessRole( data: {
+            deleteAccessRole(args: {
               roleId: ${newRoleId}
               typesAccessIds: [4, 5]
             })
@@ -3227,7 +3223,7 @@ describe('company', () => {
       )
       .send({
         query: `mutation  {
-            deleteAccessRole( data: {
+            deleteAccessRole(args: {
               roleId: ${newRoleId}
               typesAccessIds: [1, 3, 4, 5, 6]
             })
@@ -3252,7 +3248,7 @@ describe('company', () => {
       )
       .send({
         query: `mutation  {
-            deleteAccessRole( data: {
+            deleteAccessRole(args: {
               roleId: ${newRoleId}
               typesAccessIds: [1, 3, 4, 5, 6]
             })
@@ -3277,7 +3273,7 @@ describe('company', () => {
       )
       .send({
         query: `mutation  {
-            deleteAccessRole( data: {
+            deleteAccessRole(args: {
               roleId: ${newRoleId}
               typesAccessIds: [1, 3, 4, 5, 6]
             })
@@ -3298,7 +3294,7 @@ describe('company', () => {
       .post('/graphql')
       .send({
         query: `mutation  {
-            addCompanyMember(data: {
+            addCompanyMember(args: {
               companyUuid: "${companyUuidNoSupplier}"
               userUuid: "${authorizationUserSecond}"
               roleId: ${firstAccess}
@@ -3324,7 +3320,7 @@ describe('company', () => {
       )
       .send({
         query: `mutation  {
-            addCompanyMember(data: {
+            addCompanyMember(args: {
               companyUuid: "${companyUuidNoSupplier}"
               userUuid: "${authorizationUserSecond}"
               roleId: ${firstAccess}
@@ -3350,7 +3346,7 @@ describe('company', () => {
       )
       .send({
         query: `mutation  {
-            addCompanyMember(data: {
+            addCompanyMember(args: {
               companyUuid: "${companyUuidNoSupplier}"
               userUuid: "${authorizationUserSecond}"
               roleId: ${firstAccess}
@@ -3376,7 +3372,7 @@ describe('company', () => {
       )
       .send({
         query: `mutation  {
-            addCompanyMember(data: {
+            addCompanyMember(args: {
               companyUuid: "${companyUuidNoSupplier}"
               userUuid: "${authorizationUserSecond}"
               roleId: ${newRoleId}
@@ -3402,7 +3398,7 @@ describe('company', () => {
       )
       .send({
         query: `mutation  {
-            addCompanyMember(data: {
+            addCompanyMember(args: {
               companyUuid: "${companyUuidNoSupplier}"
               userUuid: "${authorizationUserSecond}"
               roleId: ${newRoleId}
@@ -3425,13 +3421,11 @@ describe('company', () => {
       .post('/graphql')
       .send({
         query: `mutation  {
-            changeRoleMember(
-              data: {
+            changeRoleMember(args: {
                 companyUuid: "${companyUuidNoSupplier}"
                 userUuid: "${authorizationUserSecond}"
                 roleId: ${firstAccess}
-              }
-            )
+            })
         }`,
       })
       .expect(HttpStatus.OK)
@@ -3453,13 +3447,11 @@ describe('company', () => {
       )
       .send({
         query: `mutation  {
-            changeRoleMember(
-              data: {
+            changeRoleMember(args: {
                 companyUuid: "${companyUuidNoSupplier}"
                 userUuid: "${authorizationUserSecond}"
                 roleId: ${firstAccess}
-              }
-            )
+            })
         }`,
       })
       .expect(HttpStatus.OK)
@@ -3481,13 +3473,11 @@ describe('company', () => {
       )
       .send({
         query: `mutation  {
-            changeRoleMember(
-              data: {
+            changeRoleMember(args: {
                 companyUuid: "${companyUuidNoSupplier}"
                 userUuid: "${authorizationUserSecond}"
                 roleId: ${firstAccess}
-              }
-            )
+            })
         }`,
       })
       .expect(HttpStatus.OK)
@@ -3509,13 +3499,11 @@ describe('company', () => {
       )
       .send({
         query: `mutation  {
-            changeRoleMember(
-              data: {
+            changeRoleMember(args: {
                 companyUuid: "${companyUuidNoSupplier}"
                 userUuid: "${authorizationUserSecond}"
                 roleId: ${newRoleId2}
-              }
-            )
+            })
         }`,
       })
       .expect(HttpStatus.OK)
@@ -3537,13 +3525,11 @@ describe('company', () => {
       )
       .send({
         query: `mutation  {
-            changeRoleMember(
-              data: {
+            changeRoleMember(args: {
                 companyUuid: "${companyUuidNoSupplier}"
                 userUuid: "${authorizationUserSecond}"
                 roleId: ${newRoleId}
-              }
-            )
+            })
         }`,
       })
       .expect(HttpStatus.OK)
@@ -3565,13 +3551,11 @@ describe('company', () => {
       )
       .send({
         query: `mutation  {
-            changeRoleMember(
-              data: {
+            changeRoleMember(args: {
                 companyUuid: "${companyUuidNoSupplier}"
                 userUuid: "${authorizationUserSecond}"
                 roleId: ${newRoleId}
-              }
-            )
+            })
         }`,
       })
       .expect(HttpStatus.OK)
@@ -3681,7 +3665,7 @@ describe('company', () => {
       .post('/graphql')
       .send({
         query: `mutation  {
-            deleteCompanyMember(data: {
+            deleteCompanyMember(args: {
               companyUuid: "${companyUuidNoSupplier}"
               userUuid: "${authorizationUserSecond}"
             })
@@ -3706,7 +3690,7 @@ describe('company', () => {
       )
       .send({
         query: `mutation  {
-            deleteCompanyMember(data: {
+            deleteCompanyMember(args: {
               companyUuid: "${companyUuidNoSupplier}"
               userUuid: "${authorizationUserSecond}"
             })
@@ -3731,7 +3715,7 @@ describe('company', () => {
       )
       .send({
         query: `mutation  {
-            deleteCompanyMember(data: {
+            deleteCompanyMember(args: {
               companyUuid: "${companyUuidNoSupplier}"
               userUuid: "${authorizationUserSecond}"
             })
@@ -3756,7 +3740,7 @@ describe('company', () => {
       )
       .send({
         query: `mutation  {
-            deleteCompanyMember(data: {
+            deleteCompanyMember(args: {
               companyUuid: "${companyUuidNoSupplier}"
               userUuid: "${authorizationUserSecond}"
             })
@@ -3805,7 +3789,7 @@ describe('company', () => {
       .post('/graphql')
       .send({
         query: `mutation  {
-            deleteCompanyRole( data: {
+            deleteCompanyRole(args: {
               companyUuid: "${companyUuidNoSupplier}"
               roleId: ${newRoleId}
             })
@@ -3830,7 +3814,7 @@ describe('company', () => {
       )
       .send({
         query: `mutation  {
-            deleteCompanyRole( data: {
+            deleteCompanyRole(args: {
               companyUuid: "${companyUuidNoSupplier}"
               roleId: ${newRoleId}
             })
@@ -3855,7 +3839,7 @@ describe('company', () => {
       )
       .send({
         query: `mutation  {
-            deleteCompanyRole( data: {
+            deleteCompanyRole(args: {
               companyUuid: "${companyUuidNoSupplier}"
               roleId: ${newRoleId}
             })
@@ -3880,7 +3864,7 @@ describe('company', () => {
       )
       .send({
         query: `mutation  {
-            deleteCompanyRole( data: {
+            deleteCompanyRole(args: {
               companyUuid: "${companyUuidNoSupplier}"
               roleId: ${newRoleId}
             })
@@ -3905,7 +3889,7 @@ describe('company', () => {
       )
       .send({
         query: `query {
-        	companies (arguments: {
+        	companies (args: {
             supplier: true
           }){
             ${companiesListQuery}

@@ -47,3 +47,43 @@ pub struct InsertableTypeAccessTranslateList {
     pub lang_id: i32,
     pub name: String,
 }
+
+#[derive(InputObject, Deserialize, Debug)]
+pub struct IptTypeAccessArg {
+    pub type_access_ids:  Option<Vec<i32>>,
+    pub limit: Option<i32>,
+    pub offset: Option<i32>,
+}
+
+#[derive(Debug)]
+pub struct TypeAccessArg {
+    pub type_access_ids: Vec<i32>,
+    pub limit: i32,
+    pub offset: i32,
+}
+
+impl Default for TypeAccessArg {
+    fn default() -> Self {
+        Self {
+            type_access_ids: Vec::new(),
+            limit: 100,
+            offset: 0,
+        }
+    }
+}
+
+impl From<IptTypeAccessArg> for TypeAccessArg {
+    fn from(data: IptTypeAccessArg) -> Self {
+        let IptTypeAccessArg {
+            type_access_ids,
+            limit,
+            offset,
+        } = data;
+
+        Self {
+            type_access_ids: type_access_ids.unwrap_or_default(),
+            limit: limit.unwrap_or(100),
+            offset: offset.unwrap_or(0),
+        }
+    }
+}

@@ -383,7 +383,9 @@ describe('users', () => {
       .post('/graphql')
       .send({
         query: `query {
-            user(username: "${baseUsername}") {
+            user(args: {
+              username: "${baseUsername}"
+            }){
               ${showUserAndRelatedData}
             }
         }`,
@@ -403,7 +405,9 @@ describe('users', () => {
       .post('/graphql')
       .send({
         query: `query {
-            user(userUuid: "${baseUserUuid}") {
+            user(args: {
+              userUuid: "${baseUserUuid}"
+            }){
               ${showUserAndRelatedData}
             }
         }`,
@@ -423,7 +427,7 @@ describe('users', () => {
       .post('/graphql')
       .send({
         query: `mutation  {
-            registerUser( data: {
+            registerUser(args: {
                 email: "${email}",
                 username: "${username}",
                 password: "${password}",
@@ -453,7 +457,7 @@ describe('users', () => {
       .post('/graphql')
       .send({
         query: `mutation  {
-            registerUser( data: {
+            registerUser(args: {
                 email: "${emailNew}",
                 username: "${username2}",
                 password: "${password}"
@@ -494,7 +498,7 @@ describe('users', () => {
       .post('/graphql')
       .send({
         query: `mutation  {
-            registerUser( data: {
+            registerUser(args: {
                 email: "${email}",
                 username: "${username3}",
                 password: "${password}",
@@ -525,7 +529,7 @@ describe('users', () => {
       .post('/graphql')
       .send({
         query: `mutation  {
-            registerUser( data: {
+            registerUser(args: {
                 email: "random@random.random",
                 username: "${username4}",
                 password: "${password}",
@@ -556,7 +560,7 @@ describe('users', () => {
       .post('/graphql')
       .send({
         query: `mutation  {
-            registerUser( data: {
+            registerUser(args: {
                 email: "${email}",
                 username: "${username}",
                 password: "${password}",
@@ -1025,7 +1029,7 @@ describe('users', () => {
       .send({
         query: `mutation  {
             putUserUpdate(
-              data: {
+              args: {
                 email: "${emailPut}"
                 firstname: "${firstnamePut}"
                 lastname: "${lastnamePut}"
@@ -1062,7 +1066,7 @@ describe('users', () => {
       .send({
         query: `mutation  {
             putUserUpdate(
-              data: {
+              args: {
                 email: "${emailPut}"
                 firstname: "${firstnamePut}"
                 lastname: "${lastnamePut}"
@@ -1099,7 +1103,7 @@ describe('users', () => {
       .send({
         query: `mutation  {
             putUserUpdate(
-              data: {
+              args: {
                 email: "${emailPut}"
                 firstname: "${firstnamePut}"
                 lastname: "${lastnamePut}"
@@ -1171,7 +1175,7 @@ describe('users', () => {
       .send({
         query: `mutation  {
             putUserUpdate(
-              data: {
+              args: {
                 email: "${emailPut}"
                 firstname: "${firstnamePut}"
                 lastname: "${lastnamePut}"
@@ -1308,7 +1312,7 @@ describe('users', () => {
       .post('/graphql')
       .send({
         query: `mutation {
-          updateUserCertificate(data: {
+          updateUserCertificate(args: {
             fileUuid: "${fileCertificateTestUuid}"
             description: "${descriptionCertificateTest}"
           })
@@ -1333,7 +1337,7 @@ describe('users', () => {
       )
       .send({
         query: `mutation {
-          updateUserCertificate(data: {
+          updateUserCertificate(args: {
             fileUuid: "${fileCertificateTestUuid}"
             description: "${descriptionCertificateUpdateTest}"
           })
@@ -1384,7 +1388,7 @@ describe('users', () => {
       .send({
         query: `mutation  {
             putUpdatePassword(
-              data: {
+              args: {
                 oldPassword: "${password}",
                 newPassword: "${password}",
               }
@@ -1411,7 +1415,7 @@ describe('users', () => {
       .send({
         query: `mutation  {
             putUpdatePassword(
-              data: {
+              args: {
                 oldPassword: "${password}",
                 newPassword: "${passwordGood}",
               }
@@ -1599,7 +1603,7 @@ describe('users', () => {
       .send({
         query: `mutation  {
             putUpdatePassword(
-              data: {
+              args: {
                 oldPassword: "${password}",
                 newPassword: "${passwordBad}",
               }
@@ -1625,7 +1629,7 @@ describe('users', () => {
       )
       .send({
         query: `mutation {
-          updateUserCertificate(data: {
+          updateUserCertificate(args: {
             fileUuid: "${fileCertificateTestUuid}"
             description: "${descriptionCertificateTest}"
           })
@@ -1649,7 +1653,7 @@ describe('users', () => {
       )
       .send({
         query: `mutation {
-          updateUserCertificate(data: {
+          updateUserCertificate(args: {
             fileUuid: "${fileCertificateTestUuid}"
             description: "${descriptionCertificateTest}"
           })
@@ -1696,7 +1700,7 @@ describe('users', () => {
       .post('/graphql')
       .send({
         query: `mutation {
-          deleteUserCertificate(data: {
+          deleteUserCertificate(args: {
             fileUuid: "${fileCertificateTestUuid}"
           })
         }`,
@@ -1720,7 +1724,7 @@ describe('users', () => {
       )
       .send({
         query: `mutation {
-          deleteUserCertificate(data: {
+          deleteUserCertificate(args: {
             fileUuid: "${fileCertificateTestUuid}"
           })
         }`,
@@ -1743,7 +1747,7 @@ describe('users', () => {
       )
       .send({
         query: `mutation {
-          deleteUserCertificate(data: {
+          deleteUserCertificate(args: {
             fileUuid: "${fileCertificateTestUuid}"
           })
         }`,
@@ -1785,7 +1789,7 @@ describe('users', () => {
       )
       .send({
         query: `mutation  {
-            registerComponent(data: {
+            registerComponent(args: {
                 name: "${nameComponent2}",
                 description: "${descriptionComponent}",
                 typeAccessId: ${typeAccessIdComponent},
@@ -1881,7 +1885,7 @@ describe('users', () => {
       )
       .send({
         query: `mutation newCompany {
-         registerCompany( data: {
+         registerCompany(args: {
             orgname: "${orgname}",
             shortname: "${shortname}",
             inn: "${inn}",
@@ -1966,7 +1970,7 @@ describe('users', () => {
       )
       .send({
         query: `mutation standardQuery {
-          registerStandard(arg: {
+          registerStandard(args: {
             classifier: "${classifierStandard}",
             name: "${nameStandard}",
             description: "${descriptionStandard}",
@@ -2119,7 +2123,7 @@ describe('users', () => {
       )
       .send({
         query: `query {
-            users(arguments: {
+            users(args: {
               favorite: true
             }) {
               ${usersListQuery}
@@ -2148,7 +2152,7 @@ describe('users', () => {
       )
       .send({
         query: `query {
-            users(arguments: {
+            users(args: {
               subscribers: true
             }) {
               ${usersListQuery}
@@ -2174,7 +2178,7 @@ describe('users', () => {
       )
       .send({
         query: `query {
-            users(arguments: {
+            users(args: {
               subscribers: true
             }) {
               ${usersListQuery}
@@ -2322,6 +2326,7 @@ describe('users', () => {
       })
       .expect(HttpStatus.OK)
     debug('/graphql deleteUserFav body=%o', body);
+    // expect(body).toBe(0);
     expect(body.data.deleteUserFav).toBe(true);
     done();
   });
@@ -2379,7 +2384,7 @@ describe('users', () => {
       .post('/graphql')
       .send({
         query: `query ListUsers {
-            users(arguments: {usersUuids: [
+            users(args: {usersUuids: [
               "${userUuidFirst}",
               "${userUuidSecond}"
             ]}) {
@@ -2407,7 +2412,9 @@ describe('users', () => {
       )
       .send({
         query: `query {
-            user(userUuid: "${userUuidFirst}") {
+            user(args: {
+              userUuid: "${userUuidFirst}"
+            }){
               ${showUserAndRelatedData}
             }
         }`,
@@ -2434,7 +2441,9 @@ describe('users', () => {
       )
       .send({
         query: `query {
-            user(userUuid: "${userUuidSecond}") {
+            user(args: {
+              userUuid: "${userUuidSecond}"
+            }){
               ${showUserAndRelatedData}
             }
         }`,
@@ -2458,7 +2467,7 @@ describe('users', () => {
       )
       .send({
         query: `mutation newCompany {
-         registerCompany( data: {
+         registerCompany(args: {
             orgname: "${orgname}",
             shortname: "${shortname}",
             inn: "${inn}",
@@ -2498,7 +2507,7 @@ describe('users', () => {
       )
       .send({
         query: `mutation  {
-            registerCompanyRole( data: {
+            registerCompanyRole(args: {
               companyUuid: "${companyUuidSupplier}"
               langId: ${langId}
               name: "${nameRole}"
@@ -2524,7 +2533,7 @@ describe('users', () => {
       )
       .send({
         query: `mutation  {
-            addCompanyMember(data: {
+            addCompanyMember(args: {
                 companyUuid: "${companyUuidSupplier}"
                 userUuid: "${userUuidSecond}"
                 roleId: ${newRoleId}
@@ -2550,7 +2559,7 @@ describe('users', () => {
       )
       .send({
         query: `query {
-            user {
+            user(args: {}){
               ${showUserAndRelatedData}
             }
         }`,
@@ -2574,7 +2583,9 @@ describe('users', () => {
       )
       .send({
         query: `query {
-            user(userUuid: "${userUuidSecond}") {
+            user(args: {
+              userUuid: "${userUuidSecond}"
+            }){
               ${showUserAndRelatedData}
             }
         }`,
@@ -2601,7 +2612,9 @@ describe('users', () => {
       )
       .send({
         query: `query {
-            user(username: "${username2}") {
+            user(args: {
+              username: "${username2}"
+            }){
               ${showUserAndRelatedData}
             }
         }`,
@@ -2628,7 +2641,7 @@ describe('users', () => {
       )
       .send({
         query: `query ListUsers {
-            users(arguments: {usersUuids: [
+            users(args: {usersUuids: [
               "${userUuidFirst}",
               "${userUuidSecond}"
             ]}) {
@@ -2657,7 +2670,7 @@ describe('users', () => {
       )
       .send({
         query: `query ListUsers {
-            users(arguments: {usersUuids: [
+            users(args: {usersUuids: [
               "${userUuidSecond}"
             ]}) {
               ${usersListQuery}
@@ -2683,7 +2696,7 @@ describe('users', () => {
       )
       .send({
         query: `mutation  {
-            addCompanyMember(data: {
+            addCompanyMember(args: {
                 companyUuid: "${companyUuidSupplier}"
                 userUuid: "${userUuidThree}"
                 roleId: ${newRoleId}
@@ -2709,7 +2722,7 @@ describe('users', () => {
       )
       .send({
         query: `query ListUsers {
-            users(arguments: {usersUuids: [
+            users(args: {usersUuids: [
               "${userUuidFirst}",
               "${userUuidSecond}"
             ]}) {
@@ -2741,7 +2754,7 @@ describe('users', () => {
       )
       .send({
         query: `query {
-            users(arguments: {
+            users(args: {
               subscribers: true
               favorite: true
             }){
@@ -2768,7 +2781,7 @@ describe('users', () => {
       )
       .send({
         query: `query {
-            users(arguments: {
+            users(args: {
               limit: 2
               offset: 1
             }){
@@ -2825,7 +2838,7 @@ describe('users', () => {
       )
       .send({
         query: `mutation  {
-            deleteCompanyMember(data: {
+            deleteCompanyMember(args: {
                 companyUuid: "${companyUuidSupplier}"
                 userUuid: "${userUuidSecond}"
             })
@@ -2850,7 +2863,7 @@ describe('users', () => {
       )
       .send({
         query: `mutation  {
-            deleteCompanyMember(data: {
+            deleteCompanyMember(args: {
                 companyUuid: "${companyUuidSupplier}"
                 userUuid: "${userUuidThree}"
             })
@@ -2876,7 +2889,7 @@ describe('users', () => {
       )
       .send({
         query: `mutation standardQuery {
-          registerStandard(arg: {
+          registerStandard(args: {
             classifier: "${classifierStandard}",
             name: "${nameStandard}",
             description: "${descriptionStandard}",
@@ -2911,7 +2924,7 @@ describe('users', () => {
       .send({
         query: `mutation  {
             setUserAccessStandard(
-              data: {
+              args: {
                 standardUuid: "${standardUuidFirst}"
                 userUuid: "${userUuidSecond}"
                 typeAccessId: ${typeAccessId2}
@@ -2938,7 +2951,9 @@ describe('users', () => {
       )
       .send({
         query: `query {
-            user(userUuid: "${userUuidSecond}") {
+            user(args: {
+              userUuid: "${userUuidSecond}"
+            }){
               ${showUserAndRelatedData}
             }
         }`,
@@ -2966,7 +2981,7 @@ describe('users', () => {
       .send({
         query: `mutation  {
             setUserAccessStandard(
-              data: {
+              args: {
                 standardUuid: "${standardUuidFirst}"
                 userUuid: "${userUuidThree}"
                 typeAccessId: ${typeAccessId2}
@@ -2993,7 +3008,9 @@ describe('users', () => {
       )
       .send({
         query: `query {
-            user(userUuid: "${userUuidThree}") {
+            user(args: {
+              userUuid: "${userUuidThree}"
+            }){
               ${showUserAndRelatedData}
             }
         }`,
@@ -3040,7 +3057,7 @@ describe('users', () => {
       )
       .send({
         query: `mutation  {
-            registerComponent(data: {
+            registerComponent(args: {
                 name: "${nameComponent2}",
                 description: "${descriptionComponent}",
                 typeAccessId: ${typeAccessIdComponentPrivate},
@@ -3070,7 +3087,7 @@ describe('users', () => {
       .send({
         query: `mutation  {
             setUserAccessComponent(
-              data: {
+              args: {
                 componentUuid: "${componentUuidNoStandard}"
                 userUuid: "${userUuidFirst}"
                 typeAccessId: ${typeAccessId2}
@@ -3097,7 +3114,9 @@ describe('users', () => {
       )
       .send({
         query: `query {
-            user(username: "${username2}") {
+            user(args: {
+              username: "${username2}"
+            }){
               ${showUserAndRelatedData}
             }
         }`,
@@ -3124,7 +3143,9 @@ describe('users', () => {
       )
       .send({
         query: `query {
-            user(userUuid: "${userUuidSecond}") {
+            user(args: {
+              userUuid: "${userUuidSecond}"
+            }){
               ${showUserAndRelatedData}
             }
         }`,
@@ -3152,7 +3173,7 @@ describe('users', () => {
       .send({
         query: `mutation  {
             setUserAccessComponent(
-              data: {
+              args: {
                 componentUuid: "${componentUuidNoStandard}"
                 userUuid: "${userUuidThree}"
                 typeAccessId: ${typeAccessId2}
@@ -3179,7 +3200,9 @@ describe('users', () => {
       )
       .send({
         query: `query {
-            user(username: "${username3}") {
+            user(args: {
+              username: "${username3}"
+            }){
               ${showUserAndRelatedData}
             }
         }`,
@@ -3203,7 +3226,9 @@ describe('users', () => {
       )
       .send({
         query: `query {
-            user(username: "fakeusername") {
+            user(args: {
+              username: "fakeusername"
+            }){
               ${showUserAndRelatedData}
             }
         }`,
@@ -3227,7 +3252,9 @@ describe('users', () => {
       )
       .send({
         query: `query {
-            user(userUuid: "${userUuidThree}") {
+            user(args: {
+              userUuid: "${userUuidThree}"
+            }){
               ${showUserAndRelatedData}
             }
         }`,
@@ -3251,7 +3278,9 @@ describe('users', () => {
       )
       .send({
         query: `query {
-            user(userUuid: "${fakeUuid}") {
+            user(args: {
+              userUuid: "${fakeUuid}"
+            }){
               ${showUserAndRelatedData}
             }
         }`,
@@ -3322,7 +3351,9 @@ describe('users', () => {
       )
       .send({
         query: `query {
-            user(username: "${username2}") {
+            user(args: {
+              username: "${username2}"
+            }){
               ${showUserAndRelatedData}
             }
         }`,
@@ -3349,7 +3380,9 @@ describe('users', () => {
       )
       .send({
         query: `query {
-            user(userUuid: "${userUuidSecond}") {
+            user(args: {
+              userUuid: "${userUuidSecond}"
+            }){
               ${showUserAndRelatedData}
             }
         }`,
@@ -3424,7 +3457,9 @@ describe('users', () => {
       )
       .send({
         query: `query {
-            user(username: "${username2}") {
+            user(args: {
+              username: "${username2}"
+            }){
               ${showUserAndRelatedData}
             }
         }`,
@@ -3448,7 +3483,9 @@ describe('users', () => {
       )
       .send({
         query: `query {
-            user(userUuid: "${userUuidSecond}") {
+            user(args: {
+              userUuid: "${userUuidSecond}"
+            }){
               ${showUserAndRelatedData}
             }
         }`,

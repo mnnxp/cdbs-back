@@ -20,13 +20,13 @@ impl ExtensionMutation {
     async fn register_extension(
         &self,
         cxt: &Context<'_>,
-        data: IptExtensionData,
+        args: IptExtensionData,
     ) -> ServiceResult<Extension> {
         use extension::service::register::create_extension;
         let conn: &PooledConnection = &get_conn(cxt)?;
 
         crate::models::user::access::logged::check_authorized(cxt)?;
 
-        create_extension(&data, conn)
+        create_extension(&args, conn)
     }
 }

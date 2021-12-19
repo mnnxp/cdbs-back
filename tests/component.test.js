@@ -450,7 +450,7 @@ describe('component', () => {
       .post('/graphql')
       .send({
         query: `mutation  {
-            registerUser( data: {
+            registerUser(args: {
                 email: "testemail@mail.ru",
                 firstname: "test_firstname",
                 lastname: "test_lastname",
@@ -506,7 +506,7 @@ describe('component', () => {
       .post('/graphql')
       .send({
         query: `mutation  {
-            registerUser( data: {
+            registerUser(args: {
                 email: "testemail@mail.ru",
                 firstname: "test_firstname",
                 lastname: "test_lastname",
@@ -566,7 +566,7 @@ describe('component', () => {
       )
       .send({
         query: `mutation newCompany {
-         registerCompany( data: {
+         registerCompany(args: {
             orgname: "${orgname}",
             shortname: "${shortname}",
             inn: "${inn}",
@@ -606,7 +606,7 @@ describe('component', () => {
       )
       .send({
         query: `mutation newCompany {
-         registerCompany( data: {
+         registerCompany(args: {
             orgname: "${orgname2}",
             shortname: "${shortname}",
             inn: "${inn}",
@@ -637,7 +637,7 @@ describe('component', () => {
       .post('/graphql')
       .send({
         query: `mutation  {
-            registerComponent(data: {
+            registerComponent(args: {
                 parentComponentUuid: "${parentComponentUuid}",
                 name: "${nameComponent}",
                 description: "${descriptionComponent}",
@@ -667,7 +667,7 @@ describe('component', () => {
       )
       .send({
         query: `mutation  {
-            registerComponent(data: {
+            registerComponent(args: {
                 parentComponentUuid: "${parentComponentUuid}",
                 name: "${nameComponent}",
                 description: "${descriptionComponent}",
@@ -695,7 +695,7 @@ describe('component', () => {
       )
       .send({
         query: `mutation  {
-            registerComponent(data: {
+            registerComponent(args: {
                 name: "${nameComponent}",
                 description: "${descriptionComponent}",
                 typeAccessId: ${typeAccessIdComponent},
@@ -724,7 +724,7 @@ describe('component', () => {
       )
       .send({
         query: `mutation  {
-            registerComponent(data: {
+            registerComponent(args: {
                 name: "${nameComponent2}",
                 description: "${descriptionComponent}",
                 typeAccessId: ${typeAccessIdComponentPrivate},
@@ -753,7 +753,7 @@ describe('component', () => {
       )
       .send({
         query: `mutation  {
-            registerComponent(data: {
+            registerComponent(args: {
                 name: "${nameComponent}",
                 description: "${descriptionComponent}",
                 typeAccessId: ${typeAccessIdComponentPrivate},
@@ -783,7 +783,7 @@ describe('component', () => {
       )
       .send({
         query: `query {
-          components(arguments: {
+          components(args: {
             componentsUuids: "${authorizationUserSecond}"
             companyUuid: "${authorizationUserSecond}"
             userUuid: "${authorizationUserSecond}"
@@ -811,7 +811,7 @@ describe('component', () => {
       )
       .send({
         query: `query {
-          components(arguments: {userUuid: "${authorizationUserSecond}"}) {
+          components(args: {userUuid: "${authorizationUserSecond}"}) {
             ${componentsListQuery}
           }
         }`,
@@ -838,7 +838,7 @@ describe('component', () => {
       )
       .send({
         query: `query {
-          components(arguments: {userUuid: "${authorizationUserSecond}"}) {
+          components(args: {userUuid: "${authorizationUserSecond}"}) {
             ${componentsListQuery}
           }
         }`,
@@ -862,7 +862,7 @@ describe('component', () => {
       )
       .send({
         query: `query {
-          components(arguments: {userUuid: "${authorizationUserFirst}"}) {
+          components(args: {userUuid: "${authorizationUserFirst}"}) {
             ${componentsListQuery}
           }
         }`,
@@ -904,7 +904,7 @@ describe('component', () => {
       .post('/graphql')
       .send({
         query: `query {
-          components(arguments: {favorite: true}) {
+          components(args: {favorite: true}) {
             ${componentsListQuery}
           }
         }`,
@@ -928,7 +928,7 @@ describe('component', () => {
       )
       .send({
         query: `query {
-          components(arguments: {favorite: true}) {
+          components(args: {favorite: true}) {
             ${componentsListQuery}
           }
         }`,
@@ -955,7 +955,7 @@ describe('component', () => {
       )
       .send({
         query: `query selectComponentQuery{
-          components(arguments: {
+          components(args: {
             userUuid:  "${authorizationUserSecond}"
             favorite:  true
           }) {
@@ -1001,7 +1001,7 @@ describe('component', () => {
       )
       .send({
         query: `query {
-          components(arguments: {favorite: true}) {
+          components(args: {favorite: true}) {
             ${componentsListQuery}
           }
         }`,
@@ -1024,7 +1024,7 @@ describe('component', () => {
         query: `mutation  {
             putComponentUpdate(
               componentUuid: "${componentUuidStandard}"
-              data: {
+              args: {
                 parentComponentUuid: "${componentUuidNoStandard}"
                 name: "${componentNamePut}"
                 description: "${descriptionNamePut}"
@@ -1055,7 +1055,7 @@ describe('component', () => {
         query: `mutation  {
             putComponentUpdate(
               componentUuid: "${componentUuidStandard}"
-              data: {
+              args: {
                 parentComponentUuid: "${componentUuidNoStandard}"
                 name: "${componentNamePut}"
                 description: "${descriptionNamePut}"
@@ -1086,7 +1086,7 @@ describe('component', () => {
         query: `mutation  {
             putComponentUpdate(
               componentUuid: "${componentUuidStandard}"
-              data: {
+              args: {
                 parentComponentUuid: "${componentUuidNoStandard}"
                 name: "${componentNamePut}"
                 description: "${descriptionNamePut}"
@@ -1117,7 +1117,7 @@ describe('component', () => {
         query: `mutation  {
             putComponentUpdate(
               componentUuid: "${componentUuidStandard}"
-              data: {
+              args: {
                 parentComponentUuid: "${componentUuidNoStandard}"
                 name: "${componentNamePut}"
                 description: "${descriptionNamePut}"
@@ -1148,7 +1148,7 @@ describe('component', () => {
         query: `mutation  {
             putComponentUpdate(
               componentUuid: "${componentUuidStandard}"
-              data: {
+              args: {
                 parentComponentUuid: "${parentComponentUuid}",
                 name: "${nameComponent}",
                 description: "${descriptionComponent}",
@@ -1174,7 +1174,7 @@ describe('component', () => {
       .post('/graphql')
       .send({
         query: `mutation  {
-          addComponentKeywords(data: {
+          addComponentKeywords(args: {
             componentUuid: "${componentUuidNoStandard}"
             keywordIds: [${keywordIdsOk}]
           })
@@ -1199,7 +1199,7 @@ describe('component', () => {
       )
       .send({
         query: `mutation  {
-          addComponentKeywords(data: {
+          addComponentKeywords(args: {
             componentUuid: "${componentUuidNoStandard}"
             keywordIds: [${keywordIdsOk}]
           })
@@ -1223,7 +1223,7 @@ describe('component', () => {
       )
       .send({
         query: `mutation  {
-          addComponentKeywords(data: {
+          addComponentKeywords(args: {
             componentUuid: "${componentUuidNoStandard}"
             keywordIds: [${keywordIdsDup}]
           })
@@ -1247,7 +1247,7 @@ describe('component', () => {
       )
       .send({
         query: `mutation  {
-          addComponentKeywords(data: {
+          addComponentKeywords(args: {
             componentUuid: "${componentUuidNoStandard}"
             keywordIds: [${keywordIdsOk}]
           })
@@ -1271,7 +1271,7 @@ describe('component', () => {
       )
       .send({
         query: `mutation  {
-          addComponentKeywords(data: {
+          addComponentKeywords(args: {
             componentUuid: "${componentUuidNoStandard}"
             keywordIds: [${idErr}]
           })
@@ -1296,7 +1296,7 @@ describe('component', () => {
       )
       .send({
         query: `mutation  {
-          addComponentKeywords(data: {
+          addComponentKeywords(args: {
             componentUuid: "${componentUuidNoStandard}"
             keywordIds: [${idErr}]
           })
@@ -1348,7 +1348,7 @@ describe('component', () => {
       .post('/graphql')
       .send({
         query: `mutation  {
-          deleteComponentKeywords(data: {
+          deleteComponentKeywords(args: {
             componentUuid: "${componentUuidNoStandard}"
             keywordIds: [${keywordIdsOk}]
           })
@@ -1373,7 +1373,7 @@ describe('component', () => {
       )
       .send({
         query: `mutation  {
-          deleteComponentKeywords(data: {
+          deleteComponentKeywords(args: {
             componentUuid: "${componentUuidNoStandard}"
             keywordIds: [${keywordIdsOk}]
           })
@@ -1397,7 +1397,7 @@ describe('component', () => {
       )
       .send({
         query: `mutation  {
-          deleteComponentKeywords(data: {
+          deleteComponentKeywords(args: {
             componentUuid: "${componentUuidNoStandard}"
             keywordIds: [${idErr}]
           })
@@ -1422,7 +1422,7 @@ describe('component', () => {
       )
       .send({
         query: `mutation  {
-          deleteComponentKeywords(data: {
+          deleteComponentKeywords(args: {
             componentUuid: "${componentUuidNoStandard}"
             keywordIds: [${idErr}]
           })
@@ -1444,7 +1444,7 @@ describe('component', () => {
       .post('/graphql')
       .send({
         query: `mutation  {
-          addComponentLicense(data: {
+          addComponentLicense(args: {
             componentUuid: "${componentUuidNoStandard}"
             licenseId: ${licenseIdOk}
           })
@@ -1469,7 +1469,7 @@ describe('component', () => {
       )
       .send({
         query: `mutation  {
-          addComponentLicense(data: {
+          addComponentLicense(args: {
             componentUuid: "${componentUuidNoStandard}"
             licenseId: ${licenseIdOk}
           })
@@ -1493,7 +1493,7 @@ describe('component', () => {
       )
       .send({
         query: `mutation  {
-          addComponentLicense(data: {
+          addComponentLicense(args: {
             componentUuid: "${componentUuidNoStandard}"
             licenseId: ${licenseIdOk}
           })
@@ -1518,7 +1518,7 @@ describe('component', () => {
       )
       .send({
         query: `mutation  {
-          addComponentLicense(data: {
+          addComponentLicense(args: {
             componentUuid: "${componentUuidNoStandard}"
             licenseId: ${idErr}
           })
@@ -1543,7 +1543,7 @@ describe('component', () => {
       )
       .send({
         query: `mutation  {
-          addComponentLicense(data: {
+          addComponentLicense(args: {
             componentUuid: "${componentUuidNoStandard}"
             licenseId: ${licenseIdOk}
           })
@@ -1587,7 +1587,7 @@ describe('component', () => {
       .post('/graphql')
       .send({
         query: `mutation  {
-          deleteComponentLicense(data: {
+          deleteComponentLicense(args: {
             componentUuid: "${componentUuidNoStandard}"
             licenseId: ${licenseIdOk}
           })
@@ -1612,7 +1612,7 @@ describe('component', () => {
       )
       .send({
         query: `mutation  {
-          deleteComponentLicense(data: {
+          deleteComponentLicense(args: {
             componentUuid: "${componentUuidNoStandard}"
             licenseId: ${licenseIdOk}
           })
@@ -1633,7 +1633,7 @@ describe('component', () => {
       )
       .send({
         query: `mutation  {
-          deleteComponentLicense(data: {
+          deleteComponentLicense(args: {
             componentUuid: "${componentUuidNoStandard}"
             licenseId: ${idErr}
           })
@@ -1654,7 +1654,7 @@ describe('component', () => {
       )
       .send({
         query: `mutation  {
-          deleteComponentLicense(data: {
+          deleteComponentLicense(args: {
             componentUuid: "${componentUuidNoStandard}"
             licenseId: ${licenseIdOk}
           })
@@ -1676,7 +1676,7 @@ describe('component', () => {
       .post('/graphql')
       .send({
         query: `mutation  {
-          addComponentSpecs(data: {
+          addComponentSpecs(args: {
             componentUuid: "${componentUuidNoStandard}"
             specIds: [${specIdsOk}]
           })
@@ -1701,7 +1701,7 @@ describe('component', () => {
       )
       .send({
         query: `mutation  {
-          addComponentSpecs(data: {
+          addComponentSpecs(args: {
             componentUuid: "${componentUuidNoStandard}"
             specIds: [${specIdsOk}]
           })
@@ -1725,7 +1725,7 @@ describe('component', () => {
       )
       .send({
         query: `mutation  {
-          addComponentSpecs(data: {
+          addComponentSpecs(args: {
             componentUuid: "${componentUuidNoStandard}"
             specIds: [${specIdsDup}]
           })
@@ -1749,7 +1749,7 @@ describe('component', () => {
       )
       .send({
         query: `mutation  {
-          addComponentSpecs(data: {
+          addComponentSpecs(args: {
             componentUuid: "${componentUuidNoStandard}"
             specIds: [${specIdsOk}]
           })
@@ -1774,7 +1774,7 @@ describe('component', () => {
       )
       .send({
         query: `mutation  {
-          addComponentSpecs(data: {
+          addComponentSpecs(args: {
             componentUuid: "${componentUuidNoStandard}"
             specIds: [${idErr}]
           })
@@ -1799,7 +1799,7 @@ describe('component', () => {
       )
       .send({
         query: `mutation  {
-          addComponentSpecs(data: {
+          addComponentSpecs(args: {
             componentUuid: "${componentUuidNoStandard}"
             specIds: [${idErr}]
           })
@@ -1853,7 +1853,7 @@ describe('component', () => {
       .post('/graphql')
       .send({
         query: `query  {
-          componentSpecs(arg: {
+          componentSpecs(args: {
             componentUuid: "${componentUuidNoStandard}"
           }){
             specId
@@ -1881,7 +1881,7 @@ describe('component', () => {
       )
       .send({
         query: `query  {
-          componentSpecs(arg: {
+          componentSpecs(args: {
             componentUuid: "${componentUuidNoStandard}"
           }){
             specId
@@ -1918,7 +1918,7 @@ describe('component', () => {
       )
       .send({
         query: `query  {
-          componentSpecs(arg: {
+          componentSpecs(args: {
             componentUuid: "${componentUuidNoStandard}"
             limit: 1
             offset: 3
@@ -1950,7 +1950,7 @@ describe('component', () => {
       )
       .send({
         query: `query  {
-          componentSpecs(arg: {
+          componentSpecs(args: {
             componentUuid: "${componentUuidNoStandard}"
             limit: 50
             offset: 500
@@ -1977,7 +1977,7 @@ describe('component', () => {
       .post('/graphql')
       .send({
         query: `mutation  {
-          deleteComponentSpecs(data: {
+          deleteComponentSpecs(args: {
             componentUuid: "${componentUuidNoStandard}"
             specIds: [${specIdsOk}]
           })
@@ -2002,7 +2002,7 @@ describe('component', () => {
       )
       .send({
         query: `mutation  {
-          deleteComponentSpecs(data: {
+          deleteComponentSpecs(args: {
             componentUuid: "${componentUuidNoStandard}"
             specIds: [${specIdsOk}]
           })
@@ -2026,7 +2026,7 @@ describe('component', () => {
       )
       .send({
         query: `mutation  {
-          deleteComponentSpecs(data: {
+          deleteComponentSpecs(args: {
             componentUuid: "${componentUuidNoStandard}"
             specIds: [${idErr}]
           })
@@ -2051,7 +2051,7 @@ describe('component', () => {
       )
       .send({
         query: `mutation  {
-          deleteComponentSpecs(data: {
+          deleteComponentSpecs(args: {
             componentUuid: "${componentUuidNoStandard}"
             specIds: [${idErr}]
           })
@@ -2092,7 +2092,7 @@ describe('component', () => {
       .post('/graphql')
       .send({
         query: `query componentsQuery{
-          components(arguments: {componentsUuids: "${componentUuidStandard}"}) {
+          components(args: {componentsUuids: "${componentUuidStandard}"}) {
             ${componentsListQuery}
           }
         }`,
@@ -2116,7 +2116,7 @@ describe('component', () => {
       )
       .send({
         query: `query selectComponentQuery{
-          components(arguments: {componentsUuids: "${componentUuidStandard}"}) {
+          components(args: {componentsUuids: "${componentUuidStandard}"}) {
             ${componentsListQuery}
           }
         }`,
@@ -2187,7 +2187,7 @@ describe('component', () => {
       )
       .send({
         query: `query selectComponentQuery{
-          components(arguments: {componentsUuids: [
+          components(args: {componentsUuids: [
             "${componentUuidStandard}",
             "${componentUuidNoStandard}",
           ]}) {
@@ -2214,7 +2214,7 @@ describe('component', () => {
       )
       .send({
         query: `query selectComponentQuery{
-          components(arguments: {componentsUuids: [
+          components(args: {componentsUuids: [
             "${componentUuidNoStandard}",
             "${parentComponentUuid}",
           ]}) {
@@ -2241,7 +2241,7 @@ describe('component', () => {
       )
       .send({
         query: `query selectComponentQuery{
-          components(arguments: {componentsUuids: [
+          components(args: {componentsUuids: [
             "${componentUuidStandard}",
             "${componentUuidNoStandard}",
             "${parentComponentUuid}",
@@ -2271,7 +2271,7 @@ describe('component', () => {
       )
       .send({
         query: `query selectComponentQuery{
-          components(arguments: {
+          components(args: {
             userUuid:  "${authorizationUserSecond}"
             favorite:  true
           }) {
@@ -2296,7 +2296,7 @@ describe('component', () => {
       )
       .send({
         query: `query selectComponentQuery{
-          components(arguments: {companyUuid: "${companyUuidSupplier}"}) {
+          components(args: {companyUuid: "${companyUuidSupplier}"}) {
             ${componentsListQuery}
           }
         }`,
@@ -2321,7 +2321,7 @@ describe('component', () => {
       )
       .send({
         query: `query selectComponentQuery{
-          components(arguments: {componentsUuids: "${componentUuidNoStandard}"}) {
+          components(args: {componentsUuids: "${componentUuidNoStandard}"}) {
             ${componentsListQuery}
           }
         }`,
@@ -2372,7 +2372,7 @@ describe('component', () => {
       .post('/graphql')
       .send({
         query: `mutation  {
-            addComponentSupplier( data: {
+            addComponentSupplier(args: {
                 componentUuid: "${componentUuidStandard}",
                 companyUuid: "${companyUuidSupplier}",
                 description: "description for supplier component",
@@ -2398,7 +2398,7 @@ describe('component', () => {
       )
       .send({
         query: `mutation  {
-            addComponentSupplier( data: {
+            addComponentSupplier(args: {
                 componentUuid: "${componentUuidStandard}",
                 companyUuid: "${companyUuidSupplier}",
                 description: "description for supplier component",
@@ -2424,7 +2424,7 @@ describe('component', () => {
       )
       .send({
         query: `mutation  {
-            addComponentSupplier( data: {
+            addComponentSupplier(args: {
                 componentUuid: "${componentUuidStandard}",
                 companyUuid: "${companyUuidNoSupplier}",
                 description: "description for supplier component",
@@ -2455,7 +2455,7 @@ describe('component', () => {
       )
       .send({
         query: `mutation  {
-            addComponentSupplier( data: {
+            addComponentSupplier(args: {
                 componentUuid: "${componentUuidNoStandard}",
                 companyUuid: "${companyUuidSupplier}",
                 description: "description for supplier component",
@@ -2486,7 +2486,7 @@ describe('component', () => {
       )
       .send({
         query: `mutation  {
-            addComponentSupplier( data: {
+            addComponentSupplier(args: {
                 componentUuid: "${componentUuidStandard}",
                 companyUuid: "${companyUuidSupplier}",
                 description: "description for supplier component",
@@ -2513,7 +2513,7 @@ describe('component', () => {
       )
       .send({
         query: `query selectComponentQuery{
-          components(arguments: {companyUuid:  "${companyUuidSupplier}"}) {
+          components(args: {companyUuid:  "${companyUuidSupplier}"}) {
             ${componentsListQuery}
           }
         }`,
@@ -2570,7 +2570,7 @@ describe('component', () => {
       .post('/graphql')
       .send({
         query: `mutation  {
-            deleteSuppliersComponent( data: {
+            deleteSuppliersComponent(args: {
                 componentUuid: "${componentUuidStandard}",
                 companiesUuids: "${companyUuidNoSupplier}"
             })
@@ -2595,7 +2595,7 @@ describe('component', () => {
       )
       .send({
         query: `mutation  {
-            deleteSuppliersComponent( data: {
+            deleteSuppliersComponent(args: {
                 componentUuid: "${componentUuidStandard}",
                 companiesUuids: "${companyUuidSupplier}"
             })
@@ -2620,7 +2620,7 @@ describe('component', () => {
       )
       .send({
         query: `mutation  {
-            deleteSuppliersComponent( data: {
+            deleteSuppliersComponent(args: {
                 componentUuid: "${componentUuidStandard}",
                 companiesUuids: "${companyUuidSupplier}"
             })
@@ -2644,7 +2644,7 @@ describe('component', () => {
       )
       .send({
         query: `mutation standardQuery {
-          registerStandard(arg: {
+          registerStandard(args: {
             classifier: "${classifierStandard}",
             name: "${nameStandard}",
             description: "${descriptionStandard}",
@@ -2674,7 +2674,7 @@ describe('component', () => {
       .post('/graphql')
       .send({
         query: `mutation  {
-            addStandardToComponent( data: {
+            addStandardToComponent(args: {
                 componentUuid: "${componentUuidStandard}",
                 standardUuid: "${parentStandardUuid}",
             })
@@ -2699,7 +2699,7 @@ describe('component', () => {
       )
       .send({
         query: `mutation  {
-            addStandardToComponent( data: {
+            addStandardToComponent(args: {
                 componentUuid: "${componentUuidStandard}",
                 standardUuid: "${parentStandardUuid}",
             })
@@ -2723,7 +2723,7 @@ describe('component', () => {
       )
       .send({
         query: `mutation  {
-            addStandardToComponent( data: {
+            addStandardToComponent(args: {
                 componentUuid: "${componentUuidStandard}",
                 standardUuid: "${standardUuidFirst}",
             })
@@ -2747,7 +2747,7 @@ describe('component', () => {
       )
       .send({
         query: `mutation  {
-            addStandardToComponent( data: {
+            addStandardToComponent(args: {
                 componentUuid: "${componentUuidStandard}",
                 standardUuid: "${parentStandardUuid}",
             })
@@ -2773,7 +2773,7 @@ describe('component', () => {
       )
       .send({
         query: `mutation  {
-            addStandardToComponent( data: {
+            addStandardToComponent(args: {
                 componentUuid: "${componentUuidNoStandard}",
                 standardUuid: "${parentStandardUuid}",
             })
@@ -2797,7 +2797,7 @@ describe('component', () => {
       )
       .send({
         query: `mutation  {
-            addStandardToComponent( data: {
+            addStandardToComponent(args: {
                 componentUuid: "${componentUuidStandard}",
                 standardUuid: "${parentStandardUuid}",
             })
@@ -2931,7 +2931,7 @@ describe('component', () => {
       )
       .send({
         query: `query {
-          components(arguments: {
+          components(args: {
             standardUuid: "${parentStandardUuid}"}
           ) {
             ${componentsListQuery}
@@ -2958,7 +2958,7 @@ describe('component', () => {
       )
       .send({
         query: `query {
-          components(arguments: {
+          components(args: {
             standardUuid: "${standardUuidFirst}"}
           ) {
             ${componentsListQuery}
@@ -2984,7 +2984,7 @@ describe('component', () => {
       .post('/graphql')
       .send({
         query: `mutation  {
-            deleteStandardsComponent( data: {
+            deleteStandardsComponent(args: {
                 componentUuid: "${componentUuidStandard}",
                 standardsUuids: "${parentStandardUuid}"
             })
@@ -3009,7 +3009,7 @@ describe('component', () => {
       )
       .send({
         query: `mutation  {
-            deleteStandardsComponent( data: {
+            deleteStandardsComponent(args: {
                 componentUuid: "${componentUuidStandard}",
                 standardsUuids: "${parentStandardUuid}"
             })
@@ -3034,7 +3034,7 @@ describe('component', () => {
       )
       .send({
         query: `mutation  {
-            deleteStandardsComponent( data: {
+            deleteStandardsComponent(args: {
                 componentUuid: "${componentUuidStandard}",
                 standardsUuids: "${parentStandardUuid}"
             })
@@ -3058,7 +3058,7 @@ describe('component', () => {
       )
       .send({
           query: `mutation {
-            uploadComponentFiles(data: {
+            uploadComponentFiles(args: {
               filenames: [
                 "${filename1}",
                 "${filename2}",
@@ -3093,7 +3093,7 @@ describe('component', () => {
       )
       .send({
           query: `mutation {
-            uploadComponentFiles(data: {
+            uploadComponentFiles(args: {
               filenames: [
                 "${filename1}",
                 "${filename2}",
@@ -3143,7 +3143,7 @@ describe('component', () => {
       )
       .send({
           query: `query componentQuery{
-            componentFiles(arg: {
+            componentFiles(args: {
               componentUuid: "${componentUuidNoStandard}"
             }){
               ${downloadFileFields}
@@ -3182,7 +3182,7 @@ describe('component', () => {
       .post('/graphql')
       .send({
         query: `query {
-          componentFiles(arg: {
+          componentFiles(args: {
             componentUuid: "${componentUuidNoStandard}"
           }) {
             uuid
@@ -3211,7 +3211,7 @@ describe('component', () => {
       )
       .send({
         query: `query {
-          componentFiles(arg: {
+          componentFiles(args: {
             componentUuid: "${componentUuidNoStandard}"
           }) {
             uuid
@@ -3242,7 +3242,7 @@ describe('component', () => {
       )
       .send({
         query: `query {
-          componentFiles(arg: {
+          componentFiles(args: {
             componentUuid: "${componentUuidNoStandard}"
             filesUuids: "${fileUuid2}"
           }) {
@@ -3273,7 +3273,7 @@ describe('component', () => {
       )
       .send({
         query: `query {
-          componentFiles(arg: {
+          componentFiles(args: {
             componentUuid: "${parentComponentUuid}"
           }) {
             uuid
@@ -3300,7 +3300,7 @@ describe('component', () => {
       )
       .send({
           query: `mutation {
-            deleteComponentFile(arg: {
+            deleteComponentFile(args: {
               fileUuid: "${fileUuid1}"
               componentUuid: "${componentUuidNoStandard}"
             })
@@ -3325,7 +3325,7 @@ describe('component', () => {
       )
       .send({
           query: `mutation {
-            deleteComponentFile(arg: {
+            deleteComponentFile(args: {
               fileUuid: "${fileUuid2}"
               componentUuid: "${componentUuidNoStandard}"
             })
@@ -3349,7 +3349,7 @@ describe('component', () => {
       )
       .send({
           query: `mutation {
-            deleteComponentFile(arg: {
+            deleteComponentFile(args: {
               fileUuid: "${fileUuid3}"
               componentUuid: "${componentUuidNoStandard}"
             })
@@ -3373,7 +3373,7 @@ describe('component', () => {
       )
       .send({
           query: `mutation {
-            deleteComponentFile(arg: {
+            deleteComponentFile(args: {
               fileUuid: "${fileUuid4}"
               componentUuid: "${componentUuidNoStandard}"
             })
@@ -3397,7 +3397,7 @@ describe('component', () => {
       )
       .send({
           query: `mutation {
-            deleteComponentFile(arg: {
+            deleteComponentFile(args: {
               fileUuid: "${fileUuid5}"
               componentUuid: "${componentUuidNoStandard}"
             })
@@ -3421,7 +3421,7 @@ describe('component', () => {
       )
       .send({
           query: `query componentQuery{
-            componentFiles(arg: {
+            componentFiles(args: {
               componentUuid: "${componentUuidNoStandard}"
             }){
               ${downloadFileFields}
@@ -3469,7 +3469,7 @@ describe('component', () => {
       .post('/graphql')
       .send({
         query: `mutation  {
-            putComponentParams( data: {
+            putComponentParams(args: {
                 componentUuid: "${componentUuidNoStandard}",
                 params: {
                   paramId: ${paramnameIndex}
@@ -3497,7 +3497,7 @@ describe('component', () => {
       )
       .send({
         query: `mutation  {
-            putComponentParams( data: {
+            putComponentParams(args: {
                 componentUuid: "${componentUuidNoStandard}",
                 params: {
                   paramId: ${paramnameIndex}
@@ -3524,7 +3524,7 @@ describe('component', () => {
       )
       .send({
         query: `mutation  {
-            putComponentParams( data: {
+            putComponentParams(args: {
                 componentUuid: "${componentUuidNoStandard}",
                 params: {
                   paramId: ${paramnameIndex}
@@ -3552,7 +3552,7 @@ describe('component', () => {
       )
       .send({
         query: `mutation  {
-            putComponentParams( data: {
+            putComponentParams(args: {
                 componentUuid: "${componentUuidNoStandard}",
                 params: {
                   paramId: ${paramnameIndex}
@@ -3609,7 +3609,7 @@ describe('component', () => {
       .post('/graphql')
       .send({
         query: `mutation  {
-            deleteComponentParams( data: {
+            deleteComponentParams(args: {
                 componentUuid: "${componentUuidNoStandard}"
                 paramIds: [${paramIdsTest}]
             })
@@ -3634,7 +3634,7 @@ describe('component', () => {
       )
       .send({
         query: `mutation  {
-            deleteComponentParams( data: {
+            deleteComponentParams(args: {
                 componentUuid: "${componentUuidNoStandard}"
                 paramIds: ${paramnameIndex}
             })
@@ -3659,7 +3659,7 @@ describe('component', () => {
       )
       .send({
         query: `mutation  {
-            deleteComponentParams( data: {
+            deleteComponentParams(args: {
                 componentUuid: "${componentUuidNoStandard}"
                 paramIds: [${paramIdsTest}]
             })
@@ -3684,7 +3684,7 @@ describe('component', () => {
   //     )
   //     .send({
   //       query: `mutation  {
-  //           putComponentParams( data: {
+  //           putComponentParams(args: {
   //               componentUuid: "${componentUuidNoStandard}",
   //               paramId: ${paramnameIndex}
   //               value: "${paramValueTest}"
@@ -3710,7 +3710,7 @@ describe('component', () => {
       .post('/graphql')
       .send({
         query: `mutation {
-          registerComponentModification(data: {
+          registerComponentModification(args: {
             modificationName: "${modificationName}",
             componentUuid: "${componentUuidNoStandard}",
             parentModificationUuid: "${parentModificationUuid}",
@@ -3738,7 +3738,7 @@ describe('component', () => {
       )
       .send({
         query: `mutation {
-          registerComponentModification(data: {
+          registerComponentModification(args: {
             modificationName: "${modificationName}",
             componentUuid: "${componentUuidStandard}",
             parentModificationUuid: "${parentModificationUuid}",
@@ -3766,7 +3766,7 @@ describe('component', () => {
       )
       .send({
         query: `mutation {
-          registerComponentModification(data: {
+          registerComponentModification(args: {
             modificationName: "${modificationName}",
             componentUuid: "${componentUuidNoStandard}",
             parentModificationUuid: "${parentModificationUuid}",
@@ -3794,7 +3794,7 @@ describe('component', () => {
       )
       .send({
         query: `mutation {
-          registerComponentModification(data: {
+          registerComponentModification(args: {
             modificationName: "${modificationName}",
             componentUuid: "${componentUuidStandard}",
             parentModificationUuid: "${componentModificationUuidFirst}",
@@ -3821,7 +3821,7 @@ describe('component', () => {
       )
       .send({
         query: `mutation {
-          registerComponentModification(data: {
+          registerComponentModification(args: {
             modificationName: "${modificationName}",
             componentUuid: "${componentUuidNoStandard}",
             parentModificationUuid: "${parentModificationUuid}",
@@ -3847,7 +3847,7 @@ describe('component', () => {
         query: `mutation  {
             putComponentModificationUpdate(
               componentModificationUuid: "${componentModificationUuidSecond}"
-              data: {
+              args: {
                 modificationName: "${nameForUpdate}"
                 description: "${descriptionForUpdate}"
                 actualStatusId: ${actualStatusIdForUpdate}
@@ -3876,7 +3876,7 @@ describe('component', () => {
         query: `mutation  {
             putComponentModificationUpdate(
               componentModificationUuid: "${componentModificationUuidFirst}"
-              data: {
+              args: {
                 modificationName: "${nameModificationForUpdate}"
                 description: "${descriptionModificationForUpdate}"
                 actualStatusId: ${actualStatusModificationIdForUpdate}
@@ -3905,7 +3905,7 @@ describe('component', () => {
         query: `mutation  {
             putComponentModificationUpdate(
               componentModificationUuid: "${componentModificationUuidFirst}"
-              data: {
+              args: {
                 modificationName: "${nameModificationForUpdate}"
                 description: "${descriptionModificationForUpdate}"
                 actualStatusId: ${actualStatusModificationIdForUpdate}
@@ -3934,7 +3934,7 @@ describe('component', () => {
         query: `mutation  {
             putComponentModificationUpdate(
               componentModificationUuid: "${componentModificationUuidFirst}"
-              data: {
+              args: {
                 modificationName: "${nameModificationForUpdate}"
                 description: "${descriptionModificationForUpdate}"
                 actualStatusId: ${actualStatusModificationIdForUpdate}
@@ -3958,7 +3958,7 @@ describe('component', () => {
       .post('/graphql')
       .send({
         query: `mutation  {
-            putModificationParams( data: {
+            putModificationParams(args: {
                 modificationUuid: "${componentModificationUuidSecond}",
                 params: {
                   paramId: ${paramnameIndex}
@@ -3986,7 +3986,7 @@ describe('component', () => {
       )
       .send({
         query: `mutation  {
-            putModificationParams( data: {
+            putModificationParams(args: {
                 modificationUuid: "${componentModificationUuidSecond}",
                 params: {
                   paramId: ${paramnameIndex}
@@ -4013,7 +4013,7 @@ describe('component', () => {
       )
       .send({
         query: `mutation  {
-            putModificationParams( data: {
+            putModificationParams(args: {
                 modificationUuid: "${componentModificationUuidSecond}",
                 params: {
                   paramId: ${paramnameIndex}
@@ -4041,7 +4041,7 @@ describe('component', () => {
       )
       .send({
         query: `mutation  {
-            putModificationParams( data: {
+            putModificationParams(args: {
                 modificationUuid: "${componentModificationUuidSecond}",
                 params: {
                   paramId: ${paramnameIndex}
@@ -4105,7 +4105,7 @@ describe('component', () => {
       .post('/graphql')
       .send({
         query: `mutation  {
-            deleteModificationParams( data: {
+            deleteModificationParams(args: {
                 modificationUuid: "${componentModificationUuidSecond}",
                 paramIds: [${paramIdsTest}]
             })
@@ -4130,7 +4130,7 @@ describe('component', () => {
       )
       .send({
         query: `mutation  {
-            deleteModificationParams( data: {
+            deleteModificationParams(args: {
                 modificationUuid: "${componentModificationUuidSecond}",
                 paramIds: ${paramnameIndex}
             })
@@ -4155,7 +4155,7 @@ describe('component', () => {
       )
       .send({
         query: `mutation  {
-            deleteModificationParams( data: {
+            deleteModificationParams(args: {
                 modificationUuid: "${componentModificationUuidSecond}",
                 paramIds: [${paramIdsTest}]
             })
@@ -4180,7 +4180,7 @@ describe('component', () => {
   //     )
   //     .send({
   //       query: `mutation  {
-  //           putModificationParams( data: {
+  //           putModificationParams(args: {
   //               modificationUuid: "${componentModificationUuidSecond}",
   //               paramId: ${paramnameIndex},
   //               value: "${paramValueTest}"
@@ -4253,7 +4253,7 @@ describe('component', () => {
       )
       .send({
           query: `mutation {
-            uploadModificationFiles(data: {
+            uploadModificationFiles(args: {
               filenames: [
                 "${filename1}",
                 "${filename2}",
@@ -4336,7 +4336,7 @@ describe('component', () => {
       )
       .send({
           query: `mutation {
-            deleteModificationFile(arg: {
+            deleteModificationFile(args: {
               fileUuid: "${fileUuid1}"
               modificationUuid: "${componentModificationUuidSecond}"
             })
@@ -4360,7 +4360,7 @@ describe('component', () => {
       )
       .send({
           query: `mutation {
-            deleteModificationFile(arg: {
+            deleteModificationFile(args: {
               fileUuid: "${fileUuid2}"
               modificationUuid: "${componentModificationUuidSecond}"
             })
@@ -4384,7 +4384,7 @@ describe('component', () => {
       )
       .send({
           query: `mutation {
-            deleteModificationFile(arg: {
+            deleteModificationFile(args: {
               fileUuid: "${fileUuid3}"
               modificationUuid: "${componentModificationUuidSecond}"
             })
@@ -4408,7 +4408,7 @@ describe('component', () => {
       )
       .send({
           query: `mutation {
-            deleteModificationFile(arg: {
+            deleteModificationFile(args: {
               fileUuid: "${fileUuid4}"
               modificationUuid: "${componentModificationUuidSecond}"
             })
@@ -4432,7 +4432,7 @@ describe('component', () => {
       )
       .send({
           query: `mutation {
-            deleteModificationFile(arg: {
+            deleteModificationFile(args: {
               fileUuid: "${fileUuid5}"
               modificationUuid: "${componentModificationUuidSecond}"
             })
@@ -4477,7 +4477,7 @@ describe('component', () => {
       .post('/graphql')
       .send({
           query: `query {
-            componentModificationFilesets(arg: {
+            componentModificationFilesets(args: {
               modificationUuid: "${componentModificationUuidSecond}"
             }){
               modificationUuid
@@ -4508,7 +4508,7 @@ describe('component', () => {
       )
       .send({
           query: `query {
-            componentModificationFilesets(arg: {
+            componentModificationFilesets(args: {
               modificationUuid: "${parentModificationUuid}"
             }){
               modificationUuid
@@ -4534,7 +4534,7 @@ describe('component', () => {
       .post('/graphql')
       .send({
           query: `mutation {
-            registerModificationFileset(arg: {
+            registerModificationFileset(args: {
               modificationUuid: "${componentModificationUuidSecond}"
               programId: 7
             })
@@ -4559,7 +4559,7 @@ describe('component', () => {
       )
       .send({
           query: `mutation {
-            registerModificationFileset(arg: {
+            registerModificationFileset(args: {
               modificationUuid: "${componentModificationUuidSecond}"
               programId: 7
             })
@@ -4584,7 +4584,7 @@ describe('component', () => {
       )
       .send({
           query: `mutation {
-            registerModificationFileset(arg: {
+            registerModificationFileset(args: {
               modificationUuid: "${componentModificationUuidSecond}"
               programId: 7
             })
@@ -4608,7 +4608,7 @@ describe('component', () => {
       )
       .send({
           query: `mutation {
-            registerModificationFileset(arg: {
+            registerModificationFileset(args: {
               modificationUuid: "${componentModificationUuidSecond}"
               programId: 5
             })
@@ -4633,7 +4633,7 @@ describe('component', () => {
       )
       .send({
           query: `query {
-            componentModificationFilesets(arg: {
+            componentModificationFilesets(args: {
               modificationUuid: "${componentModificationUuidSecond}"
             }){
               modificationUuid
@@ -4666,7 +4666,7 @@ describe('component', () => {
       )
       .send({
           query: `query {
-            componentModificationFilesets(arg: {
+            componentModificationFilesets(args: {
               modificationUuid: "${componentModificationUuidSecond}"
               programIds: [5,7]
             }){
@@ -4703,7 +4703,7 @@ describe('component', () => {
       )
       .send({
           query: `query {
-            componentModificationFilesets(arg: {
+            componentModificationFilesets(args: {
               modificationUuid: "${componentModificationUuidSecond}"
               programIds: [1,2,5,8]
             }){
@@ -4739,7 +4739,7 @@ describe('component', () => {
       )
       .send({
           query: `query {
-            componentModificationFilesets(arg: {
+            componentModificationFilesets(args: {
               modificationUuid: "${componentModificationUuidSecond}"
               programIds: [1,2,3]
             }){
@@ -4767,7 +4767,7 @@ describe('component', () => {
       .post('/graphql')
       .send({
           query: `query {
-            componentModificationFilesOfFileset(arg: {
+            componentModificationFilesOfFileset(args: {
               filesetUuid: "${filesetForProgramUuid}"
               fileUuids: []
             }){
@@ -4794,7 +4794,7 @@ describe('component', () => {
       )
       .send({
           query: `query {
-            componentModificationFilesOfFileset(arg: {
+            componentModificationFilesOfFileset(args: {
               filesetUuid: "${baseFilesetUuid}"
             }){
               ${fileDataQuery}
@@ -4819,7 +4819,7 @@ describe('component', () => {
       )
       .send({
           query: `query {
-            componentModificationFilesOfFileset(arg: {
+            componentModificationFilesOfFileset(args: {
               filesetUuid: "${componentModificationFilesetsSecond}"
             }){
               ${fileDataQuery}
@@ -4846,7 +4846,7 @@ describe('component', () => {
       .send({
           query: `mutation {
             uploadFilesToFileset(
-              data: {
+              args: {
                 filesetUuid: "${filesetForProgramUuid}"
                 filenames: [
                   "${filename1}",
@@ -4895,7 +4895,7 @@ describe('component', () => {
       )
       .send({
           query: `query {
-            componentModificationFilesOfFileset(arg: {
+            componentModificationFilesOfFileset(args: {
               filesetUuid: "${filesetForProgramUuid}"
             }){
               ${fileDataQuery}
@@ -4922,7 +4922,7 @@ describe('component', () => {
       )
       .send({
           query: `query {
-            componentModificationFilesOfFileset(arg: {
+            componentModificationFilesOfFileset(args: {
               filesetUuid: "${filesetForProgramUuid}"
               fileUuids: ["${fileOfFilesetUuid}"]
             }){
@@ -4947,7 +4947,7 @@ describe('component', () => {
       .post('/graphql')
       .send({
           query: `query {
-            componentModificationFilesetFiles(arg: {
+            componentModificationFilesetFiles(args: {
               filesetUuid: "${filesetForProgramUuid}"
             }){
               ${downloadFileFields}
@@ -4973,7 +4973,7 @@ describe('component', () => {
       )
       .send({
           query: `query {
-            componentModificationFilesetFiles(arg: {
+            componentModificationFilesetFiles(args: {
               filesetUuid: "${parentModificationUuid}"
             }){
               ${downloadFileFields}
@@ -4998,7 +4998,7 @@ describe('component', () => {
       )
       .send({
           query: `query {
-            componentModificationFilesetFiles(arg: {
+            componentModificationFilesetFiles(args: {
               filesetUuid: "${filesetForProgramUuid}"
             }){
               ${downloadFileFields}
@@ -5031,7 +5031,7 @@ describe('component', () => {
       )
       .send({
           query: `query {
-            componentModificationFilesetFiles(arg: {
+            componentModificationFilesetFiles(args: {
               filesetUuid: "${filesetForProgramUuid}"
               fileUuids: [
                 "${fileUuid2}",
@@ -5064,7 +5064,7 @@ describe('component', () => {
       )
       .send({
           query: `query {
-            componentModificationFilesetFiles(arg: {
+            componentModificationFilesetFiles(args: {
               filesetUuid: "${filesetForProgramUuid}"
               fileUuids: [
                 "${fileUuid2}",
@@ -5097,7 +5097,7 @@ describe('component', () => {
       )
       .send({
           query: `query {
-            componentModificationFilesetFiles(arg: {
+            componentModificationFilesetFiles(args: {
               filesetUuid: "${filesetForProgramUuid}"
               fileUuids: [
                 "${filesetForProgramUuid}",
@@ -5128,7 +5128,7 @@ describe('component', () => {
       )
       .send({
           query: `query {
-            componentModificationFilesetFiles(arg: {
+            componentModificationFilesetFiles(args: {
               filesetUuid: "${filesetForProgramUuid}"
               fileUuids: [
                 "${componentModificationFilesetsSecond}",
@@ -5157,7 +5157,7 @@ describe('component', () => {
       )
       .send({
           query: `query {
-            componentModificationFilesetFiles(arg: {
+            componentModificationFilesetFiles(args: {
               filesetUuid: "${fileUuid1}"
               fileUuids: [
                 "${fileUuid2}",
@@ -5184,7 +5184,7 @@ describe('component', () => {
       .send({
           query: `mutation {
             deleteFilesFromFileset(
-              data: {
+              args: {
                 filesetUuid: "${filesetForProgramUuid}"
                 fileUuids: [
                   "${fileUuid1}",
@@ -5216,7 +5216,7 @@ describe('component', () => {
       .send({
           query: `mutation {
             deleteFilesFromFileset(
-              data: {
+              args: {
                 filesetUuid: "${filesetForProgramUuid}"
                 fileUuids: [
                   "${fileUuid1}",
@@ -5245,7 +5245,7 @@ describe('component', () => {
       .send({
           query: `mutation {
             deleteFilesFromFileset(
-              data: {
+              args: {
                 filesetUuid: "${filesetForProgramUuid}"
                 fileUuids: [
                   "${fileUuid1}",
@@ -5274,7 +5274,7 @@ describe('component', () => {
       )
       .send({
           query: `query {
-            componentModificationFilesOfFileset(arg: {
+            componentModificationFilesOfFileset(args: {
               filesetUuid: "${filesetForProgramUuid}"
             }){
               ${fileDataQuery}
@@ -5296,7 +5296,7 @@ describe('component', () => {
       .post('/graphql')
       .send({
           query: `mutation {
-            deleteModificationFileset(data: {
+            deleteModificationFileset(args: {
               modificationUuid: "${componentModificationUuidSecond}"
               filesetUuid: "${filesetForProgramUuid}"
             })
@@ -5321,7 +5321,7 @@ describe('component', () => {
       )
       .send({
           query: `mutation {
-            deleteModificationFileset(data: {
+            deleteModificationFileset(args: {
               modificationUuid: "${componentModificationUuidSecond}"
               filesetUuid: "${filesetForProgramUuid}"
             })
@@ -5345,7 +5345,7 @@ describe('component', () => {
       )
       .send({
           query: `mutation {
-            deleteModificationFileset(data: {
+            deleteModificationFileset(args: {
               modificationUuid: "${componentModificationUuidSecond}"
               filesetUuid: "${filesetForProgramUuid}"
             })
@@ -5370,7 +5370,7 @@ describe('component', () => {
       )
       .send({
           query: `query {
-            componentModificationFilesOfFileset(arg: {
+            componentModificationFilesOfFileset(args: {
               filesetUuid: "${filesetForProgramUuid}"
             }){
               ${fileDataQuery}
@@ -5395,7 +5395,7 @@ describe('component', () => {
         query: `mutation  {
             putComponentUpdate(
               componentUuid: "${componentUuidNoStandard}"
-              data: {
+              args: {
                 parentComponentUuid: "${componentUuidStandard}"
                 name: "${nameForUpdate}"
                 description: "${descriptionForUpdate}"
@@ -5426,7 +5426,7 @@ describe('component', () => {
         query: `mutation  {
             putComponentUpdate(
               componentUuid: "${componentUuidStandard}"
-              data: {
+              args: {
                 parentComponentUuid: "${componentUuidStandard}"
                 name: "${nameForUpdate}"
                 description: "${descriptionForUpdate}"
@@ -5457,7 +5457,7 @@ describe('component', () => {
         query: `mutation  {
             putComponentUpdate(
               componentUuid: "${componentUuidStandard}"
-              data: {
+              args: {
                 parentComponentUuid: "${componentUuidStandard}"
                 name: "${nameForUpdate}"
                 description: "${descriptionForUpdate}"
@@ -5488,7 +5488,7 @@ describe('component', () => {
         query: `mutation  {
             putComponentUpdate(
               componentUuid: "${componentUuidStandard}"
-              data: {
+              args: {
                 parentComponentUuid: "${componentUuidStandard}"
                 name: "${nameForUpdate}"
                 description: "${descriptionForUpdate}"
@@ -5519,7 +5519,7 @@ describe('component', () => {
       .send({
         query: `mutation  {
             setUserAccessComponent(
-              data: {
+              args: {
                 componentUuid: "${componentUuidStandard}"
                 userUuid: "${authorizationUserSecond}"
                 typeAccessId: ${secondAccess}
@@ -5548,7 +5548,7 @@ describe('component', () => {
         query: `mutation  {
             putComponentUpdate(
               componentUuid: "${componentUuidStandard}"
-              data: {
+              args: {
                 parentComponentUuid: "${componentUuidStandard}"
                 name: "${nameForUpdate}"
                 description: "${descriptionForUpdate}"
@@ -5578,7 +5578,7 @@ describe('component', () => {
       .send({
         query: `mutation  {
             setUserAccessComponent(
-              data: {
+              args: {
                 componentUuid: "${componentUuidStandard}"
                 userUuid: "${authorizationUserSecond}"
                 typeAccessId: ${firstAccess}
@@ -5679,7 +5679,7 @@ describe('component', () => {
         query: `mutation  {
             putComponentUpdate(
               componentUuid: "${componentUuidStandard}"
-              data: {
+              args: {
                 name: "rand"
                 description: "rand rand rand"
                 componentTypeId: 1
@@ -5709,7 +5709,7 @@ describe('component', () => {
       .send({
         query: `mutation  {
             deleteUserAccessComponent(
-              data: {
+              args: {
                 componentUuid: "${componentUuidStandard}"
                 userUuid: "${authorizationUserSecond}"
               }
@@ -5736,7 +5736,7 @@ describe('component', () => {
       .send({
         query: `mutation  {
             deleteUserAccessComponent(
-              data: {
+              args: {
                 componentUuid: "${componentUuidStandard}"
                 userUuid: "${authorizationUserSecond}"
               }
@@ -5765,7 +5765,7 @@ describe('component', () => {
         query: `mutation  {
             putComponentUpdate(
               componentUuid: "${componentUuidStandard}"
-              data: {
+              args: {
                 parentComponentUuid: "${componentUuidStandard}"
                 name: "${nameForUpdate}"
                 description: "${descriptionForUpdate}"
@@ -5796,7 +5796,7 @@ describe('component', () => {
       .send({
         query: `mutation  {
             setCompanyAccessComponent(
-              data: {
+              args: {
                 componentUuid: "${componentUuidStandard}"
                 companyUuid: "${companyUuidNoSupplier}"
                 typeAccessId: ${secondAccess}
@@ -5825,7 +5825,7 @@ describe('component', () => {
         query: `mutation  {
             putComponentUpdate(
               componentUuid: "${componentUuidStandard}"
-              data: {
+              args: {
                 parentComponentUuid: "${componentUuidStandard}"
                 name: "${nameForUpdate}"
                 description: "${descriptionForUpdate}"
@@ -5855,7 +5855,7 @@ describe('component', () => {
       .send({
         query: `mutation  {
             setCompanyAccessComponent(
-              data: {
+              args: {
                 componentUuid: "${componentUuidStandard}"
                 companyUuid: "${companyUuidNoSupplier}"
                 typeAccessId: ${firstAccess}
@@ -5882,7 +5882,7 @@ describe('component', () => {
       )
       .send({
         query: `mutation  {
-            registerCompanyRole( data: {
+            registerCompanyRole(args: {
               companyUuid: "${companyUuidNoSupplier}"
               langId: ${langId}
               name: "${nameRole}"
@@ -5908,7 +5908,7 @@ describe('component', () => {
       )
       .send({
         query: `mutation  {
-            addAccessRole( data: {
+            addAccessRole(args: {
               roleId: ${newRoleId}
               typesAccessIds: 3
             })
@@ -5933,7 +5933,7 @@ describe('component', () => {
       )
       .send({
         query: `mutation  {
-            addCompanyMember(data: {
+            addCompanyMember(args: {
                 companyUuid: "${companyUuidNoSupplier}"
                 userUuid: "${authorizationUserSecond}"
                 roleId: ${newRoleId}
@@ -5994,7 +5994,7 @@ describe('component', () => {
       )
       .send({
         query: `mutation  {
-            addAccessRole( data: {
+            addAccessRole(args: {
               roleId: ${newRoleId}
               typesAccessIds: 1
             })
@@ -6058,7 +6058,7 @@ describe('component', () => {
         query: `mutation  {
             putComponentUpdate(
               componentUuid: "${componentUuidStandard}"
-              data: {
+              args: {
                 parentComponentUuid: "${parentComponentUuid}",
                 name: "${nameComponent}",
                 description: "${descriptionComponent}",
@@ -6089,7 +6089,7 @@ describe('component', () => {
       .send({
         query: `mutation  {
             deleteCompanyAccessComponent(
-              data: {
+              args: {
                 componentUuid: "${componentUuidStandard}"
                 companyUuid: "${companyUuidNoSupplier}"
               }
@@ -6116,7 +6116,7 @@ describe('component', () => {
       .send({
         query: `mutation  {
             deleteCompanyAccessComponent(
-              data: {
+              args: {
                 componentUuid: "${componentUuidStandard}"
                 companyUuid: "${companyUuidNoSupplier}"
               }
@@ -6145,7 +6145,7 @@ describe('component', () => {
         query: `mutation  {
             putComponentUpdate(
               componentUuid: "${componentUuidStandard}"
-              data: {
+              args: {
                 parentComponentUuid: "${componentUuidStandard}"
                 name: "${nameForUpdate}"
                 description: "${descriptionForUpdate}"
@@ -6171,7 +6171,7 @@ describe('component', () => {
       .post('/graphql')
       .send({
         query: `mutation  {
-            deleteComponentModification(data: {
+            deleteComponentModification(args: {
               componentUuid: "${componentUuidStandard}"
               modificationUuid: "${componentModificationUuidFirst}"
             })
@@ -6196,7 +6196,7 @@ describe('component', () => {
       )
       .send({
         query: `mutation  {
-            deleteComponentModification(data: {
+            deleteComponentModification(args: {
               componentUuid: "${componentUuidStandard}"
               modificationUuid: "${componentModificationUuidFirst}"
             })
@@ -6221,7 +6221,7 @@ describe('component', () => {
       )
       .send({
         query: `mutation  {
-            deleteComponentModification(data: {
+            deleteComponentModification(args: {
               componentUuid: "${componentUuidStandard}"
               modificationUuid: "${componentModificationUuidFirst}"
             })
@@ -6246,7 +6246,7 @@ describe('component', () => {
       )
       .send({
         query: `mutation  {
-            deleteComponentModification(data: {
+            deleteComponentModification(args: {
               componentUuid: "${componentUuidStandard}"
               modificationUuid: "${componentModificationUuidFirst}"
             })
@@ -6270,7 +6270,7 @@ describe('component', () => {
       )
       .send({
         query: `mutation {
-            changeComponentAccess( data: {
+            changeComponentAccess(args: {
               componentUuid: "${componentUuidNoStandard}"
               newTypeAccessId: ${typeAccessId2}
             })
@@ -6295,7 +6295,7 @@ describe('component', () => {
       )
       .send({
         query: `mutation {
-            changeComponentAccess( data: {
+            changeComponentAccess(args: {
               componentUuid: "${componentUuidNoStandard}"
               newTypeAccessId: ${typeAccessId2}
             })
@@ -6353,7 +6353,7 @@ describe('component', () => {
       )
       .send({
         query: `mutation {
-            transferComponentOwnership( data: {
+            transferComponentOwnership(args: {
               componentUuid: "${componentUuidNoStandard}"
               newOwnerUserUuid: "${authorizationUserFirst}"
             })
@@ -6378,7 +6378,7 @@ describe('component', () => {
       )
       .send({
         query: `mutation {
-            transferComponentOwnership( data: {
+            transferComponentOwnership(args: {
               componentUuid: "${componentUuidNoStandard}"
               newOwnerUserUuid: "${authorizationUserFirst}"
             })

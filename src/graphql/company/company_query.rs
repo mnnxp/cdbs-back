@@ -26,15 +26,15 @@ impl CompanyQuery {
     async fn companies(
         &self,
         cxt: &Context<'_>,
-        arguments: Option<IptCompaniesArg>,
+        args: Option<IptCompaniesArg>,
     ) -> ServiceResult<Vec<ShowCompanyShort>> {
         use company::service::list::get_companies;
 
         // authorization check
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
-        let arguments: CompaniesArg = match arguments {
-            Some(args) => CompaniesArg::from(args),
+        let arguments: CompaniesArg = match args {
+            Some(x) => CompaniesArg::from(x),
             None => CompaniesArg::default(),
         };
 
@@ -71,20 +71,20 @@ impl CompanyQuery {
     async fn company_represents(
         &self,
         cxt: &Context<'_>,
-        arg: IptCompanyRepresentsArg,
+        args: IptCompanyRepresentsArg,
     ) -> ServiceResult<Vec<CompanyRepresentAndRelatedData>> {
         use company::company_represent::service::list::get_represents;
 
         // authorization check
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
-        let arg: CompanyRepresentsArg = arg.into();
+        let arguments: CompanyRepresentsArg = args.into();
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
         get_represents(
             &logged_user_uuid,
-            &arg,
+            &arguments,
             &get_set_language(cxt),
             conn
         )
@@ -150,20 +150,20 @@ impl CompanyQuery {
     async fn company_specs(
         &self,
         cxt: &Context<'_>,
-        arg: IptCompanySpecsArg,
+        args: IptCompanySpecsArg,
     ) -> ServiceResult<Vec<SpecTranslateList>> {
         use crate::models::company::spec::service::list::get_company_specs;
 
         // authorization check
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
-        let arg: CompanySpecsArg = arg.into();
+        let arguments: CompanySpecsArg = args.into();
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
         get_company_specs(
             &logged_user_uuid,
-            &arg,
+            &arguments,
             &get_set_language(cxt),
             conn
         )

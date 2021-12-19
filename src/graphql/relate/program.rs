@@ -4,7 +4,7 @@ use crate::database::{get_conn, PooledConnection};
 use crate::errors::ServiceResult;
 use crate::models::user::access::logged::check_authorized;
 use crate::models::relate_ref::program::{
-    model::{IptProgramData, Program},
+    model::{IptProgramData, Program, IptProgramArg, ProgramArg},
     service::list::get_programs,
     service::register::create_program,
 };
@@ -19,18 +19,16 @@ impl ProgramQuery {
     async fn programs(
         &self,
         cxt: &Context<'_>,
-        program_id: Option<Vec<i32>>,
-        limit: Option<i32>,
-        offset: Option<i32>,
+        args: Option<IptProgramArg>,
     ) -> ServiceResult<Vec<Program>> {
-
-        let program_id: Vec<i32> = program_id.unwrap_or_default();
-        let limit: i32 = limit.unwrap_or(100);
-        let offset: i32 = offset.unwrap_or(0);
+        let arguments = match args {
+            Some(x) => ProgramArg::from(x),
+            None => ProgramArg::default(),
+        };
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
-        get_programs(&program_id, &limit, &offset, conn)
+        get_programs(&arguments, conn)
     }
 }
 
@@ -39,12 +37,12 @@ impl ProgramMutation {
     async fn register_program(
         &self,
         cxt: &Context<'_>,
-        data: IptProgramData,
+        args: IptProgramData,
     ) -> ServiceResult<Program> {
         check_authorized(cxt)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
-        create_program(&data, conn)
+        create_program(&args, conn)
     }
 }

@@ -11,20 +11,18 @@ use uuid::Uuid;
 pub(crate) fn delete_row_by_uuid(
     delete_file_uuid: &Uuid,
     conn: &PgConnection
-) -> u32 {
+) -> ServiceResult<i32> {
     use crate::schema::file_ref::dsl::*;
 
-    let res = diesel::delete(
-        file_ref.filter(uuid.eq(delete_file_uuid))
-    ).execute(conn);
-
-    match res {
-        Ok(x) => x as u32,
-        Err(err) => {
+    let del_count = diesel::delete(file_ref)
+        .filter(uuid.eq(delete_file_uuid))
+        .execute(conn)
+        .map_err(|err| {
             debug!("Failded delete file record in database : {:?}", err);
-            0
-        },
-    }
+            ServiceError::InternalServerError
+        })?;
+
+    Ok(del_count as i32)
 }
 
 // /// Delete files records in database by uuid
@@ -90,37 +88,24 @@ pub(crate) async fn full_delete_file(
     let conn = pool.get().unwrap();
 
     // delete file in storage
-    match delete_file_by_path(&slim_file.path_file, pool).await {
-        Ok(true) => {
+    let res_del = delete_file_by_path(&slim_file.path_file, pool).await?;
+    match res_del {
+        true => {
             // delete rows about file
             let result_del_row = delete_row_by_uuid(
                 &slim_file.uuid,
                 &conn
-            );
+            )?;
 
-            match result_del_row {
-                0 => {
-                    Err(ServiceError::BadRequest(
-                        "Removing file info data failed".to_string()
-                    ))
-                },
-                1.. => {
+            match result_del_row < 1 {
+                true => Err(ServiceError::BadRequest("Removing file info data failed".to_string())),
+                false => {
                     debug!("Removing completed: {:?}", result_del_row);
-
                     Ok(true)
                 },
             }
         },
-        Ok(false) => {
-            Err(ServiceError::BadRequest(
-                "Removing failed".to_string()
-            ))
-        },
-        Err(err) => {
-            debug!("Removing failed: {:?}", err);
-
-            Err(err)
-        },
+        false => Err(ServiceError::BadRequest("Removing failed".to_string())),
     }
 }
 

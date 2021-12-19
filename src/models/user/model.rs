@@ -416,3 +416,9 @@ impl From<IptUsersArg> for UsersArg {
         }
     }
 }
+
+#[derive(InputObject, Deserialize, Debug)]
+pub struct IptGetUserArg {
+    pub user_uuid: Option<Uuid>,
+    pub username: Option<String>,
+}

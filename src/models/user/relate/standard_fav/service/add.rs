@@ -13,33 +13,39 @@ use diesel::prelude::*;
 use uuid::Uuid;
 
 pub(crate) fn add_standard_fav(
-    data: &IptStandardFavData,
+    logged_user_uuid: &Uuid,
+    standard_uuid: &Uuid,
     conn: &PgConnection,
 ) -> ServiceResult<bool> {
     let need_access_level = 3; // todo!(create enum for manage access level)
 
     // check access user for standard
     check_access_standard_for_user(
-        &data.user_uuid,
-        &data.standard_uuid,
+        logged_user_uuid,
+        standard_uuid,
         &need_access_level,
         conn
     )?;
 
     // if have need row, just update is_enabled to true
     let check_fav = standard_fav::standard_fav
-        .filter(standard_fav::standard_uuid.eq(&data.standard_uuid)
-        .and(standard_fav::user_uuid.eq(&data.user_uuid)))
+        .filter(standard_fav::standard_uuid.eq(standard_uuid)
+        .and(standard_fav::user_uuid.eq(logged_user_uuid)))
         .select(standard_fav::is_enabled)
-        .first(conn);
+        .limit(1)
+        .load(conn)
+        .map_err(|err| {
+            debug!("Failed check fav standard: {:?}", err);
+            ServiceError::InternalServerError
+        })?;
 
-    match check_fav {
-        Ok(true) => Ok(false), // <-- if data already has
-        Ok(false) => {
+    match check_fav.first() {
+        Some(true) => Ok(false), // <-- if data already has
+        Some(false) => {
             // if have need row, just update is_enabled to true
             diesel::update(standard_fav::standard_fav)
-                .filter(standard_fav::standard_uuid.eq(&data.standard_uuid)
-                .and(standard_fav::user_uuid.eq(&data.user_uuid)))
+                .filter(standard_fav::standard_uuid.eq(standard_uuid)
+                .and(standard_fav::user_uuid.eq(logged_user_uuid)))
                 .set(standard_fav::is_enabled.eq(true))
                 .returning(standard_fav::is_enabled)
                 .get_result::<bool>(conn)
@@ -48,8 +54,11 @@ pub(crate) fn add_standard_fav(
                     ServiceError::InternalServerError
                 })
         },
-        Err(err) => {
-            debug!("Err check is_enabled: {:?}", err);
+        None => {
+            let data = IptStandardFavData{
+                user_uuid: *logged_user_uuid,
+                standard_uuid: *standard_uuid,
+            };
 
             // add flag and date created
             let insertable_fav: InsertableStandardFav = data.into();
@@ -63,7 +72,7 @@ pub(crate) fn add_standard_fav(
                     ServiceError::InternalServerError
                 })?;
 
-            new_notification(&data.standard_uuid, conn)
+            new_notification(standard_uuid, conn)
         },
     }
 }

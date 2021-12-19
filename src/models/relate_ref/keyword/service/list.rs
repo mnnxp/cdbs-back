@@ -1,17 +1,17 @@
 use crate::errors::{ServiceResult, ServiceError};
-use crate::models::relate_ref::keyword::model::Keyword;
+use crate::models::relate_ref::keyword::model::{
+    Keyword, KeywordArg
+};
 use crate::schema::keyword_ref::dsl::*;
 use diesel::{PgConnection, prelude::*};
 
 pub(crate) fn get_keywords(
-    target_keyword_id: &[i32],
-    limit: &i32,
-    offset: &i32,
+    args: &KeywordArg,
     conn: &PgConnection,
 ) -> ServiceResult<Vec<Keyword>> {
-    match target_keyword_id.is_empty() {
-        true => find_all_keywords(limit, offset, conn),
-        false => find_keyword_ids(target_keyword_id, limit, offset, conn)
+    match args.keyword_ids.is_empty() {
+        true => find_all_keywords(&args.limit, &args.offset, conn),
+        false => find_keyword_ids(args, conn)
     }
 }
 
@@ -31,15 +31,13 @@ fn find_all_keywords(
 }
 
 fn find_keyword_ids(
-    target_keyword_id: &[i32],
-    limit: &i32,
-    offset: &i32,
+    args: &KeywordArg,
     conn: &PgConnection,
 ) -> ServiceResult<Vec<Keyword>> {
     keyword_ref
-        .filter(id.eq_any(target_keyword_id))
-        .limit(*limit as i64)
-        .offset(*offset as i64)
+        .filter(id.eq_any(&args.keyword_ids))
+        .limit(args.limit as i64)
+        .offset(args.offset as i64)
         .load::<Keyword>(conn)
         .map_err(|err| {
             debug!("Failed get keyword: {:?}", err);

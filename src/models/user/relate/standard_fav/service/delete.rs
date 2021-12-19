@@ -1,20 +1,21 @@
 use crate::errors::{ServiceError, ServiceResult};
-use crate::models::user::standard_fav::model::IptStandardFavData;
-use crate::schema::standard_fav::dsl::*;
+use crate::schema::standard_fav::dsl as standard_fav;
 use diesel::prelude::*;
+use uuid::Uuid;
 
 // Remove a standard from user favorites standard list
 pub(crate) fn delete_standard_fav(
-    data: &IptStandardFavData,
+    logged_user_uuid: &Uuid,
+    standard_uuid: &Uuid,
     conn: &PgConnection,
 ) -> ServiceResult<bool> {
     // if have need row, just update is_enabled to false
-    let del_fav = diesel::update(standard_fav)
-        .filter(standard_uuid.eq(&data.standard_uuid)
-        .and(user_uuid.eq(&data.user_uuid))
-        .and(is_enabled.eq(true))) // <-- active favorite
-        .set(is_enabled.eq(false)) // <-- off favorite standard
-        .returning(is_enabled)
+    let del_fav = diesel::update(standard_fav::standard_fav)
+        .filter(standard_fav::standard_uuid.eq(standard_uuid)
+        .and(standard_fav::user_uuid.eq(logged_user_uuid))
+        .and(standard_fav::is_enabled.eq(true))) // <-- active favorite
+        .set(standard_fav::is_enabled.eq(false)) // <-- off favorite standard
+        .returning(standard_fav::is_enabled)
         .get_result::<bool>(conn)
         .map_err(|err| {
             debug!("Failed delete fav standard: {:?}", err);

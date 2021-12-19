@@ -32,15 +32,15 @@ impl StandardQuery {
     async fn standards(
         &self,
         cxt: &Context<'_>,
-        arguments: Option<IptStandardsArg>,
+        args: Option<IptStandardsArg>,
     ) -> ServiceResult<Vec<ShowStandardShort>> {
         use crate::models::standard::service::list::get_standard;
 
         // authorization check
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
-        let arguments: StandardsArg = match arguments {
-            Some(args) => StandardsArg::from(args),
+        let arguments: StandardsArg = match args {
+            Some(x) => StandardsArg::from(x),
             None => StandardsArg::default(),
         };
 
@@ -77,20 +77,20 @@ impl StandardQuery {
     async fn standard_files(
         &self,
         cxt: &Context<'_>,
-        arg: IptStandardFilesArg,
+        args: IptStandardFilesArg,
     ) -> ServiceResult<Vec<DownloadFile>> {
         use crate::models::standard::file::service::list::get_standard_files;
 
         // authorization check
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
-        let arg: StandardFilesArg = arg.into();
+        let arguments: StandardFilesArg = args.into();
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
         get_standard_files(
             &logged_user_uuid,
-            &arg,
+            &arguments,
             conn
         )
     }
@@ -98,20 +98,20 @@ impl StandardQuery {
     async fn standard_specs(
         &self,
         cxt: &Context<'_>,
-        arg: IptStandardSpecsArg,
+        args: IptStandardSpecsArg,
     ) -> ServiceResult<Vec<SpecTranslateList>> {
         use crate::models::standard::spec::service::list::get_standard_specs;
 
         // authorization check
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
-        let arg: StandardSpecsArg = arg.into();
+        let arguments: StandardSpecsArg = args.into();
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
         get_standard_specs(
             &logged_user_uuid,
-            &arg,
+            &arguments,
             &get_set_language(cxt),
             conn
         )
@@ -120,20 +120,20 @@ impl StandardQuery {
     async fn standard_keywords(
         &self,
         cxt: &Context<'_>,
-        arg: IptStandardKeywordsArg,
+        args: IptStandardKeywordsArg,
     ) -> ServiceResult<Vec<Keyword>> {
         use crate::models::standard::keyword::service::list::get_standard_keywords;
 
         // authorization check
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
-        let arg: StandardKeywordsArg = arg.into();
+        let arguments: StandardKeywordsArg = args.into();
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
         get_standard_keywords(
             &logged_user_uuid,
-            &arg,
+            &arguments,
             conn
         )
     }
@@ -184,15 +184,11 @@ impl StandardQuery {
     ) -> ServiceResult<Vec<StandardStatusTranslateList>> {
         use crate::models::standard::relate::standard_status::service::list::get_standard_statuses;
 
-        // checking authorization
-        check_authorized(cxt)?;
+        check_authorized(cxt)?; // checking authorization
+
         let filter: Vec<i32> = filter.unwrap_or_default();
         let conn: &PooledConnection = &get_conn(cxt)?;
 
-        get_standard_statuses(
-            &filter,
-            &get_set_language(cxt),
-            conn
-        )
+        get_standard_statuses(&filter, &get_set_language(cxt), conn)
     }
 }

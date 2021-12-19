@@ -3,9 +3,10 @@ use crate::database::{get_conn, PooledConnection};
 use crate::jwt::model::{Claims, Token};
 use crate::models::user::access::logged::{check_authorized, get_logged_user_uuid};
 use crate::models::user::model::{
-    ShowUserShort, SlimUser, UserAndRelatedData, ShowUserAndRelatedData, UsersArg, IptUsersArg,
+    ShowUserShort, SlimUser, UserAndRelatedData,
+    ShowUserAndRelatedData, UsersArg, IptUsersArg, IptGetUserArg
 };
-use crate::models::user::notification::model::ShowNotification;
+use crate::models::user::notification::model::{ShowNotification, IptNotificationArg, NotificationArg};
 use crate::models::user::access::model::UserToken;
 use crate::models::relate_ref::language::get_set_language;
 
@@ -21,32 +22,27 @@ impl UserQuery {
     async fn users(
         &self,
         cxt: &Context<'_>,
-        arguments: Option<IptUsersArg>,
+        args: Option<IptUsersArg>,
     ) -> ServiceResult<Vec<ShowUserShort>> {
         use crate::models::user::service::list::get_users;
 
         // authorization check
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
-        let arguments: UsersArg = match arguments {
-            Some(args) => UsersArg::from(args),
+        let arguments: UsersArg = match args {
+            Some(x) => UsersArg::from(x),
             None => UsersArg::default(),
         };
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
-        get_users(
-            &logged_user_uuid,
-            &arguments,
-            conn,
-        )
+        get_users(&logged_user_uuid, &arguments, conn)
     }
 
     async fn user(
         &self,
         cxt: &Context<'_>,
-        user_uuid: Option<Uuid>,
-        username: Option<String>,
+        args: IptGetUserArg,
     ) -> ServiceResult<ShowUserAndRelatedData> {
         use crate::models::user::service::list::get_user_data;
 
@@ -57,8 +53,7 @@ impl UserQuery {
 
         get_user_data(
             &logged_user_uuid,
-            &user_uuid,
-            &username,
+            &args,
             &get_set_language(cxt),
             conn
         )
@@ -190,25 +185,19 @@ impl UserQuery {
     async fn notifications(
         &self,
         cxt: &Context<'_>,
-        select_ids: Option<Vec<i32>>,
-        limit: Option<i32>,
-        offset: Option<i32>,
+        args: Option<IptNotificationArg>,
     ) -> ServiceResult<Vec<ShowNotification>> {
         use crate::models::user::notification::service::list::get_notifications;
-        let select_ids: Vec<i32>  = select_ids.unwrap_or_default();
-        let limit: i64 = limit.unwrap_or(100) as i64;
-        let offset: i64 = offset.unwrap_or(0) as i64;
+
+        let arguments = match args {
+            Some(x) => NotificationArg::from(x),
+            None => NotificationArg::default(),
+        };
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
-        get_notifications(
-            &logged_user_uuid,
-            &select_ids,
-            &limit,
-            &offset,
-            conn,
-        )
+        get_notifications(&logged_user_uuid, &arguments, conn)
     }
 }
