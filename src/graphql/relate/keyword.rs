@@ -39,13 +39,13 @@ impl KeywordMutation {
     async fn register_keyword(
         &self,
         cxt: &Context<'_>,
-        data: IptKeywordData,
+        args: IptKeywordData,
     ) -> ServiceResult<Keyword> {
         // authorization check
         check_authorized(cxt)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
 
-        create_keyword(&data, conn)
+        create_keyword(&args, conn)
     }
 }
