@@ -5,23 +5,27 @@ use diesel::prelude::*;
 
 impl ComponentTypeTranslateList {
     /// Get component type by id
-    pub(crate) fn get_component_type_by_id(
-        target_component_type_id: &i32,
+    pub(crate) fn get_by_id(
+        component_type_id: &i32,
         set_lang_id: &i32,
         conn: &PgConnection,
     ) -> ServiceResult<ComponentTypeTranslateList> {
         let component_type = component_type_translate_list::component_type_translate_list
-            .filter(component_type_translate_list::component_type_id.eq(target_component_type_id)
+            .filter(component_type_translate_list::component_type_id.eq(component_type_id)
             .and(component_type_translate_list::lang_id.eq(set_lang_id)))
-            .first::<ComponentTypeTranslateList>(conn);
+            .limit(1)
+            .load::<ComponentTypeTranslateList>(conn)
+            .map_err(|err| {
+                debug!("Failed get component type: {:?}", err);
+                ServiceError::InternalServerError
+            })?;
 
-        // if not found data for set lang
-        match component_type {
-            Ok(ct_type) => Ok(ct_type),
-            Err(err) => {
-                debug!("Not found set lang for component type: {:?}", err);
+        match component_type.first() {
+            Some(x) => Ok(x.clone()),
+            None => {
+                debug!("Not found set lang for component type");
                 component_type_translate_list::component_type_translate_list
-                    .filter(component_type_translate_list::component_type_id.eq(target_component_type_id))
+                    .filter(component_type_translate_list::component_type_id.eq(component_type_id))
                     .first::<ComponentTypeTranslateList>(conn)
                     .map_err(|err| {
                         debug!("Failed get component type: {:?}", err);
@@ -29,5 +33,28 @@ impl ComponentTypeTranslateList {
                     })
             },
         }
+    }
+
+    /// Get component type by ids and set lang
+    /// if filter empty return all statuses
+    pub(crate) fn get_by_ids(
+        filter: &[i32],
+        set_lang_id: &i32,
+        conn: &PgConnection,
+    ) -> ServiceResult<Vec<ComponentTypeTranslateList>> {
+        let res = match filter.is_empty() {
+            true => component_type_translate_list::component_type_translate_list
+                .filter(component_type_translate_list::lang_id.eq(set_lang_id))
+                .load::<ComponentTypeTranslateList>(conn),
+            false => component_type_translate_list::component_type_translate_list
+                .filter(component_type_translate_list::component_type_id.eq_any(filter)
+                .and(component_type_translate_list::lang_id.eq(set_lang_id)))
+                .load::<ComponentTypeTranslateList>(conn),
+        };
+
+        res.map_err(|err| {
+            debug!("Failed get component type: {:?}", err);
+            ServiceError::InternalServerError
+        })
     }
 }

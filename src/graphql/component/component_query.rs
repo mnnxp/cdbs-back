@@ -7,6 +7,7 @@ use crate::models::component::{
         ComponentsArg, IptComponentsArg, IptComponentFilesArg, ComponentFilesArg
     },
     relate::spec::model::{IptComponentSpecsArg, ComponentSpecsArg},
+    relate::component_type::model::ComponentTypeTranslateList,
     relate::actual_status::model::ActualStatusTranslateList,
     component_modification,
     component_modification::{
@@ -227,6 +228,25 @@ impl ComponentQuery {
         )
     }
 
+    async fn component_types(
+        &self,
+        cxt: &Context<'_>,
+        filter: Option<Vec<i32>>,
+    ) -> ServiceResult<Vec<ComponentTypeTranslateList>> {
+        use crate::models::component::relate::component_type::service::list::get_component_types;
+
+        check_authorized(cxt)?;
+
+        let filter: Vec<i32> = filter.unwrap_or_default();
+        let conn: &PooledConnection = &get_conn(cxt)?;
+
+        get_component_types(
+            &filter,
+            &get_set_language(cxt),
+            conn
+        )
+    }
+
     async fn component_actual_statuses(
         &self,
         cxt: &Context<'_>,
@@ -235,7 +255,7 @@ impl ComponentQuery {
         use crate::models::component::relate::actual_status::service::list::get_actual_statuses;
 
         check_authorized(cxt)?;
-        
+
         let filter: Vec<i32> = filter.unwrap_or_default();
         let conn: &PooledConnection = &get_conn(cxt)?;
 

@@ -59,6 +59,7 @@ const componentTypeIdPut = 2;
 const actualStatusIdPut = 1;
 var componentActualStatusesId1 = "";
 var componentActualStatusesId2 = "";
+var componentTypesId1 = "";
 
 const parentComponentUuid = "a5953fd9-7393-4f1e-a899-06b5e159dbf1";
 const nameComponent = "M Series Geared Motor";
@@ -1551,6 +1552,117 @@ describe('component', () => {
       data: { componentActualStatuses },
     } = body;
     expect(componentActualStatuses).toBeEmptyArray();
+    done();
+  });
+
+  // Testing component types
+  it('/graphql:Q componentTypes - BadRequest no token', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .send({
+          query: `query {
+            componentTypes {
+              componentTypeId
+              langId
+              componentType
+            }
+          }`,
+        })
+      .expect(HttpStatus.OK)
+    debug('/graphql componentTypes=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Token not found.'
+    );
+    expect(body.errors[0].path[0]).toBe('componentTypes');
+    done();
+  });
+
+  it('/graphql:Q componentTypes - OK full list', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+          query: `query {
+            componentTypes {
+              componentTypeId
+              langId
+              componentType
+            }
+          }`,
+        })
+      .expect(HttpStatus.OK)
+    debug('/graphql componentTypes=%o', body);
+    const {
+      data: { componentTypes },
+    } = body;
+    componentTypesId1 = componentTypes[1].componentTypeId;
+    expect(componentTypes).toBeNonEmptyArray();
+    expect(componentTypes[0].componentType).toBeNonEmptyString();
+    done();
+  });
+
+  it('/graphql:Q componentTypes - OK filter list', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+          query: `query {
+            componentTypes(
+              filter: [
+                ${componentTypesId1}
+            ]){
+              componentTypeId
+              langId
+              componentType
+            }
+          }`,
+        })
+      .expect(HttpStatus.OK)
+    debug('/graphql componentTypes=%o', body);
+    const {
+      data: { componentTypes },
+    } = body;
+    expect(componentTypes).toBeNonEmptyArray();
+    expect(componentTypes[0].componentTypeId).toBe(componentTypesId1);
+    expect(componentTypes.length).toBe(1);
+    done();
+  });
+
+  it('/graphql:Q componentTypes - OK filter with bad ids', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+          query: `query {
+            componentTypes(
+              filter: [
+                -6
+                885585
+                0
+            ]){
+              componentTypeId
+              langId
+              componentType
+            }
+          }`,
+        })
+      .expect(HttpStatus.OK)
+    debug('/graphql componentTypes=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { componentTypes },
+    } = body;
+    expect(componentTypes).toBeEmptyArray();
     done();
   });
 

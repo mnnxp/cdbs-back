@@ -22,7 +22,7 @@ pub struct IptComponentTypeData {
 }
 
 // ComponentType translations
-#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, SimpleObject, Debug)]
+#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, SimpleObject, Clone, Debug)]
 #[primary_key(component_type_id, lang_id)]
 #[belongs_to(Component, foreign_key = "component_type_id")]
 #[belongs_to(ComponentType, foreign_key = "component_type_id")]

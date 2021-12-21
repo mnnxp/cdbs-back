@@ -123,7 +123,7 @@ impl ShowComponentShort {
         ).expect("Error loading type_access");
 
         // get component type with translation for component
-        let component_type = ComponentTypeTranslateList::get_component_type_by_id(
+        let component_type = ComponentTypeTranslateList::get_by_id(
             &component.component_type_id,
             set_lang_id,
             conn
@@ -281,7 +281,7 @@ impl ComponentAndRelatedData {
         ).expect("Error loading type_access");
 
         // get component type with translation for component
-        let component_type = ComponentTypeTranslateList::get_component_type_by_id(
+        let component_type = ComponentTypeTranslateList::get_by_id(
             &component.component_type_id,
             set_lang_id,
             conn
