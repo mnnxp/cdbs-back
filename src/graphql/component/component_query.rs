@@ -1,12 +1,13 @@
 use crate::errors::ServiceResult;
 use crate::database::{get_conn, PooledConnection};
-use crate::models::user::access::logged::get_logged_user_uuid;
+use crate::models::user::access::logged::{get_logged_user_uuid, check_authorized};
 use crate::models::component::{
     model::{
         ComponentAndRelatedData, ShowComponentShort,
         ComponentsArg, IptComponentsArg, IptComponentFilesArg, ComponentFilesArg
     },
     relate::spec::model::{IptComponentSpecsArg, ComponentSpecsArg},
+    relate::actual_status::model::ActualStatusTranslateList,
     component_modification,
     component_modification::{
         fileset_for_program::model::{FilesetProgramRelatedData, IptFilesetProgramArg, FilesetProgramArg},
@@ -222,6 +223,25 @@ impl ComponentQuery {
         get_fileset_files(
             &logged_user_uuid,
             &arguments,
+            conn
+        )
+    }
+
+    async fn component_actual_statuses(
+        &self,
+        cxt: &Context<'_>,
+        filter: Option<Vec<i32>>,
+    ) -> ServiceResult<Vec<ActualStatusTranslateList>> {
+        use crate::models::component::relate::actual_status::service::list::get_actual_statuses;
+
+        check_authorized(cxt)?;
+        
+        let filter: Vec<i32> = filter.unwrap_or_default();
+        let conn: &PooledConnection = &get_conn(cxt)?;
+
+        get_actual_statuses(
+            &filter,
+            &get_set_language(cxt),
             conn
         )
     }

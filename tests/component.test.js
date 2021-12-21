@@ -57,6 +57,8 @@ const componentNamePut = "componentNamePutUpdate";
 const descriptionNamePut = "descriptionNamePutUpdate";
 const componentTypeIdPut = 2;
 const actualStatusIdPut = 1;
+var componentActualStatusesId1 = "";
+var componentActualStatusesId2 = "";
 
 const parentComponentUuid = "a5953fd9-7393-4f1e-a899-06b5e159dbf1";
 const nameComponent = "M Series Geared Motor";
@@ -1435,6 +1437,120 @@ describe('component', () => {
       "BadRequest: Access denied"
     );
     expect(body.errors[0].path[0]).toBe('deleteComponentKeywords');
+    done();
+  });
+
+  // Testing component actual status
+  it('/graphql:Q componentActualStatuses - BadRequest no token', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .send({
+          query: `query {
+            componentActualStatuses {
+              actualStatusId
+              langId
+              name
+            }
+          }`,
+        })
+      .expect(HttpStatus.OK)
+    debug('/graphql componentActualStatuses=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Token not found.'
+    );
+    expect(body.errors[0].path[0]).toBe('componentActualStatuses');
+    done();
+  });
+
+  it('/graphql:Q componentActualStatuses - OK full list', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+          query: `query {
+            componentActualStatuses {
+              actualStatusId
+              langId
+              name
+            }
+          }`,
+        })
+      .expect(HttpStatus.OK)
+    debug('/graphql componentActualStatuses=%o', body);
+    const {
+      data: { componentActualStatuses },
+    } = body;
+    componentActualStatusesId1 = componentActualStatuses[1].actualStatusId;
+    componentActualStatusesId2 = componentActualStatuses[2].actualStatusId;
+    expect(componentActualStatuses).toBeNonEmptyArray();
+    expect(componentActualStatuses[0].name).toBeNonEmptyString();
+    done();
+  });
+
+  it('/graphql:Q componentActualStatuses - OK filter list', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+          query: `query {
+            componentActualStatuses(
+              filter: [
+                ${componentActualStatusesId1}
+                ${componentActualStatusesId2}
+            ]){
+              actualStatusId
+              langId
+              name
+            }
+          }`,
+        })
+      .expect(HttpStatus.OK)
+    debug('/graphql componentActualStatuses=%o', body);
+    const {
+      data: { componentActualStatuses },
+    } = body;
+    expect(componentActualStatuses).toBeNonEmptyArray();
+    expect(componentActualStatuses[0].actualStatusId).toBe(componentActualStatusesId1);
+    expect(componentActualStatuses[1].actualStatusId).toBe(componentActualStatusesId2);
+    expect(componentActualStatuses.length).toBe(2);
+    done();
+  });
+
+  it('/graphql:Q componentActualStatuses - OK filter with bad ids', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+          query: `query {
+            componentActualStatuses(
+              filter: [
+                -6
+                885585
+                0
+            ]){
+              actualStatusId
+              langId
+              name
+            }
+          }`,
+        })
+      .expect(HttpStatus.OK)
+    debug('/graphql componentActualStatuses=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { componentActualStatuses },
+    } = body;
+    expect(componentActualStatuses).toBeEmptyArray();
     done();
   });
 

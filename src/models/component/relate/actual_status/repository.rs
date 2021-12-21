@@ -35,4 +35,27 @@ impl ActualStatusTranslateList {
             },
         }
     }
+
+    /// Get component actual statuses by ids and set lang
+    /// if filter empty return all statuses
+    pub(crate) fn get_by_ids(
+        filter: &[i32],
+        set_lang_id: &i32,
+        conn: &PgConnection,
+    ) -> ServiceResult<Vec<ActualStatusTranslateList>> {
+        let res = match filter.is_empty() {
+            true => actual_status_translate_list::actual_status_translate_list
+                .filter(actual_status_translate_list::lang_id.eq(set_lang_id))
+                .load::<ActualStatusTranslateList>(conn),
+            false => actual_status_translate_list::actual_status_translate_list
+                .filter(actual_status_translate_list::actual_status_id.eq_any(filter)
+                .and(actual_status_translate_list::lang_id.eq(set_lang_id)))
+                .load::<ActualStatusTranslateList>(conn),
+        };
+
+        res.map_err(|err| {
+            debug!("Failed get component actual statuses: {:?}", err);
+            ServiceError::InternalServerError
+        })
+    }
 }
