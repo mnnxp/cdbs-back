@@ -16,7 +16,7 @@ use crate::models::component::{
     spec as component_spec,
     spec::model::IptComponentSpecsData,
     file as component_file,
-    file::model::{IptComponentFileData, DelComponentFileData},
+    file::model::{IptComponentFilesData, DelComponentFileData},
     supplier as component_supplier,
     supplier::model::DelSuppliersComponentData,
     standard as component_standard,
@@ -385,7 +385,7 @@ impl ComponentMutation {
     async fn upload_component_files(
         &self,
         cxt: &Context<'_>,
-        args: IptComponentFileData,
+        args: IptComponentFilesData,
     ) -> ServiceResult<Vec<UploadFile>> {
         use component_file::service::add::add_component_files;
 

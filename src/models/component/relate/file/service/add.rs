@@ -1,5 +1,5 @@
 use crate::errors::{ServiceResult, ServiceError};
-use crate::models::component::relate::file::model::IptComponentFileData;
+use crate::models::component::relate::file::model::IptComponentFilesData;
 use crate::models::relate_ref::file::model::{
     ListObject, PreliminaryFileData, UploadFile
 };
@@ -13,7 +13,7 @@ use uuid::Uuid;
 /// and insert the line to link the file to the component
 pub(crate) fn add_component_files(
     logged_user_uuid: &Uuid,
-    data: &IptComponentFileData,
+    data: &IptComponentFilesData,
     conn: &PgConnection,
 ) -> ServiceResult<Vec<UploadFile>> {
 

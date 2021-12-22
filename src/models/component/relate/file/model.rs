@@ -39,7 +39,7 @@ impl From<ComponentFile> for InsertableComponentFile {
 }
 
 #[derive(InputObject, Deserialize, Debug)]
-pub struct IptComponentFileData {
+pub struct IptComponentFilesData {
     pub filenames: Vec<String>,
     pub component_uuid: Uuid,
 }
