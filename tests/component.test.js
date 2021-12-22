@@ -1345,6 +1345,154 @@ describe('component', () => {
     done();
   });
 
+  // Testing get keywords for component
+  it('/graphql:Q componentKeywords - BadRequest no token', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .send({
+        query: `query  {
+          componentKeywords(args: {
+            componentUuid: "${componentUuidNoStandard}"
+          }){
+            id
+            keyword
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql componentKeywords=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Token not found.'
+    );
+    expect(body.errors[0].path[0]).toBe('componentKeywords');
+    done();
+  });
+
+  it('/graphql:Q componentKeywords - BadRequest no access', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `query  {
+          componentKeywords(args: {
+            componentUuid: "${componentUuidNoStandard}"
+          }){
+            id
+            keyword
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql componentKeywords=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Access denied'
+    );
+    expect(body.errors[0].path[0]).toBe('componentKeywords');
+    done();
+  });
+
+  it('/graphql:Q componentKeywords - OK', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `query  {
+          componentKeywords(args: {
+            componentUuid: "${componentUuidNoStandard}"
+          }){
+            id
+            keyword
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    const {
+      data: { componentKeywords },
+    } = body;
+    expect(componentKeywords[0].id).toBe(1);
+    expect(componentKeywords[0].keyword).toBeNonEmptyString();
+    expect(componentKeywords[1].id).toBe(2);
+    expect(componentKeywords[1].keyword).toBeNonEmptyString();
+    expect(componentKeywords[2].id).toBe(3);
+    expect(componentKeywords[2].keyword).toBeNonEmptyString();
+    expect(componentKeywords[3].id).toBe(4);
+    expect(componentKeywords[3].keyword).toBeNonEmptyString();
+    expect(componentKeywords[4].id).toBe(5);
+    expect(componentKeywords[4].keyword).toBeNonEmptyString();
+    done();
+  });
+
+  it('/graphql:Q componentKeywords - OK with limit and offset', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `query  {
+          componentKeywords(args: {
+            componentUuid: "${componentUuidNoStandard}"
+            limit: 2
+            offset: 3
+          }){
+            id
+            keyword
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { componentKeywords },
+    } = body;
+    expect(componentKeywords.length).toBe(2);
+    expect(componentKeywords[0].id).toBe(2);
+    expect(componentKeywords[0].keyword).toBeNonEmptyString();
+    expect(componentKeywords[1].id).toBe(4);
+    expect(componentKeywords[1].keyword).toBeNonEmptyString();
+    done();
+  });
+
+  it('/graphql:Q componentKeywords - OK not found keywords', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `query  {
+          componentKeywords(args: {
+            componentUuid: "${componentUuidNoStandard}"
+            limit: 5
+            offset: 500
+          }){
+            id
+            keyword
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { componentKeywords },
+    } = body;
+    expect(componentKeywords).toBeEmptyArray();
+    done();
+  });
+
   // Testing delete component keywords
   it('/graphql:M deleteComponentKeywords - BadRequest no token', async (done) => {
     const { body } = await agent

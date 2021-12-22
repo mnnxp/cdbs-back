@@ -6,9 +6,12 @@ use crate::models::component::{
         ComponentAndRelatedData, ShowComponentShort,
         ComponentsArg, IptComponentsArg, IptComponentFilesArg, ComponentFilesArg
     },
-    relate::spec::model::{IptComponentSpecsArg, ComponentSpecsArg},
-    relate::component_type::model::ComponentTypeTranslateList,
-    relate::actual_status::model::ActualStatusTranslateList,
+    relate::{
+        keyword::model::{IptComponentKeywordsArg, ComponentKeywordsArg},
+        spec::model::{IptComponentSpecsArg, ComponentSpecsArg},
+        component_type::model::ComponentTypeTranslateList,
+        actual_status::model::ActualStatusTranslateList,
+    },
     component_modification,
     component_modification::{
         fileset_for_program::model::{FilesetProgramRelatedData, IptFilesetProgramArg, FilesetProgramArg},
@@ -19,6 +22,7 @@ use crate::models::component::{
 };
 use crate::models::relate_ref::{
     file::model::{DownloadFile, ShowFileRelatedData},
+    keyword::model::Keyword,
     spec::model::SpecTranslateList,
     language::get_set_language,
 };
@@ -72,6 +76,27 @@ impl ComponentQuery {
             &component_uuid,
             &get_set_language(cxt),
             conn,
+        )
+    }
+
+    async fn component_keywords(
+        &self,
+        cxt: &Context<'_>,
+        args: IptComponentKeywordsArg,
+    ) -> ServiceResult<Vec<Keyword>> {
+        use crate::models::component::keyword::service::list::get_component_keywords;
+
+        // authorization check
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+
+        let arguments: ComponentKeywordsArg = args.into();
+
+        let conn: &PooledConnection = &get_conn(cxt)?;
+
+        get_component_keywords(
+            &logged_user_uuid,
+            &arguments,
+            conn
         )
     }
 

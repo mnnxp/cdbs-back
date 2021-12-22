@@ -23,21 +23,6 @@ pub struct ComponentKeywordRelatedData {
     pub component_uuid: Uuid,
 }
 
-// impl ComponentKeywordRelatedData {
-//     /// Create struct with ComponentKeyword data, Keyword data set default
-//     pub(crate) fn new(component_uuid: &Uuid) -> Self {
-//         Self{
-//             keyword: Default::default(),
-//             component_uuid: *component_uuid,
-//         }
-//     }
-//
-//     /// Change keyword data
-//     pub(crate) fn put_keyword(&mut self, keyword: Keyword) {
-//         self.keyword = keyword;
-//     }
-// }
-
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub struct IptComponentKeywordsData {
     pub component_uuid: Uuid,
@@ -106,6 +91,36 @@ impl From<&IptComponentKeywordsData> for DeleteComponentKeyword {
         Self{
             component_uuid: *component_uuid,
             keyword_ids: good_kw_ids,
+        }
+    }
+}
+
+#[derive(InputObject, Deserialize, Debug)]
+pub struct IptComponentKeywordsArg {
+    pub component_uuid:  Uuid,
+    pub limit: Option<i32>,
+    pub offset: Option<i32>,
+}
+
+#[derive(Debug)]
+pub struct ComponentKeywordsArg {
+    pub component_uuid:  Uuid,
+    pub limit: i32,
+    pub offset: i32,
+}
+
+impl From<IptComponentKeywordsArg> for ComponentKeywordsArg {
+    fn from(data: IptComponentKeywordsArg) -> Self {
+        let IptComponentKeywordsArg {
+            component_uuid,
+            limit,
+            offset,
+        } = data;
+
+        Self {
+            component_uuid,
+            limit: limit.unwrap_or(100),
+            offset: offset.unwrap_or(0),
         }
     }
 }
