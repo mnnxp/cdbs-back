@@ -2880,6 +2880,39 @@ describe('component', () => {
   });
 
   // Testing get components by company (has one component)
+  it('/graphql:Q componentSuppliers - Ok by company', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `query {
+          componentSuppliers(componentUuid:  "${componentUuidStandard}") {
+            componentUuid
+            supplier {
+              uuid
+              isSupplier
+              shortname
+            }
+            description
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { componentSuppliers },
+    } = body;
+    expect(componentSuppliers).toBeNonEmptyArray();
+    expect(componentSuppliers[0].componentUuid).toBe(componentUuidStandard);
+    expect(componentSuppliers[0].supplier.uuid).toBe(companyUuidSupplier);
+    expect(componentSuppliers.length).toBe(1);
+    done();
+  });
+
   it('/graphql:Q List components - Ok by company', async (done) => {
     const { body } = await agent
       .post('/graphql')

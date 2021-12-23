@@ -7,6 +7,7 @@ use crate::models::component::{
         ComponentsArg, IptComponentsArg, IptComponentFilesArg, ComponentFilesArg
     },
     relate::{
+        supplier::model::ComponentSupplierRelatedData,
         keyword::model::{IptComponentKeywordsArg, ComponentKeywordsArg},
         spec::model::{IptComponentSpecsArg, ComponentSpecsArg},
         component_type::model::ComponentTypeTranslateList,
@@ -76,6 +77,25 @@ impl ComponentQuery {
             &component_uuid,
             &get_set_language(cxt),
             conn,
+        )
+    }
+
+    async fn component_suppliers(
+        &self,
+        cxt: &Context<'_>,
+        component_uuid: Uuid,
+    ) -> ServiceResult<Vec<ComponentSupplierRelatedData>> {
+        use crate::models::component::supplier::service::list::get_component_suppliers;
+
+        // authorization check
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+
+        let conn: &PooledConnection = &get_conn(cxt)?;
+
+        get_component_suppliers(
+            &logged_user_uuid,
+            &component_uuid,
+            conn
         )
     }
 
