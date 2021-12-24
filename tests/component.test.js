@@ -2880,6 +2880,58 @@ describe('component', () => {
   });
 
   // Testing get components by company (has one component)
+  it('/graphql:Q componentSuppliers - BadRequest no token', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .send({
+        query: `query {
+          componentSuppliers(componentUuid:  "${componentUuidStandard}") {
+            componentUuid
+            supplier {
+              uuid
+              isSupplier
+              shortname
+            }
+            description
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe('BadRequest: Token not found.');
+    expect(body.errors[0].path[0]).toBe('componentSuppliers');
+    done();
+  });
+
+  it('/graphql:Q componentSuppliers - BadRequest no access', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `query {
+          componentSuppliers(componentUuid:  "${componentUuidNoStandard}") {
+            componentUuid
+            supplier {
+              uuid
+              isSupplier
+              shortname
+            }
+            description
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe('BadRequest: Access denied');
+    expect(body.errors[0].path[0]).toBe('componentSuppliers');
+    done();
+  });
+
   it('/graphql:Q componentSuppliers - Ok by company', async (done) => {
     const { body } = await agent
       .post('/graphql')
