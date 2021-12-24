@@ -1,9 +1,9 @@
 use crate::errors::{ServiceError, ServiceResult};
 use crate::models::component::standard::model::{
-    StandardToComponent,
-    IptStandardToComponentData,
-    InsertableStandardToComponent
+    IptStandardToComponentData, InsertableStandardToComponent
 };
+use crate::models::component::access::util::check_access_component_for_user;
+use crate::schema::standard_to_component::dsl as standard_to_component;
 use diesel::prelude::*;
 use uuid::Uuid;
 
@@ -14,45 +14,40 @@ pub(crate) fn add_standard_to_component(
     data: &IptStandardToComponentData,
     conn: &PgConnection
 ) -> ServiceResult<bool> {
-    use crate::schema::standard_to_component::dsl::*;
-
     let need_access_level = 1; // todo!(create enum for manage access level)
 
-    crate::models::component::access::util::check_access_component_for_user(
+    check_access_component_for_user(
         logged_user_uuid,
         &data.component_uuid,
         &need_access_level,
         conn
     )?;
 
-    let found_standard = standard_to_component
-        .filter(component_uuid.eq(data.component_uuid)
-        .and(standard_uuid.eq(data.standard_uuid)))
-        .execute(conn);
-
-    match found_standard {
-        Ok(found) => {
-            if found > 0 {
-                return Err(ServiceError::BadRequest(
-                    "This standard is already associated with the component".to_string()
-                ))
-            }
-
-            let new_component_standard: InsertableStandardToComponent = data.into();
-
-            match diesel::insert_into(standard_to_component)
-                .values(&new_component_standard)
-                .get_result::<StandardToComponent>(conn) {
-                Ok(_) => Ok(true),
-                Err(err) => {
-                    debug!("Failed add standard component: {:?}", err);
-                    Err(ServiceError::BadRequest("Failed add standard component".to_string()))
-                },
-            }
-        },
-        Err(err) => {
+    let found_standard = standard_to_component::standard_to_component
+        .filter(standard_to_component::component_uuid.eq(data.component_uuid)
+        .and(standard_to_component::standard_uuid.eq(data.standard_uuid)))
+        .execute(conn)
+        .map_err(|err| {
             debug!("Failed check standards component: {:?}", err);
-            Err(ServiceError::BadRequest("Failed check standards component".to_string()))
-        },
+            ServiceError::InternalServerError
+        })?;
+
+    if found_standard > 0 {
+        return Err(ServiceError::BadRequest(
+            "This standard is already associated with the component".to_string()
+        ))
     }
+
+    let new_component_standard: InsertableStandardToComponent = data.into();
+
+    diesel::insert_into(standard_to_component::standard_to_component)
+        .values(&new_component_standard)
+        .returning(standard_to_component::component_uuid)
+        .get_result::<Uuid>(conn)
+        .map_err(|err| {
+            debug!("Failed add standard component: {:?}", err);
+            ServiceError::InternalServerError
+        })?;
+
+    Ok(true)
 }

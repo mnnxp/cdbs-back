@@ -1,9 +1,8 @@
 use crate::errors::{ServiceError, ServiceResult};
 use crate::models::component::license::model::{
-    ComponentLicense,
-    IptComponentLicenseData,
-    InsertableComponentLicense,
+    IptComponentLicenseData, InsertableComponentLicense,
 };
+use crate::schema::license_to_component::dsl as license_to_component;
 use diesel::prelude::*;
 use uuid::Uuid;
 
@@ -12,8 +11,6 @@ pub(crate) fn add_component_license(
     data: &IptComponentLicenseData,
     conn: &PgConnection
 ) -> ServiceResult<bool> {
-    use crate::schema::license_to_component::dsl::*;
-
     let need_access_level = 1; // todo!(create enum for manage access level)
 
     crate::models::component::access::util::check_access_component_for_user(
@@ -29,10 +26,14 @@ pub(crate) fn add_component_license(
 
     let data: InsertableComponentLicense = data.into();
 
-    let flag_found_license = license_to_component
-        .filter(component_uuid.eq(&data.component_uuid)
-        .and(license_id.eq(&data.license_id)))
-        .execute(conn).unwrap_or(0);
+    let flag_found_license = license_to_component::license_to_component
+        .filter(license_to_component::component_uuid.eq(&data.component_uuid)
+        .and(license_to_component::license_id.eq(&data.license_id)))
+        .execute(conn)
+        .map_err(|err| {
+            debug!("Fail count licenses: {:?}", err);
+            ServiceError::InternalServerError
+        })?;
 
     // debug!("fn create_license START SEARCH ={:?}", flag_found_license);
 
@@ -40,16 +41,14 @@ pub(crate) fn add_component_license(
         return Err(ServiceError::BadRequest("This license for the component is already".to_string()))
     }
 
-    match diesel::insert_into(license_to_component)
+    let license_id = diesel::insert_into(license_to_component::license_to_component)
         .values(&data)
-        .get_result::<ComponentLicense>(conn) {
-        Ok(row) => {
-            debug!("Completed, add license for component: {:?}", row);
-            Ok(true)
-        },
-        Err(err) => {
+        .returning(license_to_component::license_id)
+        .get_result::<i32>(conn)
+        .map_err(|err| {
             debug!("Fail add license for component: {:?}", err);
-            Err(ServiceError::InternalServerError)
-        },
-    }
+            ServiceError::InternalServerError
+        })?;
+
+    Ok(license_id > 0)
 }

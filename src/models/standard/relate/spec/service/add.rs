@@ -46,16 +46,13 @@ pub(crate) fn add_standard_specs(
                 ServiceError::BadRequest("Failed check spec for standard".to_string())
             })?;
 
-        match flag_found_spec == 0 {
-            true => {
+        match flag_found_spec {
+            0 => {
                 debug!("Inserted standard spec: {:?}", &standard_kw.spec_id);
                 insert_data.push(standard_kw);
                 count_insert_rows += 1;
             },
-            false => {
-                debug!("Found standard spec in database: {:?}", flag_found_spec);
-                error_keywords_has.push(standard_kw.spec_id);
-            },
+            _ => error_keywords_has.push(standard_kw.spec_id),
         }
     }
 

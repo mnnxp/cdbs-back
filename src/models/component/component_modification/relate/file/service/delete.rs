@@ -22,21 +22,16 @@ pub(crate) fn delete_modification_file(
         conn
     )?;
 
-    // delete only row in file_to_modification table
-    match diesel::delete(file_to_modification)
+    let count = diesel::delete(file_to_modification)
         .filter(modification_uuid.eq(&data.modification_uuid)
         .and(file_uuid.eq(&data.file_uuid)))
-        .execute(conn) {
-        Ok(count) => {
-            if count == 0 {
-                return Ok(false)
-            }
-            debug!("Delete modification file row: {:?}", count);
-            Ok(true)
-        },
-        Err(err) => {
+        .execute(conn)
+        .map_err(|err| {
             debug!("Fail delete row: {:?}", err);
-            Err(ServiceError::InternalServerError)
-        }
-    }
+            ServiceError::InternalServerError
+        })?;
+        
+    // todo!(here delete files of file_ref table and of storage)
+
+    Ok(count > 0)
 }

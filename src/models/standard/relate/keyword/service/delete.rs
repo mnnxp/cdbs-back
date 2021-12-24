@@ -1,9 +1,9 @@
 use crate::errors::{ServiceError, ServiceResult};
 use crate::models::standard::keyword::model::{
-    IptStandardKeywordsData,
-    DeleteStandardKeywords,
+    IptStandardKeywordsData, DeleteStandardKeywords
 };
 use crate::models::standard::access::util::check_access_standard_for_user;
+use crate::schema::keyword_to_standard::dsl as keyword_to_standard;
 use diesel::prelude::*;
 use uuid::Uuid;
 
@@ -11,9 +11,7 @@ pub(crate) fn del_standard_keywords(
     logged_user_uuid: &Uuid,
     data: &IptStandardKeywordsData,
     conn: &PgConnection
-) -> ServiceResult<i32> {
-    use crate::schema::keyword_to_standard::dsl::*;
-
+) -> ServiceResult<usize> {
     let need_access_level = 1; // todo!(create enum for manage access level)
 
     check_access_standard_for_user(
@@ -31,18 +29,12 @@ pub(crate) fn del_standard_keywords(
         return Err(ServiceError::BadRequest("Not found keywords".to_string()))
     }
 
-    match diesel::delete(keyword_to_standard)
-        .filter(standard_uuid.eq(&del_keywords.standard_uuid)
-        .and(keyword_id.eq_any(&del_keywords.keyword_ids)))
-        .execute(conn) {
-        Ok(count) => {
-            debug!("Completed, delete {:?} keywords", count);
-
-            Ok(count as i32)
-        },
-        Err(err) => {
+    diesel::delete(keyword_to_standard::keyword_to_standard)
+        .filter(keyword_to_standard::standard_uuid.eq(&del_keywords.standard_uuid)
+        .and(keyword_to_standard::keyword_id.eq_any(&del_keywords.keyword_ids)))
+        .execute(conn)
+        .map_err(|err| {
             debug!("Fail inserted keyword: {:?}", err);
-            Err(ServiceError::InternalServerError)
-        }
-    }
+            ServiceError::InternalServerError
+        })
 }

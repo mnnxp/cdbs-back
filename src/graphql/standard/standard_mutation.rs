@@ -215,7 +215,7 @@ impl StandardMutation {
         &self,
         cxt: &Context<'_>,
         args: IptStandardSpecsData,
-    ) -> ServiceResult<i32> {
+    ) -> ServiceResult<usize> {
         use crate::models::standard::spec::service::delete::del_standard_specs;
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
@@ -269,7 +269,7 @@ impl StandardMutation {
         &self,
         cxt: &Context<'_>,
         args: IptStandardKeywordsData,
-    ) -> ServiceResult<i32> {
+    ) -> ServiceResult<usize> {
         use crate::models::standard::keyword::service::delete::del_standard_keywords;
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;

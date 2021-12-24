@@ -191,7 +191,7 @@ impl CompanyMutation {
         &self,
         cxt: &Context<'_>,
         args: IptCompanySpecData,
-    ) -> ServiceResult<i32> {
+    ) -> ServiceResult<usize> {
         use crate::models::company::spec::service::delete::del_company_specs;
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;

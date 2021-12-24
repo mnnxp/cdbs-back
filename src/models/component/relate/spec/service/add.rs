@@ -1,12 +1,9 @@
-use crate::errors::{
-    ServiceResult,
-    ServiceError,
-};
+use crate::errors::{ServiceResult, ServiceError};
 use crate::models::component::spec::model::{
-    ComponentSpec,
-    IptComponentSpecsData,
-    InsertableComponentSpec
+    IptComponentSpecsData, InsertableComponentSpec
 };
+use crate::models::component::access::util::check_access_component_for_user;
+use crate::schema::spec_to_component::dsl as spec_to_component;
 use diesel::prelude::*;
 use uuid::Uuid;
 
@@ -15,11 +12,9 @@ pub(crate) fn add_component_specs(
     data: &IptComponentSpecsData,
     conn: &PgConnection
 ) -> ServiceResult<i32> {
-    use crate::schema::spec_to_component::dsl::*;
-
     let need_access_level = 1; // todo!(create enum for manage access level)
 
-    crate::models::component::access::util::check_access_component_for_user(
+    check_access_component_for_user(
         logged_user_uuid,
         &data.component_uuid,
         &need_access_level,
@@ -41,19 +36,22 @@ pub(crate) fn add_component_specs(
 
     for component_kw in new_component_specs {
         // check new row on non duplicate
-        let flag_found_spec = spec_to_component
-            .filter(component_uuid.eq(&component_kw.component_uuid)
-            .and(spec_id.eq(&component_kw.spec_id)))
-            .execute(conn).unwrap_or(0);
+        let flag_found_spec = spec_to_component::spec_to_component
+            .filter(spec_to_component::component_uuid.eq(&component_kw.component_uuid)
+            .and(spec_to_component::spec_id.eq(&component_kw.spec_id)))
+            .execute(conn)
+            .map_err(|err| {
+                debug!("Fail count specs: {:?}", err);
+                ServiceError::InternalServerError
+            })?;
 
-        if flag_found_spec == 0 {
-            debug!("Inserted component spec: {:?}", &component_kw.spec_id);
-
-            insert_data.push(component_kw);
-
-            count_insert_rows += 1;
-        } else {
-            error_kw_has.push(component_kw.spec_id);
+        match flag_found_spec {
+            0 => {
+                debug!("Inserted component spec: {:?}", &component_kw.spec_id);
+                insert_data.push(component_kw);
+                count_insert_rows += 1;
+            },
+            _ => error_kw_has.push(component_kw.spec_id),
         }
     }
 
@@ -64,16 +62,14 @@ pub(crate) fn add_component_specs(
         ))
     }
 
-    match diesel::insert_into(spec_to_component)
+    diesel::insert_into(spec_to_component::spec_to_component)
         .values(&insert_data)
-        .get_result::<ComponentSpec>(conn) {
-        Ok(_) => {
-            debug!("Completed, add {:?} specs", count_insert_rows);
-            Ok(count_insert_rows)
-        },
-        Err(err) => {
+        .returning(spec_to_component::spec_id)
+        .get_result::<i32>(conn)
+        .map_err(|err| {
             debug!("Fail inserted spec: {:?}", err);
-            Err(ServiceError::InternalServerError)
-        }
-    }
+            ServiceError::InternalServerError
+        })?;
+
+    Ok(count_insert_rows)
 }

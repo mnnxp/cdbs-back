@@ -278,7 +278,7 @@ impl ComponentMutation {
         &self,
         cxt: &Context<'_>,
         args: IptComponentLicenseData,
-    ) -> ServiceResult<i32> {
+    ) -> ServiceResult<usize> {
         use crate::models::component::license::service::delete::del_component_license;
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
@@ -314,7 +314,7 @@ impl ComponentMutation {
         &self,
         cxt: &Context<'_>,
         args: IptComponentSpecsData,
-    ) -> ServiceResult<i32> {
+    ) -> ServiceResult<usize> {
         use component_spec::service::delete::del_component_specs;
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
@@ -368,7 +368,7 @@ impl ComponentMutation {
         &self,
         cxt: &Context<'_>,
         args: IptComponentKeywordsData,
-    ) -> ServiceResult<i32> {
+    ) -> ServiceResult<usize> {
         use component_keyword::service::delete::del_component_keywords;
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;

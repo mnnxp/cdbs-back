@@ -10,7 +10,7 @@ pub(crate) fn del_company_specs(
     logged_user_uuid: &Uuid,
     data: &IptCompanySpecData,
     conn: &PgConnection
-) -> ServiceResult<i32> {
+) -> ServiceResult<usize> {
     use crate::schema::spec_to_company::dsl::*;
 
     let need_access_level = 1; // todo!(create enum for manage access level)
@@ -30,18 +30,12 @@ pub(crate) fn del_company_specs(
         return Err(ServiceError::BadRequest("Not found specs".to_string()))
     }
 
-    match diesel::delete(spec_to_company)
+    diesel::delete(spec_to_company)
         .filter(company_uuid.eq(&del_specs.company_uuid)
         .and(spec_id.eq_any(&del_specs.spec_ids)))
-        .execute(conn) {
-        Ok(count) => {
-            debug!("Completed, delete {:?} specs", count);
-
-            Ok(count as i32)
-        },
-        Err(err) => {
+        .execute(conn)
+        .map_err(|err| {
             debug!("Fail inserted spec: {:?}", err);
-            Err(ServiceError::InternalServerError)
-        }
-    }
+            ServiceError::InternalServerError
+        })
 }

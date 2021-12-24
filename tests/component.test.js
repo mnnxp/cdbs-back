@@ -5759,7 +5759,7 @@ describe('component', () => {
     done();
   });
 
-  it('/graphql:M deleteFilesFromFileset - BadRequest delete non-existent files', async (done) => {
+  it('/graphql:M deleteFilesFromFileset - Ok delete non-existent files', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .set(
@@ -5781,11 +5781,10 @@ describe('component', () => {
         })
       .expect(HttpStatus.OK)
     debug('/graphql deleteFilesFromFileset=%o', body);
-    expect(body.data).toBeNull();
-    expect(body.errors[0].message).toBe(
-      'BadRequest: Error with delete files of fileset data'
-    );
-    expect(body.errors[0].path[0]).toBe('deleteFilesFromFileset');
+    const {
+      data: { deleteFilesFromFileset },
+    } = body;
+    expect(deleteFilesFromFileset).toBe(false);
     done();
   });
 

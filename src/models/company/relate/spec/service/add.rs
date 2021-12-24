@@ -1,8 +1,9 @@
 use crate::errors::{ServiceResult, ServiceError};
 use crate::models::company::spec::model::{
-    CompanySpec, IptCompanySpecData, InsertableCompanySpec
+    IptCompanySpecData, InsertableCompanySpec
 };
 use crate::models::company::access::util::check_company_access;
+use crate::schema::spec_to_company::dsl as spec_to_company;
 use diesel::prelude::*;
 use uuid::Uuid;
 
@@ -11,8 +12,6 @@ pub(crate) fn add_company_specs(
     data: &IptCompanySpecData,
     conn: &PgConnection
 ) -> ServiceResult<i32> {
-    use crate::schema::spec_to_company::dsl::*;
-
     let need_access_level = 1; // todo!(create enum for manage access level)
 
     check_company_access(
@@ -37,19 +36,22 @@ pub(crate) fn add_company_specs(
 
     for company_sc in new_company_specs {
         // check new row on non duplicate
-        let flag_found_spec = spec_to_company
-            .filter(company_uuid.eq(&company_sc.company_uuid)
-            .and(spec_id.eq(&company_sc.spec_id)))
-            .execute(conn).unwrap_or(0);
+        let flag_found_spec = spec_to_company::spec_to_company
+            .filter(spec_to_company::company_uuid.eq(&company_sc.company_uuid)
+            .and(spec_to_company::spec_id.eq(&company_sc.spec_id)))
+            .execute(conn)
+            .map_err(|err| {
+                debug!("Fail check spec: {:?}", err);
+                ServiceError::InternalServerError
+            })?;
 
-        if flag_found_spec == 0 {
-            debug!("Inserted company spec: {:?}", &company_sc.spec_id);
-
-            insert_data.push(company_sc);
-
-            count_insert_rows += 1;
-        } else {
-            error_sc_has.push(company_sc.spec_id);
+        match flag_found_spec {
+            0 => {
+                debug!("Inserted company spec: {:?}", &company_sc.spec_id);
+                insert_data.push(company_sc);
+                count_insert_rows += 1;
+            },
+            _ => error_sc_has.push(company_sc.spec_id),
         }
     }
 
@@ -60,16 +62,14 @@ pub(crate) fn add_company_specs(
         ))
     }
 
-    match diesel::insert_into(spec_to_company)
+    diesel::insert_into(spec_to_company::spec_to_company)
         .values(&insert_data)
-        .get_result::<CompanySpec>(conn) {
-        Ok(_) => {
-            debug!("Completed, add {:?} specs", count_insert_rows);
-            Ok(count_insert_rows)
-        },
-        Err(err) => {
+        .returning(spec_to_company::spec_id)
+        .get_result::<i32>(conn)
+        .map_err(|err| {
             debug!("Fail inserted spec: {:?}", err);
-            Err(ServiceError::InternalServerError)
-        }
-    }
+            ServiceError::InternalServerError
+        })?;
+
+    Ok(count_insert_rows)
 }

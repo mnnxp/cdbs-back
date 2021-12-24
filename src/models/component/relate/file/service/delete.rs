@@ -5,7 +5,6 @@ use diesel::prelude::*;
 use uuid::Uuid;
 
 /// Delete row in file_to_component table
-/// without delete row in  file_ref table and file in storage
 pub(crate) fn delete_component_file(
     logged_user_uuid: &Uuid,
     data: &DelComponentFileData,
@@ -20,21 +19,16 @@ pub(crate) fn delete_component_file(
         conn
     )?;
 
-    // delete only row in file_to_component table
-    match diesel::delete(file_to_component)
+    let count = diesel::delete(file_to_component)
         .filter(component_uuid.eq(&data.component_uuid)
         .and(file_uuid.eq(&data.file_uuid)))
-        .execute(conn) {
-        Ok(count) => {
-            if count == 0 {
-                return Ok(false)
-            }
-            debug!("Delete component file row: {:?}", count);
-            Ok(true)
-        },
-        Err(err) => {
+        .execute(conn)
+        .map_err(|err| {
             debug!("Fail delete row: {:?}", err);
-            Err(ServiceError::InternalServerError)
-        }
-    }
+            ServiceError::InternalServerError
+        })?;
+
+    // todo!(here delete files of file_ref table and of storage)
+
+    Ok(count > 0)
 }

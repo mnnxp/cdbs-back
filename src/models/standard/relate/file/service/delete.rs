@@ -1,12 +1,11 @@
 use crate::errors::{ServiceResult, ServiceError};
 use crate::models::standard::relate::file::model::DeleteStandardFileData;
 use crate::models::standard::access::util::check_access_standard_for_user;
-use crate::schema::file_to_standard::dsl::*;
+use crate::schema::file_to_standard::dsl as file_to_standard;
 use diesel::prelude::*;
 use uuid::Uuid;
 
 /// Delete row in file_to_standard table
-/// without delete row in  file_ref table and file in storage
 pub(crate) fn delete_standard_file(
     logged_user_uuid: &Uuid,
     arguments: &DeleteStandardFileData,
@@ -21,21 +20,16 @@ pub(crate) fn delete_standard_file(
         conn,
     )?;
 
-    // delete only row in file_to_standard table
-    match diesel::delete(file_to_standard)
-        .filter(standard_uuid.eq(&arguments.standard_uuid)
-        .and(file_uuid.eq(&arguments.file_uuid)))
-        .execute(conn) {
-        Ok(count) => {
-            if count == 0 {
-                return Ok(false)
-            }
-            debug!("Delete standard file row: {:?}", count);
-            Ok(true)
-        },
-        Err(err) => {
+    let count = diesel::delete(file_to_standard::file_to_standard)
+        .filter(file_to_standard::standard_uuid.eq(&arguments.standard_uuid)
+        .and(file_to_standard::file_uuid.eq(&arguments.file_uuid)))
+        .execute(conn)
+        .map_err(|err| {
             debug!("Fail delete row: {:?}", err);
-            Err(ServiceError::InternalServerError)
-        }
-    }
+            ServiceError::InternalServerError
+        })?;
+
+    // todo!(here delete files of file_ref table and of storage)
+
+    Ok(count > 0)
 }
