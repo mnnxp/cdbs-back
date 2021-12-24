@@ -4,6 +4,7 @@ use crate::models::component::supplier::model::{
 };
 use crate::models::component::util::check_is_base_with_err;
 use crate::models::company::util::check_is_supplier;
+use crate::schema::supplier_to_component::dsl as supplier_to_component;
 use diesel::prelude::*;
 use uuid::Uuid;
 
@@ -31,10 +32,7 @@ pub(crate) fn add_component_base_supplier(
     check_is_supplier(&data.company_uuid, conn)?;
 
     // add row in database
-    add_component_supplier_company(
-        data,
-        conn
-    )
+    add_component_supplier_company(data, conn)
 }
 
 /// Insert row in supplier_to_component table
@@ -43,36 +41,41 @@ pub(crate) fn add_component_supplier_company(
     data: &IptSupplierComponentData,
     conn: &PgConnection
 ) -> ServiceResult<bool> {
-    use crate::schema::supplier_to_component::dsl::*;
-
-    let found_supplier = supplier_to_component
-        .filter(component_uuid.eq(&data.component_uuid)
-        .and(company_uuid.eq(&data.company_uuid)))
-        .execute(conn);
-
-    match found_supplier {
-        Ok(found) => {
-            if found > 0 {
-                return Err(ServiceError::BadRequest(
-                    "This supplier is already with the component".to_string()
-                ))
-            }
-
-            let new_component_supplier: InsertableSupplierComponent = data.into();
-
-            match diesel::insert_into(supplier_to_component)
-                .values(&new_component_supplier)
-                .get_result::<SupplierComponent>(conn) {
-                Ok(_) => Ok(true),
-                Err(err) => {
-                    debug!("Failed add supplier component: {:?}", err);
-                    Err(ServiceError::BadRequest("Failed add supplier component".to_string()))
-                },
-            }
-        },
-        Err(err) => {
+    let count_suppliers = supplier_to_component::supplier_to_component
+        .filter(supplier_to_component::component_uuid.eq(&data.component_uuid)
+        .and(supplier_to_component::company_uuid.eq(&data.company_uuid)))
+        .limit(1)
+        .execute(conn)
+        .map_err(|err| {
             debug!("Failed check suppliers component: {:?}", err);
-            Err(ServiceError::BadRequest("Failed check suppliers component".to_string()))
+            ServiceError::InternalServerError
+        })?;
+
+    match count_suppliers {
+        0 => {
+            let insert_data: InsertableSupplierComponent = data.into();
+            diesel::insert_into(supplier_to_component::supplier_to_component)
+                .values(&insert_data)
+                .get_result::<SupplierComponent>(conn)
+                .map_err(|err| {
+                    debug!("Failed add supplier component: {:?}", err);
+                    ServiceError::InternalServerError
+                })?;
+
+            Ok(true)
+        },
+        _ => {
+            diesel::update(supplier_to_component::supplier_to_component)
+                .filter(supplier_to_component::component_uuid.eq(&data.component_uuid)
+                .and(supplier_to_component::company_uuid.eq(&data.company_uuid)))
+                .set(supplier_to_component::description.eq(&data.description))
+                .get_result::<SupplierComponent>(conn)
+                .map_err(|err| {
+                    debug!("Failed add supplier component: {:?}", err);
+                    ServiceError::InternalServerError
+                })?;
+                
+            Ok(true)
         },
     }
 }

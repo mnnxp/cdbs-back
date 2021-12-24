@@ -52,6 +52,9 @@ const companyUuidBase = "2cd385e1-8f7e-4908-8235-dfe42938b46d";
 var companyUuidNoSupplier = "";
 var companyUuidSupplier = "";
 
+const descriptionSupplier = "description for supplier component";
+const descriptionSupplierNew = "new description supplier";
+
 // data for component
 const componentNamePut = "componentNamePutUpdate";
 const descriptionNamePut = "descriptionNamePutUpdate";
@@ -2751,7 +2754,7 @@ describe('component', () => {
             addComponentSupplier(args: {
                 componentUuid: "${componentUuidStandard}",
                 companyUuid: "${companyUuidSupplier}",
-                description: "description for supplier component",
+                description: "${descriptionSupplier}",
             })
         }`,
       })
@@ -2777,7 +2780,7 @@ describe('component', () => {
             addComponentSupplier(args: {
                 componentUuid: "${componentUuidStandard}",
                 companyUuid: "${companyUuidSupplier}",
-                description: "description for supplier component",
+                description: "${descriptionSupplier}",
             })
         }`,
       })
@@ -2803,7 +2806,7 @@ describe('component', () => {
             addComponentSupplier(args: {
                 componentUuid: "${componentUuidStandard}",
                 companyUuid: "${companyUuidNoSupplier}",
-                description: "description for supplier component",
+                description: "${descriptionSupplier}",
             })
         }`,
       })
@@ -2834,7 +2837,7 @@ describe('component', () => {
             addComponentSupplier(args: {
                 componentUuid: "${componentUuidNoStandard}",
                 companyUuid: "${companyUuidSupplier}",
-                description: "description for supplier component",
+                description: "${descriptionSupplier}",
             })
         }`,
       })
@@ -2853,7 +2856,7 @@ describe('component', () => {
     ]);
   });
 
-  it('/graphql:M addComponentSupplier - BadRequest supplier already exists', async (done) => {
+  it('/graphql:M addComponentSupplier - Ok change description', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .set(
@@ -2865,17 +2868,77 @@ describe('component', () => {
             addComponentSupplier(args: {
                 componentUuid: "${componentUuidStandard}",
                 companyUuid: "${companyUuidSupplier}",
-                description: "description for supplier component",
+                description: "${descriptionSupplierNew}",
             })
         }`,
       })
       .expect(HttpStatus.OK);
     debug('/graphql - body =%o', body);
-    expect(body.data).toBeNull();
-    expect(body.errors[0].message).toBe(
-      'BadRequest: This supplier is already with the component'
-    );
-    expect(body.errors[0].path[0]).toBe('addComponentSupplier');
+    // expect(body).toBe(0);
+    const {
+      data: { addComponentSupplier },
+    } = body;
+    expect(addComponentSupplier).toBe(true);
+    done();
+  });
+
+  it('/graphql:Q componentSuppliers - Ok check new description', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `query {
+          componentSuppliers(componentUuid:  "${componentUuidStandard}") {
+            componentUuid
+            supplier {
+              uuid
+              isSupplier
+              shortname
+            }
+            description
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { componentSuppliers },
+    } = body;
+    expect(componentSuppliers).toBeNonEmptyArray();
+    expect(componentSuppliers[0].componentUuid).toBe(componentUuidStandard);
+    expect(componentSuppliers[0].supplier.uuid).toBe(companyUuidSupplier);
+    expect(componentSuppliers[0].description).toBe(descriptionSupplierNew);
+    expect(componentSuppliers.length).toBe(1);
+    done();
+  });
+
+  it('/graphql:M addComponentSupplier - Ok return description', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation  {
+            addComponentSupplier(args: {
+                componentUuid: "${componentUuidStandard}",
+                companyUuid: "${companyUuidSupplier}",
+                description: "${descriptionSupplier}",
+            })
+        }`,
+      })
+      .expect(HttpStatus.OK);
+    debug('/graphql - body =%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { addComponentSupplier },
+    } = body;
+    expect(addComponentSupplier).toBe(true);
     done();
   });
 

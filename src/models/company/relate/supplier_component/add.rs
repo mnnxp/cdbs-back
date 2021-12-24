@@ -74,8 +74,5 @@ pub(crate) fn set_company_owner_supplier(
     )?;
 
     // add new supplier component without check access
-    add_component_supplier_company(
-        data,
-        conn
-    )
+    add_component_supplier_company(data, conn)
 }
