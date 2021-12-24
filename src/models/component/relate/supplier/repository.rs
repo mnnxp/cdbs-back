@@ -20,11 +20,15 @@ impl ComponentSupplierRelatedData {
             })?;
 
         let mut suppliers_list: Vec<ComponentSupplierRelatedData> = Vec::new();
-        for x in component_suppliers.iter() {
-            let mut data = ComponentSupplierRelatedData::new(x);
-            data.put_supplier(SlimCompany::get_by_uuid(&x.company_uuid, conn)?);
-            // debug!("get supplier: {:?}", data);
-            suppliers_list.push(data);
+        for supplier in component_suppliers.iter() {
+            let mut data = ComponentSupplierRelatedData::new(supplier);
+            let company = SlimCompany::get_by_uuid(&supplier.company_uuid, conn)?;
+            // checking for company still has status supplier
+            if company.is_supplier {
+                data.put_supplier(company);
+                // debug!("get supplier: {:?}", data);
+                suppliers_list.push(data);
+            }
         }
 
         Ok(suppliers_list)
@@ -37,21 +41,23 @@ impl ComponentSupplierRelatedData {
     ) -> ServiceResult<Vec<ComponentSupplierRelatedData>> {
         let supplier_component = supplier_to_component::supplier_to_component
             .filter(supplier_to_component::component_uuid.eq(component_uuid))
-            .limit(1)
+            // .limit(1)
             .load::<SupplierComponent>(conn)
             .map_err(|err| {
                 debug!("Failed get supplier_component: {:?}", err);
                 ServiceError::InternalServerError
             })?;
 
-        match supplier_component.first() {
-            Some(x) => {
-                let mut data = ComponentSupplierRelatedData::new(x);
-                data.put_supplier(SlimCompany::get_by_uuid(&x.company_uuid, conn)?);
+        for supplier in supplier_component.iter() {
+            let mut data = ComponentSupplierRelatedData::new(supplier);
+            let company = SlimCompany::get_by_uuid(&supplier.company_uuid, conn)?;
+            // checking for company still has status supplier
+            if company.is_supplier {
+                data.put_supplier(company);
                 // debug!("get first supplier: {:?}", data);
-                Ok(vec![data])
-            },
-            None => Ok(Vec::new()),
+                return Ok(vec![data])
+            }
         }
+        Ok(Vec::new())
     }
 }
