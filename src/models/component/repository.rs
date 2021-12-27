@@ -6,7 +6,9 @@ use crate::models::component::{
     param::model::ComponentParamWithTranslation,
     component_fav::model::ComponentFav,
     supplier::model::ComponentSupplierRelatedData,
-    component_modification::model::{ComponentModification, ComponentModificationAndRelatedData},
+    component_modification::model::{
+        ComponentModification, ComponentModificationAndRelatedData, ComponentModificationArg
+    },
     access::util::check_access_component_for_user,
     util::get_files_by_ext,
 };
@@ -337,8 +339,8 @@ impl ComponentAndRelatedData {
         ).expect("Error loading component keywords");
 
         // collect data for modifications the component
-        let component_modifications = ComponentModification::for_component_without_related_data(
-            &component,
+        let component_modifications = ComponentModification::by_args(
+            &ComponentModificationArg::component_uuid(&component.uuid),
             conn
         ).expect("Error loading component modifications");
 

@@ -326,6 +326,38 @@ filesize \
 downloadUrl \
 `;
 
+var componentModificationFields = `
+uuid \
+componentUuid \
+parentModificationUuid \
+modificationName \
+description \
+filesetsForProgram { \
+  uuid \
+  modificationUuid \
+    program { \
+      id \
+      name \
+    } \
+} \
+actualStatus { \
+  actualStatusId \
+  langId \
+  name \
+} \
+createdAt \
+updatedAt \
+modificationParams { \
+  modificationUuid \
+  param { \
+    paramId \
+    langId \
+    paramname \
+  } \
+  value \
+} \
+`;
+
 var componentUuidNoStandard = "";
 var componentUuidStandard = "";
 var fileUuid1 = "";
@@ -4620,6 +4652,85 @@ describe('component', () => {
     expect(component.componentModifications[0].modificationParams[0].param.paramId).toBe(paramnameIndex);
     expect(component.componentModifications[0].modificationParams[0].param.paramname).toBeNonEmptyString();
     expect(component.componentModifications[0].modificationParams[0].value).toBe(paramValueTest2);
+    done();
+  });
+
+  // Testing get component modification
+  it('/graphql:Q componentModifications - BadRequest no token', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .send({
+          query: `query {
+            componentModifications(args: {
+              componentUuid: "${componentUuidNoStandard}"
+            }){
+              ${componentModificationFields}
+            }
+          }`,
+        })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Token not found.'
+    );
+    expect(body.errors[0].path[0]).toBe('componentModifications');
+    done();
+  });
+
+  it('/graphql:Q componentModifications - BadRequest no access', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+          query: `query {
+            componentModifications(args: {
+              componentUuid: "${componentUuidNoStandard}"
+            }){
+              ${componentModificationFields}
+            }
+          }`,
+        })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Access denied'
+    );
+    expect(body.errors[0].path[0]).toBe('componentModifications');
+    done();
+  });
+
+  it('/graphql:Q componentModifications - OK', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+          query: `query {
+            componentModifications(args: {
+              componentUuid: "${componentUuidNoStandard}"
+            }){
+              ${componentModificationFields}
+            }
+          }`,
+        })
+      .expect(HttpStatus.OK)
+    debug('/graphql filter component=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { componentModifications },
+    } = body;
+    expect(componentModifications[0].componentUuid).toBe(componentUuidNoStandard);
+    expect(componentModifications[0].modificationParams[0].modificationUuid).toBe(componentModificationUuidSecond);
+    expect(componentModifications[0].modificationParams[0].param.paramId).toBe(paramnameIndex);
+    expect(componentModifications[0].modificationParams[0].param.paramname).toBeNonEmptyString();
+    expect(componentModifications[0].modificationParams[0].value).toBe(paramValueTest2);
     done();
   });
 

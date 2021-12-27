@@ -1,22 +1,25 @@
 use crate::errors::{ServiceResult, ServiceError};
 use crate::models::component::{
-    model::Component,
     actual_status::model::ActualStatusTranslateList,
     component_modification::{
-        model::{ComponentModification, ComponentModificationAndRelatedData},
+        model::{ComponentModification, ComponentModificationAndRelatedData, ComponentModificationArg},
         param::model::ModificationParamWithTranslation,
         fileset_for_program::model::FilesetProgramRelatedData,
     },
 };
+use crate::schema::component_modification_list::dsl as component_modification_list;
 use diesel::prelude::*;
 
 impl ComponentModification {
-    pub(crate) fn for_component_without_related_data(
-        component: &Component,
+    pub(crate) fn by_args(
+        args: &ComponentModificationArg,
         conn: &PgConnection,
     ) -> ServiceResult<Vec<ComponentModification>> {
         // collect data for modifications the component
-        ComponentModification::belonging_to(component)
+        component_modification_list::component_modification_list
+            .filter(component_modification_list::component_uuid.eq(&args.component_uuid))
+            .limit(args.limit as i64)
+            .offset(args.offset as i64)
             .load::<ComponentModification>(conn)
             .map_err(|err| {
                 debug!("Failed get component modification: {:?}", err);

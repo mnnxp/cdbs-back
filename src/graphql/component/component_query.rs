@@ -15,6 +15,7 @@ use crate::models::component::{
     },
     component_modification,
     component_modification::{
+        model::{ComponentModificationAndRelatedData, IptComponentModificationArg, ComponentModificationArg},
         fileset_for_program::model::{FilesetProgramRelatedData, IptFilesetProgramArg, FilesetProgramArg},
         modification_file_from_fileset::model::{IptFileOfFilesetArg, FileOfFilesetArg},
     },
@@ -77,6 +78,28 @@ impl ComponentQuery {
             &component_uuid,
             &get_set_language(cxt),
             conn,
+        )
+    }
+
+    async fn component_modifications(
+        &self,
+        cxt: &Context<'_>,
+        args: IptComponentModificationArg,
+    ) -> ServiceResult<Vec<ComponentModificationAndRelatedData>> {
+        use crate::models::component::component_modification::service::list::get_component_modifications;
+
+        // authorization check
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+
+        let args: ComponentModificationArg = args.into();
+
+        let conn: &PooledConnection = &get_conn(cxt)?;
+
+        get_component_modifications(
+            &logged_user_uuid,
+            &args,
+            &get_set_language(cxt),
+            conn
         )
     }
 

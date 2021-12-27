@@ -151,3 +151,44 @@ pub struct DelComponentModificationData {
     pub component_uuid: Uuid,
     pub modification_uuid: Uuid,
 }
+
+#[derive(InputObject, Deserialize, Debug)]
+pub struct IptComponentModificationArg {
+    pub component_uuid:  Uuid,
+    pub limit: Option<i32>,
+    pub offset: Option<i32>,
+}
+
+#[derive(Debug)]
+pub(crate) struct ComponentModificationArg {
+    pub(crate) component_uuid: Uuid,
+    pub(crate) limit: i32,
+    pub(crate) offset: i32,
+}
+
+impl ComponentModificationArg {
+    /// Generate default limit 100 and offset 0
+    pub(crate) fn component_uuid(component_uuid: &Uuid) -> Self {
+        Self {
+            component_uuid: *component_uuid,
+            limit: 100,
+            offset: 0,
+        }
+    }
+}
+
+impl From<IptComponentModificationArg> for ComponentModificationArg {
+    fn from(data: IptComponentModificationArg) -> Self {
+        let IptComponentModificationArg {
+            component_uuid,
+            limit,
+            offset,
+        } = data;
+
+        Self {
+            component_uuid,
+            limit: limit.unwrap_or(100),
+            offset: offset.unwrap_or(0),
+        }
+    }
+}
