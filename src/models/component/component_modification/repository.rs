@@ -20,6 +20,7 @@ impl ComponentModification {
             .filter(component_modification_list::component_uuid.eq(&args.component_uuid))
             .limit(args.limit as i64)
             .offset(args.offset as i64)
+            .order_by(component_modification_list::created_at.asc())
             .load::<ComponentModification>(conn)
             .map_err(|err| {
                 debug!("Failed get component modification: {:?}", err);
