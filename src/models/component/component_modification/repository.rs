@@ -52,8 +52,8 @@ impl ComponentModificationAndRelatedData {
         )?);
 
         // get sets of files for programs for component modification list
-        data.put_modification_params(ModificationParamWithTranslation::for_modificaiton(
-            component_modification,
+        data.put_modification_params(ModificationParamWithTranslation::by_modification_uuid(
+            &component_modification.uuid,
             set_lang_id,
             conn
         )?);
