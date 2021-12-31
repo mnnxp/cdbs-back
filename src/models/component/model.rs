@@ -238,12 +238,16 @@ impl From<IptComponentsArg> for ComponentsArg {
 pub struct IptComponentFilesArg {
     pub component_uuid:  Uuid,
     pub files_uuids: Option<Vec<Uuid>>,
+    pub limit: Option<i32>,
+    pub offset: Option<i32>,
 }
 
 #[derive(Debug)]
 pub struct ComponentFilesArg {
     pub component_uuid:  Uuid,
     pub files_uuids: Vec<Uuid>,
+    pub limit: i32,
+    pub offset: i32,
 }
 
 impl From<IptComponentFilesArg> for ComponentFilesArg {
@@ -251,11 +255,15 @@ impl From<IptComponentFilesArg> for ComponentFilesArg {
         let IptComponentFilesArg {
             component_uuid,
             files_uuids,
+            limit,
+            offset,
         } = data;
 
         Self {
             component_uuid,
             files_uuids: files_uuids.unwrap_or_default(),
+            limit: limit.unwrap_or(100),
+            offset: offset.unwrap_or(0),
         }
     }
 }

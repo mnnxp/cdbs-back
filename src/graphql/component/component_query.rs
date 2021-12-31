@@ -15,7 +15,10 @@ use crate::models::component::{
     },
     component_modification,
     component_modification::{
-        model::{ComponentModificationAndRelatedData, IptComponentModificationArg, ComponentModificationArg},
+        model::{
+            ComponentModificationAndRelatedData, IptComponentModificationArg, ComponentModificationArg,
+            IptModificationFilesArg, ModificationFilesArg
+        },
         fileset_for_program::model::{FilesetProgramRelatedData, IptFilesetProgramArg, FilesetProgramArg},
         modification_file_from_fileset::model::{IptFileOfFilesetArg, FileOfFilesetArg},
     },
@@ -226,20 +229,18 @@ impl ComponentQuery {
     async fn component_modification_files(
         &self,
         cxt: &Context<'_>,
-        modification_uuid: Uuid,
+        args: IptModificationFilesArg,
     ) -> ServiceResult<Vec<DownloadFile>> {
         use component_modification::file::service::list::get_component_modification_files;
 
         // authorization check
         let logged_user_uuid: Uuid = get_logged_user_uuid(cxt, true)?;
 
+        let args: ModificationFilesArg = args.into();
+
         let conn: &PooledConnection = &get_conn(cxt)?;
 
-        get_component_modification_files(
-            &logged_user_uuid,
-            &modification_uuid,
-            conn
-        )
+        get_component_modification_files(&logged_user_uuid, &args, conn)
     }
 
     async fn component_modification_filesets(

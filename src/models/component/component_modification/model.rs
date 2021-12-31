@@ -192,3 +192,37 @@ impl From<IptComponentModificationArg> for ComponentModificationArg {
         }
     }
 }
+
+#[derive(InputObject, Deserialize, Debug)]
+pub struct IptModificationFilesArg {
+    pub modification_uuid:  Uuid,
+    pub files_uuids: Option<Vec<Uuid>>,
+    pub limit: Option<i32>,
+    pub offset: Option<i32>,
+}
+
+#[derive(Debug)]
+pub struct ModificationFilesArg {
+    pub modification_uuid:  Uuid,
+    pub files_uuids: Vec<Uuid>,
+    pub limit: i32,
+    pub offset: i32,
+}
+
+impl From<IptModificationFilesArg> for ModificationFilesArg {
+    fn from(data: IptModificationFilesArg) -> Self {
+        let IptModificationFilesArg {
+            modification_uuid,
+            files_uuids,
+            limit,
+            offset,
+        } = data;
+
+        Self {
+            modification_uuid,
+            files_uuids: files_uuids.unwrap_or_default(),
+            limit: limit.unwrap_or(100),
+            offset: offset.unwrap_or(0),
+        }
+    }
+}

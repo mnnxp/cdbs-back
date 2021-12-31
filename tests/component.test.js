@@ -4841,7 +4841,9 @@ describe('component', () => {
       .post('/graphql')
       .send({
           query: `query {
-            componentModificationFiles(modificationUuid: "${componentModificationUuidSecond}") {
+            componentModificationFiles(args:{
+              modificationUuid: "${componentModificationUuidSecond}"
+            }){
               ${downloadFileFields}
             }
           }`,
@@ -4865,7 +4867,9 @@ describe('component', () => {
       )
       .send({
           query: `query {
-            componentModificationFiles(modificationUuid: "${parentModificationUuid}") {
+            componentModificationFiles(args:{
+              modificationUuid: "${parentModificationUuid}"
+            }){
               ${downloadFileFields}
             }
           }`,
@@ -4931,7 +4935,9 @@ describe('component', () => {
       )
       .send({
           query: `query {
-            componentModificationFiles(modificationUuid: "${componentModificationUuidSecond}") {
+            componentModificationFiles(args:{
+              modificationUuid: "${componentModificationUuidSecond}"
+            }){
               ${downloadFileFields}
             }
           }`,
@@ -5091,7 +5097,9 @@ describe('component', () => {
       )
       .send({
           query: `query {
-            componentModificationFiles(modificationUuid: "${componentModificationUuidSecond}") {
+            componentModificationFiles(args:{
+              modificationUuid: "${componentModificationUuidSecond}"
+            }){
               ${downloadFileFields}
             }
           }`,
