@@ -39,7 +39,7 @@ impl From<FileModification> for InsertableFileModification {
 }
 
 #[derive(InputObject, Deserialize, Debug)]
-pub struct IptModificationFileData {
+pub struct IptModificationFilesData {
     pub filenames: Vec<String>,
     pub modification_uuid: Uuid,
 }

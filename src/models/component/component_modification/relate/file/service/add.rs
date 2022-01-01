@@ -1,5 +1,5 @@
 use crate::errors::{ServiceResult, ServiceError};
-use crate::models::component::component_modification::relate::file::model::IptModificationFileData;
+use crate::models::component::component_modification::relate::file::model::IptModificationFilesData;
 use crate::models::component::component_modification::util::get_component_by_modification;
 use crate::models::relate_ref::file::model::{
     ListObject, PreliminaryFileData, UploadFile
@@ -15,7 +15,7 @@ use uuid::Uuid;
 /// before that inserts rows in file_ref and component_modification tables
 pub(crate) fn add_modification_files(
     logged_user_uuid: &Uuid,
-    data: &IptModificationFileData,
+    data: &IptModificationFilesData,
     conn: &PgConnection,
 ) -> ServiceResult<Vec<UploadFile>> {
 

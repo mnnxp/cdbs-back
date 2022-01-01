@@ -28,7 +28,7 @@ use crate::models::component::{
             IptModificationFileFromFilesetData, DelModificationFileFromFilesetData
         },
         param::model::{IptModificationParamData, DelModificationParamData},
-        file::model::{IptModificationFileData, DelModificationFileData},
+        file::model::{IptModificationFilesData, DelModificationFileData},
         fileset_for_program as fileset_program,
         fileset_for_program::model::{IptFilesetProgramData, DelFilesetProgramData},
     },
@@ -569,7 +569,7 @@ impl ComponentMutation {
     async fn upload_modification_files(
         &self,
         cxt: &Context<'_>,
-        args: IptModificationFileData,
+        args: IptModificationFilesData,
     ) -> ServiceResult<Vec<UploadFile>> {
         use component_modification::file::service::add::add_modification_files;
 
