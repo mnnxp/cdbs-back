@@ -243,6 +243,23 @@ impl ComponentQuery {
         get_component_modification_files(&logged_user_uuid, &args, conn)
     }
 
+    async fn component_modification_files_list(
+        &self,
+        cxt: &Context<'_>,
+        args: IptModificationFilesArg,
+    ) -> ServiceResult<Vec<ShowFileRelatedData>> {
+        use component_modification::file::service::list::get_component_modification_files_list;
+
+        // authorization check
+        let logged_user_uuid: Uuid = get_logged_user_uuid(cxt, true)?;
+
+        let args: ModificationFilesArg = args.into();
+
+        let conn: &PooledConnection = &get_conn(cxt)?;
+
+        get_component_modification_files_list(&logged_user_uuid, &args, conn)
+    }
+
     async fn component_modification_filesets(
         &self,
         cxt: &Context<'_>,

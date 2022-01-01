@@ -3,10 +3,7 @@ use crate::models::component::{
     model::ComponentFilesArg,
     access::util::check_access_component_for_user,
 };
-use crate::models::relate_ref::file::{
-    model::DownloadFile,
-    service::list::get_urls_by_files_uuids,
-};
+use crate::models::relate_ref::file::model::DownloadFile;
 use crate::schema::file_to_component::dsl as file_to_component;
 use diesel::prelude::*;
 use uuid::Uuid;
@@ -44,5 +41,5 @@ pub(crate) fn get_component_files(
             ServiceError::InternalServerError
         })?;
 
-    get_urls_by_files_uuids(&target_files_uuids, conn )
+    DownloadFile::get_by_files_uuids(&target_files_uuids, conn )
 }

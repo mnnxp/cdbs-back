@@ -227,21 +227,4 @@ impl DownloadFile {
 
         Ok(collect_res)
     }
-
-    /// Gets vec from DownloadFile by SlimFiles
-    /// and then collecting DownloadFiles with generated presigned_url
-    pub(crate) fn get_by_slim_files(
-        slim_files: &[SlimFile],
-        conn: &PgConnection,
-    ) -> ServiceResult<Vec<DownloadFile>> {
-        let mut result: Vec<DownloadFile> = Vec::new();
-
-        for sf in slim_files {
-            result.push(DownloadFile::get_by_slim_file(sf, conn)?);
-        }
-
-        debug!("Gets presigned urls: {:?}", result);
-
-        Ok(result)
-    }
 }

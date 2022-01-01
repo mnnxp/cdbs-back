@@ -1,8 +1,5 @@
 use crate::errors::{ServiceResult, ServiceError};
-use crate::models::relate_ref::file::{
-    model::DownloadFile,
-    service::list::get_urls_by_files_uuids,
-};
+use crate::models::relate_ref::file::model::DownloadFile;
 use crate::models::standard::{
     model::StandardFilesArg,
     access::util::check_access_standard_for_user
@@ -51,7 +48,7 @@ pub(crate) fn get_standard_files(
             })?,
     };
 
-    get_urls_by_files_uuids(
+    DownloadFile::get_by_files_uuids(
         &target_files_uuids,
         conn
     )
