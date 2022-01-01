@@ -204,6 +204,25 @@ impl ComponentQuery {
         )
     }
 
+    async fn component_files_list(
+        &self,
+        cxt: &Context<'_>,
+        args: IptComponentFilesArg,
+    ) -> ServiceResult<Vec<ShowFileRelatedData>> {
+        use crate::models::component::file::service::list::get_component_files_list;
+
+        // authorization check
+        let logged_user_uuid: Uuid = get_logged_user_uuid(cxt, true)?;
+        let arguments: ComponentFilesArg = args.into();
+        let conn: &PooledConnection = &get_conn(cxt)?;
+
+        get_component_files_list(
+            &logged_user_uuid,
+            &arguments,
+            conn
+        )
+    }
+
     async fn component_specs(
         &self,
         cxt: &Context<'_>,
