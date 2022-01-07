@@ -9,7 +9,7 @@ use crate::models::company::{
     spec::model::IptCompanySpecsData,
     company_represent::model::{IptCompanyRepresentData, IptUpdateCompanyRepresentData},
     member::model::{IptCompanyMemberData, DelCompanyMemberData},
-    member::role::model::{IptRoleMemberData, IptUpdataNameRoleData, DelRoleMemberData},
+    member::role::model::{IptRoleMemberData, IptUpdateNameRoleData, DelRoleMemberData},
     supplier_component::model::DelCompanyOfSuppliersData,
 };
 use crate::models::component::supplier::model::IptSupplierComponentData;
@@ -341,7 +341,7 @@ impl CompanyMutation {
     async fn change_name_role_company(
         &self,
         cxt: &Context<'_>,
-        args: IptUpdataNameRoleData,
+        args: IptUpdateNameRoleData,
     ) -> ServiceResult<bool> {
         use crate::models::company::member::role::service::update::change_name_role_company;
 

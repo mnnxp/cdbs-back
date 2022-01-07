@@ -50,7 +50,7 @@ pub struct IptRoleMemberData {
 }
 
 #[derive(Debug, Deserialize, Clone, InputObject)]
-pub struct IptUpdataNameRoleData {
+pub struct IptUpdateNameRoleData {
     pub company_uuid: Uuid,
     pub role_id: i32,
     pub lang_id: i32,
