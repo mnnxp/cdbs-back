@@ -23,14 +23,14 @@ pub struct InsertableCompanySpec {
 }
 
 #[derive(Debug, Deserialize, Clone, InputObject)]
-pub struct IptCompanySpecData {
+pub struct IptCompanySpecsData {
     pub company_uuid: Uuid,
     pub spec_ids: Vec<i32>,
 }
 
-impl From<&IptCompanySpecData> for Vec<InsertableCompanySpec> {
-    fn from(ipt_data: &IptCompanySpecData) -> Vec<InsertableCompanySpec> {
-        let IptCompanySpecData {
+impl From<&IptCompanySpecsData> for Vec<InsertableCompanySpec> {
+    fn from(ipt_data: &IptCompanySpecsData) -> Vec<InsertableCompanySpec> {
+        let IptCompanySpecsData {
             company_uuid,
             spec_ids,
             ..
@@ -57,9 +57,9 @@ pub struct DelCompanySpec {
     pub spec_ids: Vec<i32>,
 }
 
-impl From<&IptCompanySpecData> for DelCompanySpec {
-    fn from(ipt_data: &IptCompanySpecData) -> Self {
-        let IptCompanySpecData {
+impl From<&IptCompanySpecsData> for DelCompanySpec {
+    fn from(ipt_data: &IptCompanySpecsData) -> Self {
+        let IptCompanySpecsData {
             company_uuid,
             spec_ids,
             ..

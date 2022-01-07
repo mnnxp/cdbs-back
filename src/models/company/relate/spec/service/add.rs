@@ -1,6 +1,6 @@
 use crate::errors::{ServiceResult, ServiceError};
 use crate::models::company::spec::model::{
-    IptCompanySpecData, InsertableCompanySpec
+    IptCompanySpecsData, InsertableCompanySpec
 };
 use crate::models::company::access::util::check_company_access;
 use crate::schema::spec_to_company::dsl as spec_to_company;
@@ -9,7 +9,7 @@ use uuid::Uuid;
 
 pub(crate) fn add_company_specs(
     logged_user_uuid: &Uuid,
-    data: &IptCompanySpecData,
+    data: &IptCompanySpecsData,
     conn: &PgConnection
 ) -> ServiceResult<i32> {
     let need_access_level = 1; // todo!(create enum for manage access level)

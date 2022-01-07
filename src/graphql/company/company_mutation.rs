@@ -6,7 +6,7 @@ use crate::models::company::{
     access::model::ChangeTypeAccessCompany,
     access::role_access::model::{IptRoleAccessData, DelRoleAccessData},
     certificate::model::{IptCompanyCertificateData, IptUpdateCompanyCertificateData, DelCompanyCertificateData},
-    spec::model::IptCompanySpecData,
+    spec::model::IptCompanySpecsData,
     company_represent::model::{IptCompanyRepresentData, IptUpdateCompanyRepresentData},
     member::model::{IptCompanyMemberData, DelCompanyMemberData},
     member::role::model::{IptRoleMemberData, IptUpdataNameRoleData, DelRoleMemberData},
@@ -172,7 +172,7 @@ impl CompanyMutation {
     async fn add_company_specs(
         &self,
         cxt: &Context<'_>,
-        args: IptCompanySpecData,
+        args: IptCompanySpecsData,
     ) -> ServiceResult<i32> {
         use crate::models::company::spec::service::add::add_company_specs;
 
@@ -190,7 +190,7 @@ impl CompanyMutation {
     async fn delete_company_specs(
         &self,
         cxt: &Context<'_>,
-        args: IptCompanySpecData,
+        args: IptCompanySpecsData,
     ) -> ServiceResult<usize> {
         use crate::models::company::spec::service::delete::del_company_specs;
 

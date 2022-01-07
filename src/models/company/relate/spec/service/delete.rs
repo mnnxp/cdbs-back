@@ -1,6 +1,6 @@
 use crate::errors::{ServiceResult, ServiceError};
 use crate::models::company::spec::model::{
-    IptCompanySpecData, DelCompanySpec
+    IptCompanySpecsData, DelCompanySpec
 };
 use crate::models::company::access::util::check_company_access;
 use diesel::prelude::*;
@@ -8,7 +8,7 @@ use uuid::Uuid;
 
 pub(crate) fn del_company_specs(
     logged_user_uuid: &Uuid,
-    data: &IptCompanySpecData,
+    data: &IptCompanySpecsData,
     conn: &PgConnection
 ) -> ServiceResult<usize> {
     use crate::schema::spec_to_company::dsl::*;
