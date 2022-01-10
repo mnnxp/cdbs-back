@@ -15,7 +15,7 @@ class CustomEnvironment extends NodeEnvironment {
     await super.setup();
     this.global.knex = knex({
       client: 'pg',
-      connection: process.env.DATABASE_URL,
+      connection: `postgres://${process.env.POSTGRES_USER}:${process.env.POSTGRES_PASSWORD}@${process.env.POSTGRES_HOST}/${process.env.POSTGRES_DB}`,
     });
 
     // Will trigger if docblock contains @my-custom-pragma my-pragma-value

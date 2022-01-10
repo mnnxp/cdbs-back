@@ -8,5 +8,12 @@ fn init_pool(database_url: &str) -> Result<Pool, PoolError> {
 }
 
 pub(crate) fn establish_connection(opt: crate::cli_args::Opt) -> Pool {
-    init_pool(&opt.database_url).expect("Failed to create pool")
+    let database_url = format!(
+        "postgres://{user}:{password}@{host}/{database}",
+        user = opt.postgres_user,
+        password = opt.postgres_password,
+        host = opt.postgres_host,
+        database = opt.postgres_db
+    );
+    init_pool(&database_url).expect("Failed to create pool")
 }

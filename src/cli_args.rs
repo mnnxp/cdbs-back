@@ -12,9 +12,21 @@ pub struct Opt {
     #[structopt(long, env = "DOMAIN", default_value = "localhost")]
     pub domain: String,
 
-    /// Database URL
-    #[structopt(long, env = "DATABASE_URL")]
-    pub(crate) database_url: String,
+    /// Database host
+    #[structopt(long, env = "POSTGRES_HOST")]
+    pub(crate) postgres_host: String,
+
+    /// Database user
+    #[structopt(long, env = "POSTGRES_USER")]
+    pub(crate) postgres_user: String,
+
+    /// Database password
+    #[structopt(long, env = "POSTGRES_PASSWORD")]
+    pub(crate) postgres_password: String,
+
+    /// Database name database
+    #[structopt(long, env = "POSTGRES_DB")]
+    pub(crate) postgres_db: String,
 
     /// Auth duration in hours,
     /// this is used for cookie and JWT
