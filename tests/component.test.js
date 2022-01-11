@@ -491,7 +491,7 @@ describe('component', () => {
     cleanupComponentDb();
     cleanupStandardDb();
     cleanupCompanyDb();
-    cleanupTokenDb();
+    // cleanupTokenDb();
     return cleanupUserDb();
   });
   afterAll(() => {
@@ -501,7 +501,7 @@ describe('component', () => {
     cleanupComponentDb();
     cleanupStandardDb();
     cleanupCompanyDb();
-    cleanupTokenDb();
+    // cleanupTokenDb();
     return cleanupUserDb();
   });
 

@@ -78,13 +78,13 @@ describe('param', () => {
   beforeAll(() => {
     cleanupParamDb();
     cleanupParamTranslateDb();
-    cleanupTokenDb();
+    // cleanupTokenDb();
     return cleanupUserDb();
   });
   afterAll(() => {
     cleanupParamDb();
     cleanupParamTranslateDb();
-    cleanupTokenDb();
+    // cleanupTokenDb();
     return cleanupUserDb();
   });
 

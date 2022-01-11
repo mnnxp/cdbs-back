@@ -306,14 +306,14 @@ describe('company', () => {
   beforeAll(() => {
     cleanupCompanyRepresentDb();
     cleanupCompanyDb();
-    cleanupTokenDb();
+    // cleanupTokenDb();
     cleanupUserDb();
     return;
   });
   afterAll(() => {
     cleanupCompanyRepresentDb();
     cleanupCompanyDb();
-    cleanupTokenDb();
+    // cleanupTokenDb();
     cleanupUserDb();
     return;
   });

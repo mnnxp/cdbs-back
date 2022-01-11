@@ -299,7 +299,7 @@ describe('company', () => {
     cleanupCompanyRepresentDb();
     cleanupStandardDb();
     cleanupCompanyDb();
-    cleanupTokenDb();
+    // cleanupTokenDb();
     cleanupUserDb();
     cleanupKeywordsDb();
     return;
@@ -308,7 +308,7 @@ describe('company', () => {
     cleanupCompanyRepresentDb();
     cleanupStandardDb();
     cleanupCompanyDb();
-    cleanupTokenDb();
+    // cleanupTokenDb();
     cleanupUserDb();
     cleanupKeywordsDb();
     return;

@@ -360,7 +360,7 @@ async function cleanupStandardDb() {
 
 describe('users', () => {
   beforeAll(() => {
-    cleanupTokenDb();
+    // cleanupTokenDb();
     cleanupUserDb();
     cleanupComponentParamDb();
     cleanupCompanyDb();
@@ -368,7 +368,7 @@ describe('users', () => {
     return;
   });
   afterAll(() => {
-    cleanupTokenDb();
+    // cleanupTokenDb();
     cleanupUserDb();
     cleanupComponentParamDb();
     cleanupCompanyDb();
