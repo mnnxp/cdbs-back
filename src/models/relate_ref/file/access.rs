@@ -3,7 +3,7 @@ use crate::schema::file_ref::dsl as file_ref;
 use diesel::prelude::*;
 use uuid::Uuid;
 
-/// Find and check existence user owned component
+/// Find and check existence user owned file
 /// return err if not found file
 pub(crate) fn check_file_owner_err(
     user_uuid: &Uuid,

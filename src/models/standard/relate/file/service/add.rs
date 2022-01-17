@@ -48,7 +48,7 @@ pub(crate) fn add_standard_files(
         debug!("New standard file: {:?}", slim_file);
 
         let upload_url = upload_presigned_url(
-            &StorageAccess::get(conn)?,
+            &StorageAccess::from_env(),
             &slim_file.path_file,
         )?;
 

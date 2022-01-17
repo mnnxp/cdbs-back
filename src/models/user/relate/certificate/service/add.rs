@@ -53,7 +53,7 @@ pub(crate) fn add_certificate(
     debug!("User inserted certificate: {:?}", user_inserted_certificate);
 
     let upload_url = upload_presigned_url(
-        &StorageAccess::get(conn)?,
+        &StorageAccess::from_env(),
         &slim_file.path_file,
     )?;
 

@@ -27,7 +27,7 @@ pub(crate) async fn confirm_upload(
     ).unwrap();
 
     // getting storage access data for target user
-    let storage_access = StorageAccess::get(&conn)?;
+    let storage_access = StorageAccess::from_env();
 
     // getting data for all files in vec
     for file_d in slim_files {

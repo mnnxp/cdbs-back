@@ -173,7 +173,7 @@ impl DownloadFile {
                 debug!("Failed get presigned_url");
                 // generate new url
                 let presigned_url = download_presigned_url(
-                    &StorageAccess::get(conn)?,
+                    &StorageAccess::from_env(),
                     &file.path_file,
                 )?;
                 // save presigned url to database

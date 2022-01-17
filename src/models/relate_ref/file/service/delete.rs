@@ -11,31 +11,17 @@ use uuid::Uuid;
 pub(crate) fn delete_row_by_uuid(
     delete_file_uuid: &Uuid,
     conn: &PgConnection
-) -> ServiceResult<i32> {
+) -> ServiceResult<usize> {
     use crate::schema::file_ref::dsl::*;
 
-    let del_count = diesel::delete(file_ref)
+    diesel::delete(file_ref)
         .filter(uuid.eq(delete_file_uuid))
         .execute(conn)
         .map_err(|err| {
             debug!("Failded delete file record in database : {:?}", err);
             ServiceError::InternalServerError
-        })?;
-
-    Ok(del_count as i32)
+        })
 }
-
-// /// Delete files records in database by uuid
-// pub(crate) fn delete_rows_by_uuids(
-//     delete_files_uuids: &[Uuid],
-//     conn: &PgConnection
-// ) -> i32 {
-//     use crate::schema::file_ref::dsl::*;
-//
-//     diesel::delete(
-//         file_ref.filter(uuid.eq_any(delete_files_uuids))
-//     ).execute(conn).unwrap_or_default() as i32
-// }
 
 /// Delete file in storage and row in database
 /// with check ownership by uuid
@@ -88,7 +74,7 @@ pub(crate) async fn full_delete_file(
     let conn = pool.get().unwrap();
 
     // delete file in storage
-    let res_del = delete_file_by_path(&slim_file.path_file, pool).await?;
+    let res_del = delete_file_by_path(&slim_file.path_file).await?;
     match res_del {
         true => {
             // delete rows about file
@@ -97,9 +83,9 @@ pub(crate) async fn full_delete_file(
                 &conn
             )?;
 
-            match result_del_row < 1 {
-                true => Err(ServiceError::BadRequest("Removing file info data failed".to_string())),
-                false => {
+            match result_del_row {
+                0 => Err(ServiceError::BadRequest("Removing file info data failed".to_string())),
+                _ => {
                     debug!("Removing completed: {:?}", result_del_row);
                     Ok(true)
                 },
@@ -109,20 +95,14 @@ pub(crate) async fn full_delete_file(
     }
 }
 
-/// Delete file to storage
+/// Delete file on storage
 /// Warning: this function without check access
 pub(crate) async fn delete_file_by_path(
-    path_file: &str,
-    pool: &PgPool,
+    path_file: &str
 ) -> ServiceResult<bool> {
-    let conn = pool.get().unwrap();
-
     // getting storage access data for target user
-    let storage_access = StorageAccess::get(&conn)?;
+    let storage_access = StorageAccess::from_env();
 
     // delete file in storage
-    Ok(delete_object(
-        &storage_access,
-        path_file,
-    ).await)
+    Ok(delete_object(&storage_access, path_file).await)
 }

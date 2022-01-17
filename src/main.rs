@@ -18,11 +18,6 @@ use actix_cors::Cors;
 use actix_web::middleware::Logger;
 use actix_web::{App, HttpServer};
 
-// use crate::graphql::handler::{graphiql, graphql};
-// use crate::graphql::{mutations::MutationRoot, queries::QueryRoot};
-// use actix_web::{guard, web};
-// use async_graphql::EmptySubscription;
-
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     // Gets enviroment variables from `.env`
@@ -62,22 +57,9 @@ async fn main() -> std::io::Result<()> {
             .wrap(cors)
             // Error logging
             .wrap(Logger::default())
-            // Authorisation (now we do not use cookies)
-            // .wrap(IdentityService::new(
-            //     CookieIdentityPolicy::new(cookie_secret_key.as_bytes())
-            //         .name("auth")
-            //         .path("/")
-            //         .domain(&domain)
-            //         // Time from creation that cookie remains valid
-            //         .max_age_time(auth_duration)
-            //         // Restricted to https?
-            //         .secure(secure_cookie),
-            // ))
             // Sets routes via secondary files
             .configure(models::user::route)
             .configure(graphql::route)
-            // .service(web::resource("/graphql").guard(guard::Post()).to(graphql))
-            // .service(web::resource("/").guard(guard::Get()).to(graphiql))
     })
     // Running at `format!("{}:{}",port,"0.0.0.0")`
     .bind(("0.0.0.0", port))

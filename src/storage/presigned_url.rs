@@ -18,7 +18,7 @@ pub(crate) fn download_presigned_url(
     let presigned_url = Aws::from(access_storage).put_download_signed_url(
         &access_storage.bucket,
         path_file,
-        opt.expiration_presigned_url,
+        opt.s3_expiration_presigned_url,
     ).map_err(|err| {
         debug!("Failed make presign-url: {:#?}", err);
         ServiceError::InternalServerError
@@ -41,7 +41,7 @@ pub(crate) fn upload_presigned_url(
     Aws::from(access_storage).get_upload_signed_url(
         &access_storage.bucket,
         path_file,
-        opt.expiration_presigned_url,
+        opt.s3_expiration_presigned_url,
     ).map_err(|err| {
         debug!("Failed make presign-url: {:#?}", err);
         ServiceError::InternalServerError
@@ -61,9 +61,9 @@ pub(crate) fn save_presign_url(
     };
 
     // in db the url action time less than the real one
-    let expiration_at = match opt.expiration_presigned_url {
-        800.. => opt.expiration_presigned_url - 400,
-        _ => opt.expiration_presigned_url,
+    let expiration_at = match opt.s3_expiration_presigned_url {
+        800.. => opt.s3_expiration_presigned_url - 400,
+        _ => opt.s3_expiration_presigned_url,
     };
     let new_expiration_at = Local::now().naive_local() + Duration::seconds(expiration_at as i64);
 

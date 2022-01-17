@@ -50,7 +50,7 @@ pub(crate) fn add_files_of_modification_set(
         debug!("New modification file: {:?}", slim_file);
 
         let upload_url = upload_presigned_url(
-            &StorageAccess::get(conn)?,
+            &StorageAccess::from_env(),
             &slim_file.path_file,
         )?;
 
