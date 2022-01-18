@@ -1,8 +1,6 @@
 use crate::errors::ServiceResult;
-use rusoto_signature::{
-    Region,
-    credential::AwsCredentials,
-};
+use crate::models::relate_ref::file::model::SlimFile;
+use rusoto_signature::{Region, credential::AwsCredentials};
 use rusoto_s3::util::{PreSignedRequest, PreSignedRequestOption};
 
 #[derive(Clone)]
@@ -35,10 +33,7 @@ impl Aws {
 
         // debug!("Region: {:#?}", region);
 
-        Aws{
-            credentials,
-            region
-        }
+        Aws{credentials, region}
     }
 
     /// Return cloned a AwsCredentials (used for create S3Client)
@@ -55,12 +50,16 @@ impl Aws {
     pub(crate) fn put_download_signed_url(
         &self,
         bucket: &str,
-        path_file: &str,
+        slim_file: &SlimFile,
         expires: u64,
     ) -> ServiceResult<String> {
         let req = rusoto_s3::GetObjectRequest {
             bucket: bucket.to_string(),
-            key: path_file.to_string(),
+            key: slim_file.path_file.clone(),
+            response_content_disposition: Some(format!(
+                    "inline;filename={:?}",
+                    slim_file.filename.clone()
+                )),
             ..Default::default()
         };
 
@@ -100,32 +99,4 @@ impl Aws {
             }
         ))
     }
-
-    // /// Generate url for upload part
-    // pub fn upload_part_signed_url(
-    //     &self,
-    //     bucket: &str,
-    //     path_file: &str,
-    //     // content_sha1: &str,
-    //     expires: u64,
-    // ) -> ServiceResult<String> {
-    //     let req = rusoto_s3::UploadPartRequest{
-    //         bucket: bucket.to_string(),
-    //         key: path_file.to_string(),
-    //         part_number: 1_i64,
-    //         upload_id: "None".to_string(),
-    //         content_length: Some(79_i64),
-    //         ..Default::default()
-    //     };
-    //
-    //     debug!("UploadPartRequest: {:#?}", req);
-    //
-    //     Ok(req.get_presigned_url(
-    //         &self.region,
-    //         &self.credentials,
-    //         &PreSignedRequestOption{
-    //             expires_in: std::time::Duration::from_secs(expires)
-    //         }
-    //     ))
-    // }
 }

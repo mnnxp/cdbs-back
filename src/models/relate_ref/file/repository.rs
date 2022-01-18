@@ -151,13 +151,13 @@ impl PreliminaryFileData {
 impl DownloadFile {
     /// Get DownloadFile with generated presigned_url from SlimFile data
     pub(crate) fn get_by_slim_file(
-        file: &SlimFile,
+        slim_file: &SlimFile,
         conn: &PgConnection,
     ) -> ServiceResult<DownloadFile> {
         let naive_local_now = chrono::Local::now().naive_local();
 
         let get_url_from_db = presigned_url_ref::presigned_url_ref
-            .filter(presigned_url_ref::file_uuid.eq(&file.uuid)
+            .filter(presigned_url_ref::file_uuid.eq(&slim_file.uuid)
             .and(presigned_url_ref::expiration_at.gt(naive_local_now)))
             .select(presigned_url_ref::presigned_url)
             .limit(1)
@@ -174,18 +174,18 @@ impl DownloadFile {
                 // generate new url
                 let presigned_url = download_presigned_url(
                     &StorageAccess::from_env(),
-                    &file.path_file,
+                    slim_file,
                 )?;
                 // save presigned url to database
-                save_presign_url(&file.uuid, &presigned_url, conn)?;
+                save_presign_url(&slim_file.uuid, &presigned_url, conn)?;
                 presigned_url
             },
         };
 
         Ok(DownloadFile{
-            uuid: file.uuid,
-            filename: file.filename.clone(),
-            filesize: file.filesize,
+            uuid: slim_file.uuid,
+            filename: slim_file.filename.clone(),
+            filesize: slim_file.filesize,
             download_url,
         })
     }

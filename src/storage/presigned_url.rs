@@ -1,4 +1,5 @@
 use crate::errors::{ServiceResult, ServiceError};
+use crate::models::relate_ref::file::model::SlimFile;
 use crate::storage::model::{StorageAccess, InsertablePresignedUrl};
 use crate::storage::s3::Aws;
 use chrono::{Duration, Local};
@@ -8,7 +9,7 @@ use uuid::Uuid;
 /// Gets presigned url for target file by path
 pub(crate) fn download_presigned_url(
     access_storage: &StorageAccess,
-    path_file: &str,
+    slim_file: &SlimFile,
 ) -> ServiceResult<String> {
     let opt = {
         use structopt::StructOpt;
@@ -17,7 +18,7 @@ pub(crate) fn download_presigned_url(
 
     let presigned_url = Aws::from(access_storage).put_download_signed_url(
         &access_storage.bucket,
-        path_file,
+        slim_file,
         opt.s3_expiration_presigned_url,
     ).map_err(|err| {
         debug!("Failed make presign-url: {:#?}", err);
