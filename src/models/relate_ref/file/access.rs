@@ -11,15 +11,14 @@ pub(crate) fn check_file_owner_err(
     conn: &PgConnection
 ) -> ServiceResult<bool> {
     // find file with target user
-    let filesize: i64 = file_ref::file_ref
+    file_ref::file_ref
         .filter(file_ref::uuid.eq(file_uuid)
-        .and(file_ref::user_uuid.eq(user_uuid)))
-        .select(file_ref::filesize)
+        .and(file_ref::user_uuid.eq(user_uuid))
+        .and(file_ref::is_delete.eq(false)))
+        .select(file_ref::is_delete)
         .first(conn)
         .map_err(|err| {
             debug!("Not found file: {:?}", err);
             ServiceError::BadRequest("Access denied".to_string())
-        })?;
-
-    Ok(filesize > 0)
+        })
 }

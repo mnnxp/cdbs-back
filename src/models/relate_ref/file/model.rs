@@ -6,22 +6,6 @@ use uuid::Uuid;
 use crate::models::user::model::ShowUserShort;
 use crate::models::relate_ref::program::model::Program;
 
-// /// First uuid: object_uuid, second uuid: addiction_uuid
-// #[derive(Deserialize, Clone, Debug)]
-// pub struct DoubleAddiction(Uuid,Uuid);
-//
-// impl DoubleAddiction {
-//     /// Clone object uuid of DoubleAddiction
-//     pub(crate) fn get_object_uuid(&self) -> Uuid {
-//         self.0
-//     }
-//
-//     /// Clone addiction uuid of DoubleAddiction
-//     pub(crate) fn get_addiction_uuid(&self) -> Uuid {
-//         self.1
-//     }
-// }
-
 // list for insert data in related tables
 #[derive(Deserialize, Clone, Debug)]
 pub enum ListObject {
@@ -96,6 +80,7 @@ pub struct InsertableFile {
     pub id_ext: i32,
     pub filesize: i64,
     pub path_file: String,
+    pub is_delete: bool,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
 }
@@ -118,8 +103,9 @@ impl From<PreliminaryFileData> for InsertableFile {
 
         // creating a filename for the storage
         let path_file = format!("{}/{}",
-            Uuid::to_simple(object.get_uuid()), // <- maybe uuid from component, modification, standard, user etc.
-            // user_uuid,
+            // maybe uuid from component, modification, standard, user etc
+            Uuid::to_simple(object.get_uuid()),
+            // user_uuid
             Uuid::to_simple(new_file_uuid),
         );
 
@@ -133,6 +119,7 @@ impl From<PreliminaryFileData> for InsertableFile {
             id_ext,
             filesize: 0_i64,
             path_file,
+            is_delete: false,
             created_at: chrono::Local::now().naive_local(),
             updated_at: chrono::Local::now().naive_local(),
         }
@@ -144,9 +131,12 @@ impl From<PreliminaryFileData> for InsertableFile {
 pub struct PreliminaryFileData {
     pub parent_file_uuid: Uuid,
     pub user_uuid: Uuid,
-    pub object: ListObject, // <-- linked object, to create a new name in the storage (file_path)
-    pub filename: String, // <-- sanitizer filename with sanitize_filename::sanitize(&filename)
-    pub id_ext: i32, // <-- get id for extension with find_id_ext(filename, conn)
+    /// linked object, to create a new name in the storage (file_path)
+    pub object: ListObject,
+    /// sanitizer filename with sanitize_filename::sanitize(&filename)
+    pub filename: String,
+    /// get id for extension with find_id_ext(filename, conn)
+    pub id_ext: i32,
     pub content_type: String,
 }
 

@@ -20,7 +20,8 @@ impl ShowFileRelatedData {
         conn: &PgConnection,
     ) -> ServiceResult<ShowFileRelatedData> {
         let file_data: ShowFile = file_ref::file_ref
-            .filter(file_ref::uuid.eq(target_file_uuid))
+            .filter(file_ref::uuid.eq(target_file_uuid)
+            .and(file_ref::is_delete.eq(false)))
             .select((
                 file_ref::uuid,
                 file_ref::parent_file_uuid,
@@ -87,7 +88,8 @@ impl SlimFile {
         conn: &PgConnection,
     ) -> ServiceResult<SlimFile> {
         file_ref::file_ref
-            .filter(file_ref::uuid.eq(target_file_uuid))
+            .filter(file_ref::uuid.eq(target_file_uuid)
+            .and(file_ref::is_delete.eq(false)))
             .select((
                 file_ref::uuid,
                 file_ref::filename,
@@ -107,7 +109,8 @@ impl SlimFile {
         conn: &PgConnection,
     ) -> ServiceResult<Vec<SlimFile>> {
         file_ref::file_ref
-            .filter(file_ref::uuid.eq_any(target_files_uuids))
+            .filter(file_ref::uuid.eq_any(target_files_uuids)
+            .and(file_ref::is_delete.eq(false)))
             .select((
                 file_ref::uuid,
                 file_ref::filename,

@@ -1,4 +1,4 @@
-use crate::database::{get_pool, get_conn, PooledConnection};
+use crate::database::{get_conn, PooledConnection};
 use crate::errors::ServiceResult;
 use crate::models::user::access::logged::get_logged_user_uuid;
 use crate::models::company::{
@@ -160,13 +160,13 @@ impl CompanyMutation {
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
-        let pool = get_pool(cxt)?;
+        let conn: &PooledConnection = &get_conn(cxt)?;
 
         del_certificate_description(
             &logged_user_uuid,
             &args,
-            &pool
-        ).await
+            conn
+        )
     }
 
     async fn add_company_specs(

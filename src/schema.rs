@@ -255,6 +255,7 @@ table! {
         id_ext -> Int4,
         filesize -> Int8,
         path_file -> Varchar,
+        is_delete -> Bool,
         created_at -> Timestamp,
         updated_at -> Timestamp,
     }

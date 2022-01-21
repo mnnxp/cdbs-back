@@ -67,12 +67,12 @@ impl StorageMutation {
     ) -> ServiceResult<bool> {
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
-        let pool = get_pool(cxt)?;
+        let conn: &PooledConnection = &get_conn(cxt)?;
 
         delete_file_with_check_by_uuid(
             &logged_user_uuid,
             &file_uuid,
-            &pool
-        ).await
+            conn
+        )
     }
 }
