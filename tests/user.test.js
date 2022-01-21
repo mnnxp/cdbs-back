@@ -1756,7 +1756,7 @@ describe('users', () => {
     debug('/graphql body=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Failed remove certificate data'
+      'Internal Server Error'
     );
     expect(body.errors[0].path[0]).toBe('deleteUserCertificate');
     done();
@@ -2796,7 +2796,7 @@ describe('users', () => {
     } = body;
     // expect(body).toBe(0);
     expect(users).toBeNonEmptyArray();
-    expect(users.length).toBe(1);
+    expect(users.length).toBe(2);
     done();
   });
 

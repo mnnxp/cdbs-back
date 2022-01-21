@@ -2355,8 +2355,9 @@ describe('company', () => {
       data: { standards },
     } = body;
     expect(standards).toBeNonEmptyArray();
-    expect(standards[0].uuid).toBe(standardUuidFirst);
-    expect(standards[0].name).toBe(nameStandard);
+    index = standards.length - 1;
+    expect(standards[index].uuid).toBe(standardUuidFirst);
+    expect(standards[index].name).toBe(nameStandard);
     done();
   });
 

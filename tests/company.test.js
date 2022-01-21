@@ -2508,7 +2508,7 @@ describe('company', () => {
     debug('/graphql body=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Failed remove certificate data'
+      'Internal Server Error'
     );
     expect(body.errors[0].path[0]).toBe('deleteCompanyCertificate');
     done();
