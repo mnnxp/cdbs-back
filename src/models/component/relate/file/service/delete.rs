@@ -20,7 +20,7 @@ pub(crate) fn delete_component_file(
         conn
     )?;
 
-    diesel::delete(file_to_component)
+    let del_file = diesel::delete(file_to_component)
         .filter(component_uuid.eq(&data.component_uuid)
         .and(file_uuid.eq(&data.file_uuid)))
         .execute(conn)
@@ -29,6 +29,10 @@ pub(crate) fn delete_component_file(
             ServiceError::InternalServerError
         })?;
 
-    // set flag for delete file in storage
-    delete_file_by_uuid(&data.file_uuid, conn)
+    match del_file {
+        // not found file
+        0 => Ok(false),
+        // set flag for delete file in storage
+        _ => delete_file_by_uuid(&data.file_uuid, conn),
+    }
 }

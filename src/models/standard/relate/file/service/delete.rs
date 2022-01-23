@@ -21,7 +21,7 @@ pub(crate) fn delete_standard_file(
         conn,
     )?;
 
-    diesel::delete(file_to_standard::file_to_standard)
+    let del_file = diesel::delete(file_to_standard::file_to_standard)
         .filter(file_to_standard::standard_uuid.eq(&arguments.standard_uuid)
         .and(file_to_standard::file_uuid.eq(&arguments.file_uuid)))
         .execute(conn)
@@ -30,6 +30,10 @@ pub(crate) fn delete_standard_file(
             ServiceError::InternalServerError
         })?;
 
-    // set flag for delete file in storage
-    delete_file_by_uuid(&arguments.file_uuid, conn)
+    match del_file {
+        // not found file
+        0 => Ok(false),
+        // set flag for delete file in storage
+        _ => delete_file_by_uuid(&arguments.file_uuid, conn),
+    }
 }
