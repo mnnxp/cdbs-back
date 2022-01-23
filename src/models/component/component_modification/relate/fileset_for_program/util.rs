@@ -4,7 +4,7 @@ use diesel::prelude::*;
 use uuid::Uuid;
 
 /// Get component uuid from fileset by uuid
-pub fn get_component_by_fileset(
+pub(crate) fn get_component_by_fileset(
     target_fileset_uuid: &Uuid,
     conn: &PgConnection
 ) -> ServiceResult<Uuid> {
@@ -17,7 +17,7 @@ pub fn get_component_by_fileset(
 }
 
 /// Get modification uuid from fileset by uuid
-pub fn get_modification_by_fileset(
+pub(crate) fn get_modification_by_fileset(
     target_fileset_uuid: &Uuid,
     conn: &PgConnection
 ) -> ServiceResult<Uuid> {

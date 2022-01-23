@@ -12,22 +12,22 @@ use uuid::Uuid;
 #[belongs_to(Component, foreign_key = "component_uuid")]
 #[belongs_to(Standard, foreign_key = "standard_uuid")]
 #[table_name = "standard_to_component"]
-pub struct StandardToComponent {
-    pub component_uuid: Uuid,
-    pub standard_uuid: Uuid,
+pub(crate) struct StandardToComponent {
+    pub(crate) component_uuid: Uuid,
+    pub(crate) standard_uuid: Uuid,
 }
 
 #[derive(Debug, Deserialize, Clone, InputObject)]
-pub struct IptStandardToComponentData {
-    pub standard_uuid: Uuid,
-    pub component_uuid: Uuid,
+pub(crate) struct IptStandardToComponentData {
+    pub(crate) standard_uuid: Uuid,
+    pub(crate) component_uuid: Uuid,
 }
 
 #[derive(Debug, Insertable)]
 #[table_name = "standard_to_component"]
-pub struct InsertableStandardToComponent {
-    pub standard_uuid: Uuid,
-    pub component_uuid: Uuid,
+pub(crate) struct InsertableStandardToComponent {
+    pub(crate) standard_uuid: Uuid,
+    pub(crate) component_uuid: Uuid,
 }
 
 impl From<&IptStandardToComponentData> for InsertableStandardToComponent {
@@ -46,7 +46,7 @@ impl From<&IptStandardToComponentData> for InsertableStandardToComponent {
 }
 
 #[derive(Debug, Deserialize, Clone, InputObject)]
-pub struct DelStandardToComponentData {
-    pub standards_uuids: Vec<Uuid>,
-    pub component_uuid: Uuid,
+pub(crate) struct DelStandardToComponentData {
+    pub(crate) standards_uuids: Vec<Uuid>,
+    pub(crate) component_uuid: Uuid,
 }

@@ -3,7 +3,7 @@ use diesel::prelude::*;
 use uuid::Uuid;
 
 /// Checking component owner, return bool
-pub fn check_is_owner(
+pub(crate) fn check_is_owner(
     target_user_uuid: &Uuid,
     target_component_uuid: &Uuid,
     conn: &PgConnection
@@ -25,7 +25,7 @@ pub fn check_is_owner(
 
 /// Checking onwed component
 /// Return error if user not owned
-pub fn check_is_owner_with_err(
+pub(crate) fn check_is_owner_with_err(
     target_user_uuid: &Uuid,
     target_component_uuid: &Uuid,
     conn: &PgConnection

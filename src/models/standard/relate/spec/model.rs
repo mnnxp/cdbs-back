@@ -10,22 +10,22 @@ use uuid::Uuid;
 #[belongs_to(Standard, foreign_key = "standard_uuid")]
 #[belongs_to(Spec, foreign_key = "spec_id")]
 #[table_name = "spec_to_standard"]
-pub struct StandardSpec {
-    pub spec_id: i32,
-    pub standard_uuid: Uuid,
+pub(crate) struct StandardSpec {
+    pub(crate) spec_id: i32,
+    pub(crate) standard_uuid: Uuid,
 }
 
 #[derive(Debug, Insertable)]
 #[table_name = "spec_to_standard"]
-pub struct InsertableStandardSpec {
-    pub standard_uuid: Uuid,
-    pub spec_id: i32,
+pub(crate) struct InsertableStandardSpec {
+    pub(crate) standard_uuid: Uuid,
+    pub(crate) spec_id: i32,
 }
 
 #[derive(Debug, Deserialize, Clone, InputObject)]
-pub struct IptStandardSpecsData {
-    pub standard_uuid: Uuid,
-    pub spec_ids: Vec<i32>,
+pub(crate) struct IptStandardSpecsData {
+    pub(crate) standard_uuid: Uuid,
+    pub(crate) spec_ids: Vec<i32>,
 }
 
 impl From<&IptStandardSpecsData> for Vec<InsertableStandardSpec> {
@@ -52,9 +52,9 @@ impl From<&IptStandardSpecsData> for Vec<InsertableStandardSpec> {
 }
 
 #[derive(Debug, Clone)]
-pub struct DeleteStandardSpecs {
-    pub standard_uuid: Uuid,
-    pub spec_ids: Vec<i32>,
+pub(crate) struct DeleteStandardSpecs {
+    pub(crate) standard_uuid: Uuid,
+    pub(crate) spec_ids: Vec<i32>,
 }
 
 impl From<&IptStandardSpecsData> for DeleteStandardSpecs {
@@ -81,17 +81,17 @@ impl From<&IptStandardSpecsData> for DeleteStandardSpecs {
 }
 
 #[derive(InputObject, Deserialize, Debug)]
-pub struct IptStandardSpecsArg {
-    pub standard_uuid:  Uuid,
-    pub limit: Option<i32>,
-    pub offset: Option<i32>,
+pub(crate) struct IptStandardSpecsArg {
+    pub(crate) standard_uuid:  Uuid,
+    pub(crate) limit: Option<i32>,
+    pub(crate) offset: Option<i32>,
 }
 
 #[derive(Debug)]
-pub struct StandardSpecsArg {
-    pub standard_uuid:  Uuid,
-    pub limit: i32,
-    pub offset: i32,
+pub(crate) struct StandardSpecsArg {
+    pub(crate) standard_uuid:  Uuid,
+    pub(crate) limit: i32,
+    pub(crate) offset: i32,
 }
 
 impl From<IptStandardSpecsArg> for StandardSpecsArg {

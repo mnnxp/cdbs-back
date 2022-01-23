@@ -74,8 +74,6 @@ impl UserQuery {
                 user_ref::program_id,
                 user_ref::type_access_id,
                 user_ref::is_email_verified,
-                user_ref::is_enabled,
-                user_ref::is_delete,
                 user_ref::created_at,
                 user_ref::updated_at,
             ))

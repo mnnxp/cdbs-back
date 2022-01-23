@@ -7,41 +7,41 @@ use uuid::Uuid;
 #[derive(Identifiable, Deserialize, Queryable, Debug)]
 #[primary_key(component_uuid, company_uuid)]
 #[table_name = "company_access_to_component"]
-pub struct CompanyAccessComponent {
-    pub component_uuid: Uuid,
-    pub company_uuid: Uuid,
-    pub type_access_id: i32,
-    pub is_enabled: bool,
-    pub created_at: NaiveDateTime,
-    pub updated_at: NaiveDateTime,
+pub(crate) struct CompanyAccessComponent {
+    pub(crate) component_uuid: Uuid,
+    pub(crate) company_uuid: Uuid,
+    pub(crate) type_access_id: i32,
+    pub(crate) is_enabled: bool,
+    pub(crate) created_at: NaiveDateTime,
+    pub(crate) updated_at: NaiveDateTime,
 }
 
 #[derive(Debug, Deserialize, SimpleObject)]
-pub struct CompanyAccessComponentAndRelatedData {
-    pub component_uuid: Uuid,
-    pub company_uuid: Uuid,
-    pub type_access: TypeAccessTranslateList,
-    pub is_enabled: bool,
-    pub created_at: NaiveDateTime,
-    pub updated_at: NaiveDateTime,
+pub(crate) struct CompanyAccessComponentAndRelatedData {
+    pub(crate) component_uuid: Uuid,
+    pub(crate) company_uuid: Uuid,
+    pub(crate) type_access: TypeAccessTranslateList,
+    pub(crate) is_enabled: bool,
+    pub(crate) created_at: NaiveDateTime,
+    pub(crate) updated_at: NaiveDateTime,
 }
 
 #[derive(Debug, Insertable)]
 #[table_name = "company_access_to_component"]
-pub struct InsertableCompanyAccessComponent {
-    pub component_uuid: Uuid,
-    pub company_uuid: Uuid,
-    pub type_access_id: i32,
-    pub is_enabled: bool,
-    pub created_at: NaiveDateTime,
-    pub updated_at: NaiveDateTime,
+pub(crate) struct InsertableCompanyAccessComponent {
+    pub(crate) component_uuid: Uuid,
+    pub(crate) company_uuid: Uuid,
+    pub(crate) type_access_id: i32,
+    pub(crate) is_enabled: bool,
+    pub(crate) created_at: NaiveDateTime,
+    pub(crate) updated_at: NaiveDateTime,
 }
 
 #[derive(Debug, Deserialize, InputObject)]
-pub struct IptCompanyAccessComponentData {
-    pub component_uuid: Uuid,
-    pub company_uuid: Uuid,
-    pub type_access_id: i32,
+pub(crate) struct IptCompanyAccessComponentData {
+    pub(crate) component_uuid: Uuid,
+    pub(crate) company_uuid: Uuid,
+    pub(crate) type_access_id: i32,
 }
 
 impl From<&IptCompanyAccessComponentData> for InsertableCompanyAccessComponent {
@@ -66,7 +66,7 @@ impl From<&IptCompanyAccessComponentData> for InsertableCompanyAccessComponent {
 
 
 #[derive(Debug, Deserialize, InputObject)]
-pub struct DelCompanyAccessComponentData {
-    pub component_uuid: Uuid,
-    pub company_uuid: Uuid,
+pub(crate) struct DelCompanyAccessComponentData {
+    pub(crate) component_uuid: Uuid,
+    pub(crate) company_uuid: Uuid,
 }

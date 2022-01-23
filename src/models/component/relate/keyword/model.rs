@@ -12,34 +12,34 @@ use uuid::Uuid;
 #[belongs_to(Component, foreign_key = "component_uuid")]
 #[belongs_to(Keyword, foreign_key = "keyword_id")]
 #[table_name = "keyword_to_component"]
-pub struct ComponentKeyword {
-    pub component_uuid: Uuid,
-    pub keyword_id: i32,
+pub(crate) struct ComponentKeyword {
+    pub(crate) component_uuid: Uuid,
+    pub(crate) keyword_id: i32,
 }
 
 #[derive(Deserialize, SimpleObject, Clone, Debug)]
-pub struct ComponentKeywordRelatedData {
-    pub keyword: Keyword,
-    pub component_uuid: Uuid,
+pub(crate) struct ComponentKeywordRelatedData {
+    pub(crate) keyword: Keyword,
+    pub(crate) component_uuid: Uuid,
 }
 
 #[derive(Debug, Deserialize, Clone, InputObject)]
-pub struct IptComponentKeywordsData {
-    pub component_uuid: Uuid,
-    pub keyword_ids: Vec<i32>,
+pub(crate) struct IptComponentKeywordsData {
+    pub(crate) component_uuid: Uuid,
+    pub(crate) keyword_ids: Vec<i32>,
 }
 
 #[derive(Debug, Deserialize, Clone, InputObject)]
-pub struct IptComponentKeywordsNames {
-    pub component_uuid: Uuid,
-    pub keywords: Vec<String>,
+pub(crate) struct IptComponentKeywordsNames {
+    pub(crate) component_uuid: Uuid,
+    pub(crate) keywords: Vec<String>,
 }
 
 #[derive(Debug, Insertable)]
 #[table_name = "keyword_to_component"]
-pub struct InsertableComponentKeyword {
-    pub component_uuid: Uuid,
-    pub keyword_id: i32,
+pub(crate) struct InsertableComponentKeyword {
+    pub(crate) component_uuid: Uuid,
+    pub(crate) keyword_id: i32,
 }
 
 impl From<&IptComponentKeywordsData> for Vec<InsertableComponentKeyword> {
@@ -67,9 +67,9 @@ impl From<&IptComponentKeywordsData> for Vec<InsertableComponentKeyword> {
 }
 
 #[derive(Debug, Clone)]
-pub struct DeleteComponentKeyword {
-    pub component_uuid: Uuid,
-    pub keyword_ids: Vec<i32>,
+pub(crate) struct DeleteComponentKeyword {
+    pub(crate) component_uuid: Uuid,
+    pub(crate) keyword_ids: Vec<i32>,
 }
 
 impl From<&IptComponentKeywordsData> for DeleteComponentKeyword {
@@ -96,17 +96,17 @@ impl From<&IptComponentKeywordsData> for DeleteComponentKeyword {
 }
 
 #[derive(InputObject, Deserialize, Debug)]
-pub struct IptComponentKeywordsArg {
-    pub component_uuid:  Uuid,
-    pub limit: Option<i32>,
-    pub offset: Option<i32>,
+pub(crate) struct IptComponentKeywordsArg {
+    pub(crate) component_uuid:  Uuid,
+    pub(crate) limit: Option<i32>,
+    pub(crate) offset: Option<i32>,
 }
 
 #[derive(Debug)]
-pub struct ComponentKeywordsArg {
-    pub component_uuid:  Uuid,
-    pub limit: i32,
-    pub offset: i32,
+pub(crate) struct ComponentKeywordsArg {
+    pub(crate) component_uuid:  Uuid,
+    pub(crate) limit: i32,
+    pub(crate) offset: i32,
 }
 
 impl From<IptComponentKeywordsArg> for ComponentKeywordsArg {

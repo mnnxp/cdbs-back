@@ -72,7 +72,7 @@ impl RoleMemberTranslateList {
 
 impl RoleMemberAndRelatedData {
     /// Get role by id for set lang
-    pub fn get_by_id(
+    pub(crate) fn get_by_id(
         target_role_id: &i32,
         set_lang_id: &i32,
         conn: &PgConnection,

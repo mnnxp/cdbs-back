@@ -10,14 +10,14 @@ use async_graphql::*;
 #[derive(Identifiable, Serialize, Deserialize, Associations, Queryable, Debug)]
 #[primary_key(id)]
 #[table_name = "type_access_ref"]
-pub struct TypeAccess {
-    pub id: i32,
+pub(crate) struct TypeAccess {
+    pub(crate) id: i32,
 }
 
 #[derive(Debug, Insertable)]
 #[table_name = "type_access_ref"]
-pub struct InsertableTypeAccess {
-    pub id: i32,
+pub(crate) struct InsertableTypeAccess {
+    pub(crate) id: i32,
 }
 
 // TypeAccess translations
@@ -28,38 +28,38 @@ pub struct InsertableTypeAccess {
 #[belongs_to(Component, foreign_key = "type_access_id")]
 #[belongs_to(Language, foreign_key = "lang_id")]
 #[table_name = "type_access_translate_list"]
-pub struct TypeAccessTranslateList {
-    pub type_access_id: i32,
-    pub lang_id: i32,
-    pub name: String,
+pub(crate) struct TypeAccessTranslateList {
+    pub(crate) type_access_id: i32,
+    pub(crate) lang_id: i32,
+    pub(crate) name: String,
 }
 
 #[derive(Debug, Deserialize, Clone, InputObject)]
-pub struct IptTypeAccessTranslateListData {
-    pub lang_id: i32,
-    pub name: String,
+pub(crate) struct IptTypeAccessTranslateListData {
+    pub(crate) lang_id: i32,
+    pub(crate) name: String,
 }
 
 #[derive(Debug, Insertable)]
 #[table_name = "type_access_translate_list"]
-pub struct InsertableTypeAccessTranslateList {
-    pub type_access_id: i32,
-    pub lang_id: i32,
-    pub name: String,
+pub(crate) struct InsertableTypeAccessTranslateList {
+    pub(crate) type_access_id: i32,
+    pub(crate) lang_id: i32,
+    pub(crate) name: String,
 }
 
 #[derive(InputObject, Deserialize, Debug)]
-pub struct IptTypeAccessArg {
-    pub type_access_ids:  Option<Vec<i32>>,
-    pub limit: Option<i32>,
-    pub offset: Option<i32>,
+pub(crate) struct IptTypeAccessArg {
+    pub(crate) type_access_ids:  Option<Vec<i32>>,
+    pub(crate) limit: Option<i32>,
+    pub(crate) offset: Option<i32>,
 }
 
 #[derive(Debug)]
-pub struct TypeAccessArg {
-    pub type_access_ids: Vec<i32>,
-    pub limit: i32,
-    pub offset: i32,
+pub(crate) struct TypeAccessArg {
+    pub(crate) type_access_ids: Vec<i32>,
+    pub(crate) limit: i32,
+    pub(crate) offset: i32,
 }
 
 impl Default for TypeAccessArg {

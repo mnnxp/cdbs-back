@@ -3,7 +3,7 @@ use diesel::prelude::*;
 use uuid::Uuid;
 
 /// Get component uuid from modification by uuid
-pub fn get_component_by_modification(
+pub(crate) fn get_component_by_modification(
     target_modification_uuid: &Uuid,
     conn: &PgConnection
 ) -> ServiceResult<Uuid> {

@@ -8,14 +8,14 @@ use async_graphql::*;
 #[derive(Identifiable, Serialize, Deserialize, Associations, Queryable, Debug)]
 #[primary_key(id)]
 #[table_name = "param_ref"]
-pub struct Param {
-    pub id: i32,
+pub(crate) struct Param {
+    pub(crate) id: i32,
 }
 
 #[derive(Debug, Insertable)]
 #[table_name = "param_ref"]
-pub struct InsertableParam {
-    pub id: i32,
+pub(crate) struct InsertableParam {
+    pub(crate) id: i32,
 }
 
 // Param translations
@@ -27,44 +27,44 @@ pub struct InsertableParam {
 #[belongs_to(ModificationParam, foreign_key = "param_id")]
 #[belongs_to(Language, foreign_key = "lang_id")]
 #[table_name = "param_translate_list"]
-pub struct ParamTranslateList {
-    pub param_id: i32,
-    pub lang_id: i32,
-    pub paramname: String,
+pub(crate) struct ParamTranslateList {
+    pub(crate) param_id: i32,
+    pub(crate) lang_id: i32,
+    pub(crate) paramname: String,
 }
 
 #[derive(Debug, Deserialize, Clone, InputObject)]
-pub struct IptParamTranslateListData {
-    pub lang_id: i32,
-    pub paramname: String,
+pub(crate) struct IptParamTranslateListData {
+    pub(crate) lang_id: i32,
+    pub(crate) paramname: String,
 }
 
 #[derive(Debug, Insertable)]
 #[table_name = "param_translate_list"]
-pub struct InsertableParamTranslateList {
-    pub param_id: i32,
-    pub lang_id: i32,
-    pub paramname: String,
+pub(crate) struct InsertableParamTranslateList {
+    pub(crate) param_id: i32,
+    pub(crate) lang_id: i32,
+    pub(crate) paramname: String,
 }
 
 #[derive(Debug, Deserialize, Clone, InputObject)]
-pub struct IptParamData {
-    pub param_id: i32,
-    pub value: String,
+pub(crate) struct IptParamData {
+    pub(crate) param_id: i32,
+    pub(crate) value: String,
 }
 
 #[derive(InputObject, Deserialize, Debug)]
-pub struct IptParamArg {
-    pub param_ids:  Option<Vec<i32>>,
-    pub limit: Option<i32>,
-    pub offset: Option<i32>,
+pub(crate) struct IptParamArg {
+    pub(crate) param_ids:  Option<Vec<i32>>,
+    pub(crate) limit: Option<i32>,
+    pub(crate) offset: Option<i32>,
 }
 
 #[derive(Debug)]
-pub struct ParamArg {
-    pub param_ids: Vec<i32>,
-    pub limit: i32,
-    pub offset: i32,
+pub(crate) struct ParamArg {
+    pub(crate) param_ids: Vec<i32>,
+    pub(crate) limit: i32,
+    pub(crate) offset: i32,
 }
 
 impl Default for ParamArg {

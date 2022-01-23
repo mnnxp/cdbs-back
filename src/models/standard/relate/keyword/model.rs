@@ -12,15 +12,15 @@ use uuid::Uuid;
 #[belongs_to(Standard, foreign_key = "standard_uuid")]
 #[belongs_to(Keyword, foreign_key = "keyword_id")]
 #[table_name = "keyword_to_standard"]
-pub struct StandardKeyword {
-    pub standard_uuid: Uuid,
-    pub keyword_id: i32,
+pub(crate) struct StandardKeyword {
+    pub(crate) standard_uuid: Uuid,
+    pub(crate) keyword_id: i32,
 }
 
 #[derive(Deserialize, SimpleObject, Clone, Debug)]
-pub struct StandardKeywordRelatedData {
-    pub keyword: Keyword,
-    pub standard_uuid: Uuid,
+pub(crate) struct StandardKeywordRelatedData {
+    pub(crate) keyword: Keyword,
+    pub(crate) standard_uuid: Uuid,
 }
 
 // impl StandardKeywordRelatedData {
@@ -40,21 +40,21 @@ pub struct StandardKeywordRelatedData {
 
 #[derive(Debug, Insertable)]
 #[table_name = "keyword_to_standard"]
-pub struct InsertableStandardKeyword {
-    pub standard_uuid: Uuid,
-    pub keyword_id: i32,
+pub(crate) struct InsertableStandardKeyword {
+    pub(crate) standard_uuid: Uuid,
+    pub(crate) keyword_id: i32,
 }
 
 #[derive(Debug, Deserialize, Clone, InputObject)]
-pub struct IptStandardKeywordsData {
-    pub standard_uuid: Uuid,
-    pub keyword_ids: Vec<i32>,
+pub(crate) struct IptStandardKeywordsData {
+    pub(crate) standard_uuid: Uuid,
+    pub(crate) keyword_ids: Vec<i32>,
 }
 
 #[derive(Debug, Deserialize, Clone, InputObject)]
-pub struct IptStandardKeywordsNames {
-    pub standard_uuid: Uuid,
-    pub keywords: Vec<String>,
+pub(crate) struct IptStandardKeywordsNames {
+    pub(crate) standard_uuid: Uuid,
+    pub(crate) keywords: Vec<String>,
 }
 
 impl From<&IptStandardKeywordsData> for Vec<InsertableStandardKeyword> {
@@ -81,9 +81,9 @@ impl From<&IptStandardKeywordsData> for Vec<InsertableStandardKeyword> {
 }
 
 #[derive(Debug, Clone)]
-pub struct DeleteStandardKeywords {
-    pub standard_uuid: Uuid,
-    pub keyword_ids: Vec<i32>,
+pub(crate) struct DeleteStandardKeywords {
+    pub(crate) standard_uuid: Uuid,
+    pub(crate) keyword_ids: Vec<i32>,
 }
 
 impl From<&IptStandardKeywordsData> for DeleteStandardKeywords {
@@ -110,17 +110,17 @@ impl From<&IptStandardKeywordsData> for DeleteStandardKeywords {
 }
 
 #[derive(InputObject, Deserialize, Debug)]
-pub struct IptStandardKeywordsArg {
-    pub standard_uuid:  Uuid,
-    pub limit: Option<i32>,
-    pub offset: Option<i32>,
+pub(crate) struct IptStandardKeywordsArg {
+    pub(crate) standard_uuid:  Uuid,
+    pub(crate) limit: Option<i32>,
+    pub(crate) offset: Option<i32>,
 }
 
 #[derive(Debug)]
-pub struct StandardKeywordsArg {
-    pub standard_uuid:  Uuid,
-    pub limit: i32,
-    pub offset: i32,
+pub(crate) struct StandardKeywordsArg {
+    pub(crate) standard_uuid:  Uuid,
+    pub(crate) limit: i32,
+    pub(crate) offset: i32,
 }
 
 impl From<IptStandardKeywordsArg> for StandardKeywordsArg {

@@ -14,17 +14,17 @@ use uuid::Uuid;
 #[belongs_to(Component, foreign_key = "component_uuid")]
 #[belongs_to(ParamTranslateList, foreign_key = "param_id")]
 #[table_name = "param_to_component"]
-pub struct ComponentParam {
-    pub component_uuid: Uuid,
-    pub param_id: i32,
-    pub value: String,
+pub(crate) struct ComponentParam {
+    pub(crate) component_uuid: Uuid,
+    pub(crate) param_id: i32,
+    pub(crate) value: String,
 }
 
 #[derive(Debug, Deserialize, SimpleObject, Clone)]
-pub struct ComponentParamWithTranslation {
-    pub component_uuid: Uuid,
-    pub param: ParamTranslateList,
-    pub value: String,
+pub(crate) struct ComponentParamWithTranslation {
+    pub(crate) component_uuid: Uuid,
+    pub(crate) param: ParamTranslateList,
+    pub(crate) value: String,
 }
 
 impl ComponentParamWithTranslation {
@@ -45,16 +45,16 @@ impl ComponentParamWithTranslation {
 
 #[derive(Debug, Insertable)]
 #[table_name = "param_to_component"]
-pub struct InsertableComponentParam {
-    pub component_uuid: Uuid,
-    pub param_id: i32,
-    pub value: String,
+pub(crate) struct InsertableComponentParam {
+    pub(crate) component_uuid: Uuid,
+    pub(crate) param_id: i32,
+    pub(crate) value: String,
 }
 
 #[derive(Debug, Deserialize, Clone, InputObject)]
-pub struct IptComponentParamData {
-    pub component_uuid: Uuid,
-    pub params: Vec<IptParamData>,
+pub(crate) struct IptComponentParamData {
+    pub(crate) component_uuid: Uuid,
+    pub(crate) params: Vec<IptParamData>,
 }
 
 impl From<IptComponentParamData> for Vec<InsertableComponentParam> {
@@ -81,7 +81,7 @@ impl From<IptComponentParamData> for Vec<InsertableComponentParam> {
 }
 
 #[derive(Debug, Deserialize, Clone, InputObject)]
-pub struct DelComponentParamData {
-    pub component_uuid: Uuid,
-    pub param_ids: Vec<i32>,
+pub(crate) struct DelComponentParamData {
+    pub(crate) component_uuid: Uuid,
+    pub(crate) param_ids: Vec<i32>,
 }

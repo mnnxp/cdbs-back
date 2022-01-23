@@ -3,7 +3,7 @@ use diesel::prelude::*;
 use uuid::Uuid;
 
 /// Checking whether the company has a supplier's status
-pub fn check_is_supplier(
+pub(crate) fn check_is_supplier(
     target_company_uuid: &Uuid,
     conn: &PgConnection
 ) -> Result<bool, ServiceError> {

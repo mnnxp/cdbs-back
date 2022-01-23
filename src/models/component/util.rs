@@ -6,7 +6,7 @@ use uuid::Uuid;
 
 /// Checking whether the component has flag is_base
 /// return true or false
-pub fn check_is_base(
+pub(crate) fn check_is_base(
     component_uuid: &Uuid,
     conn: &PgConnection
 ) -> ServiceResult<bool> {
@@ -22,7 +22,7 @@ pub fn check_is_base(
 
 /// Checking whether the component has flag is_base
 /// return err if not base
-pub fn check_is_base_with_err(
+pub(crate) fn check_is_base_with_err(
     component_uuid: &Uuid,
     conn: &PgConnection
 ) -> ServiceResult<bool> {

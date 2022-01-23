@@ -5,15 +5,15 @@ use async_graphql::*;
 #[derive(SimpleObject, Identifiable, Serialize, Deserialize, Associations, Queryable, Debug)]
 #[primary_key(id)]
 #[table_name = "spec_ref"]
-pub struct Spec {
-    pub id: i32,
-    pub parent_spec_id: i32,
+pub(crate) struct Spec {
+    pub(crate) id: i32,
+    pub(crate) parent_spec_id: i32,
 }
 
 #[derive(Debug, Insertable)]
 #[table_name = "spec_ref"]
-pub struct InsertableSpec {
-    pub parent_spec_id: i32,
+pub(crate) struct InsertableSpec {
+    pub(crate) parent_spec_id: i32,
 }
 
 // Spec translations
@@ -22,32 +22,32 @@ pub struct InsertableSpec {
 #[belongs_to(Spec, foreign_key = "spec_id")]
 #[belongs_to(Language, foreign_key = "lang_id")]
 #[table_name = "spec_translate_list"]
-pub struct SpecTranslateList {
-    pub spec_id: i32,
-    pub lang_id: i32,
-    pub spec: String,
+pub(crate) struct SpecTranslateList {
+    pub(crate) spec_id: i32,
+    pub(crate) lang_id: i32,
+    pub(crate) spec: String,
 }
 
 #[derive(Serialize, Deserialize, Queryable, QueryableByName, Clone, Debug)]
 #[table_name = "spec_translate_list"]
-pub struct SpecId {
-    pub spec_id: i32,
+pub(crate) struct SpecId {
+    pub(crate) spec_id: i32,
 }
 
 #[derive(Debug, Deserialize, Clone, InputObject)]
-pub struct IptSpecTranslateListData {
-    pub spec_id: i32,
-    pub parent_spec_id: i32,
-    pub lang_id: i32,
-    pub spec: String,
+pub(crate) struct IptSpecTranslateListData {
+    pub(crate) spec_id: i32,
+    pub(crate) parent_spec_id: i32,
+    pub(crate) lang_id: i32,
+    pub(crate) spec: String,
 }
 
 #[derive(Debug, Insertable)]
 #[table_name = "spec_translate_list"]
-pub struct InsertableSpecTranslateList {
-    pub spec_id: i32,
-    pub lang_id: i32,
-    pub spec: String,
+pub(crate) struct InsertableSpecTranslateList {
+    pub(crate) spec_id: i32,
+    pub(crate) lang_id: i32,
+    pub(crate) spec: String,
 }
 
 impl From<&IptSpecTranslateListData> for InsertableSpec {
@@ -59,28 +59,28 @@ impl From<&IptSpecTranslateListData> for InsertableSpec {
 }
 
 #[derive(Serialize, SimpleObject, Debug)]
-pub struct SpecPath {
-    pub spec_id: i32,
-    pub lang_id: i32,
-    pub path: String,
+pub(crate) struct SpecPath {
+    pub(crate) spec_id: i32,
+    pub(crate) lang_id: i32,
+    pub(crate) path: String,
 }
 
 #[derive(InputObject, Deserialize, Debug)]
-pub struct IptSpecPathArg {
-    pub spec_ids: Option<Vec<i32>>,
-    pub split_char: Option<char>,
-    pub depth_level: Option<i32>,
-    pub limit: Option<i32>,
-    pub offset: Option<i32>,
+pub(crate) struct IptSpecPathArg {
+    pub(crate) spec_ids: Option<Vec<i32>>,
+    pub(crate) split_char: Option<char>,
+    pub(crate) depth_level: Option<i32>,
+    pub(crate) limit: Option<i32>,
+    pub(crate) offset: Option<i32>,
 }
 
 #[derive(Debug)]
-pub struct SpecPathArg {
-    pub spec_ids: Vec<i32>,
-    pub split_char: char,
-    pub depth_level: i32,
-    pub limit: i32,
-    pub offset: i32,
+pub(crate) struct SpecPathArg {
+    pub(crate) spec_ids: Vec<i32>,
+    pub(crate) split_char: char,
+    pub(crate) depth_level: i32,
+    pub(crate) limit: i32,
+    pub(crate) offset: i32,
 }
 
 impl Default for SpecPathArg {
@@ -116,7 +116,7 @@ impl From<IptSpecPathArg> for SpecPathArg {
 }
 
 #[derive(InputObject, Deserialize, Debug)]
-pub struct IptSearchSpecArg {
+pub(crate) struct IptSearchSpecArg {
     text: String,
     split_char: Option<char>,
     depth_level: Option<i32>,
@@ -125,12 +125,12 @@ pub struct IptSearchSpecArg {
 }
 
 #[derive(Debug)]
-pub struct SearchSpecArg {
-    pub text: String,
-    pub split_char: char,
-    pub depth_level: i32,
-    pub limit: i32,
-    pub offset: i32,
+pub(crate) struct SearchSpecArg {
+    pub(crate) text: String,
+    pub(crate) split_char: char,
+    pub(crate) depth_level: i32,
+    pub(crate) limit: i32,
+    pub(crate) offset: i32,
 }
 
 impl Default for SearchSpecArg {
@@ -166,19 +166,19 @@ impl From<IptSearchSpecArg> for SearchSpecArg {
 }
 
 #[derive(InputObject, Deserialize, Debug)]
-pub struct IptSpecArg {
-    pub spec_ids: Option<Vec<i32>>,
-    pub specs_levels: Option<Vec<i32>>,
-    pub limit: Option<i32>,
-    pub offset: Option<i32>,
+pub(crate) struct IptSpecArg {
+    pub(crate) spec_ids: Option<Vec<i32>>,
+    pub(crate) specs_levels: Option<Vec<i32>>,
+    pub(crate) limit: Option<i32>,
+    pub(crate) offset: Option<i32>,
 }
 
 #[derive(Debug)]
-pub struct SpecArg {
-    pub spec_ids: Vec<i32>,
-    pub specs_levels: Vec<i32>,
-    pub limit: i32,
-    pub offset: i32,
+pub(crate) struct SpecArg {
+    pub(crate) spec_ids: Vec<i32>,
+    pub(crate) specs_levels: Vec<i32>,
+    pub(crate) limit: i32,
+    pub(crate) offset: i32,
 }
 
 impl Default for SpecArg {

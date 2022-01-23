@@ -10,43 +10,39 @@ use uuid::Uuid;
 /// Gets represents by company uuid or represents uuids
 pub(crate) fn get_represents(
     logged_user_uuid: &Uuid,
-    arg: &CompanyRepresentsArg,
+    args: &CompanyRepresentsArg,
     set_lang_id: &i32,
     conn: &PgConnection,
 ) -> ServiceResult<Vec<CompanyRepresentAndRelatedData>> {
-    let company_uuid_for_check =
-        match (arg.company_uuid.is_nil(), arg.represents_uuids.first()) {
-            (false, None) => arg.company_uuid,
-            (true, Some(represent_uuid)) => get_company_of_represent(represent_uuid, conn)?,
-            _ => return Err(ServiceError::BadRequest(
-                "You need to choose a company or a representative company".to_string(),
-            )),
-        };
+    let mut args: CompanyRepresentsArg = args.clone();
+
+    if args.company_uuid.is_nil() {
+        match args.represents_uuids.first() {
+            Some(represent_uuid) => {
+                let company_uuid = get_company_of_represent(represent_uuid, conn)?;
+                args.set_company_uuid(&company_uuid);
+            },
+            None => return Err(ServiceError::BadRequest(
+                "You need to choose a company or a representative company".to_string()
+            ))
+        }
+    }
 
     let need_access_level = 3;
 
     check_company_access(
         logged_user_uuid,
-        &company_uuid_for_check,
+        &args.company_uuid,
         &need_access_level,
         conn
     )?;
 
-    if arg.company_uuid.is_nil() {
-        CompanyRepresentAndRelatedData::get_by_uuids(
-            &arg.represents_uuids,
-            set_lang_id,
-            conn
-        )
-    } else {
-        let represents_uuids = get_represents_company_uuid(&arg.company_uuid, conn)?;
-        debug!("represents_uuids: {:?}", represents_uuids);
-        CompanyRepresentAndRelatedData::get_by_uuids(
-            &represents_uuids,
-            set_lang_id,
-            conn
-        )
+    if args.represents_uuids.is_empty() {
+        let represents_uuids = get_represents_company_uuid(&args.company_uuid, conn)?;
+        args.set_represents_uuids(represents_uuids);
     }
+
+    CompanyRepresentAndRelatedData::get_by_args(&args, set_lang_id, conn)
 }
 
 /// Get represents Uuids for company by uuid

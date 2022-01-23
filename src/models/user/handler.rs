@@ -3,19 +3,19 @@ use crate::errors::ServiceError;
 use actix_web::{web, HttpResponse};
 
 #[derive(Debug, Deserialize)]
-pub struct UserLogin {
-    pub username: String,
-    pub password: String,
+pub(crate) struct UserLogin {
+    pub(crate) username: String,
+    pub(crate) password: String,
 }
 
 #[derive(Debug, Deserialize)]
-pub struct LoginQuery {
-    pub user: UserLogin,
+pub(crate) struct LoginQuery {
+    pub(crate) user: UserLogin,
 }
 
 #[derive(Debug, Serialize)]
-pub struct ReturnToken {
-    pub bearer: String,
+pub(crate) struct ReturnToken {
+    pub(crate) bearer: String,
 }
 
 pub(super) async fn login(

@@ -10,15 +10,15 @@ use uuid::Uuid;
 #[belongs_to(FilesetProgram, foreign_key = "fileset_uuid")]
 #[belongs_to(ShowFileRelatedData, foreign_key = "file_uuid")]
 #[table_name = "modification_file_from_fileset"]
-pub struct ModificationFileFromFileset {
-    pub fileset_uuid: Uuid,
-    pub file_uuid: Uuid,
+pub(crate) struct ModificationFileFromFileset {
+    pub(crate) fileset_uuid: Uuid,
+    pub(crate) file_uuid: Uuid,
 }
 
 #[derive(Debug, SimpleObject, Clone)]
-pub struct ModificationFileFromFilesetRelatedData {
-    pub fileset_uuid: Uuid,
-    pub files: Vec<ShowFileRelatedData>,
+pub(crate) struct ModificationFileFromFilesetRelatedData {
+    pub(crate) fileset_uuid: Uuid,
+    pub(crate) files: Vec<ShowFileRelatedData>,
 }
 
 // impl ModificationFileFromFilesetRelatedData {
@@ -37,38 +37,38 @@ pub struct ModificationFileFromFilesetRelatedData {
 // }
 
 #[derive(Debug, Deserialize, Clone, InputObject)]
-pub struct IptModificationFileFromFilesetData {
-    pub fileset_uuid: Uuid,
-    pub filenames: Vec<String>,
+pub(crate) struct IptModificationFileFromFilesetData {
+    pub(crate) fileset_uuid: Uuid,
+    pub(crate) filenames: Vec<String>,
 }
 
 #[derive(Debug, Deserialize, Clone, InputObject)]
-pub struct DelModificationFileFromFilesetData {
-    pub fileset_uuid: Uuid,
-    pub file_uuids: Vec<Uuid>,
+pub(crate) struct DelModificationFileFromFilesetData {
+    pub(crate) fileset_uuid: Uuid,
+    pub(crate) file_uuids: Vec<Uuid>,
 }
 
 #[derive(Debug, Insertable)]
 #[table_name = "modification_file_from_fileset"]
-pub struct InsertableModificationFileFromFileset {
-    pub fileset_uuid: Uuid,
-    pub file_uuid: Uuid,
+pub(crate) struct InsertableModificationFileFromFileset {
+    pub(crate) fileset_uuid: Uuid,
+    pub(crate) file_uuid: Uuid,
 }
 
 #[derive(InputObject, Deserialize, Debug)]
-pub struct IptFileOfFilesetArg {
-    pub fileset_uuid: Uuid,
-    pub file_uuids: Option<Vec<Uuid>>,
-    pub limit: Option<i32>,
-    pub offset: Option<i32>,
+pub(crate) struct IptFileOfFilesetArg {
+    pub(crate) fileset_uuid: Uuid,
+    pub(crate) file_uuids: Option<Vec<Uuid>>,
+    pub(crate) limit: Option<i32>,
+    pub(crate) offset: Option<i32>,
 }
 
 #[derive(Debug)]
-pub struct FileOfFilesetArg {
-    pub fileset_uuid: Uuid,
-    pub file_uuids: Vec<Uuid>,
-    pub limit: i32,
-    pub offset: i32,
+pub(crate) struct FileOfFilesetArg {
+    pub(crate) fileset_uuid: Uuid,
+    pub(crate) file_uuids: Vec<Uuid>,
+    pub(crate) limit: i32,
+    pub(crate) offset: i32,
 }
 
 impl From<IptFileOfFilesetArg> for FileOfFilesetArg {

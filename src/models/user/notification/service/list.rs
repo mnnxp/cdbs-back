@@ -31,6 +31,10 @@ fn get_all(
         .filter(notification_to_user::user_uuid.eq(logged_user_uuid))
         .limit(*limit as i64)
         .offset(*offset as i64)
+        .select((
+            notification_to_user::notification_id,
+            notification_to_user::is_read
+        ))
         .load::<NotificationToUser>(conn)
         .map_err(|err| {
             debug!("Failed get notifications: {:?}", err);
@@ -68,6 +72,10 @@ fn get_by_ids(
         .and(notification_to_user::notification_id.eq_any(&args.notification_ids)))
         .limit(args.limit as i64)
         .offset(args.offset as i64)
+        .select((
+            notification_to_user::notification_id,
+            notification_to_user::is_read
+        ))
         .load::<NotificationToUser>(conn)
         .map_err(|err| {
             debug!("Failed get notifications: {:?}", err);

@@ -5,7 +5,7 @@ use diesel::prelude::*;
 use uuid::Uuid;
 
 /// Checking company owner, return bool
-pub fn check_is_owner(
+pub(crate) fn check_is_owner(
     target_user_uuid: &Uuid,
     target_company_uuid: &Uuid,
     conn: &PgConnection
@@ -25,7 +25,7 @@ pub fn check_is_owner(
 
 /// Checking companies for user owner,
 /// return true if user owner any of companies
-pub fn check_is_owner_any(
+pub(crate) fn check_is_owner_any(
     target_user_uuid: &Uuid,
     target_companies_uuids: &[Uuid],
     conn: &PgConnection
@@ -45,7 +45,7 @@ pub fn check_is_owner_any(
 
 /// Checking onwed company
 /// Return error if user not owned
-pub fn check_is_owner_with_err(
+pub(crate) fn check_is_owner_with_err(
     target_user_uuid: &Uuid,
     target_company_uuid: &Uuid,
     conn: &PgConnection

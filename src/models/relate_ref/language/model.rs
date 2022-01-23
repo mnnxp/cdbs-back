@@ -39,23 +39,23 @@ impl From<&HeaderMap> for SetLang {
 // Language models
 
 #[derive(Debug, Serialize, Deserialize, Queryable, SimpleObject)]
-pub struct Language {
-    pub id: i32,
-    pub lang: String,
-    pub langshort: String,
+pub(crate) struct Language {
+    pub(crate) id: i32,
+    pub(crate) lang: String,
+    pub(crate) langshort: String,
 }
 
 #[derive(Debug, Insertable)]
 #[table_name = "language_ref"]
-pub struct InsertableLanguage {
-    pub lang: String,
-    pub langshort: String,
+pub(crate) struct InsertableLanguage {
+    pub(crate) lang: String,
+    pub(crate) langshort: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, Queryable, Clone, InputObject)]
-pub struct LanguageData {
-    pub lang: String,
-    pub langshort: String,
+pub(crate) struct LanguageData {
+    pub(crate) lang: String,
+    pub(crate) langshort: String,
 }
 
 impl From<&LanguageData> for InsertableLanguage {
@@ -68,13 +68,13 @@ impl From<&LanguageData> for InsertableLanguage {
 }
 
 // for request
-pub struct SetLang {
-    pub lang_id: i32,
+pub(crate) struct SetLang {
+    pub(crate) lang_id: i32,
 }
 
 // for set lang search
-pub struct EngLangName {
-    pub eng_lang_name: String,
+pub(crate) struct EngLangName {
+    pub(crate) eng_lang_name: String,
 }
 
 impl From<&str> for EngLangName {
@@ -86,17 +86,17 @@ impl From<&str> for EngLangName {
 }
 
 #[derive(InputObject, Deserialize, Debug)]
-pub struct IptLanguageArg {
-    pub lang_ids:  Option<Vec<i32>>,
-    pub limit: Option<i32>,
-    pub offset: Option<i32>,
+pub(crate) struct IptLanguageArg {
+    pub(crate) lang_ids:  Option<Vec<i32>>,
+    pub(crate) limit: Option<i32>,
+    pub(crate) offset: Option<i32>,
 }
 
 #[derive(Debug)]
-pub struct LanguageArg {
-    pub lang_ids: Vec<i32>,
-    pub limit: i32,
-    pub offset: i32,
+pub(crate) struct LanguageArg {
+    pub(crate) lang_ids: Vec<i32>,
+    pub(crate) limit: i32,
+    pub(crate) offset: i32,
 }
 
 impl Default for LanguageArg {

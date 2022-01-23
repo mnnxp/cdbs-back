@@ -8,16 +8,16 @@ use uuid::Uuid;
 #[derive(Identifiable, Serialize, Deserialize, Associations, Queryable, SimpleObject, Debug)]
 #[primary_key(id)]
 #[table_name = "role_member_list"]
-pub struct RoleMember {
-    pub id: i32,
-    pub company_uuid: Uuid,
+pub(crate) struct RoleMember {
+    pub(crate) id: i32,
+    pub(crate) company_uuid: Uuid,
 }
 
 #[derive(Debug, Insertable)]
 #[table_name = "role_member_list"]
-pub struct InsertableRoleMember {
-    pub id: i32,
-    pub company_uuid: Uuid,
+pub(crate) struct InsertableRoleMember {
+    pub(crate) id: i32,
+    pub(crate) company_uuid: Uuid,
 }
 
 // RoleMember translations
@@ -27,46 +27,46 @@ pub struct InsertableRoleMember {
 #[belongs_to(RoleMember, foreign_key = "role_member_id")]
 #[belongs_to(Language, foreign_key = "lang_id")]
 #[table_name = "role_member_translate_list"]
-pub struct RoleMemberTranslateList {
-    pub role_member_id: i32,
-    pub lang_id: i32,
-    pub name: String,
+pub(crate) struct RoleMemberTranslateList {
+    pub(crate) role_member_id: i32,
+    pub(crate) lang_id: i32,
+    pub(crate) name: String,
 }
 
 #[derive(Debug, Deserialize, Clone, Default, SimpleObject)]
-pub struct RoleMemberAndRelatedData {
-    // pub company_uuid: Uuid,
+pub(crate) struct RoleMemberAndRelatedData {
+    // pub(crate) company_uuid: Uuid,
     // show role data with translation
-    pub role: RoleMemberTranslateList,
+    pub(crate) role: RoleMemberTranslateList,
     // show access types for this role
-    pub access: Vec<TypeAccessTranslateList>,
+    pub(crate) access: Vec<TypeAccessTranslateList>,
 }
 
 #[derive(Debug, Deserialize, Clone, InputObject)]
-pub struct IptRoleMemberData {
-    pub company_uuid: Uuid,
-    pub lang_id: i32,
-    pub name: String,
+pub(crate) struct IptRoleMemberData {
+    pub(crate) company_uuid: Uuid,
+    pub(crate) lang_id: i32,
+    pub(crate) name: String,
 }
 
 #[derive(Debug, Deserialize, Clone, InputObject)]
-pub struct IptUpdateNameRoleData {
-    pub company_uuid: Uuid,
-    pub role_id: i32,
-    pub lang_id: i32,
-    pub name: String,
+pub(crate) struct IptUpdateNameRoleData {
+    pub(crate) company_uuid: Uuid,
+    pub(crate) role_id: i32,
+    pub(crate) lang_id: i32,
+    pub(crate) name: String,
 }
 
 #[derive(Debug, Insertable)]
 #[table_name = "role_member_translate_list"]
-pub struct InsertableRoleMemberTranslateList {
-    pub role_member_id: i32,
-    pub lang_id: i32,
-    pub name: String,
+pub(crate) struct InsertableRoleMemberTranslateList {
+    pub(crate) role_member_id: i32,
+    pub(crate) lang_id: i32,
+    pub(crate) name: String,
 }
 
 #[derive(Debug, Deserialize, Clone, InputObject)]
-pub struct DelRoleMemberData {
-    pub company_uuid: Uuid,
-    pub role_id: i32,
+pub(crate) struct DelRoleMemberData {
+    pub(crate) company_uuid: Uuid,
+    pub(crate) role_id: i32,
 }

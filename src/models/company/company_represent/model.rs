@@ -10,75 +10,75 @@ use uuid::Uuid;
 #[primary_key(uuid)]
 #[belongs_to(Company, foreign_key = "company_uuid")]
 #[table_name = "company_represent_ref"]
-pub struct CompanyRepresent {
-    pub uuid: Uuid,
-    pub company_uuid: Uuid,
-    pub region_id: i32,
-    pub representation_type_id: i32,
-    pub name: String,
-    pub address: String,
-    pub phone: String,
+pub(crate) struct CompanyRepresent {
+    pub(crate) uuid: Uuid,
+    pub(crate) company_uuid: Uuid,
+    pub(crate) region_id: i32,
+    pub(crate) representation_type_id: i32,
+    pub(crate) name: String,
+    pub(crate) address: String,
+    pub(crate) phone: String,
 }
 
 #[derive(Debug, Deserialize, SimpleObject)]
-pub struct CompanyRepresentAndRelatedData {
-    pub uuid: Uuid,
-    pub company_uuid: Uuid,
-    pub region: RegionTranslateList,
-    pub representation_type: RepresentationTypeTranslateList,
-    pub name: String,
-    pub address: String,
-    pub phone: String,
+pub(crate) struct CompanyRepresentAndRelatedData {
+    pub(crate) uuid: Uuid,
+    pub(crate) company_uuid: Uuid,
+    pub(crate) region: RegionTranslateList,
+    pub(crate) representation_type: RepresentationTypeTranslateList,
+    pub(crate) name: String,
+    pub(crate) address: String,
+    pub(crate) phone: String,
 }
 
 #[derive(Debug, Insertable)]
 #[table_name = "company_represent_ref"]
-pub struct InsertableCompanyRepresent {
-    pub uuid: Uuid,
-    pub company_uuid: Uuid,
-    pub region_id: i32,
-    pub representation_type_id: i32,
-    pub name: String,
-    pub address: String,
-    pub phone: String,
+pub(crate) struct InsertableCompanyRepresent {
+    pub(crate) uuid: Uuid,
+    pub(crate) company_uuid: Uuid,
+    pub(crate) region_id: i32,
+    pub(crate) representation_type_id: i32,
+    pub(crate) name: String,
+    pub(crate) address: String,
+    pub(crate) phone: String,
 }
 
 #[derive(Debug, Deserialize, Clone, InputObject)]
-pub struct IptCompanyRepresentData {
-    pub company_uuid: Uuid,
-    pub region_id: i32,
-    pub representation_type_id: i32,
-    pub name: String,
-    pub address: String,
-    pub phone: String,
+pub(crate) struct IptCompanyRepresentData {
+    pub(crate) company_uuid: Uuid,
+    pub(crate) region_id: i32,
+    pub(crate) representation_type_id: i32,
+    pub(crate) name: String,
+    pub(crate) address: String,
+    pub(crate) phone: String,
 }
 
 #[derive(Debug, Deserialize, Clone, InputObject)]
-pub struct IptUpdateCompanyRepresentData {
-    pub region_id: Option<i32>,
-    pub representation_type_id: Option<i32>,
-    pub name: Option<String>,
-    pub address: Option<String>,
-    pub phone: Option<String>,
+pub(crate) struct IptUpdateCompanyRepresentData {
+    pub(crate) region_id: Option<i32>,
+    pub(crate) representation_type_id: Option<i32>,
+    pub(crate) name: Option<String>,
+    pub(crate) address: Option<String>,
+    pub(crate) phone: Option<String>,
 }
 
 #[derive(Debug, Deserialize, Clone, SimpleObject)]
-pub struct CompanyRepresentData {
-    pub company_uuid: Uuid,
-    pub region_id: i32,
-    pub representation_type_id: i32,
-    pub name: String,
-    pub address: String,
-    pub phone: String,
+pub(crate) struct CompanyRepresentData {
+    pub(crate) company_uuid: Uuid,
+    pub(crate) region_id: i32,
+    pub(crate) representation_type_id: i32,
+    pub(crate) name: String,
+    pub(crate) address: String,
+    pub(crate) phone: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, SimpleObject)]
-pub struct SlimCompanyRepresent {
-    pub uuid: Uuid,
-    pub company_uuid: Uuid,
-    pub name: String,
-    pub address: String,
-    pub phone: String,
+pub(crate) struct SlimCompanyRepresent {
+    pub(crate) uuid: Uuid,
+    pub(crate) company_uuid: Uuid,
+    pub(crate) name: String,
+    pub(crate) address: String,
+    pub(crate) phone: String,
 }
 
 impl From<&IptCompanyRepresentData> for InsertableCompanyRepresent {
@@ -130,19 +130,19 @@ impl From<CompanyRepresent> for SlimCompanyRepresent {
 
 
 #[derive(InputObject, Deserialize, Debug)]
-pub struct IptCompanyRepresentsArg {
-    pub company_uuid: Option<Uuid>,
-    pub represents_uuids: Option<Vec<Uuid>>,
-    pub limit: Option<i32>,
-    pub offset: Option<i32>,
+pub(crate) struct IptCompanyRepresentsArg {
+    pub(crate) company_uuid: Option<Uuid>,
+    pub(crate) represents_uuids: Option<Vec<Uuid>>,
+    pub(crate) limit: Option<i32>,
+    pub(crate) offset: Option<i32>,
 }
 
-#[derive(Debug)]
-pub struct CompanyRepresentsArg {
-    pub company_uuid: Uuid,
-    pub represents_uuids: Vec<Uuid>,
-    pub limit: i32,
-    pub offset: i32,
+#[derive(Debug, Clone)]
+pub(crate) struct CompanyRepresentsArg {
+    pub(crate) company_uuid: Uuid,
+    pub(crate) represents_uuids: Vec<Uuid>,
+    pub(crate) limit: i32,
+    pub(crate) offset: i32,
 }
 
 impl From<IptCompanyRepresentsArg> for CompanyRepresentsArg {
@@ -160,5 +160,17 @@ impl From<IptCompanyRepresentsArg> for CompanyRepresentsArg {
             limit: limit.unwrap_or(100),
             offset: offset.unwrap_or(0),
         }
+    }
+}
+
+impl CompanyRepresentsArg {
+    /// Change company uuid
+    pub(crate) fn set_company_uuid(&mut self, company_uuid: &Uuid) {
+        self.company_uuid = *company_uuid;
+    }
+
+    /// Change represents uuids
+    pub(crate) fn set_represents_uuids(&mut self, represents_uuids: Vec<Uuid>) {
+        self.represents_uuids = represents_uuids;
     }
 }

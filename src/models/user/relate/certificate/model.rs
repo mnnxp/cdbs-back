@@ -11,31 +11,31 @@ use uuid::Uuid;
 #[belongs_to(DownloadFile, foreign_key = "file_uuid")]
 #[belongs_to(User, foreign_key = "user_uuid")]
 #[table_name = "user_certificate_ref"]
-pub struct UserCertificate {
-    pub file_uuid: Uuid,
-    pub user_uuid: Uuid,
-    pub description: String,
+pub(crate) struct UserCertificate {
+    pub(crate) file_uuid: Uuid,
+    pub(crate) user_uuid: Uuid,
+    pub(crate) description: String,
 }
 
 #[derive(Debug, SimpleObject)]
-pub struct UserCertificateAndFile {
-    pub file: DownloadFile,
-    pub user_uuid: Uuid,
-    pub description: String,
+pub(crate) struct UserCertificateAndFile {
+    pub(crate) file: DownloadFile,
+    pub(crate) user_uuid: Uuid,
+    pub(crate) description: String,
 }
 
 #[derive(Debug, Insertable)]
 #[table_name = "user_certificate_ref"]
-pub struct InsertableUserCertificate {
-    pub file_uuid: Uuid,
-    pub user_uuid: Uuid,
-    pub description: String,
+pub(crate) struct InsertableUserCertificate {
+    pub(crate) file_uuid: Uuid,
+    pub(crate) user_uuid: Uuid,
+    pub(crate) description: String,
 }
 
 #[derive(Debug, Deserialize, Clone, InputObject)]
-pub struct IptUserCertificateData {
-    pub description: String,
-    pub filename: String,
+pub(crate) struct IptUserCertificateData {
+    pub(crate) description: String,
+    pub(crate) filename: String,
 }
 
 impl From<UserCertificate> for InsertableUserCertificate {
@@ -56,12 +56,12 @@ impl From<UserCertificate> for InsertableUserCertificate {
 }
 
 #[derive(Debug, Deserialize, Clone, InputObject)]
-pub struct IptUpdateUserCertificateData {
-    pub file_uuid: Uuid,
-    pub description: String,
+pub(crate) struct IptUpdateUserCertificateData {
+    pub(crate) file_uuid: Uuid,
+    pub(crate) description: String,
 }
 
 #[derive(Debug, Deserialize, Clone, InputObject)]
-pub struct DelUserCertificateData {
-    pub file_uuid: Uuid,
+pub(crate) struct DelUserCertificateData {
+    pub(crate) file_uuid: Uuid,
 }

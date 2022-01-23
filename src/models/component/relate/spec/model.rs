@@ -10,22 +10,22 @@ use uuid::Uuid;
 #[belongs_to(Component, foreign_key = "component_uuid")]
 #[belongs_to(Spec, foreign_key = "spec_id")]
 #[table_name = "spec_to_component"]
-pub struct ComponentSpec {
-    pub spec_id: i32,
-    pub component_uuid: Uuid,
+pub(crate) struct ComponentSpec {
+    pub(crate) spec_id: i32,
+    pub(crate) component_uuid: Uuid,
 }
 
 #[derive(Debug, Deserialize, Clone, InputObject)]
-pub struct IptComponentSpecsData {
-    pub component_uuid: Uuid,
-    pub spec_ids: Vec<i32>,
+pub(crate) struct IptComponentSpecsData {
+    pub(crate) component_uuid: Uuid,
+    pub(crate) spec_ids: Vec<i32>,
 }
 
 #[derive(Debug, Insertable)]
 #[table_name = "spec_to_component"]
-pub struct InsertableComponentSpec {
-    pub component_uuid: Uuid,
-    pub spec_id: i32,
+pub(crate) struct InsertableComponentSpec {
+    pub(crate) component_uuid: Uuid,
+    pub(crate) spec_id: i32,
 }
 
 impl From<&IptComponentSpecsData> for Vec<InsertableComponentSpec> {
@@ -51,9 +51,9 @@ impl From<&IptComponentSpecsData> for Vec<InsertableComponentSpec> {
 }
 
 #[derive(Debug, Clone)]
-pub struct DeleteComponentSpecs {
-    pub component_uuid: Uuid,
-    pub spec_ids: Vec<i32>,
+pub(crate) struct DeleteComponentSpecs {
+    pub(crate) component_uuid: Uuid,
+    pub(crate) spec_ids: Vec<i32>,
 }
 
 impl From<&IptComponentSpecsData> for DeleteComponentSpecs {
@@ -80,17 +80,17 @@ impl From<&IptComponentSpecsData> for DeleteComponentSpecs {
 }
 
 #[derive(InputObject, Deserialize, Debug)]
-pub struct IptComponentSpecsArg {
-    pub component_uuid:  Uuid,
-    pub limit: Option<i32>,
-    pub offset: Option<i32>,
+pub(crate) struct IptComponentSpecsArg {
+    pub(crate) component_uuid:  Uuid,
+    pub(crate) limit: Option<i32>,
+    pub(crate) offset: Option<i32>,
 }
 
 #[derive(Debug)]
-pub struct ComponentSpecsArg {
-    pub component_uuid:  Uuid,
-    pub limit: i32,
-    pub offset: i32,
+pub(crate) struct ComponentSpecsArg {
+    pub(crate) component_uuid:  Uuid,
+    pub(crate) limit: i32,
+    pub(crate) offset: i32,
 }
 
 impl From<IptComponentSpecsArg> for ComponentSpecsArg {

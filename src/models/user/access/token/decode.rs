@@ -5,7 +5,7 @@ use crate::jwt::manager::decode_token;
 
 use async_graphql::*;
 
-// pub type ClaimsResponse = Claims;
+// pub(crate) type ClaimsResponse = Claims;
 
 #[Object]
 impl Claims {

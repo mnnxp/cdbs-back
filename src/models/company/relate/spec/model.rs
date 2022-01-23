@@ -10,22 +10,22 @@ use uuid::Uuid;
 #[belongs_to(Company, foreign_key = "company_uuid")]
 #[belongs_to(Spec, foreign_key = "spec_id")]
 #[table_name = "spec_to_company"]
-pub struct CompanySpec {
-    pub spec_id: i32,
-    pub company_uuid: Uuid,
+pub(crate) struct CompanySpec {
+    pub(crate) spec_id: i32,
+    pub(crate) company_uuid: Uuid,
 }
 
 #[derive(Debug, Insertable)]
 #[table_name = "spec_to_company"]
-pub struct InsertableCompanySpec {
-    pub company_uuid: Uuid,
-    pub spec_id: i32,
+pub(crate) struct InsertableCompanySpec {
+    pub(crate) company_uuid: Uuid,
+    pub(crate) spec_id: i32,
 }
 
 #[derive(Debug, Deserialize, Clone, InputObject)]
-pub struct IptCompanySpecsData {
-    pub company_uuid: Uuid,
-    pub spec_ids: Vec<i32>,
+pub(crate) struct IptCompanySpecsData {
+    pub(crate) company_uuid: Uuid,
+    pub(crate) spec_ids: Vec<i32>,
 }
 
 impl From<&IptCompanySpecsData> for Vec<InsertableCompanySpec> {
@@ -52,9 +52,9 @@ impl From<&IptCompanySpecsData> for Vec<InsertableCompanySpec> {
 }
 
 #[derive(Debug, Deserialize, Clone, InputObject)]
-pub struct DelCompanySpec {
-    pub company_uuid: Uuid,
-    pub spec_ids: Vec<i32>,
+pub(crate) struct DelCompanySpec {
+    pub(crate) company_uuid: Uuid,
+    pub(crate) spec_ids: Vec<i32>,
 }
 
 impl From<&IptCompanySpecsData> for DelCompanySpec {
@@ -81,17 +81,17 @@ impl From<&IptCompanySpecsData> for DelCompanySpec {
 }
 
 #[derive(InputObject, Deserialize, Debug)]
-pub struct IptCompanySpecsArg {
-    pub company_uuid:  Uuid,
-    pub limit: Option<i32>,
-    pub offset: Option<i32>,
+pub(crate) struct IptCompanySpecsArg {
+    pub(crate) company_uuid:  Uuid,
+    pub(crate) limit: Option<i32>,
+    pub(crate) offset: Option<i32>,
 }
 
 #[derive(Debug)]
-pub struct CompanySpecsArg {
-    pub company_uuid:  Uuid,
-    pub limit: i32,
-    pub offset: i32,
+pub(crate) struct CompanySpecsArg {
+    pub(crate) company_uuid:  Uuid,
+    pub(crate) limit: i32,
+    pub(crate) offset: i32,
 }
 
 impl From<IptCompanySpecsArg> for CompanySpecsArg {

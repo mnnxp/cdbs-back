@@ -52,101 +52,83 @@ impl User {
 #[derive(Identifiable, Deserialize, Queryable, Debug)]
 #[primary_key(uuid)]
 #[table_name = "user_ref"]
-pub struct UserQuery {
-    pub uuid: Uuid,
-    pub email: String,
-    pub firstname: String,
-    pub lastname: String,
-    pub secondname: String,
-    pub username: String,
-    pub phone: String,
-    pub description: String,
-    pub address: String,
-    pub position: String,
-    pub time_zone: String,
-    pub image_file_uuid: Uuid,
-    pub region_id: i32,
-    pub program_id: i32,
-    pub type_access_id: i32,
-    pub is_email_verified: bool,
-    pub is_enabled: bool,
-    pub is_delete: bool,
-    pub created_at: NaiveDateTime,
-    pub updated_at: NaiveDateTime,
+pub(crate) struct UserQuery {
+    pub(crate) uuid: Uuid,
+    pub(crate) email: String,
+    pub(crate) firstname: String,
+    pub(crate) lastname: String,
+    pub(crate) secondname: String,
+    pub(crate) username: String,
+    pub(crate) phone: String,
+    pub(crate) description: String,
+    pub(crate) address: String,
+    pub(crate) position: String,
+    pub(crate) time_zone: String,
+    pub(crate) image_file_uuid: Uuid,
+    pub(crate) region_id: i32,
+    pub(crate) program_id: i32,
+    pub(crate) type_access_id: i32,
+    pub(crate) is_email_verified: bool,
+    // pub(crate) is_enabled: bool,
+    // pub(crate) is_delete: bool,
+    pub(crate) created_at: NaiveDateTime,
+    pub(crate) updated_at: NaiveDateTime,
 }
 
 #[derive(Debug, SimpleObject)]
-pub struct UserAndRelatedData {
-    pub uuid: Uuid,
-    pub email: String,
-    pub firstname: String,
-    pub lastname: String,
-    pub secondname: String,
-    pub username: String,
-    pub phone: String,
-    pub description: String,
-    pub address: String,
-    pub position: String, // <-- todo!(create a separate table with translation)
-    pub time_zone: String,
-    pub image_file: DownloadFile,
-    pub region: RegionTranslateList,
-    pub program: Program,
-    pub type_access: TypeAccessTranslateList,
-    pub is_email_verified: bool,
-    pub created_at: NaiveDateTime,
-    pub updated_at: NaiveDateTime,
+pub(crate) struct UserAndRelatedData {
+    pub(crate) uuid: Uuid,
+    pub(crate) email: String,
+    pub(crate) firstname: String,
+    pub(crate) lastname: String,
+    pub(crate) secondname: String,
+    pub(crate) username: String,
+    pub(crate) phone: String,
+    pub(crate) description: String,
+    pub(crate) address: String,
+    pub(crate) position: String, // <-- todo!(create a separate table with translation)
+    pub(crate) time_zone: String,
+    pub(crate) image_file: DownloadFile,
+    pub(crate) region: RegionTranslateList,
+    pub(crate) program: Program,
+    pub(crate) type_access: TypeAccessTranslateList,
+    pub(crate) is_email_verified: bool,
+    pub(crate) created_at: NaiveDateTime,
+    pub(crate) updated_at: NaiveDateTime,
     // related data
-    pub certificates: Vec<UserCertificateAndFile>,
-    pub subscribers: i32,
+    pub(crate) certificates: Vec<UserCertificateAndFile>,
+    pub(crate) subscribers: i32,
     // for a quick request just count objects have user
-    pub companies_count: i32,
-    pub components_count: i32,
-    pub standards_count: i32,
+    pub(crate) companies_count: i32,
+    pub(crate) components_count: i32,
+    pub(crate) standards_count: i32,
     // for a quick request just count the subscribers
-    pub fav_companies_count: i32,
-    pub fav_components_count: i32,
-    pub fav_standards_count: i32,
-    pub fav_users_count: i32,
+    pub(crate) fav_companies_count: i32,
+    pub(crate) fav_components_count: i32,
+    pub(crate) fav_standards_count: i32,
+    pub(crate) fav_users_count: i32,
 }
 
 /// For show data about profile
 #[derive(Debug, SimpleObject)]
-pub struct ShowUserAndRelatedData {
-    pub uuid: Uuid,
-    pub firstname: String,
-    pub lastname: String,
-    pub secondname: String,
-    pub username: String,
-    pub description: String,
-    pub position: String, // <-- todo!(create a separate table with translation)
-    pub image_file: DownloadFile,
-    pub region: RegionTranslateList,
-    pub program: Program,
-    pub created_at: NaiveDateTime,
-    pub updated_at: NaiveDateTime,
+pub(crate) struct ShowUserAndRelatedData {
+    pub(crate) uuid: Uuid,
+    pub(crate) firstname: String,
+    pub(crate) lastname: String,
+    pub(crate) secondname: String,
+    pub(crate) username: String,
+    pub(crate) description: String,
+    pub(crate) position: String, // <-- todo!(create a separate table with translation)
+    pub(crate) image_file: DownloadFile,
+    pub(crate) region: RegionTranslateList,
+    pub(crate) program: Program,
+    pub(crate) created_at: NaiveDateTime,
+    pub(crate) updated_at: NaiveDateTime,
     // related data
-    pub certificates: Vec<UserCertificateAndFile>,
-    pub subscribers: i32,
+    pub(crate) certificates: Vec<UserCertificateAndFile>,
+    pub(crate) subscribers: i32,
     // for display the checkbox "favorites"
-    pub is_followed: bool,
-}
-
-#[derive(Debug, Clone)]
-pub struct UserData {
-    pub email: String,
-    pub password: String,
-    pub firstname: String,
-    pub lastname: String,
-    pub secondname: String,
-    pub username: String,
-    pub phone: String,
-    pub description: String,
-    pub address: String,
-    pub position: String,
-    pub time_zone: String,
-    pub image_file_uuid: Uuid,
-    pub region_id: i32,
-    pub program_id: i32,
+    pub(crate) is_followed: bool,
 }
 
 #[derive(Debug, Insertable)]
@@ -177,21 +159,21 @@ pub(crate) struct InsertableUser {
 }
 
 #[derive(Debug, Deserialize, Clone, InputObject)]
-pub struct IptUserData {
-    pub email: String,
-    pub username: String,
-    pub password: String,
-    pub firstname: Option<String>,
-    pub lastname: Option<String>,
-    pub secondname: Option<String>,
-    pub phone: Option<String>,
-    pub description: Option<String>,
-    pub address: Option<String>,
-    pub position: Option<String>,
-    pub time_zone: Option<String>,
-    pub region_id: Option<i32>,
-    pub program_id: Option<i32>,
-    pub type_access_id: Option<i32>,
+pub(crate) struct IptUserData {
+    pub(crate) email: String,
+    pub(crate) username: String,
+    pub(crate) password: String,
+    pub(crate) firstname: Option<String>,
+    pub(crate) lastname: Option<String>,
+    pub(crate) secondname: Option<String>,
+    pub(crate) phone: Option<String>,
+    pub(crate) description: Option<String>,
+    pub(crate) address: Option<String>,
+    pub(crate) position: Option<String>,
+    pub(crate) time_zone: Option<String>,
+    pub(crate) region_id: Option<i32>,
+    pub(crate) program_id: Option<i32>,
+    pub(crate) type_access_id: Option<i32>,
 }
 
 impl From<&IptUserData> for InsertableUser {
@@ -290,10 +272,10 @@ impl From<&IptUserData> for InsertableUser {
 }
 
 #[derive(Debug, Serialize, Deserialize, Queryable, Clone, SimpleObject)]
-pub struct SlimUser {
-    pub uuid: Uuid,
-    pub username: String,
-    pub program_id: i32,
+pub(crate) struct SlimUser {
+    pub(crate) uuid: Uuid,
+    pub(crate) username: String,
+    pub(crate) program_id: i32,
 }
 
 impl From<User> for SlimUser {
@@ -316,21 +298,21 @@ impl From<User> for SlimUser {
 #[derive(Identifiable, Serialize, Associations, Queryable, Clone, Debug)]
 #[primary_key(uuid)]
 #[table_name = "user_ref"]
-pub struct UserShort {
-    pub uuid: Uuid,
-    pub firstname: String,
-    pub lastname: String,
-    pub username: String,
-    pub image_file_uuid: Uuid,
+pub(crate) struct UserShort {
+    pub(crate) uuid: Uuid,
+    pub(crate) firstname: String,
+    pub(crate) lastname: String,
+    pub(crate) username: String,
+    pub(crate) image_file_uuid: Uuid,
 }
 
 #[derive(Clone, SimpleObject, Debug)]
-pub struct ShowUserShort {
-    pub uuid: Uuid,
-    pub firstname: String,
-    pub lastname: String,
-    pub username: String,
-    pub image_file: DownloadFile,
+pub(crate) struct ShowUserShort {
+    pub(crate) uuid: Uuid,
+    pub(crate) firstname: String,
+    pub(crate) lastname: String,
+    pub(crate) username: String,
+    pub(crate) image_file: DownloadFile,
 }
 
 impl ShowUserShort {
@@ -352,37 +334,37 @@ impl ShowUserShort {
 }
 
 #[derive(Debug, Deserialize, Clone, InputObject)]
-pub struct IptUpdateUserData {
-    pub email: Option<String>,
-    pub firstname: Option<String>,
-    pub lastname: Option<String>,
-    pub secondname: Option<String>,
-    pub username: Option<String>,
-    pub phone: Option<String>,
-    pub description: Option<String>,
-    pub address: Option<String>,
-    pub position: Option<String>,
-    pub time_zone: Option<String>,
-    pub region_id: Option<i32>,
-    pub program_id: Option<i32>,
+pub(crate) struct IptUpdateUserData {
+    pub(crate) email: Option<String>,
+    pub(crate) firstname: Option<String>,
+    pub(crate) lastname: Option<String>,
+    pub(crate) secondname: Option<String>,
+    pub(crate) username: Option<String>,
+    pub(crate) phone: Option<String>,
+    pub(crate) description: Option<String>,
+    pub(crate) address: Option<String>,
+    pub(crate) position: Option<String>,
+    pub(crate) time_zone: Option<String>,
+    pub(crate) region_id: Option<i32>,
+    pub(crate) program_id: Option<i32>,
 }
 
 #[derive(InputObject, Deserialize, Debug)]
-pub struct IptUsersArg {
-    pub users_uuids:  Option<Vec<Uuid>>,
-    pub subscribers: Option<bool>,
-    pub favorite: Option<bool>,
-    pub limit: Option<i32>,
-    pub offset: Option<i32>,
+pub(crate) struct IptUsersArg {
+    pub(crate) users_uuids:  Option<Vec<Uuid>>,
+    pub(crate) subscribers: Option<bool>,
+    pub(crate) favorite: Option<bool>,
+    pub(crate) limit: Option<i32>,
+    pub(crate) offset: Option<i32>,
 }
 
 #[derive(Debug)]
-pub struct UsersArg {
-    pub filter_users_uuids: Vec<Uuid>,
-    pub subscribers: bool,
-    pub favorite: bool,
-    pub limit: i32,
-    pub offset: i32,
+pub(crate) struct UsersArg {
+    pub(crate) filter_users_uuids: Vec<Uuid>,
+    pub(crate) subscribers: bool,
+    pub(crate) favorite: bool,
+    pub(crate) limit: i32,
+    pub(crate) offset: i32,
 }
 
 impl Default for UsersArg {
@@ -418,7 +400,7 @@ impl From<IptUsersArg> for UsersArg {
 }
 
 #[derive(InputObject, Deserialize, Debug)]
-pub struct IptGetUserArg {
-    pub user_uuid: Option<Uuid>,
-    pub username: Option<String>,
+pub(crate) struct IptGetUserArg {
+    pub(crate) user_uuid: Option<Uuid>,
+    pub(crate) username: Option<String>,
 }

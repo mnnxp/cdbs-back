@@ -9,14 +9,14 @@ use async_graphql::*;
 #[derive(Identifiable, Serialize, Deserialize, Associations, Queryable, Debug)]
 #[primary_key(id)]
 #[table_name = "region_ref"]
-pub struct Region {
-    pub id: i32,
+pub(crate) struct Region {
+    pub(crate) id: i32,
 }
 
 #[derive(Debug, Insertable)]
 #[table_name = "region_ref"]
-pub struct InsertableRegion {
-    pub id: i32,
+pub(crate) struct InsertableRegion {
+    pub(crate) id: i32,
 }
 
 // Region translations
@@ -29,38 +29,38 @@ pub struct InsertableRegion {
 #[belongs_to(User, foreign_key = "region_id")]
 #[belongs_to(Language, foreign_key = "lang_id")]
 #[table_name = "region_translate_list"]
-pub struct RegionTranslateList {
-    pub region_id: i32,
-    pub lang_id: i32,
-    pub region: String,
+pub(crate) struct RegionTranslateList {
+    pub(crate) region_id: i32,
+    pub(crate) lang_id: i32,
+    pub(crate) region: String,
 }
 
 #[derive(Debug, Deserialize, Clone, InputObject)]
-pub struct IptRegionTranslateListData {
-    pub lang_id: i32,
-    pub region: String,
+pub(crate) struct IptRegionTranslateListData {
+    pub(crate) lang_id: i32,
+    pub(crate) region: String,
 }
 
 #[derive(Debug, Insertable)]
 #[table_name = "region_translate_list"]
-pub struct InsertableRegionTranslateList {
-    pub region_id: i32,
-    pub lang_id: i32,
-    pub region: String,
+pub(crate) struct InsertableRegionTranslateList {
+    pub(crate) region_id: i32,
+    pub(crate) lang_id: i32,
+    pub(crate) region: String,
 }
 
 #[derive(InputObject, Deserialize, Debug)]
-pub struct IptRegionArg {
-    pub region_ids:  Option<Vec<i32>>,
-    pub limit: Option<i32>,
-    pub offset: Option<i32>,
+pub(crate) struct IptRegionArg {
+    pub(crate) region_ids:  Option<Vec<i32>>,
+    pub(crate) limit: Option<i32>,
+    pub(crate) offset: Option<i32>,
 }
 
 #[derive(Debug)]
-pub struct RegionArg {
-    pub region_ids: Vec<i32>,
-    pub limit: i32,
-    pub offset: i32,
+pub(crate) struct RegionArg {
+    pub(crate) region_ids: Vec<i32>,
+    pub(crate) limit: i32,
+    pub(crate) offset: i32,
 }
 
 impl Default for RegionArg {

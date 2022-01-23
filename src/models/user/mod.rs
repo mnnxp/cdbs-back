@@ -12,7 +12,7 @@ pub(crate) use relate::*;
 use crate::models::user::handler::login;
 use actix_web::web;
 
-pub fn route(cfg: &mut web::ServiceConfig) {
+pub(crate) fn route(cfg: &mut web::ServiceConfig) {
         cfg.service(web::resource("/login").route(web::post().to(login)));
 }
 

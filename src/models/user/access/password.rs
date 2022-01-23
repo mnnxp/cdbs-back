@@ -21,9 +21,9 @@ use uuid::Uuid;
 // }
 
 #[derive(Deserialize, InputObject)]
-pub struct IptUpdatePassword {
-    pub old_password: String,
-    pub new_password: String,
+pub(crate) struct IptUpdatePassword {
+    pub(crate) old_password: String,
+    pub(crate) new_password: String,
 }
 
 #[derive(Queryable)]
@@ -108,7 +108,7 @@ fn update_password(
         logged_user_uuid,
         &NotificationData {
             notification: "Updated password".to_string(),
-            degree_importance: NotificationType::Info,
+            degree_importance: NotificationType::Success,
         },
         conn,
     )

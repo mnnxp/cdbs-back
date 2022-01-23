@@ -9,22 +9,22 @@ use async_graphql::*;
 #[belongs_to(RoleMember, foreign_key = "role_id")]
 #[belongs_to(TypeAccess, foreign_key = "type_access_id")]
 #[table_name = "role_access"]
-pub struct RoleAccess {
-    pub role_id: i32,
-    pub type_access_id: i32,
+pub(crate) struct RoleAccess {
+    pub(crate) role_id: i32,
+    pub(crate) type_access_id: i32,
 }
 
 #[derive(Debug, Insertable)]
 #[table_name = "role_access"]
-pub struct InsertableRoleAccess {
-    pub role_id: i32,
-    pub type_access_id: i32,
+pub(crate) struct InsertableRoleAccess {
+    pub(crate) role_id: i32,
+    pub(crate) type_access_id: i32,
 }
 
 #[derive(Debug, Serialize, SimpleObject)]
-pub struct ShowRoleAccess {
-    pub role_id: i32,
-    pub types_access_ids: Vec<i32>,
+pub(crate) struct ShowRoleAccess {
+    pub(crate) role_id: i32,
+    pub(crate) types_access_ids: Vec<i32>,
 }
 
 impl From<&[RoleAccess]> for ShowRoleAccess {
@@ -54,9 +54,9 @@ impl From<&[RoleAccess]> for ShowRoleAccess {
 }
 
 #[derive(Debug, Deserialize, InputObject)]
-pub struct IptRoleAccessData {
-    pub role_id: i32,
-    pub types_access_ids: Vec<i32>,
+pub(crate) struct IptRoleAccessData {
+    pub(crate) role_id: i32,
+    pub(crate) types_access_ids: Vec<i32>,
 }
 
 impl From<&IptRoleAccessData> for Vec<InsertableRoleAccess> {
@@ -81,13 +81,13 @@ impl From<&IptRoleAccessData> for Vec<InsertableRoleAccess> {
 }
 
 #[derive(Debug, Deserialize, InputObject)]
-pub struct DelRoleAccessData {
-    pub role_id: i32,
-    pub types_access_ids: Vec<i32>,
+pub(crate) struct DelRoleAccessData {
+    pub(crate) role_id: i32,
+    pub(crate) types_access_ids: Vec<i32>,
 }
 
 // #[derive(Debug, Deserialize, Clone, Default, SimpleObject)]
-// pub struct RoleAccessAndRelatedData {
-//     pub role: RoleAccessTranslateList,
-//     pub access: TypeAccessTranslateList,
+// pub(crate) struct RoleAccessAndRelatedData {
+//     pub(crate) role: RoleAccessTranslateList,
+//     pub(crate) access: TypeAccessTranslateList,
 // }

@@ -25,6 +25,24 @@ impl Standard {
         standard_ref::standard_ref
             .filter(standard_ref::uuid.eq(target_standard_uuid)
             .and(standard_ref::is_delete.eq(false)))
+            .select((
+                standard_ref::uuid,
+                standard_ref::parent_standard_uuid,
+                standard_ref::classifier,
+                standard_ref::name,
+                standard_ref::description,
+                standard_ref::specified_tolerance,
+                standard_ref::technical_committee,
+                standard_ref::publication_at,
+                standard_ref::image_file_uuid,
+                standard_ref::user_uuid,
+                standard_ref::company_uuid,
+                standard_ref::type_access_id,
+                standard_ref::standard_status_id,
+                standard_ref::region_id,
+                standard_ref::created_at,
+                standard_ref::updated_at,
+            ))
             .first::<Standard>(conn)
             .map_err(|err| {
                 debug!("Failed get standard: {:?}", err);

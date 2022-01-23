@@ -11,17 +11,17 @@ use uuid::Uuid;
 #[belongs_to(ComponentModification, foreign_key = "modification_uuid")]
 #[belongs_to(Program, foreign_key = "program_id")]
 #[table_name = "fileset_for_program"]
-pub struct FilesetProgram {
-    pub uuid: Uuid,
-    pub modification_uuid: Uuid,
-    pub program_id: i32,
+pub(crate) struct FilesetProgram {
+    pub(crate) uuid: Uuid,
+    pub(crate) modification_uuid: Uuid,
+    pub(crate) program_id: i32,
 }
 
 #[derive(Debug, Deserialize, SimpleObject, Clone)]
-pub struct FilesetProgramRelatedData {
-    pub uuid: Uuid,
-    pub modification_uuid: Uuid,
-    pub program: Program,
+pub(crate) struct FilesetProgramRelatedData {
+    pub(crate) uuid: Uuid,
+    pub(crate) modification_uuid: Uuid,
+    pub(crate) program: Program,
 }
 
 // impl FilesetProgramRelatedData {
@@ -41,23 +41,23 @@ pub struct FilesetProgramRelatedData {
 // }
 
 #[derive(Debug, Deserialize, Clone, InputObject)]
-pub struct IptFilesetProgramData {
-    pub modification_uuid: Uuid,
-    pub program_id: i32,
+pub(crate) struct IptFilesetProgramData {
+    pub(crate) modification_uuid: Uuid,
+    pub(crate) program_id: i32,
 }
 
 #[derive(Debug, Deserialize, Clone, InputObject)]
-pub struct DelFilesetProgramData {
-    pub modification_uuid: Uuid,
-    pub fileset_uuid: Uuid,
+pub(crate) struct DelFilesetProgramData {
+    pub(crate) modification_uuid: Uuid,
+    pub(crate) fileset_uuid: Uuid,
 }
 
 #[derive(Debug, Insertable)]
 #[table_name = "fileset_for_program"]
-pub struct InsertableFilesetProgram {
-    pub uuid: Uuid,
-    pub modification_uuid: Uuid,
-    pub program_id: i32,
+pub(crate) struct InsertableFilesetProgram {
+    pub(crate) uuid: Uuid,
+    pub(crate) modification_uuid: Uuid,
+    pub(crate) program_id: i32,
 }
 
 impl From<&IptFilesetProgramData> for InsertableFilesetProgram {
@@ -76,19 +76,19 @@ impl From<&IptFilesetProgramData> for InsertableFilesetProgram {
 }
 
 #[derive(InputObject, Deserialize, Debug)]
-pub struct IptFilesetProgramArg {
-    pub modification_uuid: Uuid,
-    pub program_ids: Option<Vec<i32>>,
-    pub limit: Option<i32>,
-    pub offset: Option<i32>,
+pub(crate) struct IptFilesetProgramArg {
+    pub(crate) modification_uuid: Uuid,
+    pub(crate) program_ids: Option<Vec<i32>>,
+    pub(crate) limit: Option<i32>,
+    pub(crate) offset: Option<i32>,
 }
 
 #[derive(Debug)]
-pub struct FilesetProgramArg {
-    pub modification_uuid: Uuid,
-    pub program_ids: Vec<i32>,
-    pub limit: i32,
-    pub offset: i32,
+pub(crate) struct FilesetProgramArg {
+    pub(crate) modification_uuid: Uuid,
+    pub(crate) program_ids: Vec<i32>,
+    pub(crate) limit: i32,
+    pub(crate) offset: i32,
 }
 
 impl From<IptFilesetProgramArg> for FilesetProgramArg {

@@ -1,6 +1,6 @@
 use crate::errors::{ServiceResult, ServiceError};
 use crate::models::company::company_represent::model::{
-    CompanyRepresent, CompanyRepresentAndRelatedData,
+    CompanyRepresent, CompanyRepresentAndRelatedData, CompanyRepresentsArg,
 };
 use crate::models::company::company_represent::representation_type::model::RepresentationTypeTranslateList;
 use crate::models::relate_ref::region::model::RegionTranslateList;
@@ -25,13 +25,15 @@ impl CompanyRepresent {
     }
 
     /// Gets company represent without related data by represents uuids
-    pub(crate) fn get_by_uuids(
-        represents_uuids: &[Uuid],
+    pub(crate) fn get_by_args(
+        args: &CompanyRepresentsArg,
         conn: &PgConnection,
     ) -> ServiceResult<Vec<CompanyRepresent>> {
         // collect data for represents the company
         company_represent_ref::company_represent_ref
-            .filter(company_represent_ref::uuid.eq_any(represents_uuids))
+            .filter(company_represent_ref::uuid.eq_any(&args.represents_uuids))
+            .limit(args.limit as i64)
+            .offset(args.offset as i64)
             .load::<CompanyRepresent>(conn)
             .map_err(|err| {
                 debug!("Failed get company represents: {:?}", err);
@@ -93,13 +95,13 @@ impl CompanyRepresentAndRelatedData {
 
     /// Gets company represents by represents uuids
     /// with type and region data with translation for a given language
-    pub(crate) fn get_by_uuids(
-        represents_uuids: &[Uuid],
+    pub(crate) fn get_by_args(
+        args: &CompanyRepresentsArg,
         set_lang_id: &i32,
         conn: &PgConnection,
     ) -> ServiceResult<Vec<CompanyRepresentAndRelatedData>> {
-        let company_represents = &CompanyRepresent::get_by_uuids(
-            represents_uuids,
+        let company_represents = &CompanyRepresent::get_by_args(
+            args,
             conn
         )?;
         debug!("company_represents: {:?}", company_represents);

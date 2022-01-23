@@ -22,67 +22,67 @@ use uuid::Uuid;
 #[derive(Identifiable, Deserialize, Queryable, SimpleObject, Debug)]
 #[primary_key(uuid)]
 #[table_name = "component_ref"]
-pub struct Component {
-    pub uuid: Uuid,
-    pub parent_component_uuid: Uuid,
-    pub name: String,
-    pub description: String,
-    pub user_uuid: Uuid,
-    pub type_access_id: i32,
-    pub component_type_id: i32,
-    pub actual_status_id: i32,
-    pub is_base: bool,
-    pub is_delete: bool,
-    pub created_at: NaiveDateTime,
-    pub updated_at: NaiveDateTime,
+pub(crate) struct Component {
+    pub(crate) uuid: Uuid,
+    pub(crate) parent_component_uuid: Uuid,
+    pub(crate) name: String,
+    pub(crate) description: String,
+    pub(crate) user_uuid: Uuid,
+    pub(crate) type_access_id: i32,
+    pub(crate) component_type_id: i32,
+    pub(crate) actual_status_id: i32,
+    pub(crate) is_base: bool,
+    pub(crate) is_delete: bool,
+    pub(crate) created_at: NaiveDateTime,
+    pub(crate) updated_at: NaiveDateTime,
 }
 
 #[derive(Debug, SimpleObject)]
-pub struct ComponentAndRelatedData {
-    pub uuid: Uuid,
-    pub parent_component_uuid: Uuid,
-    pub name: String,
-    pub description: String,
-    pub owner_user: ShowUserShort,
-    pub type_access: TypeAccessTranslateList,
-    pub component_type: ComponentTypeTranslateList,
-    pub actual_status: ActualStatusTranslateList,
-    pub is_base: bool,
-    pub subscribers: i32,
+pub(crate) struct ComponentAndRelatedData {
+    pub(crate) uuid: Uuid,
+    pub(crate) parent_component_uuid: Uuid,
+    pub(crate) name: String,
+    pub(crate) description: String,
+    pub(crate) owner_user: ShowUserShort,
+    pub(crate) type_access: TypeAccessTranslateList,
+    pub(crate) component_type: ComponentTypeTranslateList,
+    pub(crate) actual_status: ActualStatusTranslateList,
+    pub(crate) is_base: bool,
+    pub(crate) subscribers: i32,
     // for display the checkbox "favorites"
-    pub is_followed: bool,
-    pub created_at: NaiveDateTime,
-    pub updated_at: NaiveDateTime,
+    pub(crate) is_followed: bool,
+    pub(crate) created_at: NaiveDateTime,
+    pub(crate) updated_at: NaiveDateTime,
     // related data
-    pub licenses: Vec<License>,
-    pub component_params: Vec<ComponentParamWithTranslation>,
-    pub files: Vec<ShowFileRelatedData>,
-    pub component_specs: Vec<SpecTranslateList>,
-    pub component_keywords: Vec<Keyword>,
-    pub component_modifications: Vec<ComponentModificationAndRelatedData>,
-    pub component_suppliers: Vec<ComponentSupplierRelatedData>,
+    pub(crate) licenses: Vec<License>,
+    pub(crate) component_params: Vec<ComponentParamWithTranslation>,
+    pub(crate) files: Vec<ShowFileRelatedData>,
+    pub(crate) component_specs: Vec<SpecTranslateList>,
+    pub(crate) component_keywords: Vec<Keyword>,
+    pub(crate) component_modifications: Vec<ComponentModificationAndRelatedData>,
+    pub(crate) component_suppliers: Vec<ComponentSupplierRelatedData>,
     // show the standards that fit the object
-    pub component_standards: Vec<ShowStandardShort>,
+    pub(crate) component_standards: Vec<ShowStandardShort>,
 }
 
 #[derive(Debug, SimpleObject)]
-pub struct ShowComponentShort {
-    pub uuid: Uuid,
-    pub name: String,
-    pub description: String,
-    pub owner_user: ShowUserShort,
-    pub type_access: TypeAccessTranslateList,
-    pub component_type: ComponentTypeTranslateList,
-    pub actual_status: ActualStatusTranslateList,
+pub(crate) struct ShowComponentShort {
+    pub(crate) uuid: Uuid,
+    pub(crate) name: String,
+    pub(crate) description: String,
+    pub(crate) owner_user: ShowUserShort,
+    pub(crate) type_access: TypeAccessTranslateList,
+    pub(crate) component_type: ComponentTypeTranslateList,
+    pub(crate) actual_status: ActualStatusTranslateList,
     // for display the checkbox "favorites"
-    pub is_followed: bool,
-    pub is_base: bool,
-    pub updated_at: NaiveDateTime,
-    pub licenses: Vec<License>,
+    pub(crate) is_followed: bool,
+    pub(crate) is_base: bool,
+    pub(crate) updated_at: NaiveDateTime,
+    pub(crate) licenses: Vec<License>,
     // files for show image (models, draw)
-    pub files: Vec<DownloadFile>,
+    pub(crate) files: Vec<DownloadFile>,
     // show first supplier company
-    pub component_suppliers: Vec<ComponentSupplierRelatedData>,
+    pub(crate) component_suppliers: Vec<ComponentSupplierRelatedData>,
 }
 
 #[derive(Debug, Insertable)]
@@ -120,14 +120,14 @@ impl InsertableComponent {
 }
 
 #[derive(Debug, Deserialize, InputObject)]
-pub struct IptComponentData {
-    pub parent_component_uuid: Option<Uuid>,
-    pub name: String,
-    pub description: String,
-    pub type_access_id: i32,
-    pub component_type_id: i32,
-    pub actual_status_id: i32,
-    pub is_base: bool,
+pub(crate) struct IptComponentData {
+    pub(crate) parent_component_uuid: Option<Uuid>,
+    pub(crate) name: String,
+    pub(crate) description: String,
+    pub(crate) type_access_id: i32,
+    pub(crate) component_type_id: i32,
+    pub(crate) actual_status_id: i32,
+    pub(crate) is_base: bool,
 }
 
 impl From<&IptComponentData> for InsertableComponent {
@@ -166,34 +166,34 @@ impl From<&IptComponentData> for InsertableComponent {
 }
 
 #[derive(InputObject, Deserialize, Debug)]
-pub struct IptUpdateComponentData {
-    pub parent_component_uuid: Option<Uuid>,
-    pub name: Option<String>,
-    pub description: Option<String>,
-    pub component_type_id: Option<i32>,
-    pub actual_status_id: Option<i32>,
+pub(crate) struct IptUpdateComponentData {
+    pub(crate) parent_component_uuid: Option<Uuid>,
+    pub(crate) name: Option<String>,
+    pub(crate) description: Option<String>,
+    pub(crate) component_type_id: Option<i32>,
+    pub(crate) actual_status_id: Option<i32>,
 }
 
 #[derive(InputObject, Deserialize, Debug)]
-pub struct IptComponentsArg {
-    pub components_uuids:  Option<Vec<Uuid>>,
-    pub company_uuid: Option<Uuid>,
-    pub standard_uuid: Option<Uuid>,
-    pub user_uuid: Option<Uuid>,
-    pub favorite: Option<bool>,
-    pub limit: Option<i32>,
-    pub offset: Option<i32>,
+pub(crate) struct IptComponentsArg {
+    pub(crate) components_uuids:  Option<Vec<Uuid>>,
+    pub(crate) company_uuid: Option<Uuid>,
+    pub(crate) standard_uuid: Option<Uuid>,
+    pub(crate) user_uuid: Option<Uuid>,
+    pub(crate) favorite: Option<bool>,
+    pub(crate) limit: Option<i32>,
+    pub(crate) offset: Option<i32>,
 }
 
 #[derive(Debug)]
-pub struct ComponentsArg {
-    pub filter_components_uuids: Vec<Uuid>,
-    pub company_uuid: Option<Uuid>,
-    pub standard_uuid: Option<Uuid>,
-    pub user_uuid: Option<Uuid>,
-    pub favorite: bool,
-    pub limit: i32,
-    pub offset: i32,
+pub(crate) struct ComponentsArg {
+    pub(crate) filter_components_uuids: Vec<Uuid>,
+    pub(crate) company_uuid: Option<Uuid>,
+    pub(crate) standard_uuid: Option<Uuid>,
+    pub(crate) user_uuid: Option<Uuid>,
+    pub(crate) favorite: bool,
+    pub(crate) limit: i32,
+    pub(crate) offset: i32,
 }
 
 impl Default for ComponentsArg {
@@ -235,19 +235,19 @@ impl From<IptComponentsArg> for ComponentsArg {
 }
 
 #[derive(InputObject, Deserialize, Debug)]
-pub struct IptComponentFilesArg {
-    pub component_uuid:  Uuid,
-    pub files_uuids: Option<Vec<Uuid>>,
-    pub limit: Option<i32>,
-    pub offset: Option<i32>,
+pub(crate) struct IptComponentFilesArg {
+    pub(crate) component_uuid:  Uuid,
+    pub(crate) files_uuids: Option<Vec<Uuid>>,
+    pub(crate) limit: Option<i32>,
+    pub(crate) offset: Option<i32>,
 }
 
 #[derive(Debug)]
-pub struct ComponentFilesArg {
-    pub component_uuid:  Uuid,
-    pub files_uuids: Vec<Uuid>,
-    pub limit: i32,
-    pub offset: i32,
+pub(crate) struct ComponentFilesArg {
+    pub(crate) component_uuid:  Uuid,
+    pub(crate) files_uuids: Vec<Uuid>,
+    pub(crate) limit: i32,
+    pub(crate) offset: i32,
 }
 
 impl From<IptComponentFilesArg> for ComponentFilesArg {

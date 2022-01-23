@@ -9,22 +9,22 @@ use uuid::Uuid;
 #[belongs_to(Component, foreign_key = "component_uuid")]
 #[belongs_to(License, foreign_key = "license_id")]
 #[table_name = "license_to_component"]
-pub struct ComponentLicense {
-    pub component_uuid: Uuid,
-    pub license_id: i32,
+pub(crate) struct ComponentLicense {
+    pub(crate) component_uuid: Uuid,
+    pub(crate) license_id: i32,
 }
 
 #[derive(Debug, Deserialize, Clone, InputObject)]
-pub struct IptComponentLicenseData {
-    pub component_uuid: Uuid,
-    pub license_id: i32,
+pub(crate) struct IptComponentLicenseData {
+    pub(crate) component_uuid: Uuid,
+    pub(crate) license_id: i32,
 }
 
 #[derive(Debug, Insertable)]
 #[table_name = "license_to_component"]
-pub struct InsertableComponentLicense {
-    pub component_uuid: Uuid,
-    pub license_id: i32,
+pub(crate) struct InsertableComponentLicense {
+    pub(crate) component_uuid: Uuid,
+    pub(crate) license_id: i32,
 }
 
 impl From<&IptComponentLicenseData> for InsertableComponentLicense {

@@ -6,7 +6,7 @@ use diesel::prelude::*;
 use uuid::Uuid;
 
 /// Change role member in company
-pub fn change_role_member(
+pub(crate) fn change_role_member(
     logged_user_uuid: &Uuid,
     data: &IptCompanyMemberData,
     conn: &PgConnection,

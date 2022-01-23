@@ -5,11 +5,11 @@ use chrono::*;
 use uuid::Uuid;
 
 #[derive(Debug, Queryable, SimpleObject)]
-pub struct UserToken {
-    pub user_uuid: Uuid,
-    pub token: String,
-    pub created_at: NaiveDateTime,
-    pub expiration_at: NaiveDateTime,
+pub(crate) struct UserToken {
+    pub(crate) user_uuid: Uuid,
+    pub(crate) token: String,
+    pub(crate) created_at: NaiveDateTime,
+    pub(crate) expiration_at: NaiveDateTime,
 }
 
 #[derive(Debug, Insertable)]

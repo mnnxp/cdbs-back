@@ -16,67 +16,67 @@ use uuid::Uuid;
 #[derive(Identifiable, Queryable, Debug)]
 #[primary_key(uuid)]
 #[table_name = "standard_ref"]
-pub struct Standard {
-    pub uuid: Uuid,
-    pub parent_standard_uuid: Uuid,
-    pub classifier: String,
-    pub name: String,
-    pub description: String,
-    pub specified_tolerance: String,
-    pub technical_committee: String,
-    pub publication_at: NaiveDateTime,
-    pub image_file_uuid: Uuid,
-    pub user_uuid: Uuid,
-    pub company_uuid: Uuid,
-    pub type_access_id: i32,
-    pub standard_status_id: i32,
-    pub region_id: i32,
-    pub is_delete: bool,
-    pub created_at: NaiveDateTime,
-    pub updated_at: NaiveDateTime,
+pub(crate) struct Standard {
+    pub(crate) uuid: Uuid,
+    pub(crate) parent_standard_uuid: Uuid,
+    pub(crate) classifier: String,
+    pub(crate) name: String,
+    pub(crate) description: String,
+    pub(crate) specified_tolerance: String,
+    pub(crate) technical_committee: String,
+    pub(crate) publication_at: NaiveDateTime,
+    pub(crate) image_file_uuid: Uuid,
+    pub(crate) user_uuid: Uuid,
+    pub(crate) company_uuid: Uuid,
+    pub(crate) type_access_id: i32,
+    pub(crate) standard_status_id: i32,
+    pub(crate) region_id: i32,
+    // pub(crate) is_delete: bool,
+    pub(crate) created_at: NaiveDateTime,
+    pub(crate) updated_at: NaiveDateTime,
 }
 
 #[derive(Debug, SimpleObject)]
-pub struct StandardAndRelatedData {
-    pub uuid: Uuid,
-    pub parent_standard_uuid: Uuid,
-    pub classifier: String,
-    pub name: String,
-    pub description: String,
-    pub specified_tolerance: String,
-    pub technical_committee: String,
-    pub publication_at: NaiveDateTime,
-    pub image_file: DownloadFile,
-    pub owner_user: ShowUserShort,
-    pub owner_company: ShowCompanyShort,
-    pub type_access: TypeAccessTranslateList,
-    pub standard_status: StandardStatusTranslateList,
-    pub region: RegionTranslateList,
-    pub created_at: NaiveDateTime,
-    pub updated_at: NaiveDateTime,
+pub(crate) struct StandardAndRelatedData {
+    pub(crate) uuid: Uuid,
+    pub(crate) parent_standard_uuid: Uuid,
+    pub(crate) classifier: String,
+    pub(crate) name: String,
+    pub(crate) description: String,
+    pub(crate) specified_tolerance: String,
+    pub(crate) technical_committee: String,
+    pub(crate) publication_at: NaiveDateTime,
+    pub(crate) image_file: DownloadFile,
+    pub(crate) owner_user: ShowUserShort,
+    pub(crate) owner_company: ShowCompanyShort,
+    pub(crate) type_access: TypeAccessTranslateList,
+    pub(crate) standard_status: StandardStatusTranslateList,
+    pub(crate) region: RegionTranslateList,
+    pub(crate) created_at: NaiveDateTime,
+    pub(crate) updated_at: NaiveDateTime,
     // related data
-    pub standard_files: Vec<ShowFileRelatedData>, // <-- documentation files, etc.
-    pub standard_specs: Vec<SpecTranslateList>,
-    pub standard_keywords: Vec<Keyword>,
+    pub(crate) standard_files: Vec<ShowFileRelatedData>, // <-- documentation files, etc.
+    pub(crate) standard_specs: Vec<SpecTranslateList>,
+    pub(crate) standard_keywords: Vec<Keyword>,
     // count users to folloded the standard
-    pub subscribers: i32,
+    pub(crate) subscribers: i32,
     // for display the checkbox "favorites"
-    pub is_followed: bool,
+    pub(crate) is_followed: bool,
 }
 
 #[derive(Debug, SimpleObject)]
-pub struct ShowStandardShort {
-    pub uuid: Uuid,
-    pub classifier: String,
-    pub name: String,
-    pub description: String,
-    pub specified_tolerance: String,
-    pub publication_at: NaiveDateTime,
-    pub owner_company: ShowCompanyShort,
-    pub standard_status: StandardStatusTranslateList,
-    pub updated_at: NaiveDateTime,
+pub(crate) struct ShowStandardShort {
+    pub(crate) uuid: Uuid,
+    pub(crate) classifier: String,
+    pub(crate) name: String,
+    pub(crate) description: String,
+    pub(crate) specified_tolerance: String,
+    pub(crate) publication_at: NaiveDateTime,
+    pub(crate) owner_company: ShowCompanyShort,
+    pub(crate) standard_status: StandardStatusTranslateList,
+    pub(crate) updated_at: NaiveDateTime,
     // for display the checkbox "favorites"
-    pub is_followed: bool,
+    pub(crate) is_followed: bool,
 }
 
 #[derive(Debug, Insertable)]
@@ -124,18 +124,18 @@ impl InsertableStandard {
 }
 
 #[derive(Debug, Deserialize, Clone, InputObject)]
-pub struct IptStandardData {
-    pub parent_standard_uuid: Option<Uuid>,
-    pub classifier: String,
-    pub name: String,
-    pub description: String,
-    pub specified_tolerance: String,
-    pub technical_committee: String,
-    pub publication_at: NaiveDateTime,
-    pub company_uuid: Uuid,
-    pub type_access_id: i32,
-    pub standard_status_id: i32,
-    pub region_id: i32,
+pub(crate) struct IptStandardData {
+    pub(crate) parent_standard_uuid: Option<Uuid>,
+    pub(crate) classifier: String,
+    pub(crate) name: String,
+    pub(crate) description: String,
+    pub(crate) specified_tolerance: String,
+    pub(crate) technical_committee: String,
+    pub(crate) publication_at: NaiveDateTime,
+    pub(crate) company_uuid: Uuid,
+    pub(crate) type_access_id: i32,
+    pub(crate) standard_status_id: i32,
+    pub(crate) region_id: i32,
 }
 
 impl From<&IptStandardData> for InsertableStandard {
@@ -182,34 +182,34 @@ impl From<&IptStandardData> for InsertableStandard {
 }
 
 #[derive(Debug, Deserialize, Clone, InputObject)]
-pub struct IptUpdateStandardData {
-    pub classifier: Option<String>,
-    pub name: Option<String>,
-    pub description: Option<String>,
-    pub specified_tolerance: Option<String>,
-    pub technical_committee: Option<String>,
-    pub publication_at: Option<NaiveDateTime>,
-    pub company_uuid: Option<Uuid>,
-    pub standard_status_id: Option<i32>,
-    pub region_id: Option<i32>,
+pub(crate) struct IptUpdateStandardData {
+    pub(crate) classifier: Option<String>,
+    pub(crate) name: Option<String>,
+    pub(crate) description: Option<String>,
+    pub(crate) specified_tolerance: Option<String>,
+    pub(crate) technical_committee: Option<String>,
+    pub(crate) publication_at: Option<NaiveDateTime>,
+    pub(crate) company_uuid: Option<Uuid>,
+    pub(crate) standard_status_id: Option<i32>,
+    pub(crate) region_id: Option<i32>,
 }
 
 #[derive(InputObject, Deserialize, Debug)]
-pub struct IptStandardsArg {
-    pub standards_uuids:  Option<Vec<Uuid>>,
-    pub company_uuid: Option<Uuid>,
-    pub favorite: Option<bool>,
-    pub limit: Option<i32>,
-    pub offset: Option<i32>,
+pub(crate) struct IptStandardsArg {
+    pub(crate) standards_uuids:  Option<Vec<Uuid>>,
+    pub(crate) company_uuid: Option<Uuid>,
+    pub(crate) favorite: Option<bool>,
+    pub(crate) limit: Option<i32>,
+    pub(crate) offset: Option<i32>,
 }
 
 #[derive(Debug)]
-pub struct StandardsArg {
-    pub filter_standards_uuids: Vec<Uuid>,
-    pub company_uuid: Option<Uuid>,
-    pub favorite: bool,
-    pub limit: i32,
-    pub offset: i32,
+pub(crate) struct StandardsArg {
+    pub(crate) filter_standards_uuids: Vec<Uuid>,
+    pub(crate) company_uuid: Option<Uuid>,
+    pub(crate) favorite: bool,
+    pub(crate) limit: i32,
+    pub(crate) offset: i32,
 }
 
 impl Default for StandardsArg {
@@ -245,15 +245,15 @@ impl From<IptStandardsArg> for StandardsArg {
 }
 
 #[derive(InputObject, Deserialize, Debug)]
-pub struct IptStandardFilesArg {
-    pub standard_uuid:  Uuid,
-    pub files_uuids: Option<Vec<Uuid>>,
+pub(crate) struct IptStandardFilesArg {
+    pub(crate) standard_uuid:  Uuid,
+    pub(crate) files_uuids: Option<Vec<Uuid>>,
 }
 
 #[derive(Debug)]
-pub struct StandardFilesArg {
-    pub standard_uuid:  Uuid,
-    pub files_uuids: Vec<Uuid>,
+pub(crate) struct StandardFilesArg {
+    pub(crate) standard_uuid:  Uuid,
+    pub(crate) files_uuids: Vec<Uuid>,
 }
 
 impl From<IptStandardFilesArg> for StandardFilesArg {

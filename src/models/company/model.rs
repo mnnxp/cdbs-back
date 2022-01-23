@@ -16,74 +16,74 @@ use uuid::Uuid;
 #[derive(Identifiable, Deserialize, Queryable, Debug)]
 #[primary_key(uuid)]
 #[table_name = "company_ref"]
-pub struct Company {
-    pub uuid: Uuid,
-    pub orgname: String,
-    pub shortname: String,
-    pub inn: String,
-    pub phone: String,
-    pub email: String,
-    pub description: String,
-    pub address: String,
-    pub site_url: String,
-    pub time_zone: String,
-    pub user_uuid: Uuid,
-    pub image_file_uuid: Uuid,
-    pub region_id: i32,
-    pub company_type_id: i32,
-    pub type_access_id: i32,
-    pub is_supplier: bool,
-    pub is_email_verified: bool,
-    pub is_enabled: bool,
-    pub is_delete: bool,
-    pub created_at: NaiveDateTime,
-    pub updated_at: NaiveDateTime,
+pub(crate) struct Company {
+    pub(crate) uuid: Uuid,
+    pub(crate) orgname: String,
+    pub(crate) shortname: String,
+    pub(crate) inn: String,
+    pub(crate) phone: String,
+    pub(crate) email: String,
+    pub(crate) description: String,
+    pub(crate) address: String,
+    pub(crate) site_url: String,
+    pub(crate) time_zone: String,
+    pub(crate) user_uuid: Uuid,
+    pub(crate) image_file_uuid: Uuid,
+    pub(crate) region_id: i32,
+    pub(crate) company_type_id: i32,
+    pub(crate) type_access_id: i32,
+    pub(crate) is_supplier: bool,
+    pub(crate) is_email_verified: bool,
+    // pub(crate) is_enabled: bool,
+    // pub(crate) is_delete: bool,
+    pub(crate) created_at: NaiveDateTime,
+    pub(crate) updated_at: NaiveDateTime,
 }
 
 #[derive(Debug, SimpleObject)]
-pub struct CompanyAndRelatedData {
-    pub uuid: Uuid,
-    pub orgname: String,
-    pub shortname: String,
-    pub inn: String,
-    pub phone: String,
-    pub email: String,
-    pub description: String,
-    pub address: String,
-    pub site_url: String,
-    pub time_zone: String,
-    pub owner_user: ShowUserShort,
-    pub image_file: DownloadFile,
-    pub region: RegionTranslateList,
-    pub company_represents: Vec<CompanyRepresentAndRelatedData>,
-    pub company_type: CompanyTypeTranslateList,
+pub(crate) struct CompanyAndRelatedData {
+    pub(crate) uuid: Uuid,
+    pub(crate) orgname: String,
+    pub(crate) shortname: String,
+    pub(crate) inn: String,
+    pub(crate) phone: String,
+    pub(crate) email: String,
+    pub(crate) description: String,
+    pub(crate) address: String,
+    pub(crate) site_url: String,
+    pub(crate) time_zone: String,
+    pub(crate) owner_user: ShowUserShort,
+    pub(crate) image_file: DownloadFile,
+    pub(crate) region: RegionTranslateList,
+    pub(crate) company_represents: Vec<CompanyRepresentAndRelatedData>,
+    pub(crate) company_type: CompanyTypeTranslateList,
     // show certificates company
-    pub company_certificates: Vec<CompanyCertificateAndFile>,
-    pub company_specs: Vec<SpecTranslateList>,
-    pub type_access: TypeAccessTranslateList,
-    pub is_supplier: bool,
-    pub is_email_verified: bool,
+    pub(crate) company_certificates: Vec<CompanyCertificateAndFile>,
+    pub(crate) company_specs: Vec<SpecTranslateList>,
+    pub(crate) type_access: TypeAccessTranslateList,
+    pub(crate) is_supplier: bool,
+    pub(crate) is_email_verified: bool,
     // count users to folloded the company
-    pub subscribers: i32,
+    pub(crate) subscribers: i32,
     // for display the checkbox "favorites"
-    pub is_followed: bool,
-    pub created_at: NaiveDateTime,
-    pub updated_at: NaiveDateTime,
+    pub(crate) is_followed: bool,
+    pub(crate) created_at: NaiveDateTime,
+    pub(crate) updated_at: NaiveDateTime,
 }
 
 #[derive(Debug, SimpleObject)]
-pub struct ShowCompanyShort {
-    pub uuid: Uuid,
-    pub shortname: String,
-    pub inn: String,
-    pub description: String,
-    pub image_file: DownloadFile,
-    pub region: RegionTranslateList,
-    pub company_type: CompanyTypeTranslateList,
-    pub is_supplier: bool,
+pub(crate) struct ShowCompanyShort {
+    pub(crate) uuid: Uuid,
+    pub(crate) shortname: String,
+    pub(crate) inn: String,
+    pub(crate) description: String,
+    pub(crate) image_file: DownloadFile,
+    pub(crate) region: RegionTranslateList,
+    pub(crate) company_type: CompanyTypeTranslateList,
+    pub(crate) is_supplier: bool,
     // for display the checkbox "favorites"
-    pub is_followed: bool,
-    pub updated_at: NaiveDateTime,
+    pub(crate) is_followed: bool,
+    pub(crate) updated_at: NaiveDateTime,
 }
 
 #[derive(Debug, Insertable)]
@@ -125,19 +125,19 @@ impl InsertableCompany {
 }
 
 #[derive(Debug, Deserialize, InputObject)]
-pub struct IptCompanyData {
-    pub orgname: String,
-    pub shortname: String,
-    pub inn: String,
-    pub phone: String,
-    pub email: String,
-    pub description: String,
-    pub address: String,
-    pub site_url: String,
-    pub time_zone: String,
-    pub region_id: i32,
-    pub company_type_id: i32,
-    pub type_access_id: i32,
+pub(crate) struct IptCompanyData {
+    pub(crate) orgname: String,
+    pub(crate) shortname: String,
+    pub(crate) inn: String,
+    pub(crate) phone: String,
+    pub(crate) email: String,
+    pub(crate) description: String,
+    pub(crate) address: String,
+    pub(crate) site_url: String,
+    pub(crate) time_zone: String,
+    pub(crate) region_id: i32,
+    pub(crate) company_type_id: i32,
+    pub(crate) type_access_id: i32,
 }
 
 impl From<&IptCompanyData> for InsertableCompany {
@@ -184,25 +184,25 @@ impl From<&IptCompanyData> for InsertableCompany {
 }
 
 #[derive(Debug, Deserialize, Clone, InputObject)]
-pub struct IptUpdateCompanyData {
-    pub orgname: Option<String>,
-    pub shortname: Option<String>,
-    pub inn: Option<String>,
-    pub phone: Option<String>,
-    pub email: Option<String>,
-    pub description: Option<String>,
-    pub address: Option<String>,
-    pub site_url: Option<String>,
-    pub time_zone: Option<String>,
-    pub region_id: Option<i32>,
-    pub company_type_id: Option<i32>,
+pub(crate) struct IptUpdateCompanyData {
+    pub(crate) orgname: Option<String>,
+    pub(crate) shortname: Option<String>,
+    pub(crate) inn: Option<String>,
+    pub(crate) phone: Option<String>,
+    pub(crate) email: Option<String>,
+    pub(crate) description: Option<String>,
+    pub(crate) address: Option<String>,
+    pub(crate) site_url: Option<String>,
+    pub(crate) time_zone: Option<String>,
+    pub(crate) region_id: Option<i32>,
+    pub(crate) company_type_id: Option<i32>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Queryable, Clone, Default, SimpleObject)]
-pub struct SlimCompany {
-    pub uuid: Uuid,
-    pub shortname: String,
-    pub is_supplier: bool,
+pub(crate) struct SlimCompany {
+    pub(crate) uuid: Uuid,
+    pub(crate) shortname: String,
+    pub(crate) is_supplier: bool,
 }
 
 impl From<Company> for SlimCompany {
@@ -223,23 +223,23 @@ impl From<Company> for SlimCompany {
 }
 
 #[derive(InputObject, Deserialize, Debug)]
-pub struct IptCompaniesArg {
-    pub companies_uuids:  Option<Vec<Uuid>>,
-    pub user_uuid: Option<Uuid>,
-    pub favorite: Option<bool>,
-    pub supplier: Option<bool>,
-    pub limit: Option<i32>,
-    pub offset: Option<i32>,
+pub(crate) struct IptCompaniesArg {
+    pub(crate) companies_uuids:  Option<Vec<Uuid>>,
+    pub(crate) user_uuid: Option<Uuid>,
+    pub(crate) favorite: Option<bool>,
+    pub(crate) supplier: Option<bool>,
+    pub(crate) limit: Option<i32>,
+    pub(crate) offset: Option<i32>,
 }
 
 #[derive(Debug)]
-pub struct CompaniesArg {
-    pub filter_companies_uuids: Vec<Uuid>,
-    pub user_uuid: Option<Uuid>,
-    pub favorite: bool,
-    pub supplier: bool,
-    pub limit: i32,
-    pub offset: i32,
+pub(crate) struct CompaniesArg {
+    pub(crate) filter_companies_uuids: Vec<Uuid>,
+    pub(crate) user_uuid: Option<Uuid>,
+    pub(crate) favorite: bool,
+    pub(crate) supplier: bool,
+    pub(crate) limit: i32,
+    pub(crate) offset: i32,
 }
 
 impl Default for CompaniesArg {

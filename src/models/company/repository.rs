@@ -51,6 +51,27 @@ impl Company {
             .filter(company_ref::uuid.eq(target_company_uuid)
             .and(company_ref::is_enabled.eq(true))
             .and(company_ref::is_delete.eq(false)))
+            .select((
+                company_ref::uuid,
+                company_ref::orgname,
+                company_ref::shortname,
+                company_ref::inn,
+                company_ref::phone,
+                company_ref::email,
+                company_ref::description,
+                company_ref::address,
+                company_ref::site_url,
+                company_ref::time_zone,
+                company_ref::user_uuid,
+                company_ref::image_file_uuid,
+                company_ref::region_id,
+                company_ref::company_type_id,
+                company_ref::type_access_id,
+                company_ref::is_supplier,
+                company_ref::is_email_verified,
+                company_ref::created_at,
+                company_ref::updated_at,
+            ))
             .first::<Company>(conn)
             .map_err(|err| {
                 debug!("Failed get company: {:?}", err);

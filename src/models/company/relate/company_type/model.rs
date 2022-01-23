@@ -6,19 +6,19 @@ use async_graphql::*;
 #[derive(Identifiable, Serialize, Deserialize, Associations, Queryable, Debug)]
 #[primary_key(id)]
 #[table_name = "company_type_ref"]
-pub struct CompanyType {
-    pub id: i32,
+pub(crate) struct CompanyType {
+    pub(crate) id: i32,
 }
 
 #[derive(Debug, Insertable)]
 #[table_name = "company_type_ref"]
-pub struct InsertableCompanyType {
-    pub id: i32,
+pub(crate) struct InsertableCompanyType {
+    pub(crate) id: i32,
 }
 
 #[derive(Debug, Deserialize, Clone, InputObject)]
-pub struct IptCompanyTypeData {
-    pub id: i32,
+pub(crate) struct IptCompanyTypeData {
+    pub(crate) id: i32,
 }
 
 // CompanyType translations
@@ -28,25 +28,25 @@ pub struct IptCompanyTypeData {
 #[belongs_to(Company, foreign_key = "company_type_id")]
 #[belongs_to(Language, foreign_key = "lang_id")]
 #[table_name = "company_type_translate_list"]
-pub struct CompanyTypeTranslateList {
-    pub company_type_id: i32,
-    pub lang_id: i32,
-    pub name: String,
-    pub shortname: String,
+pub(crate) struct CompanyTypeTranslateList {
+    pub(crate) company_type_id: i32,
+    pub(crate) lang_id: i32,
+    pub(crate) name: String,
+    pub(crate) shortname: String,
 }
 
 #[derive(Debug, Deserialize, Clone, InputObject)]
-pub struct IptCompanyTypeTranslateListData {
-    pub lang_id: i32,
-    pub name: String,
-    pub shortname: String,
+pub(crate) struct IptCompanyTypeTranslateListData {
+    pub(crate) lang_id: i32,
+    pub(crate) name: String,
+    pub(crate) shortname: String,
 }
 
 #[derive(Debug, Insertable)]
 #[table_name = "company_type_translate_list"]
-pub struct InsertableCompanyTypeTranslateList {
-    pub company_type_id: i32,
-    pub lang_id: i32,
-    pub name: String,
-    pub shortname: String,
+pub(crate) struct InsertableCompanyTypeTranslateList {
+    pub(crate) company_type_id: i32,
+    pub(crate) lang_id: i32,
+    pub(crate) name: String,
+    pub(crate) shortname: String,
 }

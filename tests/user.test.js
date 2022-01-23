@@ -1482,8 +1482,8 @@ describe('users', () => {
       "createdAt", "isRead",
     ]);
     expect(notifications[0].notification).toBe(notificationUpdatePassword);
-    expect(notifications[0].degreeImportance.degreeImportanceId).toBe(5);
-    expect(notifications[0].degreeImportance.degree).toBe("info");
+    expect(notifications[0].degreeImportance.degreeImportanceId).toBe(4);
+    expect(notifications[0].degreeImportance.degree).toBe("success");
     expect(notifications[0].isRead).toBe(false);
     done();
   });
@@ -1539,8 +1539,8 @@ describe('users', () => {
     ]);
     expect(notifications[0].id).toBe(notificationId);
     expect(notifications[0].notification).toBe(notificationUpdatePassword);
-    expect(notifications[0].degreeImportance.degreeImportanceId).toBe(5);
-    expect(notifications[0].degreeImportance.degree).toBe("info");
+    expect(notifications[0].degreeImportance.degreeImportanceId).toBe(4);
+    expect(notifications[0].degreeImportance.degree).toBe("success");
     expect(notifications[0].isRead).toBe(true);
     done();
   });

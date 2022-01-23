@@ -5,32 +5,32 @@ use chrono::*;
 #[derive(Identifiable, Serialize, Deserialize, Queryable, SimpleObject, Debug)]
 #[primary_key(id)]
 #[table_name = "license_ref"]
-pub struct License {
-    pub id: i32,
-    pub name: String,
-    pub keyword: String,
-    pub publication_at: NaiveDateTime,
+pub(crate) struct License {
+    pub(crate) id: i32,
+    pub(crate) name: String,
+    pub(crate) keyword: String,
+    pub(crate) publication_at: NaiveDateTime,
 }
 
 #[derive(Debug, Insertable)]
 #[table_name = "license_ref"]
-pub struct InsertableLicense {
-    pub name: String,
-    pub keyword: String,
-    pub publication_at: NaiveDateTime,
+pub(crate) struct InsertableLicense {
+    pub(crate) name: String,
+    pub(crate) keyword: String,
+    pub(crate) publication_at: NaiveDateTime,
 }
 
 #[derive(Debug, Deserialize, Clone, InputObject)]
-pub struct LicenseData {
-    pub name: String,
-    pub keyword: String,
-    pub publication_at: NaiveDateTime,
+pub(crate) struct LicenseData {
+    pub(crate) name: String,
+    pub(crate) keyword: String,
+    pub(crate) publication_at: NaiveDateTime,
 }
 
 #[derive(Debug, Serialize, Deserialize, SimpleObject, Clone)]
-pub struct SlimLicense {
-    pub id: i32,
-    pub keyword: String,
+pub(crate) struct SlimLicense {
+    pub(crate) id: i32,
+    pub(crate) keyword: String,
 }
 
 impl From<&LicenseData> for InsertableLicense {
@@ -44,17 +44,17 @@ impl From<&LicenseData> for InsertableLicense {
 }
 
 #[derive(InputObject, Deserialize, Debug)]
-pub struct IptLicenseArg {
-    pub license_ids:  Option<Vec<i32>>,
-    pub limit: Option<i32>,
-    pub offset: Option<i32>,
+pub(crate) struct IptLicenseArg {
+    pub(crate) license_ids:  Option<Vec<i32>>,
+    pub(crate) limit: Option<i32>,
+    pub(crate) offset: Option<i32>,
 }
 
 #[derive(Debug)]
-pub struct LicenseArg {
-    pub license_ids: Vec<i32>,
-    pub limit: i32,
-    pub offset: i32,
+pub(crate) struct LicenseArg {
+    pub(crate) license_ids: Vec<i32>,
+    pub(crate) limit: i32,
+    pub(crate) offset: i32,
 }
 
 impl Default for LicenseArg {

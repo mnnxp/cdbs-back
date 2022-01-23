@@ -12,17 +12,17 @@ use uuid::Uuid;
 #[belongs_to(Component, foreign_key = "component_uuid")]
 #[belongs_to(Company, foreign_key = "company_uuid")]
 #[table_name = "supplier_to_component"]
-pub struct SupplierComponent {
-    pub component_uuid: Uuid,
-    pub company_uuid: Uuid,
-    pub description: String,
+pub(crate) struct SupplierComponent {
+    pub(crate) component_uuid: Uuid,
+    pub(crate) company_uuid: Uuid,
+    pub(crate) description: String,
 }
 
 #[derive(Deserialize, SimpleObject, Clone, Debug)]
-pub struct ComponentSupplierRelatedData {
-    pub supplier: SlimCompany,
-    pub component_uuid: Uuid,
-    pub description: String,
+pub(crate) struct ComponentSupplierRelatedData {
+    pub(crate) supplier: SlimCompany,
+    pub(crate) component_uuid: Uuid,
+    pub(crate) description: String,
 }
 
 impl ComponentSupplierRelatedData {
@@ -42,18 +42,18 @@ impl ComponentSupplierRelatedData {
 }
 
 #[derive(Debug, Deserialize, Clone, InputObject)]
-pub struct IptSupplierComponentData {
-    pub component_uuid: Uuid,
-    pub company_uuid: Uuid,
-    pub description: String,
+pub(crate) struct IptSupplierComponentData {
+    pub(crate) component_uuid: Uuid,
+    pub(crate) company_uuid: Uuid,
+    pub(crate) description: String,
 }
 
 #[derive(Debug, Insertable)]
 #[table_name = "supplier_to_component"]
-pub struct InsertableSupplierComponent {
-    pub component_uuid: Uuid,
-    pub company_uuid: Uuid,
-    pub description: String,
+pub(crate) struct InsertableSupplierComponent {
+    pub(crate) component_uuid: Uuid,
+    pub(crate) company_uuid: Uuid,
+    pub(crate) description: String,
 }
 
 impl From<&IptSupplierComponentData> for InsertableSupplierComponent {
@@ -74,7 +74,7 @@ impl From<&IptSupplierComponentData> for InsertableSupplierComponent {
 }
 
 #[derive(Debug, Deserialize, Clone, InputObject)]
-pub struct DelSuppliersComponentData {
-    pub component_uuid: Uuid,
-    pub companies_uuids: Vec<Uuid>,
+pub(crate) struct DelSuppliersComponentData {
+    pub(crate) component_uuid: Uuid,
+    pub(crate) companies_uuids: Vec<Uuid>,
 }

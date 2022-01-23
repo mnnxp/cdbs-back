@@ -15,30 +15,30 @@ use uuid::Uuid;
 #[belongs_to(UserQuery, foreign_key = "user_uuid")]
 #[belongs_to(RoleMember, foreign_key = "role_id")]
 #[table_name = "company_member_list"]
-pub struct CompanyMember {
-    pub company_uuid: Uuid,
-    pub user_uuid: Uuid,
-    pub role_id: i32,
-    pub is_enabled: bool,
-    pub created_at: NaiveDateTime,
-    pub updated_at: NaiveDateTime,
+pub(crate) struct CompanyMember {
+    pub(crate) company_uuid: Uuid,
+    pub(crate) user_uuid: Uuid,
+    pub(crate) role_id: i32,
+    pub(crate) is_enabled: bool,
+    pub(crate) created_at: NaiveDateTime,
+    pub(crate) updated_at: NaiveDateTime,
 }
 
 #[derive(Debug, Deserialize, SimpleObject)]
-pub struct CompanyMemberAndRelatedData {
-    pub company_uuid: Uuid,
-    pub user_uuid: Uuid,
-    pub role: RoleMemberAndRelatedData,
-    pub is_enabled: bool,
-    pub created_at: NaiveDateTime,
-    pub updated_at: NaiveDateTime,
+pub(crate) struct CompanyMemberAndRelatedData {
+    pub(crate) company_uuid: Uuid,
+    pub(crate) user_uuid: Uuid,
+    pub(crate) role: RoleMemberAndRelatedData,
+    pub(crate) is_enabled: bool,
+    pub(crate) created_at: NaiveDateTime,
+    pub(crate) updated_at: NaiveDateTime,
 }
 
 #[derive(Debug, Deserialize, SimpleObject)]
-pub struct SlimCompanyMember {
-    pub company_uuid: Uuid,
-    pub user_uuid: Uuid,
-    pub role_id: i32,
+pub(crate) struct SlimCompanyMember {
+    pub(crate) company_uuid: Uuid,
+    pub(crate) user_uuid: Uuid,
+    pub(crate) role_id: i32,
 }
 
 impl From<CompanyMember> for SlimCompanyMember {
@@ -60,20 +60,20 @@ impl From<CompanyMember> for SlimCompanyMember {
 
 #[derive(Debug, Insertable)]
 #[table_name = "company_member_list"]
-pub struct InsertableCompanyMember {
-    pub company_uuid: Uuid,
-    pub user_uuid: Uuid,
-    pub role_id: i32,
-    pub is_enabled: bool,
-    pub created_at: NaiveDateTime,
-    pub updated_at: NaiveDateTime,
+pub(crate) struct InsertableCompanyMember {
+    pub(crate) company_uuid: Uuid,
+    pub(crate) user_uuid: Uuid,
+    pub(crate) role_id: i32,
+    pub(crate) is_enabled: bool,
+    pub(crate) created_at: NaiveDateTime,
+    pub(crate) updated_at: NaiveDateTime,
 }
 
 #[derive(Debug, Deserialize, Clone, InputObject)]
-pub struct IptCompanyMemberData {
-    pub company_uuid: Uuid,
-    pub user_uuid: Uuid,
-    pub role_id: i32,
+pub(crate) struct IptCompanyMemberData {
+    pub(crate) company_uuid: Uuid,
+    pub(crate) user_uuid: Uuid,
+    pub(crate) role_id: i32,
 }
 
 impl From<&IptCompanyMemberData> for InsertableCompanyMember {
@@ -97,7 +97,7 @@ impl From<&IptCompanyMemberData> for InsertableCompanyMember {
 }
 
 #[derive(Debug, Deserialize, Clone, InputObject)]
-pub struct DelCompanyMemberData {
-    pub company_uuid: Uuid,
-    pub user_uuid: Uuid,
+pub(crate) struct DelCompanyMemberData {
+    pub(crate) company_uuid: Uuid,
+    pub(crate) user_uuid: Uuid,
 }

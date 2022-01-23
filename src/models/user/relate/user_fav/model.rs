@@ -10,26 +10,26 @@ use uuid::Uuid;
 #[primary_key(user_favorite_uuid, user_follower_uuid)]
 #[belongs_to(UserQuery, foreign_key = "user_favorite_uuid", "user_follower_uuid")]
 #[table_name = "user_fav"]
-pub struct UserFav {
-    pub user_favorite_uuid: Uuid,
-    pub user_follower_uuid: Uuid,
-    pub is_enabled: bool,
-    pub created_at: NaiveDateTime,
+pub(crate) struct UserFav {
+    pub(crate) user_favorite_uuid: Uuid,
+    pub(crate) user_follower_uuid: Uuid,
+    pub(crate) is_enabled: bool,
+    pub(crate) created_at: NaiveDateTime,
 }
 
 #[derive(Debug, Deserialize, Clone, InputObject)]
-pub struct IptUserFavData {
-    pub user_favorite_uuid: Uuid,
-    pub user_follower_uuid: Uuid,
+pub(crate) struct IptUserFavData {
+    pub(crate) user_favorite_uuid: Uuid,
+    pub(crate) user_follower_uuid: Uuid,
 }
 
 #[derive(Debug, Insertable)]
 #[table_name = "user_fav"]
-pub struct InsertableUserFav {
-    pub user_favorite_uuid: Uuid,
-    pub user_follower_uuid: Uuid,
-    pub is_enabled: bool,
-    pub created_at: NaiveDateTime,
+pub(crate) struct InsertableUserFav {
+    pub(crate) user_favorite_uuid: Uuid,
+    pub(crate) user_follower_uuid: Uuid,
+    pub(crate) is_enabled: bool,
+    pub(crate) created_at: NaiveDateTime,
 }
 
 impl From<IptUserFavData> for InsertableUserFav {

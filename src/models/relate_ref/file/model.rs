@@ -8,7 +8,7 @@ use crate::models::relate_ref::program::model::Program;
 
 // list for insert data in related tables
 #[derive(Deserialize, Clone, Debug)]
-pub enum ListObject {
+pub(crate) enum ListObject {
     User(Uuid),
     UserCertificate(Uuid), // <-- addiction_uuid auth user
     Company(Uuid),
@@ -38,51 +38,51 @@ impl ListObject {
 }
 
 #[derive(Debug, Queryable)]
-pub struct File {
-    pub uuid: Uuid,
-    pub parent_file_uuid: Uuid,
-    pub hash: Vec<u8>,
-    pub user_uuid: Uuid,
-    pub filename: String,
-    pub content_type: String,
-    pub id_ext: i32,
-    pub filesize: i64,
-    pub path_file: String,
-    pub created_at: NaiveDateTime,
-    pub updated_at: NaiveDateTime,
+pub(crate) struct File {
+    pub(crate) uuid: Uuid,
+    // pub(crate) parent_file_uuid: Uuid,
+    // pub(crate) hash: Vec<u8>,
+    // pub(crate) user_uuid: Uuid,
+    pub(crate) filename: String,
+    // pub(crate) content_type: String,
+    // pub(crate) id_ext: i32,
+    pub(crate) filesize: i64,
+    pub(crate) path_file: String,
+    // pub(crate) created_at: NaiveDateTime,
+    // pub(crate) updated_at: NaiveDateTime,
 }
 
 #[derive(Identifiable, Queryable, Clone, Debug)]
 #[primary_key(uuid)]
 #[table_name = "file_ref"]
-pub struct ShowFile {
-    pub uuid: Uuid,
-    pub parent_file_uuid: Uuid,
-    pub user_uuid: Uuid,
-    pub filename: String,
-    pub content_type: String,
-    pub id_ext: i32,
-    pub filesize: i64,
-    pub path_file: String,
-    pub created_at: NaiveDateTime,
-    pub updated_at: NaiveDateTime,
+pub(crate) struct ShowFile {
+    pub(crate) uuid: Uuid,
+    pub(crate) parent_file_uuid: Uuid,
+    pub(crate) user_uuid: Uuid,
+    pub(crate) filename: String,
+    pub(crate) content_type: String,
+    pub(crate) id_ext: i32,
+    pub(crate) filesize: i64,
+    // pub(crate) path_file: String,
+    pub(crate) created_at: NaiveDateTime,
+    pub(crate) updated_at: NaiveDateTime,
 }
 
 #[derive(Debug, Insertable)]
 #[table_name = "file_ref"]
-pub struct InsertableFile {
-    pub uuid: Uuid,
-    pub parent_file_uuid: Uuid,
-    pub hash: Vec<u8>,
-    pub user_uuid: Uuid,
-    pub filename: String,
-    pub content_type: String,
-    pub id_ext: i32,
-    pub filesize: i64,
-    pub path_file: String,
-    pub is_delete: bool,
-    pub created_at: NaiveDateTime,
-    pub updated_at: NaiveDateTime,
+pub(crate) struct InsertableFile {
+    pub(crate) uuid: Uuid,
+    pub(crate) parent_file_uuid: Uuid,
+    pub(crate) hash: Vec<u8>,
+    pub(crate) user_uuid: Uuid,
+    pub(crate) filename: String,
+    pub(crate) content_type: String,
+    pub(crate) id_ext: i32,
+    pub(crate) filesize: i64,
+    pub(crate) path_file: String,
+    pub(crate) is_delete: bool,
+    pub(crate) created_at: NaiveDateTime,
+    pub(crate) updated_at: NaiveDateTime,
 }
 
 
@@ -128,38 +128,38 @@ impl From<PreliminaryFileData> for InsertableFile {
 
 /// For generate file pre-entry in the database
 #[derive(Deserialize, Debug)]
-pub struct PreliminaryFileData {
-    pub parent_file_uuid: Uuid,
-    pub user_uuid: Uuid,
+pub(crate) struct PreliminaryFileData {
+    pub(crate) parent_file_uuid: Uuid,
+    pub(crate) user_uuid: Uuid,
     /// linked object, to create a new name in the storage (file_path)
-    pub object: ListObject,
+    pub(crate) object: ListObject,
     /// sanitizer filename with sanitize_filename::sanitize(&filename)
-    pub filename: String,
+    pub(crate) filename: String,
     /// get id for extension with find_id_ext(filename, conn)
-    pub id_ext: i32,
-    pub content_type: String,
+    pub(crate) id_ext: i32,
+    pub(crate) content_type: String,
 }
 
 #[derive(Deserialize, Debug)]
-pub struct FileData {
-    pub parent_file_uuid: Option<Uuid>,
-    pub hash: Option<Vec<u8>>,
-    pub user_uuid: Option<Uuid>,
-    pub filename: Option<String>,
-    pub content_type: Option<String>,
-    pub id_ext: Option<i32>,
-    pub filesize: Option<i64>,
-    pub path_file: Option<String>,
+pub(crate) struct FileData {
+    pub(crate) parent_file_uuid: Option<Uuid>,
+    pub(crate) hash: Option<Vec<u8>>,
+    pub(crate) user_uuid: Option<Uuid>,
+    pub(crate) filename: Option<String>,
+    pub(crate) content_type: Option<String>,
+    pub(crate) id_ext: Option<i32>,
+    pub(crate) filesize: Option<i64>,
+    pub(crate) path_file: Option<String>,
 }
 
 #[derive(Identifiable, Queryable, Associations, Clone, Debug)]
 #[primary_key(uuid)]
 #[table_name = "file_ref"]
-pub struct SlimFile {
-    pub uuid: Uuid,
-    pub filename: String,
-    pub filesize: i64,
-    pub path_file: String,
+pub(crate) struct SlimFile {
+    pub(crate) uuid: Uuid,
+    pub(crate) filename: String,
+    pub(crate) filesize: i64,
+    pub(crate) path_file: String,
 }
 
 impl From<File> for SlimFile {
@@ -182,31 +182,31 @@ impl From<File> for SlimFile {
 }
 
 #[derive(Serialize, Debug, SimpleObject)]
-pub struct UploadFile {
-    pub file_uuid: Uuid,
-    pub filename: String,
-    pub upload_url: String,
+pub(crate) struct UploadFile {
+    pub(crate) file_uuid: Uuid,
+    pub(crate) filename: String,
+    pub(crate) upload_url: String,
 }
 
 #[derive(Debug, SimpleObject, Clone)]
-pub struct ShowFileRelatedData {
-    pub uuid: Uuid,
-    pub filename: String,
-    pub parent_file_uuid: Uuid,
-    pub owner_user: ShowUserShort,
-    pub content_type: String,
-    pub filesize: i64,
-    pub program: Program,
-    pub created_at: NaiveDateTime,
-    pub updated_at: NaiveDateTime,
+pub(crate) struct ShowFileRelatedData {
+    pub(crate) uuid: Uuid,
+    pub(crate) filename: String,
+    pub(crate) parent_file_uuid: Uuid,
+    pub(crate) owner_user: ShowUserShort,
+    pub(crate) content_type: String,
+    pub(crate) filesize: i64,
+    pub(crate) program: Program,
+    pub(crate) created_at: NaiveDateTime,
+    pub(crate) updated_at: NaiveDateTime,
 }
 
 #[derive(Serialize, SimpleObject, Clone, Default, Debug)]
-pub struct DownloadFile {
-    pub uuid: Uuid,
-    pub filename: String,
-    pub filesize: i64,
-    pub download_url: String,
+pub(crate) struct DownloadFile {
+    pub(crate) uuid: Uuid,
+    pub(crate) filename: String,
+    pub(crate) filesize: i64,
+    pub(crate) download_url: String,
 }
 
 #[derive(Debug)]

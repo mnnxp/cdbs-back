@@ -7,41 +7,41 @@ use uuid::Uuid;
 #[derive(Identifiable, Deserialize, Queryable, Debug)]
 #[primary_key(standard_uuid, user_uuid)]
 #[table_name = "user_access_to_standard"]
-pub struct UserAccessStandard {
-    pub standard_uuid: Uuid,
-    pub user_uuid: Uuid,
-    pub type_access_id: i32,
-    pub is_enabled: bool,
-    pub created_at: NaiveDateTime,
-    pub updated_at: NaiveDateTime,
+pub(crate) struct UserAccessStandard {
+    pub(crate) standard_uuid: Uuid,
+    pub(crate) user_uuid: Uuid,
+    pub(crate) type_access_id: i32,
+    pub(crate) is_enabled: bool,
+    pub(crate) created_at: NaiveDateTime,
+    pub(crate) updated_at: NaiveDateTime,
 }
 
 #[derive(Debug, Deserialize, SimpleObject)]
-pub struct UserAccessStandardAndRelatedData {
-    pub standard_uuid: Uuid,
-    pub user_uuid: Uuid,
-    pub type_access: TypeAccessTranslateList,
-    pub is_enabled: bool,
-    pub created_at: NaiveDateTime,
-    pub updated_at: NaiveDateTime,
+pub(crate) struct UserAccessStandardAndRelatedData {
+    pub(crate) standard_uuid: Uuid,
+    pub(crate) user_uuid: Uuid,
+    pub(crate) type_access: TypeAccessTranslateList,
+    pub(crate) is_enabled: bool,
+    pub(crate) created_at: NaiveDateTime,
+    pub(crate) updated_at: NaiveDateTime,
 }
 
 #[derive(Debug, Insertable)]
 #[table_name = "user_access_to_standard"]
-pub struct InsertableUserAccessStandard {
-    pub standard_uuid: Uuid,
-    pub user_uuid: Uuid,
-    pub type_access_id: i32,
-    pub is_enabled: bool,
-    pub created_at: NaiveDateTime,
-    pub updated_at: NaiveDateTime,
+pub(crate) struct InsertableUserAccessStandard {
+    pub(crate) standard_uuid: Uuid,
+    pub(crate) user_uuid: Uuid,
+    pub(crate) type_access_id: i32,
+    pub(crate) is_enabled: bool,
+    pub(crate) created_at: NaiveDateTime,
+    pub(crate) updated_at: NaiveDateTime,
 }
 
 #[derive(Debug, Deserialize, InputObject)]
-pub struct IptUserAccessStandardData {
-    pub standard_uuid: Uuid,
-    pub user_uuid: Uuid,
-    pub type_access_id: i32,
+pub(crate) struct IptUserAccessStandardData {
+    pub(crate) standard_uuid: Uuid,
+    pub(crate) user_uuid: Uuid,
+    pub(crate) type_access_id: i32,
 }
 
 impl From<&IptUserAccessStandardData> for InsertableUserAccessStandard {
@@ -66,7 +66,7 @@ impl From<&IptUserAccessStandardData> for InsertableUserAccessStandard {
 
 
 #[derive(Debug, Deserialize, InputObject)]
-pub struct DelUserAccessStandardData {
-    pub standard_uuid: Uuid,
-    pub user_uuid: Uuid,
+pub(crate) struct DelUserAccessStandardData {
+    pub(crate) standard_uuid: Uuid,
+    pub(crate) user_uuid: Uuid,
 }

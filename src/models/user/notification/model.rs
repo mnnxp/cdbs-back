@@ -6,24 +6,24 @@ use uuid::Uuid;
 #[derive(Identifiable, Serialize, Associations, Queryable, Clone, Debug)]
 #[primary_key(id)]
 #[table_name = "notification_ref"]
-pub struct Notification {
-    pub id: i32,
-    pub notification: String,
-    pub degree_importance_id: i32,
-    pub created_at: NaiveDateTime,
+pub(crate) struct Notification {
+    pub(crate) id: i32,
+    pub(crate) notification: String,
+    pub(crate) degree_importance_id: i32,
+    pub(crate) created_at: NaiveDateTime,
 }
 
 #[derive(Debug, Clone)]
-pub struct NotificationData {
-    pub notification: String,
-    pub degree_importance: NotificationType,
+pub(crate) struct NotificationData {
+    pub(crate) notification: String,
+    pub(crate) degree_importance: NotificationType,
 }
 
 #[derive(Debug, Clone)]
-pub enum NotificationType {
-    Critical,
-    Error,
-    Warning,
+pub(crate) enum NotificationType {
+    // Critical,
+    // Error,
+    // Warning,
     Success,
     Info,
 }
@@ -31,9 +31,9 @@ pub enum NotificationType {
 impl NotificationType {
     pub(crate) fn get_id(&self) -> i32 {
         match self {
-            NotificationType::Critical => 1,
-            NotificationType::Error => 2,
-            NotificationType::Warning => 3,
+            // NotificationType::Critical => 1,
+            // NotificationType::Error => 2,
+            // NotificationType::Warning => 3,
             NotificationType::Success => 4,
             NotificationType::Info => 5,
         }
@@ -41,12 +41,12 @@ impl NotificationType {
 }
 
 #[derive(Debug, Serialize, Clone, SimpleObject)]
-pub struct ShowNotification {
-    pub id: i32,
-    pub notification: String,
-    pub degree_importance: DegreeImportanceTranslateList,
-    pub created_at: NaiveDateTime,
-    pub is_read: bool,
+pub(crate) struct ShowNotification {
+    pub(crate) id: i32,
+    pub(crate) notification: String,
+    pub(crate) degree_importance: DegreeImportanceTranslateList,
+    pub(crate) created_at: NaiveDateTime,
+    pub(crate) is_read: bool,
 }
 
 impl ShowNotification {
@@ -73,26 +73,26 @@ impl ShowNotification {
 }
 
 #[derive(Debug, Queryable, Default)]
-pub struct NotificationToUser {
-    pub notification_id: i32,
-    pub user_uuid: Uuid,
-    pub is_read: bool,
+pub(crate) struct NotificationToUser {
+    pub(crate) notification_id: i32,
+    // pub(crate) user_uuid: Uuid,
+    pub(crate) is_read: bool,
 }
 
 #[derive(Debug, Insertable)]
 #[table_name = "notification_to_user"]
-pub struct InsertableNotificationToUser {
-    pub notification_id: i32,
-    pub user_uuid: Uuid,
-    pub is_read: bool,
+pub(crate) struct InsertableNotificationToUser {
+    pub(crate) notification_id: i32,
+    pub(crate) user_uuid: Uuid,
+    pub(crate) is_read: bool,
 }
 
 #[derive(Debug, Insertable)]
 #[table_name = "notification_ref"]
-pub struct InsertableNotification {
-    pub notification: String,
-    pub degree_importance_id: i32,
-    pub created_at: NaiveDateTime,
+pub(crate) struct InsertableNotification {
+    pub(crate) notification: String,
+    pub(crate) degree_importance_id: i32,
+    pub(crate) created_at: NaiveDateTime,
 }
 
 impl From<&NotificationData> for InsertableNotification {
@@ -115,24 +115,24 @@ impl From<&NotificationData> for InsertableNotification {
 #[derive(Default, Clone, Debug, SimpleObject)]
 #[primary_key(degree_importance_id, lang_id)]
 #[table_name = "degree_importance_translate_list"]
-pub struct DegreeImportanceTranslateList {
-    pub degree_importance_id: i32,
-    pub lang_id: i32,
-    pub degree: String,
+pub(crate) struct DegreeImportanceTranslateList {
+    pub(crate) degree_importance_id: i32,
+    pub(crate) lang_id: i32,
+    pub(crate) degree: String,
 }
 
 #[derive(InputObject, Deserialize, Debug)]
-pub struct IptNotificationArg {
-    pub notification_ids:  Option<Vec<i32>>,
-    pub limit: Option<i32>,
-    pub offset: Option<i32>,
+pub(crate) struct IptNotificationArg {
+    pub(crate) notification_ids:  Option<Vec<i32>>,
+    pub(crate) limit: Option<i32>,
+    pub(crate) offset: Option<i32>,
 }
 
 #[derive(Debug)]
-pub struct NotificationArg {
-    pub notification_ids: Vec<i32>,
-    pub limit: i32,
-    pub offset: i32,
+pub(crate) struct NotificationArg {
+    pub(crate) notification_ids: Vec<i32>,
+    pub(crate) limit: i32,
+    pub(crate) offset: i32,
 }
 
 impl Default for NotificationArg {

@@ -11,32 +11,32 @@ use uuid::Uuid;
 #[belongs_to(DownloadFile, foreign_key = "file_uuid")]
 #[belongs_to(Company, foreign_key = "company_uuid")]
 #[table_name = "company_certificate_ref"]
-pub struct CompanyCertificate {
-    pub file_uuid: Uuid,
-    pub company_uuid: Uuid,
-    pub description: String,
+pub(crate) struct CompanyCertificate {
+    pub(crate) file_uuid: Uuid,
+    pub(crate) company_uuid: Uuid,
+    pub(crate) description: String,
 }
 
 #[derive(Debug, SimpleObject)]
-pub struct CompanyCertificateAndFile {
-    pub file: DownloadFile,
-    pub company_uuid: Uuid,
-    pub description: String,
+pub(crate) struct CompanyCertificateAndFile {
+    pub(crate) file: DownloadFile,
+    pub(crate) company_uuid: Uuid,
+    pub(crate) description: String,
 }
 
 #[derive(Debug, Insertable)]
 #[table_name = "company_certificate_ref"]
-pub struct InsertableCompanyCertificate {
-    pub file_uuid: Uuid,
-    pub company_uuid: Uuid,
-    pub description: String,
+pub(crate) struct InsertableCompanyCertificate {
+    pub(crate) file_uuid: Uuid,
+    pub(crate) company_uuid: Uuid,
+    pub(crate) description: String,
 }
 
 #[derive(Debug, Deserialize, Clone, InputObject)]
-pub struct IptCompanyCertificateData {
-    pub company_uuid: Uuid,
-    pub description: String,
-    pub filename: String,
+pub(crate) struct IptCompanyCertificateData {
+    pub(crate) company_uuid: Uuid,
+    pub(crate) description: String,
+    pub(crate) filename: String,
 }
 
 impl From<CompanyCertificate> for InsertableCompanyCertificate {
@@ -57,14 +57,14 @@ impl From<CompanyCertificate> for InsertableCompanyCertificate {
 }
 
 #[derive(Debug, Deserialize, Clone, InputObject)]
-pub struct IptUpdateCompanyCertificateData {
-    pub company_uuid: Uuid,
-    pub file_uuid: Uuid,
-    pub description: String,
+pub(crate) struct IptUpdateCompanyCertificateData {
+    pub(crate) company_uuid: Uuid,
+    pub(crate) file_uuid: Uuid,
+    pub(crate) description: String,
 }
 
 #[derive(Debug, Deserialize, Clone, InputObject)]
-pub struct DelCompanyCertificateData {
-    pub company_uuid: Uuid,
-    pub file_uuid: Uuid,
+pub(crate) struct DelCompanyCertificateData {
+    pub(crate) company_uuid: Uuid,
+    pub(crate) file_uuid: Uuid,
 }

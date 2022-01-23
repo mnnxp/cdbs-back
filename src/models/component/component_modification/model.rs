@@ -15,30 +15,30 @@ use uuid::Uuid;
 #[primary_key(uuid)]
 #[belongs_to(Component, foreign_key = "component_uuid")]
 #[table_name = "component_modification_list"]
-pub struct ComponentModification {
-    pub uuid: Uuid,
-    pub component_uuid: Uuid,
-    pub parent_modification_uuid: Uuid,
-    pub modification_name: String,
-    pub description: String,
-    pub actual_status_id: i32,
-    pub is_delete: bool,
-    pub created_at: NaiveDateTime,
-    pub updated_at: NaiveDateTime,
+pub(crate) struct ComponentModification {
+    pub(crate) uuid: Uuid,
+    pub(crate) component_uuid: Uuid,
+    pub(crate) parent_modification_uuid: Uuid,
+    pub(crate) modification_name: String,
+    pub(crate) description: String,
+    pub(crate) actual_status_id: i32,
+    pub(crate) is_delete: bool,
+    pub(crate) created_at: NaiveDateTime,
+    pub(crate) updated_at: NaiveDateTime,
 }
 
 #[derive(Deserialize, SimpleObject, Debug)]
-pub struct ComponentModificationAndRelatedData {
-    pub uuid: Uuid,
-    pub component_uuid: Uuid,
-    pub parent_modification_uuid: Uuid,
-    pub modification_name: String,
-    pub description: String,
-    pub actual_status: ActualStatusTranslateList,
-    pub created_at: NaiveDateTime,
-    pub updated_at: NaiveDateTime,
-    pub filesets_for_program: Vec<FilesetProgramRelatedData>,
-    pub modification_params: Vec<ModificationParamWithTranslation>,
+pub(crate) struct ComponentModificationAndRelatedData {
+    pub(crate) uuid: Uuid,
+    pub(crate) component_uuid: Uuid,
+    pub(crate) parent_modification_uuid: Uuid,
+    pub(crate) modification_name: String,
+    pub(crate) description: String,
+    pub(crate) actual_status: ActualStatusTranslateList,
+    pub(crate) created_at: NaiveDateTime,
+    pub(crate) updated_at: NaiveDateTime,
+    pub(crate) filesets_for_program: Vec<FilesetProgramRelatedData>,
+    pub(crate) modification_params: Vec<ModificationParamWithTranslation>,
 }
 
 impl ComponentModificationAndRelatedData {
@@ -101,12 +101,12 @@ impl InsertableComponentModification {
 }
 
 #[derive(Debug, Deserialize, InputObject)]
-pub struct IptComponentModificationData {
-    pub component_uuid: Uuid,
-    pub parent_modification_uuid: Option<Uuid>,
-    pub modification_name: String,
-    pub description: String,
-    pub actual_status_id: i32,
+pub(crate) struct IptComponentModificationData {
+    pub(crate) component_uuid: Uuid,
+    pub(crate) parent_modification_uuid: Option<Uuid>,
+    pub(crate) modification_name: String,
+    pub(crate) description: String,
+    pub(crate) actual_status_id: i32,
 }
 
 impl From<&IptComponentModificationData> for InsertableComponentModification {
@@ -139,24 +139,24 @@ impl From<&IptComponentModificationData> for InsertableComponentModification {
 }
 
 #[derive(Debug, Deserialize, Clone, InputObject)]
-pub struct IptUpdateComponentModificationData {
-    // pub parent_modification_uuid: Option<Uuid>,
-    pub modification_name: Option<String>,
-    pub description: Option<String>,
-    pub actual_status_id: Option<i32>,
+pub(crate) struct IptUpdateComponentModificationData {
+    // pub(crate) parent_modification_uuid: Option<Uuid>,
+    pub(crate) modification_name: Option<String>,
+    pub(crate) description: Option<String>,
+    pub(crate) actual_status_id: Option<i32>,
 }
 
 #[derive(Debug, Deserialize, Clone, InputObject)]
-pub struct DelComponentModificationData {
-    pub component_uuid: Uuid,
-    pub modification_uuid: Uuid,
+pub(crate) struct DelComponentModificationData {
+    pub(crate) component_uuid: Uuid,
+    pub(crate) modification_uuid: Uuid,
 }
 
 #[derive(InputObject, Deserialize, Debug)]
-pub struct IptComponentModificationArg {
-    pub component_uuid:  Uuid,
-    pub limit: Option<i32>,
-    pub offset: Option<i32>,
+pub(crate) struct IptComponentModificationArg {
+    pub(crate) component_uuid:  Uuid,
+    pub(crate) limit: Option<i32>,
+    pub(crate) offset: Option<i32>,
 }
 
 #[derive(Debug)]
@@ -194,19 +194,19 @@ impl From<IptComponentModificationArg> for ComponentModificationArg {
 }
 
 #[derive(InputObject, Deserialize, Debug)]
-pub struct IptModificationFilesArg {
-    pub modification_uuid:  Uuid,
-    pub files_uuids: Option<Vec<Uuid>>,
-    pub limit: Option<i32>,
-    pub offset: Option<i32>,
+pub(crate) struct IptModificationFilesArg {
+    pub(crate) modification_uuid:  Uuid,
+    pub(crate) files_uuids: Option<Vec<Uuid>>,
+    pub(crate) limit: Option<i32>,
+    pub(crate) offset: Option<i32>,
 }
 
 #[derive(Debug)]
-pub struct ModificationFilesArg {
-    pub modification_uuid:  Uuid,
-    pub files_uuids: Vec<Uuid>,
-    pub limit: i32,
-    pub offset: i32,
+pub(crate) struct ModificationFilesArg {
+    pub(crate) modification_uuid:  Uuid,
+    pub(crate) files_uuids: Vec<Uuid>,
+    pub(crate) limit: i32,
+    pub(crate) offset: i32,
 }
 
 impl From<IptModificationFilesArg> for ModificationFilesArg {

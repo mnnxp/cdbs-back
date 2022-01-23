@@ -11,16 +11,16 @@ use uuid::Uuid;
 #[belongs_to(ShowFileRelatedData, foreign_key = "file_uuid")]
 #[belongs_to(Component, foreign_key = "component_uuid")]
 #[table_name = "file_to_component"]
-pub struct ComponentFile {
-    pub file_uuid: Uuid,
-    pub component_uuid: Uuid,
+pub(crate) struct ComponentFile {
+    pub(crate) file_uuid: Uuid,
+    pub(crate) component_uuid: Uuid,
 }
 
 #[derive(Debug, Insertable)]
 #[table_name = "file_to_component"]
-pub struct InsertableComponentFile {
-    pub file_uuid: Uuid,
-    pub component_uuid: Uuid,
+pub(crate) struct InsertableComponentFile {
+    pub(crate) file_uuid: Uuid,
+    pub(crate) component_uuid: Uuid,
 }
 
 impl From<ComponentFile> for InsertableComponentFile {
@@ -39,13 +39,13 @@ impl From<ComponentFile> for InsertableComponentFile {
 }
 
 #[derive(InputObject, Deserialize, Debug)]
-pub struct IptComponentFilesData {
-    pub filenames: Vec<String>,
-    pub component_uuid: Uuid,
+pub(crate) struct IptComponentFilesData {
+    pub(crate) filenames: Vec<String>,
+    pub(crate) component_uuid: Uuid,
 }
 
 #[derive(InputObject, Deserialize, Debug)]
-pub struct DelComponentFileData {
-    pub file_uuid: Uuid,
-    pub component_uuid: Uuid,
+pub(crate) struct DelComponentFileData {
+    pub(crate) file_uuid: Uuid,
+    pub(crate) component_uuid: Uuid,
 }

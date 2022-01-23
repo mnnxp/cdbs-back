@@ -5,26 +5,26 @@ use async_graphql::*;
 #[derive(SimpleObject, Clone, Default, Debug)]
 #[primary_key(id)]
 #[table_name = "keyword_ref"]
-pub struct Keyword {
-    pub id: i32,
-    pub keyword: String,
+pub(crate) struct Keyword {
+    pub(crate) id: i32,
+    pub(crate) keyword: String,
 }
 
 #[derive(Serialize, Deserialize, Queryable, QueryableByName, Clone, Debug)]
 #[table_name = "keyword_ref"]
-pub struct KeywordId {
-    pub id: i32,
+pub(crate) struct KeywordId {
+    pub(crate) id: i32,
 }
 
 #[derive(Debug, Insertable)]
 #[table_name = "keyword_ref"]
-pub struct InsertableKeyword {
-    pub keyword: String,
+pub(crate) struct InsertableKeyword {
+    pub(crate) keyword: String,
 }
 
 #[derive(Debug, Deserialize, Clone, InputObject)]
-pub struct IptKeywordData {
-    pub keyword: String,
+pub(crate) struct IptKeywordData {
+    pub(crate) keyword: String,
 }
 
 
@@ -37,17 +37,17 @@ impl From<&IptKeywordData> for InsertableKeyword {
 }
 
 #[derive(InputObject, Deserialize, Debug)]
-pub struct IptKeywordArg {
-    pub keyword_ids:  Option<Vec<i32>>,
-    pub limit: Option<i32>,
-    pub offset: Option<i32>,
+pub(crate) struct IptKeywordArg {
+    pub(crate) keyword_ids:  Option<Vec<i32>>,
+    pub(crate) limit: Option<i32>,
+    pub(crate) offset: Option<i32>,
 }
 
 #[derive(Debug)]
-pub struct KeywordArg {
-    pub keyword_ids: Vec<i32>,
-    pub limit: i32,
-    pub offset: i32,
+pub(crate) struct KeywordArg {
+    pub(crate) keyword_ids: Vec<i32>,
+    pub(crate) limit: i32,
+    pub(crate) offset: i32,
 }
 
 impl Default for KeywordArg {

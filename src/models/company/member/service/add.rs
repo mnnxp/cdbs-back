@@ -8,7 +8,7 @@ use crate::schema::company_member_list::dsl as company_member_list;
 use diesel::prelude::*;
 use uuid::Uuid;
 
-pub fn add_company_member(
+pub(crate) fn add_company_member(
     logged_user_uuid: &Uuid,
     data: &IptCompanyMemberData,
     conn: &PgConnection,

@@ -5,9 +5,9 @@ use async_graphql::*;
 #[derive(SimpleObject, Clone, Default, Debug)]
 #[primary_key(id)]
 #[table_name = "program_ref"]
-pub struct Program {
-    pub id: i32,
-    pub name: String,
+pub(crate) struct Program {
+    pub(crate) id: i32,
+    pub(crate) name: String,
 }
 
 #[derive(Debug, Insertable)]
@@ -17,8 +17,8 @@ pub(crate) struct InsertableProgram {
 }
 
 #[derive(Debug, Deserialize, Clone, InputObject)]
-pub struct IptProgramData {
-    pub name: String,
+pub(crate) struct IptProgramData {
+    pub(crate) name: String,
 }
 
 impl From<&IptProgramData> for InsertableProgram {
@@ -30,17 +30,17 @@ impl From<&IptProgramData> for InsertableProgram {
 }
 
 #[derive(InputObject, Deserialize, Debug)]
-pub struct IptProgramArg {
-    pub program_ids:  Option<Vec<i32>>,
-    pub limit: Option<i32>,
-    pub offset: Option<i32>,
+pub(crate) struct IptProgramArg {
+    pub(crate) program_ids:  Option<Vec<i32>>,
+    pub(crate) limit: Option<i32>,
+    pub(crate) offset: Option<i32>,
 }
 
 #[derive(Debug)]
-pub struct ProgramArg {
-    pub program_ids: Vec<i32>,
-    pub limit: i32,
-    pub offset: i32,
+pub(crate) struct ProgramArg {
+    pub(crate) program_ids: Vec<i32>,
+    pub(crate) limit: i32,
+    pub(crate) offset: i32,
 }
 
 impl Default for ProgramArg {

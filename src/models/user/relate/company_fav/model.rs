@@ -12,26 +12,26 @@ use uuid::Uuid;
 #[belongs_to(Company, foreign_key = "company_uuid")]
 #[belongs_to(UserQuery, foreign_key = "user_uuid")]
 #[table_name = "company_fav"]
-pub struct CompanyFav {
-    pub company_uuid: Uuid,
-    pub user_uuid: Uuid,
-    pub is_enabled: bool,
-    pub created_at: NaiveDateTime,
+pub(crate) struct CompanyFav {
+    pub(crate) company_uuid: Uuid,
+    pub(crate) user_uuid: Uuid,
+    pub(crate) is_enabled: bool,
+    pub(crate) created_at: NaiveDateTime,
 }
 
 #[derive(Debug, Deserialize, Clone, InputObject)]
-pub struct IptCompanyFavData {
-    pub company_uuid: Uuid,
-    pub user_uuid: Uuid,
+pub(crate) struct IptCompanyFavData {
+    pub(crate) company_uuid: Uuid,
+    pub(crate) user_uuid: Uuid,
 }
 
 #[derive(Debug, Insertable)]
 #[table_name = "company_fav"]
-pub struct InsertableCompanyFav {
-    pub company_uuid: Uuid,
-    pub user_uuid: Uuid,
-    pub is_enabled: bool,
-    pub created_at: NaiveDateTime,
+pub(crate) struct InsertableCompanyFav {
+    pub(crate) company_uuid: Uuid,
+    pub(crate) user_uuid: Uuid,
+    pub(crate) is_enabled: bool,
+    pub(crate) created_at: NaiveDateTime,
 }
 
 impl From<IptCompanyFavData> for InsertableCompanyFav {

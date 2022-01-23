@@ -12,17 +12,17 @@ use uuid::Uuid;
 #[belongs_to(ComponentModification, foreign_key = "modification_uuid")]
 #[belongs_to(ParamTranslateList, foreign_key = "param_id")]
 #[table_name = "param_to_modification"]
-pub struct ModificationParam {
-    pub modification_uuid: Uuid,
-    pub param_id: i32,
-    pub value: String,
+pub(crate) struct ModificationParam {
+    pub(crate) modification_uuid: Uuid,
+    pub(crate) param_id: i32,
+    pub(crate) value: String,
 }
 
 #[derive(Debug, Deserialize, SimpleObject, Clone, Default)]
-pub struct ModificationParamWithTranslation {
-    pub modification_uuid: Uuid,
-    pub param: ParamTranslateList,
-    pub value: String,
+pub(crate) struct ModificationParamWithTranslation {
+    pub(crate) modification_uuid: Uuid,
+    pub(crate) param: ParamTranslateList,
+    pub(crate) value: String,
 }
 
 impl ModificationParamWithTranslation {
@@ -43,16 +43,16 @@ impl ModificationParamWithTranslation {
 
 #[derive(Debug, Insertable)]
 #[table_name = "param_to_modification"]
-pub struct InsertableModificationParam {
-    pub modification_uuid: Uuid,
-    pub param_id: i32,
-    pub value: String,
+pub(crate) struct InsertableModificationParam {
+    pub(crate) modification_uuid: Uuid,
+    pub(crate) param_id: i32,
+    pub(crate) value: String,
 }
 
 #[derive(Debug, Deserialize, Clone, InputObject)]
-pub struct IptModificationParamData {
-    pub modification_uuid: Uuid,
-    pub params: Vec<IptParamData>,
+pub(crate) struct IptModificationParamData {
+    pub(crate) modification_uuid: Uuid,
+    pub(crate) params: Vec<IptParamData>,
 }
 
 impl From<IptModificationParamData> for Vec<InsertableModificationParam> {
@@ -77,7 +77,7 @@ impl From<IptModificationParamData> for Vec<InsertableModificationParam> {
 }
 
 #[derive(Debug, Deserialize, Clone, InputObject)]
-pub struct DelModificationParamData {
-    pub modification_uuid: Uuid,
-    pub param_ids: Vec<i32>,
+pub(crate) struct DelModificationParamData {
+    pub(crate) modification_uuid: Uuid,
+    pub(crate) param_ids: Vec<i32>,
 }

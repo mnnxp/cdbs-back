@@ -8,7 +8,7 @@ use crate::models::company::company_represent::model::{
 use diesel::prelude::*;
 use uuid::Uuid;
 
-pub fn create_company_represent(
+pub(crate) fn create_company_represent(
     logged_user_uuid: &Uuid,
     data: &IptCompanyRepresentData,
     conn: &PgConnection,
