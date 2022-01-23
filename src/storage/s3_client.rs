@@ -1,4 +1,4 @@
-use crate::errors::ServiceResult;
+use crate::errors::{ServiceResult, ServiceError};
 use tokio::runtime::Runtime;
 use rusoto_core::request::HttpClient;
 use rusoto_s3::{HeadObjectOutput, S3, S3Client};
@@ -46,7 +46,7 @@ pub(crate) async fn get_object_headers_by_path(
         },
         Err(err) => {
             debug!("Err HeadObjectOutput: {:#?}", err);
-            Err(crate::errors::ServiceError::BadRequest("fail get header".to_string()))
+            Err(ServiceError::InternalServerError)
         },
     }
 }

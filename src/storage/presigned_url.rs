@@ -16,7 +16,7 @@ pub(crate) fn download_presigned_url(
         crate::cli_args::Opt::from_args()
     };
 
-    let presigned_url = Aws::from(access_storage).put_download_signed_url(
+    let presigned_url = Aws::from(access_storage).download_presigned_url(
         &access_storage.bucket,
         slim_file,
         opt.s3_expiration_presigned_url,
