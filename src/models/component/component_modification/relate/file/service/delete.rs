@@ -1,7 +1,10 @@
 use crate::errors::{ServiceResult, ServiceError};
-use crate::models::component::access::util::check_access_component_for_user;
-use crate::models::component::component_modification::relate::file::model::DelModificationFileData;
-use crate::models::component::component_modification::util::get_component_by_modification;
+use crate::models::component::{
+    access::util::check_access_component_for_user,
+    component_modification::relate::file::model::DelModificationFileData,
+    component_modification::util::get_component_by_modification,
+};
+use crate::models::relate_ref::file::service::delete::delete_file_by_uuid;
 use crate::schema::file_to_modification::dsl::*;
 use diesel::prelude::*;
 use uuid::Uuid;
@@ -22,7 +25,7 @@ pub(crate) fn delete_modification_file(
         conn
     )?;
 
-    let count = diesel::delete(file_to_modification)
+    diesel::delete(file_to_modification)
         .filter(modification_uuid.eq(&data.modification_uuid)
         .and(file_uuid.eq(&data.file_uuid)))
         .execute(conn)
@@ -30,8 +33,7 @@ pub(crate) fn delete_modification_file(
             debug!("Fail delete row: {:?}", err);
             ServiceError::InternalServerError
         })?;
-        
-    // todo!(here delete files of file_ref table and of storage)
 
-    Ok(count > 0)
+    // set flag for delete file in storage
+    delete_file_by_uuid(&data.file_uuid, conn)
 }

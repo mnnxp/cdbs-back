@@ -6,6 +6,7 @@ use crate::models::component::{
     },
     access::util::check_access_component_for_user,
 };
+use crate::models::relate_ref::file::service::delete::delete_file_by_uuids;
 use crate::schema::modification_file_from_fileset::dsl as modification_file_from_fileset;
 use crate::schema::fileset_for_program::dsl as fileset_for_program;
 use diesel::prelude::*;
@@ -37,7 +38,8 @@ pub(crate) fn del_modification_fileset(
 
     // debug!("Delete fileset: {:?}", del_fileset);
     if !files_of_set.is_empty() {
-        // todo!(here delete files of file_ref table and of storage)
+        // set flags for delete files in storage
+        delete_file_by_uuids(&files_of_set, conn)?;
     }
 
     delete_fileset_row(data, conn)

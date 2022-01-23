@@ -6,6 +6,7 @@ use crate::models::component::{
     },
     access::util::check_access_component_for_user,
 };
+use crate::models::relate_ref::file::service::delete::delete_file_by_uuids;
 use crate::schema::modification_file_from_fileset::dsl as modification_file_from_fileset;
 use diesel::prelude::*;
 use uuid::Uuid;
@@ -28,13 +29,16 @@ pub(crate) fn del_file_from_fileset(
     match &data.file_uuids.is_empty() {
         true => Ok(false),
         false => {
-            // todo!(here delete files of file_ref table and of storage)
-            delete_file_row(data, conn)
+            // set flags for delete files in storage
+            delete_file_by_uuids(&data.file_uuids, conn)?;
+
+            delete_file_link_row(data, conn)
         },
     }
 }
 
-fn delete_file_row(
+/// Remove the relate of the file to the modification
+fn delete_file_link_row(
     data: &DelModificationFileFromFilesetData,
     conn: &PgConnection,
 ) -> ServiceResult<bool> {

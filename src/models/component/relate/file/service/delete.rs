@@ -1,5 +1,6 @@
 use crate::errors::{ServiceResult, ServiceError};
 use crate::models::component::relate::file::model::DelComponentFileData;
+use crate::models::relate_ref::file::service::delete::delete_file_by_uuid;
 use crate::schema::file_to_component::dsl::*;
 use diesel::prelude::*;
 use uuid::Uuid;
@@ -19,7 +20,7 @@ pub(crate) fn delete_component_file(
         conn
     )?;
 
-    let count = diesel::delete(file_to_component)
+    diesel::delete(file_to_component)
         .filter(component_uuid.eq(&data.component_uuid)
         .and(file_uuid.eq(&data.file_uuid)))
         .execute(conn)
@@ -28,7 +29,6 @@ pub(crate) fn delete_component_file(
             ServiceError::InternalServerError
         })?;
 
-    // todo!(here delete files of file_ref table and of storage)
-
-    Ok(count > 0)
+    // set flag for delete file in storage
+    delete_file_by_uuid(&data.file_uuid, conn)
 }

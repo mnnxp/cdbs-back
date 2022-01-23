@@ -1,6 +1,7 @@
 use crate::errors::{ServiceResult, ServiceError};
 use crate::models::standard::relate::file::model::DeleteStandardFileData;
 use crate::models::standard::access::util::check_access_standard_for_user;
+use crate::models::relate_ref::file::service::delete::delete_file_by_uuid;
 use crate::schema::file_to_standard::dsl as file_to_standard;
 use diesel::prelude::*;
 use uuid::Uuid;
@@ -20,7 +21,7 @@ pub(crate) fn delete_standard_file(
         conn,
     )?;
 
-    let count = diesel::delete(file_to_standard::file_to_standard)
+    diesel::delete(file_to_standard::file_to_standard)
         .filter(file_to_standard::standard_uuid.eq(&arguments.standard_uuid)
         .and(file_to_standard::file_uuid.eq(&arguments.file_uuid)))
         .execute(conn)
@@ -29,7 +30,6 @@ pub(crate) fn delete_standard_file(
             ServiceError::InternalServerError
         })?;
 
-    // todo!(here delete files of file_ref table and of storage)
-
-    Ok(count > 0)
+    // set flag for delete file in storage
+    delete_file_by_uuid(&arguments.file_uuid, conn)
 }

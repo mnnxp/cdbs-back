@@ -17,7 +17,7 @@ impl FilesetProgramRelatedData {
             .filter(fileset_for_program::modification_uuid.eq(component_modification_uuid))
             .load::<FilesetProgram>(conn)
             .map_err(|err| {
-                debug!("Failed get actual status: {:?}", err);
+                debug!("Failed get fileset for program: {:?}", err);
                 ServiceError::InternalServerError
             })?;
 
