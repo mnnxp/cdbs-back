@@ -135,7 +135,7 @@ impl PreliminaryFileData {
         conn: &PgConnection,
     ) -> PreliminaryFileData {
         // getting rid of dangerous names
-        let filename = sanitize_filename::sanitize(&filename);
+        let filename = sanitize_filename::sanitize(filename);
 
         // get id for extension
         let id_ext = super::util::find_id_ext(&filename, conn);

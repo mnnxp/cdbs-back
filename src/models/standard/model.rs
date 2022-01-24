@@ -72,6 +72,8 @@ pub(crate) struct ShowStandardShort {
     pub(crate) description: String,
     pub(crate) specified_tolerance: String,
     pub(crate) publication_at: NaiveDateTime,
+    // for display main image
+    pub(crate) image_file: DownloadFile,
     pub(crate) owner_company: ShowCompanyShort,
     pub(crate) standard_status: StandardStatusTranslateList,
     pub(crate) updated_at: NaiveDateTime,

@@ -9,15 +9,26 @@ use crate::models::relate_ref::program::model::Program;
 // list for insert data in related tables
 #[derive(Deserialize, Clone, Debug)]
 pub(crate) enum ListObject {
+    /// For bind file to the user
     User(Uuid),
-    UserCertificate(Uuid), // <-- addiction_uuid auth user
+    /// For bind file certificate to the user
+    UserCertificate(Uuid),
+    /// For bind file to the company
     Company(Uuid),
+    /// For change file favicon company
     CompanyFavicon(Uuid),
+    /// For bind file certificate to the company
     CompanyCertificate(Uuid),
+    /// For bind file to the component
     Component(Uuid),
+    /// For bind file to the component modification
     ComponentModification(Uuid),
+    /// For bind file to the component modification filesset
     ComponentModificationSet(Uuid),
+    /// For bind file to the standard
     Standard(Uuid),
+    /// For change file for main image (favicon) standard
+    StandardFavicon(Uuid),
 }
 
 impl ListObject {
@@ -33,6 +44,7 @@ impl ListObject {
             ListObject::ComponentModification(uuid_object) => *uuid_object,
             ListObject::ComponentModificationSet(uuid_object) => *uuid_object,
             ListObject::Standard(uuid_object) => *uuid_object,
+            ListObject::StandardFavicon(uuid_object) => *uuid_object,
         }
     }
 }

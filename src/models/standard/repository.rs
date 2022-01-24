@@ -3,8 +3,10 @@ use crate::models::standard::{
     model::{Standard, ShowStandardShort, StandardAndRelatedData},
     standard_status::model::StandardStatusTranslateList,
     standard_fav::model::StandardFav,
+    standard_fav::util::check_subscriber_by_uuid,
     access::util::check_access_standard_for_user,
 };
+use crate::models::company::model::ShowCompanyShort;
 use crate::models::relate_ref::{
     spec::model::SpecTranslateList,
     type_access::model::TypeAccessTranslateList,
@@ -105,8 +107,14 @@ impl ShowStandardShort {
             conn
         ).expect("Error loading standard");
 
+        // get image file (favicon) for standard
+        let image_file = DownloadFile::get_by_file_uuid(
+            &standard.image_file_uuid,
+            conn
+        ).expect("Error get presigned url main image");
+
         // get standard owner company
-        let owner_company = crate::models::company::model::ShowCompanyShort::get_without_check_by_uuid(
+        let owner_company = ShowCompanyShort::get_without_check_by_uuid(
             &standard.company_uuid,
             logged_user_uuid,
             set_lang_id,
@@ -114,14 +122,14 @@ impl ShowStandardShort {
         ).expect("Error loading company short data");
 
         // get standard type with translation for standard
-        let standard_status: StandardStatusTranslateList = StandardStatusTranslateList::get_by_id(
+        let standard_status = StandardStatusTranslateList::get_by_id(
             &standard.standard_status_id,
             set_lang_id,
             conn
         ).expect("Error loading standard_status");
 
         // check whether the object is being tracked auth user
-        let is_followed = crate::models::standard::standard_fav::util::check_subscriber_by_uuid(
+        let is_followed = check_subscriber_by_uuid(
             target_standard_uuid,
             logged_user_uuid,
             conn
@@ -134,6 +142,7 @@ impl ShowStandardShort {
             description: standard.description,
             specified_tolerance: standard.specified_tolerance,
             publication_at: standard.publication_at,
+            image_file,
             owner_company,
             standard_status,
             updated_at: standard.updated_at,
@@ -234,7 +243,7 @@ impl StandardAndRelatedData {
         let image_file = DownloadFile::get_by_file_uuid(
             &standard.image_file_uuid,
             conn
-        ).expect("Error loading standard file");
+        ).expect("Error get presigned url main image");
 
         // get standard owner user
         let owner_user = crate::models::user::model::ShowUserShort::get_without_check_by_uuid(
@@ -243,7 +252,7 @@ impl StandardAndRelatedData {
         ).expect("Error loading slim_user");
 
         // get standard owner company
-        let owner_company = crate::models::company::model::ShowCompanyShort::get_without_check_by_uuid(
+        let owner_company = ShowCompanyShort::get_without_check_by_uuid(
             &standard.company_uuid,
             logged_user_uuid,
             set_lang_id,
@@ -291,7 +300,7 @@ impl StandardAndRelatedData {
         ).expect("Error loading spec standard with translate");
 
         // check whether the object is being tracked auth user
-        let is_followed = crate::models::standard::standard_fav::util::check_subscriber_by_uuid(
+        let is_followed = check_subscriber_by_uuid(
             target_standard_uuid,
             logged_user_uuid,
             conn

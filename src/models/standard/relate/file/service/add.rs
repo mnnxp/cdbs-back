@@ -1,16 +1,21 @@
 use crate::errors::{ServiceResult, ServiceError};
-use crate::models::standard::file::model::IptStandardFilesData;
+use crate::models::standard::file::model::{
+    IptStandardFilesData, IptStandardFaviconData
+};
 use crate::models::standard::access::util::check_access_standard_for_user;
 use crate::models::relate_ref::file::model::{
     ListObject, PreliminaryFileData, UploadFile
 };
-use crate::models::relate_ref::file as file;
+use crate::models::relate_ref::file::{
+    service::register::preregister_file,
+    util::check_image_filename
+};
 use crate::storage::model::StorageAccess;
 use crate::storage::presigned_url::upload_presigned_url;
 use diesel::PgConnection;
 use uuid::Uuid;
 
-/// The return the pre-signed URLs (in wrapper UploadFile) to download the file
+/// The return the pre-signed URLs (in wrapper UploadFile) to upload the file to storage
 /// and insert the line to link the file to the standard
 pub(crate) fn add_standard_files(
     logged_user_uuid: &Uuid,
@@ -34,7 +39,7 @@ pub(crate) fn add_standard_files(
     let mut up_files: Vec<UploadFile> = Vec::new();
     // Get data for write information about the file before upload to storage
     for filename in &data.filenames {
-        let slim_file = file::service::register::register(
+        let slim_file = preregister_file(
             PreliminaryFileData::from_ipt_file_data(
                 *logged_user_uuid,
                 Uuid::parse_str("bc1c2151-86d0-4656-9c9d-d016dd584297")?, // <-- todo!(get uuid default file)
@@ -60,4 +65,49 @@ pub(crate) fn add_standard_files(
     }
 
     Ok(up_files)
+}
+
+/// Return pre-signed URLs (in wrapper UploadFile) for upload the favicon to storage
+pub(crate) fn add_standard_favicon(
+    logged_user_uuid: &Uuid,
+    data: &IptStandardFaviconData,
+    conn: &PgConnection,
+) -> ServiceResult<UploadFile> {
+    let need_access_level = 1; // todo!(create enum for manage access level)
+
+    check_access_standard_for_user(
+        logged_user_uuid,
+        &data.standard_uuid,
+        &need_access_level,
+        conn,
+    )?;
+
+    // return error if not correct file name
+    if !check_image_filename(&data.filename) {
+        return Err(ServiceError::BadRequest("Selected file is not image.".to_string()))
+    }
+
+    let slim_file = preregister_file(
+        PreliminaryFileData::from_ipt_file_data(
+            *logged_user_uuid,
+            Uuid::parse_str("bc1c2151-86d0-4656-9c9d-d016dd584297")?, // <-- todo!(get uuid default file)
+            ListObject::StandardFavicon(data.standard_uuid),
+            &data.filename,
+            conn
+        ),
+        conn
+    )?;
+
+    debug!("New standard favicon: {:?}", slim_file);
+
+    let upload_url = upload_presigned_url(
+        &StorageAccess::from_env(),
+        &slim_file.path_file,
+    )?;
+
+    Ok(UploadFile {
+        file_uuid: slim_file.uuid,
+        filename: slim_file.filename,
+        upload_url,
+    })
 }

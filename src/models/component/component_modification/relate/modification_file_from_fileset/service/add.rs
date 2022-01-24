@@ -36,7 +36,7 @@ pub(crate) fn add_files_of_modification_set(
     // Get data for write information about the file before upload to storage
     for filename in &data.filenames {
         // insert row file in file_ref and addiction tables
-        let slim_file = file::service::register::register(
+        let slim_file = file::service::register::preregister_file(
             PreliminaryFileData::from_ipt_file_data( // <-- making data for insert
                 *logged_user_uuid,
                 Uuid::parse_str("bc1c2151-86d0-4656-9c9d-d016dd584297")?, // <-- todo!(get uuid default file)

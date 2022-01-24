@@ -37,7 +37,7 @@ pub(crate) fn add_certificate(
         conn
     );
 
-    let slim_file = file::service::register::register(
+    let slim_file = file::service::register::preregister_file(
         preliminary_file_data,
         conn
     )?;

@@ -8,7 +8,7 @@ use crate::models::standard::{
     access::user::model::{IptUserAccessStandardData, DelUserAccessStandardData},
     spec::model::IptStandardSpecsData,
     keyword::model::{IptStandardKeywordsData, IptStandardKeywordsNames},
-    file::model::{IptStandardFilesData, DeleteStandardFileData},
+    file::model::{IptStandardFilesData, IptStandardFaviconData, DeleteStandardFileData},
 };
 use crate::models::relate_ref::file::model::UploadFile;
 use async_graphql::{self, Context, Object};
@@ -295,6 +295,24 @@ impl StandardMutation {
         let conn: &PooledConnection = &get_conn(cxt)?;
 
         add_standard_files(
+            &logged_user_uuid,
+            &args,
+            conn
+        )
+    }
+
+    async fn upload_standard_favicon(
+        &self,
+        cxt: &Context<'_>,
+        args: IptStandardFaviconData,
+    ) -> ServiceResult<UploadFile> {
+        use crate::models::standard::file::service::add::add_standard_favicon;
+
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+
+        let conn: &PooledConnection = &get_conn(cxt)?;
+
+        add_standard_favicon(
             &logged_user_uuid,
             &args,
             conn

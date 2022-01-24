@@ -183,6 +183,12 @@ standardStatus { \
   langId \
   name \
 } \
+imageFile { \
+  uuid \
+  filename \
+  filesize \
+  downloadUrl \
+} \
 updatedAt \
 isFollowed  \
 `;
@@ -253,6 +259,8 @@ const descriptionStandardFileTest = "test desctiption for standard";
 const filenameStandardFileTest = "second name file for standard.pdf";
 const badFilenameStandardFileTest = "name* file/ standard.pdf";
 const goodFilenameStandardFileTest = "name file standard.pdf";
+const badFilenameStandardFaviconTest = "no image file.pdf";
+const goodFilenameStandardFaviconTest = "image file.png";
 
 var fileStandardFileTestUuid = "";
 var fileStandardFileTestUuid2 = "";
@@ -460,12 +468,12 @@ describe('company', () => {
     } = body;
     expect(registerCompany).toBeNonEmptyString();
     companyUuidSupplier = registerCompany;
-    done();
     // change supplier status on 1
-    await global.knex.raw('UPDATE company_ref SET is_supplier=? WHERE orgname=?', [
+    await global.knex.raw('UPDATE company_ref SET is_supplier=? WHERE uuid=?', [
       't',
-      orgname,
+      companyUuidSupplier,
     ]);
+    done();
   });
 
   it('/graphql:M registerCompany - OK NoSupplier', async (done) => {
@@ -886,6 +894,153 @@ describe('company', () => {
     expect(errors[0].message).toBe(
       "BadRequest: The data has already"
     );
+    done();
+  });
+
+  // Testing change main image (favicon) for standard
+  it('/graphql:M uploadStandardFavicon - BadRequest not access', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `mutation {
+          uploadStandardFavicon(args: {
+            standardUuid: "${standardUuidSecond}"
+            filename: "${badFilenameStandardFaviconTest}"
+          }) {
+            fileUuid
+            filename
+            uploadUrl
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql uploadStandardFavicon=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Access denied'
+    );
+    expect(body.errors[0].path[0]).toBe('uploadStandardFavicon');
+    done();
+  });
+
+  it('/graphql:M uploadStandardFavicon - BadRequest not image', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation {
+          uploadStandardFavicon(args: {
+            standardUuid: "${standardUuidSecond}"
+            filename: "${badFilenameStandardFaviconTest}"
+          }) {
+            fileUuid
+            filename
+            uploadUrl
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql uploadStandardFavicon=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Selected file is not image.'
+    );
+    expect(body.errors[0].path[0]).toBe('uploadStandardFavicon');
+    done();
+  });
+
+  it('/graphql:M uploadStandardFavicon - Ok', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation {
+          uploadStandardFavicon(args: {
+            standardUuid: "${standardUuidSecond}"
+            filename: "${goodFilenameStandardFaviconTest}"
+          }) {
+            fileUuid
+            filename
+            uploadUrl
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql uploadStandardFavicon=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { uploadStandardFavicon },
+    } = body;
+    changeStandardFaviconTestUuid = uploadStandardFavicon.fileUuid;
+    expect(uploadStandardFavicon.fileUuid).toBeNonEmptyString();
+    expect(uploadStandardFavicon.filename).toBe(goodFilenameStandardFaviconTest);
+    expect(uploadStandardFavicon.uploadUrl).toBeNonEmptyString();
+    done();
+  });
+
+  it('/graphql:Q List standards - OK check change main image', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `query {
+          standards (args: {
+            standardsUuids: "${standardUuidSecond}"
+          }) {
+            ${standardsListQuery}
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK);
+    debug('/graphql body=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { standards },
+    } = body;
+    expect(standards[0].uuid).toBe(standardUuidSecond);
+    expect(standards[0].imageFile.uuid).toBe(changeStandardFaviconTestUuid);
+    expect(standards[0].imageFile.filename).toBe(goodFilenameStandardFaviconTest);
+    expect(standards.length).toBe(1);
+    done();
+  });
+
+  it('/graphql:M uploadStandardFavicon - BadRequest no access', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `mutation {
+          uploadStandardFavicon(args: {
+            standardUuid: "${standardUuidSecond}"
+            filename: "${badFilenameStandardFaviconTest}"
+          }) {
+            fileUuid
+            filename
+            uploadUrl
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql - body=%o', body);
+    const { errors, data } = body;
+    expect(data).toBeNull();
+    expect(errors[0].message).toBe("BadRequest: Access denied");
     done();
   });
 

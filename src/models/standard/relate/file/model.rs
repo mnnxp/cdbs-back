@@ -39,6 +39,12 @@ impl From<StandardFile> for InsertableStandardFile {
 }
 
 #[derive(InputObject, Deserialize, Debug)]
+pub(crate) struct IptStandardFaviconData {
+    pub(crate) filename: String,
+    pub(crate) standard_uuid: Uuid,
+}
+
+#[derive(InputObject, Deserialize, Debug)]
 pub(crate) struct IptStandardFilesData {
     pub(crate) filenames: Vec<String>,
     pub(crate) standard_uuid: Uuid,

@@ -18,7 +18,8 @@ use crate::schema::file_ref::dsl as file_ref;
 use diesel::prelude::*;
 use uuid::Uuid;
 
-pub(crate) fn register(
+/// Preliminary registration a file in database and bind with related object
+pub(crate) fn preregister_file(
     preliminary_file_data: PreliminaryFileData,
     conn: &PgConnection,
 ) -> ServiceResult<SlimFile> {
@@ -65,12 +66,10 @@ fn write_addiction_data(
     // select addiction table for write additional data
     match object {
         ListObject::User(_) => Ok(false),
-        // adding a record to user_certificate_ref table is done in fn add_certificate (../user/../certificate/../add.rs)
         ListObject::UserCertificate(_) => Ok(false),
-        // adding a record to company_certificate_ref table is done in fn add_certificate (../company/../certificate/../add.rs)
         ListObject::CompanyFavicon(_) => Ok(false),
         ListObject::CompanyCertificate(_) => Ok(false),
-        ListObject::Component(component_uuid) => {   // <-- add addiction data in file_to_component
+        ListObject::Component(component_uuid) => {
             use crate::schema::file_to_component::dsl::file_to_component;
 
             let component_file = InsertableComponentFile {
@@ -90,7 +89,7 @@ fn write_addiction_data(
 
             Ok(true)
         },
-        ListObject::ComponentModification(modification_uuid) => {   // <- add addiction data in file_to_modification
+        ListObject::ComponentModification(modification_uuid) => {
             use crate::schema::file_to_modification::dsl::file_to_modification;
 
             let modification =  InsertableFileModification {
@@ -109,7 +108,7 @@ fn write_addiction_data(
 
             Ok(true)
         },
-        ListObject::ComponentModificationSet(fileset_uuid) => {   // <- add addiction data in modification_file_from_fileset
+        ListObject::ComponentModificationSet(fileset_uuid) => {
             use crate::schema::modification_file_from_fileset::dsl::modification_file_from_fileset;
 
             let modification =  InsertableModificationFileFromFileset {
@@ -128,7 +127,7 @@ fn write_addiction_data(
 
             Ok(true)
         },
-        ListObject::Standard(standard_uuid) => {   // <- add addiction data in file_to_standard
+        ListObject::Standard(standard_uuid) => {
             use crate::schema::file_to_standard::dsl::file_to_standard;
 
             let standard =  InsertableStandardFile {
@@ -144,6 +143,22 @@ fn write_addiction_data(
                 })?;
 
             debug!("Select standard table, data: {:?} ", &inserted_standard);
+
+            Ok(true)
+        },
+        ListObject::StandardFavicon(standard_uuid) => {
+            use crate::schema::standard_ref::dsl as standard_ref;
+
+            let change_image: usize = diesel::update(standard_ref::standard_ref)
+                .filter(standard_ref::uuid.eq(&standard_uuid))
+                .set(standard_ref::image_file_uuid.eq(file_uuid))
+                .execute(conn)
+                .map_err(|err| {
+                    debug!("Failed set favicon for standard: {:?}", err);
+                    ServiceError::InternalServerError
+                })?;
+
+            debug!("Change standard main image: {:?} ", &change_image);
 
             Ok(true)
         },

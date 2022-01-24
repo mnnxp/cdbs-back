@@ -37,7 +37,7 @@ pub(crate) fn update_favicon(
         conn
     );
 
-    let slim_file = file::service::register::register(
+    let slim_file = file::service::register::preregister_file(
         preliminary_file_data,
         conn
     )?;

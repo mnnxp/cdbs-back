@@ -9,7 +9,7 @@ use crate::storage::presigned_url::upload_presigned_url;
 use diesel::PgConnection;
 use uuid::Uuid;
 
-/// The return the pre-signed URLs (in wrapper UploadFile) to download the file
+/// The return the pre-signed URLs (in wrapper UploadFile) to upload the file to storage
 /// and insert the line to link the file to the component
 pub(crate) fn add_component_files(
     logged_user_uuid: &Uuid,
@@ -34,7 +34,7 @@ pub(crate) fn add_component_files(
     let mut up_files: Vec<UploadFile> = Vec::new();
     // Get data for write information about the file before upload to storage
     for filename in &data.filenames {
-        let slim_file = file::service::register::register(
+        let slim_file = file::service::register::preregister_file(
             PreliminaryFileData::from_ipt_file_data(
                 *logged_user_uuid,
                 Uuid::parse_str("bc1c2151-86d0-4656-9c9d-d016dd584297")?, // <-- todo!(get uuid default file)
