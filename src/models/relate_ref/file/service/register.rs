@@ -89,6 +89,22 @@ fn write_addiction_data(
 
             Ok(true)
         },
+        ListObject::ComponentFavicon(component_uuid) => {
+            use crate::schema::component_ref::dsl as component_ref;
+
+            let change_image: usize = diesel::update(component_ref::component_ref)
+                .filter(component_ref::uuid.eq(&component_uuid))
+                .set(component_ref::image_file_uuid.eq(file_uuid))
+                .execute(conn)
+                .map_err(|err| {
+                    debug!("Failed set favicon for component: {:?}", err);
+                    ServiceError::InternalServerError
+                })?;
+
+            debug!("Change component main image: {:?} ", &change_image);
+
+            Ok(true)
+        },
         ListObject::ComponentModification(modification_uuid) => {
             use crate::schema::file_to_modification::dsl::file_to_modification;
 

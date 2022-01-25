@@ -22,6 +22,9 @@ pub(crate) fn create_component(
     }
 
     let mut insert_data: InsertableComponent = data.into();
+    // set main image component
+    insert_data.set_image_uuid();
+    // set logged user as owner component
     insert_data.set_user_uuid(logged_user_uuid);
 
     match insert_data.parent_uuid_is_nil() {

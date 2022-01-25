@@ -21,6 +21,8 @@ pub(crate) enum ListObject {
     CompanyCertificate(Uuid),
     /// For bind file to the component
     Component(Uuid),
+    /// For change file for main image (favicon) component
+    ComponentFavicon(Uuid),
     /// For bind file to the component modification
     ComponentModification(Uuid),
     /// For bind file to the component modification filesset
@@ -41,6 +43,7 @@ impl ListObject {
             ListObject::CompanyFavicon(uuid_object) => *uuid_object,
             ListObject::CompanyCertificate(uuid_object) => *uuid_object,
             ListObject::Component(uuid_object) => *uuid_object,
+            ListObject::ComponentFavicon(uuid_object) => *uuid_object,
             ListObject::ComponentModification(uuid_object) => *uuid_object,
             ListObject::ComponentModificationSet(uuid_object) => *uuid_object,
             ListObject::Standard(uuid_object) => *uuid_object,

@@ -87,11 +87,21 @@ const filename2 = "file-test-name 2.pdf";
 const filename3 = "file-test-name 3.pdf";
 const filename4 = "file-test-name 4.pdf";
 const filename5 = "file-test-name 5.pdf";
+
+const badFilenameComponentFaviconTest = "no image file.pdf";
+const goodFilenameComponentFaviconTest = "image file.png";
+
 const componentFullDataQuery = ` \
 uuid \
 parentComponentUuid \
 name \
 description \
+imageFile {
+  uuid \
+  filename \
+  filesize \
+  downloadUrl \
+} \
 ownerUser { \
   uuid \
   username
@@ -252,6 +262,12 @@ const componentsListQuery = ` \
 uuid \
 name \
 description \
+imageFile {
+  uuid \
+  filename \
+  filesize \
+  downloadUrl \
+} \
 ownerUser { \
   username \
   imageFile { \
@@ -3867,6 +3883,153 @@ describe('component', () => {
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe('BadRequest: Access denied');
     expect(body.errors[0].path[0]).toBe('componentFiles');
+    done();
+  });
+
+  // Testing change main image (favicon) for component
+  it('/graphql:M uploadComponentFavicon - BadRequest not access', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `mutation {
+          uploadComponentFavicon(args: {
+            componentUuid: "${componentUuidStandard}"
+            filename: "${badFilenameComponentFaviconTest}"
+          }) {
+            fileUuid
+            filename
+            uploadUrl
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql uploadComponentFavicon=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Access denied'
+    );
+    expect(body.errors[0].path[0]).toBe('uploadComponentFavicon');
+    done();
+  });
+
+  it('/graphql:M uploadComponentFavicon - BadRequest not image', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation {
+          uploadComponentFavicon(args: {
+            componentUuid: "${componentUuidStandard}"
+            filename: "${badFilenameComponentFaviconTest}"
+          }) {
+            fileUuid
+            filename
+            uploadUrl
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql uploadComponentFavicon=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Selected file is not image.'
+    );
+    expect(body.errors[0].path[0]).toBe('uploadComponentFavicon');
+    done();
+  });
+
+  it('/graphql:M uploadComponentFavicon - Ok', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation {
+          uploadComponentFavicon(args: {
+            componentUuid: "${componentUuidStandard}"
+            filename: "${goodFilenameComponentFaviconTest}"
+          }) {
+            fileUuid
+            filename
+            uploadUrl
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql uploadComponentFavicon=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { uploadComponentFavicon },
+    } = body;
+    changeComponentFaviconTestUuid = uploadComponentFavicon.fileUuid;
+    expect(uploadComponentFavicon.fileUuid).toBeNonEmptyString();
+    expect(uploadComponentFavicon.filename).toBe(goodFilenameComponentFaviconTest);
+    expect(uploadComponentFavicon.uploadUrl).toBeNonEmptyString();
+    done();
+  });
+
+  it('/graphql:Q List components - OK check change main image', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `query {
+          components (args: {
+            componentsUuids: "${componentUuidStandard}"
+          }) {
+            ${componentsListQuery}
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK);
+    debug('/graphql body=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { components },
+    } = body;
+    expect(components[0].uuid).toBe(componentUuidStandard);
+    expect(components[0].imageFile.uuid).toBe(changeComponentFaviconTestUuid);
+    expect(components[0].imageFile.filename).toBe(goodFilenameComponentFaviconTest);
+    expect(components.length).toBe(1);
+    done();
+  });
+
+  it('/graphql:M uploadComponentFavicon - BadRequest no access', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `mutation {
+          uploadComponentFavicon(args: {
+            componentUuid: "${componentUuidStandard}"
+            filename: "${badFilenameComponentFaviconTest}"
+          }) {
+            fileUuid
+            filename
+            uploadUrl
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql - body=%o', body);
+    const { errors, data } = body;
+    expect(data).toBeNull();
+    expect(errors[0].message).toBe("BadRequest: Access denied");
     done();
   });
 

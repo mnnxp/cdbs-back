@@ -111,6 +111,12 @@ impl ShowComponentShort {
             conn
         ).expect("Failed get Component data");
 
+        // get image file (favicon) for component
+        let image_file = DownloadFile::get_by_file_uuid(
+            &component.image_file_uuid,
+            conn
+        ).expect("Error get presigned url main image");
+
         // get component owner
         let owner_user = ShowUserShort::get_without_check_by_uuid(
             &component.user_uuid,
@@ -173,12 +179,13 @@ impl ShowComponentShort {
             uuid: component.uuid,
             name: component.name,
             description: component.description,
+            image_file,
             owner_user,
             type_access,
             component_type,
             actual_status,
-            is_followed,
             is_base: component.is_base,
+            is_followed,
             updated_at: component.updated_at,
             licenses,
             files,
@@ -268,6 +275,12 @@ impl ComponentAndRelatedData {
             target_component_uuid,
             conn
         ).expect("Error loading component");
+
+        // get image file (favicon) for component
+        let image_file = DownloadFile::get_by_file_uuid(
+            &component.image_file_uuid,
+            conn
+        ).expect("Error get presigned url main image");
 
         // get component owner
         let owner_user = ShowUserShort::get_without_check_by_uuid(
@@ -370,6 +383,7 @@ impl ComponentAndRelatedData {
             parent_component_uuid: component.parent_component_uuid,
             name: component.name,
             description: component.description,
+            image_file,
             owner_user,
             type_access,
             component_type,

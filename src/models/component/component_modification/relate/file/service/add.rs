@@ -29,7 +29,7 @@ pub(crate) fn add_modification_files(
     )?;
 
     // return error if not found correct filename
-    if data.filenames.is_empty() {
+    if data.filenames.is_empty() || data.filenames.len() > 100 {
         return Err(ServiceError::BadRequest("Not found filename".to_string()))
     }
 

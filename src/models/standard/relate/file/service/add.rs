@@ -32,7 +32,7 @@ pub(crate) fn add_standard_files(
     )?;
 
     // return error if not correct file name
-    if data.filenames.is_empty() {
+    if data.filenames.is_empty() || data.filenames.len() > 100 {
         return Err(ServiceError::BadRequest("Bad filename".to_string()))
     }
 
@@ -81,6 +81,11 @@ pub(crate) fn add_standard_favicon(
         &need_access_level,
         conn,
     )?;
+
+    // return error if not correct file name
+    if data.filename.is_empty() || data.filename.len() > 100 {
+        return Err(ServiceError::BadRequest("Bad filename".to_string()))
+    }
 
     // return error if not correct file name
     if !check_image_filename(&data.filename) {

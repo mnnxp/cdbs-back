@@ -39,6 +39,12 @@ impl From<ComponentFile> for InsertableComponentFile {
 }
 
 #[derive(InputObject, Deserialize, Debug)]
+pub(crate) struct IptComponentFaviconData {
+    pub(crate) filename: String,
+    pub(crate) component_uuid: Uuid,
+}
+
+#[derive(InputObject, Deserialize, Debug)]
 pub(crate) struct IptComponentFilesData {
     pub(crate) filenames: Vec<String>,
     pub(crate) component_uuid: Uuid,

@@ -16,7 +16,7 @@ use crate::models::component::{
     spec as component_spec,
     spec::model::IptComponentSpecsData,
     file as component_file,
-    file::model::{IptComponentFilesData, DelComponentFileData},
+    file::model::{IptComponentFilesData, IptComponentFaviconData, DelComponentFileData},
     supplier as component_supplier,
     supplier::model::DelSuppliersComponentData,
     standard as component_standard,
@@ -394,6 +394,24 @@ impl ComponentMutation {
         let conn: &PooledConnection = &get_conn(cxt)?;
 
         add_component_files(
+            &logged_user_uuid,
+            &args,
+            conn
+        )
+    }
+
+    async fn upload_component_favicon(
+        &self,
+        cxt: &Context<'_>,
+        args: IptComponentFaviconData,
+    ) -> ServiceResult<UploadFile> {
+        use component_file::service::add::add_component_favicon;
+
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+
+        let conn: &PooledConnection = &get_conn(cxt)?;
+
+        add_component_favicon(
             &logged_user_uuid,
             &args,
             conn

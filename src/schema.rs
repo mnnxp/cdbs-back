@@ -164,6 +164,7 @@ table! {
         parent_component_uuid -> Uuid,
         name -> Varchar,
         description -> Varchar,
+        image_file_uuid -> Uuid,
         user_uuid -> Uuid,
         type_access_id -> Int4,
         component_type_id -> Int4,

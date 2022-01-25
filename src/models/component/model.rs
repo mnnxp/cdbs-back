@@ -27,6 +27,7 @@ pub(crate) struct Component {
     pub(crate) parent_component_uuid: Uuid,
     pub(crate) name: String,
     pub(crate) description: String,
+    pub(crate) image_file_uuid: Uuid,
     pub(crate) user_uuid: Uuid,
     pub(crate) type_access_id: i32,
     pub(crate) component_type_id: i32,
@@ -43,6 +44,8 @@ pub(crate) struct ComponentAndRelatedData {
     pub(crate) parent_component_uuid: Uuid,
     pub(crate) name: String,
     pub(crate) description: String,
+    // for display main image
+    pub(crate) image_file: DownloadFile,
     pub(crate) owner_user: ShowUserShort,
     pub(crate) type_access: TypeAccessTranslateList,
     pub(crate) component_type: ComponentTypeTranslateList,
@@ -70,13 +73,15 @@ pub(crate) struct ShowComponentShort {
     pub(crate) uuid: Uuid,
     pub(crate) name: String,
     pub(crate) description: String,
+    // for display main image
+    pub(crate) image_file: DownloadFile,
     pub(crate) owner_user: ShowUserShort,
     pub(crate) type_access: TypeAccessTranslateList,
     pub(crate) component_type: ComponentTypeTranslateList,
     pub(crate) actual_status: ActualStatusTranslateList,
+    pub(crate) is_base: bool,
     // for display the checkbox "favorites"
     pub(crate) is_followed: bool,
-    pub(crate) is_base: bool,
     pub(crate) updated_at: NaiveDateTime,
     pub(crate) licenses: Vec<License>,
     // files for show image (models, draw)
@@ -92,6 +97,7 @@ pub(crate) struct InsertableComponent {
     parent_component_uuid: Uuid,
     name: String,
     description: String,
+    image_file_uuid: Uuid,
     user_uuid: Uuid,
     type_access_id: i32,
     component_type_id: i32,
@@ -111,6 +117,11 @@ impl InsertableComponent {
     /// Change parent uuid to base for insert new row
     pub(crate) fn parent_uuid_to_base(&mut self) {
         self.parent_component_uuid = Uuid::parse_str("a5953fd9-7393-4f1e-a899-06b5e159dbf1").unwrap();
+    }
+
+    /// Set image uuid (for set default image)
+    pub(crate) fn set_image_uuid(&mut self) {
+        self.image_file_uuid = Uuid::parse_str("bc1c2151-86d0-4656-9c9d-d016dd584297").unwrap();
     }
 
     /// Set user uuid (for set logged user as owner)
@@ -153,6 +164,7 @@ impl From<&IptComponentData> for InsertableComponent {
             parent_component_uuid,
             name: name.clone(),
             description: description.clone(),
+            image_file_uuid: Uuid::nil(),
             user_uuid: Uuid::nil(),
             type_access_id: *type_access_id,
             component_type_id: *component_type_id,
