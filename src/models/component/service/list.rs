@@ -73,8 +73,8 @@ pub(crate) fn get_components(
         },
     };
 
-    // return not found if set search favorite and no favorite component
-    if (*favorite || user_uuid.is_some()) &&
+    // return not found if set filters and not select components
+    if (*favorite || user_uuid.is_some() || company_uuid.is_some() || standard_uuid.is_some()) &&
             target_components_uuids.is_empty() {
         return Ok(Vec::new());
     }
