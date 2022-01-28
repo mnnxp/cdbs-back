@@ -374,8 +374,8 @@ describe('company', () => {
       .expect(HttpStatus.OK)
       .then(({ body, headers }) => {
         debug('/login body=%o', body);
-        expect(body.bearer).toBeNonEmptyString();
         authorizationTokenFirst = body.bearer;
+        expect(body.bearer).toBeNonEmptyString();
         done();
       });
   });

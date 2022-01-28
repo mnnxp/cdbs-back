@@ -2599,8 +2599,9 @@ describe('component', () => {
     const {
       data: { components }
     } = body;
-    expect(components[0].uuid).toBe(componentUuidStandard);
-    expect(components[0].name).toBe(nameComponent);
+    var index = components.length - 1;
+    expect(components[index].uuid).toBe(componentUuidStandard);
+    expect(components[index].name).toBe(nameComponent);
     done();
   });
 
@@ -2624,8 +2625,9 @@ describe('component', () => {
     const {
       data: { components }
     } = body;
-    expect(components[0].uuid).toBe(componentUuidStandard);
-    expect(components[0].name).toBe(nameComponent);
+    var index = components.length - 1;
+    expect(components[index].uuid).toBe(componentUuidStandard);
+    expect(components[index].name).toBe(nameComponent);
     done();
   });
 
@@ -2758,8 +2760,7 @@ describe('component', () => {
     const {
       data: { components }
     } = body;
-    expect(components[0].uuid).toBe(componentUuidStandard);
-    expect(components[0].name).toBe(nameComponent);
+    expect(components).toBeEmptyArray();
     done();
   });
 
