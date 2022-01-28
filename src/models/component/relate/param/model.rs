@@ -52,14 +52,14 @@ pub(crate) struct InsertableComponentParam {
 }
 
 #[derive(Debug, Deserialize, Clone, InputObject)]
-pub(crate) struct IptComponentParamData {
+pub(crate) struct IptComponentParamsData {
     pub(crate) component_uuid: Uuid,
     pub(crate) params: Vec<IptParamData>,
 }
 
-impl From<IptComponentParamData> for Vec<InsertableComponentParam> {
-    fn from(ipt_data: IptComponentParamData) -> Vec<InsertableComponentParam> {
-        let IptComponentParamData {
+impl From<IptComponentParamsData> for Vec<InsertableComponentParam> {
+    fn from(ipt_data: IptComponentParamsData) -> Vec<InsertableComponentParam> {
+        let IptComponentParamsData {
             component_uuid,
             params,
         } = ipt_data;

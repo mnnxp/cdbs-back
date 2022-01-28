@@ -1,6 +1,6 @@
 use crate::errors::{ServiceError, ServiceResult};
 use crate::models::component::{
-    param::model::{IptComponentParamData, InsertableComponentParam},
+    param::model::{IptComponentParamsData, InsertableComponentParam},
     access::util::check_access_component_for_user,
 };
 use crate::models::relate_ref::param::model::IptParamData;
@@ -12,7 +12,7 @@ use uuid::Uuid;
 /// or update values an existing component params
 pub(crate) fn put_component_params(
     logged_user_uuid: &Uuid,
-    data: &IptComponentParamData,
+    data: &IptComponentParamsData,
     conn: &PgConnection
 ) -> ServiceResult<i32> {
     let need_access_level = 1; // todo!(create enum for manage access level)

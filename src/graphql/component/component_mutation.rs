@@ -12,7 +12,7 @@ use crate::models::component::{
     keyword::model::{IptComponentKeywordsData, IptComponentKeywordsNames},
     license::model::IptComponentLicenseData,
     param as component_param,
-    param::model::{IptComponentParamData, DelComponentParamData},
+    param::model::{IptComponentParamsData, DelComponentParamData},
     spec as component_spec,
     spec::model::IptComponentSpecsData,
     file as component_file,
@@ -223,7 +223,7 @@ impl ComponentMutation {
     async fn put_component_params(
         &self,
         cxt: &Context<'_>,
-        args: IptComponentParamData,
+        args: IptComponentParamsData,
     ) -> ServiceResult<i32> {
         use component_param::service::change::put_component_params;
 

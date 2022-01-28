@@ -9,12 +9,12 @@ pub(crate) fn get_params(
     conn: &PgConnection,
 ) -> ServiceResult<Vec<ParamTranslateList>> {
     match args.param_ids.is_empty() {
-        true => find_all_params(&args.limit, &args.offset, set_lang_id, conn),
-        false => find_param_id(args, set_lang_id, conn),
+        true => get_all_params(&args.limit, &args.offset, set_lang_id, conn),
+        false => get_by_ids(args, set_lang_id, conn),
     }
 }
 
-fn find_all_params(
+fn get_all_params(
     limit: &i32,
     offset: &i32,
     set_lang_id: &i32,
@@ -31,7 +31,7 @@ fn find_all_params(
         })
 }
 
-fn find_param_id(
+fn get_by_ids(
     args: &ParamArg,
     set_lang_id: &i32,
     conn: &PgConnection,
