@@ -42,9 +42,9 @@ const langId2 = 2;
 
 const specLevels3 = [247, 286, 437, 465, 480, 379, 400, 4];
 const specId5 = 5;
-const specPath5Level5 = "ROOT/MECHANICS (DESIGN, MACHINERY)/MECHANICAL COMPONENTS/Mountings/Screws and bolts";
-const specPath5 = "MECHANICAL COMPONENTS/Mountings/Screws and bolts";
-const specPathSplit5 = "ROOT#MECHANICS (DESIGN, MACHINERY)#MECHANICAL COMPONENTS#Mountings#Screws and bolts";
+const specPath5Level5 = "ROOT/MECHANICS (CONSTRUCTION, MECHANICAL ENGINEERING)/MECHANICAL COMPONENTS/Fixings/Screws and bolts";
+const specPath5 = "MECHANICAL COMPONENTS/Fixings/Screws and bolts";
+const specPathSplit5 = "ROOT#MECHANICS (CONSTRUCTION, MECHANICAL ENGINEERING)#MECHANICAL COMPONENTS#Fixings#Screws and bolts";
 var specName4 = "";
 var specName5 = "";
 var specPath10 = "";
@@ -208,10 +208,7 @@ describe('param', () => {
             registerParam(args: {
                 langId: ${langId1},
                 paramname: "${paramNameTest}"
-            }){
-              paramId
-              paramname
-            }
+            })
         }`,
       })
       .expect(HttpStatus.OK)
@@ -236,11 +233,7 @@ describe('param', () => {
             registerParam(args: {
                 langId: ${langId1},
                 paramname: "${paramNameTest}",
-            }){
-              paramId
-              langId
-              paramname
-            }
+            })
         }`,
       })
       .expect(HttpStatus.OK)
@@ -248,17 +241,12 @@ describe('param', () => {
     const {
       data: { registerParam },
     } = body;
-    expect(registerParam).toContainAllKeys([
-      "paramId", "langId", "paramname"
-    ]);
-    expect(registerParam.paramId).not.toBeNull();
-    expect(registerParam.langId).toBe(langId1);
-    expect(registerParam.paramname).toBe(paramNameTest);
-    paramIdTest = registerParam.paramId;   // <-- save data for test "already param"
+    paramIdTest = registerParam;   // <-- save data for test "already param"
+    expect(registerParam).not.toBeNull();
     done();
   });
 
-  it('/graphql:M registerParam - param name is already', async (done) => {
+  it('/graphql:M registerParam - OK param name is already', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .set(
@@ -270,19 +258,15 @@ describe('param', () => {
             registerParam(args: {
                 langId: ${langId1},
                 paramname: "${paramNameTest}"
-            }){
-              paramId
-              paramname
-            }
+            })
         }`,
       })
       .expect(HttpStatus.OK)
     debug('/graphql body=%o', body);
-    const { errors, data } = body;
-    expect(data).toBeNull();
-    expect(errors[0].message).toInclude(
-      "This param name is already there. Id: " + paramIdTest
-    );
+    const {
+      data: { registerParam },
+    } = body;
+    expect(registerParam).toBe(paramIdTest);
     done();
   });
 
@@ -298,10 +282,7 @@ describe('param', () => {
             registerParam(args: {
                 langId: ${langId1},
                 paramname: "${paramNameTest2}",
-            }){
-              paramId
-              paramname
-            }
+            })
         }`,
       })
       .expect(HttpStatus.OK)
@@ -309,12 +290,8 @@ describe('param', () => {
     const {
       data: { registerParam },
     } = body;
-    expect(registerParam).toContainAllKeys([
-      "paramId", "paramname"
-    ]);
-    expect(registerParam.paramId).not.toBeNull();
-    expect(registerParam.paramname).toBe(paramNameTest2);
-    paramIdTest2 = registerParam.paramId;
+    expect(registerParam).not.toBeNull();
+    paramIdTest2 = registerParam;
     done();
   });
 

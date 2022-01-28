@@ -41,7 +41,7 @@ impl ParamMutation {
         &self,
         cxt: &Context<'_>,
         args: IptParamTranslateListData,
-    ) -> ServiceResult<ParamTranslateList> {
+    ) -> ServiceResult<i32> {
         check_authorized(cxt)?;
 
         let conn: &PooledConnection = &get_conn(cxt)?;
