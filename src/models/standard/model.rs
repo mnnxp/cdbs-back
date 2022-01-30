@@ -14,6 +14,12 @@ use async_graphql::*;
 use chrono::*;
 use uuid::Uuid;
 
+lazy_static::lazy_static! {
+    static ref ROOT_STANDARD_UUID : Uuid =
+        Uuid::parse_str("303ec2aa-2066-42e3-93fb-de4fb9344bcb")
+            .expect("Set default image uuid failed!");
+}
+
 #[derive(Identifiable, Queryable, Debug)]
 #[primary_key(uuid)]
 #[table_name = "standard_ref"]
@@ -112,7 +118,7 @@ impl InsertableStandard {
 
     /// Change parent uuid to base for insert new row
     pub(crate) fn parent_uuid_to_base(&mut self) {
-        self.parent_standard_uuid = Uuid::parse_str("303ec2aa-2066-42e3-93fb-de4fb9344bcb").unwrap();
+        self.parent_standard_uuid = *ROOT_STANDARD_UUID;
     }
 
     /// Set image uuid (for set default image)

@@ -1,10 +1,11 @@
 use crate::models::component::{
     model::Component,
-    component_modification::{
-        param::model::ModificationParamWithTranslation,
-        fileset_for_program::model::FilesetProgramRelatedData,
-    },
     relate::actual_status::model::ActualStatusTranslateList,
+};
+use crate::models::component::component_modification::{
+    param::model::ModificationParamWithTranslation,
+    fileset_for_program::model::FilesetProgramRelatedData,
+    util::get_root_modification_uuid,
 };
 use crate::schema::*;
 use async_graphql::*;
@@ -96,7 +97,7 @@ impl InsertableComponentModification {
 
     /// Change parent uuid to base for insert new row
     pub(crate) fn parent_uuid_to_base(&mut self) {
-        self.parent_modification_uuid = Uuid::parse_str("aba22d59-4f6c-44a4-9a37-2d38f0e577a8").unwrap();
+        self.parent_modification_uuid = get_root_modification_uuid();
     }
 }
 

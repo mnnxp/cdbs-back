@@ -4,6 +4,17 @@ use crate::schema::component_ref::dsl as component_ref;
 use diesel::prelude::*;
 use uuid::Uuid;
 
+lazy_static::lazy_static! {
+    static ref ROOT_COMPONENT_UUID : Uuid =
+        Uuid::parse_str("a5953fd9-7393-4f1e-a899-06b5e159dbf1")
+            .expect("Set default image uuid failed!");
+}
+
+/// Retund default component
+pub(crate) fn get_root_component_uuid() -> Uuid {
+    *ROOT_COMPONENT_UUID
+}
+
 /// Checking whether the component has flag is_base
 /// return true or false
 pub(crate) fn check_is_base(

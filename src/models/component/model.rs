@@ -4,6 +4,7 @@ use crate::models::component::{
     param::model::ComponentParamWithTranslation,
     supplier::model::ComponentSupplierRelatedData,
     component_modification::model::ComponentModificationAndRelatedData,
+    util::get_root_component_uuid,
 };
 use crate::models::user::model::ShowUserShort;
 use crate::models::standard::model::ShowStandardShort;
@@ -117,7 +118,7 @@ impl InsertableComponent {
 
     /// Change parent uuid to base for insert new row
     pub(crate) fn parent_uuid_to_base(&mut self) {
-        self.parent_component_uuid = Uuid::parse_str("a5953fd9-7393-4f1e-a899-06b5e159dbf1").unwrap();
+        self.parent_component_uuid = get_root_component_uuid();
     }
 
     /// Set image uuid (for set default image)

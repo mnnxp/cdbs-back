@@ -9,6 +9,17 @@ lazy_static::lazy_static! {
             .expect("Set default image uuid failed!");
 }
 
+/// Retund default image uuid
+pub(crate) fn get_default_image() -> Uuid {
+    *DEFAULT_IMAGE_UUID
+}
+
+/// Check default file by uuid
+pub(crate) fn check_default_file(file_uuid: &Uuid) -> bool {
+    let defalt_uuid = *DEFAULT_IMAGE_UUID;
+    &defalt_uuid == file_uuid
+}
+
 /// Find extension id on table for file extension
 pub(crate) fn find_id_ext(
     filename: &str,
@@ -59,15 +70,4 @@ pub(crate) fn check_image_filename(filename: &str) -> bool {
         "jif" | "jfif" | "png" |
         "svg" | "webp"
     )
-}
-
-/// Retund default image uuid
-pub(crate) fn get_default_image() -> Uuid {
-    *DEFAULT_IMAGE_UUID
-}
-
-/// Check default file by uuid
-pub(crate) fn check_default_file(file_uuid: &Uuid) -> bool {
-    let defalt_uuid = *DEFAULT_IMAGE_UUID;
-    &defalt_uuid == file_uuid
 }
