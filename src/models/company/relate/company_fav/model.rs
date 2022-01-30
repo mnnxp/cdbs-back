@@ -47,8 +47,8 @@ impl From<IptCompanyFavData> for InsertableCompanyFav {
         } = ipt_data;
 
         Self {
-            company_uuid: Uuid::parse_str(&company_uuid.to_string()).unwrap(),
-            user_uuid: Uuid::parse_str(&user_uuid.to_string()).unwrap(),
+            company_uuid,
+            user_uuid,
             is_enabled: true,
             created_at: chrono::Local::now().naive_local(),
         }

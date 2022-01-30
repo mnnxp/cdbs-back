@@ -50,8 +50,6 @@ impl From<&IptComponentKeywordsData> for Vec<InsertableComponentKeyword> {
             ..
         } = ipt_data;
 
-        // let component_uuid = Uuid::parse_str(&component_uuid.to_string()).unwrap();
-
         let mut res = Vec::new();
         // create struct for each keyword
         for kw_id in keyword_ids {

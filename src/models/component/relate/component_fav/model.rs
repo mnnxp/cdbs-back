@@ -47,8 +47,8 @@ impl From<IptComponentFavData> for InsertableComponentFav {
         } = ipt_data;
 
         Self {
-            component_uuid: Uuid::parse_str(&component_uuid.to_string()).unwrap(),
-            user_uuid: Uuid::parse_str(&user_uuid.to_string()).unwrap(),
+            component_uuid,
+            user_uuid,
             is_enabled: true,
             created_at: chrono::Local::now().naive_local(),
         }

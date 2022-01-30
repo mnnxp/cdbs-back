@@ -47,8 +47,8 @@ impl From<IptStandardFavData> for InsertableStandardFav {
         } = ipt_data;
 
         Self {
-            standard_uuid: Uuid::parse_str(&standard_uuid.to_string()).unwrap(),
-            user_uuid: Uuid::parse_str(&user_uuid.to_string()).unwrap(),
+            standard_uuid,
+            user_uuid,
             is_enabled: true,
             created_at: chrono::Local::now().naive_local(),
         }
