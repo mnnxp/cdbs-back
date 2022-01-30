@@ -1,7 +1,9 @@
 use crate::errors::{ServiceResult, ServiceError};
 use crate::models::company::certificate::model::DelCompanyCertificateData;
 use crate::models::company::access::util::check_company_access;
-use crate::models::relate_ref::file::service::delete::delete_file_by_uuid;
+use crate::models::relate_ref::file::service::delete::{
+    delete_file_by_uuid, delete_file_by_uuids
+};
 use crate::schema::company_certificate_ref::dsl as company_certificate_ref;
 use diesel::prelude::*;
 use uuid::Uuid;
@@ -35,4 +37,21 @@ pub(crate) fn del_certificate_description(
 
     // delete file rows and file in storage
     delete_file_by_uuid(&file_uuid, conn)
+}
+
+/// Set the delete flags for all company certificates
+pub(crate) fn delete_company_certificates(
+    company_uuid: &Uuid,
+    conn: &PgConnection,
+) -> ServiceResult<bool> {
+    let del_file_uuids = diesel::delete(company_certificate_ref::company_certificate_ref
+        .filter(company_certificate_ref::company_uuid.eq(company_uuid)))
+        .returning(company_certificate_ref::file_uuid)
+        .load::<Uuid>(conn)
+        .map_err(|err| {
+            debug!("Failed gets file of company: {:?}", err);
+            ServiceError::InternalServerError
+        })?;
+
+    delete_file_by_uuids(&del_file_uuids, conn)
 }
