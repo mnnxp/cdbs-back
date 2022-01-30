@@ -34,7 +34,7 @@ pub(crate) fn del_component(
 }
 
 /// Set the delete flags for all files associated with the component
-pub(crate) fn delete_component_files(
+fn delete_component_files(
     component_uuid: &Uuid,
     conn: &PgConnection,
 ) -> ServiceResult<bool> {
