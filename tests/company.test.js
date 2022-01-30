@@ -179,7 +179,7 @@ const regionUpdateId = 5;
 const companyTypeUpdateId = 2;
 
 // data for represent
-const regionIdRepresentation = 10;
+const regionIdRepresentation = 8;
 const representationTypeId = 1;
 const nameRepresentationFirst = "test first additional office";
 const nameRepresentationSecond = "test second additional office";
@@ -650,9 +650,9 @@ describe('company', () => {
     const {
       data: { companies },
     } = body;
-    var index = companies.length - 1;
+    // var index = companies.length - 1;
     expect(companies).toBeNonEmptyArray();
-    expect(companies[index].uuid).toBe(companyUuidBase);
+    expect(companies[0].uuid).toBe(companyUuidBase);
     // expect(companies.length).toBe(1);
     done();
   });
@@ -3903,9 +3903,9 @@ describe('company', () => {
     const {
       data: { companies },
     } = body;
-    var index = companies.length - 1;
+    // var index = companies.length - 1;
     expect(companies).toBeNonEmptyArray();
-    expect(companies[index].uuid).toBe(companyUuidBase);
+    expect(companies[0].uuid).toBe(companyUuidBase);
     // expect(companies.length).toBe(1);
     done();
   });
