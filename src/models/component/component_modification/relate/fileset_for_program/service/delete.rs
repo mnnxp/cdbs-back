@@ -1,9 +1,7 @@
 use crate::errors::{ServiceError, ServiceResult};
 use crate::models::component::{
-    component_modification::{
-        fileset_for_program::model::DelFilesetProgramData,
-        relate::fileset_for_program::util::get_component_by_fileset,
-    },
+    component_modification::fileset_for_program::model::DelFilesetProgramData,
+    component_modification::relate::fileset_for_program::util::get_component_by_fileset,
     access::util::check_access_component_for_user,
 };
 use crate::models::relate_ref::file::service::delete::delete_file_by_uuids;
@@ -59,4 +57,31 @@ fn delete_fileset_row(
         })?;
 
     Ok(count > 0)
+}
+
+/// Set the delete flags for all files of filesets associated with the component modifications
+pub(crate) fn delete_filesets_files_by_modifications(
+    modification_uuids: &[Uuid],
+    conn: &PgConnection,
+) -> ServiceResult<bool> {
+    // get filesets related with component modifications
+    let fileset_uuids = fileset_for_program::fileset_for_program
+        .filter(fileset_for_program::modification_uuid.eq_any(modification_uuids))
+        .select(fileset_for_program::uuid)
+        .load::<Uuid>(conn)
+        .map_err(|err| {
+            debug!("Failed gets modifications for component: {:?}", err);
+            ServiceError::InternalServerError
+        })?;
+
+    let del_file_uuids = modification_file_from_fileset::modification_file_from_fileset
+        .filter(modification_file_from_fileset::fileset_uuid.eq_any(&fileset_uuids))
+        .select(modification_file_from_fileset::file_uuid)
+        .load::<Uuid>(conn)
+        .map_err(|err| {
+            debug!("Failed gets file of component: {:?}", err);
+            ServiceError::InternalServerError
+        })?;
+
+    delete_file_by_uuids(&del_file_uuids, conn)
 }

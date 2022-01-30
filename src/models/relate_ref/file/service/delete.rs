@@ -39,13 +39,13 @@ pub(crate) fn delete_file_by_uuid(
 /// Set flags is_delete for delete data in future
 /// without check access for logged user
 pub(crate) fn delete_file_by_uuids(
-    file_uuid: &[Uuid],
+    file_uuids: &[Uuid],
     conn: &PgConnection,
 ) -> ServiceResult<bool> {
     use crate::schema::file_ref::dsl as file_ref;
 
     let count = diesel::update(file_ref::file_ref)
-        .filter(file_ref::uuid.eq_any(file_uuid))
+        .filter(file_ref::uuid.eq_any(file_uuids))
         .set(file_ref::is_delete.eq(true))
         .execute(conn)
         .map_err(|err| {
