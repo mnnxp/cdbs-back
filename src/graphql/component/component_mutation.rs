@@ -24,7 +24,7 @@ use crate::models::component::{
     component_modification,
     component_modification::{
         model::{IptComponentModificationData, IptUpdateComponentModificationData, DelComponentModificationData},
-        modification_file_from_fileset::model::{
+        fileset_for_program::file::model::{
             IptModificationFileFromFilesetData, DelModificationFileFromFilesetData
         },
         param::model::{IptModificationParamData, DelModificationParamData},
@@ -661,7 +661,7 @@ impl ComponentMutation {
         cxt: &Context<'_>,
         args: IptModificationFileFromFilesetData,
     ) -> ServiceResult<Vec<UploadFile>> {
-        use component_modification::modification_file_from_fileset::service::add::add_files_of_modification_set;
+        use component_modification::fileset_for_program::file::service::add::add_files_of_modification_set;
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
@@ -679,7 +679,7 @@ impl ComponentMutation {
         cxt: &Context<'_>,
         args: DelModificationFileFromFilesetData,
     ) -> ServiceResult<bool> {
-        use component_modification::modification_file_from_fileset::service::delete::del_file_from_fileset;
+        use component_modification::fileset_for_program::file::service::delete::del_file_from_fileset;
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 

@@ -20,7 +20,7 @@ use crate::models::component::{
             IptModificationFilesArg, ModificationFilesArg
         },
         fileset_for_program::model::{FilesetProgramRelatedData, IptFilesetProgramArg, FilesetProgramArg},
-        modification_file_from_fileset::model::{IptFileOfFilesetArg, FileOfFilesetArg},
+        fileset_for_program::file::model::{IptFileOfFilesetArg, FileOfFilesetArg},
     },
     access::company::model::CompanyAccessComponentAndRelatedData,
     access::user::model::UserAccessComponentAndRelatedData,
@@ -302,7 +302,7 @@ impl ComponentQuery {
         cxt: &Context<'_>,
         args: IptFileOfFilesetArg,
     ) -> ServiceResult<Vec<ShowFileRelatedData>> {
-        use component_modification::modification_file_from_fileset::service::list::get_files_of_fileset;
+        use component_modification::fileset_for_program::file::service::list::get_files_of_fileset;
 
         let logged_user_uuid: Uuid = get_logged_user_uuid(cxt, true)?;
         let arguments: FileOfFilesetArg = FileOfFilesetArg::from(args);
@@ -320,7 +320,7 @@ impl ComponentQuery {
         cxt: &Context<'_>,
         args: IptFileOfFilesetArg,
     ) -> ServiceResult<Vec<DownloadFile>> {
-        use component_modification::modification_file_from_fileset::service::list::get_fileset_files;
+        use component_modification::fileset_for_program::file::service::list::get_fileset_files;
 
         let logged_user_uuid: Uuid = get_logged_user_uuid(cxt, true)?;
         let arguments: FileOfFilesetArg = FileOfFilesetArg::from(args);

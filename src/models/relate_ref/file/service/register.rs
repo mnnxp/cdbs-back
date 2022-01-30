@@ -8,7 +8,7 @@ use crate::models::component::relate::file::model::{
 use crate::models::component::component_modification::relate::file::model::{
     InsertableFileModification, FileModification,
 };
-use crate::models::component::component_modification::relate::modification_file_from_fileset::model::{
+use crate::models::component::component_modification::relate::fileset_for_program::file::model::{
     ModificationFileFromFileset, InsertableModificationFileFromFileset,
 };
 use crate::models::standard::file::model::{
@@ -127,7 +127,7 @@ fn write_addiction_data(
         ListObject::ComponentModificationSet(fileset_uuid) => {
             use crate::schema::modification_file_from_fileset::dsl::modification_file_from_fileset;
 
-            let modification =  InsertableModificationFileFromFileset {
+            let modification = InsertableModificationFileFromFileset {
                 fileset_uuid,
                 file_uuid,
             };
