@@ -3,6 +3,12 @@ use regex::Regex;
 use diesel::prelude::*;
 use uuid::Uuid;
 
+lazy_static::lazy_static! {
+    static ref DEFAULT_IMAGE_UUID : Uuid =
+        Uuid::parse_str("bc1c2151-86d0-4656-9c9d-d016dd584297")
+            .expect("Set default image uuid failed!");
+}
+
 /// Find extension id on table for file extension
 pub(crate) fn find_id_ext(
     filename: &str,
@@ -43,16 +49,25 @@ pub(crate) fn check_write_data(
 }
 
 /// Checking that the file name matches the image
-pub(crate) fn check_image_filename(
-    filename: &str,
-) -> bool {
+pub(crate) fn check_image_filename(filename: &str) -> bool {
     let ext_str = Regex::new(r"\w*$").unwrap().find(filename).unwrap().as_str();
 
     matches!(
         ext_str,
-        "apng" | "avif" | "gif" | 
+        "apng" | "avif" | "gif" |
         "jpg" | "jpeg" | "jpe" |
         "jif" | "jfif" | "png" |
         "svg" | "webp"
     )
+}
+
+/// Retund default image uuid
+pub(crate) fn get_default_image() -> Uuid {
+    *DEFAULT_IMAGE_UUID
+}
+
+/// Check default file by uuid
+pub(crate) fn check_default_file(file_uuid: &Uuid) -> bool {
+    let defalt_uuid = *DEFAULT_IMAGE_UUID;
+    &defalt_uuid == file_uuid
 }

@@ -1,4 +1,5 @@
 use crate::errors::{ServiceError, ServiceResult};
+use crate::models::relate_ref::file::util::check_default_file;
 use crate::models::relate_ref::file::access::check_file_owner_err;
 use diesel::prelude::*;
 use uuid::Uuid;
@@ -24,6 +25,11 @@ pub(crate) fn delete_file_by_uuid(
     conn: &PgConnection,
 ) -> ServiceResult<bool> {
     use crate::schema::file_ref::dsl as file_ref;
+
+    if check_default_file(file_uuid) {
+        // this default file
+        return Ok(false);
+    }
 
     diesel::update(file_ref::file_ref)
         .filter(file_ref::uuid.eq(file_uuid))
