@@ -1,6 +1,6 @@
 use crate::errors::{ServiceResult, ServiceError};
 use crate::models::component::component_modification::service::delete::delete_modifications_files_by_component;
-use crate::models::relate_ref::file::service::delete::delete_file_by_uuids;
+use crate::models::relate_ref::file::service::delete::{delete_file_by_uuid, delete_file_by_uuids};
 use crate::schema::{
     component_ref::dsl as component_ref,
     file_to_component::dsl as file_to_component,
@@ -18,15 +18,19 @@ pub(crate) fn del_component(
     // set flags for component modifications and filesets files
     delete_modifications_files_by_component(del_component_uuid, conn)?;
 
-    diesel::delete(component_ref::component_ref
+    let image_file_uuid = diesel::delete(component_ref::component_ref
         .filter(component_ref::user_uuid.eq(logged_user_uuid)
         .and(component_ref::uuid.eq(del_component_uuid))))
-        .returning(component_ref::uuid)
+        .returning(component_ref::image_file_uuid)
         .get_result::<Uuid>(conn)
         .map_err(|err| {
             debug!("Failed delete component: {:?}", err);
             ServiceError::InternalServerError
-        })
+        })?;
+
+    delete_file_by_uuid(&image_file_uuid, conn)?;
+
+    Ok(*del_component_uuid)
 }
 
 /// Set the delete flags for all files associated with the component
