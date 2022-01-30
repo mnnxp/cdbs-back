@@ -5,7 +5,8 @@ use crate::models::relate_ref::file::model::{
     ListObject, PreliminaryFileData, UploadFile
 };
 use crate::models::component::access::util::check_access_component_for_user;
-use crate::models::relate_ref::file as file;
+use crate::models::relate_ref::file::service::register::preregister_file;
+use crate::models::relate_ref::file::util::get_default_image;
 use crate::storage::model::StorageAccess;
 use crate::storage::presigned_url::upload_presigned_url;
 use diesel::PgConnection;
@@ -37,10 +38,10 @@ pub(crate) fn add_modification_files(
     // Get data for write information about the file before upload to storage
     for filename in &data.filenames {
         // insert row file in file_ref and addiction tables
-        let slim_file = file::service::register::preregister_file(
+        let slim_file = preregister_file(
             PreliminaryFileData::from_ipt_file_data( // <-- making data for insert
                 *logged_user_uuid,
-                Uuid::parse_str("bc1c2151-86d0-4656-9c9d-d016dd584297")?, // <-- todo!(get uuid default file)
+                get_default_image(),
                 ListObject::ComponentModification(data.modification_uuid),
                 filename,
                 conn

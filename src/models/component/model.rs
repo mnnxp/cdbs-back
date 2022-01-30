@@ -12,6 +12,7 @@ use crate::models::relate_ref::{
     license::model::License,
     keyword::model::Keyword,
     file::model::{ShowFileRelatedData, DownloadFile},
+    file::util::get_default_image,
     spec::model::SpecTranslateList,
 };
 use crate::schema::*;
@@ -121,7 +122,7 @@ impl InsertableComponent {
 
     /// Set image uuid (for set default image)
     pub(crate) fn set_image_uuid(&mut self) {
-        self.image_file_uuid = Uuid::parse_str("bc1c2151-86d0-4656-9c9d-d016dd584297").unwrap();
+        self.image_file_uuid = get_default_image();
     }
 
     /// Set user uuid (for set logged user as owner)

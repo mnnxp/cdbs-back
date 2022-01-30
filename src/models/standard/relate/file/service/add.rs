@@ -8,7 +8,7 @@ use crate::models::relate_ref::file::model::{
 };
 use crate::models::relate_ref::file::{
     service::register::preregister_file,
-    util::check_image_filename
+    util::{check_image_filename, get_default_image}
 };
 use crate::storage::model::StorageAccess;
 use crate::storage::presigned_url::upload_presigned_url;
@@ -42,7 +42,7 @@ pub(crate) fn add_standard_files(
         let slim_file = preregister_file(
             PreliminaryFileData::from_ipt_file_data(
                 *logged_user_uuid,
-                Uuid::parse_str("bc1c2151-86d0-4656-9c9d-d016dd584297")?, // <-- todo!(get uuid default file)
+                get_default_image(),
                 ListObject::Standard(data.standard_uuid),
                 filename,
                 conn
@@ -95,7 +95,7 @@ pub(crate) fn add_standard_favicon(
     let slim_file = preregister_file(
         PreliminaryFileData::from_ipt_file_data(
             *logged_user_uuid,
-            Uuid::parse_str("bc1c2151-86d0-4656-9c9d-d016dd584297")?, // <-- todo!(get uuid default file)
+            get_default_image(),
             ListObject::StandardFavicon(data.standard_uuid),
             &data.filename,
             conn

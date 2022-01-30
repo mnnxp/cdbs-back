@@ -1,13 +1,12 @@
 use crate::errors::{ServiceResult, ServiceError};
+use crate::models::component::access::util::check_access_component_for_user;
 use crate::models::component::relate::file::model::{
     IptComponentFilesData, IptComponentFaviconData
 };
-use crate::models::relate_ref::file::model::{
-    ListObject, PreliminaryFileData, UploadFile
-};
 use crate::models::relate_ref::file::{
+    model::{ListObject, PreliminaryFileData, UploadFile},
     service::register::preregister_file,
-    util::check_image_filename
+    util::{check_image_filename, get_default_image}
 };
 use crate::storage::model::StorageAccess;
 use crate::storage::presigned_url::upload_presigned_url;
@@ -24,7 +23,7 @@ pub(crate) fn add_component_files(
 
     let need_access_level = 1; // todo!(create enum for manage access level)
 
-    crate::models::component::access::util::check_access_component_for_user(
+    check_access_component_for_user(
         logged_user_uuid,
         &data.component_uuid,
         &need_access_level,
@@ -42,7 +41,7 @@ pub(crate) fn add_component_files(
         let slim_file = preregister_file(
             PreliminaryFileData::from_ipt_file_data(
                 *logged_user_uuid,
-                Uuid::parse_str("bc1c2151-86d0-4656-9c9d-d016dd584297")?, // <-- todo!(get uuid default file)
+                get_default_image(),
                 ListObject::Component(data.component_uuid),
                 filename,
                 conn
@@ -77,7 +76,7 @@ pub(crate) fn add_component_favicon(
 
     let need_access_level = 1; // todo!(create enum for manage access level)
 
-    crate::models::component::access::util::check_access_component_for_user(
+    check_access_component_for_user(
         logged_user_uuid,
         &data.component_uuid,
         &need_access_level,
@@ -97,7 +96,7 @@ pub(crate) fn add_component_favicon(
     let slim_file = preregister_file(
         PreliminaryFileData::from_ipt_file_data(
             *logged_user_uuid,
-            Uuid::parse_str("bc1c2151-86d0-4656-9c9d-d016dd584297")?, // <-- todo!(get uuid default file)
+            get_default_image(),
             ListObject::ComponentFavicon(data.component_uuid),
             &data.filename,
             conn

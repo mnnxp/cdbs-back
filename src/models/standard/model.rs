@@ -4,6 +4,7 @@ use crate::models::user::model::ShowUserShort;
 use crate::models::relate_ref::{
     type_access::model::TypeAccessTranslateList,
     file::model::{ShowFileRelatedData, DownloadFile},
+    file::util::get_default_image,
     region::model::RegionTranslateList,
     spec::model::SpecTranslateList,
     keyword::model::Keyword,
@@ -116,7 +117,7 @@ impl InsertableStandard {
 
     /// Set image uuid (for set default image)
     pub(crate) fn set_image_uuid(&mut self) {
-        self.image_file_uuid = Uuid::parse_str("bc1c2151-86d0-4656-9c9d-d016dd584297").unwrap();
+        self.image_file_uuid = get_default_image();
     }
 
     /// Set user uuid (for set logged user as owner)
