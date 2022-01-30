@@ -39,6 +39,12 @@ pub(crate) fn get_represents(
 
     if args.represents_uuids.is_empty() {
         let represents_uuids = get_represents_company_uuid(&args.company_uuid, conn)?;
+
+        if represents_uuids.is_empty() {
+            // return empty array if not found represents
+            return Ok(Vec::new());
+        }
+
         args.set_represents_uuids(represents_uuids);
     }
 
