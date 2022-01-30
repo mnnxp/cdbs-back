@@ -1,7 +1,13 @@
 use crate::errors::{ServiceError, ServiceResult};
 use crate::models::standard::access::util::check_is_owner;
 use crate::models::company::access::util::check_is_owner_with_err;
-use crate::schema::standard_ref::dsl as standard_ref;
+use crate::models::relate_ref::file::service::delete::{
+    delete_file_by_uuid, delete_file_by_uuids
+};
+use crate::schema::{
+    standard_ref::dsl as standard_ref,
+    file_to_standard::dsl as file_to_standard,
+};
 use diesel::prelude::*;
 use uuid::Uuid;
 
@@ -31,13 +37,38 @@ pub(crate) fn del_standard_data(
         )?;
     }
 
+    // set flags for standard files
+    delete_standard_files(del_standard_uuid, conn)?;
+
     // Delere row about standard in database
-    diesel::delete(standard_ref::standard_ref
+    let image_file_uuid = diesel::delete(standard_ref::standard_ref
         .filter(standard_ref::uuid.eq(del_standard_uuid)))
-        .returning(standard_ref::uuid)
+        .returning(standard_ref::image_file_uuid)
         .get_result::<Uuid>(conn)
         .map_err(|err| {
             debug!("Failed delete standard: {:?}", err);
             ServiceError::InternalServerError
-        })
+        })?;
+
+    // set delete flag for main image deleted a standard
+    delete_file_by_uuid(&image_file_uuid, conn)?;
+
+    Ok(*del_standard_uuid)
+}
+
+/// Set the delete flags for all files associated with the standard
+fn delete_standard_files(
+    standard_uuid: &Uuid,
+    conn: &PgConnection,
+) -> ServiceResult<bool> {
+    let del_file_uuids = file_to_standard::file_to_standard
+        .filter(file_to_standard::standard_uuid.eq(standard_uuid))
+        .select(file_to_standard::file_uuid)
+        .load::<Uuid>(conn)
+        .map_err(|err| {
+            debug!("Failed gets file of standard: {:?}", err);
+            ServiceError::InternalServerError
+        })?;
+
+    delete_file_by_uuids(&del_file_uuids, conn)
 }
