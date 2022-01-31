@@ -1,6 +1,7 @@
 use crate::errors::{ServiceResult, ServiceError};
 use crate::models::company::company_represent::model::IptUpdateCompanyRepresentData;
 use crate::models::company::access::util::check_is_owner_with_err;
+use crate::schema::company_represent_ref::dsl as company_represent_ref;
 use diesel::prelude::*;
 use uuid::Uuid;
 
@@ -11,9 +12,7 @@ pub(crate) fn update_company_represent_by_uuid(
     target_company_represent_uuid: &Uuid,
     data: &IptUpdateCompanyRepresentData,
     conn: &PgConnection
-) -> ServiceResult<i32> {
-    use crate::schema::company_represent_ref::dsl as company_represent_ref;
-
+) -> ServiceResult<usize> {
     // check access user for company
     check_is_owner_with_err(
         logged_user_uuid,
@@ -89,13 +88,12 @@ pub(crate) fn update_company_represent_by_uuid(
             })?;
     }
 
-    // new date for updated_at in company_represent_ref table if update more one column
-    if count_update_columns > 0 {
-        debug!("Count update columns: {:?}", count_update_columns);
-
-        return Ok(count_update_columns as i32) // <- return count of updates if there are more than 0
+    if count_update_columns == 0 {
+        // return error if new data not different with old data
+        return Err(ServiceError::BadRequest("The data has already".to_string()))
     }
 
-    // return error if new data not different with old data
-    Err(ServiceError::BadRequest("The data has already".to_string()))
+    debug!("Count update columns: {:?}", count_update_columns);
+
+    Ok(count_update_columns)
 }

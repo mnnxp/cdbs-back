@@ -989,7 +989,7 @@ describe('company', () => {
     const {
       data: { putCompanyUpdate },
     } = body;
-    expect(putCompanyUpdate).toBe(10);
+    expect(putCompanyUpdate).toBe(9);
     done();
   });
 

@@ -92,7 +92,7 @@ impl UserMutation {
         &self,
         cxt: &Context<'_>,
         args: IptUpdateUserData,
-    ) -> ServiceResult<i32> {
+    ) -> ServiceResult<usize> {
         use crate::models::user::service::update::update_user;
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;

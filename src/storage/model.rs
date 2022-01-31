@@ -44,7 +44,6 @@ impl StorageAccess {
 
 impl From<&StorageAccess> for super::s3::Aws {
     fn from(data: &StorageAccess) -> super::s3::Aws {
-        // todo!(add encryptind)
         let application_key_id = &data.application_key_id;
         let application_key = &data.application_key;
 

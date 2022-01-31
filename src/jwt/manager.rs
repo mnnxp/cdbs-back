@@ -23,7 +23,7 @@ pub(crate) fn create_token(
     .map_err(|e| ServiceError::BadRequest(e.to_string()))
 }
 
-pub fn decode_token(token: &str) -> Result<Claims, ServiceError> {
+pub(crate) fn decode_token(token: &str) -> Result<Claims, ServiceError> {
     decode::<Claims>(
         token,
         &DecodingKey::from_rsa_pem(

@@ -1,6 +1,8 @@
 use crate::errors::{ServiceError, ServiceResult};
+use crate::models::component::access::util::check_access_component_for_user;
 use crate::models::component::component_modification::model::IptUpdateComponentModificationData;
 use crate::models::component::component_modification::util::get_component_by_modification;
+use crate::schema::component_modification_list::dsl as component_modification_list;
 use diesel::prelude::*;
 use uuid::Uuid;
 
@@ -10,12 +12,10 @@ pub(crate) fn update_modification_data(
     target_modification_uuid: &Uuid,
     data: &IptUpdateComponentModificationData,
     conn: &PgConnection,
-) -> ServiceResult<i32> {
-    use crate::schema::component_modification_list::dsl::*;
-
+) -> ServiceResult<usize> {
     let need_access_level = 1; // todo!(create enum for manage access level)
 
-    crate::models::component::access::util::check_access_component_for_user(
+    check_access_component_for_user(
         logged_user_uuid,
         &get_component_by_modification(target_modification_uuid, conn)?,
         &need_access_level,
@@ -27,10 +27,10 @@ pub(crate) fn update_modification_data(
 
     // update column modification_name
     if let Some(value) = &data.modification_name {
-        count_update_columns += diesel::update(component_modification_list
-            .filter(uuid.eq(target_modification_uuid)
-            .and(modification_name.ne(value))))
-            .set(modification_name.eq(value))
+        count_update_columns += diesel::update(component_modification_list::component_modification_list
+            .filter(component_modification_list::uuid.eq(target_modification_uuid)
+            .and(component_modification_list::modification_name.ne(value))))
+            .set(component_modification_list::modification_name.eq(value))
             .execute(conn)
             .map_err(|err| {
                 debug!("Failed update data: {:?}", err);
@@ -40,10 +40,10 @@ pub(crate) fn update_modification_data(
 
     // update column description
     if let Some(value) = &data.description {
-        count_update_columns += diesel::update(component_modification_list
-            .filter(uuid.eq(target_modification_uuid)
-            .and(description.ne(value))))
-            .set(description.eq(value))
+        count_update_columns += diesel::update(component_modification_list::component_modification_list
+            .filter(component_modification_list::uuid.eq(target_modification_uuid)
+            .and(component_modification_list::description.ne(value))))
+            .set(component_modification_list::description.eq(value))
             .execute(conn)
             .map_err(|err| {
                 debug!("Failed update data: {:?}", err);
@@ -53,10 +53,10 @@ pub(crate) fn update_modification_data(
 
     // update column actual_status_id
     if let Some(value) = &data.actual_status_id {
-        count_update_columns += diesel::update(component_modification_list
-            .filter(uuid.eq(target_modification_uuid)
-            .and(actual_status_id.ne(value))))
-            .set(actual_status_id.eq(value))
+        count_update_columns += diesel::update(component_modification_list::component_modification_list
+            .filter(component_modification_list::uuid.eq(target_modification_uuid)
+            .and(component_modification_list::actual_status_id.ne(value))))
+            .set(component_modification_list::actual_status_id.eq(value))
             .execute(conn)
             .map_err(|err| {
                 debug!("Failed update data: {:?}", err);
@@ -64,22 +64,21 @@ pub(crate) fn update_modification_data(
             })?;
     }
 
-    // new date for updated_at in modification_ref table if update more one column
-    if count_update_columns > 0 {
-        diesel::update(component_modification_list
-            .filter(uuid.eq(target_modification_uuid)))
-            .set(updated_at.eq(chrono::Local::now().naive_local()))
-            .execute(conn)
-            .map_err(|err| {
-                debug!("Failed update data: {:?}", err);
-                ServiceError::BadRequest("Failed update data".to_string())
-            })?;
-
-        debug!("Count update columns: {:?}", count_update_columns);
-
-        return Ok(count_update_columns as i32) // <- return count of updates if there are more than 0
+    if count_update_columns == 0 {
+        // return error if new data not different with old data
+        return Err(ServiceError::BadRequest("The data has already".to_string()));
     }
 
-    // return error if new data not different with old data
-    Err(ServiceError::BadRequest("The data has already".to_string()))
+    diesel::update(component_modification_list::component_modification_list
+        .filter(component_modification_list::uuid.eq(target_modification_uuid)))
+        .set(component_modification_list::updated_at.eq(chrono::Local::now().naive_local()))
+        .execute(conn)
+        .map_err(|err| {
+            debug!("Failed update data: {:?}", err);
+            ServiceError::BadRequest("Failed update data".to_string())
+        })?;
+
+    debug!("Count update columns: {:?}", count_update_columns);
+
+    Ok(count_update_columns)
 }

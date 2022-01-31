@@ -107,7 +107,7 @@ impl ComponentMutation {
         cxt: &Context<'_>,
         component_uuid: Uuid,
         args: IptUpdateComponentData,
-    ) -> ServiceResult<i32> {
+    ) -> ServiceResult<usize> {
         use crate::models::component::service::update::update_component_by_uuid;
 
         // checking authorization and getting user uuid
@@ -513,7 +513,7 @@ impl ComponentMutation {
         cxt: &Context<'_>,
         component_modification_uuid: Uuid,
         args: IptUpdateComponentModificationData,
-    ) -> ServiceResult<i32> {
+    ) -> ServiceResult<usize> {
         use component_modification::service::update::update_modification_data;
 
         // checking authorization and getting user uuid

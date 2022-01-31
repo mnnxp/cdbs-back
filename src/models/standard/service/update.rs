@@ -15,7 +15,7 @@ pub(crate) fn update_standard_data(
     target_standard_uuid: &Uuid,
     data: &IptUpdateStandardData,
     conn: &PgConnection
-) -> ServiceResult<i32> {
+) -> ServiceResult<usize> {
     let need_access_level = 1; // todo!(create enum for manage access level)
 
     check_access_standard_for_user(
@@ -157,22 +157,21 @@ pub(crate) fn update_standard_data(
             })?;
     }
 
-    // new date for updated_at in standard_ref table if update more one column
-    if count_update_columns > 0 {
-        diesel::update(standard_ref::standard_ref
-            .filter(standard_ref::uuid.eq(target_standard_uuid)))
-            .set(standard_ref::updated_at.eq(chrono::Local::now().naive_local()))
-            .execute(conn)
-            .map_err(|err| {
-                debug!("Failed update data: {:?}", err);
-                ServiceError::BadRequest("Failed update data".to_string())
-            })?;
-
-        debug!("Count update columns: {:?}", count_update_columns);
-
-        return Ok(count_update_columns as i32) // <- return count of updates if there are more than 0
+    if count_update_columns == 0 {
+        // return error if new data not different with old data
+        return Err(ServiceError::BadRequest("The data has already".to_string()));
     }
 
-    // return error if new data not different with old data
-    Err(ServiceError::BadRequest("The data has already".to_string()))
+    diesel::update(standard_ref::standard_ref
+        .filter(standard_ref::uuid.eq(target_standard_uuid)))
+        .set(standard_ref::updated_at.eq(chrono::Local::now().naive_local()))
+        .execute(conn)
+        .map_err(|err| {
+            debug!("Failed update data: {:?}", err);
+            ServiceError::BadRequest("Failed update data".to_string())
+        })?;
+
+    debug!("Count update columns: {:?}", count_update_columns);
+
+    Ok(count_update_columns)
 }

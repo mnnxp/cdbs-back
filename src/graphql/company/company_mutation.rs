@@ -41,7 +41,7 @@ impl CompanyMutation {
         cxt: &Context<'_>,
         company_uuid: Uuid,
         args: IptUpdateCompanyData,
-    ) -> ServiceResult<i32> {
+    ) -> ServiceResult<usize> {
         use crate::models::company::service::update::update_company_by_uuid;
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
@@ -229,7 +229,7 @@ impl CompanyMutation {
         company_uuid: Uuid,
         company_represent_uuid: Uuid,
         args: IptUpdateCompanyRepresentData,
-    ) -> ServiceResult<i32> {
+    ) -> ServiceResult<usize> {
         use crate::models::company::company_represent::service::update::update_company_represent_by_uuid;
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;

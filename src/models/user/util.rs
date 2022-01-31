@@ -1,27 +1,38 @@
 use crate::errors::{ServiceResult, ServiceError};
+use crate::schema::user_ref::dsl as user_ref;
 use diesel::prelude::*;
 use uuid::Uuid;
 
-/// Gets user_uuid by username
-/// return ServiceError(Not found) if have err
+/// Get user_uuid by username
 pub(crate) fn get_uuid_by_username(
     username: &str,
     conn: &PgConnection,
 ) -> ServiceResult<Uuid> {
-    use crate::schema::user_ref::dsl as user_ref;
-
-    let res = user_ref::user_ref
-        .filter(user_ref::username.eq(username))
+    user_ref::user_ref
+        .filter(user_ref::username.eq(username)
+        .and(user_ref::is_enabled.eq(true)
+        .and(user_ref::is_delete.eq(false))))
         .select(user_ref::uuid)
-        .first::<Uuid>(conn);
-
-    match res {
-        Ok(value) => Ok(value),
-        Err(err) => {
+        .first::<Uuid>(conn)
+        .map_err(|err| {
             debug!("Failed get user_uuid by username: {:?}", err);
-            Err(ServiceError::BadRequest(
-                "Data not found".to_string()
-            ))
-        },
-    }
+            ServiceError::BadRequest("Data not found".to_string())
+        })
+}
+
+/// Checking if a username already used
+pub(crate) fn check_use_username(
+    username: &str,
+    conn: &PgConnection,
+) -> ServiceResult<bool> {
+    let found = user_ref::user_ref
+        .filter(user_ref::username.eq(username))
+        .limit(1)
+        .execute(conn)
+        .map_err(|err| {
+            debug!("Failed get by username: {:?}", err);
+            ServiceError::InternalServerError
+        })?;
+
+    Ok(found == 1)
 }

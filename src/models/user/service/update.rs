@@ -1,5 +1,7 @@
 use crate::errors::{ServiceError, ServiceResult};
 use crate::models::user::model::IptUpdateUserData;
+use crate::models::user::util::check_use_username;
+use crate::schema::user_ref::dsl as user_ref;
 use diesel::prelude::*;
 use uuid::Uuid;
 
@@ -8,8 +10,14 @@ pub(crate) fn update_user(
     logged_user_uuid: &Uuid,
     data: &IptUpdateUserData,
     conn: &PgConnection,
-) -> ServiceResult<i32> {
-    use crate::schema::user_ref::dsl as user_ref;
+) -> ServiceResult<usize> {
+    if let Some(username) = &data.username {
+        if check_use_username(username, conn)? {
+            return Err(ServiceError::BadRequest(
+                "This username is already used".to_string()
+            ));
+        }
+    }
 
     // for returning change count
     let mut count_update_columns = 0_usize;
@@ -171,21 +179,21 @@ pub(crate) fn update_user(
     }
 
     // new date for updated_at in user_ref table if update more one column
-    if count_update_columns > 0 {
-        diesel::update(user_ref::user_ref
-            .filter(user_ref::uuid.eq(logged_user_uuid)))
-            .set(user_ref::updated_at.eq(chrono::Local::now().naive_local()))
-            .execute(conn)
-            .map_err(|err| {
-                debug!("Failed update data: {:?}", err);
-                ServiceError::BadRequest("Failed update data".to_string())
-            })?;
-
-        debug!("Count update columns: {:?}", count_update_columns);
-
-        return Ok(count_update_columns as i32) // <- return count of updates if there are more than 0
+    if count_update_columns == 0 {
+        // return error if new data not different with old data
+        return Err(ServiceError::BadRequest("The data has already".to_string()));
     }
 
-    // return error if new data not different with old data
-    Err(ServiceError::BadRequest("The data has already".to_string()))
+    diesel::update(user_ref::user_ref
+        .filter(user_ref::uuid.eq(logged_user_uuid)))
+        .set(user_ref::updated_at.eq(chrono::Local::now().naive_local()))
+        .execute(conn)
+        .map_err(|err| {
+            debug!("Failed update data: {:?}", err);
+            ServiceError::BadRequest("Failed update data".to_string())
+        })?;
+
+    debug!("Count update columns: {:?}", count_update_columns);
+
+    Ok(count_update_columns)
 }

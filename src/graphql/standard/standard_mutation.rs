@@ -82,7 +82,7 @@ impl StandardMutation {
         cxt: &Context<'_>,
         standard_uuid: Uuid,
         args: IptUpdateStandardData,
-    ) -> ServiceResult<i32> {
+    ) -> ServiceResult<usize> {
         use crate::models::standard::service::update::update_standard_data;
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;

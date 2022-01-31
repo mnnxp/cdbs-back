@@ -55,7 +55,7 @@ pub(crate) fn delete_file_by_uuids(
         .set(file_ref::is_delete.eq(true))
         .execute(conn)
         .map_err(|err| {
-            debug!("Failded set delete flag database : {:?}", err);
+            debug!("Failded set delete flags database : {:?}", err);
             ServiceError::InternalServerError
         })?;
 
