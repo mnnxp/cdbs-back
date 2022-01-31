@@ -11,7 +11,8 @@ use crate::schema::{
 use diesel::prelude::*;
 use uuid::Uuid;
 
-/// Delete standard with check ownership standard or company
+/// Delete standard and related data,
+/// with check ownership standard or company related with standard
 pub(crate) fn del_standard_data(
     logged_user_uuid: &Uuid,
     del_standard_uuid: &Uuid,
@@ -37,6 +38,14 @@ pub(crate) fn del_standard_data(
         )?;
     }
 
+    delete_standard(del_standard_uuid, conn)
+}
+
+/// Delete standard and related data
+pub(crate) fn delete_standard(
+    del_standard_uuid: &Uuid,
+    conn: &PgConnection
+) -> ServiceResult<Uuid> {
     // set flags for standard files
     delete_standard_files(del_standard_uuid, conn)?;
 

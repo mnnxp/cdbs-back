@@ -9,7 +9,9 @@ pub(crate) fn get_access_type_user(
     conn: &PgConnection
 ) -> ServiceResult<i32> {
     user_ref::user_ref
-        .filter(user_ref::uuid.eq(target_user_uuid))
+        .filter(user_ref::uuid.eq(target_user_uuid)
+        .and(user_ref::is_enabled.eq(true)
+        .and(user_ref::is_delete.eq(false))))
         .select(user_ref::type_access_id)
         .first::<i32>(conn)
         .map_err(|err| {

@@ -1,6 +1,7 @@
 use crate::errors::{ServiceError, ServiceResult};
 use crate::models::component::model::IptUpdateComponentData;
 use crate::models::component::access::util::check_access_component_for_user;
+use crate::schema::component_ref::dsl as component_ref;
 use diesel::prelude::*;
 use uuid::Uuid;
 
@@ -10,9 +11,7 @@ pub(crate) fn update_component_by_uuid(
     target_component_uuid: &Uuid,
     data: &IptUpdateComponentData,
     conn: &PgConnection,
-) -> ServiceResult<i32> {
-    use crate::schema::component_ref::dsl as component_ref;
-
+) -> ServiceResult<usize> {
     // need top level access for change component main data
     let need_access_level = 1; // todo!(create enum for manage access level)
 
@@ -91,22 +90,21 @@ pub(crate) fn update_component_by_uuid(
             })?;
     }
 
-    // new date for updated_at in component_ref table if update more one column
-    if count_update_columns > 0 {
-        diesel::update(component_ref::component_ref
-            .filter(component_ref::uuid.eq(target_component_uuid)))
-            .set(component_ref::updated_at.eq(chrono::Local::now().naive_local()))
-            .execute(conn)
-            .map_err(|err| {
-                debug!("Failed update data: {:?}", err);
-                ServiceError::BadRequest("Failed update data".to_string())
-            })?;
-
-        debug!("Count update columns: {:?}", count_update_columns);
-
-        return Ok(count_update_columns as i32) // <- return count of updates if there are more than 0
+    if count_update_columns == 0 {
+        // return error if new data not different with old data
+        return Err(ServiceError::BadRequest("The data has already".to_string()));
     }
 
-    // return error if new data not different with old data
-    Err(ServiceError::BadRequest("The data has already".to_string()))
+    diesel::update(component_ref::component_ref
+        .filter(component_ref::uuid.eq(target_component_uuid)))
+        .set(component_ref::updated_at.eq(chrono::Local::now().naive_local()))
+        .execute(conn)
+        .map_err(|err| {
+            debug!("Failed update data: {:?}", err);
+            ServiceError::BadRequest("Failed update data".to_string())
+        })?;
+
+    debug!("Count update columns: {:?}", count_update_columns);
+
+    Ok(count_update_columns)
 }

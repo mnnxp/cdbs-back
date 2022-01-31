@@ -47,7 +47,9 @@ fn login_check(
     use crate::schema::user_ref::dsl as user_ref;
 
     let user = user_ref::user_ref
-        .filter(user_ref::username.eq(username))
+        .filter(user_ref::username.eq(username)
+        .and(user_ref::is_enabled.eq(true)
+        .and(user_ref::is_delete.eq(false))))
         .select((
             user_ref::uuid,
             user_ref::psw_hash,

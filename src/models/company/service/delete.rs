@@ -6,7 +6,8 @@ use crate::schema::company_ref::dsl as company_ref;
 use diesel::prelude::*;
 use uuid::Uuid;
 
-/// Delete all company data
+/// Delete company and related data,
+/// return err if logged user not owner
 pub(crate) fn del_company(
     logged_user_uuid: &Uuid,
     del_company_uuid: &Uuid,
@@ -15,12 +16,20 @@ pub(crate) fn del_company(
     // check user owner company
     check_is_owner_with_err(logged_user_uuid, del_company_uuid, conn)?;
 
+    delete_company(del_company_uuid, conn)
+}
+
+/// Delete all company and related data
+pub(crate) fn delete_company(
+    del_company_uuid: &Uuid,
+    conn: &PgConnection
+) -> ServiceResult<Uuid> {
     // delete company certificates and set flags for certificates files
     delete_company_certificates(del_company_uuid, conn)?;
 
     let image_file_uuid = diesel::delete(company_ref::company_ref
-        .filter(company_ref::user_uuid.eq(logged_user_uuid) // <-- only companies the user
-        .and(company_ref::uuid.eq(del_company_uuid))))
+        // .filter(company_ref::user_uuid.eq(logged_user_uuid) // <-- only companies the user
+        .filter(company_ref::uuid.eq(del_company_uuid)))
         .returning(company_ref::image_file_uuid)
         .get_result::<Uuid>(conn)
         .map_err(|err| {

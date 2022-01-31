@@ -2,6 +2,7 @@ use super::access::hash::{make_hash_salt, make_salt};
 use super::certificate::model::UserCertificateAndFile;
 use crate::models::relate_ref::{
     file::model::DownloadFile,
+    file::util::get_default_image,
     region::model::RegionTranslateList,
     program::model::Program,
     type_access::model::TypeAccessTranslateList,
@@ -202,11 +203,6 @@ impl From<&IptUserData> for InsertableUser {
             &psw_salt,
         );
 
-        // todo!(make fn for gets default uuid favicon)
-        let image_file_uuid = Uuid::from_bytes([
-            0xbc,0x1c,0x21,0x51,0x86,0xd0,0x46,0x56,0x9c,0x9d,0xd0,0x16,0xdd,0x58,0x42,0x97
-        ]);
-
         // set default data
         let firstname = match firstname {
             Some(x) => x.to_string(),
@@ -258,7 +254,8 @@ impl From<&IptUserData> for InsertableUser {
             address,
             position,
             time_zone,
-            image_file_uuid, // default
+            // default favicon image
+            image_file_uuid: get_default_image(),
             region_id,
             program_id,
             type_access_id,

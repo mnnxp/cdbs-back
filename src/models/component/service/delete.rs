@@ -1,4 +1,5 @@
 use crate::errors::{ServiceResult, ServiceError};
+use crate::models::component::access::util::check_is_owner_with_err;
 use crate::models::component::component_modification::service::delete::delete_modifications_files_by_component;
 use crate::models::relate_ref::file::service::delete::{delete_file_by_uuid, delete_file_by_uuids};
 use crate::schema::{
@@ -8,8 +9,22 @@ use crate::schema::{
 use diesel::prelude::*;
 use uuid::Uuid;
 
+/// Delete component and related data,
+/// return err if logged user not owner
 pub(crate) fn del_component(
     logged_user_uuid: &Uuid,
+    del_component_uuid: &Uuid,
+    conn: &PgConnection
+) -> ServiceResult<Uuid> {
+    // check ownership user
+    check_is_owner_with_err(logged_user_uuid, del_component_uuid, conn)?;
+
+    delete_component(del_component_uuid, conn)
+}
+
+/// Delete component and related data
+pub(crate) fn delete_component(
+    // logged_user_uuid: &Uuid,
     del_component_uuid: &Uuid,
     conn: &PgConnection
 ) -> ServiceResult<Uuid> {
@@ -19,8 +34,8 @@ pub(crate) fn del_component(
     delete_modifications_files_by_component(del_component_uuid, conn)?;
 
     let image_file_uuid = diesel::delete(component_ref::component_ref
-        .filter(component_ref::user_uuid.eq(logged_user_uuid)
-        .and(component_ref::uuid.eq(del_component_uuid))))
+        // .filter(component_ref::user_uuid.eq(logged_user_uuid)
+        .filter(component_ref::uuid.eq(del_component_uuid)))
         .returning(component_ref::image_file_uuid)
         .get_result::<Uuid>(conn)
         .map_err(|err| {

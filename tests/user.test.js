@@ -576,7 +576,7 @@ describe('users', () => {
     const { errors, data } = body;
     expect(data).toBeNull();
     expect(errors[0].message).toBe(
-      'BadRequest: Failed create new user'
+      'BadRequest: This username is already used'
     );
     done();
   });
@@ -1124,7 +1124,7 @@ describe('users', () => {
     debug('/graphql body=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: The data has already'
+      'BadRequest: This username is already used'
     );
     expect(body.errors[0].path[0]).toBe('putUserUpdate');
     done();
@@ -3733,7 +3733,7 @@ describe('users', () => {
     done();
   });
 
-  it('/login - OK to login first time', (done) => {
+  it('/login - OK to login for delete', (done) => {
     agent
       .post('/login')
       .send({ "user": {

@@ -7520,7 +7520,7 @@ describe('component', () => {
       .expect(HttpStatus.OK)
     debug('/graphql body=%o', body);
     expect(body.data).toBeNull();
-    expect(body.errors[0].message).toBe('Internal Server Error');
+    expect(body.errors[0].message).toBe('BadRequest: Access denied');
     expect(body.errors[0].path[0]).toBe('deleteComponent');
     done();
   });
@@ -7562,7 +7562,7 @@ describe('component', () => {
       .expect(HttpStatus.OK)
     debug('/graphql body=%o', body);
     expect(body.data).toBeNull();
-    expect(body.errors[0].message).toBe('Internal Server Error');
+    expect(body.errors[0].message).toBe('BadRequest: Access denied');
     expect(body.errors[0].path[0]).toBe('deleteComponent');
     done();
   });
