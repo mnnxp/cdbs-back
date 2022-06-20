@@ -88,8 +88,6 @@ pub(crate) fn update_file_data_by_uuid(
 ) -> ServiceResult<i32> {
     use crate::schema::file_ref::dsl as file_ref;
 
-    let target_file_uuid: Uuid;
-
     // user non-ownership can have access,
     // so ownership verification is not always necessary
     let mut query = file_ref::file_ref.into_boxed();
@@ -99,7 +97,7 @@ pub(crate) fn update_file_data_by_uuid(
         false => query.filter(file_ref::uuid.eq(file_uuid)),
     };
 
-    target_file_uuid = query
+    let target_file_uuid: Uuid = query
         .select(file_ref::uuid)
         .first(conn)
         .map_err(|err| {
