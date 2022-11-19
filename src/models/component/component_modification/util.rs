@@ -5,7 +5,7 @@ use uuid::Uuid;
 lazy_static::lazy_static! {
     static ref ROOT_MODIFICATION_UUID : Uuid =
         Uuid::parse_str("aba22d59-4f6c-44a4-9a37-2d38f0e577a8")
-            .expect("Set default image uuid failed!");
+            .expect("Set root modification uuid failed!");
 }
 
 /// Retund default component modification uuid

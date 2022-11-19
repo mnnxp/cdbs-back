@@ -7,7 +7,7 @@ use uuid::Uuid;
 lazy_static::lazy_static! {
     static ref ROOT_COMPONENT_UUID : Uuid =
         Uuid::parse_str("a5953fd9-7393-4f1e-a899-06b5e159dbf1")
-            .expect("Set default image uuid failed!");
+            .expect("Set root component uuid failed!");
 }
 
 /// Retund default component
