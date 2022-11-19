@@ -22,8 +22,8 @@ use chrono::*;
 use uuid::Uuid;
 
 #[derive(Identifiable, Deserialize, Queryable, SimpleObject, Debug)]
-#[primary_key(uuid)]
-#[table_name = "component_ref"]
+#[diesel(primary_key(uuid))]
+#[diesel(table_name = component_ref)]
 pub(crate) struct Component {
     pub(crate) uuid: Uuid,
     pub(crate) parent_component_uuid: Uuid,
@@ -93,7 +93,7 @@ pub(crate) struct ShowComponentShort {
 }
 
 #[derive(Debug, Insertable)]
-#[table_name = "component_ref"]
+#[diesel(table_name = component_ref)]
 pub(crate) struct InsertableComponent {
     uuid: Uuid,
     parent_component_uuid: Uuid,

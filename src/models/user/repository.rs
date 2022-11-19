@@ -28,7 +28,7 @@ impl SlimUser {
     /// Get slim user data from user_ref table by uuid
     pub(crate) fn get_by_uuid(
         target_user_uuid: &Uuid,
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> ServiceResult<SlimUser> {
         user_ref::user_ref
             .filter(user_ref::uuid.eq(target_user_uuid)
@@ -51,7 +51,7 @@ impl UserQuery {
     /// Get user data from user_ref table by uuid
     pub(crate) fn get_user_by_uuid(
         target_user_uuid: &Uuid,
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> ServiceResult<UserQuery> {
         user_ref::user_ref
             .filter(user_ref::uuid.eq(target_user_uuid)
@@ -89,7 +89,7 @@ impl UserShort {
     /// get UserShort data for target uuid user
     pub(crate) fn get_by_uuid(
         target_user_uuid: &Uuid,
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> ServiceResult<UserShort> {
     user_ref::user_ref
         .filter(user_ref::uuid.eq(target_user_uuid)
@@ -115,7 +115,7 @@ impl ShowUserShort {
     pub(crate) fn get_by_uuid(
         logged_user_uuid: &Uuid,
         target_user_uuid: &Uuid,
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> ServiceResult<ShowUserShort> {
         let need_access_level = 3; // todo!(create enum for manage access level)
 
@@ -136,7 +136,7 @@ impl ShowUserShort {
     /// Gets user short data by user_uuid wtihout check access
     pub(crate) fn get_without_check_by_uuid(
         target_user_uuid: &Uuid,
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> ServiceResult<ShowUserShort> {
         let user_data = UserShort::get_by_uuid(target_user_uuid, conn)?;
 
@@ -154,7 +154,7 @@ impl ShowUserShort {
     pub(crate) fn get_all_public_users(
         limit: &i32,
         offset: &i32,
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> ServiceResult<Vec<ShowUserShort>> {
         let users = user_ref::user_ref
             .filter(user_ref::type_access_id.eq(3)
@@ -193,7 +193,7 @@ impl ShowUserShort {
     pub(crate) fn get_users_by_uuids(
         logged_user_uuid: &Uuid,
         target_users_uuids: &[Uuid],
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> ServiceResult<Vec<ShowUserShort>> {
         let mut result: Vec<ShowUserShort> = Vec::new();
         for target_user_uuid in target_users_uuids.iter() {
@@ -218,7 +218,7 @@ impl UserAndRelatedData {
     pub(crate) fn collect_related_data(
         target_user_uuid: &Uuid,
         set_lang_id: &i32,
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> ServiceResult<UserAndRelatedData> {
         // collect data for user
         let user: UserQuery = UserQuery::get_user_by_uuid(
@@ -343,7 +343,7 @@ impl ShowUserAndRelatedData {
         target_user_uuid: &Uuid,
         logged_user_uuid: &Uuid,
         set_lang_id: &i32,
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> ServiceResult<ShowUserAndRelatedData> {
         // collect data for user
         let user: UserQuery = UserQuery::get_user_by_uuid(
@@ -412,7 +412,7 @@ impl ShowUserAndRelatedData {
         logged_user_uuid: &Uuid,
         target_user_uuid: &Uuid,
         set_lang_id: &i32,
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> ServiceResult<ShowUserAndRelatedData> {
         let need_access_level = 3; // todo!(create enum for manage access level)
 

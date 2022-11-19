@@ -6,7 +6,7 @@ use uuid::Uuid;
 pub(crate) fn delete_notifications(
     logged_user_uuid: &Uuid,
     notifications_ids: &[i32],
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<i32> {
     use crate::schema::notification_ref::dsl as notification_ref;
     use crate::schema::notification_to_user::dsl as notification_to_user;

@@ -8,7 +8,7 @@ use diesel::prelude::*;
 
 pub(crate) fn create_extension(
     new_extension_data: &IptExtensionData,
-    conn: &PgConnection
+    conn: &mut PgConnection
 ) -> ServiceResult<Extension> {
     let flag_found = extension_ref::extension_ref
         .filter(extension_ref::extension.eq(&new_extension_data.extension))

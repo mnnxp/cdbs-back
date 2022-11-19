@@ -8,7 +8,7 @@ impl CompanyTypeTranslateList {
     pub(crate) fn get_company_type_by_id(
         target_company_type_id: &i32,
         set_lang_id: &i32,
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> ServiceResult<CompanyTypeTranslateList> {
         company_type_translate_list::company_type_translate_list
             .filter(company_type_translate_list::company_type_id.eq(target_company_type_id)
@@ -31,7 +31,7 @@ impl CompanyTypeTranslateList {
     /// Get all company types with translate
     pub(crate) fn get_company_types(
         set_lang_id: &i32,
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> ServiceResult<Vec<CompanyTypeTranslateList>> {
         company_type_translate_list::company_type_translate_list
             .filter(company_type_translate_list::lang_id.eq(set_lang_id))

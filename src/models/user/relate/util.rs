@@ -8,7 +8,7 @@ use uuid::Uuid;
 /// Count standards for user by uuid
 pub(crate) fn count_standards_for_user(
     target_user_uuid: &Uuid,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<usize> {
     standard_ref::standard_ref
         .filter(standard_ref::user_uuid.eq(target_user_uuid))
@@ -22,7 +22,7 @@ pub(crate) fn count_standards_for_user(
 /// Count components for user by uuid
 pub(crate) fn count_components_for_user(
     target_user_uuid: &Uuid,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<usize> {
     component_ref::component_ref
         .filter(component_ref::user_uuid.eq(target_user_uuid))
@@ -36,7 +36,7 @@ pub(crate) fn count_components_for_user(
 /// Count companies for user by uuid
 pub(crate) fn count_companies_for_user(
     target_user_uuid: &Uuid,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<usize> {
     company_ref::company_ref
         .filter(company_ref::user_uuid.eq(target_user_uuid))

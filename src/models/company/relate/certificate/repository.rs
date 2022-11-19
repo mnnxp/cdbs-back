@@ -11,7 +11,7 @@ impl CompanyCertificateAndFile {
     /// Gets certificates company with slimfile data
     pub(crate) fn from_company(
         target_company_uuid: &Uuid,
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> ServiceResult<Vec<CompanyCertificateAndFile>> {
         let certificates_company = company_certificate_ref::company_certificate_ref
             .filter(company_certificate_ref::company_uuid.eq(target_company_uuid))

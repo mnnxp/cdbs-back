@@ -21,7 +21,7 @@ use uuid::Uuid;
 /// Preliminary registration a file in database and bind with related object
 pub(crate) fn preregister_file(
     preliminary_file_data: PreliminaryFileData,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<SlimFile> {
     let object = preliminary_file_data.object.clone();
     // register data in file_ref table
@@ -39,7 +39,7 @@ pub(crate) fn preregister_file(
 /// Write information of file to db file_ref
 fn write_metadata(
     file_data: PreliminaryFileData,
-    conn: &PgConnection
+    conn: &mut PgConnection
 ) -> ServiceResult<SlimFile> {
     let file: InsertableFile = file_data.into();
     diesel::insert_into(file_ref::file_ref)
@@ -61,7 +61,7 @@ fn write_metadata(
 fn write_addiction_data(
     object: ListObject,
     file_uuid: Uuid,
-    conn: &PgConnection
+    conn: &mut PgConnection
 ) -> ServiceResult<bool>{
     // select addiction table for write additional data
     match object {

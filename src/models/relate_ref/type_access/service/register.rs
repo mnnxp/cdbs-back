@@ -9,7 +9,7 @@ use diesel::prelude::*;
 
 pub(crate) fn create_type_access(
     data: &IptTypeAccessTranslateListData,
-    conn: &PgConnection
+    conn: &mut PgConnection
 ) -> ServiceResult<TypeAccessTranslateList> {
     let flag_found = type_access_translate_list::type_access_translate_list
         .filter(type_access_translate_list::lang_id.eq(&data.lang_id)

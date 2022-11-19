@@ -10,10 +10,10 @@ use uuid::Uuid;
 // Param component models
 #[derive(Identifiable, Serialize, Deserialize, Queryable, Associations)]
 #[derive(SimpleObject, Clone, Debug)]
-#[primary_key(component_uuid, param_id)]
-#[belongs_to(Component, foreign_key = "component_uuid")]
-#[belongs_to(ParamTranslateList, foreign_key = "param_id")]
-#[table_name = "param_to_component"]
+#[diesel(primary_key(component_uuid, param_id))]
+#[diesel(belongs_to(Component, foreign_key = component_uuid))]
+#[diesel(belongs_to(ParamTranslateList, foreign_key = param_id))]
+#[diesel(table_name = param_to_component)]
 pub(crate) struct ComponentParam {
     pub(crate) component_uuid: Uuid,
     pub(crate) param_id: i32,
@@ -44,7 +44,7 @@ impl ComponentParamWithTranslation {
 }
 
 #[derive(Debug, Insertable)]
-#[table_name = "param_to_component"]
+#[diesel(table_name = param_to_component)]
 pub(crate) struct InsertableComponentParam {
     pub(crate) component_uuid: Uuid,
     pub(crate) param_id: i32,

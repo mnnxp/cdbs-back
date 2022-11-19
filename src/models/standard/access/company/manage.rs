@@ -16,7 +16,7 @@ pub(crate) fn get_companies_list_access_standard(
     logged_user_uuid: &Uuid,
     target_standard_uuid: &Uuid,
     set_lang_id: &i32,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<Vec<CompanyAccessStandardAndRelatedData>> {
     // 1. проверить пользователя на владение стандартом
     check_is_owner_with_err(logged_user_uuid, target_standard_uuid, conn)?;
@@ -46,7 +46,7 @@ pub(crate) fn get_companies_list_access_standard(
 pub(crate) fn set_company_access_standard(
     logged_user_uuid: &Uuid,
     data: &IptCompanyAccessStandardData,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<bool> {
     // 1. проверить пользователя на владение стандартом
     check_is_owner_with_err(logged_user_uuid, &data.standard_uuid, conn)?;
@@ -90,7 +90,7 @@ pub(crate) fn set_company_access_standard(
 /// Warning: this function without "check is owner company"
 fn add_company_access_standard(
     data: &IptCompanyAccessStandardData,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<bool> {
     let insert_data: InsertableCompanyAccessStandard = data.into();
 
@@ -117,7 +117,7 @@ fn add_company_access_standard(
 pub(crate) fn del_company_access_standard(
     logged_user_uuid: &Uuid,
     data: &DelCompanyAccessStandardData,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<bool> {
     // 1. проверить пользователя на владение стандартом
     check_is_owner_with_err(logged_user_uuid, &data.standard_uuid, conn)?;

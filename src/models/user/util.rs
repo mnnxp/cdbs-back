@@ -6,7 +6,7 @@ use uuid::Uuid;
 /// Get user_uuid by username
 pub(crate) fn get_uuid_by_username(
     username: &str,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<Uuid> {
     user_ref::user_ref
         .filter(user_ref::username.eq(username)
@@ -23,7 +23,7 @@ pub(crate) fn get_uuid_by_username(
 /// Checking if a username already used
 pub(crate) fn check_use_username(
     username: &str,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<bool> {
     let found = user_ref::user_ref
         .filter(user_ref::username.eq(username))

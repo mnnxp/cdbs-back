@@ -28,7 +28,7 @@ impl KeywordQuery {
             None => KeywordArg::default(),
         };
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         get_keywords(&arguments, conn)
     }
@@ -44,7 +44,7 @@ impl KeywordMutation {
         // authorization check
         check_authorized(cxt)?;
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         create_keyword(&args, conn)
     }

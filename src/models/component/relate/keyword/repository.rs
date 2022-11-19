@@ -9,7 +9,7 @@ impl Keyword {
     /// Get list keywords for component
     pub(crate) fn get_by_component(
         component: &Component,
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> ServiceResult<Vec<Keyword>> {
         let target_vec_keyword_id: Vec<i32> = ComponentKeyword::belonging_to(component)
             .select(keyword_to_component::keyword_id)

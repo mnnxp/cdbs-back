@@ -11,7 +11,7 @@ pub(crate) fn update_modification_data(
     logged_user_uuid: &Uuid,
     target_modification_uuid: &Uuid,
     data: &IptUpdateComponentModificationData,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<usize> {
     let need_access_level = 1; // todo!(create enum for manage access level)
 

@@ -26,7 +26,7 @@ impl ProgramQuery {
             None => ProgramArg::default(),
         };
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         get_programs(&arguments, conn)
     }
@@ -41,7 +41,7 @@ impl ProgramMutation {
     ) -> ServiceResult<Program> {
         check_authorized(cxt)?;
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         create_program(&args, conn)
     }

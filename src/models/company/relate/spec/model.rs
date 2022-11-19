@@ -6,17 +6,17 @@ use uuid::Uuid;
 
 // Spec company models
 #[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, Clone, Debug, SimpleObject)]
-#[primary_key(company_uuid, spec_id)]
-#[belongs_to(Company, foreign_key = "company_uuid")]
-#[belongs_to(Spec, foreign_key = "spec_id")]
-#[table_name = "spec_to_company"]
+#[diesel(primary_key(company_uuid, spec_id))]
+#[diesel(belongs_to(Company, foreign_key = company_uuid))]
+#[diesel(belongs_to(Spec, foreign_key = spec_id))]
+#[diesel(table_name = spec_to_company)]
 pub(crate) struct CompanySpec {
     pub(crate) spec_id: i32,
     pub(crate) company_uuid: Uuid,
 }
 
 #[derive(Debug, Insertable)]
-#[table_name = "spec_to_company"]
+#[diesel(table_name = spec_to_company)]
 pub(crate) struct InsertableCompanySpec {
     pub(crate) company_uuid: Uuid,
     pub(crate) spec_id: i32,

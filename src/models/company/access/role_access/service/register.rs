@@ -13,7 +13,7 @@ use uuid::Uuid;
 pub(crate) fn create_role_access(
     logged_user_uuid: &Uuid,
     data: &IptRoleAccessData,
-    conn: &PgConnection
+    conn: &mut PgConnection
 ) -> ServiceResult<bool> {
     use crate::schema::role_access::dsl::*;
 

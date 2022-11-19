@@ -8,7 +8,7 @@ use uuid::Uuid;
 /// Show tokens for user
 pub(crate) fn show_user_tokens(
     logged_user_uuid: &Uuid,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<Vec<UserToken>> {
     use crate::models::user::access::token::show_tokens;
 
@@ -52,7 +52,7 @@ pub(crate) fn decode_user_token(
 pub(crate) fn delete_target_token(
     logged_user_uuid: &Uuid,
     target_token: &str,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<bool> {
     use crate::models::user::access::token::delete_user_token;
 
@@ -66,7 +66,7 @@ pub(crate) fn delete_target_token(
 /// Delete all tokens for logged user
 pub(crate) fn delete_tokens(
     logged_user_uuid: &Uuid,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<i32> {
     use crate::models::user::access::token::delete_all_tokens;
 

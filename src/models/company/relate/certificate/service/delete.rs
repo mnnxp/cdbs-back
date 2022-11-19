@@ -12,7 +12,7 @@ use uuid::Uuid;
 pub(crate) fn del_certificate_description(
     logged_user_uuid: &Uuid,
     data: &DelCompanyCertificateData,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<bool> {
     let need_access_level = 1; // todo!(create enum for manage access level)
 
@@ -42,7 +42,7 @@ pub(crate) fn del_certificate_description(
 /// Set the delete flags for all company certificates
 pub(crate) fn delete_company_certificates(
     company_uuid: &Uuid,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<bool> {
     let del_file_uuids = diesel::delete(company_certificate_ref::company_certificate_ref
         .filter(company_certificate_ref::company_uuid.eq(company_uuid)))

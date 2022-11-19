@@ -1,9 +1,7 @@
-use actix_web::http::{HeaderName, HeaderMap, header::LanguageTag};
+use actix_web::http::header::{HeaderName, HeaderMap, LanguageTag};
 use crate::schema::*;
 use async_graphql::*;
-// use chrono::*;
 
-// use actix_web::http::{HeaderName, HeaderMap};
 lazy_static::lazy_static! {
     static ref ACCEPT_LANGUAGE: HeaderName =
         HeaderName::from_lowercase(b"accept-language").unwrap();
@@ -19,13 +17,14 @@ impl From<&HeaderMap> for SetLang {
         let lang_id = match lang {
             None => 1,
             Some(str_lang) => {
-                let str_lang = str_lang.parse::<LanguageTag>().unwrap_or_default();
+                // let str_lang = str_lang.parse::<LanguageTag>().unwrap_or_default();
 
                 debug!("ACCEPT_LANGUAGE: {:?}", str_lang);
 
-                match str_lang.language {
+                // match str_lang.language {
+                match str_lang.parse::<LanguageTag>() {
                     // Some(x) if x == *"en" => 1,
-                    Some(x) if x == *"ru" => 2,
+                    Ok(x) if x.primary_language() == "ru" => 2,
                     // Some(_) => 1,
                     _ => 1,
                 }
@@ -46,7 +45,7 @@ pub(crate) struct Language {
 }
 
 #[derive(Debug, Insertable)]
-#[table_name = "language_ref"]
+#[diesel(table_name = language_ref)]
 pub(crate) struct InsertableLanguage {
     pub(crate) lang: String,
     pub(crate) langshort: String,

@@ -7,7 +7,7 @@ use diesel::prelude::*;
 impl Program {
     pub(crate) fn get_program_by_id(
         target_program_id: &i32,
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> ServiceResult<Program> {
         program_ref::program_ref
             .filter(program_ref::id.eq(target_program_id))
@@ -21,7 +21,7 @@ impl Program {
     /// Gets programs for target extension
     pub(crate) fn get_program_for_ext(
         target_ext_id: &i32,
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> ServiceResult<Program> {
         let target_program_id = Extension::get_program_id(
             target_ext_id,

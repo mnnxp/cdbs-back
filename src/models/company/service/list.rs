@@ -11,7 +11,7 @@ pub(crate) fn get_companies(
     logged_user_uuid: &Uuid,
     arguments: &CompaniesArg,
     set_lang_id: &i32,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<Vec<ShowCompanyShort>> {
     // structure for reduce the number of function arguments
     let CompaniesArg {
@@ -88,7 +88,7 @@ fn get_companies_by_user(
     user_uuid: &Uuid,
     limit: &i32,
     offset: &i32,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<Vec<Uuid>> {
     use crate::schema::company_ref::dsl as company_ref;
 
@@ -121,7 +121,7 @@ fn get_companies_followed_by_user(
     user_uuid: &Uuid,
     limit: &i32,
     offset: &i32,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<Vec<Uuid>> {
     use crate::schema::company_fav::dsl as company_fav;
 
@@ -154,7 +154,7 @@ pub(crate) fn find_by_uuid(
     logged_user_uuid: &Uuid,
     target_company_uuid: &Uuid,
     set_lang_id: &i32,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<CompanyAndRelatedData> {
     // collect data for company
     CompanyAndRelatedData::get_by_uuid(

@@ -9,7 +9,7 @@ use uuid::Uuid;
 pub(crate) fn del_company_of_suppliers(
     logged_user_uuid: &Uuid,
     data: &DelCompanyOfSuppliersData,
-    conn: &PgConnection
+    conn: &mut PgConnection
 ) -> ServiceResult<bool> {
     use crate::schema::supplier_to_component::dsl::*;
 

@@ -11,7 +11,7 @@ use uuid::Uuid;
 pub(crate) fn get_modification_filesets(
     logged_user_uuid: &Uuid,
     arguments: &FilesetProgramArg,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<Vec<FilesetProgramRelatedData>> {
     let FilesetProgramArg {
         modification_uuid,

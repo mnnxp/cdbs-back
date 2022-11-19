@@ -17,7 +17,7 @@ use uuid::Uuid;
 impl ShowFileRelatedData {
     pub(crate) fn get_file_by_uuid(
         target_file_uuid: &Uuid,
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> ServiceResult<ShowFileRelatedData> {
         let file_data: ShowFile = file_ref::file_ref
             .filter(file_ref::uuid.eq(target_file_uuid)
@@ -66,7 +66,7 @@ impl ShowFileRelatedData {
 
     pub(crate) fn get_file_by_uuids(
         target_files_uuids: &[Uuid],
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> ServiceResult<Vec<ShowFileRelatedData>> {
         let mut result: Vec<ShowFileRelatedData> = Vec::new();
 
@@ -85,7 +85,7 @@ impl SlimFile {
     /// Get SlimFile data by target file uuid
     pub(crate) fn get_file_by_uuid(
         target_file_uuid: &Uuid,
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> ServiceResult<SlimFile> {
         file_ref::file_ref
             .filter(file_ref::uuid.eq(target_file_uuid)
@@ -106,7 +106,7 @@ impl SlimFile {
     /// Collect SlimFiles data by target files uuids
     pub(crate) fn get_by_files_uuids(
         target_files_uuids: &[Uuid],
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> ServiceResult<Vec<SlimFile>> {
         file_ref::file_ref
             .filter(file_ref::uuid.eq_any(target_files_uuids)
@@ -132,7 +132,7 @@ impl PreliminaryFileData {
         parent_file_uuid: Uuid,
         object: ListObject,
         filename: &str,
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> PreliminaryFileData {
         // getting rid of dangerous names
         let filename = sanitize_filename::sanitize(filename);
@@ -155,7 +155,7 @@ impl DownloadFile {
     /// Get DownloadFile with generated presigned_url from SlimFile data
     pub(crate) fn get_by_slim_file(
         slim_file: &SlimFile,
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> ServiceResult<DownloadFile> {
         let naive_local_now = chrono::Local::now().naive_local();
 
@@ -198,7 +198,7 @@ impl DownloadFile {
     /// and then build DownloadFile with generated presigned_url
     pub(crate) fn get_by_file_uuid(
         target_file_uuid: &Uuid,
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> ServiceResult<DownloadFile> {
         let file: SlimFile = SlimFile::get_file_by_uuid(
             target_file_uuid,
@@ -211,7 +211,7 @@ impl DownloadFile {
     /// Get structures of DownloadFile by files uuids
     pub(crate) fn get_by_files_uuids (
         target_files_uuids: &[Uuid],
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> ServiceResult<Vec<DownloadFile>> {
         let mut collect_res: Vec<DownloadFile> = Vec::new();
 

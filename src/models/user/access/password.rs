@@ -48,7 +48,7 @@ impl HashPassword {
 pub(crate) fn change_password(
     logged_user_uuid: &Uuid,
     data: &IptUpdatePassword,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<bool> {
     if data.old_password == data.new_password {
         // return Err(ServiceError::BadRequest(
@@ -76,7 +76,7 @@ pub(crate) fn change_password(
 fn update_password(
     logged_user_uuid: &Uuid,
     new_password: &[u8],
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<bool> {
     // get salt for hashed password
     let psw_salt = make_salt();
@@ -118,7 +118,7 @@ fn update_password(
 pub(crate) fn check_password(
     logged_user_uuid: &Uuid,
     password: &[u8],
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<bool> {
     let hash_pass = user_ref::user_ref
         .filter(user_ref::uuid.eq(logged_user_uuid))

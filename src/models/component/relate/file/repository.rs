@@ -8,7 +8,7 @@ impl ShowFileRelatedData {
     /// Get files by component_uuid
     pub(crate) fn by_component_uuid(
         component_uuid: &Uuid,
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> ServiceResult<Vec<ShowFileRelatedData>> {
         let target_files_uuids: Vec<Uuid> = file_to_component::file_to_component
             .filter(file_to_component::component_uuid.eq(component_uuid))

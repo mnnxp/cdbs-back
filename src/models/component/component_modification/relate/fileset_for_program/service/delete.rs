@@ -14,7 +14,7 @@ use uuid::Uuid;
 pub(crate) fn del_modification_fileset(
     logged_user_uuid: &Uuid,
     data: &DelFilesetProgramData,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<bool> {
     let need_access_level = 1; // todo!(create enum for manage access level)
 
@@ -45,7 +45,7 @@ pub(crate) fn del_modification_fileset(
 
 fn delete_fileset_row(
     data: &DelFilesetProgramData,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<bool> {
     let count = diesel::delete(fileset_for_program::fileset_for_program)
         .filter(fileset_for_program::uuid.eq(&data.fileset_uuid)
@@ -62,7 +62,7 @@ fn delete_fileset_row(
 /// Set the delete flags for all files of filesets associated with the component modifications
 pub(crate) fn delete_filesets_files_by_modifications(
     modification_uuids: &[Uuid],
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<bool> {
     // get filesets related with component modifications
     let fileset_uuids = fileset_for_program::fileset_for_program

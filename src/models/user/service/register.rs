@@ -8,7 +8,7 @@ use diesel::prelude::*;
 /// Create new user
 pub(crate) fn create_user(
     data: &IptUserData,
-    conn: &PgConnection
+    conn: &mut PgConnection
 ) -> ServiceResult<SlimUser> {
     if check_use_username(&data.username, conn)? {
         return Err(ServiceError::BadRequest(

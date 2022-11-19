@@ -7,9 +7,9 @@ use uuid::Uuid;
 
 #[derive(Identifiable, Serialize, Deserialize, Queryable, Associations)]
 #[derive(SimpleObject, Clone, Debug)]
-#[primary_key(uuid)]
-#[belongs_to(Company, foreign_key = "company_uuid")]
-#[table_name = "company_represent_ref"]
+#[diesel(primary_key(uuid))]
+#[diesel(belongs_to(Company, foreign_key = company_uuid))]
+#[diesel(table_name = company_represent_ref)]
 pub(crate) struct CompanyRepresent {
     pub(crate) uuid: Uuid,
     pub(crate) company_uuid: Uuid,
@@ -32,7 +32,7 @@ pub(crate) struct CompanyRepresentAndRelatedData {
 }
 
 #[derive(Debug, Insertable)]
-#[table_name = "company_represent_ref"]
+#[diesel(table_name = company_represent_ref)]
 pub(crate) struct InsertableCompanyRepresent {
     pub(crate) uuid: Uuid,
     pub(crate) company_uuid: Uuid,

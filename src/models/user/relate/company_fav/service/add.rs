@@ -15,7 +15,7 @@ use uuid::Uuid;
 pub(crate) fn add_company_fav(
     logged_user_uuid: &Uuid,
     company_uuid: &Uuid,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<bool> {
     let need_access_level = 3; // todo!(create enum for manage access level)
 
@@ -79,7 +79,7 @@ pub(crate) fn add_company_fav(
 
 fn new_notification(
     object_uuid: &Uuid,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<bool> {
     let user_uuid = company_ref::company_ref
         .filter(company_ref::uuid.eq(object_uuid))

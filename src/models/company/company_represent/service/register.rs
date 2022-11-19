@@ -11,7 +11,7 @@ use uuid::Uuid;
 pub(crate) fn create_company_represent(
     logged_user_uuid: &Uuid,
     data: &IptCompanyRepresentData,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<bool> {
     use crate::schema::company_represent_ref::dsl::company_represent_ref;
 

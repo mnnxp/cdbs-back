@@ -8,7 +8,7 @@ use uuid::Uuid;
 pub(crate) fn check_file_owner_err(
     user_uuid: &Uuid,
     file_uuid: &Uuid,
-    conn: &PgConnection
+    conn: &mut PgConnection
 ) -> ServiceResult<bool> {
     // find file with target user
     file_ref::file_ref

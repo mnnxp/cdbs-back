@@ -1,6 +1,6 @@
 use actix_web::{error::ResponseError, HttpResponse};
-use diesel::result::Error as DBError;
 use async_graphql::{ErrorExtensions, FieldError};
+use diesel::result::Error as DBError;
 use std::convert::From;
 use thiserror::Error;
 
@@ -26,7 +26,7 @@ pub enum ServiceError {
 }
 
 impl ErrorExtensions for ServiceError {
-    fn extend(self) -> FieldError {
+    fn extend(&self) -> FieldError {
         self.extend_with(|err, e| match err {
             ServiceError::Unauthorized => e.set("code", "Unauthorized"),
             ServiceError::BadRequest(reason) => e.set("reason", reason.to_string()),

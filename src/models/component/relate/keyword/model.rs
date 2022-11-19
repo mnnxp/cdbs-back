@@ -8,10 +8,10 @@ use uuid::Uuid;
 // Keyword component models
 #[derive(Identifiable, Serialize, Deserialize, Queryable, Associations)]
 #[derive(SimpleObject, Clone, Debug)]
-#[primary_key(component_uuid, keyword_id)]
-#[belongs_to(Component, foreign_key = "component_uuid")]
-#[belongs_to(Keyword, foreign_key = "keyword_id")]
-#[table_name = "keyword_to_component"]
+#[diesel(primary_key(component_uuid, keyword_id))]
+#[diesel(belongs_to(Component, foreign_key = component_uuid))]
+#[diesel(belongs_to(Keyword, foreign_key = keyword_id))]
+#[diesel(table_name = keyword_to_component)]
 pub(crate) struct ComponentKeyword {
     pub(crate) component_uuid: Uuid,
     pub(crate) keyword_id: i32,
@@ -36,7 +36,7 @@ pub(crate) struct IptComponentKeywordsNames {
 }
 
 #[derive(Debug, Insertable)]
-#[table_name = "keyword_to_component"]
+#[diesel(table_name = keyword_to_component)]
 pub(crate) struct InsertableComponentKeyword {
     pub(crate) component_uuid: Uuid,
     pub(crate) keyword_id: i32,

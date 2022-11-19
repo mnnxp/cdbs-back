@@ -23,7 +23,7 @@ impl ExtensionMutation {
         args: IptExtensionData,
     ) -> ServiceResult<Extension> {
         use extension::service::register::create_extension;
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         crate::models::user::access::logged::check_authorized(cxt)?;
 

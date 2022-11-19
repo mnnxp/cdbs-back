@@ -11,7 +11,7 @@ use uuid::Uuid;
 pub(crate) fn change_standard_owner_user(
     logged_user_uuid: &Uuid,
     data: &ChangeOwnerStandard,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<bool> {
     // 1. проверить пользователя на владение стандартом
     check_is_owner_with_err(
@@ -39,7 +39,7 @@ pub(crate) fn change_standard_owner_user(
 pub(crate) fn change_standard_type_access(
     logged_user_uuid: &Uuid,
     data: &ChangeTypeAccessStandard,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<bool> {
     // 1. проверить пользователя на владение стандартом
     check_is_owner_with_err(

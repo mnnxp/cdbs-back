@@ -9,7 +9,7 @@ pub(crate) fn get_by_company_uuid(
     logged_user_uuid: &Uuid,
     target_company_uuid: &Uuid,
     set_lang_id: &i32,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<Vec<CompanyMemberAndRelatedData>> {
 
     let need_access_level = 3; // todo!(create enum for manage access level)
@@ -42,7 +42,7 @@ pub(crate) fn get_by_company_uuid(
 //     target_company_uuid: &Uuid,
 //     members_uuids: &[Uuid],
 //     set_lang_id: &i32,
-//     conn: &PgConnection,
+//     conn: &mut PgConnection,
 // ) -> ServiceResult<Vec<CompanyMemberAndRelatedData>> {
 //
 //     let need_access_level = 3; // todo!(create enum for manage access level)

@@ -10,7 +10,7 @@ use uuid::Uuid;
 pub(crate) fn create_component(
     logged_user_uuid: &Uuid,
     data: &IptComponentData,
-    conn: &PgConnection
+    conn: &mut PgConnection
 ) -> ServiceResult<Uuid> {
     if let Some(ref parent_component_uuid) = data.parent_component_uuid {
         check_access_component_for_user(

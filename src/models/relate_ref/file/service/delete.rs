@@ -9,7 +9,7 @@ use uuid::Uuid;
 pub(crate) fn delete_file_with_check_by_uuid(
     logged_user_uuid: &Uuid,
     file_uuid: &Uuid,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<bool> {
     // ownership check and data update
     check_file_owner_err(logged_user_uuid, file_uuid, conn)?;
@@ -22,7 +22,7 @@ pub(crate) fn delete_file_with_check_by_uuid(
 /// without check access for logged user
 pub(crate) fn delete_file_by_uuid(
     file_uuid: &Uuid,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<bool> {
     use crate::schema::file_ref::dsl as file_ref;
 
@@ -46,7 +46,7 @@ pub(crate) fn delete_file_by_uuid(
 /// without check access for logged user
 pub(crate) fn delete_file_by_uuids(
     file_uuids: &[Uuid],
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<bool> {
     use crate::schema::file_ref::dsl as file_ref;
 

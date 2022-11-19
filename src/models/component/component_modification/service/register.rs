@@ -10,7 +10,7 @@ use uuid::Uuid;
 pub(crate) fn create_component_modification(
     logged_user_uuid: &Uuid,
     data: &IptComponentModificationData,
-    conn: &PgConnection
+    conn: &mut PgConnection
 ) -> ServiceResult<Uuid> {
     let need_access_level = 1; // todo!(create enum for manage access level)
 

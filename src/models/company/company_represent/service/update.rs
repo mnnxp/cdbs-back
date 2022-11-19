@@ -11,7 +11,7 @@ pub(crate) fn update_company_represent_by_uuid(
     target_company_uuid: &Uuid,
     target_company_represent_uuid: &Uuid,
     data: &IptUpdateCompanyRepresentData,
-    conn: &PgConnection
+    conn: &mut PgConnection
 ) -> ServiceResult<usize> {
     // check access user for company
     check_is_owner_with_err(

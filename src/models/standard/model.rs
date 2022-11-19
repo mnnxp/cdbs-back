@@ -21,8 +21,8 @@ lazy_static::lazy_static! {
 }
 
 #[derive(Identifiable, Queryable, Debug)]
-#[primary_key(uuid)]
-#[table_name = "standard_ref"]
+#[diesel(primary_key(uuid))]
+#[diesel(table_name = standard_ref)]
 pub(crate) struct Standard {
     pub(crate) uuid: Uuid,
     pub(crate) parent_standard_uuid: Uuid,
@@ -89,7 +89,7 @@ pub(crate) struct ShowStandardShort {
 }
 
 #[derive(Debug, Insertable)]
-#[table_name = "standard_ref"]
+#[diesel(table_name = standard_ref)]
 pub(crate) struct InsertableStandard {
     uuid: Uuid,
     parent_standard_uuid: Uuid,

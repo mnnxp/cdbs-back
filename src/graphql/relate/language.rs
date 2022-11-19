@@ -27,7 +27,7 @@ impl LanguageQuery {
             None => LanguageArg::default(),
         };
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         get_languages(&arguments, conn)
     }

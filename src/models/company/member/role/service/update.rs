@@ -8,7 +8,7 @@ use uuid::Uuid;
 pub(crate) fn change_name_role_company(
     logged_user_uuid: &Uuid,
     data: &IptUpdateNameRoleData,
-    conn: &PgConnection
+    conn: &mut PgConnection
 ) -> ServiceResult<bool> {
     use crate::schema::role_member_translate_list::dsl as role_member_tl;
 

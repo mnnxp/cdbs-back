@@ -12,7 +12,7 @@ impl UserAccessStandardAndRelatedData {
     pub(crate) fn from_standard_by_uuid(
         target_standard_uuid: &Uuid,
         set_lang_id: &i32,
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> ServiceResult<Vec<UserAccessStandardAndRelatedData>> {
         let list_users_with_access = user_access_to_standard
             .filter(standard_uuid.eq(target_standard_uuid))

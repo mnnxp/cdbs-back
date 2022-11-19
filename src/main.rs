@@ -16,7 +16,7 @@ mod schema;
 
 use actix_cors::Cors;
 use actix_web::middleware::Logger;
-use actix_web::{App, HttpServer};
+use actix_web::{App, HttpServer, web::Data};
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -48,11 +48,11 @@ async fn main() -> std::io::Result<()> {
         let cors = Cors::permissive();
         App::new()
             // Database
-            .data(pool.clone())
+            .app_data(Data::new(pool.clone()))
             // .app_data(schema)
-            .data(schema.clone())
+            .app_data(Data::new(schema.clone()))
             // Options
-            .data(opt.clone())
+            .app_data(Data::new(opt.clone()))
             // CORS
             .wrap(cors)
             // Error logging

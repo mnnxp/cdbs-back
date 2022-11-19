@@ -12,7 +12,7 @@ use uuid::Uuid;
 pub(crate) fn update_favicon(
     target_user_uuid: &Uuid,
     filename: &str,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<UploadFile> {
     let user_short = UserShort::get_by_uuid(
         target_user_uuid,
@@ -56,7 +56,7 @@ pub(crate) fn update_favicon(
 fn change_image_uuid (
     user_uuid: &Uuid,
     set_image_uuid: &Uuid,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> bool {
     use crate::schema::user_ref::dsl as user_ref;
 

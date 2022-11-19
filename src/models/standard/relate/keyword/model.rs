@@ -8,10 +8,10 @@ use uuid::Uuid;
 // Keyword standard models
 #[derive(Identifiable, Serialize, Deserialize, Queryable, Associations)]
 #[derive(SimpleObject, Clone, Debug)]
-#[primary_key(standard_uuid, keyword_id)]
-#[belongs_to(Standard, foreign_key = "standard_uuid")]
-#[belongs_to(Keyword, foreign_key = "keyword_id")]
-#[table_name = "keyword_to_standard"]
+#[diesel(primary_key(standard_uuid, keyword_id))]
+#[diesel(belongs_to(Standard, foreign_key = standard_uuid))]
+#[diesel(belongs_to(Keyword, foreign_key = keyword_id))]
+#[diesel(table_name = keyword_to_standard)]
 pub(crate) struct StandardKeyword {
     pub(crate) standard_uuid: Uuid,
     pub(crate) keyword_id: i32,
@@ -39,7 +39,7 @@ pub(crate) struct StandardKeywordRelatedData {
 // }
 
 #[derive(Debug, Insertable)]
-#[table_name = "keyword_to_standard"]
+#[diesel(table_name = keyword_to_standard)]
 pub(crate) struct InsertableStandardKeyword {
     pub(crate) standard_uuid: Uuid,
     pub(crate) keyword_id: i32,

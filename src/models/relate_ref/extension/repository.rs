@@ -7,7 +7,7 @@ impl Extension {
     /// Get program id for target extension id
     pub(crate) fn get_program_id(
         target_extension_id: &i32,
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> ServiceResult<i32> {
         extension_ref::extension_ref
             .filter(extension_ref::id.eq(target_extension_id))

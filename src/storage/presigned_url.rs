@@ -53,7 +53,7 @@ pub(crate) fn upload_presigned_url(
 pub(crate) fn save_presign_url(
     file_uuid: &Uuid,
     presigned_url: &str,
-    conn: &PgConnection
+    conn: &mut PgConnection
 ) -> ServiceResult<usize> {
     use crate::schema::presigned_url_ref::dsl as presigned_url_ref;
     let opt = {

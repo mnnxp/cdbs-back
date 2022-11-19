@@ -10,7 +10,7 @@ pub(crate) fn update_company_by_uuid(
     logged_user_uuid: &Uuid,
     target_company_uuid: &Uuid,
     data: &IptUpdateCompanyData,
-    conn: &PgConnection
+    conn: &mut PgConnection
 ) -> ServiceResult<usize> {
     // check access user for company
     check_is_owner_with_err(

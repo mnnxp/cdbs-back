@@ -8,7 +8,7 @@ use diesel::{PgConnection, prelude::*};
 pub(crate) fn get_regions(
     args: &RegionArg,
     set_lang_id: &i32,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<Vec<RegionTranslateList>> {
     match args.region_ids.is_empty() {
         true => find_all_regions(&args.limit, &args.offset, set_lang_id, conn),
@@ -20,7 +20,7 @@ fn find_all_regions(
     limit: &i32,
     offset: &i32,
     set_lang_id: &i32,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<Vec<RegionTranslateList>> {
     region_translate_list
         .filter(lang_id.eq(set_lang_id))
@@ -36,7 +36,7 @@ fn find_all_regions(
 fn find_region_id(
     args: &RegionArg,
     set_lang_id: &i32,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<Vec<RegionTranslateList>> {
     region_translate_list
         .filter(region_id.eq_any(&args.region_ids)

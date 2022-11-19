@@ -8,7 +8,7 @@ impl ShowStandardShort {
         target_component_uuid: &Uuid,
         target_user_uuid: &Uuid,
         set_lang_id: &i32,
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> ServiceResult<Vec<ShowStandardShort>> {
         use crate::schema::standard_to_component::dsl::*;
 

@@ -6,7 +6,7 @@ use diesel::prelude::*;
 impl License {
     pub(crate) fn get_license_by_ids(
         target_vec_license_id: &[i32],
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> ServiceResult<Vec<License>> {
         license_ref::license_ref
             .filter(license_ref::id.eq_any(target_vec_license_id))

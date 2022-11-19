@@ -8,7 +8,7 @@ impl RepresentationTypeTranslateList {
     pub(crate) fn get_by_id(
         target_id: &i32,
         set_lang_id: &i32,
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> ServiceResult<RepresentationTypeTranslateList> {
         let result = representation_type_translate_list
             .filter(representation_type_id.eq(target_id)
@@ -33,7 +33,7 @@ impl RepresentationTypeTranslateList {
     /// Get all represent types with translate
     pub(crate) fn get_all(
         set_lang_id: &i32,
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> ServiceResult<Vec<RepresentationTypeTranslateList>> {
         representation_type_translate_list
             .filter(lang_id.eq(set_lang_id))

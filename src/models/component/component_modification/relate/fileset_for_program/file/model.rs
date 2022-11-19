@@ -6,10 +6,10 @@ use async_graphql::*;
 use uuid::Uuid;
 
 #[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, PartialEq, Clone, Debug)]
-#[primary_key(fileset_uuid, file_uuid)]
-#[belongs_to(FilesetProgram, foreign_key = "fileset_uuid")]
-#[belongs_to(ShowFileRelatedData, foreign_key = "file_uuid")]
-#[table_name = "modification_file_from_fileset"]
+#[diesel(primary_key(fileset_uuid, file_uuid))]
+#[diesel(belongs_to(FilesetProgram, foreign_key = fileset_uuid))]
+#[diesel(belongs_to(ShowFileRelatedData, foreign_key = file_uuid))]
+#[diesel(table_name = modification_file_from_fileset)]
 pub(crate) struct ModificationFileFromFileset {
     pub(crate) fileset_uuid: Uuid,
     pub(crate) file_uuid: Uuid,
@@ -49,7 +49,7 @@ pub(crate) struct DelModificationFileFromFilesetData {
 }
 
 #[derive(Debug, Insertable)]
-#[table_name = "modification_file_from_fileset"]
+#[diesel(table_name = modification_file_from_fileset)]
 pub(crate) struct InsertableModificationFileFromFileset {
     pub(crate) fileset_uuid: Uuid,
     pub(crate) file_uuid: Uuid,

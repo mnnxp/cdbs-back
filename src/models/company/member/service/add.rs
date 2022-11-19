@@ -11,7 +11,7 @@ use uuid::Uuid;
 pub(crate) fn add_company_member(
     logged_user_uuid: &Uuid,
     data: &IptCompanyMemberData,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<bool> {
     // need top level access for change component main data
     let need_access_level = 1; // todo!(create enum for manage access level)

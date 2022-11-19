@@ -22,7 +22,7 @@ impl SlimCompany {
     /// Get slim company data by company uuid
     pub(crate) fn get_by_uuid(
         company_uuid: &Uuid,
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> ServiceResult<SlimCompany> {
         company_ref::company_ref
             .filter(company_ref::uuid.eq(company_uuid)
@@ -45,7 +45,7 @@ impl Company {
     /// Get company data from company_ref table by uuid
     pub(crate) fn get_company_by_uuid(
         target_company_uuid: &Uuid,
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> ServiceResult<Company> {
         company_ref::company_ref
             .filter(company_ref::uuid.eq(target_company_uuid)
@@ -90,7 +90,7 @@ impl ShowCompanyShort {
         limit: &i32,
         offset: &i32,
         set_lang_id: &i32,
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> ServiceResult<Vec<ShowCompanyShort>> {
         match filter_companies_uuids.is_empty() {
             true => {
@@ -120,7 +120,7 @@ impl ShowCompanyShort {
         target_company_uuid: &Uuid,
         logged_user_uuid: &Uuid,
         set_lang_id: &i32,
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> ServiceResult<ShowCompanyShort> {
         let need_access_level = 3; // todo!(create enum for manage access level)
 
@@ -145,7 +145,7 @@ impl ShowCompanyShort {
         target_company_uuid: &Uuid,
         logged_user_uuid: &Uuid,
         set_lang_id: &i32,
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> ServiceResult<ShowCompanyShort> {
         // get target company
         let company: Company = Company::get_company_by_uuid(
@@ -201,7 +201,7 @@ impl ShowCompanyShort {
         supplier: &bool,
         logged_user_uuid: &Uuid,
         set_lang_id: &i32,
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> ServiceResult<Vec<ShowCompanyShort>> {
         // the result for store the result :)
         let mut result: Vec<ShowCompanyShort> = Vec::new();
@@ -233,7 +233,7 @@ impl ShowCompanyShort {
         limit: &i32,
         offset: &i32,
         set_lang_id: &i32,
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> ServiceResult<Vec<ShowCompanyShort>> {
         let mut query = company_ref::company_ref.into_boxed();
         query = match supplier {
@@ -275,7 +275,7 @@ impl CompanyAndRelatedData {
         target_company_uuid: &Uuid,
         logged_user_uuid: &Uuid,
         set_lang_id: &i32,
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> ServiceResult<CompanyAndRelatedData> {
         let need_access_level = 3; // todo!(create enum for manage access level)
 

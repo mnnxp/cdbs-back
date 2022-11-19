@@ -11,7 +11,7 @@ use uuid::Uuid;
 pub(crate) fn del_certificate_description(
     logged_user_uuid: &Uuid,
     data: &DelUserCertificateData,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<bool> {
     // delete row user certificate
     let file_uuid = diesel::delete(user_certificate_ref::user_certificate_ref
@@ -31,7 +31,7 @@ pub(crate) fn del_certificate_description(
 /// Set the delete flags for all user certificates
 pub(crate) fn delete_user_certificates(
     user_uuid: &Uuid,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<bool> {
     let del_file_uuids = diesel::delete(user_certificate_ref::user_certificate_ref
         .filter(user_certificate_ref::user_uuid.eq(user_uuid)))

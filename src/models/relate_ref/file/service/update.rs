@@ -16,14 +16,14 @@ pub(crate) async fn confirm_upload(
     file_uuids: &[Uuid],
     pool: &PgPool,
 ) -> ServiceResult<i32> {
-    let conn = pool.get().unwrap();
+    let mut conn = pool.get().unwrap();
 
     let mut confirm_files: usize = 0;
 
     // getting SlimFile data for get files paths
     let slim_files = SlimFile::get_by_files_uuids(
         file_uuids,
-        &conn,
+        &mut conn,
     ).unwrap();
 
     // getting storage access data for target user
@@ -35,7 +35,7 @@ pub(crate) async fn confirm_upload(
         if check_write_data(
             target_user_uuid,
             &file_d.path_file,
-            &conn,
+            &mut conn,
         )? {
             // todo!(getting metadata  by file id from client for validation)
             let file_h = object_headers(&storage_access, &file_d.path_file)
@@ -60,7 +60,7 @@ pub(crate) async fn confirm_upload(
                     path_file: None,
                 },
                 true, // <- confirming upload file only by the same user who requested the upload url
-                &conn,
+                &mut conn,
             )?;
 
             debug!("Upload completed: {:?}", update_file_rows);
@@ -84,7 +84,7 @@ pub(crate) fn update_file_data_by_uuid(
     file_uuid: &Uuid,
     new_file_data: &FileData,
     ownership_check: bool,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<i32> {
     use crate::schema::file_ref::dsl as file_ref;
 

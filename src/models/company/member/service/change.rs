@@ -9,7 +9,7 @@ use uuid::Uuid;
 pub(crate) fn change_role_member(
     logged_user_uuid: &Uuid,
     data: &IptCompanyMemberData,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<bool> {
     use crate::schema::company_member_list::dsl::*;
 

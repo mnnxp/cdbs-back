@@ -10,7 +10,7 @@ use uuid::Uuid;
 pub(crate) fn del_standard_keywords(
     logged_user_uuid: &Uuid,
     data: &IptStandardKeywordsData,
-    conn: &PgConnection
+    conn: &mut PgConnection
 ) -> ServiceResult<usize> {
     let need_access_level = 1; // todo!(create enum for manage access level)
 

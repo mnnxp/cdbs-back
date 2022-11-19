@@ -8,10 +8,10 @@ use uuid::Uuid;
 
 #[derive(Identifiable, Serialize, Deserialize, Queryable, Associations)]
 #[derive(PartialEq, Clone, Debug, SimpleObject)]
-#[primary_key(modification_uuid)]
-#[belongs_to(ComponentModification, foreign_key = "modification_uuid")]
-#[belongs_to(ParamTranslateList, foreign_key = "param_id")]
-#[table_name = "param_to_modification"]
+#[diesel(primary_key(modification_uuid))]
+#[diesel(belongs_to(ComponentModification, foreign_key = modification_uuid))]
+#[diesel(belongs_to(ParamTranslateList, foreign_key = param_id))]
+#[diesel(table_name = param_to_modification)]
 pub(crate) struct ModificationParam {
     pub(crate) modification_uuid: Uuid,
     pub(crate) param_id: i32,
@@ -42,7 +42,7 @@ impl ModificationParamWithTranslation {
 }
 
 #[derive(Debug, Insertable)]
-#[table_name = "param_to_modification"]
+#[diesel(table_name = param_to_modification)]
 pub(crate) struct InsertableModificationParam {
     pub(crate) modification_uuid: Uuid,
     pub(crate) param_id: i32,

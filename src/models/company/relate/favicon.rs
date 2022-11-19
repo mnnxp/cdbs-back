@@ -14,7 +14,7 @@ pub(crate) fn update_favicon(
     logged_user_uuid: &Uuid,
     target_company_uuid: &Uuid,
     filename: &str,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<UploadFile> {
     // check access user for company
     check_is_owner_with_err(
@@ -64,7 +64,7 @@ pub(crate) fn update_favicon(
 /// Get image file uuid for company
 fn get_uuid_company_image (
     company_uuid: &Uuid,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<Uuid> {
     use crate::schema::company_ref::dsl as company_ref;
 
@@ -82,7 +82,7 @@ fn get_uuid_company_image (
 fn change_image_uuid (
     company_uuid: &Uuid,
     set_image_uuid: &Uuid,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> bool {
     use crate::schema::company_ref::dsl as company_ref;
 

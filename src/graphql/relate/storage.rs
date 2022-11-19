@@ -25,7 +25,7 @@ impl StorageQuery {
         // authorization check
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         get_url_by_file_uuid(
             &logged_user_uuid,
@@ -67,7 +67,7 @@ impl StorageMutation {
     ) -> ServiceResult<bool> {
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         delete_file_with_check_by_uuid(
             &logged_user_uuid,

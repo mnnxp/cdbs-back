@@ -8,7 +8,7 @@ use uuid::Uuid;
 pub(crate) fn get_component_suppliers(
     logged_user_uuid: &Uuid,
     component_uuid: &Uuid,
-    conn: &PgConnection
+    conn: &mut PgConnection
 ) -> ServiceResult<Vec<ComponentSupplierRelatedData>> {
     let need_access_level = 3; // todo!(create enum for manage access level)
 

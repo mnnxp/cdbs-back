@@ -51,8 +51,8 @@ impl User {
 }
 
 #[derive(Identifiable, Deserialize, Queryable, Debug)]
-#[primary_key(uuid)]
-#[table_name = "user_ref"]
+#[diesel(primary_key(uuid))]
+#[diesel(table_name = user_ref)]
 pub(crate) struct UserQuery {
     pub(crate) uuid: Uuid,
     pub(crate) email: String,
@@ -133,7 +133,7 @@ pub(crate) struct ShowUserAndRelatedData {
 }
 
 #[derive(Debug, Insertable)]
-#[table_name = "user_ref"]
+#[diesel(table_name = user_ref)]
 pub(crate) struct InsertableUser {
     uuid: Uuid,
     email: String,
@@ -292,9 +292,9 @@ impl From<User> for SlimUser {
     }
 }
 
-#[derive(Identifiable, Serialize, Associations, Queryable, Clone, Debug)]
-#[primary_key(uuid)]
-#[table_name = "user_ref"]
+#[derive(Identifiable, Serialize, Queryable, Clone, Debug)]
+#[diesel(primary_key(uuid))]
+#[diesel(table_name = user_ref)]
 pub(crate) struct UserShort {
     pub(crate) uuid: Uuid,
     pub(crate) firstname: String,

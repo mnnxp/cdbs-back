@@ -12,7 +12,7 @@ use uuid::Uuid;
 pub(crate) fn get_component_files(
     logged_user_uuid: &Uuid,
     args: &ComponentFilesArg,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<Vec<DownloadFile>> {
     let need_access_level = 3; // todo!(create enum for manage access level)
 
@@ -48,7 +48,7 @@ pub(crate) fn get_component_files(
 pub(crate) fn get_component_files_list(
     logged_user_uuid: &Uuid,
     args: &ComponentFilesArg,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<Vec<ShowFileRelatedData>> {
     let need_access_level = 3; // todo!(create enum for manage access level)
 

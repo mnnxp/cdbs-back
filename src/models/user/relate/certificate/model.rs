@@ -7,10 +7,10 @@ use uuid::Uuid;
 
 // Certificate for User
 #[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, Debug)]
-#[primary_key(file_uuid, user_uuid)]
-#[belongs_to(DownloadFile, foreign_key = "file_uuid")]
-#[belongs_to(User, foreign_key = "user_uuid")]
-#[table_name = "user_certificate_ref"]
+#[diesel(primary_key(file_uuid, user_uuid))]
+#[diesel(belongs_to(DownloadFile, foreign_key = file_uuid))]
+#[diesel(belongs_to(User, foreign_key = user_uuid))]
+#[diesel(table_name = user_certificate_ref)]
 pub(crate) struct UserCertificate {
     pub(crate) file_uuid: Uuid,
     pub(crate) user_uuid: Uuid,
@@ -25,7 +25,7 @@ pub(crate) struct UserCertificateAndFile {
 }
 
 #[derive(Debug, Insertable)]
-#[table_name = "user_certificate_ref"]
+#[diesel(table_name = user_certificate_ref)]
 pub(crate) struct InsertableUserCertificate {
     pub(crate) file_uuid: Uuid,
     pub(crate) user_uuid: Uuid,

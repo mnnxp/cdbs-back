@@ -8,7 +8,7 @@ impl ComponentTypeTranslateList {
     pub(crate) fn get_by_id(
         component_type_id: &i32,
         set_lang_id: &i32,
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> ServiceResult<ComponentTypeTranslateList> {
         let component_type = component_type_translate_list::component_type_translate_list
             .filter(component_type_translate_list::component_type_id.eq(component_type_id)
@@ -40,7 +40,7 @@ impl ComponentTypeTranslateList {
     pub(crate) fn get_by_ids(
         filter: &[i32],
         set_lang_id: &i32,
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> ServiceResult<Vec<ComponentTypeTranslateList>> {
         let res = match filter.is_empty() {
             true => component_type_translate_list::component_type_translate_list

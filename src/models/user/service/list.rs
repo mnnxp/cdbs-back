@@ -11,7 +11,7 @@ pub(crate) fn get_user_data (
     logged_user_uuid: &Uuid,
     args: &IptGetUserArg,
     set_lang_id: &i32,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<ShowUserAndRelatedData> {
     match (&args.user_uuid, &args.username) {
         (Some(user_uuid), _) => ShowUserAndRelatedData::get_user_by_uuid(
@@ -39,7 +39,7 @@ pub(crate) fn find_user_by_username(
     logged_user_uuid: &Uuid,
     target_username: &str,
     set_lang_id: &i32,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<ShowUserAndRelatedData> {
     use crate::models::user::util::get_uuid_by_username;
 
@@ -59,7 +59,7 @@ pub(crate) fn find_user_by_username(
 /// Gets slim data logged user
 pub(crate) fn get_self_slim_data(
     logged_user_uuid: &Uuid,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<SlimUser> {
     SlimUser::get_by_uuid(logged_user_uuid, conn)
 }
@@ -68,7 +68,7 @@ pub(crate) fn get_self_slim_data(
 pub(crate) fn get_self_user_data(
     logged_user_uuid: &Uuid,
     set_lang_id: &i32,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<UserAndRelatedData> {
     // collect data for user
     let result: UserAndRelatedData = UserAndRelatedData::collect_related_data(
@@ -87,7 +87,7 @@ pub(crate) fn get_self_user_data(
 pub(crate) fn get_users(
     logged_user_uuid: &Uuid,
     arguments: &UsersArg,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<Vec<ShowUserShort>> {
     // structure for reduce the number of function arguments
     let UsersArg {

@@ -8,7 +8,7 @@ use uuid::Uuid;
 pub(crate) fn del_modification_params(
     logged_user_uuid: &Uuid,
     data: &DelModificationParamData,
-    conn: &PgConnection
+    conn: &mut PgConnection
 ) -> ServiceResult<i32> {
 
     let need_access_level = 1; // todo!(create enum for manage access level)
@@ -57,7 +57,7 @@ pub(crate) fn del_modification_params(
 fn delete_modification_params_values(
     target_modification_uuid: &Uuid,
     param_ids: &[i32],
-    conn: &PgConnection
+    conn: &mut PgConnection
 ) -> usize {
     use crate::schema::param_to_modification::dsl::*;
     let del_params = diesel::delete(param_to_modification

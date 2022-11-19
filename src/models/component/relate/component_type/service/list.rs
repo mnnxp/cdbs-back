@@ -6,7 +6,7 @@ use diesel::PgConnection;
 pub(crate) fn get_component_types(
     filter: &[i32],
     set_lang_id: &i32,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<Vec<ComponentTypeTranslateList>> {
     ComponentTypeTranslateList::get_by_ids(filter, set_lang_id, conn)
 }

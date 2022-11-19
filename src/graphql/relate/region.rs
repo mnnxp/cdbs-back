@@ -26,7 +26,7 @@ impl RegionQuery {
             None => RegionArg::default(),
         };
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         get_regions(&arguments, &get_set_language(cxt), conn)
     }
@@ -41,7 +41,7 @@ impl RegionMutation {
     ) -> ServiceResult<RegionTranslateList> {
         check_authorized(cxt)?;
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         create_region(&args, conn)
     }

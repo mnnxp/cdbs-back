@@ -8,7 +8,7 @@ impl StandardFav {
     /// Count subscribers for standard
     pub(crate) fn get_count_by_user_uuid(
         target_user_uuid: &Uuid,
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> ServiceResult<i32> {
         let count = standard_fav::standard_fav
             .filter(standard_fav::user_uuid.eq(target_user_uuid)

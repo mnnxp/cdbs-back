@@ -19,7 +19,7 @@ pub(crate) fn get_root_component_uuid() -> Uuid {
 /// return true or false
 pub(crate) fn check_is_base(
     component_uuid: &Uuid,
-    conn: &PgConnection
+    conn: &mut PgConnection
 ) -> ServiceResult<bool> {
     component_ref::component_ref
         .filter(component_ref::uuid.eq(component_uuid))
@@ -35,7 +35,7 @@ pub(crate) fn check_is_base(
 /// return err if not base
 pub(crate) fn check_is_base_with_err(
     component_uuid: &Uuid,
-    conn: &PgConnection
+    conn: &mut PgConnection
 ) -> ServiceResult<bool> {
     let get_component_status = component_ref::component_ref
         .filter(component_ref::uuid.eq(component_uuid))
@@ -57,7 +57,7 @@ pub(crate) fn check_is_base_with_err(
 pub(crate) fn get_files_by_ext(
     component_uuid: &Uuid,
     arg: &FileByExtArg,
-    conn: &PgConnection
+    conn: &mut PgConnection
 ) -> ServiceResult<Vec<Uuid>> {
     use crate::schema::file_ref::dsl as file_ref;
     use crate::schema::file_to_component::dsl as file_to_component;

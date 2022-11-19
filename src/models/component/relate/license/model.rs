@@ -5,10 +5,10 @@ use async_graphql::*;
 use uuid::Uuid;
 
 #[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, SimpleObject, Debug)]
-#[primary_key(component_uuid, license_id)]
-#[belongs_to(Component, foreign_key = "component_uuid")]
-#[belongs_to(License, foreign_key = "license_id")]
-#[table_name = "license_to_component"]
+#[diesel(primary_key(component_uuid, license_id))]
+#[diesel(belongs_to(Component, foreign_key = component_uuid))]
+#[diesel(belongs_to(License, foreign_key = license_id))]
+#[diesel(table_name = license_to_component)]
 pub(crate) struct ComponentLicense {
     pub(crate) component_uuid: Uuid,
     pub(crate) license_id: i32,
@@ -21,7 +21,7 @@ pub(crate) struct IptComponentLicenseData {
 }
 
 #[derive(Debug, Insertable)]
-#[table_name = "license_to_component"]
+#[diesel(table_name = license_to_component)]
 pub(crate) struct InsertableComponentLicense {
     pub(crate) component_uuid: Uuid,
     pub(crate) license_id: i32,

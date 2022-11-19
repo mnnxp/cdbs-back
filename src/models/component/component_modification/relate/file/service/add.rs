@@ -17,7 +17,7 @@ use uuid::Uuid;
 pub(crate) fn add_modification_files(
     logged_user_uuid: &Uuid,
     data: &IptModificationFilesData,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<Vec<UploadFile>> {
 
     let need_access_level = 1; // todo!(create enum for manage access level)

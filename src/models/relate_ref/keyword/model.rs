@@ -1,23 +1,23 @@
 use crate::schema::*;
 use async_graphql::*;
 
-#[derive(Identifiable, Serialize, Deserialize, Associations, Queryable)]
+#[derive(Identifiable, Serialize, Deserialize, Queryable)]
 #[derive(SimpleObject, Clone, Default, Debug)]
-#[primary_key(id)]
-#[table_name = "keyword_ref"]
+#[diesel(primary_key(id))]
+#[diesel(table_name = keyword_ref)]
 pub(crate) struct Keyword {
     pub(crate) id: i32,
     pub(crate) keyword: String,
 }
 
 #[derive(Serialize, Deserialize, Queryable, QueryableByName, Clone, Debug)]
-#[table_name = "keyword_ref"]
+#[diesel(table_name = keyword_ref)]
 pub(crate) struct KeywordId {
     pub(crate) id: i32,
 }
 
 #[derive(Debug, Insertable)]
-#[table_name = "keyword_ref"]
+#[diesel(table_name = keyword_ref)]
 pub(crate) struct InsertableKeyword {
     pub(crate) keyword: String,
 }

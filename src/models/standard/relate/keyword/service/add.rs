@@ -14,7 +14,7 @@ use uuid::Uuid;
 pub(crate) fn add_standard_keywords(
     logged_user_uuid: &Uuid,
     data: &IptStandardKeywordsData,
-    conn: &PgConnection
+    conn: &mut PgConnection
 ) -> ServiceResult<usize> {
     let need_access_level = 1; // todo!(create enum for manage access level)
 
@@ -42,7 +42,7 @@ pub(crate) fn add_standard_keywords(
 /// Check already keyword for standard (duplicate)
 fn check_keyword_for_standard(
     keyword: &InsertableStandardKeyword,
-    conn: &PgConnection
+    conn: &mut PgConnection
 ) -> bool {
     let check = keyword_to_standard::keyword_to_standard
         .filter(keyword_to_standard::standard_uuid.eq(&keyword.standard_uuid)
@@ -55,7 +55,7 @@ fn check_keyword_for_standard(
 
 fn insert_rows_standard_keywords(
     insert_data: &[InsertableStandardKeyword],
-    conn: &PgConnection
+    conn: &mut PgConnection
 ) -> ServiceResult<usize> {
     diesel::insert_into(keyword_to_standard::keyword_to_standard)
         .values(insert_data)
@@ -69,7 +69,7 @@ fn insert_rows_standard_keywords(
 pub(crate) fn add_keywords_by_names(
     logged_user_uuid: &Uuid,
     data: &IptStandardKeywordsNames,
-    conn: &PgConnection
+    conn: &mut PgConnection
 ) -> ServiceResult<usize> {
     let mut keyword_ids: Vec<i32> = Vec::new();
 

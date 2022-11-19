@@ -7,7 +7,7 @@ use diesel::{PgConnection, prelude::*};
 
 pub(crate) fn get_licenses(
     args: &LicenseArg,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<Vec<License>> {
     match args.license_ids.is_empty()  {
         true => find_all_license(&args.limit, &args.offset, conn),
@@ -18,7 +18,7 @@ pub(crate) fn get_licenses(
 fn find_all_license(
     limit: &i32,
     offset: &i32,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<Vec<License>> {
     license_ref::license_ref
         .limit(*limit as i64)
@@ -32,7 +32,7 @@ fn find_all_license(
 
 fn find_license_id(
     args: &LicenseArg,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<Vec<License>> {
     license_ref::license_ref
         .filter(license_ref::id.eq_any(&args.license_ids))

@@ -6,7 +6,7 @@ use diesel::PgConnection;
 pub(crate) fn get_actual_statuses(
     filter: &[i32],
     set_lang_id: &i32,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<Vec<ActualStatusTranslateList>> {
     ActualStatusTranslateList::get_by_ids(filter, set_lang_id, conn)
 }

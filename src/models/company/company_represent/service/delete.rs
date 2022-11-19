@@ -7,7 +7,7 @@ pub(crate) fn delete_company_represent(
     logged_user_uuid: &Uuid,
     target_company_uuid: &Uuid,
     target_represent_uuid: &Uuid,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<bool> {
     use crate::schema::company_represent_ref::dsl::*;
 

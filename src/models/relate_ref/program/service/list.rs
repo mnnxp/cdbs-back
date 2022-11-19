@@ -7,7 +7,7 @@ use diesel::{PgConnection, prelude::*};
 
 pub(crate) fn get_programs(
     args: &ProgramArg,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<Vec<Program>> {
     match args.program_ids.is_empty() {
         true => find_all_program(&args.limit, &args.offset, conn),
@@ -18,7 +18,7 @@ pub(crate) fn get_programs(
 fn find_all_program(
     limit: &i32,
     offset: &i32,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<Vec<Program>> {
     program_ref::program_ref
         .limit(*limit as i64)
@@ -32,7 +32,7 @@ fn find_all_program(
 
 fn find_program_id(
     args: &ProgramArg,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<Vec<Program>> {
     program_ref::program_ref
         .filter(program_ref::id.eq_any(&args.program_ids))

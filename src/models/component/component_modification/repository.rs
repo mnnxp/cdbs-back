@@ -13,7 +13,7 @@ use diesel::prelude::*;
 impl ComponentModification {
     pub(crate) fn by_args(
         args: &ComponentModificationArg,
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> ServiceResult<Vec<ComponentModification>> {
         // collect data for modifications the component
         component_modification_list::component_modification_list
@@ -34,7 +34,7 @@ impl ComponentModificationAndRelatedData {
     pub(crate) fn for_modification(
         component_modification: &ComponentModification,
         set_lang_id: &i32,
-        conn: &PgConnection
+        conn: &mut PgConnection
     ) -> ServiceResult<ComponentModificationAndRelatedData> {
         let mut data = ComponentModificationAndRelatedData::new(component_modification);
 
@@ -64,7 +64,7 @@ impl ComponentModificationAndRelatedData {
     pub(crate) fn for_modifications(
         component_modifications: &[ComponentModification],
         set_lang_id: &i32,
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> ServiceResult<Vec<ComponentModificationAndRelatedData>> {
         let mut result: Vec<ComponentModificationAndRelatedData> = Vec::new();
         for x in component_modifications.iter() {

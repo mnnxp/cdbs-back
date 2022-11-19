@@ -11,7 +11,7 @@ impl Spec {
     /// Gets spec data by id
     pub(crate) fn get_by_id(
         target_spec_id: &i32,
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> ServiceResult<Spec> {
         spec_ref::spec_ref
             .filter(spec_ref::id.eq(target_spec_id))
@@ -25,7 +25,7 @@ impl Spec {
     /// Gets spec data by parent id
     pub(crate) fn get_by_parent_id(
         target_specs_levels: &[i32],
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> ServiceResult<Vec<Spec>> {
         spec_ref::spec_ref
             .filter(spec_ref::parent_spec_id.eq_any(target_specs_levels))
@@ -44,7 +44,7 @@ impl SpecTranslateList {
         limit: &i32,
         offset: &i32,
         set_lang_id: &i32,
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> ServiceResult<Vec<SpecTranslateList>> {
         let mut query = spec_translate_list::spec_translate_list.into_boxed();
 
@@ -75,7 +75,7 @@ impl SpecTranslateList {
         limit: &i32,
         offset: &i32,
         set_lang_id: &i32,
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> ServiceResult<Vec<SpecTranslateList>> {
         // get specs for target levels
         let specs_for_levels = Spec::get_by_parent_id(
@@ -120,7 +120,7 @@ impl SpecId {
         limit: &i32,
         offset: &i32,
         set_lang_id: &i32,
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> ServiceResult<Vec<SpecId>> {
         let EngLangName {eng_lang_name} = EngLangName::get_by_id(set_lang_id);
 

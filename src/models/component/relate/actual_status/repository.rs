@@ -8,7 +8,7 @@ impl ActualStatusTranslateList {
     pub(crate) fn get_by_id(
         target_actual_status_id: &i32,
         set_lang_id: &i32,
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> ServiceResult<ActualStatusTranslateList> {
         let actual_status = actual_status_translate_list::actual_status_translate_list
             .filter(actual_status_translate_list::actual_status_id.eq(target_actual_status_id)
@@ -41,7 +41,7 @@ impl ActualStatusTranslateList {
     pub(crate) fn get_by_ids(
         filter: &[i32],
         set_lang_id: &i32,
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> ServiceResult<Vec<ActualStatusTranslateList>> {
         let res = match filter.is_empty() {
             true => actual_status_translate_list::actual_status_translate_list

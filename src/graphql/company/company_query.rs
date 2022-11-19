@@ -38,7 +38,7 @@ impl CompanyQuery {
             None => CompaniesArg::default(),
         };
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         get_companies(
             &logged_user_uuid,
@@ -58,7 +58,7 @@ impl CompanyQuery {
         // authorization check
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         find_by_uuid(
             &logged_user_uuid,
@@ -80,7 +80,7 @@ impl CompanyQuery {
 
         let arguments: CompanyRepresentsArg = args.into();
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         get_represents(
             &logged_user_uuid,
@@ -100,7 +100,7 @@ impl CompanyQuery {
         // authorization check
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         get_by_company_uuid(
             &logged_user_uuid,
@@ -120,7 +120,7 @@ impl CompanyQuery {
         // authorization check
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         get_roles_for_company(
             &logged_user_uuid,
@@ -139,7 +139,7 @@ impl CompanyQuery {
         // authorization check
         check_authorized(cxt)?;
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         get_types_for_company(
             &get_set_language(cxt),
@@ -159,7 +159,7 @@ impl CompanyQuery {
 
         let arguments: CompanySpecsArg = args.into();
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         get_company_specs(
             &logged_user_uuid,
@@ -178,7 +178,7 @@ impl CompanyQuery {
         // authorization check
         check_authorized(cxt)?;
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         get_types_for_represent(
             &get_set_language(cxt),

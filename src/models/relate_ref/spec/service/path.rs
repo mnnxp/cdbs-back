@@ -8,7 +8,7 @@ use diesel::{PgConnection, prelude::*};
 pub(crate) fn get_paths_specs(
     arguments: &SpecPathArg,
     set_lang_id: &i32,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<Vec<SpecPath>> {
     let SpecPathArg {
         spec_ids,
@@ -46,7 +46,7 @@ fn get_spec_ids(
     spec_ids: &[i32],
     limit: &i32,
     offset: &i32,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<Vec<i32>> {
     use crate::schema::spec_ref::dsl as spec_ref;
 
@@ -77,7 +77,7 @@ fn collect_path_spec(
     split_char: &char,
     depth_level: &i32,
     set_lang_id: &i32,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<String> {
     let target_specs_ids = get_parents_ids(
         spec_id,
@@ -109,7 +109,7 @@ fn collect_path_spec(
 fn get_parents_ids(
     spec_id: &i32,
     depth_level: &i32,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<Vec<i32>> {
     let mut specs_levels: Vec<i32> = vec![*spec_id];
     let mut spec_id: i32 = *spec_id;

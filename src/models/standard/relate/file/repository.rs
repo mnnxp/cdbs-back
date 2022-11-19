@@ -8,7 +8,7 @@ impl ShowFileRelatedData {
     /// Gets all files for standard by uuid
     pub(crate) fn for_standard_by_uuid(
         standard_uuid: &Uuid,
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> ServiceResult<Vec<ShowFileRelatedData>> {
         let target_files_uuids: Vec<Uuid> = file_to_standard::file_to_standard
             .filter(file_to_standard::standard_uuid.eq(standard_uuid))

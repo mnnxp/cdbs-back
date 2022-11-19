@@ -7,17 +7,17 @@ use uuid::Uuid;
 
 // Structures for Standard
 #[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, SimpleObject, Debug)]
-#[primary_key(file_uuid, standard_uuid)]
-#[belongs_to(ShowFileRelatedData, foreign_key = "file_uuid")]
-#[belongs_to(Standard, foreign_key = "standard_uuid")]
-#[table_name = "file_to_standard"]
+#[diesel(primary_key(file_uuid, standard_uuid))]
+#[diesel(belongs_to(ShowFileRelatedData, foreign_key = file_uuid))]
+#[diesel(belongs_to(Standard, foreign_key = standard_uuid))]
+#[diesel(table_name = file_to_standard)]
 pub(crate) struct StandardFile {
     pub(crate) file_uuid: Uuid,
     pub(crate) standard_uuid: Uuid,
 }
 
 #[derive(Debug, Insertable)]
-#[table_name = "file_to_standard"]
+#[diesel(table_name = file_to_standard)]
 pub(crate) struct InsertableStandardFile {
     pub(crate) file_uuid: Uuid,
     pub(crate) standard_uuid: Uuid,

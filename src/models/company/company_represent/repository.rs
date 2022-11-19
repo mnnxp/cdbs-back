@@ -12,7 +12,7 @@ impl CompanyRepresent {
     /// Gets company represent without related data by company uuid
     pub(crate) fn get_by_company_uuid(
         company_uuid: &Uuid,
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> ServiceResult<Vec<CompanyRepresent>> {
         // collect data for represents the company
         company_represent_ref::company_represent_ref
@@ -27,7 +27,7 @@ impl CompanyRepresent {
     /// Gets company represent without related data by represents uuids
     pub(crate) fn get_by_args(
         args: &CompanyRepresentsArg,
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> ServiceResult<Vec<CompanyRepresent>> {
         // collect data for represents the company
         company_represent_ref::company_represent_ref
@@ -47,7 +47,7 @@ impl CompanyRepresentAndRelatedData {
     pub(crate) fn get_by_represent(
         represent: &CompanyRepresent,
         set_lang_id: &i32,
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> ServiceResult<CompanyRepresentAndRelatedData> {
         // get regions for company represent
         let region = RegionTranslateList::get_region_by_id(
@@ -79,7 +79,7 @@ impl CompanyRepresentAndRelatedData {
     pub(crate) fn get_by_company_uuid(
         company_uuid: &Uuid,
         set_lang_id: &i32,
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> ServiceResult<Vec<CompanyRepresentAndRelatedData>> {
         let company_represents = &CompanyRepresent::get_by_company_uuid(
             company_uuid,
@@ -98,7 +98,7 @@ impl CompanyRepresentAndRelatedData {
     pub(crate) fn get_by_args(
         args: &CompanyRepresentsArg,
         set_lang_id: &i32,
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> ServiceResult<Vec<CompanyRepresentAndRelatedData>> {
         let company_represents = &CompanyRepresent::get_by_args(
             args,
@@ -117,7 +117,7 @@ impl CompanyRepresentAndRelatedData {
     pub(crate) fn get_by_represents(
         company_represents: &[CompanyRepresent],
         set_lang_id: &i32,
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> ServiceResult<Vec<CompanyRepresentAndRelatedData>> {
         debug!("company represent: {:?}", company_represents);
         let mut company_represent_with_data: Vec<CompanyRepresentAndRelatedData> = Vec::new();

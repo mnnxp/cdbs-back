@@ -9,7 +9,7 @@ use uuid::Uuid;
 pub(crate) fn create_company(
     logged_user_uuid: &Uuid,
     data: &IptCompanyData,
-    conn: &PgConnection
+    conn: &mut PgConnection
 ) -> ServiceResult<Uuid> {
     let mut insert_data: InsertableCompany = data.into();
 

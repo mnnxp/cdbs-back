@@ -12,7 +12,7 @@ impl UserAccessComponentAndRelatedData {
     pub(crate) fn from_component_by_uuid(
         target_component_uuid: &Uuid,
         set_lang_id: &i32,
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> ServiceResult<Vec<UserAccessComponentAndRelatedData>> {
         let list_users_with_access = user_access_to_component
             .filter(component_uuid.eq(target_component_uuid))

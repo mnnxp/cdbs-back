@@ -8,10 +8,10 @@ use uuid::Uuid;
 // Supplier component models
 #[derive(Identifiable, Serialize, Deserialize, Queryable, Associations)]
 #[derive(SimpleObject, Clone, Debug)]
-#[primary_key(component_uuid, company_uuid)]
-#[belongs_to(Component, foreign_key = "component_uuid")]
-#[belongs_to(Company, foreign_key = "company_uuid")]
-#[table_name = "supplier_to_component"]
+#[diesel(primary_key(component_uuid, company_uuid))]
+#[diesel(belongs_to(Component, foreign_key = component_uuid))]
+#[diesel(belongs_to(Company, foreign_key = company_uuid))]
+#[diesel(table_name = supplier_to_component)]
 pub(crate) struct SupplierComponent {
     pub(crate) component_uuid: Uuid,
     pub(crate) company_uuid: Uuid,
@@ -49,7 +49,7 @@ pub(crate) struct IptSupplierComponentData {
 }
 
 #[derive(Debug, Insertable)]
-#[table_name = "supplier_to_component"]
+#[diesel(table_name = supplier_to_component)]
 pub(crate) struct InsertableSupplierComponent {
     pub(crate) component_uuid: Uuid,
     pub(crate) company_uuid: Uuid,

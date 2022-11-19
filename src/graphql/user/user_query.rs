@@ -34,7 +34,7 @@ impl UserQuery {
             None => UsersArg::default(),
         };
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         get_users(&logged_user_uuid, &arguments, conn)
     }
@@ -49,7 +49,7 @@ impl UserQuery {
         // authorization check
         let logged_user_uuid: Uuid = get_logged_user_uuid(cxt, true)?;
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         get_user_data(
             &logged_user_uuid,
@@ -69,7 +69,7 @@ impl UserQuery {
         // authorization check
         let logged_user_uuid: Uuid = get_logged_user_uuid(cxt, true)?;
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         get_self_slim_data(
             &logged_user_uuid,
@@ -87,7 +87,7 @@ impl UserQuery {
         // authorization check
         let logged_user_uuid: Uuid = get_logged_user_uuid(cxt, true)?;
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         get_self_user_data(
             &logged_user_uuid,
@@ -105,7 +105,7 @@ impl UserQuery {
         // authorization check
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         show_user_tokens(
             &logged_user_uuid,
@@ -156,7 +156,7 @@ impl UserQuery {
         // authorization check
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         delete_target_token(
             &logged_user_uuid,
@@ -174,7 +174,7 @@ impl UserQuery {
         // authorization check
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         delete_tokens(
             &logged_user_uuid,
@@ -196,7 +196,7 @@ impl UserQuery {
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         get_notifications(&logged_user_uuid, &arguments, conn)
     }

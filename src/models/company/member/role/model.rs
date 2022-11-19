@@ -5,16 +5,16 @@ use async_graphql::*;
 use uuid::Uuid;
 
 // RoleMember models
-#[derive(Identifiable, Serialize, Deserialize, Associations, Queryable, SimpleObject, Debug)]
-#[primary_key(id)]
-#[table_name = "role_member_list"]
+#[derive(Identifiable, Serialize, Deserialize, Queryable, SimpleObject, Debug)]
+#[diesel(primary_key(id))]
+#[diesel(table_name = role_member_list)]
 pub(crate) struct RoleMember {
     pub(crate) id: i32,
     pub(crate) company_uuid: Uuid,
 }
 
 #[derive(Debug, Insertable)]
-#[table_name = "role_member_list"]
+#[diesel(table_name = role_member_list)]
 pub(crate) struct InsertableRoleMember {
     pub(crate) id: i32,
     pub(crate) company_uuid: Uuid,
@@ -23,10 +23,10 @@ pub(crate) struct InsertableRoleMember {
 // RoleMember translations
 #[derive(Identifiable, Serialize, Deserialize, Queryable, Associations)]
 #[derive(SimpleObject, Default, Clone, Debug)]
-#[primary_key(role_member_id, lang_id)]
-#[belongs_to(RoleMember, foreign_key = "role_member_id")]
-#[belongs_to(Language, foreign_key = "lang_id")]
-#[table_name = "role_member_translate_list"]
+#[diesel(primary_key(role_member_id, lang_id))]
+#[diesel(belongs_to(RoleMember, foreign_key = role_member_id))]
+#[diesel(belongs_to(Language, foreign_key = lang_id))]
+#[diesel(table_name = role_member_translate_list)]
 pub(crate) struct RoleMemberTranslateList {
     pub(crate) role_member_id: i32,
     pub(crate) lang_id: i32,
@@ -58,7 +58,7 @@ pub(crate) struct IptUpdateNameRoleData {
 }
 
 #[derive(Debug, Insertable)]
-#[table_name = "role_member_translate_list"]
+#[diesel(table_name = role_member_translate_list)]
 pub(crate) struct InsertableRoleMemberTranslateList {
     pub(crate) role_member_id: i32,
     pub(crate) lang_id: i32,

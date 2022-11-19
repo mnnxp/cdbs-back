@@ -7,7 +7,7 @@ use diesel::{PgConnection, prelude::*};
 
 pub(crate) fn get_languages(
     args: &LanguageArg,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<Vec<Language>> {
     match args.lang_ids.is_empty() {
         true => find_all_languages(&args.limit, &args.offset, conn),
@@ -18,7 +18,7 @@ pub(crate) fn get_languages(
 fn find_all_languages(
     limit: &i32,
     offset: &i32,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<Vec<Language>> {
     language_ref
         .limit(*limit as i64)
@@ -32,7 +32,7 @@ fn find_all_languages(
 
 fn find_lang_iduage(
     args: &LanguageArg,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<Vec<Language>> {
     language_ref
         .filter(id.eq_any(&args.lang_ids))

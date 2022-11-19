@@ -9,7 +9,7 @@ impl CompanyFav {
     /// Count subscribers for company
     pub(crate) fn get_count_followers_by_uuid(
         target_company_uuid: &Uuid,
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> ServiceResult<i32> {
         let count = company_fav::company_fav
             .filter(company_fav::company_uuid.eq(target_company_uuid))

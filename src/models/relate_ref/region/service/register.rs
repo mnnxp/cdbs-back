@@ -8,7 +8,7 @@ use diesel::{PgConnection, prelude::*};
 
 pub(crate) fn create_region(
     new_region_data: &IptRegionTranslateListData,
-    conn: &PgConnection
+    conn: &mut PgConnection
 ) -> ServiceResult<RegionTranslateList> {
     let flag_found = region_translate_list::region_translate_list
         .filter(region_translate_list::lang_id.eq(&new_region_data.lang_id)

@@ -12,7 +12,7 @@ use uuid::Uuid;
 pub(crate) fn get_notifications(
     logged_user_uuid: &Uuid,
     args: &NotificationArg,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<Vec<ShowNotification>> {
     match args.notification_ids.is_empty() {
         true => get_all( logged_user_uuid, &args.limit, &args.offset, conn),
@@ -25,7 +25,7 @@ fn get_all(
     logged_user_uuid: &Uuid,
     limit: &i32,
     offset: &i32,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<Vec<ShowNotification>> {
     let get_list = notification_to_user::notification_to_user
         .filter(notification_to_user::user_uuid.eq(logged_user_uuid))
@@ -65,7 +65,7 @@ fn get_all(
 fn get_by_ids(
     logged_user_uuid: &Uuid,
     args: &NotificationArg,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<Vec<ShowNotification>> {
     let get_list = notification_to_user::notification_to_user
         .filter(notification_to_user::user_uuid.eq(logged_user_uuid)
@@ -107,7 +107,7 @@ fn get_by_ids(
 fn agregate_notifications(
     get_list: &[NotificationToUser],
     get_data_list: &[Notification],
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<Vec<ShowNotification>> {
     let mut degree_ids_list: Vec<i32> = Vec::new();
     for value in get_data_list {

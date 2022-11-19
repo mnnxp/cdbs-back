@@ -6,7 +6,7 @@ use uuid::Uuid;
 pub(crate) fn change_access_type_user(
     logged_user_uuid: &Uuid,
     new_type_access: &i32,
-    conn: &PgConnection
+    conn: &mut PgConnection
 ) -> ServiceResult<bool> {
     use crate::schema::user_ref::dsl as user_ref;
 

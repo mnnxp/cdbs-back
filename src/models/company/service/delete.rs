@@ -11,7 +11,7 @@ use uuid::Uuid;
 pub(crate) fn del_company(
     logged_user_uuid: &Uuid,
     del_company_uuid: &Uuid,
-    conn: &PgConnection
+    conn: &mut PgConnection
 ) -> ServiceResult<Uuid> {
     // check user owner company
     check_is_owner_with_err(logged_user_uuid, del_company_uuid, conn)?;
@@ -22,7 +22,7 @@ pub(crate) fn del_company(
 /// Delete all company and related data
 pub(crate) fn delete_company(
     del_company_uuid: &Uuid,
-    conn: &PgConnection
+    conn: &mut PgConnection
 ) -> ServiceResult<Uuid> {
     // delete company certificates and set flags for certificates files
     delete_company_certificates(del_company_uuid, conn)?;

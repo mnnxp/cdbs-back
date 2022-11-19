@@ -23,7 +23,7 @@ pub(crate) fn check_default_file(file_uuid: &Uuid) -> bool {
 /// Find extension id on table for file extension
 pub(crate) fn find_id_ext(
     filename: &str,
-    conn: &PgConnection
+    conn: &mut PgConnection
 ) -> i32 {
     use crate::schema::extension_ref::dsl::*;
     // debug!("Filename_str {:?}", filename);
@@ -42,7 +42,7 @@ pub(crate) fn find_id_ext(
 pub(crate) fn check_write_data(
     user_uuid: &Uuid,
     path_file: &str,
-    conn: &PgConnection
+    conn: &mut PgConnection
 ) -> ServiceResult<bool> {
     use crate::schema::file_ref::dsl as file_ref;
 

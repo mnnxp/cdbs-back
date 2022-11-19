@@ -8,7 +8,7 @@ use uuid::Uuid;
 pub(crate) fn del_suppliers_component(
     logged_user_uuid: &Uuid,
     data: &DelSuppliersComponentData,
-    conn: &PgConnection
+    conn: &mut PgConnection
 ) -> ServiceResult<i32> {
     use crate::schema::supplier_to_component::dsl::*;
 
@@ -40,7 +40,7 @@ pub(crate) fn del_suppliers_component(
 pub(crate) fn clear_suppliers_component(
     logged_user_uuid: &Uuid,
     target_component_uuid: &Uuid,
-    conn: &PgConnection
+    conn: &mut PgConnection
 ) -> ServiceResult<i32> {
     use crate::models::component::access::util::check_is_owner_with_err;
     use crate::schema::supplier_to_component::dsl::*;

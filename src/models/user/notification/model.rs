@@ -3,9 +3,9 @@ use async_graphql::*;
 use chrono::*;
 use uuid::Uuid;
 
-#[derive(Identifiable, Serialize, Associations, Queryable, Clone, Debug)]
-#[primary_key(id)]
-#[table_name = "notification_ref"]
+#[derive(Identifiable, Serialize, Queryable, Clone, Debug)]
+#[diesel(primary_key(id))]
+#[diesel(table_name = notification_ref)]
 pub(crate) struct Notification {
     pub(crate) id: i32,
     pub(crate) notification: String,
@@ -80,7 +80,7 @@ pub(crate) struct NotificationToUser {
 }
 
 #[derive(Debug, Insertable)]
-#[table_name = "notification_to_user"]
+#[diesel(table_name = notification_to_user)]
 pub(crate) struct InsertableNotificationToUser {
     pub(crate) notification_id: i32,
     pub(crate) user_uuid: Uuid,
@@ -88,7 +88,7 @@ pub(crate) struct InsertableNotificationToUser {
 }
 
 #[derive(Debug, Insertable)]
-#[table_name = "notification_ref"]
+#[diesel(table_name = notification_ref)]
 pub(crate) struct InsertableNotification {
     pub(crate) notification: String,
     pub(crate) degree_importance_id: i32,
@@ -111,10 +111,10 @@ impl From<&NotificationData> for InsertableNotification {
     }
 }
 
-#[derive(Identifiable, Serialize, Associations, Queryable)]
+#[derive(Identifiable, Serialize, Queryable)]
 #[derive(Default, Clone, Debug, SimpleObject)]
-#[primary_key(degree_importance_id, lang_id)]
-#[table_name = "degree_importance_translate_list"]
+#[diesel(primary_key(degree_importance_id, lang_id))]
+#[diesel(table_name = degree_importance_translate_list)]
 pub(crate) struct DegreeImportanceTranslateList {
     pub(crate) degree_importance_id: i32,
     pub(crate) lang_id: i32,

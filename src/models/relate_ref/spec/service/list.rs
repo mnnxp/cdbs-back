@@ -7,7 +7,7 @@ use diesel::PgConnection;
 pub(crate) fn get_specs(
     arguments: &SpecArg,
     set_lang_id: &i32,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<Vec<SpecTranslateList>> {
     let SpecArg {
         spec_ids,

@@ -7,7 +7,7 @@ impl RegionTranslateList {
     pub(crate) fn get_region_by_id(
         target_region_id: &i32,
         set_lang_id: &i32,
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> ServiceResult<RegionTranslateList> {
         let check_region = region_translate_list::region_translate_list
             .filter(region_translate_list::region_id.eq(target_region_id)

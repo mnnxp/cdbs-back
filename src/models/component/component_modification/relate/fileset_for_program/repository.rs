@@ -11,7 +11,7 @@ impl FilesetProgramRelatedData {
     /// Get filesets by modification uuid
     pub(crate) fn by_modification_uuid(
         component_modification_uuid: &Uuid,
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> ServiceResult<Vec<FilesetProgramRelatedData>> {
         let filesets = fileset_for_program::fileset_for_program
             .filter(fileset_for_program::modification_uuid.eq(component_modification_uuid))
@@ -27,7 +27,7 @@ impl FilesetProgramRelatedData {
     /// Get program translate data for fileset
     pub(crate) fn for_fileset(
         filesets: &FilesetProgram,
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> ServiceResult<FilesetProgramRelatedData> {
         Ok(FilesetProgramRelatedData{
             uuid: filesets.uuid,
@@ -39,7 +39,7 @@ impl FilesetProgramRelatedData {
     /// Get program translate data for filesets list
     pub(crate) fn for_filesets(
         filesets: &[FilesetProgram],
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> ServiceResult<Vec<FilesetProgramRelatedData>> {
         let mut result: Vec<FilesetProgramRelatedData> = Vec::new();
         for x in filesets {

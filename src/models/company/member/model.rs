@@ -10,11 +10,11 @@ use uuid::Uuid;
 
 #[derive(Identifiable, Serialize, Deserialize, Queryable, Associations)]
 #[derive(SimpleObject, Clone, Debug)]
-#[primary_key(company_uuid, user_uuid)]
-#[belongs_to(Company, foreign_key = "company_uuid")]
-#[belongs_to(UserQuery, foreign_key = "user_uuid")]
-#[belongs_to(RoleMember, foreign_key = "role_id")]
-#[table_name = "company_member_list"]
+#[diesel(primary_key(company_uuid, user_uuid))]
+#[diesel(belongs_to(Company, foreign_key = company_uuid))]
+#[diesel(belongs_to(UserQuery, foreign_key = user_uuid))]
+#[diesel(belongs_to(RoleMember, foreign_key = role_id))]
+#[diesel(table_name = company_member_list)]
 pub(crate) struct CompanyMember {
     pub(crate) company_uuid: Uuid,
     pub(crate) user_uuid: Uuid,
@@ -59,7 +59,7 @@ impl From<CompanyMember> for SlimCompanyMember {
 }
 
 #[derive(Debug, Insertable)]
-#[table_name = "company_member_list"]
+#[diesel(table_name = company_member_list)]
 pub(crate) struct InsertableCompanyMember {
     pub(crate) company_uuid: Uuid,
     pub(crate) user_uuid: Uuid,

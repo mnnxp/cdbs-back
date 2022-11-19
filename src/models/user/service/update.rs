@@ -9,7 +9,7 @@ use uuid::Uuid;
 pub(crate) fn update_user(
     logged_user_uuid: &Uuid,
     data: &IptUpdateUserData,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<usize> {
     if let Some(username) = &data.username {
         if check_use_username(username, conn)? {

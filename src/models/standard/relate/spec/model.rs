@@ -6,17 +6,17 @@ use uuid::Uuid;
 
 // Spec standard models
 #[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, Clone, Debug, SimpleObject)]
-#[primary_key(standard_uuid, spec_id)]
-#[belongs_to(Standard, foreign_key = "standard_uuid")]
-#[belongs_to(Spec, foreign_key = "spec_id")]
-#[table_name = "spec_to_standard"]
+#[diesel(primary_key(standard_uuid, spec_id))]
+#[diesel(belongs_to(Standard, foreign_key = standard_uuid))]
+#[diesel(belongs_to(Spec, foreign_key = spec_id))]
+#[diesel(table_name = spec_to_standard)]
 pub(crate) struct StandardSpec {
     pub(crate) spec_id: i32,
     pub(crate) standard_uuid: Uuid,
 }
 
 #[derive(Debug, Insertable)]
-#[table_name = "spec_to_standard"]
+#[diesel(table_name = spec_to_standard)]
 pub(crate) struct InsertableStandardSpec {
     pub(crate) standard_uuid: Uuid,
     pub(crate) spec_id: i32,
