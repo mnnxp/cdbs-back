@@ -56,7 +56,7 @@ impl ListObject {
 pub(crate) struct File {
     pub(crate) uuid: Uuid,
     // pub(crate) parent_file_uuid: Uuid,
-    // pub(crate) hash: Vec<u8>,
+    pub(crate) hash: Vec<u8>,
     // pub(crate) user_uuid: Uuid,
     pub(crate) filename: String,
     // pub(crate) content_type: String,
@@ -172,6 +172,7 @@ pub(crate) struct FileData {
 #[diesel(table_name = file_ref)]
 pub(crate) struct SlimFile {
     pub(crate) uuid: Uuid,
+    pub(crate) hash: Vec<u8>,
     pub(crate) filename: String,
     pub(crate) filesize: i64,
     pub(crate) path_file: String,
@@ -181,6 +182,7 @@ impl From<File> for SlimFile {
     fn from(file: File) -> Self {
         let File {
             uuid,
+            hash,
             filename,
             filesize,
             path_file,
@@ -189,6 +191,7 @@ impl From<File> for SlimFile {
 
         Self {
             uuid,
+            hash,
             filename,
             filesize,
             path_file,
@@ -219,6 +222,7 @@ pub(crate) struct ShowFileRelatedData {
 #[derive(Serialize, SimpleObject, Clone, Default, Debug)]
 pub(crate) struct DownloadFile {
     pub(crate) uuid: Uuid,
+    pub(crate) hash: String,
     pub(crate) filename: String,
     pub(crate) filesize: i64,
     pub(crate) download_url: String,

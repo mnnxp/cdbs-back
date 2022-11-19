@@ -98,6 +98,7 @@ name \
 description \
 imageFile {
   uuid \
+  hash \
   filename \
   filesize \
   downloadUrl \
@@ -337,9 +338,16 @@ updatedAt \
 
 const downloadFileFields = ` \
 uuid \
+hash \
 filename \
 filesize \
 downloadUrl \
+`;
+
+const uploadFileFields = ` \
+fileUuid \
+filename \
+uploadUrl \
 `;
 
 var componentModificationFields = `
@@ -419,6 +427,8 @@ var typeAccessIdForUpdate = 2;
 var componentTypeIdForUpdate = 2;
 var actualStatusIdForUpdate = 2;
 
+const defaultImageUuid = "bc1c2151-86d0-4656-9c9d-d016dd584297";
+const defaultImageHash = "60767c27d985cafa603b4a44ddc5fa8557e5c00d38d27f85b14ed460533e219c";
 // data for component modification
 const parentModificationUuid = "aba22d59-4f6c-44a4-9a37-2d38f0e577a8";
 const baseFilesetUuid = "5de37b5d-75af-4323-b5b4-2cf1e849baa2";
@@ -1407,6 +1417,8 @@ describe('component', () => {
       .expect(HttpStatus.OK)
     debug('/graphql filter component=%o', body.data.component);
     expect(body.data.component.uuid).toBe(componentUuidNoStandard);
+    expect(body.data.component.imageFile.uuid).toBe(defaultImageUuid);
+    expect(body.data.component.imageFile.hash).toBe(defaultImageHash);
     expect(body.data.component.componentKeywords[0].id).toBe(1);
     expect(body.data.component.componentKeywords[0].keyword).toBeNonEmptyString();
     expect(body.data.component.componentKeywords[1].id).toBe(2);
@@ -3781,10 +3793,7 @@ describe('component', () => {
           componentFiles(args: {
             componentUuid: "${componentUuidNoStandard}"
           }) {
-            uuid
-            filename
-            filesize
-            downloadUrl
+            ${downloadFileFields}
           }
         }`,
       })
@@ -3810,10 +3819,7 @@ describe('component', () => {
           componentFiles(args: {
             componentUuid: "${componentUuidNoStandard}"
           }) {
-            uuid
-            filename
-            filesize
-            downloadUrl
+            ${downloadFileFields}
           }
         }`,
       })
@@ -3842,10 +3848,7 @@ describe('component', () => {
             componentUuid: "${componentUuidNoStandard}"
             filesUuids: "${fileUuid2}"
           }) {
-            uuid
-            filename
-            filesize
-            downloadUrl
+            ${downloadFileFields}
           }
         }`,
       })
@@ -3872,10 +3875,7 @@ describe('component', () => {
           componentFiles(args: {
             componentUuid: "${parentComponentUuid}"
           }) {
-            uuid
-            filename
-            filesize
-            downloadUrl
+            ${downloadFileFields}
           }
         }`,
       })
@@ -3901,9 +3901,7 @@ describe('component', () => {
             componentUuid: "${componentUuidStandard}"
             filename: "${badFilenameComponentFaviconTest}"
           }) {
-            fileUuid
-            filename
-            uploadUrl
+            ${uploadFileFields}
           }
         }`,
       })
@@ -3930,9 +3928,7 @@ describe('component', () => {
             componentUuid: "${componentUuidStandard}"
             filename: "${badFilenameComponentFaviconTest}"
           }) {
-            fileUuid
-            filename
-            uploadUrl
+            ${uploadFileFields}
           }
         }`,
       })
@@ -3959,9 +3955,7 @@ describe('component', () => {
             componentUuid: "${componentUuidStandard}"
             filename: "${goodFilenameComponentFaviconTest}"
           }) {
-            fileUuid
-            filename
-            uploadUrl
+            ${uploadFileFields}
           }
         }`,
       })
@@ -4020,9 +4014,7 @@ describe('component', () => {
             componentUuid: "${componentUuidStandard}"
             filename: "${badFilenameComponentFaviconTest}"
           }) {
-            fileUuid
-            filename
-            uploadUrl
+            ${uploadFileFields}
           }
         }`,
       })

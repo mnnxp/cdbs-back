@@ -92,6 +92,7 @@ impl SlimFile {
             .and(file_ref::is_delete.eq(false)))
             .select((
                 file_ref::uuid,
+                file_ref::hash,
                 file_ref::filename,
                 file_ref::filesize,
                 file_ref::path_file,
@@ -113,6 +114,7 @@ impl SlimFile {
             .and(file_ref::is_delete.eq(false)))
             .select((
                 file_ref::uuid,
+                file_ref::hash,
                 file_ref::filename,
                 file_ref::filesize,
                 file_ref::path_file,
@@ -187,6 +189,7 @@ impl DownloadFile {
 
         Ok(DownloadFile{
             uuid: slim_file.uuid,
+            hash: hex::encode(&slim_file.hash),
             filename: slim_file.filename.clone(),
             filesize: slim_file.filesize,
             download_url,
