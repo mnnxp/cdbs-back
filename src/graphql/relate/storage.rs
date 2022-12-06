@@ -42,7 +42,7 @@ impl StorageMutation {
         &self,
         cxt: &Context<'_>,
         file_uuids: Vec<Uuid>,
-    ) -> ServiceResult<i32> {
+    ) -> ServiceResult<usize> {
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 

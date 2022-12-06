@@ -1,5 +1,4 @@
 use crate::errors::{ServiceResult, ServiceError};
-use tokio::runtime::Runtime;
 use rusoto_core::request::HttpClient;
 use rusoto_s3::{HeadObjectOutput, S3, S3Client};
 use rusoto_signature::credential::StaticProvider;
@@ -28,16 +27,8 @@ pub(crate) async fn get_object_headers_by_path(
     };
 
     debug!("HeadObjectRequest: {:#?}", req);
-
-    // Create the runtime
-    let rt = Runtime::new().unwrap();
-
-    // Spawn a future onto the runtime
-    let res = rt.block_on(async {
-        // trying to get headers
-        client.head_object(req).await
-        // debug!("future: {:?}", future);
-    });
+    let res = client.head_object(req).await;
+    // debug!("res: {:?}", res);
 
     match res {
         Ok(x) => {

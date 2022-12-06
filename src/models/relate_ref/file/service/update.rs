@@ -15,7 +15,7 @@ pub(crate) async fn confirm_upload(
     target_user_uuid: &Uuid,
     file_uuids: &[Uuid],
     pool: &PgPool,
-) -> ServiceResult<i32> {
+) -> ServiceResult<usize> {
     let mut conn = pool.get().unwrap();
 
     let mut confirm_files: usize = 0;
@@ -63,14 +63,14 @@ pub(crate) async fn confirm_upload(
                 &mut conn,
             )?;
 
-            debug!("Upload completed: {:?}", update_file_rows);
+            debug!("Update rows: {:?}", update_file_rows);
 
             confirm_files += 1;
         }
     }
 
     match confirm_files == file_uuids.len() {
-        true => Ok(confirm_files as i32),
+        true => Ok(confirm_files),
         false => Err(ServiceError::BadRequest(
             "Unsuccessful check data".to_string()
         )),
