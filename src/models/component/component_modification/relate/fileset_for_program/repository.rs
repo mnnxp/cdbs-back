@@ -45,6 +45,8 @@ impl FilesetProgramRelatedData {
         for x in filesets {
             result.push(FilesetProgramRelatedData::for_fileset(x, conn)?);
         }
+        // sorting the list of program names alphabetically
+        result.sort_by(|a, b| a.program.name.cmp(&b.program.name));
         Ok(result)
     }
 }

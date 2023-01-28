@@ -23,6 +23,7 @@ fn find_all_program(
     program_ref::program_ref
         .limit(*limit as i64)
         .offset(*offset as i64)
+        .order(program_ref::name.asc())
         .load::<Program>(conn)
         .map_err(|err| {
             debug!("Failed get program: {:?}", err);

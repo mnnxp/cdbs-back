@@ -217,6 +217,8 @@ impl ShowComponentShort {
                 },
             };
         }
+        // sorting the list of components by name
+        result.sort_by(|a, b| a.name.cmp(&b.name));
         Ok(result)
     }
 
@@ -234,6 +236,7 @@ impl ShowComponentShort {
             .select(component_ref::uuid)
             .limit(*limit as i64)
             .offset(*offset as i64)
+            .order(component_ref::name.asc())
             .load::<Uuid>(conn)
             .expect("Failed get public components");
 

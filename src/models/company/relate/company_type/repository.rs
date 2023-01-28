@@ -35,6 +35,7 @@ impl CompanyTypeTranslateList {
     ) -> ServiceResult<Vec<CompanyTypeTranslateList>> {
         company_type_translate_list::company_type_translate_list
             .filter(company_type_translate_list::lang_id.eq(set_lang_id))
+            .order(company_type_translate_list::name.asc())
             .load::<CompanyTypeTranslateList>(conn)
             .map_err(|err| {
                 // if not found data for set lang

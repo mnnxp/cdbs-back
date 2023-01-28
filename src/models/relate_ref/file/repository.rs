@@ -76,7 +76,8 @@ impl ShowFileRelatedData {
                 conn
             )?)
         }
-
+        // sorting the list of files by date updated
+        result.sort_by(|a, b| a.updated_at.cmp(&b.updated_at));
         Ok(result)
     }
 }
@@ -119,6 +120,7 @@ impl SlimFile {
                 file_ref::filesize,
                 file_ref::path_file,
             ))
+            .order(file_ref::filename.asc())
             .load::<SlimFile>(conn)
             .map_err(|err| {
                 debug!("Failed get file: {:?}", err);

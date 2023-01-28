@@ -70,6 +70,8 @@ impl ComponentModificationAndRelatedData {
         for x in component_modifications.iter() {
             result.push(ComponentModificationAndRelatedData::for_modification(x, set_lang_id, conn)?);
         }
+        // sorting the list of component modifications
+        result.sort_by(|a, b| a.modification_name.cmp(&b.modification_name));
         Ok(result)
     }
 }

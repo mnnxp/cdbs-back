@@ -17,6 +17,7 @@ impl CompanyRepresent {
         // collect data for represents the company
         company_represent_ref::company_represent_ref
             .filter(company_represent_ref::company_uuid.eq(company_uuid))
+            .order(company_represent_ref::name.asc())
             .load::<CompanyRepresent>(conn)
             .map_err(|err| {
                 debug!("Failed get company represents: {:?}", err);
@@ -34,6 +35,7 @@ impl CompanyRepresent {
             .filter(company_represent_ref::uuid.eq_any(&args.represents_uuids))
             .limit(args.limit as i64)
             .offset(args.offset as i64)
+            .order(company_represent_ref::name.asc())
             .load::<CompanyRepresent>(conn)
             .map_err(|err| {
                 debug!("Failed get company represents: {:?}", err);
