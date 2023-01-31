@@ -17,12 +17,12 @@ use uuid::Uuid;
 lazy_static::lazy_static! {
     static ref ROOT_STANDARD_UUID : Uuid =
         Uuid::parse_str("303ec2aa-2066-42e3-93fb-de4fb9344bcb")
-            .expect("Set default image uuid failed!");
+            .expect("Set root standard uuid failed!");
 }
 
 #[derive(Identifiable, Queryable, Debug)]
-#[primary_key(uuid)]
-#[table_name = "standard_ref"]
+#[diesel(primary_key(uuid))]
+#[diesel(table_name = standard_ref)]
 pub(crate) struct Standard {
     pub(crate) uuid: Uuid,
     pub(crate) parent_standard_uuid: Uuid,
@@ -89,7 +89,7 @@ pub(crate) struct ShowStandardShort {
 }
 
 #[derive(Debug, Insertable)]
-#[table_name = "standard_ref"]
+#[diesel(table_name = standard_ref)]
 pub(crate) struct InsertableStandard {
     uuid: Uuid,
     parent_standard_uuid: Uuid,

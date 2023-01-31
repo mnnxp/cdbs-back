@@ -6,7 +6,7 @@ use diesel::prelude::*;
 
 pub(crate) fn create_license(
     new_license_data: &LicenseData,
-    conn: &PgConnection
+    conn: &mut PgConnection
 ) -> ServiceResult<License> {
     let flag_found = license_ref::license_ref
         .filter(license_ref::keyword.eq(&new_license_data.keyword))

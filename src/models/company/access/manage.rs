@@ -8,7 +8,7 @@ use uuid::Uuid;
 pub(crate) fn change_company_type_access(
     logged_user_uuid: &Uuid,
     data: &ChangeTypeAccessCompany,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<bool> {
     use crate::schema::company_ref::dsl::*;
 

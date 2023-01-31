@@ -28,7 +28,7 @@ pub(crate) fn token_from_cxt(
 /// show all tokens for user_uuid
 pub(crate) fn show_tokens(
     logged_user_uuid: &Uuid,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<Vec<UserToken>> {
     user_token_ref::user_token_ref
         .filter(user_token_ref::user_uuid.eq(logged_user_uuid))
@@ -54,7 +54,7 @@ pub(crate) fn update(
 ) -> ServiceResult<Token> {
     use crate::models::user::access::token::{generate, decode};
 
-    let conn: &PooledConnection = &get_conn(cxt)?;
+    let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
     // get old token
     let old_token = token_from_cxt(cxt)?;
@@ -91,7 +91,7 @@ pub(crate) fn update(
 /// delete token to table user_token_ref of database
 pub(crate) fn delete_token(
     target_token: &str,
-    conn: &PgConnection
+    conn: &mut PgConnection
 ) -> ServiceResult<UserToken> {
     diesel::delete(user_token_ref::user_token_ref)
         .filter(user_token_ref::token.eq(&target_token))
@@ -106,7 +106,7 @@ pub(crate) fn delete_token(
 pub(crate) fn delete_user_token(
     logged_user_uuid: &Uuid,
     target_token: &str,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<bool> {
     let delete_token = diesel::delete(user_token_ref::user_token_ref)
         .filter(user_token_ref::user_uuid.eq(&logged_user_uuid)
@@ -123,7 +123,7 @@ pub(crate) fn delete_user_token(
 /// delete tokens to table user_token_ref of database
 pub(crate) fn delete_all_tokens(
     target_user_uuid: &Uuid,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<i32> {
     let del_tokens = diesel::delete(user_token_ref::user_token_ref)
         .filter(user_token_ref::user_uuid.eq_all(target_user_uuid))
@@ -141,7 +141,7 @@ pub(crate) fn write_token(
     logged_user_uuid: &Uuid,
     new_token: &str,
     jwt: Claims,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<UserToken> {
     // get duplicate token
     let check_token = user_token_ref::user_token_ref
@@ -174,7 +174,7 @@ pub(crate) fn write_token(
 /// check token for validity
 pub(crate) fn check_token(
     target_token: &str,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<bool> {
     let naive_local_now = chrono::Local::now().naive_local();
 
@@ -197,7 +197,7 @@ pub(crate) fn check_token(
 /// get the user_uuid who owns the token
 pub(crate) fn whose_token(
     target_token: &str,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<Uuid> {
     user_token_ref::user_token_ref
         .filter(user_token_ref::token.eq(target_token))

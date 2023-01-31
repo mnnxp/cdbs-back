@@ -12,7 +12,7 @@ impl ModificationParamWithTranslation {
     pub(crate) fn by_modification_uuid(
         modification_uuid: &Uuid,
         set_lang_id: &i32,
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> ServiceResult<Vec<ModificationParamWithTranslation>> {
         let modification_params = param_to_modification::param_to_modification
             .filter(param_to_modification::modification_uuid.eq(modification_uuid))

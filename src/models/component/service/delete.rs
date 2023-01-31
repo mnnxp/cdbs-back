@@ -14,7 +14,7 @@ use uuid::Uuid;
 pub(crate) fn del_component(
     logged_user_uuid: &Uuid,
     del_component_uuid: &Uuid,
-    conn: &PgConnection
+    conn: &mut PgConnection
 ) -> ServiceResult<Uuid> {
     // check ownership user
     check_is_owner_with_err(logged_user_uuid, del_component_uuid, conn)?;
@@ -26,7 +26,7 @@ pub(crate) fn del_component(
 pub(crate) fn delete_component(
     // logged_user_uuid: &Uuid,
     del_component_uuid: &Uuid,
-    conn: &PgConnection
+    conn: &mut PgConnection
 ) -> ServiceResult<Uuid> {
     // set flags for component files
     delete_component_files(del_component_uuid, conn)?;
@@ -51,7 +51,7 @@ pub(crate) fn delete_component(
 /// Set the delete flags for all files associated with the component
 fn delete_component_files(
     component_uuid: &Uuid,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<bool> {
     let del_file_uuids = file_to_component::file_to_component
         .filter(file_to_component::component_uuid.eq(component_uuid))

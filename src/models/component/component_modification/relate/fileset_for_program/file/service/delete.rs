@@ -13,7 +13,7 @@ use uuid::Uuid;
 pub(crate) fn del_file_from_fileset(
     logged_user_uuid: &Uuid,
     data: &DelModificationFileFromFilesetData,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<bool> {
     let need_access_level = 1; // todo!(create enum for manage access level)
 
@@ -38,7 +38,7 @@ pub(crate) fn del_file_from_fileset(
 /// Remove the relate of the file to the modification
 fn delete_file_link_row(
     data: &DelModificationFileFromFilesetData,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<bool> {
     let count = diesel::delete(modification_file_from_fileset::modification_file_from_fileset)
         .filter(modification_file_from_fileset::fileset_uuid.eq(&data.fileset_uuid)

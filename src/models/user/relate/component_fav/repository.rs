@@ -8,7 +8,7 @@ impl ComponentFav {
     /// Count subscribers for component
     pub(crate) fn get_count_by_user_uuid(
         target_user_uuid: &Uuid,
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> ServiceResult<i32> {
         let count = component_fav::component_fav
             .filter(component_fav::user_uuid.eq(target_user_uuid)

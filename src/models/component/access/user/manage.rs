@@ -15,7 +15,7 @@ pub(crate) fn get_users_list_access_component(
     logged_user_uuid: &Uuid,
     target_component_uuid: &Uuid,
     set_lang_id: &i32,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<Vec<UserAccessComponentAndRelatedData>> {
     // 1. проверить пользователя на владение компонентом
     check_is_owner_with_err(logged_user_uuid, target_component_uuid, conn)?;
@@ -32,7 +32,7 @@ pub(crate) fn get_users_list_access_component(
 pub(crate) fn set_user_access_component(
     logged_user_uuid: &Uuid,
     data: &IptUserAccessComponentData,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<bool> {
     // 1. проверить пользователя на владение компонентом
     check_is_owner_with_err(logged_user_uuid, &data.component_uuid, conn)?;
@@ -74,7 +74,7 @@ pub(crate) fn set_user_access_component(
 /// Warning: this function without "check is owner user"
 fn add_user_access_component(
     data: &IptUserAccessComponentData,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<bool> {
     let insert_data: InsertableUserAccessComponent = data.into();
 
@@ -92,7 +92,7 @@ fn add_user_access_component(
 pub(crate) fn del_user_access_component(
     logged_user_uuid: &Uuid,
     data: &DelUserAccessComponentData,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<bool> {
     // 1. проверить пользователя на владение компонентом
     check_is_owner_with_err(logged_user_uuid, &data.component_uuid, conn)?;

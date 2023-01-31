@@ -8,7 +8,7 @@ use diesel::prelude::*;
 
 pub(crate) fn create_param(
     new_param_data: &IptParamTranslateListData,
-    conn: &PgConnection
+    conn: &mut PgConnection
 ) -> ServiceResult<i32> {
     let flag_found = param_translate_list::param_translate_list
         .filter(param_translate_list::lang_id.eq(&new_param_data.lang_id)

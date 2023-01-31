@@ -9,7 +9,7 @@ use uuid::Uuid;
 pub(crate) fn del_company_specs(
     logged_user_uuid: &Uuid,
     data: &IptCompanySpecsData,
-    conn: &PgConnection
+    conn: &mut PgConnection
 ) -> ServiceResult<usize> {
     use crate::schema::spec_to_company::dsl::*;
 

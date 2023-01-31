@@ -15,8 +15,8 @@ use chrono::*;
 use uuid::Uuid;
 
 #[derive(Identifiable, Deserialize, Queryable, Debug)]
-#[primary_key(uuid)]
-#[table_name = "company_ref"]
+#[diesel(primary_key(uuid))]
+#[diesel(table_name = company_ref)]
 pub(crate) struct Company {
     pub(crate) uuid: Uuid,
     pub(crate) orgname: String,
@@ -88,7 +88,7 @@ pub(crate) struct ShowCompanyShort {
 }
 
 #[derive(Debug, Insertable)]
-#[table_name = "company_ref"]
+#[diesel(table_name = company_ref)]
 pub(crate) struct InsertableCompany {
     uuid: Uuid,
     orgname: String,

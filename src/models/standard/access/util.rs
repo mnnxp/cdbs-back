@@ -7,7 +7,7 @@ use uuid::Uuid;
 pub(crate) fn check_is_owner(
     target_user_uuid: &Uuid,
     target_standard_uuid: &Uuid,
-    conn: &PgConnection
+    conn: &mut PgConnection
 ) -> ServiceResult<bool> {
     let check_owner_standard = standard_ref::standard_ref
         .filter(standard_ref::user_uuid.eq(target_user_uuid)
@@ -27,7 +27,7 @@ pub(crate) fn check_is_owner(
 pub(crate) fn check_is_owner_with_err(
     target_user_uuid: &Uuid,
     target_standard_uuid: &Uuid,
-    conn: &PgConnection
+    conn: &mut PgConnection
 ) -> ServiceResult<bool> {
     match check_is_owner(target_user_uuid, target_standard_uuid, conn)? {
         true => Ok(true),
@@ -41,7 +41,7 @@ pub(crate) fn check_access_standard_for_user(
     target_user_uuid: &Uuid,
     target_standard_uuid: &Uuid,
     need_access_level: &i32,
-    conn: &PgConnection
+    conn: &mut PgConnection
 ) -> ServiceResult<bool> {
     // if request to view a public standard
     if need_access_level == &3 {
@@ -85,7 +85,7 @@ pub(crate) fn check_user_access_to_standard(
     target_user_uuid: &Uuid,
     target_standard_uuid: &Uuid,
     need_access_level: &i32,
-    conn: &PgConnection
+    conn: &mut PgConnection
 ) -> ServiceResult<bool> {
     use crate::schema::user_access_to_standard::dsl::*;
 
@@ -108,7 +108,7 @@ pub(crate) fn check_user_access_provided_by_company(
     target_user_uuid: &Uuid,
     target_standard_uuid: &Uuid,
     need_access_level: &i32,
-    conn: &PgConnection
+    conn: &mut PgConnection
 ) -> ServiceResult<bool> {
     use crate::models::company::access::util::get_roles_ids_for_access;
     use crate::models::company::access::util::check_clerk_with_suitable_role;
@@ -131,7 +131,7 @@ pub(crate) fn check_user_access_provided_by_company(
 pub(crate) fn get_companies_have_access_to_standard(
     target_standard_uuid: &Uuid,
     need_access_level: &i32,
-    conn: &PgConnection
+    conn: &mut PgConnection
 ) -> ServiceResult<Vec<Uuid>> {
     use crate::schema::company_access_to_standard::dsl::*;
 
@@ -155,7 +155,7 @@ pub(crate) fn get_companies_have_access_to_standard(
 /// Gets access type for standard
 pub(crate) fn get_access_type_standard(
     target_standard_uuid: &Uuid,
-    conn: &PgConnection
+    conn: &mut PgConnection
 ) -> ServiceResult<i32> {
     use crate::schema::standard_ref::dsl::*;
 

@@ -9,7 +9,7 @@ use diesel::PgConnection;
 pub(crate) fn search_specs_by_name(
     arguments: &SearchSpecArg,
     set_lang_id: &i32,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<Vec<SpecPath>> {
     let SearchSpecArg {
         text,
@@ -61,7 +61,7 @@ pub(crate) fn search_specs_by_name(
 //     limit: &i32,
 //     offset: &i32,
 //     set_lang_id: &i32,
-//     conn: &PgConnection,
+//     conn: &mut PgConnection,
 // ) -> ServiceResult<Vec<SpecTranslateList>> {
 //     let res_query = SpecId::get_list_by_name(
 //         text,

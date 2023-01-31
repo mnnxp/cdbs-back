@@ -30,7 +30,7 @@ impl TypeAccessQuery {
             None => TypeAccessArg::default(),
         };
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         get_type_access(&arguments, &get_set_language(cxt), conn)
     }
@@ -47,7 +47,7 @@ impl TypeAccessMutation {
 
         check_authorized(cxt)?;
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         create_type_access(&args, conn)
     }

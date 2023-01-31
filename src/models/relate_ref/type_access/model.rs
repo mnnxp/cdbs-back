@@ -7,15 +7,15 @@ use crate::models::relate_ref::language::model::Language;
 use async_graphql::*;
 
 // TypeAccess models
-#[derive(Identifiable, Serialize, Deserialize, Associations, Queryable, Debug)]
-#[primary_key(id)]
-#[table_name = "type_access_ref"]
+#[derive(Identifiable, Serialize, Deserialize, Queryable, Debug)]
+#[diesel(primary_key(id))]
+#[diesel(table_name = type_access_ref)]
 pub(crate) struct TypeAccess {
     pub(crate) id: i32,
 }
 
 #[derive(Debug, Insertable)]
-#[table_name = "type_access_ref"]
+#[diesel(table_name = type_access_ref)]
 pub(crate) struct InsertableTypeAccess {
     pub(crate) id: i32,
 }
@@ -23,11 +23,11 @@ pub(crate) struct InsertableTypeAccess {
 // TypeAccess translations
 #[derive(Identifiable, Serialize, Deserialize, Queryable, Associations)]
 #[derive(SimpleObject, Clone, Default, Debug)]
-#[primary_key(type_access_id, lang_id)]
-#[belongs_to(TypeAccess, foreign_key = "type_access_id")]
-#[belongs_to(Component, foreign_key = "type_access_id")]
-#[belongs_to(Language, foreign_key = "lang_id")]
-#[table_name = "type_access_translate_list"]
+#[diesel(primary_key(type_access_id, lang_id))]
+#[diesel(belongs_to(TypeAccess, foreign_key = type_access_id))]
+#[diesel(belongs_to(Component, foreign_key = type_access_id))]
+#[diesel(belongs_to(Language, foreign_key = lang_id))]
+#[diesel(table_name = type_access_translate_list)]
 pub(crate) struct TypeAccessTranslateList {
     pub(crate) type_access_id: i32,
     pub(crate) lang_id: i32,
@@ -41,7 +41,7 @@ pub(crate) struct IptTypeAccessTranslateListData {
 }
 
 #[derive(Debug, Insertable)]
-#[table_name = "type_access_translate_list"]
+#[diesel(table_name = type_access_translate_list)]
 pub(crate) struct InsertableTypeAccessTranslateList {
     pub(crate) type_access_id: i32,
     pub(crate) lang_id: i32,

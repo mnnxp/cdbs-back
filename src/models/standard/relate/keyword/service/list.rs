@@ -10,7 +10,7 @@ use uuid::Uuid;
 pub(crate) fn get_standard_keywords(
     logged_user_uuid: &Uuid,
     arg: &StandardKeywordsArg,
-    conn: &PgConnection
+    conn: &mut PgConnection
 ) -> ServiceResult<Vec<Keyword>> {
 
     let need_access_level = 3; // todo!(create enum for manage access level)

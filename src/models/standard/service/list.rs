@@ -11,7 +11,7 @@ pub(crate) fn get_standard(
     logged_user_uuid: &Uuid,
     arguments: &StandardsArg,
     set_lang_id: &i32,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<Vec<ShowStandardShort>> {
     // structure for reduce the number of function arguments
     let StandardsArg {
@@ -80,7 +80,7 @@ fn get_standards_by_user(
     company_uuid: &Uuid,
     limit: &i32,
     offset: &i32,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<Vec<Uuid>> {
     use crate::schema::standard_ref::dsl as standard_ref;
 
@@ -113,7 +113,7 @@ fn get_standards_followed_by_user(
     user_uuid: &Uuid,
     limit: &i32,
     offset: &i32,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<Vec<Uuid>> {
     use crate::schema::standard_fav::dsl as standard_fav;
 
@@ -145,7 +145,7 @@ pub(crate) fn find_by_uuid(
     logged_user_uuid: &Uuid,
     target_standard_uuid: &Uuid,
     set_lang_id: &i32,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<StandardAndRelatedData> {
     // collect data for standard
     let result: StandardAndRelatedData = StandardAndRelatedData::collect_related_data(

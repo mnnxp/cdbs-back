@@ -7,7 +7,7 @@ use uuid::Uuid;
 pub(crate) fn update_certificate_description(
     logged_user_uuid: &Uuid,
     data: &IptUpdateUserCertificateData,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<bool> {
     use crate::schema::user_certificate_ref::dsl as user_certificate_ref;
 

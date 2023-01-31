@@ -11,7 +11,7 @@ impl RoleMemberTranslateList {
     pub(crate) fn get_by_id(
         target_role_id: &i32,
         set_lang_id: &i32,
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> ServiceResult<RoleMemberTranslateList> {
         let role = role_member_translate_list
             .filter(role_member_id.eq(target_role_id)
@@ -42,7 +42,7 @@ impl RoleMemberTranslateList {
     pub(crate) fn get_roles_by_ids(
         target_roles_ids: &[i32],
         set_lang_id: &i32,
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> ServiceResult<Vec<RoleMemberTranslateList>> {
         let roles = role_member_translate_list
             .filter(role_member_id.eq_any(target_roles_ids)
@@ -75,7 +75,7 @@ impl RoleMemberAndRelatedData {
     pub(crate) fn get_by_id(
         target_role_id: &i32,
         set_lang_id: &i32,
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> ServiceResult<RoleMemberAndRelatedData> {
         let role = RoleMemberTranslateList::get_by_id(
             target_role_id,
@@ -100,7 +100,7 @@ impl RoleMemberAndRelatedData {
     pub(crate) fn get_roles_by_ids(
         target_roles_ids: &[i32],
         set_lang_id: &i32,
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> ServiceResult<Vec<RoleMemberAndRelatedData>> {
         let roles = RoleMemberTranslateList::get_roles_by_ids(
             target_roles_ids,
@@ -132,7 +132,7 @@ impl TypeAccessTranslateList {
     pub(crate) fn get_by_role_id(
         target_role_id: &i32,
         set_lang_id: &i32,
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> ServiceResult<Vec<TypeAccessTranslateList>> {
         use crate::schema::role_access::dsl as role_access;
 

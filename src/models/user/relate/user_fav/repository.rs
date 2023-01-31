@@ -12,7 +12,7 @@ impl ShowUserShort {
         filter_users_uuids: &[Uuid],
         limit: &i32,
         offset: &i32,
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> ServiceResult<Vec<ShowUserShort>> {
         let mut query = user_fav::user_fav.into_boxed();
         query = match filter_users_uuids.is_empty() {
@@ -51,7 +51,7 @@ impl ShowUserShort {
         filter_users_uuids: &[Uuid],
         limit: &i32,
         offset: &i32,
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> ServiceResult<Vec<ShowUserShort>> {
         let mut query = user_fav::user_fav.into_boxed();
         query = match filter_users_uuids.is_empty() {
@@ -89,7 +89,7 @@ impl UserFav {
     /// Count subscribers for user
     pub(crate) fn get_count_followers_by_uuid(
         logged_user_uuid: &Uuid,
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> ServiceResult<i32> {
         let count = user_fav::user_fav
             .filter(user_fav::user_favorite_uuid.eq(logged_user_uuid)
@@ -105,7 +105,7 @@ impl UserFav {
     /// Count favorite for user
     pub(crate) fn get_count_favorites_by_uuid(
         target_user_uuid: &Uuid,
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> ServiceResult<i32> {
         let count = user_fav::user_fav
             .filter(user_fav::user_follower_uuid.eq(target_user_uuid)

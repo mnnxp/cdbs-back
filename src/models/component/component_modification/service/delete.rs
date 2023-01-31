@@ -13,7 +13,7 @@ use uuid::Uuid;
 pub(crate) fn del_component_modification(
     logged_user_uuid: &Uuid,
     data: &DelComponentModificationData,
-    conn: &PgConnection
+    conn: &mut PgConnection
 ) -> ServiceResult<Uuid> {
     check_is_owner_with_err(
         logged_user_uuid,
@@ -35,7 +35,7 @@ pub(crate) fn del_component_modification(
 /// Set the delete flags for all modifications and filesets files associated with the component
 pub(crate) fn delete_modifications_files_by_component(
     component_uuid: &Uuid,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<bool> {
     // get modifications related with component
     let modification_uuids = component_modification_list::component_modification_list

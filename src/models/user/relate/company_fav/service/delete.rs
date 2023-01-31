@@ -7,7 +7,7 @@ use uuid::Uuid;
 pub(crate) fn delete_company_fav(
     logged_user_uuid: &Uuid,
     company_uuid: &Uuid,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<bool> {
     // if have need row, just update is_enabled to false
     let del_fav = diesel::update(company_fav::company_fav)

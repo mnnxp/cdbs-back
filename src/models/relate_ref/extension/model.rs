@@ -2,8 +2,8 @@ use crate::schema::*;
 use async_graphql::*;
 
 #[derive(Identifiable, Serialize, Deserialize, Queryable, SimpleObject, Debug)]
-#[primary_key(id)]
-#[table_name = "extension_ref"]
+#[diesel(primary_key(id))]
+#[diesel(table_name = extension_ref)]
 pub(crate) struct Extension {
     pub(crate) id: i32,
     pub(crate) extension: String,
@@ -11,7 +11,7 @@ pub(crate) struct Extension {
 }
 
 #[derive(Debug, Insertable)]
-#[table_name = "extension_ref"]
+#[diesel(table_name = extension_ref)]
 pub(crate) struct InsertableExtension {
     pub(crate) extension: String,
     pub(crate) program_id: i32,

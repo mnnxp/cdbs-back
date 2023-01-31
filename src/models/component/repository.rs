@@ -29,7 +29,7 @@ impl Component {
     /// Get component data from component_ref table by uuid
     pub(crate) fn get_component_by_uuid(
         target_component_uuid: &Uuid,
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> ServiceResult<Component> {
         component_ref::component_ref
             .filter(component_ref::uuid.eq(target_component_uuid)
@@ -51,7 +51,7 @@ impl ShowComponentShort {
         limit: &i32,
         offset: &i32,
         set_lang_id: &i32,
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> ServiceResult<Vec<ShowComponentShort>> {
         match filter_components_uuids.is_empty() {
             true => {
@@ -78,7 +78,7 @@ impl ShowComponentShort {
         logged_user_uuid: &Uuid,
         component_uuid: &Uuid,
         set_lang_id: &i32,
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> ServiceResult<ShowComponentShort> {
         let need_access_level = 3; // todo!(create enum for manage access level)
 
@@ -103,7 +103,7 @@ impl ShowComponentShort {
         logged_user_uuid: &Uuid,
         target_component_uuid: &Uuid,
         set_lang_id: &i32,
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> ServiceResult<ShowComponentShort> {
         // get target component
         let component = Component::get_component_by_uuid(
@@ -198,7 +198,7 @@ impl ShowComponentShort {
         target_components_uuids: &[Uuid],
         logged_user_uuid: &Uuid,
         set_lang_id: &i32,
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> ServiceResult<Vec<ShowComponentShort>> {
         // the result for store the result :)
         let mut result: Vec<ShowComponentShort> = Vec::new();
@@ -217,6 +217,8 @@ impl ShowComponentShort {
                 },
             };
         }
+        // sorting the list of components by name
+        result.sort_by(|a, b| a.name.cmp(&b.name));
         Ok(result)
     }
 
@@ -226,7 +228,7 @@ impl ShowComponentShort {
         limit: &i32,
         offset: &i32,
         set_lang_id: &i32,
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> ServiceResult<Vec<ShowComponentShort>> {
         let target_components_uuids = component_ref::component_ref
             .filter(component_ref::type_access_id.eq(3)
@@ -234,6 +236,7 @@ impl ShowComponentShort {
             .select(component_ref::uuid)
             .limit(*limit as i64)
             .offset(*offset as i64)
+            .order(component_ref::name.asc())
             .load::<Uuid>(conn)
             .expect("Failed get public components");
 
@@ -259,7 +262,7 @@ impl ComponentAndRelatedData {
         target_component_uuid: &Uuid,
         logged_user_uuid: &Uuid,
         set_lang_id: &i32,
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> ServiceResult<ComponentAndRelatedData> {
         let need_access_level = 3; // todo!(create enum for manage access level)
 

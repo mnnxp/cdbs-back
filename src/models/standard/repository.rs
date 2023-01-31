@@ -22,7 +22,7 @@ impl Standard {
     /// Get standard data from standard_ref table by uuid
     pub(crate) fn get_standard_by_uuid(
         target_standard_uuid: &Uuid,
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> ServiceResult<Standard> {
         standard_ref::standard_ref
             .filter(standard_ref::uuid.eq(target_standard_uuid)
@@ -62,7 +62,7 @@ impl ShowStandardShort {
         limit: &i32,
         offset: &i32,
         set_lang_id: &i32,
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> ServiceResult<Vec<ShowStandardShort>> {
         match filter_standards_uuids.is_empty() {
             true => {
@@ -90,7 +90,7 @@ impl ShowStandardShort {
         logged_user_uuid: &Uuid,
         target_standard_uuid: &Uuid,
         set_lang_id: &i32,
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> ServiceResult<ShowStandardShort> {
         let need_access_level = 3; // todo!(create enum for manage access level)
 
@@ -155,7 +155,7 @@ impl ShowStandardShort {
         target_standards_uuids: &[Uuid],
         logged_user_uuid: &Uuid,
         set_lang_id: &i32,
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> ServiceResult<Vec<ShowStandardShort>> {
         // the for collect the result :)
         let mut result: Vec<ShowStandardShort> = Vec::new();
@@ -183,7 +183,7 @@ impl ShowStandardShort {
         limit: &i32,
         offset: &i32,
         set_lang_id: &i32,
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> ServiceResult<Vec<ShowStandardShort>> {
         // gets all public standards uuids
         let target_standards_uuids = standard_ref::standard_ref
@@ -222,7 +222,7 @@ impl StandardAndRelatedData {
         target_standard_uuid: &Uuid,
         logged_user_uuid: &Uuid,
         set_lang_id: &i32,
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> ServiceResult<StandardAndRelatedData> {
         let need_access_level = 3; // todo!(create enum for manage access level)
 

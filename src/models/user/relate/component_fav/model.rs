@@ -8,10 +8,10 @@ use uuid::Uuid;
 // Favorites user models
 #[derive(Identifiable, Serialize, Deserialize, Queryable, Associations)]
 #[derive(SimpleObject, Clone, Debug)]
-#[primary_key(component_uuid, user_uuid)]
-#[belongs_to(Component, foreign_key = "component_uuid")]
-#[belongs_to(UserQuery, foreign_key = "user_uuid")]
-#[table_name = "component_fav"]
+#[diesel(primary_key(component_uuid, user_uuid))]
+#[diesel(belongs_to(Component, foreign_key = component_uuid))]
+#[diesel(belongs_to(UserQuery, foreign_key = user_uuid))]
+#[diesel(table_name = component_fav)]
 pub(crate) struct ComponentFav {
     pub(crate) component_uuid: Uuid,
     pub(crate) user_uuid: Uuid,
@@ -26,7 +26,7 @@ pub(crate) struct IptComponentFavData {
 }
 
 #[derive(Debug, Insertable)]
-#[table_name = "component_fav"]
+#[diesel(table_name = component_fav)]
 pub(crate) struct InsertableComponentFav {
     pub(crate) component_uuid: Uuid,
     pub(crate) user_uuid: Uuid,

@@ -9,7 +9,7 @@ impl License {
     /// Get list license for component
     pub(crate) fn get_by_component(
         component: &Component,
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> ServiceResult<Vec<License>> {
         let licenses_ids: Vec<i32> = ComponentLicense::belonging_to(component)
             .select(license_to_component::license_id)

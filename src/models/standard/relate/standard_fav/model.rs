@@ -8,10 +8,10 @@ use uuid::Uuid;
 // Favorites standard models
 #[derive(Identifiable, Serialize, Deserialize, Queryable, Associations)]
 #[derive(SimpleObject, Clone, Debug)]
-#[primary_key(standard_uuid, standard_uuid)]
-#[belongs_to(Standard, foreign_key = "standard_uuid")]
-#[belongs_to(User, foreign_key = "user_uuid")]
-#[table_name = "standard_fav"]
+#[diesel(primary_key(standard_uuid, standard_uuid))]
+#[diesel(belongs_to(Standard, foreign_key = standard_uuid))]
+#[diesel(belongs_to(User, foreign_key = user_uuid))]
+#[diesel(table_name = standard_fav)]
 pub(crate) struct StandardFav {
     pub(crate) standard_uuid: Uuid,
     pub(crate) user_uuid: Uuid,
@@ -28,7 +28,7 @@ pub(crate) struct IptStandardFavData {
 }
 
 #[derive(Debug, Insertable)]
-#[table_name = "standard_fav"]
+#[diesel(table_name = standard_fav)]
 pub(crate) struct InsertableStandardFav {
     pub(crate) standard_uuid: Uuid,
     pub(crate) user_uuid: Uuid,

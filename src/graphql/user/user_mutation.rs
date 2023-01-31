@@ -25,7 +25,7 @@ impl UserMutation {
     ) -> ServiceResult<SlimUser> {
         use crate::models::user::service::register::create_user;
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         create_user(
             &args,
@@ -43,7 +43,7 @@ impl UserMutation {
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         delete_user(
             &logged_user_uuid,
@@ -61,7 +61,7 @@ impl UserMutation {
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         change_password(
             &logged_user_uuid,
@@ -79,7 +79,7 @@ impl UserMutation {
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         change_access_type_user(
             &logged_user_uuid,
@@ -97,7 +97,7 @@ impl UserMutation {
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         update_user(
             &logged_user_uuid,
@@ -115,7 +115,7 @@ impl UserMutation {
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         update_favicon(
             &logged_user_uuid,
@@ -133,7 +133,7 @@ impl UserMutation {
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         add_certificate(
             &logged_user_uuid,
@@ -152,7 +152,7 @@ impl UserMutation {
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         update_certificate_description(
             &logged_user_uuid,
@@ -170,7 +170,7 @@ impl UserMutation {
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         del_certificate_description(
             &logged_user_uuid,
@@ -188,7 +188,7 @@ impl UserMutation {
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         add_company_fav(
             &logged_user_uuid,
@@ -206,7 +206,7 @@ impl UserMutation {
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         delete_company_fav(
             &logged_user_uuid,
@@ -224,7 +224,7 @@ impl UserMutation {
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         add_component_fav(
             &logged_user_uuid,
@@ -242,7 +242,7 @@ impl UserMutation {
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         delete_component_fav(
             &logged_user_uuid,
@@ -260,7 +260,7 @@ impl UserMutation {
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         add_standard_fav(
             &logged_user_uuid,
@@ -278,7 +278,7 @@ impl UserMutation {
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         delete_standard_fav(
             &logged_user_uuid,
@@ -296,7 +296,7 @@ impl UserMutation {
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         add_user_fav(
             &logged_user_uuid,
@@ -314,7 +314,7 @@ impl UserMutation {
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         delete_user_fav(
             &logged_user_uuid,
@@ -332,7 +332,7 @@ impl UserMutation {
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         set_notifications_as_read(
             &logged_user_uuid,
@@ -350,7 +350,7 @@ impl UserMutation {
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         delete_notifications(
             &logged_user_uuid,

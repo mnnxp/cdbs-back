@@ -13,7 +13,7 @@ pub(crate) struct UserToken {
 }
 
 #[derive(Debug, Insertable)]
-#[table_name = "user_token_ref"]
+#[diesel(table_name = user_token_ref)]
 pub(super) struct InsertableUserToken {
     user_uuid: Uuid,
     token: String,
@@ -27,8 +27,8 @@ impl InsertableUserToken {
         Self{
             user_uuid: *user_uuid,
             token: String::new(),
-            created_at: NaiveDateTime::from_timestamp(jwt.iat, 0),
-            expiration_at: NaiveDateTime::from_timestamp(jwt.exp, 0),
+            created_at: NaiveDateTime::from_timestamp_opt(jwt.iat, 0).unwrap(),
+            expiration_at: NaiveDateTime::from_timestamp_opt(jwt.exp, 0).unwrap(),
         }
     }
 

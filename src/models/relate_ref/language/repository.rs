@@ -7,7 +7,7 @@ impl EngLangName {
     /// Gets English name language by lang_id
     pub(crate) fn get_by_id(
         target_language_id: &i32,
-        // conn: &PgConnection,
+        // conn: &mut PgConnection,
     ) -> EngLangName {
         // language_ref::language_ref
         //     .filter(language_ref::id.eq(target_language_id))

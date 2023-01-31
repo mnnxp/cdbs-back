@@ -7,17 +7,17 @@ use uuid::Uuid;
 
 // Structures for Component
 #[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, SimpleObject, Debug)]
-#[primary_key(file_uuid, component_uuid)]
-#[belongs_to(ShowFileRelatedData, foreign_key = "file_uuid")]
-#[belongs_to(Component, foreign_key = "component_uuid")]
-#[table_name = "file_to_component"]
+#[diesel(primary_key(file_uuid, component_uuid))]
+#[diesel(belongs_to(ShowFileRelatedData, foreign_key = file_uuid))]
+#[diesel(belongs_to(Component, foreign_key = component_uuid))]
+#[diesel(table_name = file_to_component)]
 pub(crate) struct ComponentFile {
     pub(crate) file_uuid: Uuid,
     pub(crate) component_uuid: Uuid,
 }
 
 #[derive(Debug, Insertable)]
-#[table_name = "file_to_component"]
+#[diesel(table_name = file_to_component)]
 pub(crate) struct InsertableComponentFile {
     pub(crate) file_uuid: Uuid,
     pub(crate) component_uuid: Uuid,

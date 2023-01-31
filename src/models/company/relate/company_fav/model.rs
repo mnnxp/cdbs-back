@@ -8,10 +8,10 @@ use uuid::Uuid;
 // Favorites company models
 #[derive(Identifiable, Serialize, Deserialize, Queryable, Associations)]
 #[derive(SimpleObject, Clone, Debug)]
-#[primary_key(company_uuid, company_uuid)]
-#[belongs_to(Company, foreign_key = "company_uuid")]
-#[belongs_to(User, foreign_key = "user_uuid")]
-#[table_name = "company_fav"]
+#[diesel(primary_key(company_uuid, company_uuid))]
+#[diesel(belongs_to(Company, foreign_key = company_uuid))]
+#[diesel(belongs_to(User, foreign_key = user_uuid))]
+#[diesel(table_name = company_fav)]
 pub(crate) struct CompanyFav {
     pub(crate) company_uuid: Uuid,
     pub(crate) user_uuid: Uuid,
@@ -28,7 +28,7 @@ pub(crate) struct IptCompanyFavData {
 }
 
 #[derive(Debug, Insertable)]
-#[table_name = "company_fav"]
+#[diesel(table_name = company_fav)]
 pub(crate) struct InsertableCompanyFav {
     pub(crate) company_uuid: Uuid,
     pub(crate) user_uuid: Uuid,

@@ -11,7 +11,7 @@ impl SpecTranslateList {
     pub(crate) fn for_company_by_uuid(
         arg: &CompanySpecsArg,
         set_lang_id: &i32,
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> ServiceResult<Vec<SpecTranslateList>> {
         let CompanySpecsArg {
             company_uuid,
@@ -51,7 +51,7 @@ impl SpecTranslateList {
     pub(crate) fn for_company(
         company: &Company,
         set_lang_id: &i32,
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> ServiceResult<Vec<SpecTranslateList>> {
         let spec_company: Vec<CompanySpec> = CompanySpec::belonging_to(company)
             .load::<CompanySpec>(conn)

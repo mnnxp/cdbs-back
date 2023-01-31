@@ -7,7 +7,7 @@ use uuid::Uuid;
 pub(crate) fn check_subscriber_by_uuid(
     target_component_uuid: &Uuid,
     target_user_uuid: &Uuid,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<bool> {
     let check_subscriber = component_fav::component_fav
         .filter(component_fav::component_uuid.eq(target_component_uuid)

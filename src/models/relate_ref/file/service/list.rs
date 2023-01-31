@@ -9,7 +9,7 @@ use uuid::Uuid;
 pub(crate) fn get_url_by_file_uuid(
     logged_user_uuid: &Uuid,
     target_file_uuid: &Uuid,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<DownloadFile> {
     // check ownership file
     check_file_owner_err(

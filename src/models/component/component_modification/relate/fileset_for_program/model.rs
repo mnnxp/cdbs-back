@@ -7,10 +7,10 @@ use uuid::Uuid;
 
 #[derive(Identifiable, Serialize, Deserialize, Queryable, Associations)]
 #[derive(PartialEq, Clone, Debug)]
-#[primary_key(uuid)]
-#[belongs_to(ComponentModification, foreign_key = "modification_uuid")]
-#[belongs_to(Program, foreign_key = "program_id")]
-#[table_name = "fileset_for_program"]
+#[diesel(primary_key(uuid))]
+#[diesel(belongs_to(ComponentModification, foreign_key = modification_uuid))]
+#[diesel(belongs_to(Program, foreign_key = program_id))]
+#[diesel(table_name = fileset_for_program)]
 pub(crate) struct FilesetProgram {
     pub(crate) uuid: Uuid,
     pub(crate) modification_uuid: Uuid,
@@ -53,7 +53,7 @@ pub(crate) struct DelFilesetProgramData {
 }
 
 #[derive(Debug, Insertable)]
-#[table_name = "fileset_for_program"]
+#[diesel(table_name = fileset_for_program)]
 pub(crate) struct InsertableFilesetProgram {
     pub(crate) uuid: Uuid,
     pub(crate) modification_uuid: Uuid,

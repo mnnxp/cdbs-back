@@ -14,7 +14,7 @@ use uuid::Uuid;
 pub(crate) fn put_modification_params(
     logged_user_uuid: &Uuid,
     data: &IptModificationParamData,
-    conn: &PgConnection
+    conn: &mut PgConnection
 ) -> ServiceResult<i32> {
     let need_access_level = 1; // todo!(create enum for manage access level)
 
@@ -88,7 +88,7 @@ pub(crate) fn put_modification_params(
 /// Add new params from array InsertableModificationParam's
 fn adding_new_modification_params (
     data: &[InsertableModificationParam],
-    conn: &PgConnection
+    conn: &mut PgConnection
 ) -> ServiceResult<usize> {
     diesel::insert_into(param_to_modification)
         .values(data)
@@ -104,7 +104,7 @@ fn adding_new_modification_params (
 fn update_modification_params_values(
     target_modification_uuid: &Uuid,
     data: &[IptParamData],
-    conn: &PgConnection
+    conn: &mut PgConnection
 ) -> ServiceResult<usize> {
     let mut res: usize = 0;
 
@@ -131,7 +131,7 @@ fn update_modification_params_values(
 fn check_duplicated_params(
     target_modification_uuid: &Uuid,
     data: &[IptParamData],
-    conn: &PgConnection
+    conn: &mut PgConnection
 ) -> ServiceResult<bool> {
     for param_d in data {
         let duplicate_params = param_to_modification

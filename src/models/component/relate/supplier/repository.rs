@@ -9,7 +9,7 @@ impl ComponentSupplierRelatedData {
     /// Get suppliers list by component uuid
     pub(crate) fn by_component_uuid(
         component_uuid: &Uuid,
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> ServiceResult<Vec<ComponentSupplierRelatedData>> {
         let component_suppliers = supplier_to_component::supplier_to_component
             .filter(supplier_to_component::component_uuid.eq(component_uuid))
@@ -37,7 +37,7 @@ impl ComponentSupplierRelatedData {
     /// Get the first company associated with target component
     pub(crate) fn get_first_supplier(
         component_uuid: &Uuid,
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> ServiceResult<Vec<ComponentSupplierRelatedData>> {
         let supplier_component = supplier_to_component::supplier_to_component
             .filter(supplier_to_component::component_uuid.eq(component_uuid))

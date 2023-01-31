@@ -8,7 +8,7 @@ use diesel::prelude::*;
 
 pub(crate) fn create_program(
     new_program_data: &IptProgramData,
-    conn: &PgConnection
+    conn: &mut PgConnection
 ) -> ServiceResult<Program> {
     let flag_found = program_ref::program_ref
         .filter(program_ref::name.eq(&new_program_data.name))

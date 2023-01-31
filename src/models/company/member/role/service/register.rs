@@ -13,7 +13,7 @@ use uuid::Uuid;
 pub(crate) fn create_role_member(
     logged_user_uuid: &Uuid,
     data: &IptRoleMemberData,
-    conn: &PgConnection
+    conn: &mut PgConnection
 ) -> ServiceResult<i32> {
     check_is_owner_with_err(
         logged_user_uuid,

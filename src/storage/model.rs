@@ -6,7 +6,7 @@ use uuid::Uuid;
 
 /// Saving an active link to the file for uses the cache browser
 #[derive(Insertable, Debug)]
-#[table_name = "presigned_url_ref"]
+#[diesel(table_name = presigned_url_ref)]
 pub(crate) struct InsertablePresignedUrl {
     pub(crate) file_uuid: Uuid,
     pub(crate) presigned_url: String,

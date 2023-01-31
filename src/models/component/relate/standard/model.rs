@@ -8,10 +8,10 @@ use uuid::Uuid;
 // StandardTo component models
 #[derive(Identifiable, Serialize, Deserialize, Queryable, Associations)]
 #[derive(SimpleObject, Clone, Debug)]
-#[primary_key(component_uuid, standard_uuid)]
-#[belongs_to(Component, foreign_key = "component_uuid")]
-#[belongs_to(Standard, foreign_key = "standard_uuid")]
-#[table_name = "standard_to_component"]
+#[diesel(primary_key(component_uuid, standard_uuid))]
+#[diesel(belongs_to(Component, foreign_key = component_uuid))]
+#[diesel(belongs_to(Standard, foreign_key = standard_uuid))]
+#[diesel(table_name = standard_to_component)]
 pub(crate) struct StandardToComponent {
     pub(crate) component_uuid: Uuid,
     pub(crate) standard_uuid: Uuid,
@@ -24,7 +24,7 @@ pub(crate) struct IptStandardToComponentData {
 }
 
 #[derive(Debug, Insertable)]
-#[table_name = "standard_to_component"]
+#[diesel(table_name = standard_to_component)]
 pub(crate) struct InsertableStandardToComponent {
     pub(crate) standard_uuid: Uuid,
     pub(crate) component_uuid: Uuid,

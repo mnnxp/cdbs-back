@@ -16,7 +16,7 @@ use uuid::Uuid;
 pub(crate) fn add_company_to_suppliers(
     logged_user_uuid: &Uuid,
     data: &IptSupplierComponentData,
-    conn: &PgConnection
+    conn: &mut PgConnection
 ) -> ServiceResult<bool> {
     let need_access_level = 1; // todo!(create enum for manage access level)
 
@@ -38,7 +38,7 @@ pub(crate) fn add_company_to_suppliers(
 pub(crate) fn set_company_owner_supplier(
     logged_user_uuid: &Uuid,
     data: &IptSupplierComponentData,
-    conn: &PgConnection
+    conn: &mut PgConnection
 ) -> ServiceResult<bool> {
     let need_access_level = 1; // todo!(create enum for manage access level)
 

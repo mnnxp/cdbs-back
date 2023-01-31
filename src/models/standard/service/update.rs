@@ -14,7 +14,7 @@ pub(crate) fn update_standard_data(
     logged_user_uuid: &Uuid,
     target_standard_uuid: &Uuid,
     data: &IptUpdateStandardData,
-    conn: &PgConnection
+    conn: &mut PgConnection
 ) -> ServiceResult<usize> {
     let need_access_level = 1; // todo!(create enum for manage access level)
 

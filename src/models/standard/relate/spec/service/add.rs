@@ -9,7 +9,7 @@ use uuid::Uuid;
 pub(crate) fn add_standard_specs(
     logged_user_uuid: &Uuid,
     data: &IptStandardSpecsData,
-    conn: &PgConnection
+    conn: &mut PgConnection
 ) -> ServiceResult<i32> {
     use crate::schema::spec_to_standard::dsl::*;
 

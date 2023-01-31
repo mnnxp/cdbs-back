@@ -28,7 +28,7 @@ impl LicenseQuery {
             None => LicenseArg::default(),
         };
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         get_licenses(&arguments, conn)
     }
@@ -44,7 +44,7 @@ impl LicenseMutation {
         // todo!(check owned company)
         check_authorized(cxt)?;
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         create_license(&args, conn)
     }

@@ -44,7 +44,7 @@ impl StandardQuery {
             None => StandardsArg::default(),
         };
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         get_standard(
             &logged_user_uuid,
@@ -64,7 +64,7 @@ impl StandardQuery {
         // authorization check
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         find_by_uuid(
             &logged_user_uuid,
@@ -86,7 +86,7 @@ impl StandardQuery {
 
         let arguments: StandardFilesArg = args.into();
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         get_standard_files(
             &logged_user_uuid,
@@ -107,7 +107,7 @@ impl StandardQuery {
 
         let arguments: StandardSpecsArg = args.into();
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         get_standard_specs(
             &logged_user_uuid,
@@ -129,7 +129,7 @@ impl StandardQuery {
 
         let arguments: StandardKeywordsArg = args.into();
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         get_standard_keywords(
             &logged_user_uuid,
@@ -147,7 +147,7 @@ impl StandardQuery {
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         get_companies_list_access_standard(
             &logged_user_uuid,
@@ -167,7 +167,7 @@ impl StandardQuery {
         // checking authorization and getting user uuid
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         get_users_list_access_standard(
             &logged_user_uuid,
@@ -187,7 +187,7 @@ impl StandardQuery {
         check_authorized(cxt)?; // checking authorization
 
         let filter: Vec<i32> = filter.unwrap_or_default();
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         get_standard_statuses(&filter, &get_set_language(cxt), conn)
     }

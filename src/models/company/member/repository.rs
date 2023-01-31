@@ -13,7 +13,7 @@ impl CompanyMember {
     /// Gets company member without related data by company uuid
     pub(crate) fn get_by_company_uuid(
         target_company_uuid: &Uuid,
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> ServiceResult<Vec<CompanyMember>> {
         // collect data for members the company
         company_member_list::company_member_list
@@ -32,7 +32,7 @@ impl CompanyMemberAndRelatedData {
     pub(crate) fn get_list_members_by_company_uuid(
         company_uuid: &Uuid,
         set_lang_id: &i32,
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> ServiceResult<Vec<CompanyMemberAndRelatedData>> {
         let company_members = &CompanyMember::get_by_company_uuid(
             company_uuid,
@@ -51,7 +51,7 @@ impl CompanyMemberAndRelatedData {
     pub(crate) fn get_related_data_for_members(
         company_members: &[CompanyMember],
         set_lang_id: &i32,
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> ServiceResult<Vec<CompanyMemberAndRelatedData>> {
         let mut company_member_with_role: Vec<CompanyMemberAndRelatedData> = Vec::new();
 

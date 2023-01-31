@@ -34,7 +34,7 @@ impl SpecQuery {
             None => SpecArg::default(),
         };
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         get_specs(&arguments, &get_set_language(cxt), conn)
     }
@@ -47,7 +47,7 @@ impl SpecQuery {
         // authorization check
         check_authorized(cxt)?;
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         let arguments: SpecPathArg = match args {
             Some(x) => SpecPathArg::from(x),
@@ -65,7 +65,7 @@ impl SpecQuery {
         // authorization check
         check_authorized(cxt)?;
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         let arguments: SearchSpecArg = SearchSpecArg::from(args);
 

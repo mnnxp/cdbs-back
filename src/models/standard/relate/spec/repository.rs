@@ -11,7 +11,7 @@ impl SpecTranslateList {
     pub(crate) fn for_standard_by_uuid(
         arg: &StandardSpecsArg,
         set_lang_id: &i32,
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> ServiceResult<Vec<SpecTranslateList>> {
         let StandardSpecsArg {
             standard_uuid,
@@ -51,7 +51,7 @@ impl SpecTranslateList {
     pub(crate) fn for_standard(
         standard: &Standard,
         set_lang_id: &i32,
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> ServiceResult<Vec<SpecTranslateList>> {
         let spec_standard: Vec<StandardSpec> = StandardSpec::belonging_to(standard)
             .load::<StandardSpec>(conn)

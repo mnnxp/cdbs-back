@@ -12,7 +12,7 @@ pub(crate) fn get_represents(
     logged_user_uuid: &Uuid,
     args: &CompanyRepresentsArg,
     set_lang_id: &i32,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<Vec<CompanyRepresentAndRelatedData>> {
     let mut args: CompanyRepresentsArg = args.clone();
 
@@ -54,7 +54,7 @@ pub(crate) fn get_represents(
 /// Get represents Uuids for company by uuid
 pub(crate) fn get_represents_company_uuid(
     company_uuid: &Uuid,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<Vec<Uuid>> {
     company_represent_ref::company_represent_ref
         .filter(company_represent_ref::company_uuid.eq(company_uuid))
@@ -69,7 +69,7 @@ pub(crate) fn get_represents_company_uuid(
 /// Get company Uuid by represent uuid
 pub(crate) fn get_company_of_represent(
     represent_uuid: &Uuid,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<Uuid> {
     company_represent_ref::company_represent_ref
         .filter(company_represent_ref::uuid.eq(represent_uuid))

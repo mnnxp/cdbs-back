@@ -7,7 +7,7 @@ use diesel::{PgConnection, prelude::*};
 
 pub(crate) fn get_keywords(
     args: &KeywordArg,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<Vec<Keyword>> {
     match args.keyword_ids.is_empty() {
         true => find_all_keywords(&args.limit, &args.offset, conn),
@@ -18,7 +18,7 @@ pub(crate) fn get_keywords(
 fn find_all_keywords(
     limit: &i32,
     offset: &i32,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<Vec<Keyword>> {
     keyword_ref
         .limit(*limit as i64)
@@ -32,7 +32,7 @@ fn find_all_keywords(
 
 fn find_keyword_ids(
     args: &KeywordArg,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<Vec<Keyword>> {
     keyword_ref
         .filter(id.eq_any(&args.keyword_ids))

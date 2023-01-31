@@ -56,7 +56,7 @@ impl ListObject {
 pub(crate) struct File {
     pub(crate) uuid: Uuid,
     // pub(crate) parent_file_uuid: Uuid,
-    // pub(crate) hash: Vec<u8>,
+    pub(crate) hash: Vec<u8>,
     // pub(crate) user_uuid: Uuid,
     pub(crate) filename: String,
     // pub(crate) content_type: String,
@@ -68,8 +68,8 @@ pub(crate) struct File {
 }
 
 #[derive(Identifiable, Queryable, Clone, Debug)]
-#[primary_key(uuid)]
-#[table_name = "file_ref"]
+#[diesel(primary_key(uuid))]
+#[diesel(table_name = file_ref)]
 pub(crate) struct ShowFile {
     pub(crate) uuid: Uuid,
     pub(crate) parent_file_uuid: Uuid,
@@ -84,7 +84,7 @@ pub(crate) struct ShowFile {
 }
 
 #[derive(Debug, Insertable)]
-#[table_name = "file_ref"]
+#[diesel(table_name = file_ref)]
 pub(crate) struct InsertableFile {
     pub(crate) uuid: Uuid,
     pub(crate) parent_file_uuid: Uuid,
@@ -119,9 +119,9 @@ impl From<PreliminaryFileData> for InsertableFile {
         // creating a filename for the storage
         let path_file = format!("{}/{}",
             // maybe uuid from component, modification, standard, user etc
-            Uuid::to_simple(object.get_uuid()),
+            Uuid::simple(object.get_uuid()),
             // user_uuid
-            Uuid::to_simple(new_file_uuid),
+            Uuid::simple(new_file_uuid),
         );
 
         Self {
@@ -167,11 +167,12 @@ pub(crate) struct FileData {
     pub(crate) path_file: Option<String>,
 }
 
-#[derive(Identifiable, Queryable, Associations, Clone, Debug)]
-#[primary_key(uuid)]
-#[table_name = "file_ref"]
+#[derive(Identifiable, Queryable, Clone, Debug)]
+#[diesel(primary_key(uuid))]
+#[diesel(table_name = file_ref)]
 pub(crate) struct SlimFile {
     pub(crate) uuid: Uuid,
+    pub(crate) hash: Vec<u8>,
     pub(crate) filename: String,
     pub(crate) filesize: i64,
     pub(crate) path_file: String,
@@ -181,6 +182,7 @@ impl From<File> for SlimFile {
     fn from(file: File) -> Self {
         let File {
             uuid,
+            hash,
             filename,
             filesize,
             path_file,
@@ -189,6 +191,7 @@ impl From<File> for SlimFile {
 
         Self {
             uuid,
+            hash,
             filename,
             filesize,
             path_file,
@@ -219,6 +222,7 @@ pub(crate) struct ShowFileRelatedData {
 #[derive(Serialize, SimpleObject, Clone, Default, Debug)]
 pub(crate) struct DownloadFile {
     pub(crate) uuid: Uuid,
+    pub(crate) hash: String,
     pub(crate) filename: String,
     pub(crate) filesize: i64,
     pub(crate) download_url: String,

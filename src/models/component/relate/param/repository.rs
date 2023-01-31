@@ -10,7 +10,7 @@ impl ComponentParamWithTranslation {
     pub(crate) fn by_component_uuid(
         component_uuid: &Uuid,
         set_lang_id: &i32,
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> ServiceResult<Vec<ComponentParamWithTranslation>> {
         // get params component for component
         let component_param = param_to_component::param_to_component

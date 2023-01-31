@@ -7,7 +7,7 @@ use uuid::Uuid;
 pub(crate) fn check_subscriber_by_uuid(
     target_company_uuid: &Uuid,
     target_user_uuid: &Uuid,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<bool> {
     let check_subscriber = company_fav::company_fav
         .filter(company_fav::company_uuid.eq(target_company_uuid)

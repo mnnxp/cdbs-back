@@ -12,7 +12,7 @@ use uuid::Uuid;
 pub(crate) fn get_files_of_fileset(
     logged_user_uuid: &Uuid,
     arguments: &FileOfFilesetArg,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<Vec<ShowFileRelatedData>> {
     let collect_file_uuids = get_file_uuids(logged_user_uuid, arguments, conn)?;
 
@@ -26,7 +26,7 @@ pub(crate) fn get_files_of_fileset(
 pub(crate) fn get_fileset_files(
     logged_user_uuid: &Uuid,
     arguments: &FileOfFilesetArg,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<Vec<DownloadFile>> {
     let collect_file_uuids = get_file_uuids(logged_user_uuid, arguments, conn)?;
 
@@ -41,7 +41,7 @@ pub(crate) fn get_fileset_files(
 fn get_file_uuids(
     logged_user_uuid: &Uuid,
     arguments: &FileOfFilesetArg,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<Vec<Uuid>> {
     let FileOfFilesetArg {
         fileset_uuid,
@@ -50,7 +50,8 @@ fn get_file_uuids(
         offset,
     } = arguments;
 
-    let need_access_level = 2; // todo!(create enum for manage access level)
+    // todo!(временное решение: убрать ограничение доступа файлам из набора модификации компонента)
+    let need_access_level = 3; // todo!(create enum for manage access level)
 
     check_access_component_for_user(
         logged_user_uuid,

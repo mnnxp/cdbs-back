@@ -13,7 +13,7 @@ use uuid::Uuid;
 pub(crate) fn put_component_params(
     logged_user_uuid: &Uuid,
     data: &IptComponentParamsData,
-    conn: &PgConnection
+    conn: &mut PgConnection
 ) -> ServiceResult<i32> {
     let need_access_level = 1; // todo!(create enum for manage access level)
 
@@ -87,7 +87,7 @@ pub(crate) fn put_component_params(
 /// Add new params from array InsertableComponentParam's
 fn adding_new_component_params (
     data: &[InsertableComponentParam],
-    conn: &PgConnection
+    conn: &mut PgConnection
 ) -> ServiceResult<usize> {
     diesel::insert_into(param_to_component)
         .values(data)
@@ -103,7 +103,7 @@ fn adding_new_component_params (
 fn update_component_params_values(
     target_component_uuid: &Uuid,
     data: &[IptParamData],
-    conn: &PgConnection
+    conn: &mut PgConnection
 ) -> ServiceResult<usize> {
     let mut res: usize = 0;
 
@@ -130,7 +130,7 @@ fn update_component_params_values(
 fn check_duplicated_params(
     target_component_uuid: &Uuid,
     data: &[IptParamData],
-    conn: &PgConnection
+    conn: &mut PgConnection
 ) -> ServiceResult<bool> {
     for param_d in data {
         let duplicate_params = param_to_component

@@ -14,7 +14,7 @@ use uuid::Uuid;
 pub(crate) fn add_user_fav(
     logged_user_uuid: &Uuid,
     user_favorite_uuid: &Uuid,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<bool> {
     let need_access_level = 3; // todo!(create enum for manage access level)
 

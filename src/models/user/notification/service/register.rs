@@ -11,7 +11,7 @@ use uuid::Uuid;
 pub(crate) fn create_notification(
     target_user_uuid: &Uuid,
     notification_data: &NotificationData,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<bool> {
     use crate::schema::notification_ref::dsl as notification_ref;
     use crate::schema::notification_to_user::dsl as notification_to_user;

@@ -54,7 +54,7 @@ impl ComponentQuery {
             None => ComponentsArg::default(),
         };
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         get_components(
             &logged_user_uuid,
@@ -74,7 +74,7 @@ impl ComponentQuery {
         // authorization check
         let logged_user_uuid: Uuid = get_logged_user_uuid(cxt, true)?;
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         get_component_by_uuid(
             &logged_user_uuid,
@@ -96,7 +96,7 @@ impl ComponentQuery {
 
         let args: ComponentModificationArg = args.into();
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         get_component_modifications(
             &logged_user_uuid,
@@ -116,7 +116,7 @@ impl ComponentQuery {
         // authorization check
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         get_component_suppliers(
             &logged_user_uuid,
@@ -137,7 +137,7 @@ impl ComponentQuery {
 
         let arguments: ComponentKeywordsArg = args.into();
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         get_component_keywords(
             &logged_user_uuid,
@@ -155,7 +155,7 @@ impl ComponentQuery {
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         get_companies_list_access_component(
             &logged_user_uuid,
@@ -175,7 +175,7 @@ impl ComponentQuery {
         // checking authorization and getting user uuid
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         get_users_list_access_component(
             &logged_user_uuid,
@@ -195,7 +195,7 @@ impl ComponentQuery {
         // authorization check
         let logged_user_uuid: Uuid = get_logged_user_uuid(cxt, true)?;
         let arguments: ComponentFilesArg = args.into();
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         get_component_files(
             &logged_user_uuid,
@@ -214,7 +214,7 @@ impl ComponentQuery {
         // authorization check
         let logged_user_uuid: Uuid = get_logged_user_uuid(cxt, true)?;
         let arguments: ComponentFilesArg = args.into();
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         get_component_files_list(
             &logged_user_uuid,
@@ -235,7 +235,7 @@ impl ComponentQuery {
 
         let arguments: ComponentSpecsArg = args.into();
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         get_component_specs(
             &logged_user_uuid,
@@ -257,7 +257,7 @@ impl ComponentQuery {
 
         let args: ModificationFilesArg = args.into();
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         get_component_modification_files(&logged_user_uuid, &args, conn)
     }
@@ -274,7 +274,7 @@ impl ComponentQuery {
 
         let args: ModificationFilesArg = args.into();
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         get_component_modification_files_list(&logged_user_uuid, &args, conn)
     }
@@ -288,7 +288,7 @@ impl ComponentQuery {
 
         let logged_user_uuid: Uuid = get_logged_user_uuid(cxt, true)?;
         let arguments = FilesetProgramArg::from(args);
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         get_modification_filesets(
             &logged_user_uuid,
@@ -306,7 +306,7 @@ impl ComponentQuery {
 
         let logged_user_uuid: Uuid = get_logged_user_uuid(cxt, true)?;
         let arguments: FileOfFilesetArg = FileOfFilesetArg::from(args);
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         get_files_of_fileset(
             &logged_user_uuid,
@@ -324,7 +324,7 @@ impl ComponentQuery {
 
         let logged_user_uuid: Uuid = get_logged_user_uuid(cxt, true)?;
         let arguments: FileOfFilesetArg = FileOfFilesetArg::from(args);
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         get_fileset_files(
             &logged_user_uuid,
@@ -343,7 +343,7 @@ impl ComponentQuery {
         check_authorized(cxt)?;
 
         let filter: Vec<i32> = filter.unwrap_or_default();
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         get_component_types(
             &filter,
@@ -362,7 +362,7 @@ impl ComponentQuery {
         check_authorized(cxt)?;
 
         let filter: Vec<i32> = filter.unwrap_or_default();
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         get_actual_statuses(
             &filter,

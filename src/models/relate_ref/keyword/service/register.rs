@@ -6,7 +6,7 @@ use diesel::prelude::*;
 
 pub(crate) fn create_keyword(
     new_keyword: &IptKeywordData,
-    conn: &PgConnection
+    conn: &mut PgConnection
 ) -> ServiceResult<Keyword> {
     use crate::schema::keyword_ref::dsl as keyword_ref;
 

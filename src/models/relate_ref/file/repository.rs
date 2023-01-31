@@ -17,7 +17,7 @@ use uuid::Uuid;
 impl ShowFileRelatedData {
     pub(crate) fn get_file_by_uuid(
         target_file_uuid: &Uuid,
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> ServiceResult<ShowFileRelatedData> {
         let file_data: ShowFile = file_ref::file_ref
             .filter(file_ref::uuid.eq(target_file_uuid)
@@ -66,7 +66,7 @@ impl ShowFileRelatedData {
 
     pub(crate) fn get_file_by_uuids(
         target_files_uuids: &[Uuid],
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> ServiceResult<Vec<ShowFileRelatedData>> {
         let mut result: Vec<ShowFileRelatedData> = Vec::new();
 
@@ -76,7 +76,8 @@ impl ShowFileRelatedData {
                 conn
             )?)
         }
-
+        // sorting the list of files by date updated
+        result.sort_by(|a, b| a.updated_at.cmp(&b.updated_at));
         Ok(result)
     }
 }
@@ -85,13 +86,14 @@ impl SlimFile {
     /// Get SlimFile data by target file uuid
     pub(crate) fn get_file_by_uuid(
         target_file_uuid: &Uuid,
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> ServiceResult<SlimFile> {
         file_ref::file_ref
             .filter(file_ref::uuid.eq(target_file_uuid)
             .and(file_ref::is_delete.eq(false)))
             .select((
                 file_ref::uuid,
+                file_ref::hash,
                 file_ref::filename,
                 file_ref::filesize,
                 file_ref::path_file,
@@ -106,17 +108,19 @@ impl SlimFile {
     /// Collect SlimFiles data by target files uuids
     pub(crate) fn get_by_files_uuids(
         target_files_uuids: &[Uuid],
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> ServiceResult<Vec<SlimFile>> {
         file_ref::file_ref
             .filter(file_ref::uuid.eq_any(target_files_uuids)
             .and(file_ref::is_delete.eq(false)))
             .select((
                 file_ref::uuid,
+                file_ref::hash,
                 file_ref::filename,
                 file_ref::filesize,
                 file_ref::path_file,
             ))
+            .order(file_ref::filename.asc())
             .load::<SlimFile>(conn)
             .map_err(|err| {
                 debug!("Failed get file: {:?}", err);
@@ -132,7 +136,7 @@ impl PreliminaryFileData {
         parent_file_uuid: Uuid,
         object: ListObject,
         filename: &str,
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> PreliminaryFileData {
         // getting rid of dangerous names
         let filename = sanitize_filename::sanitize(filename);
@@ -155,7 +159,7 @@ impl DownloadFile {
     /// Get DownloadFile with generated presigned_url from SlimFile data
     pub(crate) fn get_by_slim_file(
         slim_file: &SlimFile,
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> ServiceResult<DownloadFile> {
         let naive_local_now = chrono::Local::now().naive_local();
 
@@ -187,6 +191,7 @@ impl DownloadFile {
 
         Ok(DownloadFile{
             uuid: slim_file.uuid,
+            hash: hex::encode(&slim_file.hash),
             filename: slim_file.filename.clone(),
             filesize: slim_file.filesize,
             download_url,
@@ -198,7 +203,7 @@ impl DownloadFile {
     /// and then build DownloadFile with generated presigned_url
     pub(crate) fn get_by_file_uuid(
         target_file_uuid: &Uuid,
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> ServiceResult<DownloadFile> {
         let file: SlimFile = SlimFile::get_file_by_uuid(
             target_file_uuid,
@@ -211,7 +216,7 @@ impl DownloadFile {
     /// Get structures of DownloadFile by files uuids
     pub(crate) fn get_by_files_uuids (
         target_files_uuids: &[Uuid],
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> ServiceResult<Vec<DownloadFile>> {
         let mut collect_res: Vec<DownloadFile> = Vec::new();
 

@@ -12,7 +12,7 @@ use uuid::Uuid;
 pub(crate) fn get_standard_files(
     logged_user_uuid: &Uuid,
     arguments: &StandardFilesArg,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<Vec<DownloadFile>> {
     let StandardFilesArg {
         standard_uuid,

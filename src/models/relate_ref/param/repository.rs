@@ -7,7 +7,7 @@ impl ParamTranslateList {
     pub(crate) fn get_by_id(
         param_id: &i32,
         set_lang_id: &i32,
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> ServiceResult<ParamTranslateList> {
         let param = param_translate_list::param_translate_list
             .filter(param_translate_list::param_id.eq(param_id)

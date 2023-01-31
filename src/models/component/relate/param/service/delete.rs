@@ -7,7 +7,7 @@ use uuid::Uuid;
 pub(crate) fn del_component_params(
     logged_user_uuid: &Uuid,
     data: &DelComponentParamData,
-    conn: &PgConnection
+    conn: &mut PgConnection
 ) -> ServiceResult<i32> {
 
     let need_access_level = 1; // todo!(create enum for manage access level)
@@ -56,7 +56,7 @@ pub(crate) fn del_component_params(
 fn delete_component_params_values(
     target_component_uuid: &Uuid,
     param_ids: &[i32],
-    conn: &PgConnection
+    conn: &mut PgConnection
 ) -> usize {
     use crate::schema::param_to_component::dsl::*;
     let del_params = diesel::delete(param_to_component

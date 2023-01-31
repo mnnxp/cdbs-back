@@ -8,7 +8,7 @@ impl Keyword {
     /// Gets all keywords for standard by uuid
     pub(crate) fn for_standard_by_uuid(
         standard_uuid: &Uuid,
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> ServiceResult<Vec<Keyword>> {
         let target_keyword_ids: Vec<i32> = keyword_to_standard::keyword_to_standard
             .filter(keyword_to_standard::standard_uuid.eq(standard_uuid))

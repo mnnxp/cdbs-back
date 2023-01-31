@@ -10,7 +10,7 @@ use uuid::Uuid;
 pub(crate) fn delete_standard_file(
     logged_user_uuid: &Uuid,
     arguments: &DeleteStandardFileData,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<bool> {
     let need_access_level = 1; // todo!(create enum for manage access level)
 

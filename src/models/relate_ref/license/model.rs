@@ -3,8 +3,8 @@ use async_graphql::*;
 use chrono::*;
 
 #[derive(Identifiable, Serialize, Deserialize, Queryable, SimpleObject, Debug)]
-#[primary_key(id)]
-#[table_name = "license_ref"]
+#[diesel(primary_key(id))]
+#[diesel(table_name = license_ref)]
 pub(crate) struct License {
     pub(crate) id: i32,
     pub(crate) name: String,
@@ -13,7 +13,7 @@ pub(crate) struct License {
 }
 
 #[derive(Debug, Insertable)]
-#[table_name = "license_ref"]
+#[diesel(table_name = license_ref)]
 pub(crate) struct InsertableLicense {
     pub(crate) name: String,
     pub(crate) keyword: String,

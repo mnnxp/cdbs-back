@@ -12,7 +12,7 @@ pub(crate) fn get_components(
     logged_user_uuid: &Uuid,
     arguments: &ComponentsArg,
     set_lang_id: &i32,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<Vec<ShowComponentShort>> {
     // structure for reduce the number of function arguments
     let ComponentsArg {
@@ -92,7 +92,7 @@ pub(crate) fn get_components(
 /// Gets all components uuids by target user (owner)
 pub(crate) fn get_components_uuids_by_user(
     target_user_uuid: &Uuid,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<Vec<Uuid>> {
     use crate::schema::component_ref::dsl as component_ref;
 
@@ -109,7 +109,7 @@ pub(crate) fn get_components_uuids_by_user(
 /// Gets components uuids from favorite for user
 pub(crate) fn get_components_followed_by_user(
     target_user_uuid: &Uuid,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<Vec<Uuid>> {
     use crate::schema::component_fav::dsl as component_fav;
 
@@ -126,7 +126,7 @@ pub(crate) fn get_components_followed_by_user(
 /// Gets all components uuids when related with company
 pub(crate) fn get_components_uuids_by_company(
     target_company_uuid: &Uuid,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<Vec<Uuid>> {
     use crate::schema::supplier_to_component::dsl as supplier_to_component;
 
@@ -142,7 +142,7 @@ pub(crate) fn get_components_uuids_by_company(
 /// Gets all components uuids when related with standard
 pub(crate) fn get_components_uuids_by_standard(
     target_standard_uuid: &Uuid,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<Vec<Uuid>> {
     use crate::schema::standard_to_component::dsl as standard_to_component;
 
@@ -159,7 +159,7 @@ pub(crate) fn get_component_by_uuid(
     logged_user_uuid: &Uuid,
     target_component_uuid: &Uuid,
     set_lang_id: &i32,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<ComponentAndRelatedData> {
     // collect data for component
     ComponentAndRelatedData::get_component(

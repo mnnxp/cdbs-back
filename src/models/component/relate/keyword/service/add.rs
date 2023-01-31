@@ -14,7 +14,7 @@ use uuid::Uuid;
 pub(crate) fn add_component_keywords(
     logged_user_uuid: &Uuid,
     data: &IptComponentKeywordsData,
-    conn: &PgConnection
+    conn: &mut PgConnection
 ) -> ServiceResult<usize> {
     let need_access_level = 1; // todo!(create enum for manage access level)
 
@@ -42,7 +42,7 @@ pub(crate) fn add_component_keywords(
 /// Check already keyword for component (duplicate)
 fn check_keyword_for_component(
     keyword: &InsertableComponentKeyword,
-    conn: &PgConnection
+    conn: &mut PgConnection
 ) -> bool {
     let check = keyword_to_component::keyword_to_component
         .filter(keyword_to_component::component_uuid.eq(&keyword.component_uuid)
@@ -55,7 +55,7 @@ fn check_keyword_for_component(
 
 fn insert_rows_component_keywords(
     insert_data: &[InsertableComponentKeyword],
-    conn: &PgConnection
+    conn: &mut PgConnection
 ) -> ServiceResult<usize> {
     diesel::insert_into(keyword_to_component::keyword_to_component)
         .values(insert_data)
@@ -69,7 +69,7 @@ fn insert_rows_component_keywords(
 pub(crate) fn add_keywords_by_names(
     logged_user_uuid: &Uuid,
     data: &IptComponentKeywordsNames,
-    conn: &PgConnection
+    conn: &mut PgConnection
 ) -> ServiceResult<usize> {
     let mut keyword_ids: Vec<i32> = Vec::new();
 

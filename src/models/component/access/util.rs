@@ -6,7 +6,7 @@ use uuid::Uuid;
 pub(crate) fn check_is_owner(
     target_user_uuid: &Uuid,
     target_component_uuid: &Uuid,
-    conn: &PgConnection
+    conn: &mut PgConnection
 ) -> ServiceResult<bool> {
     use crate::schema::component_ref::dsl::*;
 
@@ -28,7 +28,7 @@ pub(crate) fn check_is_owner(
 pub(crate) fn check_is_owner_with_err(
     target_user_uuid: &Uuid,
     target_component_uuid: &Uuid,
-    conn: &PgConnection
+    conn: &mut PgConnection
 ) -> ServiceResult<bool> {
     match check_is_owner(target_user_uuid, target_component_uuid, conn)? {
         true => Ok(true),
@@ -42,7 +42,7 @@ pub(crate) fn check_access_component_for_user(
     target_user_uuid: &Uuid,
     target_component_uuid: &Uuid,
     need_access_level: &i32,
-    conn: &PgConnection
+    conn: &mut PgConnection
 ) -> ServiceResult<bool> {
     // 1. проверить владение компонентом
     // если флаг ownership_check true
@@ -96,7 +96,7 @@ pub(crate) fn check_user_access_to_component(
     target_user_uuid: &Uuid,
     target_component_uuid: &Uuid,
     need_access_level: &i32,
-    conn: &PgConnection
+    conn: &mut PgConnection
 ) -> ServiceResult<bool> {
     use crate::schema::user_access_to_component::dsl::*;
     // 2. проверить наличие доступа к компоненту,
@@ -121,7 +121,7 @@ pub(crate) fn check_user_access_provided_by_company(
     target_user_uuid: &Uuid,
     target_component_uuid: &Uuid,
     need_access_level: &i32,
-    conn: &PgConnection
+    conn: &mut PgConnection
 ) -> ServiceResult<bool> {
     use crate::models::company::access::util::get_roles_ids_for_access;
     use crate::models::company::access::util::check_clerk_with_suitable_role;
@@ -151,7 +151,7 @@ pub(crate) fn check_user_access_provided_by_company(
 pub(crate) fn get_companies_have_access_to_component(
     target_component_uuid: &Uuid,
     need_access_level: &i32,
-    conn: &PgConnection
+    conn: &mut PgConnection
 ) -> ServiceResult<Vec<Uuid>> {
     use crate::schema::company_access_to_component::dsl::*;
 
@@ -177,7 +177,7 @@ pub(crate) fn get_companies_have_access_to_component(
 /// Gets access type for component
 pub(crate) fn get_access_type_component(
     target_component_uuid: &Uuid,
-    conn: &PgConnection
+    conn: &mut PgConnection
 ) -> ServiceResult<i32> {
     use crate::schema::component_ref::dsl::*;
 

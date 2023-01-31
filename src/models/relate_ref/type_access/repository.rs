@@ -8,7 +8,7 @@ impl TypeAccessTranslateList {
     pub(crate) fn get_type_access_by_id(
         target_type_access_id: &i32,
         set_lang_id: &i32,
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> ServiceResult<TypeAccessTranslateList> {
         let type_access = type_access_translate_list
             .filter(type_access_id.eq(target_type_access_id)
@@ -40,7 +40,7 @@ impl TypeAccessTranslateList {
     pub(crate) fn get_types_access_by_ids(
         target_types_access_ids: &[i32],
         set_lang_id: &i32,
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> ServiceResult<Vec<TypeAccessTranslateList>> {
         let type_access = type_access_translate_list
             .filter(type_access_id.eq_any(target_types_access_ids)

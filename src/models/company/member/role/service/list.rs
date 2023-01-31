@@ -8,7 +8,7 @@ use uuid::Uuid;
 /// Warning: fn without check access and not use for API GraphQL
 pub(super) fn get_company_roles_ids(
     target_company_uuid: &Uuid,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<Vec<i32>> {
     use crate::schema::role_member_list::dsl::*;
 
@@ -34,7 +34,7 @@ pub(crate) fn get_roles_for_company(
     logged_user_uuid: &Uuid,
     target_company_uuid: &Uuid,
     set_lang_id: &i32,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<Vec<RoleMemberAndRelatedData>> {
     use crate::schema::role_member_list::dsl::*;
 

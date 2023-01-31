@@ -16,7 +16,7 @@ use uuid::Uuid;
 pub(crate) fn add_certificate(
     logged_user_uuid: &Uuid,
     cert_data: &IptUserCertificateData,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<UploadFile> {
     // Get data for write information about the file before upload to storage
     let preliminary_file_data = PreliminaryFileData::from_ipt_file_data(

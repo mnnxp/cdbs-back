@@ -11,7 +11,7 @@ impl UserCertificateAndFile {
     /// Gets certificates user with slimfile data by uuid
     pub(crate) fn from_user(
         target_user_uuid: &Uuid,
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> ServiceResult<Vec<UserCertificateAndFile>> {
         let certificates_user = user_certificate_ref::user_certificate_ref
             .filter(user_certificate_ref::user_uuid.eq(target_user_uuid))

@@ -2,26 +2,26 @@ use crate::schema::*;
 use crate::models::relate_ref::language::model::Language;
 use async_graphql::*;
 
-#[derive(SimpleObject, Identifiable, Serialize, Deserialize, Associations, Queryable, Debug)]
-#[primary_key(id)]
-#[table_name = "spec_ref"]
+#[derive(SimpleObject, Identifiable, Serialize, Deserialize, Queryable, Debug)]
+#[diesel(primary_key(id))]
+#[diesel(table_name = spec_ref)]
 pub(crate) struct Spec {
     pub(crate) id: i32,
     pub(crate) parent_spec_id: i32,
 }
 
 #[derive(Debug, Insertable)]
-#[table_name = "spec_ref"]
+#[diesel(table_name = spec_ref)]
 pub(crate) struct InsertableSpec {
     pub(crate) parent_spec_id: i32,
 }
 
 // Spec translations
 #[derive(SimpleObject, Identifiable, Serialize, Deserialize, Queryable, Associations, Clone, Debug)]
-#[primary_key(spec_id, lang_id)]
-#[belongs_to(Spec, foreign_key = "spec_id")]
-#[belongs_to(Language, foreign_key = "lang_id")]
-#[table_name = "spec_translate_list"]
+#[diesel(primary_key(spec_id, lang_id))]
+#[diesel(belongs_to(Spec, foreign_key = spec_id))]
+#[diesel(belongs_to(Language, foreign_key = lang_id))]
+#[diesel(table_name = spec_translate_list)]
 pub(crate) struct SpecTranslateList {
     pub(crate) spec_id: i32,
     pub(crate) lang_id: i32,
@@ -29,7 +29,7 @@ pub(crate) struct SpecTranslateList {
 }
 
 #[derive(Serialize, Deserialize, Queryable, QueryableByName, Clone, Debug)]
-#[table_name = "spec_translate_list"]
+#[diesel(table_name = spec_translate_list)]
 pub(crate) struct SpecId {
     pub(crate) spec_id: i32,
 }
@@ -43,7 +43,7 @@ pub(crate) struct IptSpecTranslateListData {
 }
 
 #[derive(Debug, Insertable)]
-#[table_name = "spec_translate_list"]
+#[diesel(table_name = spec_translate_list)]
 pub(crate) struct InsertableSpecTranslateList {
     pub(crate) spec_id: i32,
     pub(crate) lang_id: i32,

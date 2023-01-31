@@ -6,7 +6,7 @@ use uuid::Uuid;
 /// Get access type for user
 pub(crate) fn get_access_type_user(
     target_user_uuid: &Uuid,
-    conn: &PgConnection
+    conn: &mut PgConnection
 ) -> ServiceResult<i32> {
     user_ref::user_ref
         .filter(user_ref::uuid.eq(target_user_uuid)
@@ -25,7 +25,7 @@ pub(crate) fn check_access_user_for_user(
     logged_user_uuid: &Uuid,
     target_user_uuid: &Uuid,
     need_access_level: &i32,
-    conn: &PgConnection
+    conn: &mut PgConnection
 ) -> ServiceResult<bool> {
     // return true if user request myself user
     if logged_user_uuid == target_user_uuid {
@@ -125,7 +125,7 @@ pub(crate) fn check_access_user_for_user(
 fn users_has_one_company(
     logged_user_uuid: &Uuid,
     target_user_uuid: &Uuid,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<bool> {
     use crate::schema::company_member_list::dsl as company_member_list;
 
@@ -154,7 +154,7 @@ fn users_has_one_company(
 fn member_in_company_user(
     logged_user_uuid: &Uuid,
     target_user_uuid: &Uuid,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<bool> {
     use crate::schema::company_ref::dsl as company_ref;
     use crate::schema::company_member_list::dsl as company_member_list;
@@ -184,7 +184,7 @@ fn member_in_company_user(
 fn user_have_access_component_user(
     logged_user_uuid: &Uuid,
     target_user_uuid: &Uuid,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<bool> {
     use crate::schema::component_ref::dsl as component_ref;
     use crate::schema::user_access_to_component::dsl as user_access_to_component;
@@ -214,7 +214,7 @@ fn user_have_access_component_user(
 fn user_have_access_standard_user(
     logged_user_uuid: &Uuid,
     target_user_uuid: &Uuid,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<bool> {
     use crate::schema::standard_ref::dsl as standard_ref;
     use crate::schema::user_access_to_standard::dsl as user_access_to_standard;

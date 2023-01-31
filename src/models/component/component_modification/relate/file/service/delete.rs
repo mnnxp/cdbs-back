@@ -14,7 +14,7 @@ use uuid::Uuid;
 pub(crate) fn delete_modification_file(
     logged_user_uuid: &Uuid,
     data: &DelModificationFileData,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<bool> {
     let need_access_level = 1; // todo!(create enum for manage access level)
 

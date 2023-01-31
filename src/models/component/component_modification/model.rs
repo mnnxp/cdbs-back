@@ -13,9 +13,9 @@ use chrono::*;
 use uuid::Uuid;
 
 #[derive(Identifiable, Deserialize, Queryable, Associations, PartialEq, Clone, SimpleObject, Debug)]
-#[primary_key(uuid)]
-#[belongs_to(Component, foreign_key = "component_uuid")]
-#[table_name = "component_modification_list"]
+#[diesel(primary_key(uuid))]
+#[diesel(belongs_to(Component, foreign_key = component_uuid))]
+#[diesel(table_name = component_modification_list)]
 pub(crate) struct ComponentModification {
     pub(crate) uuid: Uuid,
     pub(crate) component_uuid: Uuid,
@@ -76,7 +76,7 @@ impl ComponentModificationAndRelatedData {
 }
 
 #[derive(Debug, Insertable)]
-#[table_name = "component_modification_list"]
+#[diesel(table_name = component_modification_list)]
 pub(crate) struct InsertableComponentModification {
     uuid: Uuid,
     component_uuid: Uuid,

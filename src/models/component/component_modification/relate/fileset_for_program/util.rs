@@ -6,7 +6,7 @@ use uuid::Uuid;
 /// Get component uuid from fileset by uuid
 pub(crate) fn get_component_by_fileset(
     target_fileset_uuid: &Uuid,
-    conn: &PgConnection
+    conn: &mut PgConnection
 ) -> ServiceResult<Uuid> {
     // get component uuid
     get_component_by_modification(
@@ -19,7 +19,7 @@ pub(crate) fn get_component_by_fileset(
 /// Get modification uuid from fileset by uuid
 pub(crate) fn get_modification_by_fileset(
     target_fileset_uuid: &Uuid,
-    conn: &PgConnection
+    conn: &mut PgConnection
 ) -> ServiceResult<Uuid> {
     use crate::schema::fileset_for_program::dsl::*;
 

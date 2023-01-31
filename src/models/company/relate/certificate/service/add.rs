@@ -17,7 +17,7 @@ use uuid::Uuid;
 pub(crate) fn add_certificate(
     logged_user_uuid: &Uuid,
     cert_data: &IptCompanyCertificateData,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<UploadFile> {
     let need_access_level = 1; // todo!(create enum for manage access level)
 

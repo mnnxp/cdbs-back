@@ -9,7 +9,7 @@ use uuid::Uuid;
 pub(crate) fn add_component_license(
     logged_user_uuid: &Uuid,
     data: &IptComponentLicenseData,
-    conn: &PgConnection
+    conn: &mut PgConnection
 ) -> ServiceResult<bool> {
     let need_access_level = 1; // todo!(create enum for manage access level)
 

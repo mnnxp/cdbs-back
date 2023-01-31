@@ -19,12 +19,14 @@ impl Claims {
         &self.sub
     }
     async fn iat(&self) -> String {
-        chrono::NaiveDateTime::from_timestamp(self.iat, 0)
+        chrono::NaiveDateTime::from_timestamp_opt(self.iat, 0)
+            .unwrap()
             .format("%Y-%m-%dT%H:%M:%S%.f")
             .to_string()
     }
     async fn exp(&self) -> String {
-        chrono::NaiveDateTime::from_timestamp(self.exp, 0)
+        chrono::NaiveDateTime::from_timestamp_opt(self.exp, 0)
+            .unwrap()
             .format("%Y-%m-%dT%H:%M:%S%.f")
             .to_string()
     }

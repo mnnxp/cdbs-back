@@ -8,7 +8,7 @@ use uuid::Uuid;
 pub(crate) fn del_company_member(
     logged_user_uuid: &Uuid,
     data: &DelCompanyMemberData,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<bool> {
 
     // need top level access for change component main data

@@ -7,17 +7,17 @@ use uuid::Uuid;
 
 // Structures for ComponentModification
 #[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, SimpleObject, Debug)]
-#[primary_key(file_uuid, modification_uuid)]
-#[belongs_to(ShowFileRelatedData, foreign_key = "file_uuid")]
-#[belongs_to(ComponentModification, foreign_key = "modification_uuid")]
-#[table_name = "file_to_modification"]
+#[diesel(primary_key(file_uuid, modification_uuid))]
+#[diesel(belongs_to(ShowFileRelatedData, foreign_key = file_uuid))]
+#[diesel(belongs_to(ComponentModification, foreign_key = modification_uuid))]
+#[diesel(table_name = file_to_modification)]
 pub(crate) struct FileModification {
     pub(crate) file_uuid: Uuid,
     pub(crate) modification_uuid: Uuid,
 }
 
 #[derive(Debug, Insertable)]
-#[table_name = "file_to_modification"]
+#[diesel(table_name = file_to_modification)]
 pub(crate) struct InsertableFileModification {
     pub(crate) file_uuid: Uuid,
     pub(crate) modification_uuid: Uuid,

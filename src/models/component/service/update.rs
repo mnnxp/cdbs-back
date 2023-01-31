@@ -10,7 +10,7 @@ pub(crate) fn update_component_by_uuid(
     logged_user_uuid: &Uuid,
     target_component_uuid: &Uuid,
     data: &IptUpdateComponentData,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<usize> {
     // need top level access for change component main data
     let need_access_level = 1; // todo!(create enum for manage access level)

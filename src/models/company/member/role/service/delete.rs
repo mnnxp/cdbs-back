@@ -8,7 +8,7 @@ use uuid::Uuid;
 pub(crate) fn del_role_member(
     logged_user_uuid: &Uuid,
     data: &DelRoleMemberData,
-    conn: &PgConnection
+    conn: &mut PgConnection
 ) -> ServiceResult<i32> {
     use crate::schema::role_member_translate_list::dsl::*;
 

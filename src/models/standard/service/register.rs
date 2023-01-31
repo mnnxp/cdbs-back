@@ -15,7 +15,7 @@ use uuid::Uuid;
 pub(crate) fn create_standard(
     logged_user_uuid: &Uuid,
     data: &IptStandardData,
-    conn: &PgConnection
+    conn: &mut PgConnection
 ) -> ServiceResult<Uuid> {
     let need_access_level = 2; // todo!(create enum for manage access level)
 

@@ -8,7 +8,7 @@ use uuid::Uuid;
 pub(crate) fn del_standards_component(
     logged_user_uuid: &Uuid,
     data: &DelStandardToComponentData,
-    conn: &PgConnection
+    conn: &mut PgConnection
 ) -> ServiceResult<i32> {
     use crate::schema::standard_to_component::dsl::*;
 

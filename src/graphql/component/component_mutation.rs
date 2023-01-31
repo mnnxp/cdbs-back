@@ -53,7 +53,7 @@ impl ComponentMutation {
         // checking authorization and getting user uuid
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         create_component(
             &logged_user_uuid,
@@ -73,7 +73,7 @@ impl ComponentMutation {
         // checking authorization and getting user uuid
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         change_component_owner_user(
             &logged_user_uuid,
@@ -93,7 +93,7 @@ impl ComponentMutation {
         // checking authorization and getting user uuid
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         change_component_type_access(
             &logged_user_uuid,
@@ -113,7 +113,7 @@ impl ComponentMutation {
         // checking authorization and getting user uuid
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         update_component_by_uuid(
             &logged_user_uuid,
@@ -133,7 +133,7 @@ impl ComponentMutation {
         // checking authorization and getting user uuid
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         del_component(
             &logged_user_uuid,
@@ -153,7 +153,7 @@ impl ComponentMutation {
         // checking authorization and getting company uuid
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         set_company_access_component(
             &logged_user_uuid,
@@ -172,7 +172,7 @@ impl ComponentMutation {
         // checking authorization and getting company uuid
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         del_company_access_component(
             &logged_user_uuid,
@@ -191,7 +191,7 @@ impl ComponentMutation {
         // checking authorization and getting user uuid
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         set_user_access_component(
             &logged_user_uuid,
@@ -210,7 +210,7 @@ impl ComponentMutation {
         // checking authorization and getting user uuid
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         del_user_access_component(
             &logged_user_uuid,
@@ -229,7 +229,7 @@ impl ComponentMutation {
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         put_component_params(
             &logged_user_uuid,
@@ -247,7 +247,7 @@ impl ComponentMutation {
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         del_component_params(
             &logged_user_uuid,
@@ -265,7 +265,7 @@ impl ComponentMutation {
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         add_component_license(
             &logged_user_uuid,
@@ -283,7 +283,7 @@ impl ComponentMutation {
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         del_component_license(
             &logged_user_uuid,
@@ -301,7 +301,7 @@ impl ComponentMutation {
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         add_component_specs(
             &logged_user_uuid,
@@ -319,7 +319,7 @@ impl ComponentMutation {
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         del_component_specs(
             &logged_user_uuid,
@@ -337,7 +337,7 @@ impl ComponentMutation {
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         add_component_keywords(
             &logged_user_uuid,
@@ -355,7 +355,7 @@ impl ComponentMutation {
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         add_keywords_by_names(
             &logged_user_uuid,
@@ -373,7 +373,7 @@ impl ComponentMutation {
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         del_component_keywords(
             &logged_user_uuid,
@@ -391,7 +391,7 @@ impl ComponentMutation {
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         add_component_files(
             &logged_user_uuid,
@@ -409,7 +409,7 @@ impl ComponentMutation {
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         add_component_favicon(
             &logged_user_uuid,
@@ -427,7 +427,7 @@ impl ComponentMutation {
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         delete_component_file(
             &logged_user_uuid,
@@ -445,7 +445,7 @@ impl ComponentMutation {
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         del_suppliers_component(
             &logged_user_uuid,
@@ -463,7 +463,7 @@ impl ComponentMutation {
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         add_standard_to_component(
             &logged_user_uuid,
@@ -481,7 +481,7 @@ impl ComponentMutation {
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         del_standards_component(
             &logged_user_uuid,
@@ -499,7 +499,7 @@ impl ComponentMutation {
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         create_component_modification(
             &logged_user_uuid,
@@ -519,7 +519,7 @@ impl ComponentMutation {
         // checking authorization and getting user uuid
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         update_modification_data(
             &logged_user_uuid,
@@ -539,7 +539,7 @@ impl ComponentMutation {
         // checking authorization and getting user uuid
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         del_component_modification(
             &logged_user_uuid,
@@ -557,7 +557,7 @@ impl ComponentMutation {
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         put_modification_params(
             &logged_user_uuid,
@@ -575,7 +575,7 @@ impl ComponentMutation {
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         del_modification_params(
             &logged_user_uuid,
@@ -593,7 +593,7 @@ impl ComponentMutation {
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         add_modification_files(
             &logged_user_uuid,
@@ -611,7 +611,7 @@ impl ComponentMutation {
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         delete_modification_file(
             &logged_user_uuid,
@@ -629,7 +629,7 @@ impl ComponentMutation {
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         create_modification_fileset(
             &logged_user_uuid,
@@ -647,7 +647,7 @@ impl ComponentMutation {
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         del_modification_fileset(
             &logged_user_uuid,
@@ -665,7 +665,7 @@ impl ComponentMutation {
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         add_files_of_modification_set(
             &logged_user_uuid,
@@ -683,7 +683,7 @@ impl ComponentMutation {
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         del_file_from_fileset(
             &logged_user_uuid,

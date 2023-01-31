@@ -20,7 +20,7 @@ use uuid::Uuid;
 pub(crate) fn add_standard_files(
     logged_user_uuid: &Uuid,
     data: &IptStandardFilesData,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<Vec<UploadFile>> {
     let need_access_level = 1; // todo!(create enum for manage access level)
 
@@ -71,7 +71,7 @@ pub(crate) fn add_standard_files(
 pub(crate) fn add_standard_favicon(
     logged_user_uuid: &Uuid,
     data: &IptStandardFaviconData,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<UploadFile> {
     let need_access_level = 1; // todo!(create enum for manage access level)
 

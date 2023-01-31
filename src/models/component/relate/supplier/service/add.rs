@@ -12,7 +12,7 @@ use uuid::Uuid;
 pub(crate) fn add_component_base_supplier(
     logged_user_uuid: &Uuid,
     data: &IptSupplierComponentData,
-    conn: &PgConnection
+    conn: &mut PgConnection
 ) -> ServiceResult<bool> {
     // if logged user can view base component,
     // they can add company to supplier list
@@ -39,7 +39,7 @@ pub(crate) fn add_component_base_supplier(
 /// Warning: without check access
 pub(crate) fn add_component_supplier_company(
     data: &IptSupplierComponentData,
-    conn: &PgConnection
+    conn: &mut PgConnection
 ) -> ServiceResult<bool> {
     let count_suppliers = supplier_to_component::supplier_to_component
         .filter(supplier_to_component::component_uuid.eq(&data.component_uuid)

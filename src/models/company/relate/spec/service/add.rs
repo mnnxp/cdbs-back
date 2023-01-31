@@ -10,7 +10,7 @@ use uuid::Uuid;
 pub(crate) fn add_company_specs(
     logged_user_uuid: &Uuid,
     data: &IptCompanySpecsData,
-    conn: &PgConnection
+    conn: &mut PgConnection
 ) -> ServiceResult<i32> {
     let need_access_level = 1; // todo!(create enum for manage access level)
 

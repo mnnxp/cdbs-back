@@ -12,7 +12,7 @@ pub(crate) fn get_company_specs(
     logged_user_uuid: &Uuid,
     arg: &CompanySpecsArg,
     set_lang_id: &i32,
-    conn: &PgConnection
+    conn: &mut PgConnection
 ) -> ServiceResult<Vec<SpecTranslateList>> {
 
     let need_access_level = 3; // todo!(create enum for manage access level)

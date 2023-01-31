@@ -6,7 +6,7 @@ use diesel::prelude::*;
 pub(crate) fn get_params(
     args: &ParamArg,
     set_lang_id: &i32,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<Vec<ParamTranslateList>> {
     match args.param_ids.is_empty() {
         true => get_all_params(&args.limit, &args.offset, set_lang_id, conn),
@@ -18,7 +18,7 @@ fn get_all_params(
     limit: &i32,
     offset: &i32,
     set_lang_id: &i32,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<Vec<ParamTranslateList>> {
     param_translate_list
         .filter(lang_id.eq(set_lang_id))
@@ -34,7 +34,7 @@ fn get_all_params(
 fn get_by_ids(
     args: &ParamArg,
     set_lang_id: &i32,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<Vec<ParamTranslateList>> {
     param_translate_list
         .filter(param_id.eq_any(&args.param_ids)

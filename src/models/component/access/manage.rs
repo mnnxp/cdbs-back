@@ -10,7 +10,7 @@ use uuid::Uuid;
 pub(crate) fn change_component_owner_user(
     logged_user_uuid: &Uuid,
     data: &ChangeOwnerComponent,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<bool> {
     use crate::schema::component_ref::dsl::*;
 
@@ -40,7 +40,7 @@ pub(crate) fn change_component_owner_user(
 pub(crate) fn change_component_type_access(
     logged_user_uuid: &Uuid,
     data: &ChangeTypeAccessComponent,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<bool> {
     use crate::schema::component_ref::dsl::*;
 

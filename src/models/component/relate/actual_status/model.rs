@@ -4,15 +4,15 @@ use crate::models::component::component_modification::model::ComponentModificati
 use crate::models::relate_ref::language::model::Language;
 use async_graphql::*;
 
-#[derive(Identifiable, Serialize, Deserialize, Associations, Queryable, SimpleObject, Debug)]
-#[primary_key(id)]
-#[table_name = "actual_status_ref"]
+#[derive(Identifiable, Serialize, Deserialize, Queryable, SimpleObject, Debug)]
+#[diesel(primary_key(id))]
+#[diesel(table_name = actual_status_ref)]
 pub(crate) struct ActualStatus {
     pub(crate) id: i32,
 }
 
 #[derive(Debug, Insertable)]
-#[table_name = "actual_status_ref"]
+#[diesel(table_name = actual_status_ref)]
 pub(crate) struct InsertableActualStatus {
     pub(crate) id: i32,
 }
@@ -25,12 +25,12 @@ pub(crate) struct IptActualStatusData {
 // ActualStatus translations
 #[derive(Identifiable, Serialize, Deserialize, Queryable, Associations)]
 #[derive(SimpleObject, Clone, Default, Debug)]
-#[primary_key(actual_status_id, lang_id)]
-#[belongs_to(Component, foreign_key = "actual_status_id")]
-#[belongs_to(ComponentModification, foreign_key = "actual_status_id")]
-#[belongs_to(ActualStatus, foreign_key = "actual_status_id")]
-#[belongs_to(Language, foreign_key = "lang_id")]
-#[table_name = "actual_status_translate_list"]
+#[diesel(primary_key(actual_status_id, lang_id))]
+#[diesel(belongs_to(Component, foreign_key = actual_status_id))]
+#[diesel(belongs_to(ComponentModification, foreign_key = actual_status_id))]
+#[diesel(belongs_to(ActualStatus, foreign_key = actual_status_id))]
+#[diesel(belongs_to(Language, foreign_key = lang_id))]
+#[diesel(table_name = actual_status_translate_list)]
 pub(crate) struct ActualStatusTranslateList {
     pub(crate) actual_status_id: i32,
     pub(crate) lang_id: i32,
@@ -45,7 +45,7 @@ pub(crate) struct IptActualStatusTranslateListData {
 }
 
 #[derive(Debug, Insertable)]
-#[table_name = "actual_status_translate_list"]
+#[diesel(table_name = actual_status_translate_list)]
 pub(crate) struct InsertableActualStatusTranslateList {
     pub(crate) actual_status_id: i32,
     pub(crate) lang_id: i32,

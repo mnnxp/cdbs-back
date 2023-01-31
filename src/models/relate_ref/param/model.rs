@@ -5,15 +5,15 @@ use crate::models::relate_ref::language::model::Language;
 use async_graphql::*;
 
 // Param models
-#[derive(Identifiable, Serialize, Deserialize, Associations, Queryable, Debug)]
-#[primary_key(id)]
-#[table_name = "param_ref"]
+#[derive(Identifiable, Serialize, Deserialize, Queryable, Debug)]
+#[diesel(primary_key(id))]
+#[diesel(table_name = param_ref)]
 pub(crate) struct Param {
     pub(crate) id: i32,
 }
 
 #[derive(Debug, Insertable)]
-#[table_name = "param_ref"]
+#[diesel(table_name = param_ref)]
 pub(crate) struct InsertableParam {
     pub(crate) id: i32,
 }
@@ -21,12 +21,12 @@ pub(crate) struct InsertableParam {
 // Param translations
 #[derive(Identifiable, Serialize, Deserialize, Queryable, Associations)]
 #[derive(SimpleObject, Clone, Default, Debug)]
-#[primary_key(param_id, lang_id)]
-#[belongs_to(Param, foreign_key = "param_id")]
-#[belongs_to(ComponentParam, foreign_key = "param_id")]
-#[belongs_to(ModificationParam, foreign_key = "param_id")]
-#[belongs_to(Language, foreign_key = "lang_id")]
-#[table_name = "param_translate_list"]
+#[diesel(primary_key(param_id, lang_id))]
+#[diesel(belongs_to(Param, foreign_key = param_id))]
+#[diesel(belongs_to(ComponentParam, foreign_key = param_id))]
+#[diesel(belongs_to(ModificationParam, foreign_key = param_id))]
+#[diesel(belongs_to(Language, foreign_key = lang_id))]
+#[diesel(table_name = param_translate_list)]
 pub(crate) struct ParamTranslateList {
     pub(crate) param_id: i32,
     pub(crate) lang_id: i32,
@@ -40,7 +40,7 @@ pub(crate) struct IptParamTranslateListData {
 }
 
 #[derive(Debug, Insertable)]
-#[table_name = "param_translate_list"]
+#[diesel(table_name = param_translate_list)]
 pub(crate) struct InsertableParamTranslateList {
     pub(crate) param_id: i32,
     pub(crate) lang_id: i32,

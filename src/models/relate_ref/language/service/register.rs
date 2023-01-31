@@ -8,7 +8,7 @@ use diesel::prelude::*;
 
 pub(crate) fn create_language(
     new_language_data: &LanguageData,
-    conn: &PgConnection
+    conn: &mut PgConnection
 ) -> ServiceResult<Language> {
     use crate::schema::language_ref::dsl::*;
 

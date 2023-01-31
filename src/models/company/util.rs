@@ -5,7 +5,7 @@ use uuid::Uuid;
 /// Checking whether the company has a supplier's status
 pub(crate) fn check_is_supplier(
     target_company_uuid: &Uuid,
-    conn: &PgConnection
+    conn: &mut PgConnection
 ) -> Result<bool, ServiceError> {
     use crate::schema::company_ref::dsl::*;
 
@@ -28,7 +28,7 @@ pub(crate) fn check_is_supplier(
 // Search for owned companies
 // pub(crate) fn get_companies_owned_by_user(
 //     target_user_uuid: &Uuid,
-//     conn: &PgConnection,
+//     conn: &mut PgConnection,
 // ) -> Vec<Uuid> {
 //     use crate::schema::company_ref::dsl::*;
 //
@@ -42,7 +42,7 @@ pub(crate) fn check_is_supplier(
 // Search for companies the user belongs to
 // pub(crate) fn get_companies_with_member_by_user(
 //     target_user_uuid: &Uuid,
-//     conn: &PgConnection,
+//     conn: &mut PgConnection,
 // ) -> Vec<(Uuid, i32)> {
 //     use crate::schema::company_member_list::dsl::*;
 //

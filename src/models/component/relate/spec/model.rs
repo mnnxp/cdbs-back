@@ -6,10 +6,10 @@ use uuid::Uuid;
 
 // Spec component models
 #[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, Clone, Debug, SimpleObject)]
-#[primary_key(component_uuid, spec_id)]
-#[belongs_to(Component, foreign_key = "component_uuid")]
-#[belongs_to(Spec, foreign_key = "spec_id")]
-#[table_name = "spec_to_component"]
+#[diesel(primary_key(component_uuid, spec_id))]
+#[diesel(belongs_to(Component, foreign_key = component_uuid))]
+#[diesel(belongs_to(Spec, foreign_key = spec_id))]
+#[diesel(table_name = spec_to_component)]
 pub(crate) struct ComponentSpec {
     pub(crate) spec_id: i32,
     pub(crate) component_uuid: Uuid,
@@ -22,7 +22,7 @@ pub(crate) struct IptComponentSpecsData {
 }
 
 #[derive(Debug, Insertable)]
-#[table_name = "spec_to_component"]
+#[diesel(table_name = spec_to_component)]
 pub(crate) struct InsertableComponentSpec {
     pub(crate) component_uuid: Uuid,
     pub(crate) spec_id: i32,

@@ -8,7 +8,7 @@ use uuid::Uuid;
 pub(crate) fn check_is_owner(
     target_user_uuid: &Uuid,
     target_company_uuid: &Uuid,
-    conn: &PgConnection
+    conn: &mut PgConnection
 ) -> ServiceResult<bool> {
     let check_owner_company = company_ref::company_ref
         .filter(company_ref::user_uuid.eq(target_user_uuid)
@@ -28,7 +28,7 @@ pub(crate) fn check_is_owner(
 pub(crate) fn check_is_owner_any(
     target_user_uuid: &Uuid,
     target_companies_uuids: &[Uuid],
-    conn: &PgConnection
+    conn: &mut PgConnection
 ) -> ServiceResult<bool> {
     let check_owner_companies = company_ref::company_ref
         .filter(company_ref::user_uuid.eq(target_user_uuid)
@@ -48,7 +48,7 @@ pub(crate) fn check_is_owner_any(
 pub(crate) fn check_is_owner_with_err(
     target_user_uuid: &Uuid,
     target_company_uuid: &Uuid,
-    conn: &PgConnection
+    conn: &mut PgConnection
 ) -> ServiceResult<bool> {
     match check_is_owner(target_user_uuid, target_company_uuid, conn)? {
         true => Ok(true),
@@ -62,7 +62,7 @@ pub(crate) fn check_company_access(
     target_user_uuid: &Uuid,
     target_company_uuid: &Uuid,
     required_access: &i32,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<bool> {
     // if request to view a public company
     if required_access == &3 {
@@ -99,7 +99,7 @@ pub(crate) fn check_company_access(
 pub(crate) fn member_role_in_company(
     target_user_uuid: &Uuid,
     target_company_uuid: &Uuid,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<i32> {
     use crate::schema::company_member_list::dsl::*;
 
@@ -119,7 +119,7 @@ pub(crate) fn member_role_in_company(
 /// Get type_access_id for target role_id
 pub(crate) fn get_type_access_id(
     target_role_id: &i32,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<i32> {
     use crate::schema::role_access::dsl::*;
 
@@ -137,7 +137,7 @@ pub(crate) fn get_type_access_id(
 /// Get role IDs for desired level access
 pub(crate) fn get_roles_ids_for_access(
     required_access: &i32,
-    conn: &PgConnection
+    conn: &mut PgConnection
 ) -> ServiceResult<Vec<i32>> {
     use crate::schema::role_access::dsl::*;
 
@@ -156,7 +156,7 @@ pub(crate) fn check_clerk_with_suitable_role(
     target_user_uuid: &Uuid,
     target_companies_uuids: &[Uuid],
     need_roles_ids: &[i32],
-    conn: &PgConnection
+    conn: &mut PgConnection
 ) -> ServiceResult<bool> {
     use crate::schema::company_member_list::dsl::*;
 
@@ -182,7 +182,7 @@ pub(crate) fn check_clerk_with_suitable_role(
 /// Gets access type for company
 pub(crate) fn get_access_type_company(
     target_company_uuid: &Uuid,
-    conn: &PgConnection
+    conn: &mut PgConnection
 ) -> ServiceResult<i32> {
     company_ref::company_ref
         .filter(company_ref::uuid.eq(target_company_uuid)
@@ -199,7 +199,7 @@ pub(crate) fn get_access_type_company(
 // pub(crate) fn get_users_have_access_to_company(
 //     target_company_uuid: &Uuid,
 //     required_access: &i32,
-//     conn: &PgConnection
+//     conn: &mut PgConnection
 // ) -> ServiceResult<Vec<Uuid>> {
 //     use crate::schema::company_member_list::dsl::*;
 //

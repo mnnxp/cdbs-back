@@ -18,7 +18,7 @@ use uuid::Uuid;
 pub(crate) fn delete_user(
     logged_user_uuid: &Uuid,
     user_password: &[u8],
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<bool> {
     // compare password with password in database
     check_password(logged_user_uuid, user_password, conn)?;
@@ -56,7 +56,7 @@ pub(crate) fn delete_user(
 /// Delete all components ownership user
 fn delete_user_components(
     user_uuid: &Uuid,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<bool> {
     let component_uuids = component_ref::component_ref
         .filter(component_ref::user_uuid.eq(user_uuid))
@@ -77,7 +77,7 @@ fn delete_user_components(
 /// Delete all companies ownership user
 fn delete_user_companies(
     user_uuid: &Uuid,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<bool> {
     let company_uuids = company_ref::company_ref
         .filter(company_ref::user_uuid.eq(user_uuid))
@@ -98,7 +98,7 @@ fn delete_user_companies(
 /// Delete all standards ownership user
 fn delete_user_standards(
     user_uuid: &Uuid,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<bool> {
     let standard_uuids = standard_ref::standard_ref
         .filter(standard_ref::user_uuid.eq(user_uuid))

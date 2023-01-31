@@ -12,7 +12,7 @@ use uuid::Uuid;
 pub(crate) fn add_standard_to_component(
     logged_user_uuid: &Uuid,
     data: &IptStandardToComponentData,
-    conn: &PgConnection
+    conn: &mut PgConnection
 ) -> ServiceResult<bool> {
     let need_access_level = 1; // todo!(create enum for manage access level)
 

@@ -9,7 +9,7 @@ use diesel::prelude::*;
 pub(crate) fn login_with_pass(
     username: &str,
     password: &str,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<UserToken> {
     use crate::models::user::access::token::{generate, decode, write_token};
 
@@ -42,7 +42,7 @@ pub(crate) fn login_with_pass(
 fn login_check(
     username: &str,
     password: &str,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<SlimUser> {
     use crate::schema::user_ref::dsl as user_ref;
 

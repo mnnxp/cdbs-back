@@ -5,8 +5,8 @@ use chrono::*;
 use uuid::Uuid;
 
 #[derive(Identifiable, Deserialize, Queryable, Debug)]
-#[primary_key(component_uuid, company_uuid)]
-#[table_name = "company_access_to_component"]
+#[diesel(primary_key(component_uuid, company_uuid))]
+#[diesel(table_name = company_access_to_component)]
 pub(crate) struct CompanyAccessComponent {
     pub(crate) component_uuid: Uuid,
     pub(crate) company_uuid: Uuid,
@@ -27,7 +27,7 @@ pub(crate) struct CompanyAccessComponentAndRelatedData {
 }
 
 #[derive(Debug, Insertable)]
-#[table_name = "company_access_to_component"]
+#[diesel(table_name = company_access_to_component)]
 pub(crate) struct InsertableCompanyAccessComponent {
     pub(crate) component_uuid: Uuid,
     pub(crate) company_uuid: Uuid,

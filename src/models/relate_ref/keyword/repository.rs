@@ -6,7 +6,7 @@ use diesel::prelude::*;
 impl Keyword {
     pub(crate) fn get_by_ids(
         target_keyword_ids: &[i32],
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> ServiceResult<Vec<Keyword>> {
         keyword_ref::keyword_ref
             .filter(keyword_ref::id.eq_any(target_keyword_ids))
@@ -21,7 +21,7 @@ impl Keyword {
 impl KeywordId {
     pub(crate) fn get_by_name(
         keyword: &str,
-        conn: &PgConnection,
+        conn: &mut PgConnection,
     ) -> ServiceResult<i32> {
         keyword_ref::keyword_ref
             .filter(keyword_ref::keyword.eq(keyword))

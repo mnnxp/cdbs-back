@@ -11,7 +11,7 @@ pub(crate) fn check_authorized(
 ) -> ServiceResult<bool> {
     use crate::models::user::access::token::{token_from_cxt, check_token};
 
-    let conn: &PooledConnection = &get_conn(cxt)?;
+    let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
     let token = token_from_cxt(cxt)?;
 
@@ -31,7 +31,7 @@ pub(crate) fn get_logged_user_uuid(
 
     let target_token = token_from_cxt(cxt)?;
 
-    let conn: &PooledConnection = &get_conn(cxt)?;
+    let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
     match need_check {
         false => whose_token(target_token.as_str(), conn),

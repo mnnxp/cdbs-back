@@ -28,7 +28,7 @@ impl StandardMutation {
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         create_standard(
             &logged_user_uuid,
@@ -48,7 +48,7 @@ impl StandardMutation {
         // checking authorization and getting user uuid
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         change_standard_owner_user(
             &logged_user_uuid,
@@ -68,7 +68,7 @@ impl StandardMutation {
         // checking authorization and getting user uuid
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         change_standard_type_access(
             &logged_user_uuid,
@@ -87,7 +87,7 @@ impl StandardMutation {
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         update_standard_data(
             &logged_user_uuid,
@@ -106,7 +106,7 @@ impl StandardMutation {
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         del_standard_data(
             &logged_user_uuid,
@@ -126,7 +126,7 @@ impl StandardMutation {
         // checking authorization and getting company uuid
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         set_company_access_standard(
             &logged_user_uuid,
@@ -145,7 +145,7 @@ impl StandardMutation {
         // checking authorization and getting company uuid
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         del_company_access_standard(
             &logged_user_uuid,
@@ -164,7 +164,7 @@ impl StandardMutation {
         // checking authorization and getting user uuid
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         set_user_access_standard(
             &logged_user_uuid,
@@ -183,7 +183,7 @@ impl StandardMutation {
         // checking authorization and getting user uuid
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         del_user_access_standard(
             &logged_user_uuid,
@@ -202,7 +202,7 @@ impl StandardMutation {
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         add_standard_specs(
             &logged_user_uuid,
@@ -220,7 +220,7 @@ impl StandardMutation {
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         del_standard_specs(
             &logged_user_uuid,
@@ -238,7 +238,7 @@ impl StandardMutation {
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         add_standard_keywords(
             &logged_user_uuid,
@@ -256,7 +256,7 @@ impl StandardMutation {
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         add_keywords_by_names(
             &logged_user_uuid,
@@ -274,7 +274,7 @@ impl StandardMutation {
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         del_standard_keywords(
             &logged_user_uuid,
@@ -292,7 +292,7 @@ impl StandardMutation {
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         add_standard_files(
             &logged_user_uuid,
@@ -310,7 +310,7 @@ impl StandardMutation {
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         add_standard_favicon(
             &logged_user_uuid,
@@ -328,7 +328,7 @@ impl StandardMutation {
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
-        let conn: &PooledConnection = &get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         delete_standard_file(
             &logged_user_uuid,

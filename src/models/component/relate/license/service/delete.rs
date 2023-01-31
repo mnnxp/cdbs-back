@@ -9,7 +9,7 @@ use uuid::Uuid;
 pub(crate) fn del_component_license(
     logged_user_uuid: &Uuid,
     data: &IptComponentLicenseData,
-    conn: &PgConnection
+    conn: &mut PgConnection
 ) -> ServiceResult<usize> {
     use crate::schema::license_to_component::dsl::*;
 

@@ -15,7 +15,7 @@ use uuid::Uuid;
 pub(crate) fn add_component_fav(
     logged_user_uuid: &Uuid,
     component_uuid: &Uuid,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<bool> {
     let need_access_level = 3; // todo!(create enum for manage access level)
 
@@ -79,7 +79,7 @@ pub(crate) fn add_component_fav(
 
 fn new_notification(
     object_uuid: &Uuid,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<bool> {
     let user_uuid = component_ref::component_ref
         .filter(component_ref::uuid.eq(object_uuid))

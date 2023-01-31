@@ -9,7 +9,7 @@ use uuid::Uuid;
 pub(crate) fn del_role_access(
     logged_user_uuid: &Uuid,
     data: &DelRoleAccessData,
-    conn: &PgConnection
+    conn: &mut PgConnection
 ) -> ServiceResult<i32> {
     use crate::schema::role_access::dsl::*;
 

@@ -16,7 +16,7 @@ use uuid::Uuid;
 pub(crate) fn del_standard_data(
     logged_user_uuid: &Uuid,
     del_standard_uuid: &Uuid,
-    conn: &PgConnection
+    conn: &mut PgConnection
 ) -> ServiceResult<Uuid> {
     // check ownership standard
     if !check_is_owner(logged_user_uuid, del_standard_uuid, conn)? {
@@ -44,7 +44,7 @@ pub(crate) fn del_standard_data(
 /// Delete standard and related data
 pub(crate) fn delete_standard(
     del_standard_uuid: &Uuid,
-    conn: &PgConnection
+    conn: &mut PgConnection
 ) -> ServiceResult<Uuid> {
     // set flags for standard files
     delete_standard_files(del_standard_uuid, conn)?;
@@ -68,7 +68,7 @@ pub(crate) fn delete_standard(
 /// Set the delete flags for all files associated with the standard
 fn delete_standard_files(
     standard_uuid: &Uuid,
-    conn: &PgConnection,
+    conn: &mut PgConnection,
 ) -> ServiceResult<bool> {
     let del_file_uuids = file_to_standard::file_to_standard
         .filter(file_to_standard::standard_uuid.eq(standard_uuid))

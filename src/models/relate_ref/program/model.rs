@@ -3,15 +3,15 @@ use async_graphql::*;
 
 #[derive(Identifiable, Serialize, Deserialize, Queryable)]
 #[derive(SimpleObject, Clone, Default, Debug)]
-#[primary_key(id)]
-#[table_name = "program_ref"]
+#[diesel(primary_key(id))]
+#[diesel(table_name = program_ref)]
 pub(crate) struct Program {
     pub(crate) id: i32,
     pub(crate) name: String,
 }
 
 #[derive(Debug, Insertable)]
-#[table_name = "program_ref"]
+#[diesel(table_name = program_ref)]
 pub(crate) struct InsertableProgram {
     name: String,
 }

@@ -24,7 +24,7 @@ pub(super) async fn login(
 ) -> Result<HttpResponse, ServiceError> {
     use crate::models::user::access::login::login_with_pass;
 
-    let conn: &PooledConnection = &db_connection(&pool)?;
+    let conn: &mut PooledConnection = &mut db_connection(&pool)?;
 
     let new_token = login_with_pass(
         &auth_data.user.username,

@@ -5,17 +5,17 @@ use async_graphql::*;
 
 // RoleAccess models
 #[derive(Identifiable, Serialize, Deserialize, Associations, Queryable, Debug)]
-#[primary_key(role_id, type_access_id)]
-#[belongs_to(RoleMember, foreign_key = "role_id")]
-#[belongs_to(TypeAccess, foreign_key = "type_access_id")]
-#[table_name = "role_access"]
+#[diesel(primary_key(role_id, type_access_id))]
+#[diesel(belongs_to(RoleMember, foreign_key = role_id))]
+#[diesel(belongs_to(TypeAccess, foreign_key = type_access_id))]
+#[diesel(table_name = role_access)]
 pub(crate) struct RoleAccess {
     pub(crate) role_id: i32,
     pub(crate) type_access_id: i32,
 }
 
 #[derive(Debug, Insertable)]
-#[table_name = "role_access"]
+#[diesel(table_name = role_access)]
 pub(crate) struct InsertableRoleAccess {
     pub(crate) role_id: i32,
     pub(crate) type_access_id: i32,
