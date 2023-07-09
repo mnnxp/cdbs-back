@@ -2,6 +2,10 @@ use crate::errors::{ServiceResult, ServiceError};
 use crate::models::component::{
     model::{IptComponentData, InsertableComponent},
     access::util::check_access_component_for_user,
+    component_modification::{
+        model::InsertableComponentModification,
+        service::register::single_modification,
+    },
 };
 use crate::schema::component_ref::dsl as component_ref;
 use diesel::prelude::*;
@@ -40,6 +44,8 @@ pub(crate) fn create_component(
                     ServiceError::InternalServerError
                 })?;
 
+            insert_new_modifiacation(&new_uuid, conn)?;
+
             diesel::update(component_ref::component_ref)
                 .filter(component_ref::uuid.eq(&new_uuid))
                 .set(component_ref::parent_component_uuid.eq(&new_uuid))
@@ -59,4 +65,13 @@ pub(crate) fn create_component(
                 ServiceError::InternalServerError
         }),
     }
+}
+
+fn insert_new_modifiacation(
+    component_uuid: &Uuid,
+    conn: &mut PgConnection,
+) -> ServiceResult<Uuid> {
+    let mut insert_data =
+        InsertableComponentModification::get_default_for_component(component_uuid);
+    single_modification(&mut insert_data, conn)
 }

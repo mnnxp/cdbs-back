@@ -91,6 +91,21 @@ pub(crate) struct InsertableComponentModification {
 
 impl InsertableComponentModification {
     /// Check parent modification uuid on nil
+    pub(crate) fn get_default_for_component(component_uuid: &Uuid) -> Self {
+        Self {
+            uuid: Uuid::new_v4(),
+            component_uuid: *component_uuid,
+            parent_modification_uuid: Uuid::nil(),
+            modification_name: "N1".to_string(),
+            description: String::new(),
+            actual_status_id: 1,
+            is_delete: false,
+            created_at: chrono::Local::now().naive_local(),
+            updated_at: chrono::Local::now().naive_local(),
+        }
+    }
+
+    /// Check parent modification uuid on nil
     pub(crate) fn parent_uuid_is_nil(&self) -> bool {
         self.parent_modification_uuid.is_nil()
     }

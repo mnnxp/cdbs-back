@@ -25,28 +25,7 @@ pub(crate) fn create_component_modification(
 
     match insert_data.parent_uuid_is_nil() {
         true => {
-            // debug!("insert_data before: {:#?}", insert_data);
-            insert_data.parent_uuid_to_base();
-            // debug!("insert_data after: {:#?}", insert_data);
-
-            let new_uuid = diesel::insert_into(component_modification_list::component_modification_list)
-                .values(&insert_data)
-                .returning(component_modification_list::uuid)
-                .get_result::<Uuid>(conn)
-                .map_err(|err| {
-                    debug!("Error create modification data: {:?}", err);
-                    ServiceError::InternalServerError
-                })?;
-
-            diesel::update(component_modification_list::component_modification_list)
-                .filter(component_modification_list::uuid.eq(&new_uuid))
-                .set(component_modification_list::parent_modification_uuid.eq(&new_uuid))
-                .returning(component_modification_list::uuid)
-                .get_result::<Uuid>(conn)
-                .map_err(|err| {
-                    debug!("Error change parent modification uuid: {:?}", err);
-                    ServiceError::InternalServerError
-                })
+            single_modification(&mut insert_data, conn)
         },
         false => {
             diesel::insert_into(component_modification_list::component_modification_list)
@@ -59,4 +38,31 @@ pub(crate) fn create_component_modification(
                 })
         },
     }
+}
+
+pub(crate) fn single_modification(
+    insert_data: &mut InsertableComponentModification,
+    conn: &mut PgConnection,
+) -> ServiceResult<Uuid> {
+    insert_data.parent_uuid_to_base();
+    // debug!("insert_data after: {:#?}", insert_data);
+
+    let new_uuid = diesel::insert_into(component_modification_list::component_modification_list)
+        .values(&*insert_data)
+        .returning(component_modification_list::uuid)
+        .get_result::<Uuid>(conn)
+        .map_err(|err| {
+            debug!("Error create modification data: {:?}", err);
+            ServiceError::InternalServerError
+        })?;
+
+    diesel::update(component_modification_list::component_modification_list)
+        .filter(component_modification_list::uuid.eq(&new_uuid))
+        .set(component_modification_list::parent_modification_uuid.eq(&new_uuid))
+        .returning(component_modification_list::uuid)
+        .get_result::<Uuid>(conn)
+        .map_err(|err| {
+            debug!("Error change parent modification uuid: {:?}", err);
+            ServiceError::InternalServerError
+        })
 }

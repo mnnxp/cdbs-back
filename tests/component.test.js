@@ -910,9 +910,31 @@ describe('component', () => {
     const {
       data: { components },
     } = body;
-    expect(components[0].uuid).toBe(componentUuidNoStandard);
-    expect(components[0].name).toBe(nameComponent2);
+    expect(components[1].uuid).toBe(componentUuidNoStandard);
+    expect(components[1].name).toBe(nameComponent2);
     expect(components.length).toBe(2);
+    done();
+  });
+
+  it('/graphql:Q Get full data Component - OK check first (default) modification', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+          query: `query componentQuery{
+            component(componentUuid: "${componentUuidNoStandard}") {
+              ${componentFullDataQuery}
+            }
+          }`,
+        })
+      .expect(HttpStatus.OK)
+    debug('/graphql filter component=%o', body.data.component);
+    expect(body.data.component.uuid).toBe(componentUuidNoStandard);
+    expect(body.data.component.componentModifications[0].uuid).toBeNonEmptyString();
+    expect(body.data.component.componentModifications[0].modificationName).toBe('N1');
     done();
   });
 
@@ -2611,9 +2633,8 @@ describe('component', () => {
     const {
       data: { components }
     } = body;
-    var index = components.length - 1;
-    expect(components[index].uuid).toBe(componentUuidStandard);
-    expect(components[index].name).toBe(nameComponent);
+    expect(components[0].uuid).toBe(componentUuidStandard);
+    expect(components[0].name).toBe(nameComponent);
     done();
   });
 
@@ -2637,9 +2658,8 @@ describe('component', () => {
     const {
       data: { components }
     } = body;
-    var index = components.length - 1;
-    expect(components[index].uuid).toBe(componentUuidStandard);
-    expect(components[index].name).toBe(nameComponent);
+    expect(components[0].uuid).toBe(componentUuidStandard);
+    expect(components[0].name).toBe(nameComponent);
     done();
   });
 
@@ -4943,10 +4963,10 @@ describe('component', () => {
       data: { component },
     } = body;
     expect(component.uuid).toBe(componentUuidNoStandard);
-    expect(component.componentModifications[0].modificationParams[0].modificationUuid).toBe(componentModificationUuidSecond);
-    expect(component.componentModifications[0].modificationParams[0].param.paramId).toBe(paramnameIndex);
-    expect(component.componentModifications[0].modificationParams[0].param.paramname).toBeNonEmptyString();
-    expect(component.componentModifications[0].modificationParams[0].value).toBe(paramValueTest2);
+    expect(component.componentModifications[1].modificationParams[0].modificationUuid).toBe(componentModificationUuidSecond);
+    expect(component.componentModifications[1].modificationParams[0].param.paramId).toBe(paramnameIndex);
+    expect(component.componentModifications[1].modificationParams[0].param.paramname).toBeNonEmptyString();
+    expect(component.componentModifications[1].modificationParams[0].value).toBe(paramValueTest2);
     done();
   });
 
@@ -5022,10 +5042,10 @@ describe('component', () => {
       data: { componentModifications },
     } = body;
     expect(componentModifications[0].componentUuid).toBe(componentUuidNoStandard);
-    expect(componentModifications[0].modificationParams[0].modificationUuid).toBe(componentModificationUuidSecond);
-    expect(componentModifications[0].modificationParams[0].param.paramId).toBe(paramnameIndex);
-    expect(componentModifications[0].modificationParams[0].param.paramname).toBeNonEmptyString();
-    expect(componentModifications[0].modificationParams[0].value).toBe(paramValueTest2);
+    expect(componentModifications[1].modificationParams[0].modificationUuid).toBe(componentModificationUuidSecond);
+    expect(componentModifications[1].modificationParams[0].param.paramId).toBe(paramnameIndex);
+    expect(componentModifications[1].modificationParams[0].param.paramname).toBeNonEmptyString();
+    expect(componentModifications[1].modificationParams[0].value).toBe(paramValueTest2);
     done();
   });
 
@@ -5705,7 +5725,7 @@ describe('component', () => {
     } = body;
     expect(componentModificationFilesets[0].modificationUuid).toBe(componentModificationUuidSecond);
     expect(componentModificationFilesets[0].uuid).toBeNonEmptyString();
-    expect(componentModificationFilesets[0].program.id).toBe(7);
+    expect(componentModificationFilesets[0].program.id).toBe(5);
     expect(componentModificationFilesets[0].program.name).toBeNonEmptyString();
     done();
   });
@@ -5739,10 +5759,10 @@ describe('component', () => {
     } = body;
     expect(componentModificationFilesets[0].modificationUuid).toBe(componentModificationUuidSecond);
     expect(componentModificationFilesets[0].uuid).toBeNonEmptyString();
-    // expect(componentModificationFilesets[0].program.id).toBe(5);
+    expect(componentModificationFilesets[0].program.id).toBe(5);
     expect(componentModificationFilesets[0].program.name).toBeNonEmptyString();
     expect(componentModificationFilesets[1].uuid).toBeNonEmptyString();
-    // expect(componentModificationFilesets[1].program.id).toBe(7);
+    expect(componentModificationFilesets[1].program.id).toBe(7);
     expect(componentModificationFilesets[1].program.name).toBeNonEmptyString();
     done();
   });
