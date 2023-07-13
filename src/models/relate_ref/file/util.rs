@@ -67,13 +67,13 @@ pub(crate) fn check_write_data(
 
 /// Checking that the file name matches the image
 pub(crate) fn check_image_filename(filename: &str) -> bool {
-    let ext_str = Regex::new(r"\w*$").unwrap().find(filename).unwrap().as_str();
+    let ext_str = Regex::new(r"\.\w+$").unwrap().find(filename).unwrap().as_str();
 
     matches!(
         ext_str,
-        "apng" | "avif" | "gif" |
-        "jpg" | "jpeg" | "jpe" |
-        "jif" | "jfif" | "png" |
-        "svg" | "webp"
+        ".apng" | ".avif" | ".gif" |
+        ".jpg" | ".jpeg" | ".jpe" |
+        ".jif" | ".jfif" | ".png" |
+        ".svg" | ".webp"
     )
 }
