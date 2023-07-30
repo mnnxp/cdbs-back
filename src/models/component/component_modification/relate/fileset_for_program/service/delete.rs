@@ -1,4 +1,5 @@
 use crate::errors::{ServiceError, ServiceResult};
+use crate::models::component::component_modification::fileset_for_program::file::repository::get_file_uuids_by_fileset_uuid;
 use crate::models::component::{
     component_modification::fileset_for_program::model::DelFilesetProgramData,
     component_modification::relate::fileset_for_program::util::get_component_by_fileset,
@@ -25,14 +26,7 @@ pub(crate) fn del_modification_fileset(
         conn
     )?;
 
-    let files_of_set = modification_file_from_fileset::modification_file_from_fileset
-        .filter(modification_file_from_fileset::fileset_uuid.eq(&data.fileset_uuid))
-        .select(modification_file_from_fileset::file_uuid)
-        .load::<Uuid>(conn)
-        .map_err(|err| {
-            debug!("Error get fileset: {:?}", err);
-            ServiceError::InternalServerError
-        })?;
+    let files_of_set = get_file_uuids_by_fileset_uuid(&data.fileset_uuid, &[], conn)?;
 
     // debug!("Delete fileset: {:?}", del_fileset);
     if !files_of_set.is_empty() {
@@ -66,8 +60,8 @@ pub(crate) fn delete_filesets_files_by_modifications(
 ) -> ServiceResult<bool> {
     // get filesets related with component modifications
     let fileset_uuids = fileset_for_program::fileset_for_program
-        .filter(fileset_for_program::modification_uuid.eq_any(modification_uuids))
         .select(fileset_for_program::uuid)
+        .filter(fileset_for_program::modification_uuid.eq_any(modification_uuids))
         .load::<Uuid>(conn)
         .map_err(|err| {
             debug!("Failed gets modifications for component: {:?}", err);
@@ -75,8 +69,8 @@ pub(crate) fn delete_filesets_files_by_modifications(
         })?;
 
     let del_file_uuids = modification_file_from_fileset::modification_file_from_fileset
-        .filter(modification_file_from_fileset::fileset_uuid.eq_any(&fileset_uuids))
         .select(modification_file_from_fileset::file_uuid)
+        .filter(modification_file_from_fileset::fileset_uuid.eq_any(&fileset_uuids))
         .load::<Uuid>(conn)
         .map_err(|err| {
             debug!("Failed gets file of component: {:?}", err);

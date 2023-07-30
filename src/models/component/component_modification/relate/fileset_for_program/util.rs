@@ -22,16 +22,12 @@ pub(crate) fn get_modification_by_fileset(
     conn: &mut PgConnection
 ) -> ServiceResult<Uuid> {
     use crate::schema::fileset_for_program::dsl::*;
-
-    let get_modification_uuid = fileset_for_program
+    fileset_for_program
         .filter(uuid.eq(target_fileset_uuid))
         .select(modification_uuid)
-        .first::<Uuid>(conn);
-
-    match get_modification_uuid {
-        Ok(mn_uuid) => Ok(mn_uuid),
-        _ => Err(ServiceError::BadRequest(
-            "Not found fileset data".to_string(),
-        )),
-    }
+        .first::<Uuid>(conn)
+        .map_err(|err| {
+            debug!("Failed get_modification_by_fileset data: {:?}", err);
+            ServiceError::BadRequest("Not found fileset data".to_string())
+        })
 }
