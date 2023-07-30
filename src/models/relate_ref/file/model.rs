@@ -88,6 +88,7 @@ pub(crate) struct ShowFile {
 pub(crate) struct InsertableFile {
     pub(crate) uuid: Uuid,
     pub(crate) parent_file_uuid: Uuid,
+    pub(crate) revision: i32,
     pub(crate) hash: Vec<u8>,
     pub(crate) user_uuid: Uuid,
     pub(crate) filename: String,
@@ -95,6 +96,8 @@ pub(crate) struct InsertableFile {
     pub(crate) id_ext: i32,
     pub(crate) filesize: i64,
     pub(crate) path_file: String,
+    pub(crate) is_checked: bool,
+    pub(crate) is_hidden: bool,
     pub(crate) is_delete: bool,
     pub(crate) created_at: NaiveDateTime,
     pub(crate) updated_at: NaiveDateTime,
@@ -105,6 +108,7 @@ impl From<PreliminaryFileData> for InsertableFile {
     fn from(data: PreliminaryFileData) -> Self {
         let PreliminaryFileData {
             parent_file_uuid,
+            revision,
             object,
             user_uuid,
             filename,
@@ -127,6 +131,7 @@ impl From<PreliminaryFileData> for InsertableFile {
         Self {
             uuid: new_file_uuid,
             parent_file_uuid,
+            revision,
             hash: Vec::new(),
             user_uuid,
             filename,
@@ -134,6 +139,8 @@ impl From<PreliminaryFileData> for InsertableFile {
             id_ext,
             filesize: 0_i64,
             path_file,
+            is_checked: false,
+            is_hidden: true,
             is_delete: false,
             created_at: chrono::Local::now().naive_local(),
             updated_at: chrono::Local::now().naive_local(),
@@ -145,6 +152,7 @@ impl From<PreliminaryFileData> for InsertableFile {
 #[derive(Deserialize, Debug)]
 pub(crate) struct PreliminaryFileData {
     pub(crate) parent_file_uuid: Uuid,
+    pub(crate) revision: i32,
     pub(crate) user_uuid: Uuid,
     /// linked object, to create a new name in the storage (file_path)
     pub(crate) object: ListObject,
@@ -155,16 +163,30 @@ pub(crate) struct PreliminaryFileData {
     pub(crate) content_type: String,
 }
 
+impl PreliminaryFileData {
+    pub(crate) fn set_revision(
+        &mut self,
+        parent_file_uuid: Uuid,
+        revision: i32,
+    ) {
+        self.parent_file_uuid = parent_file_uuid;
+        self.revision = revision;
+
+    }
+}
+
 #[derive(Deserialize, Debug)]
 pub(crate) struct FileData {
-    pub(crate) parent_file_uuid: Option<Uuid>,
-    pub(crate) hash: Option<Vec<u8>>,
-    pub(crate) user_uuid: Option<Uuid>,
-    pub(crate) filename: Option<String>,
+    // pub(crate) parent_file_uuid: Option<Uuid>,
+    // pub(crate) hash: Option<Vec<u8>>,
+    // pub(crate) user_uuid: Option<Uuid>,
+    // pub(crate) filename: Option<String>,
     pub(crate) content_type: Option<String>,
-    pub(crate) id_ext: Option<i32>,
+    // pub(crate) id_ext: Option<i32>,
     pub(crate) filesize: Option<i64>,
-    pub(crate) path_file: Option<String>,
+    // pub(crate) path_file: Option<String>,
+    pub(crate) is_checked: bool,
+    pub(crate) is_hidden: bool,
 }
 
 #[derive(Identifiable, Queryable, Clone, Debug)]

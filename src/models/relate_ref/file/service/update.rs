@@ -21,7 +21,7 @@ pub(crate) async fn confirm_upload(
     let mut confirm_files: usize = 0;
 
     // getting SlimFile data for get files paths
-    let slim_files = SlimFile::get_by_files_uuids(
+    let slim_files = SlimFile::get_not_checked_by_uuids(
         file_uuids,
         &mut conn,
     ).unwrap();
@@ -37,7 +37,6 @@ pub(crate) async fn confirm_upload(
             &file_d.path_file,
             &mut conn,
         )? {
-            // todo!(getting metadata  by file id from client for validation)
             let file_h = object_headers(&storage_access, &file_d.path_file)
                 .await
                 .map_err(|err| {
@@ -50,14 +49,10 @@ pub(crate) async fn confirm_upload(
                 target_user_uuid,
                 &file_d.uuid,
                 &FileData {
-                    parent_file_uuid: None,
-                    hash: None,
-                    user_uuid: None,
-                    filename: None,
                     content_type: file_h.content_type,
-                    id_ext: None,
                     filesize: file_h.content_length,
-                    path_file: None,
+                    is_checked: false,
+                    is_hidden: false,
                 },
                 true, // <- confirming upload file only by the same user who requested the upload url
                 &mut conn,
@@ -85,7 +80,7 @@ pub(crate) fn update_file_data_by_uuid(
     new_file_data: &FileData,
     ownership_check: bool,
     conn: &mut PgConnection,
-) -> ServiceResult<i32> {
+) -> ServiceResult<usize> {
     use crate::schema::file_ref::dsl as file_ref;
 
     // user non-ownership can have access,
@@ -111,66 +106,11 @@ pub(crate) fn update_file_data_by_uuid(
 
     let mut count_update_columns = 0;
 
-    if let Some(value) = new_file_data.parent_file_uuid {
-        count_update_columns += diesel::update(file_ref::file_ref
-            .filter(file_ref::uuid.eq(&target_file_uuid)
-            .and(file_ref::parent_file_uuid.ne(&value))))
-            .set(file_ref::parent_file_uuid.eq(value))
-            .execute(conn)
-            .map_err(|err| {
-                debug!("Failed update data: {:?}", err);
-                ServiceError::BadRequest("Failed update data".to_string())
-            })?;
-    }
-    if let Some(value) = &new_file_data.hash {
-        count_update_columns += diesel::update(file_ref::file_ref
-            .filter(file_ref::uuid.eq(&target_file_uuid)
-            .and(file_ref::hash.ne(&value))))
-            .set(file_ref::hash.eq(value.to_vec()))
-            .execute(conn)
-            .map_err(|err| {
-                debug!("Failed update data: {:?}", err);
-                ServiceError::BadRequest("Failed update data".to_string())
-            })?;
-    }
-    if let Some(value) = new_file_data.user_uuid {
-        count_update_columns += diesel::update(file_ref::file_ref
-            .filter(file_ref::uuid.eq(&target_file_uuid)
-            .and(file_ref::user_uuid.ne(&value))))
-            .set(file_ref::user_uuid.eq(value))
-            .execute(conn)
-            .map_err(|err| {
-                debug!("Failed update data: {:?}", err);
-                ServiceError::BadRequest("Failed update data".to_string())
-            })?;
-    }
-    if let Some(value) = &new_file_data.filename {
-        count_update_columns += diesel::update(file_ref::file_ref
-            .filter(file_ref::uuid.eq(&target_file_uuid)
-            .and(file_ref::filename.ne(&value))))
-            .set(file_ref::filename.eq(value.clone()))
-            .execute(conn)
-            .map_err(|err| {
-                debug!("Failed update data: {:?}", err);
-                ServiceError::BadRequest("Failed update data".to_string())
-            })?;
-    }
     if let Some(value) = &new_file_data.content_type {
         count_update_columns += diesel::update(file_ref::file_ref
             .filter(file_ref::uuid.eq(&target_file_uuid)
             .and(file_ref::content_type.ne(&value))))
             .set(file_ref::content_type.eq(value.clone()))
-            .execute(conn)
-            .map_err(|err| {
-                debug!("Failed update data: {:?}", err);
-                ServiceError::BadRequest("Failed update data".to_string())
-            })?;
-    }
-    if let Some(value) = new_file_data.id_ext {
-        count_update_columns += diesel::update(file_ref::file_ref
-            .filter(file_ref::uuid.eq(&target_file_uuid)
-            .and(file_ref::id_ext.ne(&value))))
-            .set(file_ref::id_ext.eq(value))
             .execute(conn)
             .map_err(|err| {
                 debug!("Failed update data: {:?}", err);
@@ -188,30 +128,23 @@ pub(crate) fn update_file_data_by_uuid(
                 ServiceError::BadRequest("Failed update data".to_string())
             })?;
     }
-    if let Some(value) = &new_file_data.path_file {
-        count_update_columns += diesel::update(file_ref::file_ref
-            .filter(file_ref::uuid.eq(&target_file_uuid)
-            .and(file_ref::path_file.ne(&value))))
-            .set(file_ref::path_file.eq(value.clone()))
-            .execute(conn)
-            .map_err(|err| {
-                debug!("Failed update data: {:?}", err);
-                ServiceError::BadRequest("Failed update data".to_string())
-            })?;
-    }
 
     // new date for updated_at in file_ref table if update more one column
     if count_update_columns > 0 {
         diesel::update(file_ref::file_ref
             .filter(file_ref::uuid.eq(&target_file_uuid)))
-            .set(file_ref::updated_at.eq(chrono::Local::now().naive_local()))
+            .set((
+                file_ref::is_checked.eq(new_file_data.is_checked),
+                file_ref::is_hidden.eq(new_file_data.is_hidden),
+                file_ref::updated_at.eq(chrono::Local::now().naive_local()),
+            ))
             .execute(conn)
             .map_err(|err| {
                 debug!("Failed update data: {:?}", err);
                 ServiceError::InternalServerError
             })?;
-
-        return Ok(count_update_columns as i32) // <- return count of updates if there are more than 0
+        // return count of updates if there are more than 0
+        return Ok(count_update_columns)
     }
 
     // return error if new data not different with old data

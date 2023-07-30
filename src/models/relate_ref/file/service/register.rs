@@ -1,18 +1,23 @@
 use crate::errors::{ServiceError, ServiceResult};
-use crate::models::relate_ref::file::model::{
-    ListObject, PreliminaryFileData, InsertableFile, SlimFile,
+use crate::models::component::{
+    file::repository::get_file_uuids_by_component_uuid,
+    relate::file::model::{InsertableComponentFile, ComponentFile},
 };
-use crate::models::component::relate::file::model::{
-    InsertableComponentFile, ComponentFile,
+use crate::models::component::component_modification::{
+    file::repository::get_file_uuids_by_modification_uuid,
+    fileset_for_program::file::repository::get_file_uuids_by_fileset_uuid,
+    relate::{
+        file::model::{InsertableFileModification, FileModification},
+        fileset_for_program::file::model::{ModificationFileFromFileset, InsertableModificationFileFromFileset},
+    },
 };
-use crate::models::component::component_modification::relate::file::model::{
-    InsertableFileModification, FileModification,
+use crate::models::relate_ref::file::{
+    model::{ListObject, PreliminaryFileData, InsertableFile, SlimFile},
+    util::get_default_image,
 };
-use crate::models::component::component_modification::relate::fileset_for_program::file::model::{
-    ModificationFileFromFileset, InsertableModificationFileFromFileset,
-};
-use crate::models::standard::file::model::{
-    StandardFile, InsertableStandardFile,
+use crate::models::standard::file::{
+    model::{StandardFile, InsertableStandardFile},
+    repository::get_file_uuids_by_standard_uuid,
 };
 use crate::schema::file_ref::dsl as file_ref;
 use diesel::prelude::*;
@@ -20,10 +25,19 @@ use uuid::Uuid;
 
 /// Preliminary registration a file in database and bind with related object
 pub(crate) fn preregister_file(
-    preliminary_file_data: PreliminaryFileData,
+    logged_user_uuid: &Uuid,
+    object: ListObject,
+    filename: &str,
     conn: &mut PgConnection,
 ) -> ServiceResult<SlimFile> {
-    let object = preliminary_file_data.object.clone();
+    let mut preliminary_file_data = PreliminaryFileData::from_ipt_file_data(
+        *logged_user_uuid,
+        object.clone(),
+        filename,
+        conn
+    );
+    // check for new revision file
+    let _has_parent = parsing_old_file(&mut preliminary_file_data, conn)?;
     // register data in file_ref table
     let value_slim_file_data = write_metadata(preliminary_file_data, conn)?;
     // register data in addiction table (depends on the request)
@@ -42,7 +56,7 @@ fn write_metadata(
     conn: &mut PgConnection
 ) -> ServiceResult<SlimFile> {
     let file: InsertableFile = file_data.into();
-    diesel::insert_into(file_ref::file_ref)
+    let res = diesel::insert_into(file_ref::file_ref)
         .values(&file)
         .returning((
             file_ref::uuid,
@@ -55,7 +69,18 @@ fn write_metadata(
         .map_err(|err| {
             debug!("Failed insert file row: {:?}", err);
             ServiceError::InternalServerError
-        })
+        })?;
+    // change the parent reference to itself
+    if file.parent_file_uuid == get_default_image() {
+        let _change_parent = diesel::update(file_ref::file_ref.filter(file_ref::uuid.eq(&res.uuid)))
+            .set(file_ref::parent_file_uuid.eq(&res.uuid))
+            .execute(conn)
+            .map_err(|err| {
+                debug!("Failed after insert file row: {:?}", err);
+                ServiceError::InternalServerError
+            })?;
+    }
+    Ok(res)
 }
 
 /// Write information of file to db file_to_component or file_to_modification
@@ -63,7 +88,7 @@ fn write_addiction_data(
     object: ListObject,
     file_uuid: Uuid,
     conn: &mut PgConnection
-) -> ServiceResult<bool>{
+) -> ServiceResult<bool> {
     // select addiction table for write additional data
     match object {
         ListObject::User(_) => Ok(false),
@@ -185,4 +210,84 @@ fn write_addiction_data(
             Err(ServiceError::BadRequest("Failed write metadata".to_string()))
         },
     }
+}
+
+/// Checking for a file with the same name for the same object.
+/// Returns true if such a file was found and info about a new file has been updated.
+fn parsing_old_file(
+    preliminary_file_data: &mut PreliminaryFileData,
+    conn: &mut PgConnection,
+) -> ServiceResult<bool> {
+    let files_for_object_uuids = collect_file_uuids_of_object(
+        &preliminary_file_data.object,
+        conn
+    )?;
+
+    let old_version_file = get_top_version_by_name(
+        files_for_object_uuids,
+        &preliminary_file_data.filename,
+        conn
+    )?;
+
+    // check if a previous version of the file is found
+    if let Some((parent_uuid, parent_revision)) = old_version_file {
+        // set parent uuid and add next revision number
+        preliminary_file_data.set_revision(
+            parent_uuid,
+            parent_revision + 1
+        );
+        return Ok(true)
+    }
+    Ok(false)
+}
+
+/// Collecting UUID from files associated with an object.
+/// accepted objects: component, modification, modification fileset, standard.
+fn collect_file_uuids_of_object(
+    object: &ListObject,
+    conn: &mut PgConnection,
+) -> ServiceResult<Vec<Uuid>> {
+    match object {
+        ListObject::Component(component_uuid) => {
+            get_file_uuids_by_component_uuid(component_uuid, &[], conn)
+        },
+        ListObject::ComponentModification(modification_uuid) => {
+            get_file_uuids_by_modification_uuid(modification_uuid, &[], conn)
+        },
+        ListObject::ComponentModificationSet(fileset_uuid) => {
+            get_file_uuids_by_fileset_uuid(fileset_uuid, &[], conn)
+        },
+        ListObject::Standard(standard_uuid) => {
+            get_file_uuids_by_standard_uuid(standard_uuid, &[], conn)
+        },
+        _not_match => {
+            debug!("This file does not require versioning");
+            Ok(Vec::new())
+        },
+    }
+}
+
+/// Finding of file with same name among the target files,
+/// returns one pair with UUID and version number of upper version file.
+fn get_top_version_by_name(
+    files_for_object_uuids: Vec<Uuid>,
+    filename: &str,
+    conn: &mut PgConnection,
+) -> ServiceResult<Option<(Uuid, i32)>> {
+    file_ref::file_ref
+        .select((
+            file_ref::uuid,
+            file_ref::revision,
+        ))
+        .filter(file_ref::uuid.eq_any(files_for_object_uuids)
+            .and(file_ref::filename.eq(filename)
+            .and(file_ref::is_hidden.eq(false)
+            .and(file_ref::is_delete.eq(false)))))
+        .order(file_ref::revision.desc())
+        .first::<(Uuid, i32)>(conn)
+        .optional()
+        .map_err(|err| {
+            debug!("Failed to get old file version: {:?}", err);
+            ServiceError::InternalServerError
+        })
 }

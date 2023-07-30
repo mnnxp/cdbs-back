@@ -44,7 +44,7 @@ pub(crate) fn find_id_ext(
         .first::<i32>(conn).unwrap_or(1)
 }
 
-/// Checking pre file data for the user
+/// Checking if a file is owned and not checked or deleted
 pub(crate) fn check_write_data(
     user_uuid: &Uuid,
     path_file: &str,
@@ -53,8 +53,10 @@ pub(crate) fn check_write_data(
     use crate::schema::file_ref::dsl as file_ref;
 
     let check_result = file_ref::file_ref
-        .filter(file_ref::path_file.eq(path_file))
-        .filter(file_ref::user_uuid.eq(user_uuid))
+        .filter(file_ref::path_file.eq(path_file)
+            .and(file_ref::user_uuid.eq(user_uuid)
+            .and(file_ref::is_checked.eq(false)
+            .and(file_ref::is_delete.eq(false)))))
         .limit(1)
         .execute(conn)
         .map_err(|err| {
@@ -70,7 +72,7 @@ pub(crate) fn check_image_filename(filename: &str) -> bool {
     let ext_str = Regex::new(r"\.\w+$").unwrap().find(filename).unwrap().as_str();
 
     matches!(
-        ext_str,
+        ext_str.to_lowercase().as_str(),
         ".apng" | ".avif" | ".gif" |
         ".jpg" | ".jpeg" | ".jpe" |
         ".jif" | ".jfif" | ".png" |
