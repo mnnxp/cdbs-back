@@ -358,6 +358,13 @@ async function cleanupStandardDb() {
   ]);
 }
 
+// Sets a mark in the database that the file has been uploaded and verified
+async function setFileAsUploadedDb(fileUuid) {
+  return global.knex.raw('UPDATE file_ref SET is_checked=true, is_hidden=false WHERE uuid=?', [
+    fileUuid,
+  ]);
+}
+
 describe('users', () => {
   beforeAll(() => {
     // cleanupTokenDb();
@@ -990,6 +997,7 @@ describe('users', () => {
       data: { uploadFavicon },
     } = body;
     uploadFaviconTestUuid = uploadFavicon.fileUuid;
+    await setFileAsUploadedDb(uploadFaviconTestUuid);
     expect(uploadFavicon.fileUuid).toBeNonEmptyString();
     expect(uploadFavicon.filename).toBe("new favicon.png");
     expect(uploadFavicon.uploadUrl).toBeNonEmptyString();
@@ -1254,6 +1262,7 @@ describe('users', () => {
       data: { uploadUserCertificate },
     } = body;
     fileCertificateTestUuid = uploadUserCertificate.fileUuid;
+    await setFileAsUploadedDb(fileCertificateTestUuid);
     expect(uploadUserCertificate.fileUuid).toBeNonEmptyString();
     expect(uploadUserCertificate.filename).toBe(goodFilenameCertificateTest);
     expect(uploadUserCertificate.uploadUrl).toBeNonEmptyString();

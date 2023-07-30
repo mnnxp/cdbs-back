@@ -1,4 +1,4 @@
-const debug = require('debug')('cdbs-back:component.test.js');
+const debug = require('debug')('cdbs-back:relate.test.js');
 const request = require('supertest');
 
 const HttpStatus = require('http-status-codes');

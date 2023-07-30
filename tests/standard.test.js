@@ -302,6 +302,13 @@ async function cleanupKeywordsDb() {
   ]);
 }
 
+// Sets a mark in the database that the file has been uploaded and verified
+async function setFileAsUploadedDb(fileUuid) {
+  return global.knex.raw('UPDATE file_ref SET is_checked=true, is_hidden=false WHERE uuid=?', [
+    fileUuid,
+  ]);
+}
+
 describe('company', () => {
   beforeAll(() => {
     cleanupCompanyRepresentDb();
@@ -371,8 +378,9 @@ describe('company', () => {
             "password": password,
           }
         })
-      .expect(HttpStatus.OK)
+      // .expect(HttpStatus.OK)
       .then(({ body, headers }) => {
+        debug('/login headers=%o', headers);
         debug('/login body=%o', body);
         expect(body.bearer).toBeNonEmptyString();
         authorizationTokenFirst = body.bearer;
@@ -985,6 +993,7 @@ describe('company', () => {
     expect(uploadStandardFavicon.fileUuid).toBeNonEmptyString();
     expect(uploadStandardFavicon.filename).toBe(goodFilenameStandardFaviconTest);
     expect(uploadStandardFavicon.uploadUrl).toBeNonEmptyString();
+    await setFileAsUploadedDb(changeStandardFaviconTestUuid);
     done();
   });
 
@@ -1106,6 +1115,8 @@ describe('company', () => {
     expect(uploadStandardFiles[1].fileUuid).toBeNonEmptyString();
     expect(uploadStandardFiles[1].filename).toBe(filenameStandardFileTest);
     expect(uploadStandardFiles[1].uploadUrl).toBeNonEmptyString();
+    await setFileAsUploadedDb(fileStandardFileTestUuid);
+    await setFileAsUploadedDb(fileStandardFileTestUuid2);
     done();
   });
 

@@ -302,6 +302,13 @@ async function cleanupUserDb() {
   ]);
 }
 
+// Sets a mark in the database that the file has been uploaded and verified
+async function setFileAsUploadedDb(fileUuid) {
+  return global.knex.raw('UPDATE file_ref SET is_checked=true, is_hidden=false WHERE uuid=?', [
+    fileUuid,
+  ]);
+}
+
 describe('company', () => {
   beforeAll(() => {
     cleanupCompanyRepresentDb();
@@ -858,7 +865,7 @@ describe('company', () => {
     done();
   });
 
-  it('/graphql:M uploadCompanyFavicon - Ok no access', async (done) => {
+  it('/graphql:M uploadCompanyFavicon - Ok favicon updated', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .set(
@@ -883,6 +890,7 @@ describe('company', () => {
         data: { uploadCompanyFavicon },
       } = body;
       expect(uploadCompanyFavicon.fileUuid).toBeNonEmptyString();
+      await setFileAsUploadedDb(uploadCompanyFavicon.fileUuid);
       expect(uploadCompanyFavicon.filename).toBe(goodFilenameCertificateTest);
       expect(uploadCompanyFavicon.uploadUrl).toBeNonEmptyString();
       done();
@@ -1295,6 +1303,7 @@ describe('company', () => {
       data: { uploadCompanyCertificate },
     } = body;
     fileCertificateTestUuid = uploadCompanyCertificate.fileUuid;
+    await setFileAsUploadedDb(fileCertificateTestUuid);
     expect(uploadCompanyCertificate.fileUuid).toBeNonEmptyString();
     expect(uploadCompanyCertificate.filename).toBe(goodFilenameCertificateTest);
     expect(uploadCompanyCertificate.uploadUrl).toBeNonEmptyString();

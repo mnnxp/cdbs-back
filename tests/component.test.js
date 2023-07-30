@@ -509,6 +509,13 @@ async function cleanupComponentModificationDb() {
   ]);
 }
 
+// Sets a mark in the database that the file has been uploaded and verified
+async function setFileAsUploadedDb(fileUuid) {
+  return global.knex.raw('UPDATE file_ref SET is_checked=true, is_hidden=false WHERE uuid=?', [
+    fileUuid,
+  ]);
+}
+
 describe('component', () => {
   beforeAll(() => {
     // cleanupComponentParamDb();
@@ -3759,6 +3766,16 @@ describe('component', () => {
     expect(uploadComponentFiles[4].fileUuid).toBeNonEmptyString();
     expect(uploadComponentFiles[4].filename).toBe(filename5);
     expect(uploadComponentFiles[4].uploadUrl).toBeNonEmptyString();
+    fileUuid1 = uploadComponentFiles[0].fileUuid;
+    await setFileAsUploadedDb(fileUuid1);
+    fileUuid2 = uploadComponentFiles[1].fileUuid;
+    await setFileAsUploadedDb(fileUuid2);
+    fileUuid3 = uploadComponentFiles[2].fileUuid;
+    await setFileAsUploadedDb(fileUuid3);
+    fileUuid4 = uploadComponentFiles[3].fileUuid;
+    await setFileAsUploadedDb(fileUuid4);
+    fileUuid5 = uploadComponentFiles[4].fileUuid;
+    await setFileAsUploadedDb(fileUuid5);
     done();
   });
 
@@ -3786,19 +3803,17 @@ describe('component', () => {
       data: { componentFiles },
     } = body;
     expect(componentFiles).toBeNonEmptyArray();
-    expect(componentFiles[0].uuid).toBeNonEmptyString();
-    fileUuid1 = componentFiles[0].uuid;
+    expect(componentFiles[0].uuid).toBe(fileUuid1);
     expect(componentFiles[0].filename).toBe(filename1);
     expect(componentFiles[0].filesize).toBe(0);
     expect(componentFiles[0].downloadUrl).toBeNonEmptyString();
-    fileUuid2 = componentFiles[1].uuid;
+    expect(componentFiles[1].uuid).toBe(fileUuid2);
     expect(componentFiles[1].filename).toBe(filename2);
-    fileUuid3 = componentFiles[2].uuid;
+    expect(componentFiles[2].uuid).toBe(fileUuid3);
     expect(componentFiles[2].filename).toBe(filename3);
-    fileUuid4 = componentFiles[3].uuid;
+    expect(componentFiles[3].uuid).toBe(fileUuid4);
     expect(componentFiles[3].filename).toBe(filename4);
-    fileUuid5 = componentFiles[4].uuid;
-    expect(componentFiles[4].uuid).toBeNonEmptyString();
+    expect(componentFiles[4].uuid).toBe(fileUuid5);
     expect(componentFiles[4].filename).toBe(filename5);
     expect(componentFiles[4].filesize).toBe(0);
     expect(componentFiles[4].downloadUrl).toBeNonEmptyString();
@@ -3986,6 +4001,7 @@ describe('component', () => {
       data: { uploadComponentFavicon },
     } = body;
     changeComponentFaviconTestUuid = uploadComponentFavicon.fileUuid;
+    await setFileAsUploadedDb(changeComponentFaviconTestUuid);
     expect(uploadComponentFavicon.fileUuid).toBeNonEmptyString();
     expect(uploadComponentFavicon.filename).toBe(goodFilenameComponentFaviconTest);
     expect(uploadComponentFavicon.uploadUrl).toBeNonEmptyString();
@@ -5217,6 +5233,7 @@ describe('component', () => {
               ]
               modificationUuid: "${componentModificationUuidSecond}"
             }){
+              fileUuid
               filename
               uploadUrl
             }
@@ -5238,6 +5255,16 @@ describe('component', () => {
     expect(uploadModificationFiles[3].uploadUrl).toBeNonEmptyString();
     expect(uploadModificationFiles[4].filename).toBe(filename5);
     expect(uploadModificationFiles[4].uploadUrl).toBeNonEmptyString();
+    fileUuid1 = uploadModificationFiles[0].fileUuid;
+    fileUuid2 = uploadModificationFiles[1].fileUuid;
+    fileUuid3 = uploadModificationFiles[2].fileUuid;
+    fileUuid4 = uploadModificationFiles[3].fileUuid;
+    fileUuid5 = uploadModificationFiles[4].fileUuid;
+    await setFileAsUploadedDb(fileUuid1);
+    await setFileAsUploadedDb(fileUuid2);
+    await setFileAsUploadedDb(fileUuid3);
+    await setFileAsUploadedDb(fileUuid4);
+    await setFileAsUploadedDb(fileUuid5);
     done();
   });
 
@@ -5353,15 +5380,20 @@ describe('component', () => {
     } = body;
     expect(componentModificationFilesList).toBeNonEmptyArray();
     expect(componentModificationFilesList[0].uuid).toBe(fileUuid1);
+    expect(componentModificationFilesList[0].parentFileUuid).toBe(fileUuid1);
     expect(componentModificationFilesList[0].filename).toBe(filename1);
     expect(componentModificationFilesList[0].filesize).toBe(0);
     expect(componentModificationFilesList[1].uuid).toBe(fileUuid2);
+    expect(componentModificationFilesList[1].parentFileUuid).toBe(fileUuid2);
     expect(componentModificationFilesList[1].filename).toBe(filename2);
     expect(componentModificationFilesList[2].uuid).toBe(fileUuid3);
+    expect(componentModificationFilesList[2].parentFileUuid).toBe(fileUuid3);
     expect(componentModificationFilesList[2].filename).toBe(filename3);
     expect(componentModificationFilesList[3].uuid).toBe(fileUuid4);
+    expect(componentModificationFilesList[3].parentFileUuid).toBe(fileUuid4);
     expect(componentModificationFilesList[3].filename).toBe(filename4);
     expect(componentModificationFilesList[4].uuid).toBe(fileUuid5);
+    expect(componentModificationFilesList[4].parentFileUuid).toBe(fileUuid5);
     expect(componentModificationFilesList[4].filename).toBe(filename5);
     expect(componentModificationFilesList[4].filesize).toBe(0);
     done();
@@ -5944,6 +5976,10 @@ describe('component', () => {
     fileUuid2 = uploadFilesToFileset[1].fileUuid;
     fileUuid3 = uploadFilesToFileset[2].fileUuid;
     fileUuid4 = uploadFilesToFileset[3].fileUuid;
+    await setFileAsUploadedDb(fileUuid1);
+    await setFileAsUploadedDb(fileUuid2);
+    await setFileAsUploadedDb(fileUuid3);
+    await setFileAsUploadedDb(fileUuid4);
     expect(uploadFilesToFileset[0].fileUuid).toBeNonEmptyString();
     expect(uploadFilesToFileset[0].filename).toBe(filename1);
     expect(uploadFilesToFileset[0].uploadUrl).toBeNonEmptyString();
