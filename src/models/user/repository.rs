@@ -92,9 +92,6 @@ impl UserShort {
         conn: &mut PgConnection,
     ) -> ServiceResult<UserShort> {
     user_ref::user_ref
-        .filter(user_ref::uuid.eq(target_user_uuid)
-        .and(user_ref::is_enabled.eq(true))
-        .and(user_ref::is_delete.eq(false)))
         .select((
             user_ref::uuid,
             user_ref::firstname,
@@ -102,6 +99,9 @@ impl UserShort {
             user_ref::username,
             user_ref::image_file_uuid,
         ))
+        .filter(user_ref::uuid.eq(target_user_uuid)
+            .and(user_ref::is_enabled.eq(true))
+            .and(user_ref::is_delete.eq(false)))
         .first::<UserShort>(conn)
         .map_err(|err| {
             debug!("Failed get user: {:?}", err);
@@ -127,10 +127,7 @@ impl ShowUserShort {
             conn
         )?;
 
-        ShowUserShort::get_without_check_by_uuid(
-            target_user_uuid,
-            conn
-        )
+        ShowUserShort::get_without_check_by_uuid(target_user_uuid, conn)
     }
 
     /// Gets user short data by user_uuid wtihout check access
@@ -157,11 +154,6 @@ impl ShowUserShort {
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<ShowUserShort>> {
         let users = user_ref::user_ref
-            .filter(user_ref::type_access_id.eq(3)
-            .and(user_ref::is_enabled.eq(true))
-            .and(user_ref::is_delete.eq(false)))
-            .limit(*limit as i64)
-            .offset(*offset as i64)
             .select((
                 user_ref::uuid,
                 user_ref::firstname,
@@ -169,6 +161,11 @@ impl ShowUserShort {
                 user_ref::username,
                 user_ref::image_file_uuid,
             ))
+            .filter(user_ref::type_access_id.eq(3)
+                .and(user_ref::is_enabled.eq(true))
+                .and(user_ref::is_delete.eq(false)))
+            .limit(*limit as i64)
+            .offset(*offset as i64)
             .load::<UserShort>(conn)
             .map_err(|err| {
                 debug!("Faile get user_data: {:?}", err);
@@ -214,7 +211,7 @@ impl ShowUserShort {
 }
 
 impl UserAndRelatedData {
-    /// Collecting user data and related data using uuid
+    /// Gathers full data for a user and related data by uuid
     pub(crate) fn collect_related_data(
         target_user_uuid: &Uuid,
         set_lang_id: &i32,
@@ -303,7 +300,7 @@ impl UserAndRelatedData {
             conn
         ).expect("Error get count fav_users_count");
 
-        let result = UserAndRelatedData {
+        Ok(UserAndRelatedData {
             uuid: user.uuid,
             email: user.email,
             firstname: user.firstname,
@@ -331,14 +328,12 @@ impl UserAndRelatedData {
             fav_components_count,
             fav_standards_count,
             fav_users_count,
-        };
-
-        Ok(result)
+        })
     }
 }
 
 impl ShowUserAndRelatedData {
-    /// Collecting user data and related data using uuid
+    /// Gathers data for a user and related data by uuid
     pub(crate) fn collect_related_data(
         target_user_uuid: &Uuid,
         logged_user_uuid: &Uuid,
@@ -386,7 +381,7 @@ impl ShowUserAndRelatedData {
             conn
         ).expect("Error loading spec user with translate");
 
-        let result = ShowUserAndRelatedData {
+        Ok(ShowUserAndRelatedData {
             uuid: user.uuid,
             firstname: user.firstname,
             lastname: user.lastname,
@@ -402,9 +397,7 @@ impl ShowUserAndRelatedData {
             certificates,
             subscribers,
             is_followed,
-        };
-
-        Ok(result)
+        })
     }
 
     /// Gets user with related data, with translate by uuid
@@ -425,15 +418,11 @@ impl ShowUserAndRelatedData {
         )?;
 
         // collect data for user
-        let result: ShowUserAndRelatedData = ShowUserAndRelatedData::collect_related_data(
+        ShowUserAndRelatedData::collect_related_data(
             target_user_uuid,
             logged_user_uuid,
             set_lang_id,
             conn
-        ).expect("Error loading user and collect related data");
-
-        debug!("User data: {:#?}", result);
-
-        Ok(result)
+        )
     }
 }
