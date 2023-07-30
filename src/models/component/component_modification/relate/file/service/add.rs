@@ -1,12 +1,11 @@
 use crate::errors::{ServiceResult, ServiceError};
 use crate::models::component::component_modification::relate::file::model::IptModificationFilesData;
 use crate::models::component::component_modification::util::get_component_by_modification;
-use crate::models::relate_ref::file::model::{
-    ListObject, PreliminaryFileData, UploadFile
+use crate::models::relate_ref::file::{
+    model::{ListObject, UploadFile},
+    service::register::preregister_file,
 };
 use crate::models::component::access::util::check_access_component_for_user;
-use crate::models::relate_ref::file::service::register::preregister_file;
-use crate::models::relate_ref::file::util::get_default_image;
 use crate::storage::model::StorageAccess;
 use crate::storage::presigned_url::upload_presigned_url;
 use diesel::PgConnection;
@@ -39,13 +38,9 @@ pub(crate) fn add_modification_files(
     for filename in &data.filenames {
         // insert row file in file_ref and addiction tables
         let slim_file = preregister_file(
-            PreliminaryFileData::from_ipt_file_data( // <-- making data for insert
-                *logged_user_uuid,
-                get_default_image(),
-                ListObject::ComponentModification(data.modification_uuid),
-                filename,
-                conn
-            ),
+            logged_user_uuid,
+            ListObject::ComponentModification(data.modification_uuid),
+            filename,
             conn
         )?;
 
