@@ -1,4 +1,5 @@
 use crate::errors::{ServiceResult, ServiceError};
+use crate::models::ExtraOptions;
 use crate::models::standard::model::{
     ShowStandardShort, StandardAndRelatedData, StandardsArg,
 };
@@ -62,11 +63,14 @@ pub(crate) fn get_standard(
     }
 
     ShowStandardShort::get_standards(
-        logged_user_uuid,
         &target_standards_uuids,
-        limit, offset,
-        set_lang_id,
-        conn
+        &ExtraOptions {
+            logged_user_uuid: *logged_user_uuid,
+            set_lang_id: *set_lang_id,
+            limit: *limit,
+            offset: *offset,
+        },
+        conn,
     ).map_err(|err| {
         debug!("Error loading list standards and collect short data: {:?}", err);
         ServiceError::BadRequest("Access denied".to_string())
@@ -142,16 +146,14 @@ fn get_standards_followed_by_user(
 }
 
 pub(crate) fn find_by_uuid(
-    logged_user_uuid: &Uuid,
     target_standard_uuid: &Uuid,
-    set_lang_id: &i32,
+    options: &ExtraOptions,
     conn: &mut PgConnection,
 ) -> ServiceResult<StandardAndRelatedData> {
     // collect data for standard
     let result: StandardAndRelatedData = StandardAndRelatedData::collect_related_data(
         target_standard_uuid,
-        logged_user_uuid,
-        set_lang_id,
+        options,
         conn
     ).expect("Error loading standard and collect related data");
 

@@ -257,24 +257,25 @@ impl From<IptStandardsArg> for StandardsArg {
 pub(crate) struct IptStandardFilesArg {
     pub(crate) standard_uuid:  Uuid,
     pub(crate) files_uuids: Option<Vec<Uuid>>,
+    pub(crate) limit: Option<i32>,
+    pub(crate) offset: Option<i32>,
 }
 
 #[derive(Debug)]
 pub(crate) struct StandardFilesArg {
     pub(crate) standard_uuid:  Uuid,
-    pub(crate) files_uuids: Vec<Uuid>,
+    pub(crate) file_uuids: Vec<Uuid>,
+    pub(crate) limit: i32,
+    pub(crate) offset: i32,
 }
 
 impl From<IptStandardFilesArg> for StandardFilesArg {
     fn from(data: IptStandardFilesArg) -> Self {
-        let IptStandardFilesArg {
-            standard_uuid,
-            files_uuids,
-        } = data;
-
         Self {
-            standard_uuid,
-            files_uuids: files_uuids.unwrap_or_default(),
+            standard_uuid: data.standard_uuid,
+            file_uuids: data.files_uuids.unwrap_or_default(),
+            limit: data.limit.unwrap_or(100),
+            offset: data.offset.unwrap_or(0),
         }
     }
 }
