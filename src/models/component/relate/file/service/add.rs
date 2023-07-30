@@ -4,9 +4,9 @@ use crate::models::component::relate::file::model::{
     IptComponentFilesData, IptComponentFaviconData
 };
 use crate::models::relate_ref::file::{
-    model::{ListObject, PreliminaryFileData, UploadFile},
+    model::{ListObject, UploadFile},
     service::register::preregister_file,
-    util::{check_image_filename, get_default_image}
+    util::check_image_filename
 };
 use crate::storage::model::StorageAccess;
 use crate::storage::presigned_url::upload_presigned_url;
@@ -39,13 +39,9 @@ pub(crate) fn add_component_files(
     // Get data for write information about the file before upload to storage
     for filename in &data.filenames {
         let slim_file = preregister_file(
-            PreliminaryFileData::from_ipt_file_data(
-                *logged_user_uuid,
-                get_default_image(),
-                ListObject::Component(data.component_uuid),
-                filename,
-                conn
-            ),
+            logged_user_uuid,
+            ListObject::Component(data.component_uuid),
+            filename,
             conn
         )?;
 
@@ -94,13 +90,9 @@ pub(crate) fn add_component_favicon(
     }
 
     let slim_file = preregister_file(
-        PreliminaryFileData::from_ipt_file_data(
-            *logged_user_uuid,
-            get_default_image(),
-            ListObject::ComponentFavicon(data.component_uuid),
-            &data.filename,
-            conn
-        ),
+        logged_user_uuid,
+        ListObject::ComponentFavicon(data.component_uuid),
+        &data.filename,
         conn
     )?;
 

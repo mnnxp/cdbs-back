@@ -259,7 +259,7 @@ pub(crate) struct IptComponentFilesArg {
 #[derive(Debug)]
 pub(crate) struct ComponentFilesArg {
     pub(crate) component_uuid:  Uuid,
-    pub(crate) files_uuids: Vec<Uuid>,
+    pub(crate) file_uuids: Vec<Uuid>,
     pub(crate) limit: i32,
     pub(crate) offset: i32,
 }
@@ -275,7 +275,7 @@ impl From<IptComponentFilesArg> for ComponentFilesArg {
 
         Self {
             component_uuid,
-            files_uuids: files_uuids.unwrap_or_default(),
+            file_uuids: files_uuids.unwrap_or_default(),
             limit: limit.unwrap_or(100),
             offset: offset.unwrap_or(0),
         }

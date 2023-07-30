@@ -63,8 +63,8 @@ pub(crate) fn get_files_by_ext(
     use crate::schema::file_to_component::dsl as file_to_component;
 
     let file_uuids = file_to_component::file_to_component
-        .filter(file_to_component::component_uuid.eq(component_uuid))
         .select(file_to_component::file_uuid)
+        .filter(file_to_component::component_uuid.eq(component_uuid))
         .limit(arg.limit)
         .offset(arg.offset)
         .load::<Uuid>(conn)
@@ -74,9 +74,11 @@ pub(crate) fn get_files_by_ext(
         })?;
 
     file_ref::file_ref
-        .filter(file_ref::uuid.eq_any(file_uuids)
-        .and(file_ref::id_ext.eq(&arg.ext_id)))
         .select(file_ref::uuid)
+        .filter(file_ref::uuid.eq_any(file_uuids)
+            .and(file_ref::id_ext.eq(&arg.ext_id)
+            .and(file_ref::is_hidden.eq(false)
+            .and(file_ref::is_delete.eq(false)))))
         .load::<Uuid>(conn)
         .map_err(|err| {
             debug!("Failed get image files {:?}", err);
