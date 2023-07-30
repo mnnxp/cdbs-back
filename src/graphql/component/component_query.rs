@@ -1,5 +1,6 @@
 use crate::errors::ServiceResult;
 use crate::database::{get_conn, PooledConnection};
+use crate::models::ExtraOptions;
 use crate::models::user::access::logged::{get_logged_user_uuid, check_authorized};
 use crate::models::component::{
     model::{
@@ -68,18 +69,24 @@ impl ComponentQuery {
         &self,
         cxt: &Context<'_>,
         component_uuid: Uuid,
+        limit: Option<i32>,
+        offset: Option<i32>,
     ) -> ServiceResult<ComponentAndRelatedData> {
         use crate::models::component::service::list::get_component_by_uuid;
 
         // authorization check
-        let logged_user_uuid: Uuid = get_logged_user_uuid(cxt, true)?;
+        let options = ExtraOptions::from_ipt(
+            get_logged_user_uuid(cxt, true)?,
+            get_set_language(cxt),
+            limit,
+            offset,
+        );
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         get_component_by_uuid(
-            &logged_user_uuid,
             &component_uuid,
-            &get_set_language(cxt),
+            &options,
             conn,
         )
     }

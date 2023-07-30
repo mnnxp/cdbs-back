@@ -1,5 +1,6 @@
 use crate::errors::ServiceResult;
 use crate::database::{get_conn, PooledConnection};
+use crate::models::ExtraOptions;
 use crate::models::user::access::logged::{get_logged_user_uuid, check_authorized};
 use crate::models::standard::{
     model::{
@@ -58,18 +59,23 @@ impl StandardQuery {
         &self,
         cxt: &Context<'_>,
         standard_uuid: Uuid,
+        limit: Option<i32>,
+        offset: Option<i32>,
     ) -> ServiceResult<StandardAndRelatedData> {
         use crate::models::standard::service::list::find_by_uuid;
 
-        // authorization check
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let options = ExtraOptions::from_ipt(
+            get_logged_user_uuid(cxt, true)?,
+            get_set_language(cxt),
+            limit,
+            offset,
+        );
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         find_by_uuid(
-            &logged_user_uuid,
             &standard_uuid,
-            &get_set_language(cxt),
+            &options,
             conn,
         )
     }
