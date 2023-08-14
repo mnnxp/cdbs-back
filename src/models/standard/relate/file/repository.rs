@@ -45,3 +45,19 @@ pub(crate) fn get_file_uuids_by_standard_uuid(
             ServiceError::InternalServerError
         })
 }
+
+/// Determines a standard UUID by a file UUID
+pub(crate) fn get_standard_uuid_by_file_uuid(
+    file_uuid: &Uuid,
+    conn: &mut PgConnection,
+) -> ServiceResult<Option<Uuid>> {
+    file_to_standard::file_to_standard
+        .select(file_to_standard::standard_uuid)
+        .filter(file_to_standard::file_uuid.eq(file_uuid))
+        .first::<Uuid>(conn)
+        .optional()
+        .map_err(|err| {
+            debug!("Failed get standard uuid by file uuid: {:?}", err);
+            ServiceError::InternalServerError
+        })
+}

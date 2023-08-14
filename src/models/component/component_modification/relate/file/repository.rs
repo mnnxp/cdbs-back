@@ -26,3 +26,19 @@ pub(crate) fn get_file_uuids_by_modification_uuid(
             ServiceError::InternalServerError
         })
 }
+
+/// Determines a component modification UUID by a file UUID
+pub(crate) fn get_modification_uuid_by_file_uuid(
+    file_uuid: &Uuid,
+    conn: &mut PgConnection,
+) -> ServiceResult<Option<Uuid>> {
+    file_to_modification::file_to_modification
+        .select(file_to_modification::modification_uuid)
+        .filter(file_to_modification::file_uuid.eq(file_uuid))
+        .first::<Uuid>(conn)
+        .optional()
+        .map_err(|err| {
+            debug!("Failed get component modification uuid by file uuid: {:?}", err);
+            ServiceError::InternalServerError
+        })
+}

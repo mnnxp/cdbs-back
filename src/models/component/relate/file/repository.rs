@@ -45,3 +45,19 @@ pub(crate) fn get_file_uuids_by_component_uuid(
             ServiceError::InternalServerError
         })
 }
+
+/// Determines a component UUID by a file UUID
+pub(crate) fn get_component_uuid_by_file_uuid(
+    file_uuid: &Uuid,
+    conn: &mut PgConnection,
+) -> ServiceResult<Option<Uuid>> {
+    file_to_component::file_to_component
+        .select(file_to_component::component_uuid)
+        .filter(file_to_component::file_uuid.eq(file_uuid))
+        .first::<Uuid>(conn)
+        .optional()
+        .map_err(|err| {
+            debug!("Failed get component uuid by file uuid: {:?}", err);
+            ServiceError::InternalServerError
+        })
+}

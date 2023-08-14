@@ -25,3 +25,19 @@ pub(crate) fn get_file_uuids_by_fileset_uuid(
             ServiceError::InternalServerError
         })
 }
+
+/// Determines a modification fileset UUID by a file UUID
+pub(crate) fn get_fileset_uuid_by_file_uuid(
+    file_uuid: &Uuid,
+    conn: &mut PgConnection,
+) -> ServiceResult<Option<Uuid>> {
+    modification_file_from_fileset::modification_file_from_fileset
+        .select(modification_file_from_fileset::fileset_uuid)
+        .filter(modification_file_from_fileset::file_uuid.eq(file_uuid))
+        .first::<Uuid>(conn)
+        .optional()
+        .map_err(|err| {
+            debug!("Failed get modification fileset uuid by file uuid: {:?}", err);
+            ServiceError::InternalServerError
+        })
+}

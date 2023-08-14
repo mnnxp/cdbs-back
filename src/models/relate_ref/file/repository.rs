@@ -23,6 +23,7 @@ impl ShowFile {
         file_ref::file_ref.select((
                 file_ref::uuid,
                 file_ref::parent_file_uuid,
+                file_ref::revision,
                 file_ref::user_uuid,
                 file_ref::filename,
                 file_ref::content_type,
@@ -36,6 +37,38 @@ impl ShowFile {
                 .and(file_ref::is_hidden.eq(false)
                 .and(file_ref::is_delete.eq(false))))
             .order(file_ref::filename.asc())
+            .limit(limit as i64)
+            .offset(offset as i64)
+            .load::<ShowFile>(conn)
+            .map_err(|err| {
+                debug!("Failed get files: {:?}", err);
+                ServiceError::InternalServerError
+            })
+    }
+
+    fn get_hide_by_uuids(
+        target_file_uuids: &[Uuid],
+        limit: i32,
+        offset: i32,
+        conn: &mut PgConnection,
+    ) -> ServiceResult<Vec<ShowFile>> {
+        file_ref::file_ref.select((
+                file_ref::uuid,
+                file_ref::parent_file_uuid,
+                file_ref::revision,
+                file_ref::user_uuid,
+                file_ref::filename,
+                file_ref::content_type,
+                file_ref::id_ext,
+                file_ref::filesize,
+                // file_ref::path_file,
+                file_ref::created_at,
+                file_ref::updated_at,
+            ))
+            .filter(file_ref::uuid.eq_any(target_file_uuids)
+                // .and(file_ref::is_hidden.eq(true)
+                .and(file_ref::is_delete.eq(false)))
+            .order(file_ref::revision.asc())
             .limit(limit as i64)
             .offset(offset as i64)
             .load::<ShowFile>(conn)
@@ -86,6 +119,7 @@ impl ShowFileRelatedData {
         Ok(ShowFileRelatedData {
             uuid: file_data.uuid,
             filename: file_data.filename,
+            revision: file_data.revision,
             parent_file_uuid: file_data.parent_file_uuid,
             owner_user,
             content_type: file_data.content_type,
@@ -94,6 +128,30 @@ impl ShowFileRelatedData {
             created_at: file_data.created_at,
             updated_at: file_data.updated_at,
         })
+    }
+
+    pub(crate) fn get_revisions_by_uuid(
+        file_uuid: &Uuid,
+        limit: &i32,
+        offset: &i32,
+        conn: &mut PgConnection,
+    ) -> ServiceResult<Vec<ShowFileRelatedData>> {
+        let mut revision_uuids = Vec::new();
+        prev_revision_uuids_by_uuid(&mut revision_uuids, file_uuid, conn)?;
+        next_revision_uuids_by_uuid(&mut revision_uuids, file_uuid, conn)?;
+
+        let files_data = ShowFile::get_hide_by_uuids(
+            &revision_uuids,
+            *limit,
+            *offset,
+            conn
+        )?;
+
+        let mut result: Vec<ShowFileRelatedData> = Vec::new();
+        for fd in files_data {
+            result.push(ShowFileRelatedData::data_enrichment(fd, conn)?)
+        }
+        Ok(result)
     }
 }
 
@@ -149,8 +207,7 @@ impl SlimFile {
             })
     }
 
-    /// Collects array of SlimFile structures
-    /// that did not pass confirmation of uploading, filter by UUIDs
+    /// Collects array of SlimFile used to collect files with not upload confirmation
     pub(crate) fn get_not_checked_by_uuids(
         target_file_uuids: &[Uuid],
         conn: &mut PgConnection,
@@ -164,8 +221,9 @@ impl SlimFile {
                 file_ref::path_file,
             ))
             .filter(file_ref::uuid.eq_any(target_file_uuids)
+                .and(file_ref::is_checked.eq(false)
                 .and(file_ref::is_hidden.eq(true)
-                .and(file_ref::is_delete.eq(false))))
+                .and(file_ref::is_delete.eq(false)))))
             // .order(file_ref::filename.asc())
             .load::<SlimFile>(conn)
             .map_err(|err| {
@@ -282,4 +340,78 @@ impl DownloadFile {
 
         Ok(collect_res)
     }
+}
+
+/// Collects UUIDs all next revision of a file
+fn next_revision_uuids_by_uuid(
+    revision_uuids: &mut Vec<Uuid>,
+    file_uuid: &Uuid,
+    // filename: &str,
+    conn: &mut PgConnection,
+) -> ServiceResult<()> {
+    let mut get_parent = Some(*file_uuid);
+    while let Some(parent_uuid) = get_parent {
+        // revision.push(parent_uuid);
+        revision_uuids.push(parent_uuid);
+        get_parent = file_ref::file_ref
+            .select(file_ref::uuid)
+            .filter(file_ref::uuid.ne(parent_uuid)
+                .and(file_ref::parent_file_uuid.eq(parent_uuid)))
+            .order(file_ref::created_at.desc())
+            .first::<Uuid>(conn)
+            .optional()
+            .map_err(|err| {
+                debug!("Failed get file: {:?}", err);
+                ServiceError::InternalServerError
+            })?;
+        debug!("Result found a parent: {:?}", parent_uuid);
+    }
+    debug!("Result found all revisions: {:?}", revision_uuids);
+    Ok(())
+}
+
+/// Collects UUIDs all prev revision of a file
+fn prev_revision_uuids_by_uuid(
+    revision_uuids: &mut Vec<Uuid>,
+    file_uuid: &Uuid,
+    // filename: &str,
+    conn: &mut PgConnection,
+) -> ServiceResult<()> {
+    let mut get_parent = Some(*file_uuid);
+    while let Some(parent_uuid) = get_parent {
+        // revision.push(parent_uuid);
+        revision_uuids.push(parent_uuid);
+        get_parent = file_ref::file_ref
+            .select(file_ref::parent_file_uuid)
+            .filter(file_ref::uuid.eq(parent_uuid)
+                .and(file_ref::parent_file_uuid.ne(parent_uuid)))
+            .order(file_ref::created_at.desc())
+            .first::<Uuid>(conn)
+            .optional()
+            .map_err(|err| {
+                debug!("Failed get file: {:?}", err);
+                ServiceError::InternalServerError
+            })?;
+        debug!("Result found a parent: {:?}", parent_uuid);
+    }
+    debug!("Result found all revisions: {:?}", revision_uuids);
+    Ok(())
+}
+
+/// Gets a filename for hidden file by UUID
+pub(crate) fn get_filename_hidden_rev_by_uuid(
+    target_file_uuid: &Uuid,
+    conn: &mut PgConnection,
+) -> ServiceResult<String> {
+    file_ref::file_ref
+        .select(file_ref::filename)
+        .filter(file_ref::uuid.eq(target_file_uuid)
+            .and(file_ref::is_hidden.eq(true)
+            .and(file_ref::is_delete.eq(false))))
+        // .order(file_ref::filename.asc())
+        .first::<String>(conn)
+        .map_err(|err| {
+            debug!("Failed get file: {:?}", err);
+            ServiceError::InternalServerError
+        })
 }

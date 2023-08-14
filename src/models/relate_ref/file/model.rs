@@ -73,6 +73,7 @@ pub(crate) struct File {
 pub(crate) struct ShowFile {
     pub(crate) uuid: Uuid,
     pub(crate) parent_file_uuid: Uuid,
+    pub(crate) revision: i32,
     pub(crate) user_uuid: Uuid,
     pub(crate) filename: String,
     pub(crate) content_type: String,
@@ -232,6 +233,7 @@ pub(crate) struct UploadFile {
 pub(crate) struct ShowFileRelatedData {
     pub(crate) uuid: Uuid,
     pub(crate) filename: String,
+    pub(crate) revision: i32,
     pub(crate) parent_file_uuid: Uuid,
     pub(crate) owner_user: ShowUserShort,
     pub(crate) content_type: String,

@@ -304,6 +304,7 @@ impl ComponentQuery {
         )
     }
 
+    /// Returns information about files from a set of component modification files
     async fn component_modification_files_of_fileset(
         &self,
         cxt: &Context<'_>,
@@ -322,6 +323,7 @@ impl ComponentQuery {
         )
     }
 
+    /// Returns presigned-url and relate data for download files from a modification fileset
     async fn component_modification_fileset_files(
         &self,
         cxt: &Context<'_>,

@@ -1,9 +1,16 @@
 use crate::errors::{ServiceError, ServiceResult};
 use crate::database::PgPool;
-use crate::models::relate_ref::file::{
-    model::{FileData, SlimFile},
-    util::check_write_data,
+use crate::models::component::access::util::check_is_owner_with_err as component_check_is_owner_with_err;
+use crate::models::component::component_modification::{
+    fileset_for_program::util::get_component_by_fileset,
+    util::get_component_by_modification,
 };
+use crate::models::relate_ref::file::{
+    model::{FileData, SlimFile, ListObject},
+    repository::get_filename_hidden_rev_by_uuid,
+    util::{check_write_data, detect_relation_to_object, get_latest_file_revision, set_hidden_flag},
+};
+use crate::models::standard::access::util::check_is_owner_with_err as standard_check_is_owner_with_err;
 use crate::storage::model::StorageAccess;
 use crate::storage::metadata::object_headers;
 use diesel::prelude::*;
@@ -149,4 +156,62 @@ pub(crate) fn update_file_data_by_uuid(
 
     // return error if new data not different with old data
     Err(ServiceError::BadRequest("The data has already".to_string()))
+}
+
+/// Changes the active file version for an object, checking object ownership to user
+pub(crate) fn set_active_revision_by_uuid(
+    user_uuid: &Uuid,
+    file_uuid: &Uuid,
+    conn: &mut PgConnection,
+) -> ServiceResult<bool> {
+    // determine a object associated with the file and enable revisions for the object
+    let relate_object = detect_relation_to_object(file_uuid, conn)?;
+    // check ownership to object
+    match &relate_object {
+        ListObject::Component(component_uuid) => {
+            component_check_is_owner_with_err(user_uuid, component_uuid, conn)?;
+        },
+        ListObject::ComponentModification(modification_uuid) => {
+            component_check_is_owner_with_err(
+                user_uuid,
+                &get_component_by_modification(modification_uuid, conn)?,
+                conn
+            )?;
+        },
+        ListObject::ComponentModificationSet(fileset_uuid) => {
+            component_check_is_owner_with_err(
+                user_uuid,
+                &get_component_by_fileset(fileset_uuid, conn)?,
+                conn
+            )?;
+        },
+        ListObject::Standard(standard_uuid) => {
+            standard_check_is_owner_with_err(user_uuid, standard_uuid, conn)?;
+        },
+        _not_match => {
+            debug!("This file does not require versioning");
+            return Err(ServiceError::BadRequest("File to object association not found".to_string()))
+        },
+    }
+    // find active revision
+    let filename = get_filename_hidden_rev_by_uuid(file_uuid, conn)
+        .map_err(|err| {
+            debug!("File already active or delete: {:?}", err);
+            ServiceError::BadRequest("Revision already active or deleted".to_string())
+        })?;
+    match get_latest_file_revision(&relate_object, &filename, conn)? {
+        Some((ref current_revision_uuid, _)) => {
+            // change flag for hidden revision of file to active (is_hidden=false)
+            if set_hidden_flag(file_uuid, false, conn)? {
+                // after successful showing target revision, to hidden current revision of file (is hidden=true)
+                set_hidden_flag(current_revision_uuid, true, conn)
+            } else {
+                Ok(false)
+            }
+        },
+        None => {
+            debug!("No active file revision found for: {:?}", filename);
+            Err(ServiceError::BadRequest("No active file revision found".to_string()))
+        },
+    }
 }
