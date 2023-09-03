@@ -57,27 +57,6 @@ pub(crate) fn find_id_ext(
         .first::<i32>(conn).unwrap_or(1)
 }
 
-/// Checking if a file is owned and not checked or deleted
-pub(crate) fn check_write_data(
-    user_uuid: &Uuid,
-    path_file: &str,
-    conn: &mut PgConnection
-) -> ServiceResult<bool> {
-    let check_result = file_ref::file_ref
-        .filter(file_ref::path_file.eq(path_file)
-            .and(file_ref::user_uuid.eq(user_uuid)
-            .and(file_ref::is_checked.eq(false)
-            .and(file_ref::is_delete.eq(false)))))
-        .limit(1)
-        .execute(conn)
-        .map_err(|err| {
-            debug!("Failed get object headers: {:?}", err);
-            ServiceError::InternalServerError
-        })?;
-
-    Ok(check_result == 1)
-}
-
 /// Checking that the file name matches the image
 pub(crate) fn check_image_filename(filename: &str) -> bool {
     let ext_str = Regex::new(r"\.\w+$").unwrap().find(filename).unwrap().as_str();
@@ -97,11 +76,9 @@ pub(crate) fn parsing_old_file(
     preliminary_file_data: &mut PreliminaryFileData,
     conn: &mut PgConnection,
 ) -> ServiceResult<bool> {
-    let old_revision_file = get_latest_file_revision(
-        &preliminary_file_data.object,
-        &preliminary_file_data.filename,
-        conn
-    )?;
+    let files_for_object_uuids = collect_file_uuids_of_object(&preliminary_file_data.object, conn)?;
+    let old_revision_file =
+        get_top_revision_by_name(files_for_object_uuids, &preliminary_file_data.filename, conn)?;
 
     // check if a previous version of the file is found
     if let Some((parent_uuid, parent_revision)) = old_revision_file {
@@ -141,16 +118,6 @@ fn collect_file_uuids_of_object(
     }
 }
 
-/// Returns UUID and revision number of the latest version of a file
-pub(crate) fn get_latest_file_revision(
-    object: &ListObject,
-    filename: &str,
-    conn: &mut PgConnection,
-) -> ServiceResult<Option<(Uuid, i32)>> {
-    let files_for_object_uuids = collect_file_uuids_of_object(object, conn)?;
-    get_top_revision_by_name(files_for_object_uuids, filename, conn)
-}
-
 /// Finding of file with same name among the target files,
 /// returns one pair with UUID and version number of upper version file.
 fn get_top_revision_by_name(
@@ -165,7 +132,42 @@ fn get_top_revision_by_name(
         ))
         .filter(file_ref::uuid.eq_any(files_for_object_uuids)
             .and(file_ref::filename.eq(filename)
-            .and(file_ref::is_checked.eq(true)
+            // .and(file_ref::is_checked.eq(true)
+            .and(file_ref::is_delete.eq(false))))
+        .order(file_ref::revision.desc())
+        .first::<(Uuid, i32)>(conn)
+        .optional()
+        .map_err(|err| {
+            debug!("Failed to get old file version: {:?}", err);
+            ServiceError::InternalServerError
+        })
+}
+
+/// Returns UUID and revision number of the latest version of a file
+pub(crate) fn get_active_file_revision(
+    object: &ListObject,
+    filename: &str,
+    conn: &mut PgConnection,
+) -> ServiceResult<Option<(Uuid, i32)>> {
+    let files_for_object_uuids = collect_file_uuids_of_object(object, conn)?;
+    get_top_active_revision_by_name(files_for_object_uuids, filename, conn)
+}
+
+/// Finding of file with same name among the target files, with check no hidden,
+/// returns one pair with UUID and version number of upper version file.
+fn get_top_active_revision_by_name(
+    files_for_object_uuids: Vec<Uuid>,
+    filename: &str,
+    conn: &mut PgConnection,
+) -> ServiceResult<Option<(Uuid, i32)>> {
+    file_ref::file_ref
+        .select((
+            file_ref::uuid,
+            file_ref::revision,
+        ))
+        .filter(file_ref::uuid.eq_any(files_for_object_uuids)
+            .and(file_ref::filename.eq(filename)
+            .and(file_ref::is_hidden.eq(false)
             .and(file_ref::is_delete.eq(false)))))
         .order(file_ref::revision.desc())
         .first::<(Uuid, i32)>(conn)
@@ -205,13 +207,38 @@ pub(crate) fn set_hidden_flag(
     set_flag: bool,
     conn: &mut PgConnection
 ) -> ServiceResult<bool> {
-    diesel::update(file_ref::file_ref.filter(file_ref::uuid.eq(&file_uuid)))
+    diesel::update(file_ref::file_ref.filter(file_ref::uuid.eq(file_uuid)))
         .set((
             file_ref::is_hidden.eq(set_flag),
             file_ref::updated_at.eq(chrono::Local::now().naive_local())
         ))
         .execute(conn)
         .map(|changes| changes == 1)
+        .map_err(|err| {
+            debug!("Failed set flag: {:?}", err);
+            ServiceError::InternalServerError
+        })
+}
+
+/// Sets is_hidden=true for old revisions by file uuid and filename
+pub(crate) fn set_hidden_flag_revisions(
+    file_uuid: &Uuid,
+    filename: &str,
+    conn: &mut PgConnection
+) -> ServiceResult<usize> {
+    let list_object = detect_relation_to_object(file_uuid, conn)?;
+    let files_for_object_uuids = collect_file_uuids_of_object(&list_object, conn)?;
+    diesel::update(file_ref::file_ref
+        .filter(file_ref::uuid.eq_any(files_for_object_uuids)
+            .and(file_ref::uuid.ne(file_uuid)
+            .and(file_ref::filename.eq(filename)
+            .and(file_ref::is_hidden.eq(false)
+            .and(file_ref::is_delete.eq(false)))))))
+        .set((
+            file_ref::is_hidden.eq(true),
+            file_ref::updated_at.eq(chrono::Local::now().naive_local())
+        ))
+        .execute(conn)
         .map_err(|err| {
             debug!("Failed set flag: {:?}", err);
             ServiceError::InternalServerError

@@ -52,21 +52,6 @@ impl ListObject {
     }
 }
 
-#[derive(Debug, Queryable)]
-pub(crate) struct File {
-    pub(crate) uuid: Uuid,
-    // pub(crate) parent_file_uuid: Uuid,
-    pub(crate) hash: Vec<u8>,
-    // pub(crate) user_uuid: Uuid,
-    pub(crate) filename: String,
-    // pub(crate) content_type: String,
-    // pub(crate) id_ext: i32,
-    pub(crate) filesize: i64,
-    pub(crate) path_file: String,
-    // pub(crate) created_at: NaiveDateTime,
-    // pub(crate) updated_at: NaiveDateTime,
-}
-
 #[derive(Identifiable, Queryable, Clone, Debug)]
 #[diesel(primary_key(uuid))]
 #[diesel(table_name = file_ref)]
@@ -199,27 +184,6 @@ pub(crate) struct SlimFile {
     pub(crate) filename: String,
     pub(crate) filesize: i64,
     pub(crate) path_file: String,
-}
-
-impl From<File> for SlimFile {
-    fn from(file: File) -> Self {
-        let File {
-            uuid,
-            hash,
-            filename,
-            filesize,
-            path_file,
-            ..
-        } = file;
-
-        Self {
-            uuid,
-            hash,
-            filename,
-            filesize,
-            path_file,
-        }
-    }
 }
 
 #[derive(Serialize, Debug, SimpleObject)]

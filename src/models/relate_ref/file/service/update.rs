@@ -5,10 +5,11 @@ use crate::models::component::component_modification::{
     fileset_for_program::util::get_component_by_fileset,
     util::get_component_by_modification,
 };
+use crate::models::relate_ref::file::util::set_hidden_flag_revisions;
 use crate::models::relate_ref::file::{
     model::{FileData, SlimFile, ListObject},
     repository::get_filename_hidden_rev_by_uuid,
-    util::{check_write_data, detect_relation_to_object, get_latest_file_revision, set_hidden_flag},
+    util::{detect_relation_to_object, get_active_file_revision, set_hidden_flag},
 };
 use crate::models::standard::access::util::check_is_owner_with_err as standard_check_is_owner_with_err;
 use crate::storage::model::StorageAccess;
@@ -26,49 +27,54 @@ pub(crate) async fn confirm_upload(
     let mut conn = pool.get().unwrap();
 
     let mut confirm_files: usize = 0;
+    // let mut parent_uuids: Vec<Uuid> = Vec::new();
 
     // getting SlimFile data for get files paths
-    let slim_files = SlimFile::get_not_checked_by_uuids(
+    let files = SlimFile::get_not_checked_by_uuids(
         file_uuids,
+        target_user_uuid,
         &mut conn,
     ).unwrap();
+
+    if files.is_empty() {
+        return Ok(0) // not found files for check
+    }
 
     // getting storage access data for target user
     let storage_access = StorageAccess::from_env();
 
     // getting data for all files in vec
-    for file_d in slim_files {
-        // ownership check and data update
-        if check_write_data(
+    for file_d in files {
+        let file_h = object_headers(&storage_access, &file_d.path_file)
+            .await
+            .map_err(|err| {
+                debug!("Failed get object headers: {:?}", err);
+                ServiceError::InternalServerError
+            })?;
+
+        // update file metadata in file_ref table
+        let update_file_rows = update_file_data_by_uuid(
             target_user_uuid,
-            &file_d.path_file,
+            &file_d.uuid,
+            &FileData {
+                content_type: file_h.content_type,
+                filesize: file_h.content_length,
+                is_checked: false,
+                is_hidden: false,
+            },
+            true, // <- confirming upload file only by the same user who requested the upload url
             &mut conn,
-        )? {
-            let file_h = object_headers(&storage_access, &file_d.path_file)
-                .await
-                .map_err(|err| {
-                    debug!("Failed get object headers: {:?}", err);
-                    ServiceError::InternalServerError
-                })?;
+        )?;
 
-            // update file metadata in file_ref table
-            let update_file_rows = update_file_data_by_uuid(
-                target_user_uuid,
-                &file_d.uuid,
-                &FileData {
-                    content_type: file_h.content_type,
-                    filesize: file_h.content_length,
-                    is_checked: false,
-                    is_hidden: false,
-                },
-                true, // <- confirming upload file only by the same user who requested the upload url
-                &mut conn,
-            )?;
-
-            debug!("Update rows: {:?}", update_file_rows);
-
-            confirm_files += 1;
+        // there will be an error if the file does not support revisions
+        match set_hidden_flag_revisions(&file_d.uuid, &file_d.filename, &mut conn) {
+            Ok(hidden_files) => debug!("Hidden files (ok): {:?}", hidden_files),
+            Err(err) => debug!("Hidden files (err): {:?}", err),
         }
+
+        debug!("Update rows: {:?}", update_file_rows);
+
+        confirm_files += 1;
     }
 
     match confirm_files == file_uuids.len() {
@@ -81,7 +87,7 @@ pub(crate) async fn confirm_upload(
 
 /// Update file data by uuid
 /// without check access but with check owned
-pub(crate) fn update_file_data_by_uuid(
+fn update_file_data_by_uuid(
     user_uuid: &Uuid,
     file_uuid: &Uuid,
     new_file_data: &FileData,
@@ -199,8 +205,9 @@ pub(crate) fn set_active_revision_by_uuid(
             debug!("File already active or delete: {:?}", err);
             ServiceError::BadRequest("Revision already active or deleted".to_string())
         })?;
-    match get_latest_file_revision(&relate_object, &filename, conn)? {
+    match get_active_file_revision(&relate_object, &filename, conn)? {
         Some((ref current_revision_uuid, _)) => {
+            debug!("Active file: {:?}, file_uuid: {:?}", current_revision_uuid, file_uuid);
             // change flag for hidden revision of file to active (is_hidden=false)
             if set_hidden_flag(file_uuid, false, conn)? {
                 // after successful showing target revision, to hidden current revision of file (is hidden=true)

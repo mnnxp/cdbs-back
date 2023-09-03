@@ -207,9 +207,11 @@ impl SlimFile {
             })
     }
 
-    /// Collects array of SlimFile used to collect files with not upload confirmation
+    /// Collects array of File used to collect files with not upload confirmation
+    /// Checking if a file is owned and not checked or deleted
     pub(crate) fn get_not_checked_by_uuids(
         target_file_uuids: &[Uuid],
+        user_uuid: &Uuid,
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<SlimFile>> {
         file_ref::file_ref
@@ -221,9 +223,10 @@ impl SlimFile {
                 file_ref::path_file,
             ))
             .filter(file_ref::uuid.eq_any(target_file_uuids)
+                .and(file_ref::user_uuid.eq(user_uuid)
                 .and(file_ref::is_checked.eq(false)
                 .and(file_ref::is_hidden.eq(true)
-                .and(file_ref::is_delete.eq(false)))))
+                .and(file_ref::is_delete.eq(false))))))
             // .order(file_ref::filename.asc())
             .load::<SlimFile>(conn)
             .map_err(|err| {
