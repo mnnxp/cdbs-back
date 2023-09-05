@@ -306,13 +306,17 @@ impl DownloadFile {
         })
     }
 
-    /// Get DownloadFile by file UUID, data will be received for SlimFile
-    /// and then build DownloadFile with generated presigned_url
+    /// Gets a DownloadFile by file UUID.
+    /// If the file is not found, returns the DownloadFile for the default image.
     pub(crate) fn get_by_file_uuid(
         target_file_uuid: &Uuid,
         conn: &mut PgConnection,
     ) -> ServiceResult<DownloadFile> {
-        let file = SlimFile::get_file_by_uuid(target_file_uuid, conn)?;
+        let file = match SlimFile::get_file_by_uuid(target_file_uuid, conn) {
+            Ok(slim_file) => slim_file,
+            Err(_) =>
+                SlimFile::get_file_by_uuid(&get_default_image(), conn)?,
+        };
 
         DownloadFile::get_by_slim_file(&file, conn)
     }
