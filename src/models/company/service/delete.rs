@@ -6,8 +6,7 @@ use crate::schema::company_ref::dsl as company_ref;
 use diesel::prelude::*;
 use uuid::Uuid;
 
-/// Delete company and related data,
-/// return err if logged user not owner
+/// Удаляет компанию и связанные с ней данные. Возвращает идентификатор удаленной компании.
 pub(crate) fn del_company(
     logged_user_uuid: &Uuid,
     del_company_uuid: &Uuid,

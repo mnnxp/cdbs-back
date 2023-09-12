@@ -9,6 +9,7 @@ use crate::models::relate_ref::file::model::{ShowFileRelatedData, DownloadFile};
 use diesel::prelude::*;
 use uuid::Uuid;
 
+/// Возвращает информацию о файлах из набора файлов модификации компонента.
 pub(crate) fn get_files_of_fileset(
     logged_user_uuid: &Uuid,
     args: &FileOfFilesetArg,
@@ -42,6 +43,7 @@ pub(crate) fn get_files_of_fileset(
     })
 }
 
+/// Возвращает предварительно подписанные URL-адреса и другую информацию для загрузки файлов набора файлов модификации компонента.
 pub(crate) fn get_fileset_files(
     logged_user_uuid: &Uuid,
     args: &FileOfFilesetArg,

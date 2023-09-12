@@ -14,6 +14,7 @@ pub struct LanguageQuery;
 
 #[Object]
 impl LanguageQuery {
+    /// Returns a list of available languages.
     async fn languages(
         &self,
         cxt: &Context<'_>,

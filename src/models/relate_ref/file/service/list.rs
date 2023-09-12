@@ -5,8 +5,9 @@ use crate::models::relate_ref::file::model::{DownloadFile, ShowFileRelatedData};
 use diesel::PgConnection;
 use uuid::Uuid;
 
-/// Gets presigned url for download file
-/// with checking ownership for logged user
+/// Возвращает предварительно подписанный URL-адрес для загрузки файла из хранилища.
+/// Работает только в том случае, если файл поддерживает управление версиями, связан с:
+/// компонентом, модификацией компонента, набором файлов или стандартом.
 pub(crate) fn get_url_by_file_uuid(
     logged_user_uuid: &Uuid,
     target_file_uuid: &Uuid,
@@ -22,7 +23,7 @@ pub(crate) fn get_url_by_file_uuid(
     DownloadFile::get_by_file_uuid(target_file_uuid, conn)
 }
 
-/// Returns information about existing revisions of a file
+/// Возвращает информацию обо всех редакциях (версиях) файла.
 pub(crate) fn get_revisions_by_file_uuid(
     file_uuid: &Uuid,
     options: &ExtraOptions,

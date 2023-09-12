@@ -11,8 +11,8 @@ use crate::storage::presigned_url::upload_presigned_url;
 use diesel::PgConnection;
 use uuid::Uuid;
 
-/// The return the pre-signed URLs (in wrapper UploadFile) to upload the files
-/// before that inserts rows in in file_ref and modification_file_from_fileset tables
+/// Создает предварительную информацию о файлах для набора файлов из модификации компонента.
+/// Возвращает структуры с предварительно подписанным URL-адресом для загрузки файлов.
 pub(crate) fn add_files_of_modification_set(
     logged_user_uuid: &Uuid,
     data: &IptModificationFileFromFilesetData,

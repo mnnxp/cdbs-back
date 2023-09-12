@@ -7,8 +7,8 @@ use diesel::prelude::*;
 // use diesel::PgConnection;
 use uuid::Uuid;
 
-/// Gets components short data with filter by:
-/// uuids, favorite list, user_uuid, company_uuid
+/// Возвращает агрегированные данные о компонентах.
+/// Получает краткие данные о компонентах с фильтром по: UUID, компании, стандарту, пользователю, избранному (для себя или другого пользователя).
 pub(crate) fn get_components(
     logged_user_uuid: &Uuid,
     arguments: &ComponentsArg,
@@ -158,6 +158,7 @@ pub(crate) fn get_components_uuids_by_standard(
         })
 }
 
+/// Возвращает полную информацию о компоненте по UUID.
 pub(crate) fn get_component_by_uuid(
     target_component_uuid: &Uuid,
     options: &ExtraOptions,

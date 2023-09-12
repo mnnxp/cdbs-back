@@ -7,6 +7,7 @@ use crate::schema::spec_to_standard::dsl as spec_to_standard;
 use diesel::prelude::*;
 use uuid::Uuid;
 
+/// Удаляет связь стандарта с разделами каталога.
 pub(crate) fn del_standard_specs(
     logged_user_uuid: &Uuid,
     data: &IptStandardSpecsData,

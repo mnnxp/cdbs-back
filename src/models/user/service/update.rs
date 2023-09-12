@@ -5,7 +5,8 @@ use crate::schema::user_ref::dsl as user_ref;
 use diesel::prelude::*;
 use uuid::Uuid;
 
-/// Update user main data
+/// Обновляет базовые данные пользователя по UUID.
+/// Возвращает количество успешных изменений или ошибку, если все указанные данные уже существуют.
 pub(crate) fn update_user(
     logged_user_uuid: &Uuid,
     data: &IptUpdateUserData,

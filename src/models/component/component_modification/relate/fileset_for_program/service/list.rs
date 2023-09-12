@@ -8,6 +8,8 @@ use crate::schema::fileset_for_program::dsl as fileset_for_program;
 use diesel::prelude::*;
 use uuid::Uuid;
 
+/// Возвращает список наборов файлов по UUID модификации компонента.
+/// Доступна фильтрация по идентификаторам программ.
 pub(crate) fn get_modification_filesets(
     logged_user_uuid: &Uuid,
     arguments: &FilesetProgramArg,

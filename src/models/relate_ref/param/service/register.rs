@@ -6,6 +6,8 @@ use crate::schema::param_ref::dsl as param_ref;
 use crate::schema::param_translate_list::dsl as param_translate_list;
 use diesel::prelude::*;
 
+/// Добавляет новое имя параметра.
+/// Возвращает идентификатор имени параметра, если он уже существует.
 pub(crate) fn create_param(
     new_param_data: &IptParamTranslateListData,
     conn: &mut PgConnection

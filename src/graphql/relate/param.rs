@@ -17,6 +17,8 @@ pub struct ParamMutation;
 
 #[Object]
 impl ParamQuery {
+    /// Returns a list of available parameters with a filter by IDs.
+    /// If a filter for parameter names is not specified, then all existing ones are aggregated.
     async fn params(
         &self,
         cxt: &Context<'_>,
@@ -37,6 +39,8 @@ impl ParamQuery {
 
 #[Object]
 impl ParamMutation {
+    /// Adds a new parameter name.
+    /// Returns a ID of the parameter name if it already exists.
     async fn register_param(
         &self,
         cxt: &Context<'_>,

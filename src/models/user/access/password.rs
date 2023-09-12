@@ -44,7 +44,7 @@ impl HashPassword {
     }
 }
 
-/// Change password for user
+/// Устанавливает новый пароль для авторизованного пользователя.
 pub(crate) fn change_password(
     logged_user_uuid: &Uuid,
     data: &IptUpdatePassword,

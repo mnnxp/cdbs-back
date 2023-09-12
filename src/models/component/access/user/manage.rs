@@ -10,7 +10,7 @@ use crate::schema::user_access_to_component::dsl as user_access_to_component;
 use diesel::prelude::*;
 use uuid::Uuid;
 
-/// Get users list have access to component
+/// Возвращает список пользователей, имеющих доступ к компоненту.
 pub(crate) fn get_users_list_access_component(
     logged_user_uuid: &Uuid,
     target_component_uuid: &Uuid,
@@ -28,7 +28,7 @@ pub(crate) fn get_users_list_access_component(
     )
 }
 
-/// Manage component access for user
+/// Устанавливает доступ к компоненту для пользователя.
 pub(crate) fn set_user_access_component(
     logged_user_uuid: &Uuid,
     data: &IptUserAccessComponentData,
@@ -88,7 +88,7 @@ fn add_user_access_component(
         })
 }
 
-/// Remove access component for user
+/// Удаляет доступ к компоненту для пользователя.
 pub(crate) fn del_user_access_component(
     logged_user_uuid: &Uuid,
     data: &DelUserAccessComponentData,

@@ -4,7 +4,9 @@ use crate::models::relate_ref::spec::model::{
 };
 use diesel::{PgConnection, prelude::*};
 
-/// Gets full paths for specifications
+/// Возвращает пути к разделам каталога по идентификаторам.
+/// При создании пути раздела используется заданный разделитель или разделитель по умолчанию "/".
+/// Значение "deep_level" устанавливает предел глубины до родительского раздела.
 pub(crate) fn get_paths_specs(
     arguments: &SpecPathArg,
     set_lang_id: &i32,

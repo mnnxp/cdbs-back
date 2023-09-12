@@ -6,7 +6,7 @@ use crate::schema::component_modification_list::dsl as component_modification_li
 use diesel::prelude::*;
 use uuid::Uuid;
 
-/// Update modification main data by uuid
+/// Обновляет основные данные модификации компонента.
 pub(crate) fn update_modification_data(
     logged_user_uuid: &Uuid,
     target_modification_uuid: &Uuid,

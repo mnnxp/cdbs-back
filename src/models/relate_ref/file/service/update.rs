@@ -17,8 +17,8 @@ use crate::storage::metadata::object_headers;
 use diesel::prelude::*;
 use uuid::Uuid;
 
-/// Confirm upload file to storage
-/// return number of column changes in database
+/// Устанавливает файл как успешно загруженный в хранилище.
+/// После подтверждения успешной загрузки файл будет обработан.
 pub(crate) async fn confirm_upload(
     target_user_uuid: &Uuid,
     file_uuids: &[Uuid],
@@ -164,6 +164,7 @@ fn update_file_data_by_uuid(
     Err(ServiceError::BadRequest("The data has already".to_string()))
 }
 
+/// Устанавливает указанную редакцию файла как активную.
 /// Changes the active file version for an object, checking object ownership to user
 pub(crate) fn set_active_revision_by_uuid(
     user_uuid: &Uuid,

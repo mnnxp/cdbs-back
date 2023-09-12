@@ -4,7 +4,7 @@ use crate::models::company::access::util::check_is_owner_with_err;
 use diesel::prelude::*;
 use uuid::Uuid;
 
-/// Delete company member role
+/// Удаляет роль участников компании.
 pub(crate) fn del_role_member(
     logged_user_uuid: &Uuid,
     data: &DelRoleMemberData,

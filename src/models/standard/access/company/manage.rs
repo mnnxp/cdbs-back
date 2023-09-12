@@ -11,7 +11,7 @@ use crate::schema::company_access_to_standard::dsl::*;
 use diesel::prelude::*;
 use uuid::Uuid;
 
-/// Get companies list have access to standard
+/// Возвращает список компаний, имеющих доступ к стандарту.
 pub(crate) fn get_companies_list_access_standard(
     logged_user_uuid: &Uuid,
     target_standard_uuid: &Uuid,
@@ -42,7 +42,8 @@ pub(crate) fn get_companies_list_access_standard(
     }
 }
 
-/// Manage standard access for company
+/// Устанавливает доступ к стандарту для компании.
+/// Этот доступ распространяется на всех членов компании в соответствии с их ролями.
 pub(crate) fn set_company_access_standard(
     logged_user_uuid: &Uuid,
     data: &IptCompanyAccessStandardData,
@@ -113,7 +114,7 @@ fn add_company_access_standard(
     }
 }
 
-/// Remove access standard for company
+/// Удаляет доступ к стандарту для компании.
 pub(crate) fn del_company_access_standard(
     logged_user_uuid: &Uuid,
     data: &DelCompanyAccessStandardData,

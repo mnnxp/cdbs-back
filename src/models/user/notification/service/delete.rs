@@ -2,7 +2,7 @@ use crate::errors::ServiceResult;
 use diesel::prelude::*;
 use uuid::Uuid;
 
-/// Delete notifications logged user
+/// Удаляет уведомление для пользователя.
 pub(crate) fn delete_notifications(
     logged_user_uuid: &Uuid,
     notifications_ids: &[i32],

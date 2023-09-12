@@ -23,6 +23,8 @@ pub struct CompanyQuery;
 
 #[Object]
 impl CompanyQuery {
+    /// Returns brief information about companies with filter by:
+    /// UUIDs, user (UUID), favorite (for self or other user).
     async fn companies(
         &self,
         cxt: &Context<'_>,
@@ -48,6 +50,7 @@ impl CompanyQuery {
         )
     }
 
+    /// Returns basic and associated company data by UUID.
     async fn company(
         &self,
         cxt: &Context<'_>,
@@ -68,6 +71,7 @@ impl CompanyQuery {
         )
     }
 
+    /// Returns information about company representative offices.
     async fn company_represents(
         &self,
         cxt: &Context<'_>,
@@ -90,6 +94,7 @@ impl CompanyQuery {
         )
     }
 
+    /// Returns aggregated data about company (community) members.
     async fn company_members(
         &self,
         cxt: &Context<'_>,
@@ -110,6 +115,7 @@ impl CompanyQuery {
         )
     }
 
+    /// Returns aggregated role data for company members.
     async fn company_roles(
         &self,
         cxt: &Context<'_>,
@@ -130,6 +136,7 @@ impl CompanyQuery {
         )
     }
 
+    /// Returns a list of company types.
     async fn company_types(
         &self,
         cxt: &Context<'_>,
@@ -147,6 +154,7 @@ impl CompanyQuery {
         )
     }
 
+    /// Returns a list of directories associated with the company by UUID.
     async fn company_specs(
         &self,
         cxt: &Context<'_>,
@@ -169,6 +177,7 @@ impl CompanyQuery {
         )
     }
 
+    /// Returns a list of types of representative offices (divisions) of companies.
     async fn company_represent_types(
         &self,
         cxt: &Context<'_>,

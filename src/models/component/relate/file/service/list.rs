@@ -8,7 +8,7 @@ use crate::models::relate_ref::file::model::{DownloadFile, ShowFileRelatedData};
 use diesel::prelude::*;
 use uuid::Uuid;
 
-/// Returns pre-signed URLs (in wrapper DownloadFile) to get files associated with components
+/// Возвращает предварительно подписанные URL-адрес и другую информацию для загрузки файлов компонента.
 pub(crate) fn get_component_files(
     logged_user_uuid: &Uuid,
     args: &ComponentFilesArg,
@@ -33,7 +33,7 @@ pub(crate) fn get_component_files(
     )
 }
 
-/// Get info about component files
+/// Возвращает информацию о файлах компонента.
 pub(crate) fn get_component_files_list(
     logged_user_uuid: &Uuid,
     args: &ComponentFilesArg,

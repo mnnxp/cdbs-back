@@ -6,6 +6,8 @@ use crate::schema::program_ref::dsl as program_ref;
 use diesel::prelude::*;
 // use uuid::Uuid;
 
+/// Добавляет новое имя программы.
+/// Возвращает идентификатор и наименование программы.
 pub(crate) fn create_program(
     new_program_data: &IptProgramData,
     conn: &mut PgConnection

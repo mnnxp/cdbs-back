@@ -16,6 +16,8 @@ pub struct ProgramMutation;
 
 #[Object]
 impl ProgramQuery {
+    /// Returns a list of available softwares with a filter by IDs.
+    /// If a filter is not specified, then all existing ones are aggregated.
     async fn programs(
         &self,
         cxt: &Context<'_>,
@@ -34,6 +36,7 @@ impl ProgramQuery {
 
 #[Object]
 impl ProgramMutation {
+    /// Adds new software. Returns the software ID and name.
     async fn register_program(
         &self,
         cxt: &Context<'_>,

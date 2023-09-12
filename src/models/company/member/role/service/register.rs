@@ -9,7 +9,7 @@ use crate::schema::role_member_list::dsl as role_member_list;
 use diesel::prelude::*;
 use uuid::Uuid;
 
-/// Create company member role
+/// Создает новую роль в указанной компании.
 pub(crate) fn create_role_member(
     logged_user_uuid: &Uuid,
     data: &IptRoleMemberData,

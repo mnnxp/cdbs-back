@@ -30,6 +30,8 @@ pub struct StandardQuery;
 
 #[Object]
 impl StandardQuery {
+    /// Returns brief information about standards with filter by:
+    /// UUIDs, company, user, favorite (for self or other user).
     async fn standards(
         &self,
         cxt: &Context<'_>,
@@ -55,6 +57,7 @@ impl StandardQuery {
         )
     }
 
+    /// Returns complete information about the standard by UUID.
     async fn standard(
         &self,
         cxt: &Context<'_>,
@@ -80,6 +83,7 @@ impl StandardQuery {
         )
     }
 
+    /// Returns pre-signed URLs and other information for downloading standard files.
     async fn standard_files(
         &self,
         cxt: &Context<'_>,
@@ -101,6 +105,7 @@ impl StandardQuery {
         )
     }
 
+    /// Returns an array of directory partitions associated with a standard.
     async fn standard_specs(
         &self,
         cxt: &Context<'_>,
@@ -123,6 +128,7 @@ impl StandardQuery {
         )
     }
 
+    /// Returns array of keywords associated with the standard.
     async fn standard_keywords(
         &self,
         cxt: &Context<'_>,
@@ -144,6 +150,7 @@ impl StandardQuery {
         )
     }
 
+    /// Returns a list of companies that have access to a standard.
     async fn get_companies_list_access_standard(
         &self,
         cxt: &Context<'_>,
@@ -163,6 +170,7 @@ impl StandardQuery {
         )
     }
 
+    /// Returns a list of users who have access to a standard.
     async fn get_users_list_access_standard(
         &self,
         cxt: &Context<'_>,
@@ -183,6 +191,8 @@ impl StandardQuery {
         )
     }
 
+    /// Returns a list of available states (statuses) for standards.
+    /// Filtering by standard actual status IDs is available.
     async fn standard_statuses(
         &self,
         cxt: &Context<'_>,

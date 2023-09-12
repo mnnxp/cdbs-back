@@ -10,8 +10,9 @@ use crate::schema::fileset_for_program::dsl as fileset_for_program;
 use diesel::prelude::*;
 use uuid::Uuid;
 
-/// Creating a new set of files for the program
-/// if found uuid for modification and program return Ok(fileset_uuid)
+/// Создает набор файлов для модификации компонента.
+/// Файлы, необходимые для работы конкретного ПО (САПР), загружаются в наборы файлов для этого ПО.
+/// Также наборы файлов используются для настройки интеграции с различными системами CAD/CAM и т. д.
 pub(crate) fn create_modification_fileset(
     logged_user_uuid: &Uuid,
     arg: &IptFilesetProgramData,

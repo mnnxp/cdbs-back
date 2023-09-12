@@ -3,8 +3,7 @@ use crate::models::component::supplier::model::DelSuppliersComponentData;
 use diesel::prelude::*;
 use uuid::Uuid;
 
-/// Remove related suppliers from component
-/// delete rows in supplier_to_component table
+/// Удаляет поставщиков компонента по UUIDs.
 pub(crate) fn del_suppliers_component(
     logged_user_uuid: &Uuid,
     data: &DelSuppliersComponentData,

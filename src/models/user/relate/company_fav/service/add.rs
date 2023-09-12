@@ -12,6 +12,7 @@ use crate::schema::company_ref::dsl as company_ref;
 use diesel::prelude::*;
 use uuid::Uuid;
 
+/// Добавляет компанию в список избранного авторизованного пользователя.
 pub(crate) fn add_company_fav(
     logged_user_uuid: &Uuid,
     company_uuid: &Uuid,

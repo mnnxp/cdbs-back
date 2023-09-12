@@ -10,6 +10,7 @@ use crate::schema::file_to_modification::dsl as file_to_modification;
 use diesel::prelude::*;
 use uuid::Uuid;
 
+/// Удаляет модификацию компонента.
 pub(crate) fn del_component_modification(
     logged_user_uuid: &Uuid,
     data: &DelComponentModificationData,

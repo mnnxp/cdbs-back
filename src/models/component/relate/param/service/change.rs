@@ -8,8 +8,8 @@ use crate::schema::param_to_component::dsl::*;
 use diesel::prelude::*;
 use uuid::Uuid;
 
-/// Add new params with values for component
-/// or update values an existing component params
+/// Добавляет новые параметры со значениями для компонента.
+/// Обновляет значения существующих параметров компонента, если предоставленные имена параметров уже существуют.
 pub(crate) fn put_component_params(
     logged_user_uuid: &Uuid,
     data: &IptComponentParamsData,

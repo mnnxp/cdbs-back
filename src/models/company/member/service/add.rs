@@ -8,6 +8,9 @@ use crate::schema::company_member_list::dsl as company_member_list;
 use diesel::prelude::*;
 use uuid::Uuid;
 
+/// Добавляет участника компании (сообщества).
+/// Член компании будет иметь авторизованный доступ ко всем компонентам и стандартам компании.
+/// Возвращает ошибку, если этот пользователь уже является членом компании.
 pub(crate) fn add_company_member(
     logged_user_uuid: &Uuid,
     data: &IptCompanyMemberData,

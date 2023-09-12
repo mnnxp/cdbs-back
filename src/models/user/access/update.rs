@@ -2,7 +2,7 @@ use crate::errors::{ServiceResult, ServiceError};
 use diesel::prelude::*;
 use uuid::Uuid;
 
-/// Change access type for user
+/// Устанавливает уровень доступности профиля пользователя для других пользователей.
 pub(crate) fn change_access_type_user(
     logged_user_uuid: &Uuid,
     new_type_access: &i32,

@@ -4,6 +4,8 @@ use crate::schema::license_ref::dsl as license_ref;
 use diesel::prelude::*;
 // use uuid::Uuid;
 
+/// Добавляет новую лицензию.
+/// Возвращает ошибку с идентификатором лицензии, если она уже существует.
 pub(crate) fn create_license(
     new_license_data: &LicenseData,
     conn: &mut PgConnection

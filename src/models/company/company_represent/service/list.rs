@@ -7,7 +7,7 @@ use crate::schema::company_represent_ref::dsl as company_represent_ref;
 use diesel::{prelude::*, PgConnection};
 use uuid::Uuid;
 
-/// Gets represents by company uuid or represents uuids
+/// Возвращает информацию о представительствах компании.
 pub(crate) fn get_represents(
     logged_user_uuid: &Uuid,
     args: &CompanyRepresentsArg,

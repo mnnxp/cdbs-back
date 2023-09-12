@@ -7,6 +7,7 @@ use crate::schema::spec_to_component::dsl as spec_to_component;
 use diesel::prelude::*;
 use uuid::Uuid;
 
+/// Добавляет связи компонента с разделами каталога.
 pub(crate) fn add_component_specs(
     logged_user_uuid: &Uuid,
     data: &IptComponentSpecsData,

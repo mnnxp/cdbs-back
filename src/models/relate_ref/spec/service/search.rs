@@ -5,7 +5,9 @@ use crate::models::relate_ref::spec::model::{
 use super::path::get_paths_specs;
 use diesel::PgConnection;
 
-/// Search specs by name among all language
+/// Возвращает пути к разделам каталога, найденным по наименованию.
+/// При создании пути раздела используется заданный разделитель или разделитель по умолчанию "/".
+/// Значение "deep_level" устанавливает предел глубины до родительского раздела.
 pub(crate) fn search_specs_by_name(
     arguments: &SearchSpecArg,
     set_lang_id: &i32,

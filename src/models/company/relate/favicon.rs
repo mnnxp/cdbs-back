@@ -9,7 +9,7 @@ use crate::storage::presigned_url::upload_presigned_url;
 use diesel::prelude::*;
 use uuid::Uuid;
 
-/// Update company favicon
+/// Обновляет аватар компании. Возвращает структуру с предварительно подписанным URL-адресом для загрузки файла изображения.
 pub(crate) fn update_favicon(
     logged_user_uuid: &Uuid,
     target_company_uuid: &Uuid,

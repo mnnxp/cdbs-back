@@ -4,7 +4,7 @@ use crate::models::company::access::util::check_is_owner_with_err;
 use diesel::prelude::*;
 use uuid::Uuid;
 
-/// Change name role company
+/// Обновляет имя указанной роли для участников компании.
 pub(crate) fn change_name_role_company(
     logged_user_uuid: &Uuid,
     data: &IptUpdateNameRoleData,

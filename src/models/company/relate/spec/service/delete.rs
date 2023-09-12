@@ -6,6 +6,7 @@ use crate::models::company::access::util::check_company_access;
 use diesel::prelude::*;
 use uuid::Uuid;
 
+/// Удаляет подключения компании к указанным разделам каталога.
 pub(crate) fn del_company_specs(
     logged_user_uuid: &Uuid,
     data: &IptCompanySpecsData,

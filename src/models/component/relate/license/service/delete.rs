@@ -6,6 +6,7 @@ use crate::models::component::license::model::IptComponentLicenseData;
 use diesel::prelude::*;
 use uuid::Uuid;
 
+/// Удаляет лицензию на компонент.
 pub(crate) fn del_component_license(
     logged_user_uuid: &Uuid,
     data: &IptComponentLicenseData,

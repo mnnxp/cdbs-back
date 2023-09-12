@@ -3,7 +3,8 @@ use crate::models::component::param::model::DelComponentParamData;
 use diesel::prelude::*;
 use uuid::Uuid;
 
-/// Delete component params
+/// Удаляет параметры компонента.
+/// Возвращает количество успешно удаленных параметров.
 pub(crate) fn del_component_params(
     logged_user_uuid: &Uuid,
     data: &DelComponentParamData,

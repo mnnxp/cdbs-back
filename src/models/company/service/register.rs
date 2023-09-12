@@ -6,6 +6,7 @@ use crate::schema::company_ref::dsl as company_ref;
 use diesel::prelude::*;
 use uuid::Uuid;
 
+/// Создает компанию, возвращает UUID новой компании.
 pub(crate) fn create_company(
     logged_user_uuid: &Uuid,
     data: &IptCompanyData,

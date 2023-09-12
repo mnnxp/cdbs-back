@@ -27,7 +27,7 @@ pub struct Claims {
     pub exp: i64,
     // user username
     pub username: String,
-    // user is supplier
+    // user default program
     pub program_id: i32,
 }
 

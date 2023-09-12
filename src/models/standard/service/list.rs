@@ -6,8 +6,8 @@ use crate::models::standard::model::{
 use diesel::{PgConnection, prelude::*};
 use uuid::Uuid;
 
-/// Gets standard short data with filter by:
-/// uuids, company_uuid, favorite (for self, for other user)
+/// Возвращает агрегированные данные о стандартах.
+/// Получает краткие данные о стандартах с фильтром по: UUID, компании, пользователю, избранному (для себя или другого пользователя).
 pub(crate) fn get_standard(
     logged_user_uuid: &Uuid,
     arguments: &StandardsArg,
@@ -145,6 +145,7 @@ fn get_standards_followed_by_user(
         })
 }
 
+/// Возвращает полную информацию о стандарте по UUID.
 pub(crate) fn find_by_uuid(
     target_standard_uuid: &Uuid,
     options: &ExtraOptions,

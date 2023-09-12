@@ -8,7 +8,7 @@ use crate::schema::user_access_to_standard::dsl as user_access_to_standard;
 use diesel::prelude::*;
 use uuid::Uuid;
 
-/// Get users list have access to standard
+/// Возвращает список пользователей, имеющих доступ к стандарту.
 pub(crate) fn get_users_list_access_standard(
     logged_user_uuid: &Uuid,
     target_standard_uuid: &Uuid,
@@ -26,7 +26,7 @@ pub(crate) fn get_users_list_access_standard(
     )
 }
 
-/// Manage standard access for user
+/// Устанавливает доступ к стандарту для пользователя.
 pub(crate) fn set_user_access_standard(
     logged_user_uuid: &Uuid,
     data: &IptUserAccessStandardData,
@@ -86,7 +86,7 @@ fn add_user_access_standard(
         })
 }
 
-/// Remove access standard for user
+/// Удаляет доступ к стандарту для пользователя.
 pub(crate) fn del_user_access_standard(
     logged_user_uuid: &Uuid,
     data: &DelUserAccessStandardData,

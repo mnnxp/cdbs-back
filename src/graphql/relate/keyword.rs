@@ -15,6 +15,9 @@ pub struct KeywordMutation;
 
 #[Object]
 impl KeywordQuery {
+    /// Returns keywords by IDs.
+    /// If a filter for keywords is not specified, then all existing ones are aggregated.
+    /// Keywords can be used for components and standards, as well as for companies.
     async fn keywords(
         &self,
         cxt: &Context<'_>,
@@ -36,6 +39,8 @@ impl KeywordQuery {
 
 #[Object]
 impl KeywordMutation {
+    /// Adds a new keyword.
+    /// Returns an error with the keyword ID if it already exists.
     async fn register_keyword(
         &self,
         cxt: &Context<'_>,

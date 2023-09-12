@@ -3,7 +3,7 @@ use crate::schema::company_fav::dsl as company_fav;
 use diesel::prelude::*;
 use uuid::Uuid;
 
-// Remove a company from user favorites company list
+/// Удаляет компанию из списка избранного авторизованного пользователя.
 pub(crate) fn delete_company_fav(
     logged_user_uuid: &Uuid,
     company_uuid: &Uuid,

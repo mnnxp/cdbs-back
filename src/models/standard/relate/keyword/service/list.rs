@@ -6,7 +6,7 @@ use crate::schema::keyword_to_standard::dsl as keyword_to_standard;
 use diesel::prelude::*;
 use uuid::Uuid;
 
-/// Get all keywords for standard
+/// Возвращает ключевые слова, связанные со стандартом.
 pub(crate) fn get_standard_keywords(
     logged_user_uuid: &Uuid,
     arg: &StandardKeywordsArg,

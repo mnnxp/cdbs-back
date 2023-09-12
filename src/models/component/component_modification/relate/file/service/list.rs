@@ -9,8 +9,7 @@ use crate::models::relate_ref::file::model::{DownloadFile, ShowFileRelatedData};
 use diesel::prelude::*;
 use uuid::Uuid;
 
-/// Returns pre-signed URLs (in wrapper DownloadFile)
-/// to get files associated with component_modifications
+/// Возвращает предварительно подписанные URL-адреса и другую информацию для загрузки файлов модификации компонента.
 pub(crate) fn get_component_modification_files(
     logged_user_uuid: &Uuid,
     args: &ModificationFilesArg,
@@ -39,7 +38,7 @@ pub(crate) fn get_component_modification_files(
     )
 }
 
-/// Get files list of component modification
+/// Возвращает информацию о файлах модификации компонента.
 pub(crate) fn get_component_modification_files_list(
     logged_user_uuid: &Uuid,
     args: &ModificationFilesArg,

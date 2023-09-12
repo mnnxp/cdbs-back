@@ -5,6 +5,8 @@ use crate::models::relate_ref::license::model::{
 use crate::schema::license_ref::dsl as license_ref;
 use diesel::{PgConnection, prelude::*};
 
+/// Возвращает список доступных лицензий.
+/// Если фильтр лицензий не указан, то агрегируются все существующие.
 pub(crate) fn get_licenses(
     args: &LicenseArg,
     conn: &mut PgConnection,

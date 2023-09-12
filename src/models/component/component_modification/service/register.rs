@@ -7,6 +7,7 @@ use crate::schema::component_modification_list::dsl as component_modification_li
 use diesel::prelude::*;
 use uuid::Uuid;
 
+/// Создаёт новую модификацию для компонента.
 pub(crate) fn create_component_modification(
     logged_user_uuid: &Uuid,
     data: &IptComponentModificationData,

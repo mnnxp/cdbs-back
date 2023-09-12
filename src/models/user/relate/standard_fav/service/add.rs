@@ -12,6 +12,7 @@ use crate::schema::standard_ref::dsl as standard_ref;
 use diesel::prelude::*;
 use uuid::Uuid;
 
+/// Добавляет стандарт в список избранного авторизованного пользователя.
 pub(crate) fn add_standard_fav(
     logged_user_uuid: &Uuid,
     standard_uuid: &Uuid,

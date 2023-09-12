@@ -11,8 +11,7 @@ use crate::models::company::access::util::check_company_access;
 use diesel::prelude::*;
 use uuid::Uuid;
 
-/// Add company in suppliers list for component
-/// insert row in supplier_to_component table
+/// Добавляет компанию в список поставщиков компонента.
 pub(crate) fn add_company_to_suppliers(
     logged_user_uuid: &Uuid,
     data: &IptSupplierComponentData,
@@ -34,7 +33,7 @@ pub(crate) fn add_company_to_suppliers(
     )
 }
 
-/// Set company as main supplier component
+/// Устанавливает компанию в качестве основного поставщика компонента.
 pub(crate) fn set_company_owner_supplier(
     logged_user_uuid: &Uuid,
     data: &IptSupplierComponentData,

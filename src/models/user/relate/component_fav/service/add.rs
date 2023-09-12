@@ -12,6 +12,7 @@ use crate::schema::component_ref::dsl as component_ref;
 use diesel::prelude::*;
 use uuid::Uuid;
 
+/// Добавляет компонент в список избранного авторизованного пользователя.
 pub(crate) fn add_component_fav(
     logged_user_uuid: &Uuid,
     component_uuid: &Uuid,

@@ -5,8 +5,9 @@ use crate::models::company::model::{
 use diesel::{PgConnection, prelude::*};
 use uuid::Uuid;
 
-/// Gets companies short data with filter by:
-/// uuids, user_uuid, favorite (for self, for other user)
+/// Возвращает агрегированные данные о компаниях с фильтрами по UUID, избранному, поставщикам.
+/// Получает краткие данные о компаниях с фильтрацией по:
+/// UUID, UUID пользователя, избранному (для себя или другого пользователя).
 pub(crate) fn get_companies(
     logged_user_uuid: &Uuid,
     arguments: &CompaniesArg,
@@ -149,7 +150,7 @@ fn get_companies_followed_by_user(
         })
 }
 
-/// Gets company with related data, with translate by uuid
+/// Возвращает основные и связанные данные компании по UUID.
 pub(crate) fn find_by_uuid(
     logged_user_uuid: &Uuid,
     target_company_uuid: &Uuid,

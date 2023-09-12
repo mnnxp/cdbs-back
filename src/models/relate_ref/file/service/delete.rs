@@ -4,7 +4,7 @@ use crate::models::relate_ref::file::access::check_file_owner_err;
 use diesel::prelude::*;
 use uuid::Uuid;
 
-/// Delete file in storage and row in database
+/// Deletes a file in storage and row in database
 /// with check ownership by uuid
 pub(crate) fn delete_file_with_check_by_uuid(
     logged_user_uuid: &Uuid,

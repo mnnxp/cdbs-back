@@ -5,7 +5,7 @@ use crate::schema::file_to_component::dsl::*;
 use diesel::prelude::*;
 use uuid::Uuid;
 
-/// Delete row in file_to_component table
+/// Удаляет файл компонента.
 pub(crate) fn delete_component_file(
     logged_user_uuid: &Uuid,
     data: &DelComponentFileData,

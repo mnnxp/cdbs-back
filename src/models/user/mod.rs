@@ -12,8 +12,7 @@ pub(crate) use relate::*;
 use crate::models::user::handler::login;
 use actix_web::web;
 
+/// One route for returns the authorization token (JWS) for the CADBase user.
 pub(crate) fn route(cfg: &mut web::ServiceConfig) {
         cfg.service(web::resource("/login").route(web::post().to(login)));
 }
-
-// pub(crate) use util::*;

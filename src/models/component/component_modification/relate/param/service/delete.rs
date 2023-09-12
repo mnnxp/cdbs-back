@@ -4,7 +4,7 @@ use crate::models::component::component_modification::util::get_component_by_mod
 use diesel::prelude::*;
 use uuid::Uuid;
 
-/// Delete component modification params
+/// Удаляет параметры модификации компонента.
 pub(crate) fn del_modification_params(
     logged_user_uuid: &Uuid,
     data: &DelModificationParamData,

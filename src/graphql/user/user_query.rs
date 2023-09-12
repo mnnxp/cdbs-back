@@ -18,7 +18,8 @@ pub struct UserQuery;
 
 #[Object]
 impl UserQuery {
-    // get user info by uuid
+    /// Returns brief information about users with filter by:
+    /// UUIDs, user (UUID), subscribers, favorite (for self).
     async fn users(
         &self,
         cxt: &Context<'_>,
@@ -39,6 +40,7 @@ impl UserQuery {
         get_users(&logged_user_uuid, &arguments, conn)
     }
 
+    /// Returns basic and associated user data by UUID.
     async fn user(
         &self,
         cxt: &Context<'_>,
@@ -59,7 +61,7 @@ impl UserQuery {
         )
     }
 
-    // return SlimUser data auth user
+    /// Returns a structure with basic information about the user (SlimUser).
     async fn myself(
         &self,
         cxt: &Context<'_>
@@ -77,7 +79,7 @@ impl UserQuery {
         )
     }
 
-    // return self data user
+    /// Returns complete information about the authorized user.
     async fn self_data(
         &self,
         cxt: &Context<'_>
@@ -96,6 +98,7 @@ impl UserQuery {
         )
     }
 
+    /// Returns the active tokens of the authorized user.
     async fn show_tokens(
         &self,
         cxt: &Context<'_>
@@ -113,6 +116,8 @@ impl UserQuery {
         )
     }
 
+    /// Generates a token for the user without deleting other valid tokens.
+    /// Returns the user's new authorization token.
     async fn get_token(
         &self,
         cxt: &Context<'_>
@@ -124,6 +129,8 @@ impl UserQuery {
         get_user_token(cxt)
     }
 
+    /// Generates a token for the user with the user's other tokens deactivated.
+    /// Returns the user's new authorization token.
     async fn update_token(
         &self,
         cxt: &Context<'_>
@@ -135,6 +142,8 @@ impl UserQuery {
         update_user_token(cxt)
     }
 
+    /// Returns the token provider, username, user UUID, program ID for user,
+    /// token issuance date, and token expiration date.
     async fn decode_token(
         &self,
         cxt: &Context<'_>
@@ -146,6 +155,7 @@ impl UserQuery {
         decode_user_token(cxt)
     }
 
+    /// Deactivates the specified user token.
     async fn delete_token(
         &self,
         cxt: &Context<'_>,
@@ -165,6 +175,7 @@ impl UserQuery {
         )
     }
 
+    /// Deactivates all user tokens.
     async fn delete_all_tokens(
         &self,
         cxt: &Context<'_>
@@ -182,6 +193,7 @@ impl UserQuery {
         )
     }
 
+    /// Returns an aggregated list of user notifications.
     async fn notifications(
         &self,
         cxt: &Context<'_>,

@@ -4,6 +4,8 @@ use crate::models::relate_ref::keyword::model::{
 };
 use diesel::prelude::*;
 
+/// Добавляет новое ключевое слово.
+/// Возвращает ошибку с идентификатором ключевого слова, если оно уже существует.
 pub(crate) fn create_keyword(
     new_keyword: &IptKeywordData,
     conn: &mut PgConnection

@@ -13,8 +13,8 @@ use crate::storage::presigned_url::upload_presigned_url;
 use diesel::PgConnection;
 use uuid::Uuid;
 
-/// The return the pre-signed URLs (in wrapper UploadFile) to upload the file to storage
-/// and insert the line to link the file to the component
+/// Генерирует предварительную информацию о файлах для компонента.
+/// Возвращает структуры с предварительно подписанным URL-адресом для загрузки файлов.
 pub(crate) fn add_component_files(
     logged_user_uuid: &Uuid,
     data: &IptComponentFilesData,
@@ -62,8 +62,8 @@ pub(crate) fn add_component_files(
     Ok(up_files)
 }
 
-/// The return the pre-signed URLs (in wrapper UploadFile) to upload the file to storage
-/// and insert the line to link the file to the component
+/// Обновляет основное изображение компонента.
+/// Возвращает структуру с предварительно подписанным URL-адресом для загрузки файла изображения.
 pub(crate) fn add_component_favicon(
     logged_user_uuid: &Uuid,
     data: &IptComponentFaviconData,

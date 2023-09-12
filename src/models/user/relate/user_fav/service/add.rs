@@ -11,6 +11,7 @@ use crate::schema::user_fav::dsl as user_fav;
 use diesel::prelude::*;
 use uuid::Uuid;
 
+/// Добавляет пользователя в список избранного авторизованного пользователя.
 pub(crate) fn add_user_fav(
     logged_user_uuid: &Uuid,
     user_favorite_uuid: &Uuid,

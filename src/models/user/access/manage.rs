@@ -5,7 +5,7 @@ use async_graphql::Context;
 use diesel::prelude::PgConnection;
 use uuid::Uuid;
 
-/// Show tokens for user
+/// Возвращает активные токены авторизованного пользователя.
 pub(crate) fn show_user_tokens(
     logged_user_uuid: &Uuid,
     conn: &mut PgConnection,
@@ -18,7 +18,8 @@ pub(crate) fn show_user_tokens(
     )
 }
 
-/// Get token without removing the old one
+/// Генерирует токен для пользователя без удаления других действующих токенов.
+/// Возвращает новый токен авторизации пользователя.
 pub(crate) fn get_user_token(
     cxt: &Context<'_>,
 ) -> ServiceResult<Token> {
@@ -27,7 +28,8 @@ pub(crate) fn get_user_token(
     update(cxt, false)
 }
 
-/// Update token with removing the old one
+/// Генерирует токен для пользователя с деактивацией других токенов пользователя.
+/// Возвращает новый токен авторизации пользователя.
 pub(crate) fn update_user_token(
     cxt: &Context<'_>,
 ) -> ServiceResult<Token> {
@@ -36,7 +38,8 @@ pub(crate) fn update_user_token(
     update(cxt, true)
 }
 
-/// Decode token and return get of token data
+/// Возвращает провайдера токена, UUID и имя пользователя пользователя, идентификатор программы пользователя,
+/// дату выдачи токена и дату истечения срока действия токена.
 pub(crate) fn decode_user_token(
     cxt: &Context<'_>,
 ) -> ServiceResult<Claims> {
@@ -48,7 +51,7 @@ pub(crate) fn decode_user_token(
     )
 }
 
-/// Delete target token for logged user
+/// Деактивирует указанный токен пользователя.
 pub(crate) fn delete_target_token(
     logged_user_uuid: &Uuid,
     target_token: &str,
@@ -63,7 +66,7 @@ pub(crate) fn delete_target_token(
     )
 }
 
-/// Delete all tokens for logged user
+/// Деактивирует все токены пользователя.
 pub(crate) fn delete_tokens(
     logged_user_uuid: &Uuid,
     conn: &mut PgConnection,

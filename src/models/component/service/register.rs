@@ -11,6 +11,7 @@ use crate::schema::component_ref::dsl as component_ref;
 use diesel::prelude::*;
 use uuid::Uuid;
 
+/// Создает компонент, возвращает UUID нового компонента.
 pub(crate) fn create_component(
     logged_user_uuid: &Uuid,
     data: &IptComponentData,

@@ -11,6 +11,7 @@ use crate::schema::keyword_to_standard::dsl as keyword_to_standard;
 use diesel::prelude::*;
 use uuid::Uuid;
 
+/// Добавляет ключевые слова к стандарту по идентификаторам.
 pub(crate) fn add_standard_keywords(
     logged_user_uuid: &Uuid,
     data: &IptStandardKeywordsData,
@@ -66,6 +67,7 @@ fn insert_rows_standard_keywords(
         })
 }
 
+/// Добавляет ключевые слова к стандарту по словам.
 pub(crate) fn add_keywords_by_names(
     logged_user_uuid: &Uuid,
     data: &IptStandardKeywordsNames,

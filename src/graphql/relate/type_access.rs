@@ -18,6 +18,8 @@ pub struct TypeAccessMutation;
 
 #[Object]
 impl TypeAccessQuery {
+    /// Returns types access by IDs.
+    /// If a filter for types access is not specified, then all existing ones are aggregated.
     async fn types_access(
         &self,
         cxt: &Context<'_>,
@@ -38,6 +40,8 @@ impl TypeAccessQuery {
 
 #[Object]
 impl TypeAccessMutation {
+    /// Adds a new type access.
+    /// Returns an error with the type access ID if it already exists.
     async fn register_type_access(
         &self,
         cxt: &Context<'_>,

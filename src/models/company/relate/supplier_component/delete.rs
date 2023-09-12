@@ -4,8 +4,7 @@ use crate::models::company::supplier_component::model::DelCompanyOfSuppliersData
 use diesel::prelude::*;
 use uuid::Uuid;
 
-/// Remove company of component suppliers list
-/// delete rows in supplier_to_component table
+/// Удаляет компанию из списка поставщиков.
 pub(crate) fn del_company_of_suppliers(
     logged_user_uuid: &Uuid,
     data: &DelCompanyOfSuppliersData,

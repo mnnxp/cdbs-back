@@ -12,6 +12,8 @@ use crate::schema::user_certificate_ref::dsl::*;
 use diesel::prelude::*;
 use uuid::Uuid;
 
+/// Загрузка нового сертификата пользователя.
+/// Возвращает структуру с предварительно подписанным URL-адресом для загрузки файла (сертификата).
 pub(crate) fn add_certificate(
     logged_user_uuid: &Uuid,
     cert_data: &IptUserCertificateData,

@@ -8,7 +8,7 @@ use crate::models::standard::{
 use diesel::prelude::*;
 use uuid::Uuid;
 
-/// Returns pre-signed URLs (in wrapper DownloadFile) to get files associated with standards
+/// Возвращает предварительно подписанные URL-адрес и другую информацию для загрузки файлов стандарта.
 pub(crate) fn get_standard_files(
     logged_user_uuid: &Uuid,
     args: &StandardFilesArg,

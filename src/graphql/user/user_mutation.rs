@@ -17,7 +17,7 @@ pub struct UserMutation;
 
 #[Object]
 impl UserMutation {
-    // Add new user
+    /// Adds a new user. Required values: email address, username and password.
     async fn register_user(
         &self,
         cxt: &Context<'_>,
@@ -33,7 +33,7 @@ impl UserMutation {
         )
     }
 
-    // Delete user and relating data
+    /// Deletes a user and associated data.
     async fn delete_user_data(
         &self,
         cxt: &Context<'_>,
@@ -52,6 +52,7 @@ impl UserMutation {
         )
     }
 
+    /// Sets a new password for an authorized user.
     async fn put_update_password(
         &self,
         cxt: &Context<'_>,
@@ -70,6 +71,7 @@ impl UserMutation {
         )
     }
 
+    /// Sets a user's access type to user data for other users.
     async fn change_type_access_user(
         &self,
         cxt: &Context<'_>,
@@ -88,6 +90,8 @@ impl UserMutation {
         )
     }
 
+    /// Updates the user's underlying data by UUID.
+    /// Returns the number of successful changes or an error if all the specified data already exists.
     async fn put_user_update(
         &self,
         cxt: &Context<'_>,
@@ -106,6 +110,7 @@ impl UserMutation {
         )
     }
 
+    /// Updates the user avatar. Returns a structure with a pre-signed URL for uploading an image file.
     async fn upload_favicon(
         &self,
         cxt: &Context<'_>,
@@ -124,6 +129,7 @@ impl UserMutation {
         )
     }
 
+    /// Uploading a new user certificate. Returns a structure with a pre-signed URL for uploading a certificate file.
     async fn upload_user_certificate(
         &self,
         cxt: &Context<'_>,
@@ -142,7 +148,8 @@ impl UserMutation {
         )
     }
 
-    /// Update user certificate description
+    /// Updates a user certificate description.
+    /// Returns true if the change was successful, and false if the certificate description is already installed.
     async fn update_user_certificate(
         &self,
         cxt: &Context<'_>,
@@ -161,6 +168,7 @@ impl UserMutation {
         )
     }
 
+    /// Removes a user certificate.
     async fn delete_user_certificate(
         &self,
         cxt: &Context<'_>,
@@ -179,6 +187,7 @@ impl UserMutation {
         )
     }
 
+    /// Adds a company to a authorized user's favorite list.
     async fn add_company_fav(
         &self,
         cxt: &Context<'_>,
@@ -197,6 +206,7 @@ impl UserMutation {
         )
     }
 
+    /// Removes a company from the authorized user's favorites list.
     async fn delete_company_fav(
         &self,
         cxt: &Context<'_>,
@@ -215,6 +225,7 @@ impl UserMutation {
         )
     }
 
+    /// Adds a component to a authorized user's favorite list.
     async fn add_component_fav(
         &self,
         cxt: &Context<'_>,
@@ -233,6 +244,7 @@ impl UserMutation {
         )
     }
 
+    /// Removes a component from the authorized user's favorites list.
     async fn delete_component_fav(
         &self,
         cxt: &Context<'_>,
@@ -251,6 +263,7 @@ impl UserMutation {
         )
     }
 
+    /// Adds a standard to a authorized user's favorite list.
     async fn add_standard_fav(
         &self,
         cxt: &Context<'_>,
@@ -269,6 +282,7 @@ impl UserMutation {
         )
     }
 
+    /// Removes a standard from the authorized user's favorites list.
     async fn delete_standard_fav(
         &self,
         cxt: &Context<'_>,
@@ -287,6 +301,7 @@ impl UserMutation {
         )
     }
 
+    /// Adds a user to a authorized user's favorite list.
     async fn add_user_fav(
         &self,
         cxt: &Context<'_>,
@@ -305,6 +320,7 @@ impl UserMutation {
         )
     }
 
+    /// Removes a user from the authorized user's favorites list.
     async fn delete_user_fav(
         &self,
         cxt: &Context<'_>,
@@ -323,6 +339,7 @@ impl UserMutation {
         )
     }
 
+    /// Sets a notification as read.
     async fn read_notifications(
         &self,
         cxt: &Context<'_>,
@@ -341,6 +358,7 @@ impl UserMutation {
         )
     }
 
+    /// Removes a notification for a user.
     async fn delete_notifications(
         &self,
         cxt: &Context<'_>,

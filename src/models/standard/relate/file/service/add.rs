@@ -13,8 +13,8 @@ use crate::storage::presigned_url::upload_presigned_url;
 use diesel::PgConnection;
 use uuid::Uuid;
 
-/// The return the pre-signed URLs (in wrapper UploadFile) to upload the file to storage
-/// and insert the line to link the file to the standard
+// Генерирует предварительную информацию о файлах для стандарта.
+/// Возвращает структуры с предварительно подписанным URL-адресом для загрузки файлов.
 pub(crate) fn add_standard_files(
     logged_user_uuid: &Uuid,
     data: &IptStandardFilesData,
@@ -61,7 +61,8 @@ pub(crate) fn add_standard_files(
     Ok(up_files)
 }
 
-/// Return pre-signed URLs (in wrapper UploadFile) for upload the favicon to storage
+/// Обновляет основное изображение стандарта.
+/// Возвращает структуру с предварительно подписанным URL-адресом для загрузки файла изображения.
 pub(crate) fn add_standard_favicon(
     logged_user_uuid: &Uuid,
     data: &IptStandardFaviconData,

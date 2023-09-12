@@ -8,6 +8,7 @@ use crate::storage::presigned_url::upload_presigned_url;
 use diesel::prelude::*;
 use uuid::Uuid;
 
+/// Обновляет аватар пользователя. Возвращает структуру с предварительно подписанным URL-адресом для загрузки файла изображения.
 pub(crate) fn update_favicon(
     target_user_uuid: &Uuid,
     filename: &str,

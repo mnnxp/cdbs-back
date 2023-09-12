@@ -3,8 +3,7 @@ use crate::models::component::standard::model::DelStandardToComponentData;
 use diesel::prelude::*;
 use uuid::Uuid;
 
-/// Remove related standards from component
-/// delete rows in standard_to_component table
+/// Открепляет стандарт от компонента.
 pub(crate) fn del_standards_component(
     logged_user_uuid: &Uuid,
     data: &DelStandardToComponentData,

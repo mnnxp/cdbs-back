@@ -4,7 +4,7 @@ use crate::models::component::access::util::check_access_component_for_user;
 use diesel::prelude::*;
 use uuid::Uuid;
 
-/// Get suppliers for component
+/// Возвращает список поставщиков компонентов.
 pub(crate) fn get_component_suppliers(
     logged_user_uuid: &Uuid,
     component_uuid: &Uuid,

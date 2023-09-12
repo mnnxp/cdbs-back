@@ -11,7 +11,7 @@ use crate::schema::standard_ref::dsl as standard_ref;
 use diesel::prelude::*;
 use uuid::Uuid;
 
-/// Created standard
+/// Создает стандарт, возвращает UUID нового стандарта.
 pub(crate) fn create_standard(
     logged_user_uuid: &Uuid,
     data: &IptStandardData,

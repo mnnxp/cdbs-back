@@ -18,7 +18,9 @@ pub struct StorageMutation;
 
 #[Object]
 impl StorageQuery {
-    /// Presigned URL for download file from storage
+    /// Returns a pre-signed URL for downloading a file from storage.
+    /// Works only if the file supports versioning, is associated with:
+    /// a component, a modification of a component, a set of files, or a standard.
     async fn presigned_url(
         &self, cxt: &Context<'_>,
         file_uuid: Uuid,
@@ -35,7 +37,7 @@ impl StorageQuery {
         )
     }
 
-    /// Returns ShowFile for all (not deleted) file versions
+    /// Returns information about all revisions (versions) of a file.
     async fn show_file_revisions(
         &self, cxt: &Context<'_>,
         file_uuid: Uuid,
@@ -61,7 +63,8 @@ impl StorageQuery {
 
 #[Object]
 impl StorageMutation {
-    /// Сonfirmation of successful upload of files to storage
+    /// Sets a file as successfully uploaded to the storage.
+    /// After successful uploaded is confirmed, the file will be processed.
     async fn upload_completed(
         &self,
         cxt: &Context<'_>,
@@ -83,7 +86,7 @@ impl StorageMutation {
         ).await
     }
 
-    /// Changes active revision of file
+    /// Sets a specified file revision (versions) as active.
     async fn change_active_file_revision(
         &self,
         cxt: &Context<'_>,
@@ -100,7 +103,10 @@ impl StorageMutation {
         )
     }
 
-    /// Sets a flag for delete file in storage
+    /// Removes the specified revision (version) of a file.
+    /// If the active revision of a file is deleted, other revisions of the file will not show.
+    /// After deleting the active revision without activating the other one,
+    /// uploading a new file with the same name will be the solution to view other (inactive) revisions of the file.
     async fn delete_file(
         &self,
         cxt: &Context<'_>,
