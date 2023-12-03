@@ -368,18 +368,18 @@ async function setFileAsUploadedDb(fileUuid) {
 describe('users', () => {
   beforeAll(() => {
     // cleanupTokenDb();
+    // cleanupStandardDb();
+    // cleanupComponentParamDb();
+    // cleanupCompanyDb();
     cleanupUserDb();
-    cleanupComponentParamDb();
-    cleanupCompanyDb();
-    cleanupStandardDb();
     return;
   });
   afterAll(() => {
     // cleanupTokenDb();
+    // cleanupStandardDb();
+    // cleanupComponentParamDb();
+    // cleanupCompanyDb();
     cleanupUserDb();
-    cleanupComponentParamDb();
-    cleanupCompanyDb();
-    cleanupStandardDb();
     return;
   });
 
@@ -946,7 +946,7 @@ describe('users', () => {
     expect(selfData.uuid).toBe(userUuidFirst);
     expect(selfData.username).toBe(username);
     expect(selfData.favCompaniesCount).toBe(0);
-    expect(selfData.favComponentsCount).toBe(0);
+    expect(selfData.favComponentsCount).toBe(1); // only 1 favorite - set by default
     expect(selfData.favStandardsCount).toBe(0);
     expect(selfData.favUsersCount).toBe(0);
     done();
@@ -2117,7 +2117,7 @@ describe('users', () => {
     expect(selfData.uuid).toBe(userUuidFirst);
     expect(selfData.username).toBe(username);
     expect(selfData.favCompaniesCount).toBe(1);
-    expect(selfData.favComponentsCount).toBe(1);
+    expect(selfData.favComponentsCount).toBe(2); // + 1 default favorite for a new user
     expect(selfData.favStandardsCount).toBe(1);
     expect(selfData.favUsersCount).toBe(1);
     done();
@@ -2382,7 +2382,7 @@ describe('users', () => {
     expect(selfData.uuid).toBe(userUuidFirst);
     expect(selfData.username).toBe(username);
     expect(selfData.favCompaniesCount).toBe(0);
-    expect(selfData.favComponentsCount).toBe(0);
+    expect(selfData.favComponentsCount).toBe(1); // only 1 favorite - set by default
     expect(selfData.favStandardsCount).toBe(0);
     expect(selfData.favUsersCount).toBe(0);
     done();

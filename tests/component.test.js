@@ -1125,7 +1125,7 @@ describe('component', () => {
     expect(body.data.components[0].uuid).toBe(componentUuidStandard);
     expect(body.data.components[0].ownerUser.username).toBe(username);
     expect(body.data.components[0].isFollowed).toBe(false);
-    expect(body.data.components.length).toBe(1);
+    expect(body.data.components.length).toBe(2); // + 1 default favorite for a new user
     done();
   });
 
@@ -1167,7 +1167,8 @@ describe('component', () => {
     const {
       data: { components },
     } = body;
-    expect(components).toBeEmptyArray();
+    // expect(components).toBeEmptyArray();
+    expect(components.length).toBe(1); // only 1 favorite - set by default
     done();
   });
 
@@ -2812,7 +2813,7 @@ describe('component', () => {
       .expect(HttpStatus.OK)
     debug('/graphql body=%o', body);
     // expect(body).toBe(0);
-    expect(body.data.components).toBeEmptyArray();;
+    expect(body.data.components.length).toBe(1); // only 1 favorite - set by default
     done();
   });
 

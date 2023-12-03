@@ -19,6 +19,8 @@ const userUuid = "31ecc6f8-0c09-4a59-a2d5-34b5b833e59b";
 const userUuid2 = "68b8281a-d19c-4d4b-88eb-6fd4a2afde1b";
 var authorizationUserFirst = "";
 var authorizationUserSecond = "";
+var authorizationTokenFirst = "";
+var authorizationTokenSecond = "";
 
 // data for standard
 const parentStandardUuid = "303ec2aa-2066-42e3-93fb-de4fb9344bcb";
