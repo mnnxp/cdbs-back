@@ -16,12 +16,7 @@ pub(crate) struct InsertableComponentType {
     pub(crate) id: i32,
 }
 
-#[derive(Debug, Deserialize, Clone, InputObject)]
-pub(crate) struct IptComponentTypeData {
-    pub(crate) id: i32,
-}
-
-// ComponentType translations
+/// Данные типа компонента с локализацией (переводом) для указанного языка
 #[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, SimpleObject, Clone, Debug)]
 #[diesel(primary_key(component_type_id, lang_id))]
 #[diesel(belongs_to(Component, foreign_key = component_type_id))]
@@ -29,12 +24,15 @@ pub(crate) struct IptComponentTypeData {
 #[diesel(belongs_to(Language, foreign_key = lang_id))]
 #[diesel(table_name = component_type_translate_list)]
 pub(crate) struct ComponentTypeTranslateList {
+    /// Идентификатор типа компонента
     pub(crate) component_type_id: i32,
+    /// Идентификатор языка локализации
     pub(crate) lang_id: i32,
+    /// Наименование типа компонента
     pub(crate) component_type: String,
 }
 
-#[derive(Debug, Deserialize, Clone, InputObject)]
+#[derive(Debug, Deserialize, Clone)]
 pub(crate) struct IptComponentTypeTranslateListData {
     pub(crate) component_type_id: i32,
     pub(crate) lang_id: i32,

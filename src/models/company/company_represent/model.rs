@@ -5,29 +5,46 @@ use crate::models::relate_ref::region::model::RegionTranslateList;
 use async_graphql::*;
 use uuid::Uuid;
 
+/// Данные о представительстве компании
 #[derive(Identifiable, Serialize, Deserialize, Queryable, Associations)]
 #[derive(SimpleObject, Clone, Debug)]
 #[diesel(primary_key(uuid))]
 #[diesel(belongs_to(Company, foreign_key = company_uuid))]
 #[diesel(table_name = company_represent_ref)]
 pub(crate) struct CompanyRepresent {
+    /// Идентификатор представительства компании
     pub(crate) uuid: Uuid,
+    /// Идентификатор компании
     pub(crate) company_uuid: Uuid,
+    /// Идентификатор региона к которому относится представительство
     pub(crate) region_id: i32,
+    /// Идентификатор типа представительства компании
     pub(crate) representation_type_id: i32,
+    /// Наименование представительства компании
     pub(crate) name: String,
+    /// Адрес представительства компании
     pub(crate) address: String,
+    /// Номер телефона представительства компании
     pub(crate) phone: String,
 }
 
+/// Полнные даные о представительстве компании
+/// с локализацией для выбранного языка (или анг.яз.)
 #[derive(Debug, Deserialize, SimpleObject)]
 pub(crate) struct CompanyRepresentAndRelatedData {
+    /// Идентификатор компании
     pub(crate) uuid: Uuid,
+    /// Идентификатор компании
     pub(crate) company_uuid: Uuid,
+    /// Данные региона к которому относится представительство
     pub(crate) region: RegionTranslateList,
+    /// Данные по типу представительства компании
     pub(crate) representation_type: RepresentationTypeTranslateList,
+    /// Наименование представительства компании
     pub(crate) name: String,
+    /// Адрес представительства компании
     pub(crate) address: String,
+    /// Номер телефона представительства компании
     pub(crate) phone: String,
 }
 
@@ -43,42 +60,37 @@ pub(crate) struct InsertableCompanyRepresent {
     pub(crate) phone: String,
 }
 
+/// Данные для добавления нового представительства компании
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub(crate) struct IptCompanyRepresentData {
+    /// Идентификатор компании
     pub(crate) company_uuid: Uuid,
+    /// Идентификатор региона к которому относится представительство
     pub(crate) region_id: i32,
+    /// Идентификатор типа представительства компании
     pub(crate) representation_type_id: i32,
+    /// Наименование представительства компании
     pub(crate) name: String,
+    /// Адрес представительства компании
     pub(crate) address: String,
+    /// Номер телефона представительства компании
     pub(crate) phone: String,
 }
 
+/// Данные для обновления карточки представительства компании.
+/// Обновление данных происходит только для заданных значений.
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub(crate) struct IptUpdateCompanyRepresentData {
+    /// Идентификатор региона к которому относится представительство
     pub(crate) region_id: Option<i32>,
+    /// Идентификатор типа представительства компании
     pub(crate) representation_type_id: Option<i32>,
+    /// Наименование представительства компании
     pub(crate) name: Option<String>,
+    /// Адрес представительства компании
     pub(crate) address: Option<String>,
+    /// Номер телефона представительства компании
     pub(crate) phone: Option<String>,
-}
-
-#[derive(Debug, Deserialize, Clone, SimpleObject)]
-pub(crate) struct CompanyRepresentData {
-    pub(crate) company_uuid: Uuid,
-    pub(crate) region_id: i32,
-    pub(crate) representation_type_id: i32,
-    pub(crate) name: String,
-    pub(crate) address: String,
-    pub(crate) phone: String,
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone, SimpleObject)]
-pub(crate) struct SlimCompanyRepresent {
-    pub(crate) uuid: Uuid,
-    pub(crate) company_uuid: Uuid,
-    pub(crate) name: String,
-    pub(crate) address: String,
-    pub(crate) phone: String,
 }
 
 impl From<&IptCompanyRepresentData> for InsertableCompanyRepresent {
@@ -106,28 +118,6 @@ impl From<&IptCompanyRepresentData> for InsertableCompanyRepresent {
         }
     }
 }
-
-impl From<CompanyRepresent> for SlimCompanyRepresent {
-    fn from(company_represent: CompanyRepresent) -> Self {
-        let CompanyRepresent {
-            uuid,
-            company_uuid,
-            name,
-            address,
-            phone,
-            ..
-        } = company_represent;
-
-        Self {
-            uuid,
-            company_uuid,
-            name,
-            address,
-            phone,
-        }
-    }
-}
-
 
 #[derive(InputObject, Deserialize, Debug)]
 pub(crate) struct IptCompanyRepresentsArg {

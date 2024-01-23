@@ -6,8 +6,7 @@ use async_graphql::*;
 use uuid::Uuid;
 
 // Keyword standard models
-#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations)]
-#[derive(SimpleObject, Clone, Debug)]
+#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, Clone, Debug)]
 #[diesel(primary_key(standard_uuid, keyword_id))]
 #[diesel(belongs_to(Standard, foreign_key = standard_uuid))]
 #[diesel(belongs_to(Keyword, foreign_key = keyword_id))]
@@ -17,27 +16,6 @@ pub(crate) struct StandardKeyword {
     pub(crate) keyword_id: i32,
 }
 
-#[derive(Deserialize, SimpleObject, Clone, Debug)]
-pub(crate) struct StandardKeywordRelatedData {
-    pub(crate) keyword: Keyword,
-    pub(crate) standard_uuid: Uuid,
-}
-
-// impl StandardKeywordRelatedData {
-//     /// Create struct with StandardKeyword data, Keyword data set default
-//     pub(crate) fn new(standard_uuid: &Uuid) -> Self {
-//         Self{
-//             keyword: Default::default(),
-//             standard_uuid: *standard_uuid,
-//         }
-//     }
-//
-//     /// Change keyword data
-//     pub(crate) fn put_keyword(&mut self, keyword: Keyword) {
-//         self.keyword = keyword;
-//     }
-// }
-
 #[derive(Debug, Insertable)]
 #[diesel(table_name = keyword_to_standard)]
 pub(crate) struct InsertableStandardKeyword {
@@ -45,15 +23,21 @@ pub(crate) struct InsertableStandardKeyword {
     pub(crate) keyword_id: i32,
 }
 
+/// Данные для добавления ключевых слов (тегов) к стандарту по идентификаторам
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub(crate) struct IptStandardKeywordsData {
+    /// UUID стандарта
     pub(crate) standard_uuid: Uuid,
+    /// Идентификаторы ключевых слов (перечень)
     pub(crate) keyword_ids: Vec<i32>,
 }
 
+/// Данные для добавления/удаления ключевых слов (тегов) к стандарту по наименованию
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub(crate) struct IptStandardKeywordsNames {
+    /// UUID стандарта
     pub(crate) standard_uuid: Uuid,
+    /// Ключевые слова (перечень)
     pub(crate) keywords: Vec<String>,
 }
 
@@ -109,10 +93,14 @@ impl From<&IptStandardKeywordsData> for DeleteStandardKeywords {
     }
 }
 
+/// Аргументы для запроса ключевых слов (тегов) стандарта
 #[derive(InputObject, Deserialize, Debug)]
 pub(crate) struct IptStandardKeywordsArg {
+    /// UUID стандарта
     pub(crate) standard_uuid:  Uuid,
+    /// Ограничение выборки данных (максимальное кол-во записей)
     pub(crate) limit: Option<i32>,
+    /// Кол-во пропущенных записей в начале (смещение)
     pub(crate) offset: Option<i32>,
 }
 

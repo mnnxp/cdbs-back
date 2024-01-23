@@ -19,6 +19,8 @@ pub(crate) struct InsertableParam {
 }
 
 // Param translations
+/// Данные о параметре с локализацией. Параметры используются в качестве элемента характеристик
+/// для добавления характеристик к компонентам, модификациям компонентов и стандартам
 #[derive(Identifiable, Serialize, Deserialize, Queryable, Associations)]
 #[derive(SimpleObject, Clone, Default, Debug)]
 #[diesel(primary_key(param_id, lang_id))]
@@ -28,14 +30,20 @@ pub(crate) struct InsertableParam {
 #[diesel(belongs_to(Language, foreign_key = lang_id))]
 #[diesel(table_name = param_translate_list)]
 pub(crate) struct ParamTranslateList {
+    /// Идентификатор параметра
     pub(crate) param_id: i32,
+    /// Идентификатор языка локализации наименования
     pub(crate) lang_id: i32,
+    /// Локализованное наименование параметра
     pub(crate) paramname: String,
 }
 
+/// Данные для запроса на добавление нового параметра
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub(crate) struct IptParamTranslateListData {
+    /// Идентификатор языка локализации
     pub(crate) lang_id: i32,
+    /// Локализованное наименование параметра
     pub(crate) paramname: String,
 }
 
@@ -47,16 +55,23 @@ pub(crate) struct InsertableParamTranslateList {
     pub(crate) paramname: String,
 }
 
+/// Данные для запросов на добавление значения параметра
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub(crate) struct IptParamData {
+    /// Идентификатор параметра
     pub(crate) param_id: i32,
+    /// Значение параметра
     pub(crate) value: String,
 }
 
+/// Аргументы для запроса существующих на платформе параметров
 #[derive(InputObject, Deserialize, Debug)]
 pub(crate) struct IptParamArg {
+    /// Фильтр по идентификаторам параметров
     pub(crate) param_ids:  Option<Vec<i32>>,
+    /// Ограничение выборки данных (максимальное кол-во записей)
     pub(crate) limit: Option<i32>,
+    /// Кол-во пропущенных записей в начале (смещение)
     pub(crate) offset: Option<i32>,
 }
 

@@ -17,10 +17,14 @@ pub(crate) struct UserCertificate {
     pub(crate) description: String,
 }
 
+/// Данные о сертификате пользователя
 #[derive(Debug, SimpleObject)]
 pub(crate) struct UserCertificateAndFile {
+    /// Данные для получения файла сертификата
     pub(crate) file: DownloadFile,
+    /// UUID пользователя
     pub(crate) user_uuid: Uuid,
+    /// Описание сертификата пользователя
     pub(crate) description: String,
 }
 
@@ -32,9 +36,12 @@ pub(crate) struct InsertableUserCertificate {
     pub(crate) description: String,
 }
 
+/// Данные для запроса на добавление сертификата пользователя
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub(crate) struct IptUserCertificateData {
+    /// Описание сертификата пользователя
     pub(crate) description: String,
+    /// Наименование файла с сертификатом
     pub(crate) filename: String,
 }
 
@@ -55,13 +62,18 @@ impl From<UserCertificate> for InsertableUserCertificate {
     }
 }
 
+/// Данные для запроса на обновление опсания сертификата пользователя
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub(crate) struct IptUpdateUserCertificateData {
+    /// UUID файла сертификата
     pub(crate) file_uuid: Uuid,
+    /// Новое описание сертификата
     pub(crate) description: String,
 }
 
+/// Данные для запроса на удаление сертификата пользователя
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub(crate) struct DelUserCertificateData {
+    /// UUID файла сертификата для удаления
     pub(crate) file_uuid: Uuid,
 }

@@ -6,7 +6,7 @@ use uuid::Uuid;
 use crate::models::user::model::ShowUserShort;
 use crate::models::relate_ref::program::model::Program;
 
-// list for insert data in related tables
+/// List for insert data in related tables
 #[derive(Deserialize, Clone, Debug)]
 pub(crate) enum ListObject {
     /// For bind file to the user
@@ -186,33 +186,54 @@ pub(crate) struct SlimFile {
     pub(crate) path_file: String,
 }
 
+/// Данные для загрузки файлов в S3 хранилище
 #[derive(Serialize, Debug, SimpleObject)]
 pub(crate) struct UploadFile {
+    /// UUID файла на платформе CADBase
     pub(crate) file_uuid: Uuid,
+    /// Наименование загружаемого файла
     pub(crate) filename: String,
+    /// Предварительно подписанный URL для загрузки файла
     pub(crate) upload_url: String,
 }
 
+/// Полные данные о загруженном в хранилище файле
 #[derive(Debug, SimpleObject, Clone)]
 pub(crate) struct ShowFileRelatedData {
+    /// UUID файла
     pub(crate) uuid: Uuid,
+    /// Имя файла
     pub(crate) filename: String,
+    /// Порядковый номер ревизии файла
     pub(crate) revision: i32,
+    /// UUID родительского файла
     pub(crate) parent_file_uuid: Uuid,
+    /// Данные о пользователе-владельце файла
     pub(crate) owner_user: ShowUserShort,
+    /// Предполагаемый тип содержимого данных
     pub(crate) content_type: String,
+    /// Размер файла в байтах
     pub(crate) filesize: i64,
+    /// Ассоциированное с файлом ПО (для открытия файла)
     pub(crate) program: Program,
+    /// Дата создания файла
     pub(crate) created_at: NaiveDateTime,
+    /// Дата обновления описания файла
     pub(crate) updated_at: NaiveDateTime,
 }
 
+/// Данные для получения файла из S3 хранилища CADBase
 #[derive(Serialize, SimpleObject, Clone, Default, Debug)]
 pub(crate) struct DownloadFile {
+    /// UUID файла
     pub(crate) uuid: Uuid,
+    /// Hash of the file calculated with BLAKE3 (cryptographic hash function)
     pub(crate) hash: String,
+    /// Имя файла
     pub(crate) filename: String,
+    /// Размер файла в байтах
     pub(crate) filesize: i64,
+    /// Предварительно подписанный URL для скачивания файла
     pub(crate) download_url: String,
 }
 

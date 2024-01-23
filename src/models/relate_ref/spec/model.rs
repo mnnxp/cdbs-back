@@ -2,7 +2,7 @@ use crate::schema::*;
 use crate::models::relate_ref::language::model::Language;
 use async_graphql::*;
 
-#[derive(SimpleObject, Identifiable, Serialize, Deserialize, Queryable, Debug)]
+#[derive(Identifiable, Serialize, Deserialize, Queryable, Debug)]
 #[diesel(primary_key(id))]
 #[diesel(table_name = spec_ref)]
 pub(crate) struct Spec {
@@ -16,15 +16,18 @@ pub(crate) struct InsertableSpec {
     pub(crate) parent_spec_id: i32,
 }
 
-// Spec translations
+/// Данные о каталоге (элементе каталога) с локализацией
 #[derive(SimpleObject, Identifiable, Serialize, Deserialize, Queryable, Associations, Clone, Debug)]
 #[diesel(primary_key(spec_id, lang_id))]
 #[diesel(belongs_to(Spec, foreign_key = spec_id))]
 #[diesel(belongs_to(Language, foreign_key = lang_id))]
 #[diesel(table_name = spec_translate_list)]
 pub(crate) struct SpecTranslateList {
+    /// Идентификатор элемента каталога
     pub(crate) spec_id: i32,
+    /// Идентификатор языка локализации наименования
     pub(crate) lang_id: i32,
+    /// Локализованное наименование каталога
     pub(crate) spec: String,
 }
 
@@ -32,14 +35,6 @@ pub(crate) struct SpecTranslateList {
 #[diesel(table_name = spec_translate_list)]
 pub(crate) struct SpecId {
     pub(crate) spec_id: i32,
-}
-
-#[derive(Debug, Deserialize, Clone, InputObject)]
-pub(crate) struct IptSpecTranslateListData {
-    pub(crate) spec_id: i32,
-    pub(crate) parent_spec_id: i32,
-    pub(crate) lang_id: i32,
-    pub(crate) spec: String,
 }
 
 #[derive(Debug, Insertable)]
@@ -50,27 +45,30 @@ pub(crate) struct InsertableSpecTranslateList {
     pub(crate) spec: String,
 }
 
-impl From<&IptSpecTranslateListData> for InsertableSpec {
-    fn from(data: &IptSpecTranslateListData) -> Self {
-        Self {
-            parent_spec_id: data.parent_spec_id
-        }
-    }
-}
-
+/// Данные каталога в виде пути. Разделитель и глубина пути задаются при формировании.
+/// Например "Корень/Крепежные изделия/Болт", где "/" - разделитель, а глубина 3.
 #[derive(Serialize, SimpleObject, Debug)]
 pub(crate) struct SpecPath {
+    /// Идентификатор элемента каталога
     pub(crate) spec_id: i32,
+    /// Идентификатор языка локализации наименования
     pub(crate) lang_id: i32,
+    /// Локализованное наименование каталога
     pub(crate) path: String,
 }
 
+/// Аргументы для запроса на получение путей каталогов
 #[derive(InputObject, Deserialize, Debug)]
 pub(crate) struct IptSpecPathArg {
+    /// Фильтрация по идентификаторам каталогов
     pub(crate) spec_ids: Option<Vec<i32>>,
+    /// Символ для разделения уровней каталога (по-умолчанию "/")
     pub(crate) split_char: Option<char>,
+    /// Глубина формирования каталога (по-умолчанию 3)
     pub(crate) depth_level: Option<i32>,
+    /// Ограничение выборки данных (максимальное кол-во записей)
     pub(crate) limit: Option<i32>,
+    /// Кол-во пропущенных записей в начале (смещение)
     pub(crate) offset: Option<i32>,
 }
 
@@ -115,12 +113,18 @@ impl From<IptSpecPathArg> for SpecPathArg {
     }
 }
 
+/// Аргументы для поиска каталогов
 #[derive(InputObject, Deserialize, Debug)]
 pub(crate) struct IptSearchSpecArg {
+    /// Текстовая строка для поиска (поисковая фраза)
     text: String,
+    /// Символ для разделения уровней каталога (по-умолчанию "/")
     split_char: Option<char>,
+    /// Глубина формирования каталога (по-умолчанию 3)
     depth_level: Option<i32>,
+    /// Ограничение выборки данных (максимальное кол-во записей)
     limit: Option<i32>,
+    /// Кол-во пропущенных записей в начале (смещение)
     offset: Option<i32>,
 }
 
@@ -165,11 +169,16 @@ impl From<IptSearchSpecArg> for SearchSpecArg {
     }
 }
 
+/// Аргументы для запроса получение информации о каталогах
 #[derive(InputObject, Deserialize, Debug)]
 pub(crate) struct IptSpecArg {
+    /// Фильтрация по идентификаторам каталогов
     pub(crate) spec_ids: Option<Vec<i32>>,
+    /// Фильтрация по уровням каталогов
     pub(crate) specs_levels: Option<Vec<i32>>,
+    /// Ограничение выборки данных (максимальное кол-во записей)
     pub(crate) limit: Option<i32>,
+    /// Кол-во пропущенных записей в начале (смещение)
     pub(crate) offset: Option<i32>,
 }
 

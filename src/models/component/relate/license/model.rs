@@ -4,7 +4,7 @@ use crate::models::relate_ref::license::model::License;
 use async_graphql::*;
 use uuid::Uuid;
 
-#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, SimpleObject, Debug)]
+#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, Debug)]
 #[diesel(primary_key(component_uuid, license_id))]
 #[diesel(belongs_to(Component, foreign_key = component_uuid))]
 #[diesel(belongs_to(License, foreign_key = license_id))]
@@ -14,9 +14,12 @@ pub(crate) struct ComponentLicense {
     pub(crate) license_id: i32,
 }
 
+/// Данные для запросов на добавление и удаление связи компонента с лицензией
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub(crate) struct IptComponentLicenseData {
+    /// UUID компонента
     pub(crate) component_uuid: Uuid,
+    /// Идентификатор лицензии
     pub(crate) license_id: i32,
 }
 

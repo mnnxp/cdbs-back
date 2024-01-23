@@ -5,7 +5,7 @@ use async_graphql::*;
 use uuid::Uuid;
 
 // Spec component models
-#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, Clone, Debug, SimpleObject)]
+#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, Clone, Debug)]
 #[diesel(primary_key(component_uuid, spec_id))]
 #[diesel(belongs_to(Component, foreign_key = component_uuid))]
 #[diesel(belongs_to(Spec, foreign_key = spec_id))]
@@ -15,9 +15,12 @@ pub(crate) struct ComponentSpec {
     pub(crate) component_uuid: Uuid,
 }
 
+/// Данные для запросов на добавление и удаление связи каталогов с компонентом
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub(crate) struct IptComponentSpecsData {
+    /// UUID компонента
     pub(crate) component_uuid: Uuid,
+    /// Идентификаторы каталогов (перечень)
     pub(crate) spec_ids: Vec<i32>,
 }
 
@@ -79,10 +82,14 @@ impl From<&IptComponentSpecsData> for DeleteComponentSpecs {
     }
 }
 
+/// Данные для запроса связанных с компонентом каталогов
 #[derive(InputObject, Deserialize, Debug)]
 pub(crate) struct IptComponentSpecsArg {
+    /// UUID компонента
     pub(crate) component_uuid:  Uuid,
+    /// Ограничение выборки данных (максимальное кол-во записей)
     pub(crate) limit: Option<i32>,
+    /// Кол-во пропущенных записей в начале (смещение)
     pub(crate) offset: Option<i32>,
 }
 

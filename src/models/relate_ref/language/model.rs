@@ -7,7 +7,7 @@ lazy_static::lazy_static! {
         HeaderName::from_lowercase(b"accept-language").unwrap();
 }
 
-/// get SetLang from request
+/// Gets SetLang from request
 impl From<&HeaderMap> for SetLang {
     fn from(req: &HeaderMap) -> Self {
         let lang = req
@@ -36,11 +36,14 @@ impl From<&HeaderMap> for SetLang {
 }
 
 // Language models
-
+/// Данные локализациии
 #[derive(Debug, Serialize, Deserialize, Queryable, SimpleObject)]
 pub(crate) struct Language {
+    /// Идентификатор языка (в рамках платформы)
     pub(crate) id: i32,
+    /// Полное наименование языка
     pub(crate) lang: String,
+    /// Сокращённое наименование языка
     pub(crate) langshort: String,
 }
 
@@ -51,9 +54,12 @@ pub(crate) struct InsertableLanguage {
     pub(crate) langshort: String,
 }
 
+/// Данные о наименованиях локализации
 #[derive(Debug, Serialize, Deserialize, Queryable, Clone, InputObject)]
 pub(crate) struct LanguageData {
+    /// Полное наименование языка
     pub(crate) lang: String,
+    /// Сокращённое наименование языка
     pub(crate) langshort: String,
 }
 
@@ -84,10 +90,14 @@ impl From<&str> for EngLangName {
     }
 }
 
+/// Аргументы для запроса доступных локализаций
 #[derive(InputObject, Deserialize, Debug)]
 pub(crate) struct IptLanguageArg {
+    /// Фильтрация локализаций по идентификаторам
     pub(crate) lang_ids:  Option<Vec<i32>>,
+    /// Ограничение выборки данных (максимальное кол-во записей)
     pub(crate) limit: Option<i32>,
+    /// Кол-во пропущенных записей в начале (смещение)
     pub(crate) offset: Option<i32>,
 }
 

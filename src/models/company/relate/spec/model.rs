@@ -4,14 +4,16 @@ use crate::models::company::model::Company;
 use async_graphql::*;
 use uuid::Uuid;
 
-// Spec company models
+/// Идентификаторы связанных каталога и компании
 #[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, Clone, Debug, SimpleObject)]
 #[diesel(primary_key(company_uuid, spec_id))]
 #[diesel(belongs_to(Company, foreign_key = company_uuid))]
 #[diesel(belongs_to(Spec, foreign_key = spec_id))]
 #[diesel(table_name = spec_to_company)]
 pub(crate) struct CompanySpec {
+    /// Идентификатор каталога
     pub(crate) spec_id: i32,
+    /// UUID компании
     pub(crate) company_uuid: Uuid,
 }
 
@@ -22,9 +24,12 @@ pub(crate) struct InsertableCompanySpec {
     pub(crate) spec_id: i32,
 }
 
+/// Данные для связи каталогов с компанией
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub(crate) struct IptCompanySpecsData {
+    /// UUID компании
     pub(crate) company_uuid: Uuid,
+    /// Идентификаторы каталогов (перечень)
     pub(crate) spec_ids: Vec<i32>,
 }
 
@@ -51,9 +56,12 @@ impl From<&IptCompanySpecsData> for Vec<InsertableCompanySpec> {
     }
 }
 
+/// Данные для удаления связи компании с указанными каталогами
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub(crate) struct DelCompanySpec {
+    /// UUID компании
     pub(crate) company_uuid: Uuid,
+    /// Идентификаторы каталогов (перечень)
     pub(crate) spec_ids: Vec<i32>,
 }
 

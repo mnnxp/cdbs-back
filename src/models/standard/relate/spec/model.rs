@@ -5,7 +5,7 @@ use async_graphql::*;
 use uuid::Uuid;
 
 // Spec standard models
-#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, Clone, Debug, SimpleObject)]
+#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, Clone, Debug)]
 #[diesel(primary_key(standard_uuid, spec_id))]
 #[diesel(belongs_to(Standard, foreign_key = standard_uuid))]
 #[diesel(belongs_to(Spec, foreign_key = spec_id))]
@@ -22,9 +22,12 @@ pub(crate) struct InsertableStandardSpec {
     pub(crate) spec_id: i32,
 }
 
+/// Данные для запроса на добавление/удаление связи стандарта с каталогами
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub(crate) struct IptStandardSpecsData {
+    /// UUID стандарта
     pub(crate) standard_uuid: Uuid,
+    /// Идентификаторы каталогов (перечень)
     pub(crate) spec_ids: Vec<i32>,
 }
 
@@ -80,10 +83,14 @@ impl From<&IptStandardSpecsData> for DeleteStandardSpecs {
     }
 }
 
+/// Аргументы для запроса связанных со стандартом каталогов
 #[derive(InputObject, Deserialize, Debug)]
 pub(crate) struct IptStandardSpecsArg {
+    /// UUID стандарта
     pub(crate) standard_uuid:  Uuid,
+    /// Ограничение выборки данных (максимальное кол-во записей)
     pub(crate) limit: Option<i32>,
+    /// Кол-во пропущенных записей в начале (смещение)
     pub(crate) offset: Option<i32>,
 }
 

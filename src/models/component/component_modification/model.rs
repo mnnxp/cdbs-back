@@ -12,7 +12,7 @@ use async_graphql::*;
 use chrono::*;
 use uuid::Uuid;
 
-#[derive(Identifiable, Deserialize, Queryable, Associations, PartialEq, Clone, SimpleObject, Debug)]
+#[derive(Identifiable, Deserialize, Queryable, Associations, PartialEq, Clone, Debug)]
 #[diesel(primary_key(uuid))]
 #[diesel(belongs_to(Component, foreign_key = component_uuid))]
 #[diesel(table_name = component_modification_list)]
@@ -28,17 +28,28 @@ pub(crate) struct ComponentModification {
     pub(crate) updated_at: NaiveDateTime,
 }
 
+/// Полная информация о модификации компонента (части) и связанных данных
 #[derive(Deserialize, SimpleObject, Debug)]
 pub(crate) struct ComponentModificationAndRelatedData {
+    /// UUID модификации компонента
     pub(crate) uuid: Uuid,
+    /// UUID компонента
     pub(crate) component_uuid: Uuid,
+    /// UUID родительской модификации компонента
     pub(crate) parent_modification_uuid: Uuid,
+    /// Наименование модификации компонента
     pub(crate) modification_name: String,
+    /// Описание модификации компонента
     pub(crate) description: String,
+    /// Актуальный статус модификации компонента
     pub(crate) actual_status: ActualStatusTranslateList,
+    /// Дата создания модификации компонента
     pub(crate) created_at: NaiveDateTime,
+    /// Дата изменения основных данных модификации компонента
     pub(crate) updated_at: NaiveDateTime,
+    /// Данные о наборах файлах модификации компонента (перечень)
     pub(crate) filesets_for_program: Vec<FilesetProgramRelatedData>,
+    /// Данные о параметрах модификации компонента (перечень)
     pub(crate) modification_params: Vec<ModificationParamWithTranslation>,
 }
 
@@ -116,12 +127,18 @@ impl InsertableComponentModification {
     }
 }
 
+/// Данные для добавления новой модификации компонента
 #[derive(Debug, Deserialize, InputObject)]
 pub(crate) struct IptComponentModificationData {
+    /// UUID компонента к которому будет добавлена модификация
     pub(crate) component_uuid: Uuid,
+    /// UUID родительской модификации компонента (опционально)
     pub(crate) parent_modification_uuid: Option<Uuid>,
+    /// Наименование модификации компонента
     pub(crate) modification_name: String,
+    /// Описание модификации компонента
     pub(crate) description: String,
+    /// Актуальный статус модификации компонента
     pub(crate) actual_status_id: i32,
 }
 
@@ -154,23 +171,30 @@ impl From<&IptComponentModificationData> for InsertableComponentModification {
     }
 }
 
+/// Структура для обновления основных данных модификации компонента
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub(crate) struct IptUpdateComponentModificationData {
     // pub(crate) parent_modification_uuid: Option<Uuid>,
+    /// Новое наименование модификации компонента (опционально)
     pub(crate) modification_name: Option<String>,
+    /// Новое описание модификации компонента (опционально)
     pub(crate) description: Option<String>,
+    /// Актуализация статуса модификации компонента (опционально)
     pub(crate) actual_status_id: Option<i32>,
 }
 
+/// Данные запроса на удаление модификации компонента
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub(crate) struct DelComponentModificationData {
+    /// UUID компонента к которому относится модификация компонента
     pub(crate) component_uuid: Uuid,
+    /// UUID модификации компонента которую требуется удалить
     pub(crate) modification_uuid: Uuid,
 }
 
 #[derive(InputObject, Deserialize, Debug)]
 pub(crate) struct IptComponentModificationArg {
-    pub(crate) component_uuid:  Uuid,
+    pub(crate) component_uuid: Uuid,
     pub(crate) limit: Option<i32>,
     pub(crate) offset: Option<i32>,
 }
@@ -209,17 +233,22 @@ impl From<IptComponentModificationArg> for ComponentModificationArg {
     }
 }
 
+/// Данные запроса файлов модификации компонента
 #[derive(InputObject, Deserialize, Debug)]
 pub(crate) struct IptModificationFilesArg {
-    pub(crate) modification_uuid:  Uuid,
+    /// UUID модификации компонента
+    pub(crate) modification_uuid: Uuid,
+    /// Фильтрация файлов по UUID (перечень)
     pub(crate) files_uuids: Option<Vec<Uuid>>,
+    /// Ограничение выборки данных (максимальное кол-во записей)
     pub(crate) limit: Option<i32>,
+    /// Кол-во пропущенных записей в начале (смещение)
     pub(crate) offset: Option<i32>,
 }
 
 #[derive(Debug)]
 pub(crate) struct ModificationFilesArg {
-    pub(crate) modification_uuid:  Uuid,
+    pub(crate) modification_uuid: Uuid,
     pub(crate) file_uuids: Vec<Uuid>,
     pub(crate) limit: i32,
     pub(crate) offset: i32,

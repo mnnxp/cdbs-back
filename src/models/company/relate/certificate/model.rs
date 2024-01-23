@@ -17,10 +17,14 @@ pub(crate) struct CompanyCertificate {
     pub(crate) description: String,
 }
 
+/// Данные о файле сертификата компании и его описание
 #[derive(Debug, SimpleObject)]
 pub(crate) struct CompanyCertificateAndFile {
+    /// Данные для отображения файла сертификата
     pub(crate) file: DownloadFile,
+    /// UUID компании, к которой принадлежит сертификат
     pub(crate) company_uuid: Uuid,
+    /// Описание сертификата
     pub(crate) description: String,
 }
 
@@ -32,10 +36,14 @@ pub(crate) struct InsertableCompanyCertificate {
     pub(crate) description: String,
 }
 
+/// Данные для добавления нового сертификата
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub(crate) struct IptCompanyCertificateData {
+    /// UUID компании, к которой принадлежит сертификат
     pub(crate) company_uuid: Uuid,
+    /// Описание сертификата
     pub(crate) description: String,
+    /// Наименование загруженного файла
     pub(crate) filename: String,
 }
 
@@ -56,15 +64,22 @@ impl From<CompanyCertificate> for InsertableCompanyCertificate {
     }
 }
 
+/// Данные для обновления описания сертификата компании
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub(crate) struct IptUpdateCompanyCertificateData {
+    /// UUID компании, к которой принадлежит сертификат
     pub(crate) company_uuid: Uuid,
+    /// Идентификатор файла обновляемого сертификата
     pub(crate) file_uuid: Uuid,
+    /// Новое описание для сертификата
     pub(crate) description: String,
 }
 
+/// Данные для удаления сертификата компании
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub(crate) struct DelCompanyCertificateData {
+    /// UUID компании, к которой принадлежит сертификат
     pub(crate) company_uuid: Uuid,
+    /// Идентификатор файла обновляемого сертификата
     pub(crate) file_uuid: Uuid,
 }

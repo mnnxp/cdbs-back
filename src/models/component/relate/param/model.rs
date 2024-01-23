@@ -8,8 +8,7 @@ use async_graphql::*;
 use uuid::Uuid;
 
 // Param component models
-#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations)]
-#[derive(SimpleObject, Clone, Debug)]
+#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, Clone, Debug)]
 #[diesel(primary_key(component_uuid, param_id))]
 #[diesel(belongs_to(Component, foreign_key = component_uuid))]
 #[diesel(belongs_to(ParamTranslateList, foreign_key = param_id))]
@@ -20,10 +19,14 @@ pub(crate) struct ComponentParam {
     pub(crate) value: String,
 }
 
+/// Данные о параметре компонента с локализацией
 #[derive(Debug, Deserialize, SimpleObject, Clone)]
 pub(crate) struct ComponentParamWithTranslation {
+    /// UUID компонента
     pub(crate) component_uuid: Uuid,
+    /// Данные о параметре (наименовании) с локализацией
     pub(crate) param: ParamTranslateList,
+    /// Значение параметра компонента
     pub(crate) value: String,
 }
 
@@ -51,9 +54,12 @@ pub(crate) struct InsertableComponentParam {
     pub(crate) value: String,
 }
 
+/// Данные для добавления/обновления параметров компонента
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub(crate) struct IptComponentParamsData {
+    /// UUID компонента
     pub(crate) component_uuid: Uuid,
+    /// Перечень параметров со значениями
     pub(crate) params: Vec<IptParamData>,
 }
 
@@ -80,8 +86,11 @@ impl From<IptComponentParamsData> for Vec<InsertableComponentParam> {
     }
 }
 
+/// Данные для запроса на удаление параметров компонента
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub(crate) struct DelComponentParamData {
+    /// UUID компонента
     pub(crate) component_uuid: Uuid,
+    /// Идентификаторы параметров компонента (перечень)
     pub(crate) param_ids: Vec<i32>,
 }

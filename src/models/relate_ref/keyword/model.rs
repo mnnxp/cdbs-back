@@ -22,11 +22,12 @@ pub(crate) struct InsertableKeyword {
     pub(crate) keyword: String,
 }
 
+/// Обертка для ключевого слова используемая для добавления новых ключевых слов
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub(crate) struct IptKeywordData {
+    /// Ключевое слово/тег для упрощения поиска по фото и характеристикам
     pub(crate) keyword: String,
 }
-
 
 impl From<&IptKeywordData> for InsertableKeyword {
     fn from(data: &IptKeywordData) -> Self {

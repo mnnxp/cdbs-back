@@ -6,7 +6,7 @@ use async_graphql::*;
 use uuid::Uuid;
 
 // Structures for Component
-#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, SimpleObject, Debug)]
+#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, Debug)]
 #[diesel(primary_key(file_uuid, component_uuid))]
 #[diesel(belongs_to(ShowFileRelatedData, foreign_key = file_uuid))]
 #[diesel(belongs_to(Component, foreign_key = component_uuid))]
@@ -38,20 +38,29 @@ impl From<ComponentFile> for InsertableComponentFile {
     }
 }
 
+/// Данные для запроса на обновение основного изображения компонента
 #[derive(InputObject, Deserialize, Debug)]
 pub(crate) struct IptComponentFaviconData {
+    /// Наименование загружаемого файла
     pub(crate) filename: String,
+    /// UUID компонента
     pub(crate) component_uuid: Uuid,
 }
 
+/// Данные запроса на добавление файлов компонента
 #[derive(InputObject, Deserialize, Debug)]
 pub(crate) struct IptComponentFilesData {
+    /// Наименование загружаемых файлов (перечень)
     pub(crate) filenames: Vec<String>,
+    /// UUID компонента
     pub(crate) component_uuid: Uuid,
 }
 
+/// Данные запроса на удаление файлов компонента
 #[derive(InputObject, Deserialize, Debug)]
 pub(crate) struct DelComponentFileData {
+    /// UUID удаляемых файлов (перечень)
     pub(crate) file_uuid: Uuid,
+    /// UUID компонента
     pub(crate) component_uuid: Uuid,
 }

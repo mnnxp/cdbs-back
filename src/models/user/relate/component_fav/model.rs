@@ -1,13 +1,11 @@
 use crate::schema::*;
 use crate::models::component::model::Component;
 use crate::models::user::model::UserQuery;
-use async_graphql::*;
 use chrono::*;
 use uuid::Uuid;
 
 // Favorites user models
-#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations)]
-#[derive(SimpleObject, Clone, Debug)]
+#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, Clone, Debug)]
 #[diesel(primary_key(component_uuid, user_uuid))]
 #[diesel(belongs_to(Component, foreign_key = component_uuid))]
 #[diesel(belongs_to(UserQuery, foreign_key = user_uuid))]
@@ -19,7 +17,7 @@ pub(crate) struct ComponentFav {
     pub(crate) created_at: NaiveDateTime,
 }
 
-#[derive(Debug, Deserialize, Clone, InputObject)]
+#[derive(Debug, Deserialize, Clone)]
 pub(crate) struct IptComponentFavData {
     pub(crate) component_uuid: Uuid,
     pub(crate) user_uuid: Uuid,

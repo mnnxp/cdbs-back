@@ -15,36 +15,21 @@ pub(crate) struct ModificationFileFromFileset {
     pub(crate) file_uuid: Uuid,
 }
 
-#[derive(Debug, SimpleObject, Clone)]
-pub(crate) struct ModificationFileFromFilesetRelatedData {
-    pub(crate) fileset_uuid: Uuid,
-    pub(crate) files: Vec<ShowFileRelatedData>,
-}
-
-// impl ModificationFileFromFilesetRelatedData {
-//     /// Create struct with FilesetProgram data, Program data set default
-//     pub(crate) fn new(fileset_uuid: &Uuid) -> Self {
-//         Self{
-//             fileset_uuid: *fileset_uuid,
-//             files: Vec::new(),
-//         }
-//     }
-//
-//     /// Change files data
-//     pub(crate) fn put_files(&mut self, files: Vec<ShowFileRelatedData>) {
-//         self.files = files;
-//     }
-// }
-
+/// Данные для запроса на добавление новых файлов в набор файлов
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub(crate) struct IptModificationFileFromFilesetData {
+    /// UUID набора файлов, к которому будут добавлены новые файлы
     pub(crate) fileset_uuid: Uuid,
+    /// Наименования файлов, которые требуется добавить в набор файлов
     pub(crate) filenames: Vec<String>,
 }
 
+/// Данные для запроса на удаление файлов из набора файлов
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub(crate) struct DelModificationFileFromFilesetData {
+    /// UUID набора файлов к которому относятся удаляемые файлы
     pub(crate) fileset_uuid: Uuid,
+    /// UUIDs файлов, которые требуется удалить из набора
     pub(crate) file_uuids: Vec<Uuid>,
 }
 
@@ -55,11 +40,16 @@ pub(crate) struct InsertableModificationFileFromFileset {
     pub(crate) file_uuid: Uuid,
 }
 
+/// Данные для запроса на получение данных о файлах из набора файлов
 #[derive(InputObject, Deserialize, Debug)]
 pub(crate) struct IptFileOfFilesetArg {
+    /// UUID набора файлов
     pub(crate) fileset_uuid: Uuid,
+    /// UUIDs файлов для фильтрации
     pub(crate) file_uuids: Option<Vec<Uuid>>,
+    /// Ограничение выборки данных (максимальное кол-во записей)
     pub(crate) limit: Option<i32>,
+    /// Кол-во пропущенных записей в начале (смещение)
     pub(crate) offset: Option<i32>,
 }
 

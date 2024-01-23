@@ -1,8 +1,8 @@
 use crate::schema::*;
 use crate::models::user::model::UserQuery;
-use crate::models::company::model::Company;
-use crate::models::company::member::role::model::{
-    RoleMember, RoleMemberAndRelatedData
+use crate::models::company::{
+    model::Company,
+    member::role::model::{RoleMember, RoleMemberAndRelatedData},
 };
 use async_graphql::*;
 use chrono::*;
@@ -24,20 +24,31 @@ pub(crate) struct CompanyMember {
     pub(crate) updated_at: NaiveDateTime,
 }
 
+/// Данные об участнике компании (сообщества)
 #[derive(Debug, Deserialize, SimpleObject)]
 pub(crate) struct CompanyMemberAndRelatedData {
+    /// Идентификатор компании
     pub(crate) company_uuid: Uuid,
+    /// Идентификатор пользователя
     pub(crate) user_uuid: Uuid,
+    /// Роль пользователя в компании (права доступа выдаются на основе роли)
     pub(crate) role: RoleMemberAndRelatedData,
+    /// Флаг активности участника компании
     pub(crate) is_enabled: bool,
+    /// Дата добавления пользователя в компанию
     pub(crate) created_at: NaiveDateTime,
+    /// Дата изменения роли или активности участника
     pub(crate) updated_at: NaiveDateTime,
 }
 
+/// Сокращенные данные об участнике компании
 #[derive(Debug, Deserialize, SimpleObject)]
 pub(crate) struct SlimCompanyMember {
+    /// Идентификатор компании
     pub(crate) company_uuid: Uuid,
+    /// Идентификатор пользователя
     pub(crate) user_uuid: Uuid,
+    /// Идентификатор роли пользователя в компании
     pub(crate) role_id: i32,
 }
 
@@ -69,10 +80,14 @@ pub(crate) struct InsertableCompanyMember {
     pub(crate) updated_at: NaiveDateTime,
 }
 
+/// Данные для добавления или изменения роли участника компании
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub(crate) struct IptCompanyMemberData {
+    /// Идентификатор компании
     pub(crate) company_uuid: Uuid,
+    /// Идентификатор пользователя
     pub(crate) user_uuid: Uuid,
+    /// Идентификатор роли пользователя в компании
     pub(crate) role_id: i32,
 }
 
@@ -96,8 +111,11 @@ impl From<&IptCompanyMemberData> for InsertableCompanyMember {
     }
 }
 
+/// Деактивация (удаление роли/доступа) участника компании
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub(crate) struct DelCompanyMemberData {
+    /// Идентификатор компании
     pub(crate) company_uuid: Uuid,
+    /// Идентификатор пользователя
     pub(crate) user_uuid: Uuid,
 }

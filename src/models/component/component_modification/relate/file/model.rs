@@ -5,14 +5,16 @@ use async_graphql::*;
 // use chrono::*;
 use uuid::Uuid;
 
-// Structures for ComponentModification
-#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, SimpleObject, Debug)]
+/// Данные связи файла и модификации компонента
+#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, Debug)]
 #[diesel(primary_key(file_uuid, modification_uuid))]
 #[diesel(belongs_to(ShowFileRelatedData, foreign_key = file_uuid))]
 #[diesel(belongs_to(ComponentModification, foreign_key = modification_uuid))]
 #[diesel(table_name = file_to_modification)]
 pub(crate) struct FileModification {
+    /// UUID связанного файла
     pub(crate) file_uuid: Uuid,
+    /// UUID модификации компонента
     pub(crate) modification_uuid: Uuid,
 }
 
@@ -38,14 +40,20 @@ impl From<FileModification> for InsertableFileModification {
     }
 }
 
+/// Данные запроса на добавление файлов к модификации компонента
 #[derive(InputObject, Deserialize, Debug)]
 pub(crate) struct IptModificationFilesData {
+    /// Наименования файлов для добавления
     pub(crate) filenames: Vec<String>,
+    /// UUID модификации компонента
     pub(crate) modification_uuid: Uuid,
 }
 
+/// Данные запроса на удаление файла модификации компонента
 #[derive(InputObject, Deserialize, Debug)]
 pub(crate) struct DelModificationFileData {
+    /// UUID файла модификации компонента (который требуется удалить)
     pub(crate) file_uuid: Uuid,
+    /// UUID модификации компонента
     pub(crate) modification_uuid: Uuid,
 }

@@ -20,9 +20,12 @@ use uuid::Uuid;
 //             .expect("Password regexp failed!");
 // }
 
+/// Данные для запроса на обновление пароля
 #[derive(Deserialize, InputObject)]
 pub(crate) struct IptUpdatePassword {
+    /// Действительный пароль (для подтверждения легитимности запроса)
     pub(crate) old_password: String,
+    /// Новый пароль пользователя
     pub(crate) new_password: String,
 }
 

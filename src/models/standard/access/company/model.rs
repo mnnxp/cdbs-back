@@ -16,13 +16,20 @@ pub(crate) struct CompanyAccessStandard {
     pub(crate) updated_at: NaiveDateTime,
 }
 
+/// Данные о наличии доступа к стандарту у компании (участников компании)
 #[derive(Debug, Deserialize, SimpleObject)]
 pub(crate) struct CompanyAccessStandardAndRelatedData {
+    /// UUID стандарта
     pub(crate) standard_uuid: Uuid,
+    /// UUID имеющей доступ компании
     pub(crate) company_uuid: Uuid,
+    /// Тип доступа с локализацией
     pub(crate) type_access: TypeAccessTranslateList,
+    /// Флаг активности доступа
     pub(crate) is_enabled: bool,
+    /// Дата первой выдачи доступа компании
     pub(crate) created_at: NaiveDateTime,
+    /// Дата обновления доступа
     pub(crate) updated_at: NaiveDateTime,
 }
 
@@ -37,10 +44,14 @@ pub(crate) struct InsertableCompanyAccessStandard {
     pub(crate) updated_at: NaiveDateTime,
 }
 
+/// Данные для запроса на выдачу (участникам) компании доступа к стандарту
 #[derive(Debug, Deserialize, InputObject)]
 pub(crate) struct IptCompanyAccessStandardData {
+    /// UUID стандарта
     pub(crate) standard_uuid: Uuid,
+    /// UUID компании
     pub(crate) company_uuid: Uuid,
+    /// Идентификатор типа доступа
     pub(crate) type_access_id: i32,
 }
 
@@ -64,9 +75,11 @@ impl From<&IptCompanyAccessStandardData> for InsertableCompanyAccessStandard {
     }
 }
 
-
+/// Данные для удаления доступа компании к стандарту
 #[derive(Debug, Deserialize, InputObject)]
 pub(crate) struct DelCompanyAccessStandardData {
+    /// UUID стандарта
     pub(crate) standard_uuid: Uuid,
+    /// UUID компании
     pub(crate) company_uuid: Uuid,
 }

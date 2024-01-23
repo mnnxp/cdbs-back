@@ -1,7 +1,4 @@
 use crate::errors::ServiceResult;
-// use crate::errors::{ServiceError, ServiceResult};
-// use crate::graphql::model::Context;
-// use async_graphql::Context;
 use async_graphql::*;
 use crate::models::user::model::SlimUser;
 use crate::jwt::manager::create_token;

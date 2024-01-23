@@ -19,9 +19,12 @@ pub(crate) struct CompanyFav {
     pub(crate) created_at: NaiveDateTime,
 }
 
-#[derive(Debug, Deserialize, Clone, InputObject)]
+/// Данные для добавления компании в избранное пользователя
+#[derive(Debug, Deserialize, Clone)]
 pub(crate) struct IptCompanyFavData {
+    /// UUID компании которую требуется добавить
     pub(crate) company_uuid: Uuid,
+    /// UUID пользователя в избранное которого добавляется компания
     pub(crate) user_uuid: Uuid,
     // pub(crate) is_enabled: bool,
     // pub(crate) created_at: NaiveDateTime,

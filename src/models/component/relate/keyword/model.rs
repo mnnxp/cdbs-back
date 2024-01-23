@@ -6,8 +6,7 @@ use async_graphql::*;
 use uuid::Uuid;
 
 // Keyword component models
-#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations)]
-#[derive(SimpleObject, Clone, Debug)]
+#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, Clone, Debug)]
 #[diesel(primary_key(component_uuid, keyword_id))]
 #[diesel(belongs_to(Component, foreign_key = component_uuid))]
 #[diesel(belongs_to(Keyword, foreign_key = keyword_id))]
@@ -17,21 +16,21 @@ pub(crate) struct ComponentKeyword {
     pub(crate) keyword_id: i32,
 }
 
-#[derive(Deserialize, SimpleObject, Clone, Debug)]
-pub(crate) struct ComponentKeywordRelatedData {
-    pub(crate) keyword: Keyword,
-    pub(crate) component_uuid: Uuid,
-}
-
+/// Данные для запросов на добавление и удаление связи ключевых слов с компонентом
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub(crate) struct IptComponentKeywordsData {
+    /// UUID компонента
     pub(crate) component_uuid: Uuid,
+    /// Идентификаторы ключевых слов (перечень)
     pub(crate) keyword_ids: Vec<i32>,
 }
 
+/// Данные для запроса на добавление связи ключевых слов с компонентом
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub(crate) struct IptComponentKeywordsNames {
+    /// UUID компонента
     pub(crate) component_uuid: Uuid,
+    /// Идентификаторы ключевых слов (перечень)
     pub(crate) keywords: Vec<String>,
 }
 
@@ -93,10 +92,14 @@ impl From<&IptComponentKeywordsData> for DeleteComponentKeyword {
     }
 }
 
+/// Данные для запроса связанных с компонентом ключевых слов
 #[derive(InputObject, Deserialize, Debug)]
 pub(crate) struct IptComponentKeywordsArg {
+    /// UUID компонента
     pub(crate) component_uuid:  Uuid,
+    /// Ограничение выборки данных (максимальное кол-во записей)
     pub(crate) limit: Option<i32>,
+    /// Кол-во пропущенных записей в начале (смещение)
     pub(crate) offset: Option<i32>,
 }
 

@@ -35,6 +35,20 @@ impl Component {
         component_ref::component_ref
             .filter(component_ref::uuid.eq(target_component_uuid)
             .and(component_ref::is_delete.eq(false)))
+            .select((
+                component_ref::uuid,
+                component_ref::parent_component_uuid,
+                component_ref::name,
+                component_ref::description,
+                component_ref::image_file_uuid,
+                component_ref::user_uuid,
+                component_ref::type_access_id,
+                component_ref::component_type_id,
+                component_ref::actual_status_id,
+                component_ref::is_base,
+                component_ref::created_at,
+                component_ref::updated_at,
+            ))
             .first::<Component>(conn)
             .map_err(|err| {
                 debug!("Failed get component: {:?}", err);

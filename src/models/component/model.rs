@@ -21,7 +21,7 @@ use async_graphql::*;
 use chrono::*;
 use uuid::Uuid;
 
-#[derive(Identifiable, Deserialize, Queryable, SimpleObject, Debug)]
+#[derive(Identifiable, Deserialize, Queryable, Debug)]
 #[diesel(primary_key(uuid))]
 #[diesel(table_name = component_ref)]
 pub(crate) struct Component {
@@ -35,60 +35,90 @@ pub(crate) struct Component {
     pub(crate) component_type_id: i32,
     pub(crate) actual_status_id: i32,
     pub(crate) is_base: bool,
-    pub(crate) is_delete: bool,
     pub(crate) created_at: NaiveDateTime,
     pub(crate) updated_at: NaiveDateTime,
 }
 
+/// Полная информация о компоненте (части) и связанные с ним данные
 #[derive(Debug, SimpleObject)]
 pub(crate) struct ComponentAndRelatedData {
+    /// Идентификатор компонента на платформе
     pub(crate) uuid: Uuid,
+    /// Идентификатор родительского компонента
     pub(crate) parent_component_uuid: Uuid,
+    /// Наименование компонента
     pub(crate) name: String,
+    /// Описание компонента
     pub(crate) description: String,
-    // for display main image
+    /// Данные для отображения основного вида компонента (части)
     pub(crate) image_file: DownloadFile,
+    /// Данные о профиле владеющем компонентом
     pub(crate) owner_user: ShowUserShort,
+    /// Тип доступа к данным компонента
     pub(crate) type_access: TypeAccessTranslateList,
+    /// Тип компонента (например, "стандартный")
     pub(crate) component_type: ComponentTypeTranslateList,
+    /// Актуальный статус компонента (например, "в разработке")
     pub(crate) actual_status: ActualStatusTranslateList,
+    /// Для базовых компонентов возможна связь с множеством производителей/поставщиков
     pub(crate) is_base: bool,
+    /// Количество добавивших компонент в закладки
     pub(crate) subscribers: i32,
-    // for display the checkbox "favorites"
+    /// Флаг наличия компонента в закладках пользователя
     pub(crate) is_followed: bool,
+    /// Дата создания профиля компонента
     pub(crate) created_at: NaiveDateTime,
+    /// Дата обновления основных данных компонента
     pub(crate) updated_at: NaiveDateTime,
-    // related data
+    // Связанные с компонентом данные
+    /// Лицензии распространения данных компонента
     pub(crate) licenses: Vec<License>,
+    /// Список параметров компонента
     pub(crate) component_params: Vec<ComponentParamWithTranslation>,
+    /// Связанные с компонентом файлы
     pub(crate) files: Vec<ShowFileRelatedData>,
+    /// Каталоги в которые добавлен компонент
     pub(crate) component_specs: Vec<SpecTranslateList>,
+    /// Ключевые слова (теги) компонента
     pub(crate) component_keywords: Vec<Keyword>,
+    /// Модификации компонента и связанные с ними данные (такие как наборы файлов для САПР)
     pub(crate) component_modifications: Vec<ComponentModificationAndRelatedData>,
+    /// Компания-производитель или поставщики компонента (если is_base истина)
     pub(crate) component_suppliers: Vec<ComponentSupplierRelatedData>,
-    // show the standards that fit the object
+    /// Список связанных с компонентом документов стандартизации
     pub(crate) component_standards: Vec<ShowStandardShort>,
 }
 
+/// Сокращенные данные о компоненте
 #[derive(Debug, SimpleObject)]
 pub(crate) struct ShowComponentShort {
+    /// Идентификатор компонента на платформе
     pub(crate) uuid: Uuid,
+    /// Наименование компонента
     pub(crate) name: String,
+    /// Описание компонента
     pub(crate) description: String,
-    // for display main image
+    /// Данные для отображения основного вида компонента (части)
     pub(crate) image_file: DownloadFile,
+    /// Данные о профиле владеющем компонентом
     pub(crate) owner_user: ShowUserShort,
+    /// Тип доступа к данным компонента
     pub(crate) type_access: TypeAccessTranslateList,
+    /// Тип компонента (например, "стандартный")
     pub(crate) component_type: ComponentTypeTranslateList,
+    /// Актуальный статус компонента (например, "в разработке")
     pub(crate) actual_status: ActualStatusTranslateList,
+    /// Для базовых компонентов возможна связь с множеством производителей/поставщиков
     pub(crate) is_base: bool,
-    // for display the checkbox "favorites"
+    /// Флаг наличия компонента в закладках пользователя
     pub(crate) is_followed: bool,
+    /// Дата обновления основных данных компонента
     pub(crate) updated_at: NaiveDateTime,
+    /// Лицензии распространения данных компонента
     pub(crate) licenses: Vec<License>,
-    // files for show image (models, draw)
+    /// Связанные с компонентом файлы (изображения)
     pub(crate) files: Vec<DownloadFile>,
-    // show first supplier company
+    /// Компания-производитель или поставщики компонента (если is_base истина)
     pub(crate) component_suppliers: Vec<ComponentSupplierRelatedData>,
 }
 

@@ -17,38 +17,32 @@ pub(crate) struct FilesetProgram {
     pub(crate) program_id: i32,
 }
 
+/// Данные набора файлов с указанием целевого ПО для этого набора
 #[derive(Debug, Deserialize, SimpleObject, Clone)]
 pub(crate) struct FilesetProgramRelatedData {
+    /// UUID набора файлов
     pub(crate) uuid: Uuid,
+    /// UUID модификации компонента
     pub(crate) modification_uuid: Uuid,
+    /// Данные о целевом ПО набора файлов
     pub(crate) program: Program,
 }
 
-// impl FilesetProgramRelatedData {
-//     /// Create struct with FilesetProgram data, Program data set default
-//     pub(crate) fn new(data: &FilesetProgram) -> Self {
-//         Self{
-//             uuid: data.uuid,
-//             modification_uuid: data.modification_uuid,
-//             program: Default::default(),
-//         }
-//     }
-//
-//     /// Change program data
-//     pub(crate) fn put_program(&mut self, program: &Program) {
-//         self.program = program.clone();
-//     }
-// }
-
+/// Данные запроса на добавление набора файлов для модификации компонента
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub(crate) struct IptFilesetProgramData {
+    /// UUID модификации компонента
     pub(crate) modification_uuid: Uuid,
+    /// UUID набора файлов
     pub(crate) program_id: i32,
 }
 
+/// Данные запроса на удаление набора файлов из модификации компонента
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub(crate) struct DelFilesetProgramData {
+    /// UUID модификации компонента
     pub(crate) modification_uuid: Uuid,
+    /// UUID набора файлов
     pub(crate) fileset_uuid: Uuid,
 }
 
@@ -75,11 +69,16 @@ impl From<&IptFilesetProgramData> for InsertableFilesetProgram {
     }
 }
 
+/// Данные запроса файлов из набора файлов модификации компонента
 #[derive(InputObject, Deserialize, Debug)]
 pub(crate) struct IptFilesetProgramArg {
+    /// UUID модификации компонента
     pub(crate) modification_uuid: Uuid,
+    /// Фильтрация по идентификаторам ПО (перечень)
     pub(crate) program_ids: Option<Vec<i32>>,
+    /// Ограничение выборки данных (максимальное кол-во записей)
     pub(crate) limit: Option<i32>,
+    /// Кол-во пропущенных записей в начале (смещение)
     pub(crate) offset: Option<i32>,
 }
 

@@ -40,12 +40,18 @@ impl NotificationType {
     }
 }
 
+/// Данные об уведомлении пользователя
 #[derive(Debug, Serialize, Clone, SimpleObject)]
 pub(crate) struct ShowNotification {
+    /// Идентификатор уведомления
     pub(crate) id: i32,
+    /// Информация уведомления
     pub(crate) notification: String,
+    /// Степень важности уведомления с локализацией
     pub(crate) degree_importance: DegreeImportanceTranslateList,
+    /// Дата создания уведомления
     pub(crate) created_at: NaiveDateTime,
+    /// Флаг прочтения уведомления
     pub(crate) is_read: bool,
 }
 
@@ -111,20 +117,28 @@ impl From<&NotificationData> for InsertableNotification {
     }
 }
 
+/// Данные о степени (уровне) важности уведомления
 #[derive(Identifiable, Serialize, Queryable)]
 #[derive(Default, Clone, Debug, SimpleObject)]
 #[diesel(primary_key(degree_importance_id, lang_id))]
 #[diesel(table_name = degree_importance_translate_list)]
 pub(crate) struct DegreeImportanceTranslateList {
+    /// Идентификатор степени важности
     pub(crate) degree_importance_id: i32,
+    /// Идентификатор языка локализации
     pub(crate) lang_id: i32,
+    /// Текстовое описание степени важности
     pub(crate) degree: String,
 }
 
+/// Аргументы запроса на получение уведомлений пользователя
 #[derive(InputObject, Deserialize, Debug)]
 pub(crate) struct IptNotificationArg {
+    /// Фильтр по идентификаторам степени важности уведомления
     pub(crate) notification_ids:  Option<Vec<i32>>,
+    /// Ограничение выборки данных (максимальное кол-во записей)
     pub(crate) limit: Option<i32>,
+    /// Кол-во пропущенных записей в начале (смещение)
     pub(crate) offset: Option<i32>,
 }
 

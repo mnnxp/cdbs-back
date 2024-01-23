@@ -20,6 +20,7 @@ pub(crate) struct InsertableRegion {
 }
 
 // Region translations
+/// Данные о глобальном (условном) регионе с локализацией
 #[derive(Identifiable, Serialize, Deserialize, Queryable, Associations)]
 #[derive(SimpleObject, Clone, Default, Debug)]
 #[diesel(primary_key(region_id, lang_id))]
@@ -30,14 +31,20 @@ pub(crate) struct InsertableRegion {
 #[diesel(belongs_to(Language, foreign_key = lang_id))]
 #[diesel(table_name = region_translate_list)]
 pub(crate) struct RegionTranslateList {
+    /// Идентификатор региона
     pub(crate) region_id: i32,
+    /// Идентификатор языка локализации наименования
     pub(crate) lang_id: i32,
+    /// Наименование глобального (условного) региона
     pub(crate) region: String,
 }
 
+/// Данные для запроса на добавление глобального (условного) региона
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub(crate) struct IptRegionTranslateListData {
+    /// Идентификатор языка локализации наименования
     pub(crate) lang_id: i32,
+    /// Наименование глобального (условного) региона
     pub(crate) region: String,
 }
 
@@ -49,10 +56,14 @@ pub(crate) struct InsertableRegionTranslateList {
     pub(crate) region: String,
 }
 
+/// Аргументы для запроса существующих глобальных регионах на платформе
 #[derive(InputObject, Deserialize, Debug)]
 pub(crate) struct IptRegionArg {
+    /// Фильтрация по идентификаторам регионов
     pub(crate) region_ids:  Option<Vec<i32>>,
+    /// Ограничение выборки данных (максимальное кол-во записей)
     pub(crate) limit: Option<i32>,
+    /// Кол-во пропущенных записей в начале (смещение)
     pub(crate) offset: Option<i32>,
 }
 
