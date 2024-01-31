@@ -15,7 +15,7 @@ pub(crate) fn put_modification_params(
     logged_user_uuid: &Uuid,
     data: &IptModificationParamData,
     conn: &mut PgConnection
-) -> ServiceResult<i32> {
+) -> ServiceResult<usize> {
     let need_access_level = 1; // todo!(create enum for manage access level)
 
     check_access_component_for_user(
@@ -82,7 +82,7 @@ pub(crate) fn put_modification_params(
         )?;
     }
 
-    Ok(count_changed_rows as i32)
+    Ok(count_changed_rows)
 }
 
 /// Add new params from array InsertableModificationParam's

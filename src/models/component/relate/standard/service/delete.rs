@@ -8,7 +8,7 @@ pub(crate) fn del_standards_component(
     logged_user_uuid: &Uuid,
     data: &DelStandardToComponentData,
     conn: &mut PgConnection
-) -> ServiceResult<i32> {
+) -> ServiceResult<usize> {
     use crate::schema::standard_to_component::dsl::*;
 
     let need_access_level = 1; // todo!(create enum for manage access level)
@@ -26,7 +26,7 @@ pub(crate) fn del_standards_component(
         .execute(conn);
 
     match del_count {
-        Ok(count) => Ok(count as i32),
+        Ok(count) => Ok(count),
         Err(err) => {
             debug!("Failed delete related standards to component: {:?}", err);
             Err(ServiceError::BadRequest("Failed delete related standards to component".to_string()))

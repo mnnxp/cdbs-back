@@ -179,7 +179,7 @@ impl UserQuery {
     async fn delete_all_tokens(
         &self,
         cxt: &Context<'_>
-    ) -> ServiceResult<i32> {
+    ) -> ServiceResult<usize> {
         use crate::models::user::access::manage::delete_tokens;
 
         // authorization check
@@ -187,10 +187,7 @@ impl UserQuery {
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        delete_tokens(
-            &logged_user_uuid,
-            conn,
-        )
+        delete_tokens(&logged_user_uuid, conn)
     }
 
     /// Returns an aggregated list of user notifications.

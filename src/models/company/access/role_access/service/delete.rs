@@ -10,7 +10,7 @@ pub(crate) fn del_role_access(
     logged_user_uuid: &Uuid,
     data: &DelRoleAccessData,
     conn: &mut PgConnection
-) -> ServiceResult<i32> {
+) -> ServiceResult<usize> {
     use crate::schema::role_access::dsl::*;
 
     // check company ownership user with target role
@@ -28,17 +28,11 @@ pub(crate) fn del_role_access(
     match res {
         Ok(count) => {
             debug!("Completed delete access for role: {:?}", count);
-            
-            Ok(count as i32)
+            Ok(count)
         },
         Err(err) => {
             debug!("Failed: access not delete: {:?}", err);
-
-            Err(ServiceError::BadRequest(
-                "Failed: access not delete".to_string()
-            ))
+            Err(ServiceError::BadRequest("Failed: access not delete".to_string()))
         },
     }
-
-    // debug!("fn create_role_access START SEARCH ={:?}", flag_found_role_access);
 }

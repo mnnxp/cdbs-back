@@ -344,7 +344,7 @@ impl UserMutation {
         &self,
         cxt: &Context<'_>,
         notifications_ids: Vec<i32>,
-    ) -> ServiceResult<i32> {
+    ) -> ServiceResult<usize> {
         use crate::models::user::notification::service::update::set_notifications_as_read;
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
@@ -363,7 +363,7 @@ impl UserMutation {
         &self,
         cxt: &Context<'_>,
         notifications_ids: Vec<i32>,
-    ) -> ServiceResult<i32> {
+    ) -> ServiceResult<usize> {
         use crate::models::user::notification::service::delete::delete_notifications;
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;

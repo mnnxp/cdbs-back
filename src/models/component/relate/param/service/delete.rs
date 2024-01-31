@@ -9,7 +9,7 @@ pub(crate) fn del_component_params(
     logged_user_uuid: &Uuid,
     data: &DelComponentParamData,
     conn: &mut PgConnection
-) -> ServiceResult<i32> {
+) -> ServiceResult<usize> {
 
     let need_access_level = 1; // todo!(create enum for manage access level)
 
@@ -33,24 +33,19 @@ pub(crate) fn del_component_params(
             del_params.push(*pm_id)
         }
     }
-
-    // delete selected params by ids
-    if !del_params.is_empty() {
-        match delete_component_params_values(
-            &data.component_uuid,
-            &del_params,
-            conn
-        ) {
-            x if x > 0 => return Ok(x as i32),
-            _ => {
-                return Err(ServiceError::BadRequest(
-                    "Fail delete rows".to_string()
-                ))
-            },
-        }
+    if del_params.is_empty() {
+        return Ok(0)
     }
 
-    Ok(0)
+    // delete selected params by ids
+    match delete_component_params_values(
+        &data.component_uuid,
+        &del_params,
+        conn
+    ) {
+        x if x > 0 => Ok(x),
+        _ => Err(ServiceError::BadRequest("Fail delete rows".to_string())),
+    }
 }
 
 /// Delete params for target component by ids

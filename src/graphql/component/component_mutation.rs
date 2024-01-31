@@ -234,7 +234,7 @@ impl ComponentMutation {
         &self,
         cxt: &Context<'_>,
         args: IptComponentParamsData,
-    ) -> ServiceResult<i32> {
+    ) -> ServiceResult<usize> {
         use component_param::service::change::put_component_params;
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
@@ -254,7 +254,7 @@ impl ComponentMutation {
         &self,
         cxt: &Context<'_>,
         args: DelComponentParamData,
-    ) -> ServiceResult<i32> {
+    ) -> ServiceResult<usize> {
         use component_param::service::delete::del_component_params;
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
@@ -465,7 +465,7 @@ impl ComponentMutation {
         &self,
         cxt: &Context<'_>,
         args: DelSuppliersComponentData,
-    ) -> ServiceResult<i32> {
+    ) -> ServiceResult<usize> {
         use component_supplier::service::delete::del_suppliers_component;
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
@@ -503,7 +503,7 @@ impl ComponentMutation {
         &self,
         cxt: &Context<'_>,
         args: DelStandardToComponentData,
-    ) -> ServiceResult<i32> {
+    ) -> ServiceResult<usize> {
         use component_standard::service::delete::del_standards_component;
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
@@ -584,7 +584,7 @@ impl ComponentMutation {
         &self,
         cxt: &Context<'_>,
         args: IptModificationParamData,
-    ) -> ServiceResult<i32> {
+    ) -> ServiceResult<usize> {
         use component_modification::param::service::change::put_modification_params;
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
@@ -603,7 +603,7 @@ impl ComponentMutation {
         &self,
         cxt: &Context<'_>,
         args: DelModificationParamData,
-    ) -> ServiceResult<i32> {
+    ) -> ServiceResult<usize> {
         use component_modification::param::service::delete::del_modification_params;
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;

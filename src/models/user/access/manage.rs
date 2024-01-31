@@ -70,7 +70,7 @@ pub(crate) fn delete_target_token(
 pub(crate) fn delete_tokens(
     logged_user_uuid: &Uuid,
     conn: &mut PgConnection,
-) -> ServiceResult<i32> {
+) -> ServiceResult<usize> {
     use crate::models::user::access::token::delete_all_tokens;
 
     delete_all_tokens(

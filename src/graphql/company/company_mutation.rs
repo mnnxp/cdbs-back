@@ -369,7 +369,7 @@ impl CompanyMutation {
         &self,
         cxt: &Context<'_>,
         args: DelRoleMemberData,
-    ) -> ServiceResult<i32> {
+    ) -> ServiceResult<usize> {
         use crate::models::company::member::role::service::delete::del_role_member;
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
@@ -405,7 +405,7 @@ impl CompanyMutation {
         &self,
         cxt: &Context<'_>,
         args: DelRoleAccessData,
-    ) -> ServiceResult<i32> {
+    ) -> ServiceResult<usize> {
         use crate::models::company::access::role_access::service::delete::del_role_access;
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
