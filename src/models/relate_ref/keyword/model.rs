@@ -22,10 +22,10 @@ pub(crate) struct InsertableKeyword {
     pub(crate) keyword: String,
 }
 
-/// Обертка для ключевого слова используемая для добавления новых ключевых слов
+/// Keyword wrapper used for request to add new keywords
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub(crate) struct IptKeywordData {
-    /// Ключевое слово/тег для упрощения поиска по фото и характеристикам
+    /// Keyword/tag to simplify search by photo and features
     pub(crate) keyword: String,
 }
 

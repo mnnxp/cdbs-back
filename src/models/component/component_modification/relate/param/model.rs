@@ -18,14 +18,14 @@ pub(crate) struct ModificationParam {
     pub(crate) value: String,
 }
 
-/// Данные о параметре модификации компонента с локализацией
+/// Data about the modification parameter of the component with localization
 #[derive(Debug, Deserialize, SimpleObject, Clone, Default)]
 pub(crate) struct ModificationParamWithTranslation {
-    /// UUID модификации компонента
+    /// UUID of the component modification
     pub(crate) modification_uuid: Uuid,
-    /// Данные о параметре (наименовании) с локализацией
+    /// Data about the parameter (name) with localization
     pub(crate) param: ParamTranslateList,
-    /// Значение параметра модификации компонента
+    /// Value of the component modification parameter
     pub(crate) value: String,
 }
 
@@ -53,12 +53,12 @@ pub(crate) struct InsertableModificationParam {
     pub(crate) value: String,
 }
 
-/// Данные для добавления/обновления параметров модификации компонента
+/// Data for adding/updating component modification parameters
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub(crate) struct IptModificationParamData {
-    /// UUID модификации компонента
+    /// UUID of the component modification
     pub(crate) modification_uuid: Uuid,
-    /// Перечень параметров со значениями
+    /// List of parameters with values
     pub(crate) params: Vec<IptParamData>,
 }
 
@@ -83,11 +83,11 @@ impl From<IptModificationParamData> for Vec<InsertableModificationParam> {
     }
 }
 
-/// Данные для запроса на удаление параметров модификации компонента
+/// Data for requesting deletion of component modification parameters
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub(crate) struct DelModificationParamData {
-    /// UUID модификации компонента
+    /// UUID of the component modification
     pub(crate) modification_uuid: Uuid,
-    /// Идентификаторы параметров компонента (перечень)
+    /// Component parameter identifiers (list)
     pub(crate) param_ids: Vec<i32>,
 }

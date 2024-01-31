@@ -17,32 +17,32 @@ pub(crate) struct FilesetProgram {
     pub(crate) program_id: i32,
 }
 
-/// Данные набора файлов с указанием целевого ПО для этого набора
+/// File set data with the target software for this set
 #[derive(Debug, Deserialize, SimpleObject, Clone)]
 pub(crate) struct FilesetProgramRelatedData {
-    /// UUID набора файлов
+    /// File set UUID
     pub(crate) uuid: Uuid,
-    /// UUID модификации компонента
+    /// Component modification UUID
     pub(crate) modification_uuid: Uuid,
-    /// Данные о целевом ПО набора файлов
+    /// File set target software data
     pub(crate) program: Program,
 }
 
-/// Данные запроса на добавление набора файлов для модификации компонента
+/// Data of the request to add a set of files for modification of a component
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub(crate) struct IptFilesetProgramData {
-    /// UUID модификации компонента
+    /// UUID of the component modification
     pub(crate) modification_uuid: Uuid,
-    /// UUID набора файлов
+    /// Software identifier
     pub(crate) program_id: i32,
 }
 
-/// Данные запроса на удаление набора файлов из модификации компонента
+/// Request data for deleting a set of files from a component modification
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub(crate) struct DelFilesetProgramData {
-    /// UUID модификации компонента
+    /// UUID of component modification
     pub(crate) modification_uuid: Uuid,
-    /// UUID набора файлов
+    /// UUID of file set
     pub(crate) fileset_uuid: Uuid,
 }
 
@@ -69,16 +69,16 @@ impl From<&IptFilesetProgramData> for InsertableFilesetProgram {
     }
 }
 
-/// Данные запроса файлов из набора файлов модификации компонента
+/// File request data from a set of component modification files
 #[derive(InputObject, Deserialize, Debug)]
 pub(crate) struct IptFilesetProgramArg {
-    /// UUID модификации компонента
+    /// UUID of component modification
     pub(crate) modification_uuid: Uuid,
-    /// Фильтрация по идентификаторам ПО (перечень)
+    /// Filtering by software identifiers (list)
     pub(crate) program_ids: Option<Vec<i32>>,
-    /// Ограничение выборки данных (максимальное кол-во записей)
+    /// Restriction of data sampling (maximum number of records)
     pub(crate) limit: Option<i32>,
-    /// Кол-во пропущенных записей в начале (смещение)
+    /// Number of skipping records at the beginning (offset)
     pub(crate) offset: Option<i32>,
 }
 

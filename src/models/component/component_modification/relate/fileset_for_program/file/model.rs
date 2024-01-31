@@ -15,21 +15,21 @@ pub(crate) struct ModificationFileFromFileset {
     pub(crate) file_uuid: Uuid,
 }
 
-/// Данные для запроса на добавление новых файлов в набор файлов
+/// Data for requesting new files to be added to the file set
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub(crate) struct IptModificationFileFromFilesetData {
-    /// UUID набора файлов, к которому будут добавлены новые файлы
+    /// UUID of the file set to which the new files will be added
     pub(crate) fileset_uuid: Uuid,
-    /// Наименования файлов, которые требуется добавить в набор файлов
+    /// Names of files to be added to the file set
     pub(crate) filenames: Vec<String>,
 }
 
-/// Данные для запроса на удаление файлов из набора файлов
+/// Data for a request to delete files from a set of files
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub(crate) struct DelModificationFileFromFilesetData {
-    /// UUID набора файлов к которому относятся удаляемые файлы
+    /// UUID of the file set to which the files to be deleted belong
     pub(crate) fileset_uuid: Uuid,
-    /// UUIDs файлов, которые требуется удалить из набора
+    /// UUIDs of files to be deleted from the file set
     pub(crate) file_uuids: Vec<Uuid>,
 }
 
@@ -40,16 +40,16 @@ pub(crate) struct InsertableModificationFileFromFileset {
     pub(crate) file_uuid: Uuid,
 }
 
-/// Данные для запроса на получение данных о файлах из набора файлов
+/// Data for requesting file data from a set of files
 #[derive(InputObject, Deserialize, Debug)]
 pub(crate) struct IptFileOfFilesetArg {
-    /// UUID набора файлов
+    /// UUID of file set
     pub(crate) fileset_uuid: Uuid,
-    /// UUIDs файлов для фильтрации
+    /// UUIDs of files to filter (optional)
     pub(crate) file_uuids: Option<Vec<Uuid>>,
-    /// Ограничение выборки данных (максимальное кол-во записей)
+    /// Restriction of data sampling (maximum number of records)
     pub(crate) limit: Option<i32>,
-    /// Кол-во пропущенных записей в начале (смещение)
+    /// Number of skipping records at the beginning (offset)
     pub(crate) offset: Option<i32>,
 }
 

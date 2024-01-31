@@ -16,13 +16,20 @@ pub(crate) struct UserAccessComponent {
     pub(crate) updated_at: NaiveDateTime,
 }
 
+/// User access data to the component (part) with additional information
 #[derive(Debug, Deserialize, SimpleObject)]
 pub(crate) struct UserAccessComponentAndRelatedData {
+    /// UUID of the component
     pub(crate) component_uuid: Uuid,
+    /// UUID of the user
     pub(crate) user_uuid: Uuid,
+    /// Information about the type of access with localization
     pub(crate) type_access: TypeAccessTranslateList,
+    /// Access activity flag
     pub(crate) is_enabled: bool,
+    /// Date of first access assignment
     pub(crate) created_at: NaiveDateTime,
+    /// Date of access modification
     pub(crate) updated_at: NaiveDateTime,
 }
 
@@ -37,10 +44,14 @@ pub(crate) struct InsertableUserAccessComponent {
     pub(crate) updated_at: NaiveDateTime,
 }
 
+/// Data for requesting to create or change user access to the component
 #[derive(Debug, Deserialize, InputObject)]
 pub(crate) struct IptUserAccessComponentData {
+    /// Identifier (UUID) of the component (part)
     pub(crate) component_uuid: Uuid,
+    /// Identifier (UUID) of the user
     pub(crate) user_uuid: Uuid,
+    /// Identifier of the type (level) of access
     pub(crate) type_access_id: i32,
 }
 
@@ -64,9 +75,11 @@ impl From<&IptUserAccessComponentData> for InsertableUserAccessComponent {
     }
 }
 
-
+/// Data for requesting deletion (deactivation) of user access to the component (part)
 #[derive(Debug, Deserialize, InputObject)]
 pub(crate) struct DelUserAccessComponentData {
+    /// Identifier (UUID) of the component (part)
     pub(crate) component_uuid: Uuid,
+    /// Identifier (UUID) of the user
     pub(crate) user_uuid: Uuid,
 }

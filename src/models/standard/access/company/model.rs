@@ -16,20 +16,20 @@ pub(crate) struct CompanyAccessStandard {
     pub(crate) updated_at: NaiveDateTime,
 }
 
-/// Данные о наличии доступа к стандарту у компании (участников компании)
+/// Data on the availability of access to the standard for the company (members of the company)
 #[derive(Debug, Deserialize, SimpleObject)]
 pub(crate) struct CompanyAccessStandardAndRelatedData {
-    /// UUID стандарта
+    /// UUID of the standard
     pub(crate) standard_uuid: Uuid,
-    /// UUID имеющей доступ компании
+    /// UUID of accessing company
     pub(crate) company_uuid: Uuid,
-    /// Тип доступа с локализацией
+    /// Type of access with localization
     pub(crate) type_access: TypeAccessTranslateList,
-    /// Флаг активности доступа
+    /// Access activity flag
     pub(crate) is_enabled: bool,
-    /// Дата первой выдачи доступа компании
+    /// Date of first issuance of access to the company
     pub(crate) created_at: NaiveDateTime,
-    /// Дата обновления доступа
+    /// Date of access update
     pub(crate) updated_at: NaiveDateTime,
 }
 
@@ -44,14 +44,14 @@ pub(crate) struct InsertableCompanyAccessStandard {
     pub(crate) updated_at: NaiveDateTime,
 }
 
-/// Данные для запроса на выдачу (участникам) компании доступа к стандарту
+/// Data for a request to add access to a standard for company members
 #[derive(Debug, Deserialize, InputObject)]
 pub(crate) struct IptCompanyAccessStandardData {
-    /// UUID стандарта
+    /// UUID of the standard
     pub(crate) standard_uuid: Uuid,
-    /// UUID компании
+    /// Company UUID
     pub(crate) company_uuid: Uuid,
-    /// Идентификатор типа доступа
+    /// Access type (level) identifier
     pub(crate) type_access_id: i32,
 }
 
@@ -75,11 +75,11 @@ impl From<&IptCompanyAccessStandardData> for InsertableCompanyAccessStandard {
     }
 }
 
-/// Данные для удаления доступа компании к стандарту
+/// Data to request removal of company access to the standard
 #[derive(Debug, Deserialize, InputObject)]
 pub(crate) struct DelCompanyAccessStandardData {
-    /// UUID стандарта
+    /// UUID of the standard
     pub(crate) standard_uuid: Uuid,
-    /// UUID компании
+    /// Company UUID
     pub(crate) company_uuid: Uuid,
 }

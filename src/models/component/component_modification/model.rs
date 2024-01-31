@@ -28,28 +28,28 @@ pub(crate) struct ComponentModification {
     pub(crate) updated_at: NaiveDateTime,
 }
 
-/// Полная информация о модификации компонента (части) и связанных данных
+/// Full information about component (part) modification and related data
 #[derive(Deserialize, SimpleObject, Debug)]
 pub(crate) struct ComponentModificationAndRelatedData {
-    /// UUID модификации компонента
+    /// UUID of the component modification
     pub(crate) uuid: Uuid,
-    /// UUID компонента
+    /// UUID of component
     pub(crate) component_uuid: Uuid,
-    /// UUID родительской модификации компонента
+    /// UUID of the parent modification of the component
     pub(crate) parent_modification_uuid: Uuid,
-    /// Наименование модификации компонента
+    /// Name of the component modification
     pub(crate) modification_name: String,
-    /// Описание модификации компонента
+    /// Description of the component modification
     pub(crate) description: String,
-    /// Актуальный статус модификации компонента
+    /// Current status of the component modification
     pub(crate) actual_status: ActualStatusTranslateList,
-    /// Дата создания модификации компонента
+    /// Date of creation of the component modification
     pub(crate) created_at: NaiveDateTime,
-    /// Дата изменения основных данных модификации компонента
+    /// Date when the main data of the component modification was changed
     pub(crate) updated_at: NaiveDateTime,
-    /// Данные о наборах файлах модификации компонента (перечень)
+    /// Component modification file sets data (list)
     pub(crate) filesets_for_program: Vec<FilesetProgramRelatedData>,
-    /// Данные о параметрах модификации компонента (перечень)
+    /// Data on component modification parameters (list)
     pub(crate) modification_params: Vec<ModificationParamWithTranslation>,
 }
 
@@ -127,18 +127,18 @@ impl InsertableComponentModification {
     }
 }
 
-/// Данные для добавления новой модификации компонента
+/// Data for adding a new modification to a component
 #[derive(Debug, Deserialize, InputObject)]
 pub(crate) struct IptComponentModificationData {
-    /// UUID компонента к которому будет добавлена модификация
+    /// UUID of the component to which the modification will be added
     pub(crate) component_uuid: Uuid,
-    /// UUID родительской модификации компонента (опционально)
+    /// UUID of the parent modification of the component (optional)
     pub(crate) parent_modification_uuid: Option<Uuid>,
-    /// Наименование модификации компонента
+    /// Name of the component modification
     pub(crate) modification_name: String,
-    /// Описание модификации компонента
+    /// Description of the component modification
     pub(crate) description: String,
-    /// Актуальный статус модификации компонента
+    /// Current status of the component modification
     pub(crate) actual_status_id: i32,
 }
 
@@ -171,24 +171,23 @@ impl From<&IptComponentModificationData> for InsertableComponentModification {
     }
 }
 
-/// Структура для обновления основных данных модификации компонента
+/// Structure for updating the basic data of a component modification
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub(crate) struct IptUpdateComponentModificationData {
-    // pub(crate) parent_modification_uuid: Option<Uuid>,
-    /// Новое наименование модификации компонента (опционально)
+    /// New name of the component modification (optional)
     pub(crate) modification_name: Option<String>,
-    /// Новое описание модификации компонента (опционально)
+    /// New description of the component modification (optional)
     pub(crate) description: Option<String>,
-    /// Актуализация статуса модификации компонента (опционально)
+    /// Update the status of the component modification (optional)
     pub(crate) actual_status_id: Option<i32>,
 }
 
-/// Данные запроса на удаление модификации компонента
+/// Component modification deletion request data
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub(crate) struct DelComponentModificationData {
-    /// UUID компонента к которому относится модификация компонента
+    /// UUID of the component to which the component modification applies
     pub(crate) component_uuid: Uuid,
-    /// UUID модификации компонента которую требуется удалить
+    /// UUID of the component modification to be deleted
     pub(crate) modification_uuid: Uuid,
 }
 
@@ -233,16 +232,16 @@ impl From<IptComponentModificationArg> for ComponentModificationArg {
     }
 }
 
-/// Данные запроса файлов модификации компонента
+/// Component modification file list request data
 #[derive(InputObject, Deserialize, Debug)]
 pub(crate) struct IptModificationFilesArg {
-    /// UUID модификации компонента
+    /// UUID of component modification
     pub(crate) modification_uuid: Uuid,
-    /// Фильтрация файлов по UUID (перечень)
+    /// Filtering files by UUID (list)
     pub(crate) files_uuids: Option<Vec<Uuid>>,
-    /// Ограничение выборки данных (максимальное кол-во записей)
+    /// Restriction of data sampling (maximum number of records)
     pub(crate) limit: Option<i32>,
-    /// Кол-во пропущенных записей в начале (смещение)
+    /// Number of skipping records at the beginning (offset)
     pub(crate) offset: Option<i32>,
 }
 

@@ -76,101 +76,101 @@ pub(crate) struct UserQuery {
     pub(crate) updated_at: NaiveDateTime,
 }
 
-/// Полная информация о собственном профиле пользователя
+/// Full information about your own user profile
 #[derive(Debug, SimpleObject)]
 pub(crate) struct UserAndRelatedData {
-    /// Идентификатор пользователя на платформе
+    /// User UUID on the platform
     pub(crate) uuid: Uuid,
-    /// Эл.почта пользователя
+    /// User's email
     pub(crate) email: String,
-    /// Имя
+    /// First name
     pub(crate) firstname: String,
-    /// Фамилия
+    /// Surname
     pub(crate) lastname: String,
-    /// Отчество
+    /// Patronymic
     pub(crate) secondname: String,
-    /// Имя пользователя (никнейм)
+    /// User name (nickname)
     pub(crate) username: String,
-    /// Номер телефона пользователя
+    /// User phone number
     pub(crate) phone: String,
-    /// Описание пользователя
+    /// User description
     pub(crate) description: String,
-    /// Адрес пользователя
+    /// User's address
     pub(crate) address: String,
-    /// Позиция пользователя (должность/специализация)
+    /// User's position (job title/specialization)
     pub(crate) position: String, // <-- todo!(create a separate table with translation)
-    /// Временная зона пользователя
+    /// User's time zone
     pub(crate) time_zone: String,
-    /// Данные для отображения основного изображения пользователя (аватарки)
+    /// Data for displaying the user's main image (avatar)
     pub(crate) image_file: DownloadFile,
-    /// Регион пользователя
+    /// User region
     pub(crate) region: RegionTranslateList,
-    /// Основной программный инструмент пользователя (САПР, программа)
+    /// User's main software tool (CAD, program)
     pub(crate) program: Program,
-    /// Тип доступа к данным пользователя
+    /// User data access type
     pub(crate) type_access: TypeAccessTranslateList,
-    /// Флаг результата подтверждения эл. почты
+    /// E-mail confirmation result flag
     pub(crate) is_email_verified: bool,
-    /// Дата создания профиля пользователя
+    /// Date of user profile creation
     pub(crate) created_at: NaiveDateTime,
-    /// Дата обновления основных данных пользователя
+    /// Date of user's main data update
     pub(crate) updated_at: NaiveDateTime,
     // Связанные данные
-    /// Список сертификатов и грамот пользователя
+    /// List of user's certificates and credentials
     pub(crate) certificates: Vec<UserCertificateAndFile>,
-    /// Количество добавивших пользователя в закладки
+    /// Number of users added to bookmarks
     pub(crate) subscribers: i32,
     // for a quick request just count objects have user
-    /// Кол-во созданных пользователем компаний
+    /// Number of companies created by the user
     pub(crate) companies_count: i32,
-    /// Кол-во созданных пользователем компонентов
+    /// Number of components created by the user
     pub(crate) components_count: i32,
-    /// Кол-во созданных пользователем стандартов
+    /// Number of standards created by the user
     pub(crate) standards_count: i32,
     // for a quick request just count the subscribers
-    /// Кол-во компаний в закладках пользователя
+    /// Number of companies in user's bookmarks
     pub(crate) fav_companies_count: i32,
-    /// Кол-во компонентов в закладках пользователя
+    /// Number of components in user's bookmarks
     pub(crate) fav_components_count: i32,
-    /// Кол-во стандартов в закладках пользователя
+    /// Number of standards in user bookmarks
     pub(crate) fav_standards_count: i32,
-    /// Кол-во пользователей в закладках пользователя
+    /// Number of users in user bookmarks
     pub(crate) fav_users_count: i32,
 }
 
-/// Полная информация о профиле пользователя
+/// Full user profile information
 #[derive(Debug, SimpleObject)]
 pub(crate) struct ShowUserAndRelatedData {
-    /// Идентификатор пользователя на платформе
+    /// User UUID on the platform
     pub(crate) uuid: Uuid,
-    /// Имя
+    /// First name
     pub(crate) firstname: String,
-    /// Фамилия
+    /// Surname
     pub(crate) lastname: String,
-    /// Отчество
+    /// Patronymic
     pub(crate) secondname: String,
-    /// Имя пользователя (никнейм)
+    /// Username (nickname)
     pub(crate) username: String,
-    /// Описание пользователя
+    /// User description
     pub(crate) description: String,
-    /// Позиция пользователя (должность/специализация)
+    /// User's position (position/specialization)
     pub(crate) position: String, // <-- todo!(create a separate table with translation)
-    /// Данные для отображения основного изображения пользователя (аватарки)
+    /// Data for displaying the user's main image (avatar)
     pub(crate) image_file: DownloadFile,
-    /// Регион пользователя
+    /// User region
     pub(crate) region: RegionTranslateList,
-    /// Основной программный инструмент пользователя (САПР, программа)
+    /// User's main software tool (CAD, program)
     pub(crate) program: Program,
-    /// Дата создания профиля пользователя
+    /// User profile creation date
     pub(crate) created_at: NaiveDateTime,
-    /// Дата обновления основных данных пользователя
+    /// Date of user's main data update
     pub(crate) updated_at: NaiveDateTime,
     // Связанные данные
-    /// Список сертификатов и грамот пользователя
+    /// List of user's certificates and diplomas
     pub(crate) certificates: Vec<UserCertificateAndFile>,
-    /// Количество добавивших пользователя в закладки
+    /// Number of people who added the user to bookmarks
     pub(crate) subscribers: i32,
-    /// Флаг наличия пользователя в закладках пользователя (зрителя)
+    /// Flag of the user's presence in the user's (viewer's) bookmarks
     pub(crate) is_followed: bool,
 }
 
@@ -201,36 +201,36 @@ pub(crate) struct InsertableUser {
     updated_at: NaiveDateTime,
 }
 
-/// Данные для добавления нового пользователя
+/// Data for adding a new user
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub(crate) struct IptUserData {
-    /// Эл.почта пользователя
+    /// User's e-mail
     pub(crate) email: String,
-    /// Имя пользователя (никнейм)
+    /// Username (nickname)
     pub(crate) username: String,
-    /// Пароль
+    /// Password
     pub(crate) password: String,
-    /// Имя (опционально)
+    /// First name (optional)
     pub(crate) firstname: Option<String>,
-    /// Фамилия (опционально)
+    /// Last name (optional)
     pub(crate) lastname: Option<String>,
-    /// Отчество (опционально)
+    /// Patronymic (optional)
     pub(crate) secondname: Option<String>,
-    /// Номер телефона пользователя (опционально)
+    /// User phone number (optional)
     pub(crate) phone: Option<String>,
-    /// Описание пользователя (опционально)
+    /// User description (optional)
     pub(crate) description: Option<String>,
-    /// Адрес пользователя (опционально)
+    /// User's address (optional)
     pub(crate) address: Option<String>,
-    /// Позиция пользователя (должность/специализация) (опционально)
+    /// User's position (job title/specialization) (optional)
     pub(crate) position: Option<String>,
-    /// Временная зона пользователя (опционально)
+    /// User's time zone (optional)
     pub(crate) time_zone: Option<String>,
-    /// Идентификатор региона пользователя (опционально)
+    /// User Region ID (optional)
     pub(crate) region_id: Option<i32>,
-    /// Идентификатор основного софта пользователя (например, какого-нибудь САПР) (опционально)
+    /// Identifier of the user's main software (for example, some CAD software) (optional)
     pub(crate) program_id: Option<i32>,
-    /// Идентификатор типа доступа к данным пользователя (опционально)
+    /// User data access type identifier (optional)
     pub(crate) type_access_id: Option<i32>,
 }
 
@@ -325,14 +325,14 @@ impl From<&IptUserData> for InsertableUser {
     }
 }
 
-/// Минимальные данные о пользователе
+/// Minimum user data
 #[derive(Debug, Serialize, Deserialize, Queryable, Clone, SimpleObject)]
 pub(crate) struct SlimUser {
-    /// Идентификатор пользователя на платформе
+    /// User UUID on the platform
     pub(crate) uuid: Uuid,
-    /// Имя пользователя (никнейм)
+    /// User name (nickname)
     pub(crate) username: String,
-    /// Идентификатор основного программного инструмента пользователя
+    /// Identifier of the user's main software tool
     pub(crate) program_id: i32,
 }
 
@@ -391,48 +391,48 @@ impl ShowUserShort {
     }
 }
 
-/// Данные для обновления профиля пользователя.
-/// Обновление данных происходит только для заданных значений.
+/// Data for updating the user profile.
+/// The data is updated only for the specified values.
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub(crate) struct IptUpdateUserData {
-    /// Эл.почта пользователя
+    /// User's e-mail
     pub(crate) email: Option<String>,
-    /// Имя
+    /// First name
     pub(crate) firstname: Option<String>,
-    /// Фамилия
+    /// Surname
     pub(crate) lastname: Option<String>,
-    /// Отчество
+    /// Patronymic
     pub(crate) secondname: Option<String>,
-    /// Имя пользователя (никнейм)
+    /// Username (nickname)
     pub(crate) username: Option<String>,
-    /// Номер телефона пользователя
+    /// User phone number
     pub(crate) phone: Option<String>,
-    /// Описание пользователя
+    /// User description
     pub(crate) description: Option<String>,
-    /// Адрес пользователя
+    /// User's address
     pub(crate) address: Option<String>,
-    /// Позиция пользователя (должность/специализация)
+    /// User's position (job title/specialization)
     pub(crate) position: Option<String>,
-    /// Временная зона пользователя
+    /// User's time zone
     pub(crate) time_zone: Option<String>,
-    /// Идентификатор региона пользователя
+    /// User region identifier
     pub(crate) region_id: Option<i32>,
-    /// Идентификатор основного софта пользователя (например, какого-нибудь САПР)
+    /// Identifier of the user's main software (e.g. some CAD software)
     pub(crate) program_id: Option<i32>,
 }
 
-/// Аргументы для фильтрации и поиска по компаниям
+/// Arguments for filtering and searching by company
 #[derive(InputObject, Deserialize, Debug)]
 pub(crate) struct IptUsersArg {
-    /// Фильтр Uuid пользователей
-    pub(crate) users_uuids:  Option<Vec<Uuid>>,
-    /// Фильтр по подписчикам активного пользователя
+    /// Filter users by UUID
+    pub(crate) users_uuids: Option<Vec<Uuid>>,
+    /// Filter by active user's subscribers
     pub(crate) subscribers: Option<bool>,
-    /// Фильтр по наличию пользователей в избранном активного пользователя
+    /// Filter by the presence of users in favorites of the active user
     pub(crate) favorite: Option<bool>,
-    /// Ограничение выборки данных (максимальное кол-во записей)
+    /// Restriction of data sampling (maximum number of records)
     pub(crate) limit: Option<i32>,
-    /// Кол-во пропущенных записей в начале (смещение)
+    /// Number of skipping records at the beginning (offset)
     pub(crate) offset: Option<i32>,
 }
 
@@ -477,11 +477,12 @@ impl From<IptUsersArg> for UsersArg {
     }
 }
 
-/// Получение полных данных профиля пользователя
+/// Data to request complete user profile data
+/// One of two options is specified
 #[derive(InputObject, Deserialize, Debug)]
 pub(crate) struct IptGetUserArg {
-    /// Используется для получения данных по Uuid пользователя
+    /// User UUID for data retrieval
     pub(crate) user_uuid: Option<Uuid>,
-    /// Используется для получения данных по имени пользователя (никнейму)
+    /// User name (alias) for data retrieval
     pub(crate) username: Option<String>,
 }

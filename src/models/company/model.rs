@@ -41,81 +41,81 @@ pub(crate) struct Company {
     pub(crate) updated_at: NaiveDateTime,
 }
 
-/// Полная информация о компании и связанные с ней данные
+/// Full company information and related data
 #[derive(Debug, SimpleObject)]
 pub(crate) struct CompanyAndRelatedData {
-    /// Идентификатор компании на платформе
+    /// Company UUID on the platform
     pub(crate) uuid: Uuid,
-    /// Наименование компании
+    /// Company name
     pub(crate) orgname: String,
-    /// Сокращенное наименование
+    /// Abbreviated name
     pub(crate) shortname: String,
-    /// ИНН или иной налоговый идентификатор компании
+    /// TIN or other tax identifier of the company
     pub(crate) inn: String,
-    /// Номер телефона
+    /// Phone number
     pub(crate) phone: String,
-    /// Эл.почта компании
+    /// Company e-mail
     pub(crate) email: String,
-    /// Описание компании
+    /// Company Description
     pub(crate) description: String,
-    /// Адрес компании
+    /// Company address
     pub(crate) address: String,
-    /// Сайт компании
+    /// Company website
     pub(crate) site_url: String,
-    /// Основная временная зона
+    /// Main time zone
     pub(crate) time_zone: String,
-    /// Данные о профиле владеющем компанией
+    /// Data on the profile that owns the company
     pub(crate) owner_user: ShowUserShort,
-    /// Данные для отображения логотипа компании
+    /// Data for displaying the company logo
     pub(crate) image_file: DownloadFile,
-    /// Основной регион компании
+    /// Main company region
     pub(crate) region: RegionTranslateList,
-    /// Данные о представительствах компании
+    /// Data on the company's representative offices
     pub(crate) company_represents: Vec<CompanyRepresentAndRelatedData>,
-    /// Тип организации компании/общества
+    /// Type of company/society organization
     pub(crate) company_type: CompanyTypeTranslateList,
-    /// Список сертификатов и грамот компании
+    /// List of certificates and competencies of the companies
     pub(crate) company_certificates: Vec<CompanyCertificateAndFile>,
-    /// Перечень отслеживаемых компанией каталогов
+    /// List of catalogs monitored by the company
     pub(crate) company_specs: Vec<SpecTranslateList>,
-    /// Тип доступа к профилю компании
+    /// Type of access to company profile
     pub(crate) type_access: TypeAccessTranslateList,
-    /// Статус поставщика (в рамках платформы)
+    /// Supplier status (within the platform)
     pub(crate) is_supplier: bool,
-    /// Флаг результата подтверждения эл. почты
+    /// E-mail confirmation result flag
     pub(crate) is_email_verified: bool,
-    /// Количество добавивших компанию в закладки
+    /// Number of people who have added the company to their bookmarks
     pub(crate) subscribers: i32,
-    /// Флаг наличия компаниии в закладках пользователя
+    /// Flag of company presence in user's bookmarks
     pub(crate) is_followed: bool,
-    /// Дата создания профиля компании
+    /// Date of creation of the company profile
     pub(crate) created_at: NaiveDateTime,
-    /// Дата обновления основных данных компании
+    /// Date of update of the company's basic data
     pub(crate) updated_at: NaiveDateTime,
 }
 
-/// Сокращенные данные о компании
+/// Abbreviated company data
 #[derive(Debug, SimpleObject)]
 pub(crate) struct ShowCompanyShort {
-    /// Идентификатор компании на платформе
+    /// Company UUID on the platform
     pub(crate) uuid: Uuid,
-    /// Сокращенное наименование
+    /// Abbreviated name
     pub(crate) shortname: String,
-    /// ИНН или иной налоговый идентификатор компании
+    /// TIN or other tax identifier of the company
     pub(crate) inn: String,
-    /// Описание компании
+    /// Company Description
     pub(crate) description: String,
-    /// Данные для отображения логотипа компании
+    /// Data for displaying the company logo
     pub(crate) image_file: DownloadFile,
-    /// Основной регион деятельности компании
+    /// Main region of the company's activity
     pub(crate) region: RegionTranslateList,
-    /// Тип организациии компании/общества
+    /// Type of company/community organization
     pub(crate) company_type: CompanyTypeTranslateList,
-    /// Статус поставщика (в рамках платформы)
+    /// Supplier status (within the platform)
     pub(crate) is_supplier: bool,
-    /// Флаг наличия компаниии в закладках пользователя
+    /// Flag of company presence in user's bookmarks
     pub(crate) is_followed: bool,
-    /// Дата обновления основных данных компании
+    /// Date of update of the company's basic data
     pub(crate) updated_at: NaiveDateTime,
 }
 
@@ -157,32 +157,32 @@ impl InsertableCompany {
     }
 }
 
-/// Данные новой компании
+/// New company data
 #[derive(Debug, Deserialize, InputObject)]
 pub(crate) struct IptCompanyData {
-    /// Наименование компании
+    /// Company name
     pub(crate) orgname: String,
-    /// Сокращенное наименование
+    /// Abbreviated name
     pub(crate) shortname: String,
-    /// ИНН или иной налоговый идентификатор компании
+    /// TIN or other tax identifier of the company
     pub(crate) inn: String,
-    /// Номер телефона
+    /// Phone number
     pub(crate) phone: String,
-    /// Эл.почта компании
+    /// Company e-mail
     pub(crate) email: String,
-    /// Описание компании
+    /// Company Description
     pub(crate) description: String,
-    /// Адрес компании
+    /// Company address
     pub(crate) address: String,
-    /// Сайт компании
+    /// Company website
     pub(crate) site_url: String,
-    /// Основная временная зона
+    /// Main time zone
     pub(crate) time_zone: String,
-    /// Индентификатор основного региона компании
+    /// Identifier of the company's main region
     pub(crate) region_id: i32,
-    /// Индентификатор типа организации компании/общества
+    /// Company/community organization type identifier
     pub(crate) company_type_id: i32,
-    /// Индентификатор типа доступа к профилю компании
+    /// Company profile access type identifier
     pub(crate) type_access_id: i32,
 }
 
@@ -229,42 +229,42 @@ impl From<&IptCompanyData> for InsertableCompany {
     }
 }
 
-/// Данные для обновления профиля компании.
-/// Обновление данных происходит только для заданных значений.
+/// Data for updating the company profile.
+/// The data is updated only for the provide values.
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub(crate) struct IptUpdateCompanyData {
-    /// Наименование компании
+    /// Company name
     pub(crate) orgname: Option<String>,
-    /// Сокращенное наименование
+    /// Abbreviated name
     pub(crate) shortname: Option<String>,
-    /// ИНН или иной налоговый идентификатор компании
+    /// TIN or other tax identifier of the company
     pub(crate) inn: Option<String>,
-    /// Номер телефона
+    /// Phone number
     pub(crate) phone: Option<String>,
-    /// Эл.почта компании
+    /// Company e-mail
     pub(crate) email: Option<String>,
-    /// Описание компании
+    /// Company Description
     pub(crate) description: Option<String>,
-    /// Адрес компании
+    /// Company address
     pub(crate) address: Option<String>,
-    /// Сайт компании
+    /// Company website
     pub(crate) site_url: Option<String>,
-    /// Основная временная зона
+    /// Main time zone
     pub(crate) time_zone: Option<String>,
-    /// Основной регион компании
+    /// Main company region
     pub(crate) region_id: Option<i32>,
-    /// Тип организации компании/общества
+    /// Type of company/society organization
     pub(crate) company_type_id: Option<i32>,
 }
 
-/// Минимальная информация о компании
+/// Minimum information about the company
 #[derive(Debug, Serialize, Deserialize, Queryable, Clone, Default, SimpleObject)]
 pub(crate) struct SlimCompany {
-    /// Идентификатор компании на платформе
+    /// Company UUID on the platform
     pub(crate) uuid: Uuid,
-    /// Сокращенное наименование
+    /// Abbreviated name
     pub(crate) shortname: String,
-    /// Статус поставщика (в рамках платформы)
+    /// Supplier status (within the platform)
     pub(crate) is_supplier: bool,
 }
 
@@ -285,20 +285,20 @@ impl From<Company> for SlimCompany {
     }
 }
 
-/// Аргументы для фильтрации и поиска по компаниям
+/// Arguments for companies data query
 #[derive(InputObject, Deserialize, Debug)]
 pub(crate) struct IptCompaniesArg {
-    /// Фильтр по Uuid компаний
+    /// Filter by company UUID
     pub(crate) companies_uuids: Option<Vec<Uuid>>,
-    /// Фильтр по владельцу компании
+    /// Filter by company owner
     pub(crate) user_uuid: Option<Uuid>,
-    /// Фильтр по наличию компаний в избранном пользователя
+    /// Filter by availability of companies in user's favorites
     pub(crate) favorite: Option<bool>,
-    /// Фильтр по статусу поставщика
+    /// Filter by supplier status
     pub(crate) supplier: Option<bool>,
-    /// Ограничение выборки данных (максимальное кол-во записей)
+    /// Restriction of data sampling (maximum number of records)
     pub(crate) limit: Option<i32>,
-    /// Кол-во пропущенных записей в начале (смещение)
+    /// Number of skipping records at the beginning (offset)
     pub(crate) offset: Option<i32>,
 }
 

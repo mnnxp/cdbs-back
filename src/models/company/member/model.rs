@@ -24,31 +24,31 @@ pub(crate) struct CompanyMember {
     pub(crate) updated_at: NaiveDateTime,
 }
 
-/// Данные об участнике компании (сообщества)
+/// Company (community) member data
 #[derive(Debug, Deserialize, SimpleObject)]
 pub(crate) struct CompanyMemberAndRelatedData {
-    /// Идентификатор компании
+    /// Company UUID
     pub(crate) company_uuid: Uuid,
-    /// Идентификатор пользователя
+    /// User UUID
     pub(crate) user_uuid: Uuid,
-    /// Роль пользователя в компании (права доступа выдаются на основе роли)
+    /// User's role in the company (access rights are granted based on the role)
     pub(crate) role: RoleMemberAndRelatedData,
-    /// Флаг активности участника компании
+    /// Activity flag of the company member
     pub(crate) is_enabled: bool,
-    /// Дата добавления пользователя в компанию
+    /// Date the user was added to the company
     pub(crate) created_at: NaiveDateTime,
-    /// Дата изменения роли или активности участника
+    /// Date the user's role or activity was changed
     pub(crate) updated_at: NaiveDateTime,
 }
 
-/// Сокращенные данные об участнике компании
+/// Abbreviated data about the company member
 #[derive(Debug, Deserialize, SimpleObject)]
 pub(crate) struct SlimCompanyMember {
-    /// Идентификатор компании
+    /// Company UUID
     pub(crate) company_uuid: Uuid,
-    /// Идентификатор пользователя
+    /// User UUID
     pub(crate) user_uuid: Uuid,
-    /// Идентификатор роли пользователя в компании
+    /// Identifier of the user's role in the company
     pub(crate) role_id: i32,
 }
 
@@ -80,14 +80,14 @@ pub(crate) struct InsertableCompanyMember {
     pub(crate) updated_at: NaiveDateTime,
 }
 
-/// Данные для добавления или изменения роли участника компании
+/// Data for adding or changing the role of a company member
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub(crate) struct IptCompanyMemberData {
-    /// Идентификатор компании
+    /// Company UUID
     pub(crate) company_uuid: Uuid,
-    /// Идентификатор пользователя
+    /// User UUID
     pub(crate) user_uuid: Uuid,
-    /// Идентификатор роли пользователя в компании
+    /// Identifier of the user's role in the company
     pub(crate) role_id: i32,
 }
 
@@ -111,11 +111,11 @@ impl From<&IptCompanyMemberData> for InsertableCompanyMember {
     }
 }
 
-/// Деактивация (удаление роли/доступа) участника компании
+/// Deactivation (deletion of role/access) of a company member
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub(crate) struct DelCompanyMemberData {
-    /// Идентификатор компании
+    /// Company UUID
     pub(crate) company_uuid: Uuid,
-    /// Идентификатор пользователя
+    /// User UUID
     pub(crate) user_uuid: Uuid,
 }

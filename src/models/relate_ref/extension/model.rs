@@ -1,16 +1,16 @@
 use crate::schema::*;
 use async_graphql::*;
 
-/// Данные о расширении файла и ассоциированном с этим расширением ПО
+/// Data about the file extension and the software associated with this extension
 #[derive(Identifiable, Serialize, Deserialize, Queryable, SimpleObject, Debug)]
 #[diesel(primary_key(id))]
 #[diesel(table_name = extension_ref)]
 pub(crate) struct Extension {
-    /// Идентификатор расширения файла
+    /// File extension identifier
     pub(crate) id: i32,
-    /// Расширение файла
+    /// File extension
     pub(crate) extension: String,
-    /// Идентификатор ассоциированного ПО
+    /// Associated software identifier
     pub(crate) program_id: i32,
 }
 
@@ -21,12 +21,12 @@ pub(crate) struct InsertableExtension {
     pub(crate) program_id: i32,
 }
 
-/// Данные для запроса на добавление ассоциации ПО с расширением
+/// Data for a request to add a software association with an extension
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub(crate) struct IptExtensionData {
-    /// Расширение файла
+    /// File extension (e.g ".FCStd")
     pub(crate) extension: String,
-    /// Идентификатор ассоциированного ПО
+    /// Identifier of the associated software
     pub(crate) program_id: i32,
 }
 

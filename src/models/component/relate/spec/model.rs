@@ -15,12 +15,12 @@ pub(crate) struct ComponentSpec {
     pub(crate) component_uuid: Uuid,
 }
 
-/// Данные для запросов на добавление и удаление связи каталогов с компонентом
+/// Data for requests to add and remove directory links to the component
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub(crate) struct IptComponentSpecsData {
-    /// UUID компонента
+    /// Component UUID
     pub(crate) component_uuid: Uuid,
-    /// Идентификаторы каталогов (перечень)
+    /// Catalog identifiers (list)
     pub(crate) spec_ids: Vec<i32>,
 }
 
@@ -82,20 +82,20 @@ impl From<&IptComponentSpecsData> for DeleteComponentSpecs {
     }
 }
 
-/// Данные для запроса связанных с компонентом каталогов
+/// Data for querying catalogs associated with the component
 #[derive(InputObject, Deserialize, Debug)]
 pub(crate) struct IptComponentSpecsArg {
-    /// UUID компонента
-    pub(crate) component_uuid:  Uuid,
-    /// Ограничение выборки данных (максимальное кол-во записей)
+    /// Component UUID
+    pub(crate) component_uuid: Uuid,
+    /// Restriction of data sampling (maximum number of records)
     pub(crate) limit: Option<i32>,
-    /// Кол-во пропущенных записей в начале (смещение)
+    /// Number of skipping records at the beginning (offset)
     pub(crate) offset: Option<i32>,
 }
 
 #[derive(Debug)]
 pub(crate) struct ComponentSpecsArg {
-    pub(crate) component_uuid:  Uuid,
+    pub(crate) component_uuid: Uuid,
     pub(crate) limit: i32,
     pub(crate) offset: i32,
 }

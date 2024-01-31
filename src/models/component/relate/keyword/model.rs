@@ -16,21 +16,21 @@ pub(crate) struct ComponentKeyword {
     pub(crate) keyword_id: i32,
 }
 
-/// Данные для запросов на добавление и удаление связи ключевых слов с компонентом
+/// Data for requests to add and remove keyword relationships to the component
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub(crate) struct IptComponentKeywordsData {
-    /// UUID компонента
+    /// Component UUID
     pub(crate) component_uuid: Uuid,
-    /// Идентификаторы ключевых слов (перечень)
+    /// Keyword identifiers (list)
     pub(crate) keyword_ids: Vec<i32>,
 }
 
-/// Данные для запроса на добавление связи ключевых слов с компонентом
+/// Data for a request to add a keyword relationship to a component
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub(crate) struct IptComponentKeywordsNames {
-    /// UUID компонента
+    /// Component UUID
     pub(crate) component_uuid: Uuid,
-    /// Идентификаторы ключевых слов (перечень)
+    /// Keyword identifiers (list)
     pub(crate) keywords: Vec<String>,
 }
 
@@ -92,20 +92,20 @@ impl From<&IptComponentKeywordsData> for DeleteComponentKeyword {
     }
 }
 
-/// Данные для запроса связанных с компонентом ключевых слов
+/// Data for querying keywords associated with the component
 #[derive(InputObject, Deserialize, Debug)]
 pub(crate) struct IptComponentKeywordsArg {
-    /// UUID компонента
-    pub(crate) component_uuid:  Uuid,
-    /// Ограничение выборки данных (максимальное кол-во записей)
+    /// component UUID
+    pub(crate) component_uuid: Uuid,
+    /// Restriction of data sampling (maximum number of records)
     pub(crate) limit: Option<i32>,
-    /// Кол-во пропущенных записей в начале (смещение)
+    /// Number of skipping records at the beginning (offset)
     pub(crate) offset: Option<i32>,
 }
 
 #[derive(Debug)]
 pub(crate) struct ComponentKeywordsArg {
-    pub(crate) component_uuid:  Uuid,
+    pub(crate) component_uuid: Uuid,
     pub(crate) limit: i32,
     pub(crate) offset: i32,
 }

@@ -17,14 +17,14 @@ pub(crate) struct SupplierComponent {
     pub(crate) description: String,
 }
 
-/// Сведения о поставщике компонента с описанием
+/// Component supplier information with description
 #[derive(Deserialize, SimpleObject, Clone, Debug)]
 pub(crate) struct ComponentSupplierRelatedData {
-    /// Данные о компании-поставщике
+    /// Data about the supplier company
     pub(crate) supplier: SlimCompany,
-    /// UUID компонента
+    /// Component UUID
     pub(crate) component_uuid: Uuid,
-    /// Описание поставщика для данного компонента
+    /// Description of the supplier for this component
     pub(crate) description: String,
 }
 
@@ -44,15 +44,15 @@ impl ComponentSupplierRelatedData {
     }
 }
 
-/// Данные для запросов на добавление основого поставщика
-/// и добавления компании в список поставщиков компонента
+/// Data for requests to add the main supplier
+/// and add the company to the list of suppliers of the component (part)
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub(crate) struct IptSupplierComponentData {
-    /// UUID компонента
+    /// Component UUID
     pub(crate) component_uuid: Uuid,
-    /// UUID компании
+    /// Company UUID
     pub(crate) company_uuid: Uuid,
-    /// Описание поставщика (примечание к компоненту от поставщика)
+    /// Vendor description (note to the component from the vendor)
     pub(crate) description: String,
 }
 
@@ -81,11 +81,11 @@ impl From<&IptSupplierComponentData> for InsertableSupplierComponent {
     }
 }
 
-/// Данные для запроса на уделение поставщиков компонента
+/// Data for the component's vendor assignment request
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub(crate) struct DelSuppliersComponentData {
-    /// UUID компонента
+    /// UUID of the component
     pub(crate) component_uuid: Uuid,
-    /// UUIDs компаний-поставщиков подлежащих удалению
+    /// UUIDs of supplier companies to be deleted
     pub(crate) companies_uuids: Vec<Uuid>,
 }

@@ -4,16 +4,16 @@ use async_graphql::*;
 use chrono::*;
 use uuid::Uuid;
 
-/// Данные о токене пользователя
+/// User token data
 #[derive(Debug, Queryable, SimpleObject)]
 pub(crate) struct UserToken {
-    /// UUID пользователя
+    /// User UUID
     pub(crate) user_uuid: Uuid,
-    /// Токен пользователя (JWT)
+    /// User Token (JWT)
     pub(crate) token: String,
-    /// Дата создания токена
+    /// Token creation date
     pub(crate) created_at: NaiveDateTime,
-    /// Срок истечения действия токена
+    /// Token expiration date
     pub(crate) expiration_at: NaiveDateTime,
 }
 

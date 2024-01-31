@@ -16,7 +16,7 @@ pub(crate) struct InsertableStandardStatus {
     pub(crate) id: i32,
 }
 
-/// Данные о статусе стандарта с локализацией
+/// Information about the status of the standard with localization
 #[derive(Identifiable, Serialize, Deserialize, Queryable, Associations)]
 #[derive(SimpleObject, Clone, Debug)]
 #[diesel(primary_key(standard_status_id, lang_id))]
@@ -24,11 +24,11 @@ pub(crate) struct InsertableStandardStatus {
 #[diesel(belongs_to(Language, foreign_key = lang_id))]
 #[diesel(table_name = standard_status_translate_list)]
 pub(crate) struct StandardStatusTranslateList {
-    /// Идентификатор статуса стандарта
+    /// Status of the standard identifier
     pub(crate) standard_status_id: i32,
-    /// Идентификатор языка
+    /// Language identifier
     pub(crate) lang_id: i32,
-    /// Наименование статуса стандарта
+    /// Standard status name
     pub(crate) name: String,
 }
 

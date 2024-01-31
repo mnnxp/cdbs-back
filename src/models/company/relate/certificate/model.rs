@@ -17,14 +17,14 @@ pub(crate) struct CompanyCertificate {
     pub(crate) description: String,
 }
 
-/// Данные о файле сертификата компании и его описание
+/// Company certificate file data and description
 #[derive(Debug, SimpleObject)]
 pub(crate) struct CompanyCertificateAndFile {
-    /// Данные для отображения файла сертификата
+    /// Data for displaying the certificate file
     pub(crate) file: DownloadFile,
-    /// UUID компании, к которой принадлежит сертификат
+    /// UUID of the company to which the certificate belongs
     pub(crate) company_uuid: Uuid,
-    /// Описание сертификата
+    /// Certificate description
     pub(crate) description: String,
 }
 
@@ -36,14 +36,14 @@ pub(crate) struct InsertableCompanyCertificate {
     pub(crate) description: String,
 }
 
-/// Данные для добавления нового сертификата
+/// Data for adding a new certificate
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub(crate) struct IptCompanyCertificateData {
-    /// UUID компании, к которой принадлежит сертификат
+    /// UUID of the company to which the certificate belongs
     pub(crate) company_uuid: Uuid,
-    /// Описание сертификата
+    /// Certificate description
     pub(crate) description: String,
-    /// Наименование загруженного файла
+    /// Name of the uploaded file
     pub(crate) filename: String,
 }
 
@@ -64,22 +64,22 @@ impl From<CompanyCertificate> for InsertableCompanyCertificate {
     }
 }
 
-/// Данные для обновления описания сертификата компании
+/// Data for updating the company certificate description
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub(crate) struct IptUpdateCompanyCertificateData {
-    /// UUID компании, к которой принадлежит сертификат
+    /// UUID of the company to which the certificate belongs
     pub(crate) company_uuid: Uuid,
-    /// Идентификатор файла обновляемого сертификата
+    /// File ID of the certificate to be updated
     pub(crate) file_uuid: Uuid,
-    /// Новое описание для сертификата
+    /// New description for the certificate
     pub(crate) description: String,
 }
 
-/// Данные для удаления сертификата компании
+/// Data for deleting a company certificate
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub(crate) struct DelCompanyCertificateData {
-    /// UUID компании, к которой принадлежит сертификат
+    /// UUID of the company to which the certificate belongs
     pub(crate) company_uuid: Uuid,
-    /// Идентификатор файла обновляемого сертификата
+    /// File ID of the certificate to be renewed
     pub(crate) file_uuid: Uuid,
 }

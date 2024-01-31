@@ -22,12 +22,12 @@ pub(crate) struct InsertableStandardSpec {
     pub(crate) spec_id: i32,
 }
 
-/// Данные для запроса на добавление/удаление связи стандарта с каталогами
+/// Data for requesting to add/remove a standard's association with catalogs
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub(crate) struct IptStandardSpecsData {
-    /// UUID стандарта
+    /// Standard UUID
     pub(crate) standard_uuid: Uuid,
-    /// Идентификаторы каталогов (перечень)
+    /// Catalog identifiers (list)
     pub(crate) spec_ids: Vec<i32>,
 }
 
@@ -83,20 +83,20 @@ impl From<&IptStandardSpecsData> for DeleteStandardSpecs {
     }
 }
 
-/// Аргументы для запроса связанных со стандартом каталогов
+/// Arguments for querying standard-related directories
 #[derive(InputObject, Deserialize, Debug)]
 pub(crate) struct IptStandardSpecsArg {
-    /// UUID стандарта
-    pub(crate) standard_uuid:  Uuid,
-    /// Ограничение выборки данных (максимальное кол-во записей)
+    /// Standard UUID
+    pub(crate) standard_uuid: Uuid,
+    /// Restriction of data sampling (maximum number of records)
     pub(crate) limit: Option<i32>,
-    /// Кол-во пропущенных записей в начале (смещение)
+    /// Number of skipping records at the beginning (offset)
     pub(crate) offset: Option<i32>,
 }
 
 #[derive(Debug)]
 pub(crate) struct StandardSpecsArg {
-    pub(crate) standard_uuid:  Uuid,
+    pub(crate) standard_uuid: Uuid,
     pub(crate) limit: i32,
     pub(crate) offset: i32,
 }

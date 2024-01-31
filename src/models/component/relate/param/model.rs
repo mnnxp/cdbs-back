@@ -19,14 +19,14 @@ pub(crate) struct ComponentParam {
     pub(crate) value: String,
 }
 
-/// Данные о параметре компонента с локализацией
+/// Component parameter data with localization
 #[derive(Debug, Deserialize, SimpleObject, Clone)]
 pub(crate) struct ComponentParamWithTranslation {
-    /// UUID компонента
+    /// Component UUID (part identifier)
     pub(crate) component_uuid: Uuid,
-    /// Данные о параметре (наименовании) с локализацией
+    /// Data about the parameter (name) with localization
     pub(crate) param: ParamTranslateList,
-    /// Значение параметра компонента
+    /// Component parameter value
     pub(crate) value: String,
 }
 
@@ -54,12 +54,12 @@ pub(crate) struct InsertableComponentParam {
     pub(crate) value: String,
 }
 
-/// Данные для добавления/обновления параметров компонента
+/// Data for request to add/update component (part) parameters
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub(crate) struct IptComponentParamsData {
-    /// UUID компонента
+    /// Component UUID (part identifier)
     pub(crate) component_uuid: Uuid,
-    /// Перечень параметров со значениями
+    /// List of parameters with values
     pub(crate) params: Vec<IptParamData>,
 }
 
@@ -86,11 +86,11 @@ impl From<IptComponentParamsData> for Vec<InsertableComponentParam> {
     }
 }
 
-/// Данные для запроса на удаление параметров компонента
+/// Data for a request to delete component parameters
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub(crate) struct DelComponentParamData {
-    /// UUID компонента
+    /// Component UUID
     pub(crate) component_uuid: Uuid,
-    /// Идентификаторы параметров компонента (перечень)
+    /// Component parameter identifiers (list)
     pub(crate) param_ids: Vec<i32>,
 }

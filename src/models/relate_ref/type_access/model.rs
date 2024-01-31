@@ -20,7 +20,7 @@ pub(crate) struct InsertableTypeAccess {
     pub(crate) id: i32,
 }
 
-/// Информация о типе доступа с локализацией
+/// Access type information with localization
 #[derive(Identifiable, Serialize, Deserialize, Queryable, Associations)]
 #[derive(SimpleObject, Clone, Default, Debug)]
 #[diesel(primary_key(type_access_id, lang_id))]
@@ -29,20 +29,20 @@ pub(crate) struct InsertableTypeAccess {
 #[diesel(belongs_to(Language, foreign_key = lang_id))]
 #[diesel(table_name = type_access_translate_list)]
 pub(crate) struct TypeAccessTranslateList {
-    /// Идентификатор типа доступа
+    /// Access type identifier
     pub(crate) type_access_id: i32,
-    /// Идентификатор языка локализации наименования
+    /// Name localization language identifier
     pub(crate) lang_id: i32,
-    /// Локализованное наименование типа доступа
+    /// Localized name of the access type
     pub(crate) name: String,
 }
 
-/// Данные для запроса на добавление типа доступа
+/// Data for request to add access type
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub(crate) struct IptTypeAccessTranslateListData {
-    /// Идентификатор языка локализации наименования
+    /// Name localization language identifier
     pub(crate) lang_id: i32,
-    /// Локализованное наименование типа доступа
+    /// Localized name of the access type
     pub(crate) name: String,
 }
 
@@ -54,14 +54,14 @@ pub(crate) struct InsertableTypeAccessTranslateList {
     pub(crate) name: String,
 }
 
-/// Аргументы для запроса доступных типов доступа
+/// Arguments for requesting available access types
 #[derive(InputObject, Deserialize, Debug)]
 pub(crate) struct IptTypeAccessArg {
-    /// Фильтрация по идентификаторам типа доступа
-    pub(crate) type_access_ids:  Option<Vec<i32>>,
-    /// Ограничение выборки данных (максимальное кол-во записей)
+    /// Filtering by access type identifiers
+    pub(crate) type_access_ids: Option<Vec<i32>>,
+    /// Restriction of data sampling (maximum number of records)
     pub(crate) limit: Option<i32>,
-    /// Кол-во пропущенных записей в начале (смещение)
+    /// Number of skipping records at the beginning (offset)
     pub(crate) offset: Option<i32>,
 }
 

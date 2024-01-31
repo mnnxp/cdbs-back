@@ -14,12 +14,12 @@ pub(crate) struct ComponentLicense {
     pub(crate) license_id: i32,
 }
 
-/// Данные для запросов на добавление и удаление связи компонента с лицензией
+/// Data for requests to add and remove a component's connection to a license
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub(crate) struct IptComponentLicenseData {
-    /// UUID компонента
+    /// Component UUID
     pub(crate) component_uuid: Uuid,
-    /// Идентификатор лицензии
+    /// License ID
     pub(crate) license_id: i32,
 }
 

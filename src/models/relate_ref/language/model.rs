@@ -36,14 +36,14 @@ impl From<&HeaderMap> for SetLang {
 }
 
 // Language models
-/// Данные локализациии
+/// Localization data
 #[derive(Debug, Serialize, Deserialize, Queryable, SimpleObject)]
 pub(crate) struct Language {
-    /// Идентификатор языка (в рамках платформы)
+    /// Language identifier (within the platform)
     pub(crate) id: i32,
-    /// Полное наименование языка
+    /// Full language name
     pub(crate) lang: String,
-    /// Сокращённое наименование языка
+    /// Abbreviated language name
     pub(crate) langshort: String,
 }
 
@@ -54,12 +54,12 @@ pub(crate) struct InsertableLanguage {
     pub(crate) langshort: String,
 }
 
-/// Данные о наименованиях локализации
+/// Data on localization names
 #[derive(Debug, Serialize, Deserialize, Queryable, Clone, InputObject)]
 pub(crate) struct LanguageData {
-    /// Полное наименование языка
+    /// Full language name
     pub(crate) lang: String,
-    /// Сокращённое наименование языка
+    /// Abbreviated language name
     pub(crate) langshort: String,
 }
 
@@ -90,14 +90,14 @@ impl From<&str> for EngLangName {
     }
 }
 
-/// Аргументы для запроса доступных локализаций
+/// Arguments for requesting available localizations
 #[derive(InputObject, Deserialize, Debug)]
 pub(crate) struct IptLanguageArg {
-    /// Фильтрация локализаций по идентификаторам
-    pub(crate) lang_ids:  Option<Vec<i32>>,
-    /// Ограничение выборки данных (максимальное кол-во записей)
+    /// Filtering localizations by identifiers
+    pub(crate) lang_ids: Option<Vec<i32>>,
+    /// Restriction of data sampling (maximum number of records)
     pub(crate) limit: Option<i32>,
-    /// Кол-во пропущенных записей в начале (смещение)
+    /// Number of skipping records at the beginning (offset)
     pub(crate) offset: Option<i32>,
 }
 

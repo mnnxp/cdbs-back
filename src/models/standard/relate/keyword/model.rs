@@ -23,21 +23,21 @@ pub(crate) struct InsertableStandardKeyword {
     pub(crate) keyword_id: i32,
 }
 
-/// Данные для добавления ключевых слов (тегов) к стандарту по идентификаторам
+/// Data for adding keywords (tags) to the standard by identifiers
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub(crate) struct IptStandardKeywordsData {
-    /// UUID стандарта
+    /// UUID of the standard
     pub(crate) standard_uuid: Uuid,
-    /// Идентификаторы ключевых слов (перечень)
+    /// Keyword identifiers (list)
     pub(crate) keyword_ids: Vec<i32>,
 }
 
-/// Данные для добавления/удаления ключевых слов (тегов) к стандарту по наименованию
+/// Data for adding/removing keywords (tags) to a standard by name
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub(crate) struct IptStandardKeywordsNames {
-    /// UUID стандарта
+    /// UUID of the standard
     pub(crate) standard_uuid: Uuid,
-    /// Ключевые слова (перечень)
+    /// Keywords (list)
     pub(crate) keywords: Vec<String>,
 }
 
@@ -93,20 +93,20 @@ impl From<&IptStandardKeywordsData> for DeleteStandardKeywords {
     }
 }
 
-/// Аргументы для запроса ключевых слов (тегов) стандарта
+/// Arguments for requesting keywords (tags) of the standard
 #[derive(InputObject, Deserialize, Debug)]
 pub(crate) struct IptStandardKeywordsArg {
-    /// UUID стандарта
-    pub(crate) standard_uuid:  Uuid,
-    /// Ограничение выборки данных (максимальное кол-во записей)
+    /// UUID of the standard
+    pub(crate) standard_uuid: Uuid,
+    /// Restriction of data sampling (maximum number of records)
     pub(crate) limit: Option<i32>,
-    /// Кол-во пропущенных записей в начале (смещение)
+    /// Number of skipping records at the beginning (offset)
     pub(crate) offset: Option<i32>,
 }
 
 #[derive(Debug)]
 pub(crate) struct StandardKeywordsArg {
-    pub(crate) standard_uuid:  Uuid,
+    pub(crate) standard_uuid: Uuid,
     pub(crate) limit: i32,
     pub(crate) offset: i32,
 }

@@ -38,29 +38,29 @@ impl From<ComponentFile> for InsertableComponentFile {
     }
 }
 
-/// Данные для запроса на обновение основного изображения компонента
+/// Data for the request to update the main image of the component
 #[derive(InputObject, Deserialize, Debug)]
 pub(crate) struct IptComponentFaviconData {
-    /// Наименование загружаемого файла
+    /// Name of the file to be uploaded
     pub(crate) filename: String,
-    /// UUID компонента
+    /// Component UUID
     pub(crate) component_uuid: Uuid,
 }
 
-/// Данные запроса на добавление файлов компонента
+/// Data of the request to add component files
 #[derive(InputObject, Deserialize, Debug)]
 pub(crate) struct IptComponentFilesData {
-    /// Наименование загружаемых файлов (перечень)
+    /// Name of files to be uploaded (list)
     pub(crate) filenames: Vec<String>,
-    /// UUID компонента
+    /// Component UUID
     pub(crate) component_uuid: Uuid,
 }
 
-/// Данные запроса на удаление файлов компонента
+/// Component file deletion request data
 #[derive(InputObject, Deserialize, Debug)]
 pub(crate) struct DelComponentFileData {
-    /// UUID удаляемых файлов (перечень)
+    /// UUID of files to be deleted (list)
     pub(crate) file_uuid: Uuid,
-    /// UUID компонента
+    /// UUID of the component
     pub(crate) component_uuid: Uuid,
 }

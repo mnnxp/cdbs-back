@@ -17,7 +17,8 @@ pub(crate) struct InsertableActualStatus {
     pub(crate) id: i32,
 }
 
-/// Данные актуального статуса с локализацией (переводом) для указанного языка
+/// Actual status is information about the stage of the component's (product's) life cycle
+/// with localization (translation) for the specified language
 #[derive(Identifiable, Serialize, Deserialize, Queryable, Associations)]
 #[derive(SimpleObject, Clone, Default, Debug)]
 #[diesel(primary_key(actual_status_id, lang_id))]
@@ -27,11 +28,11 @@ pub(crate) struct InsertableActualStatus {
 #[diesel(belongs_to(Language, foreign_key = lang_id))]
 #[diesel(table_name = actual_status_translate_list)]
 pub(crate) struct ActualStatusTranslateList {
-    /// Идентификатор актуального статуса
+    /// Actual status identifier
     pub(crate) actual_status_id: i32,
-    /// Идентификатор языка локализации
+    /// Localization language identifier
     pub(crate) lang_id: i32,
-    /// Наименование актуального статуса
+    /// Name of the current status
     pub(crate) name: String,
 }
 

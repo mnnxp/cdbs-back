@@ -40,18 +40,18 @@ impl NotificationType {
     }
 }
 
-/// Данные об уведомлении пользователя
+/// User notification data
 #[derive(Debug, Serialize, Clone, SimpleObject)]
 pub(crate) struct ShowNotification {
-    /// Идентификатор уведомления
+    /// Notification ID
     pub(crate) id: i32,
-    /// Информация уведомления
+    /// Notification information
     pub(crate) notification: String,
-    /// Степень важности уведомления с локализацией
+    /// Importance level of the notification with localization
     pub(crate) degree_importance: DegreeImportanceTranslateList,
-    /// Дата создания уведомления
+    /// Notification creation date
     pub(crate) created_at: NaiveDateTime,
-    /// Флаг прочтения уведомления
+    /// Notification read flag
     pub(crate) is_read: bool,
 }
 
@@ -117,28 +117,28 @@ impl From<&NotificationData> for InsertableNotification {
     }
 }
 
-/// Данные о степени (уровне) важности уведомления
+/// Data on the degree (level) of importance of the notification
 #[derive(Identifiable, Serialize, Queryable)]
 #[derive(Default, Clone, Debug, SimpleObject)]
 #[diesel(primary_key(degree_importance_id, lang_id))]
 #[diesel(table_name = degree_importance_translate_list)]
 pub(crate) struct DegreeImportanceTranslateList {
-    /// Идентификатор степени важности
+    /// Identifier of the level of importance
     pub(crate) degree_importance_id: i32,
-    /// Идентификатор языка локализации
+    /// Localization language identifier
     pub(crate) lang_id: i32,
-    /// Текстовое описание степени важности
+    /// Text description of the level of importance
     pub(crate) degree: String,
 }
 
-/// Аргументы запроса на получение уведомлений пользователя
+/// User notification request arguments
 #[derive(InputObject, Deserialize, Debug)]
 pub(crate) struct IptNotificationArg {
-    /// Фильтр по идентификаторам степени важности уведомления
-    pub(crate) notification_ids:  Option<Vec<i32>>,
-    /// Ограничение выборки данных (максимальное кол-во записей)
+    /// Filter by notification severity identifiers
+    pub(crate) notification_ids: Option<Vec<i32>>,
+    /// Restriction of data sampling (maximum number of records)
     pub(crate) limit: Option<i32>,
-    /// Кол-во пропущенных записей в начале (смещение)
+    /// Number of skipping records at the beginning (offset)
     pub(crate) offset: Option<i32>,
 }
 

@@ -38,29 +38,29 @@ impl From<StandardFile> for InsertableStandardFile {
     }
 }
 
-/// Данные для запроса на обновление основного изображения стандарта
+/// Data for request to update the main image of the standard
 #[derive(InputObject, Deserialize, Debug)]
 pub(crate) struct IptStandardFaviconData {
-    /// Наименование загружаемого файла
+    /// Name of the file to be uploaded
     pub(crate) filename: String,
-    /// UUID стандарта
+    /// Standard UUID
     pub(crate) standard_uuid: Uuid,
 }
 
-/// Данные для запроса на добавление файлов стандарта (иллюстраций, документации и т.д.)
+/// Data for request to add standard files (illustrations, documentation, etc.)
 #[derive(InputObject, Deserialize, Debug)]
 pub(crate) struct IptStandardFilesData {
-    /// Наименования загружаемых файлов (перечень)
+    /// Names of files to be uploaded (list)
     pub(crate) filenames: Vec<String>,
-    /// UUID стандарта
+    /// UUID of the standard
     pub(crate) standard_uuid: Uuid,
 }
 
-/// Данные для запроса на удаление файлов стандарта
+/// Data for requesting deletion files of standard
 #[derive(InputObject, Deserialize, Debug)]
 pub(crate) struct DeleteStandardFileData {
-    /// UUID файла для удаления
+    /// UUID of the file to be deleted
     pub(crate) file_uuid: Uuid,
-    /// UUID стандарта
+    /// UUID of standard
     pub(crate) standard_uuid: Uuid,
 }

@@ -43,78 +43,78 @@ pub(crate) struct Standard {
     pub(crate) updated_at: NaiveDateTime,
 }
 
-/// Полная информация о стандарте (документе стандартизации) и связанные с ним данные
+/// Full information about the standard (standardization document) and related data
 #[derive(Debug, SimpleObject)]
 pub(crate) struct StandardAndRelatedData {
-    /// Идентификатор стандарта на платформе
+    /// UUID of the standard on the platform
     pub(crate) uuid: Uuid,
-    /// Идентификатор родительского стандарта
+    /// Parent standard UUID
     pub(crate) parent_standard_uuid: Uuid,
-    /// Классификация стандарта
+    /// Standard classification
     pub(crate) classifier: String,
-    /// Наименование стандарта
+    /// Standard name
     pub(crate) name: String,
-    /// Описание стандарта
+    /// Standard description
     pub(crate) description: String,
-    /// Допуск стандарта
+    /// Tolerance of the standard
     pub(crate) specified_tolerance: String,
-    /// Технический комитет (орган стандартизации)
+    /// Technical Committee (standardization body)
     pub(crate) technical_committee: String,
-    /// Дата публикации документа (стандарта)
+    /// Date of publication of the document (standard)
     pub(crate) publication_at: NaiveDateTime,
-    /// Данные для отображения основного изображения стандарта
+    /// Data for displaying the main image of the standard
     pub(crate) image_file: DownloadFile,
-    /// Данные о загрузившем стандарт профиле
+    /// Data about the profile that uploaded the standard
     pub(crate) owner_user: ShowUserShort,
-    /// Данные о владеющей стандартом компании
+    /// Data about the company that owns the standard
     pub(crate) owner_company: ShowCompanyShort,
-    /// Тип доступа к данным стандарта
+    /// Type of access to the standard data
     pub(crate) type_access: TypeAccessTranslateList,
-    /// Актуальный статус стандарта (например, "в разработке")
+    /// Current status of the standard (e.g., "in development")
     pub(crate) standard_status: StandardStatusTranslateList,
-    /// Основной регион применения стандарта
+    /// Main region of application of the standard
     pub(crate) region: RegionTranslateList,
-    /// Дата создания карточки стандарта
+    /// Date the standard card was created
     pub(crate) created_at: NaiveDateTime,
-    /// Дата обновления основных данных стандарта
+    /// Date the standard's master data was updated
     pub(crate) updated_at: NaiveDateTime,
     // Связанные со стандартом данные
-    /// Файлы стандарта (документация и т.д.)
+    /// Standard files (documentation, etc.)
     pub(crate) standard_files: Vec<ShowFileRelatedData>,
-    /// Каталоги в которые добавлен стандарт
+    /// Catalogs to which the standard has been added
     pub(crate) standard_specs: Vec<SpecTranslateList>,
-    /// Ключевые слова (теги) стандарта
+    /// Key words (tags) of the standard
     pub(crate) standard_keywords: Vec<Keyword>,
-    /// Количество добавивших стандарт в закладки
+    /// Number of people who have added the standard to their bookmarks
     pub(crate) subscribers: i32,
-    /// Флаг наличия стандарта в закладках пользователя
+    /// Flag of standard presence in user's bookmarks
     pub(crate) is_followed: bool,
 }
 
-/// Сокращенные данные о стандарте
+/// Abbreviated data about the standard
 #[derive(Debug, SimpleObject)]
 pub(crate) struct ShowStandardShort {
-    /// Идентификатор стандарта на платформе
+    /// Standard UUID on the platform
     pub(crate) uuid: Uuid,
-    /// Классификация стандарта
+    /// Standard classification
     pub(crate) classifier: String,
-    /// Наименование стандарта
+    /// Standard name
     pub(crate) name: String,
-    /// Описание стандарта
+    /// Standard description
     pub(crate) description: String,
-    /// Допуск стандарта
+    /// Tolerance of the standard
     pub(crate) specified_tolerance: String,
-    /// Дата публикации документа (стандарта)
+    /// Date of publication of the document (standard)
     pub(crate) publication_at: NaiveDateTime,
-    /// Данные для отображения основного изображения стандарта
+    /// Data for displaying the main image of the standard
     pub(crate) image_file: DownloadFile,
-    /// Данные о владеющей стандартом компании
+    /// Data about the company that owns the standard
     pub(crate) owner_company: ShowCompanyShort,
-    /// Актуальный статус стандарта (например, "в разработке")
+    /// Current status of the standard (e.g., "in development")
     pub(crate) standard_status: StandardStatusTranslateList,
-    /// Дата обновления основных данных стандарта
+    /// Date when the standard's main data was updated
     pub(crate) updated_at: NaiveDateTime,
-    /// Флаг наличия стандарта в закладках пользователя
+    /// Flag of the standard in the user's bookmarks
     pub(crate) is_followed: bool,
 }
 
@@ -162,30 +162,30 @@ impl InsertableStandard {
     }
 }
 
-/// Данные для регистрации нового стандарта на платформе
+/// Data for registering a new standard on the platform
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub(crate) struct IptStandardData {
-    /// Идентификатор родительского стандарта (опционально)
+    /// Parent standard UUID (optional)
     pub(crate) parent_standard_uuid: Option<Uuid>,
-    /// Классификация стандарта
+    /// Standard classification
     pub(crate) classifier: String,
-    /// Наименование стандарта
+    /// Standard name
     pub(crate) name: String,
-    /// Описание стандарта
+    /// Standard description
     pub(crate) description: String,
-    /// Допуск стандарта
+    /// Tolerance of the standard
     pub(crate) specified_tolerance: String,
-    /// Технический комитет (орган стандартизации)
+    /// Technical Committee (standardization body)
     pub(crate) technical_committee: String,
-    /// Дата публикации документа (стандарта)
+    /// Date of publication of the document (standard)
     pub(crate) publication_at: NaiveDateTime,
-    /// Идентификатор владеющей стандартом компании
+    /// Identifier of the company owning the standard
     pub(crate) company_uuid: Uuid,
-    /// Идентификатор типа доступа к данным стандарта
+    /// Identifier of the type of access to the data of the standard
     pub(crate) type_access_id: i32,
-    /// Идентификатор статуса состояния (готовности) стандарта
+    /// Identifier of the status of the state (readiness) of the standard
     pub(crate) standard_status_id: i32,
-    /// Идентификатор региона применения (разработки) стандарта
+    /// Identifier of the region of application (development) of the standard
     pub(crate) region_id: i32,
 }
 
@@ -232,42 +232,42 @@ impl From<&IptStandardData> for InsertableStandard {
     }
 }
 
-/// Данные для обновления карточки стандарта.
-/// Обновление данных происходит только для заданных значений.
+/// Data for updating the standard card.
+/// The data is only updated for the specified values.
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub(crate) struct IptUpdateStandardData {
-    /// Классификация стандарта
+    /// Standard classification
     pub(crate) classifier: Option<String>,
-    /// Наименование стандарта
+    /// Standard name
     pub(crate) name: Option<String>,
-    /// Описание стандарта
+    /// Standard description
     pub(crate) description: Option<String>,
-    /// Допуск стандарта
+    /// Tolerance of the standard
     pub(crate) specified_tolerance: Option<String>,
-    /// Технический комитет (орган стандартизации)
+    /// Technical Committee (standardization body)
     pub(crate) technical_committee: Option<String>,
-    /// Дата публикации документа (стандарта)
+    /// Date of publication of the document (standard)
     pub(crate) publication_at: Option<NaiveDateTime>,
-    /// Идентификатор владеющей стандартом компании
+    /// Identifier of the company owning the standard
     pub(crate) company_uuid: Option<Uuid>,
-    /// Идентификатор статуса состояния (готовности) стандарта
+    /// Identifier of the status of the state (readiness) of the standard
     pub(crate) standard_status_id: Option<i32>,
-    /// Идентификатор региона применения (разработки) стандарта
+    /// Identifier of the region of application (development) of the standard
     pub(crate) region_id: Option<i32>,
 }
 
-/// Аргументы для фильтрации и поиска по стандартам
+/// Arguments for filtering and searching by standards
 #[derive(InputObject, Deserialize, Debug)]
 pub(crate) struct IptStandardsArg {
-    /// Фильтр по Uuid стандартов
-    pub(crate) standards_uuids:  Option<Vec<Uuid>>,
-    /// Фильтр по компании-владельцу стандарта
+    /// Filter by standard UUID
+    pub(crate) standards_uuids: Option<Vec<Uuid>>,
+    /// Filter by company owning the standard
     pub(crate) company_uuid: Option<Uuid>,
-    /// Фильтр по наличию стандарта в избранном пользователя
+    /// Filter by the presence of the standard in the user's favorites
     pub(crate) favorite: Option<bool>,
-    /// Ограничение выборки данных (максимальное кол-во записей)
+    /// Restriction of data sampling (maximum number of records)
     pub(crate) limit: Option<i32>,
-    /// Кол-во пропущенных записей в начале (смещение)
+    /// Number of skipping records at the beginning (offset)
     pub(crate) offset: Option<i32>,
 }
 
@@ -312,22 +312,22 @@ impl From<IptStandardsArg> for StandardsArg {
     }
 }
 
-/// Аргументы для фильтрации и поиска по файлам стандарта
+/// Arguments for filtering and searching by standard files
 #[derive(InputObject, Deserialize, Debug)]
 pub(crate) struct IptStandardFilesArg {
-    /// Фильтр по Uuid стандарта
-    pub(crate) standard_uuid:  Uuid,
-    /// Фильтр по Uuid файлам стандарта
+    /// Filter by standard UUID
+    pub(crate) standard_uuid: Uuid,
+    /// Filter by standard UUID files
     pub(crate) files_uuids: Option<Vec<Uuid>>,
-    /// Ограничение выборки данных (максимальное кол-во записей)
+    /// Restriction of data sampling (maximum number of records)
     pub(crate) limit: Option<i32>,
-    /// Кол-во пропущенных записей в начале (смещение)
+    /// Number of skipping records at the beginning (offset)
     pub(crate) offset: Option<i32>,
 }
 
 #[derive(Debug)]
 pub(crate) struct StandardFilesArg {
-    pub(crate) standard_uuid:  Uuid,
+    pub(crate) standard_uuid: Uuid,
     pub(crate) file_uuids: Vec<Uuid>,
     pub(crate) limit: i32,
     pub(crate) offset: i32,

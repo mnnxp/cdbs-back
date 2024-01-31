@@ -2,18 +2,18 @@ use crate::schema::*;
 use async_graphql::*;
 use chrono::*;
 
-/// Данные о лицензии распространения
+/// Distribution license data
 #[derive(Identifiable, Serialize, Deserialize, Queryable, SimpleObject, Debug)]
 #[diesel(primary_key(id))]
 #[diesel(table_name = license_ref)]
 pub(crate) struct License {
-    /// Идентификатор лицензии
+    /// License ID
     pub(crate) id: i32,
-    /// Наименование лицензии
+    /// License name
     pub(crate) name: String,
-    /// Аббревиатура или сокращение лицензии
+    /// Abbreviation or abbreviation of the license
     pub(crate) keyword: String,
-    /// Дата публикации основного текста лицензии
+    /// Date of publication of the main text of the license
     pub(crate) publication_at: NaiveDateTime,
 }
 
@@ -25,23 +25,23 @@ pub(crate) struct InsertableLicense {
     pub(crate) publication_at: NaiveDateTime,
 }
 
-/// Данные для запроса на добавлении лицензии распространения в базу данных
+/// Data for the request to add a distribution license to the database
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub(crate) struct LicenseData {
-    /// Наименование лицензии
+    /// License name
     pub(crate) name: String,
-    /// Аббревиатура или сокращение лицензии
+    /// Abbreviation or abbreviation of the license
     pub(crate) keyword: String,
-    /// Дата публикации основного текста лицензии
+    /// Date of publication of the main text of the license
     pub(crate) publication_at: NaiveDateTime,
 }
 
-/// Сокращённые данные о лицензии распространения
+/// Abbreviated data about the distribution license
 #[derive(Debug, Serialize, Deserialize, SimpleObject, Clone)]
 pub(crate) struct SlimLicense {
-    /// Идентификатор лицензии
+    /// License Identifier
     pub(crate) id: i32,
-    /// Аббревиатура или сокращение лицензии
+    /// License abbreviation or acronym
     pub(crate) keyword: String,
 }
 
@@ -55,14 +55,14 @@ impl From<&LicenseData> for InsertableLicense {
     }
 }
 
-/// Аргументы для запроса существующий на платформе лицензий распространения
+/// Arguments for querying existing distribution licenses on the platform
 #[derive(InputObject, Deserialize, Debug)]
 pub(crate) struct IptLicenseArg {
-    /// Фильтр о идентификаторам лицензий
-    pub(crate) license_ids:  Option<Vec<i32>>,
-    /// Ограничение выборки данных (максимальное кол-во записей)
+    /// Filter on license identifiers
+    pub(crate) license_ids: Option<Vec<i32>>,
+    /// Restriction of data sampling (maximum number of records)
     pub(crate) limit: Option<i32>,
-    /// Кол-во пропущенных записей в начале (смещение)
+    /// Number of skipping records at the beginning (offset)
     pub(crate) offset: Option<i32>,
 }
 

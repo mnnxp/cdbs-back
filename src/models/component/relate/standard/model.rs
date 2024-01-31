@@ -16,12 +16,12 @@ pub(crate) struct StandardToComponent {
     pub(crate) standard_uuid: Uuid,
 }
 
-/// Данные для запроса на создание связи между компонентом и стандартом
+/// Data for requesting the creation of a link between a component and a standard
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub(crate) struct IptStandardToComponentData {
-    /// UUID стандарта
+    /// UUID of the standard
     pub(crate) standard_uuid: Uuid,
-    /// UUID компонента
+    /// Component UUID
     pub(crate) component_uuid: Uuid,
 }
 
@@ -47,11 +47,11 @@ impl From<&IptStandardToComponentData> for InsertableStandardToComponent {
     }
 }
 
-/// Данные для запроса на удаление связи между компонентом и стандартами
+/// Data for a request to remove a link between a component and standards
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub(crate) struct DelStandardToComponentData {
-    /// UUID стандартов (перечень)
+    /// UUID of standards (list)
     pub(crate) standards_uuids: Vec<Uuid>,
-    /// UUID компонента
+    /// UUID of the component
     pub(crate) component_uuid: Uuid,
 }

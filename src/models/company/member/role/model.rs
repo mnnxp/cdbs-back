@@ -4,14 +4,14 @@ use crate::models::relate_ref::type_access::model::TypeAccessTranslateList;
 use async_graphql::*;
 use uuid::Uuid;
 
-/// Идентификатор роли участников для компании
+/// Participant role identifier for the company
 #[derive(Identifiable, Serialize, Deserialize, Queryable, SimpleObject, Debug)]
 #[diesel(primary_key(id))]
 #[diesel(table_name = role_member_list)]
 pub(crate) struct RoleMember {
-    /// Идентификатор роли
+    /// Role ID
     pub(crate) id: i32,
-    /// Идентификатор компании
+    /// Company UUID
     pub(crate) company_uuid: Uuid,
 }
 
@@ -22,7 +22,7 @@ pub(crate) struct InsertableRoleMember {
     pub(crate) company_uuid: Uuid,
 }
 
-/// Наименование роли участников компании с локализацией
+/// Role name of company members with localization
 #[derive(Identifiable, Serialize, Deserialize, Queryable, Associations)]
 #[derive(SimpleObject, Default, Clone, Debug)]
 #[diesel(primary_key(role_member_id, lang_id))]
@@ -30,44 +30,44 @@ pub(crate) struct InsertableRoleMember {
 #[diesel(belongs_to(Language, foreign_key = lang_id))]
 #[diesel(table_name = role_member_translate_list)]
 pub(crate) struct RoleMemberTranslateList {
-    /// Идентификатор роли
+    /// Role identifier
     pub(crate) role_member_id: i32,
-    /// Идентификатор языка
+    /// Language identifier
     pub(crate) lang_id: i32,
-    /// Наименование роли
+    /// Role name
     pub(crate) name: String,
 }
 
-/// Уровень доступа для роли с локализацией
+/// Access level for role with localization
 #[derive(Debug, Deserialize, Clone, Default, SimpleObject)]
 pub(crate) struct RoleMemberAndRelatedData {
-    /// Данные о роли компании
+    /// Company role data
     pub(crate) role: RoleMemberTranslateList,
-    /// Данные об уровне доступа для роли
+    /// Access level data for the role
     pub(crate) access: Vec<TypeAccessTranslateList>,
 }
 
-/// Данные для добавления новой роли компании/сообщества
+/// Data for adding a new company/community role
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub(crate) struct IptRoleMemberData {
-    /// Идентификатор компании
+    /// Company UUID
     pub(crate) company_uuid: Uuid,
-    /// Идентификатор языка (на котором указано наименование)
+    /// Language identifier (in which the name is specified)
     pub(crate) lang_id: i32,
-    /// Наименование роли в рамках компании
+    /// Name of the role within the company
     pub(crate) name: String,
 }
 
-/// Данные для обновления роли компании/сообщества
+/// Data for updating the company/community role
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub(crate) struct IptUpdateNameRoleData {
-    /// Идентификатор компании
+    /// Company UUID
     pub(crate) company_uuid: Uuid,
-    /// Идентификатор роли компании
+    /// Company role identifier
     pub(crate) role_id: i32,
-    /// Идентификатор языка (на котором указано наименование)
+    /// Language identifier (in which the name is specified)
     pub(crate) lang_id: i32,
-    /// Наименование роли в рамках компании
+    /// Name of the role within the company
     pub(crate) name: String,
 }
 
@@ -79,11 +79,11 @@ pub(crate) struct InsertableRoleMemberTranslateList {
     pub(crate) name: String,
 }
 
-/// Удаление роли компании
+/// Deleting a company role
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub(crate) struct DelRoleMemberData {
-    /// Идентификатор компании
+    /// Company UUID
     pub(crate) company_uuid: Uuid,
-    /// Идентификатор роли
+    /// Role ID
     pub(crate) role_id: i32,
 }

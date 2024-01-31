@@ -186,54 +186,54 @@ pub(crate) struct SlimFile {
     pub(crate) path_file: String,
 }
 
-/// Данные для загрузки файлов в S3 хранилище
+/// Data for uploading files to S3 storage
 #[derive(Serialize, Debug, SimpleObject)]
 pub(crate) struct UploadFile {
-    /// UUID файла на платформе CADBase
+    /// UUID of file on CADBase platform
     pub(crate) file_uuid: Uuid,
-    /// Наименование загружаемого файла
+    /// Name of the file to be uploaded
     pub(crate) filename: String,
-    /// Предварительно подписанный URL для загрузки файла
+    /// Pre-signed URL for file upload
     pub(crate) upload_url: String,
 }
 
-/// Полные данные о загруженном в хранилище файле
+/// Full data about the file uploaded to the repository
 #[derive(Debug, SimpleObject, Clone)]
 pub(crate) struct ShowFileRelatedData {
-    /// UUID файла
+    /// File UUID
     pub(crate) uuid: Uuid,
-    /// Имя файла
+    /// File name
     pub(crate) filename: String,
-    /// Порядковый номер ревизии файла
+    /// File revision number
     pub(crate) revision: i32,
-    /// UUID родительского файла
+    /// UUID of parent file
     pub(crate) parent_file_uuid: Uuid,
-    /// Данные о пользователе-владельце файла
+    /// Data about the user who owns the file
     pub(crate) owner_user: ShowUserShort,
-    /// Предполагаемый тип содержимого данных
+    /// Estimated data content type
     pub(crate) content_type: String,
-    /// Размер файла в байтах
+    /// File size in bytes
     pub(crate) filesize: i64,
-    /// Ассоциированное с файлом ПО (для открытия файла)
+    /// Software associated with the file (to open the file)
     pub(crate) program: Program,
-    /// Дата создания файла
+    /// File creation date
     pub(crate) created_at: NaiveDateTime,
-    /// Дата обновления описания файла
+    /// Date the file description was updated
     pub(crate) updated_at: NaiveDateTime,
 }
 
-/// Данные для получения файла из S3 хранилища CADBase
+/// Data for retrieving a file from CADBase storage
 #[derive(Serialize, SimpleObject, Clone, Default, Debug)]
 pub(crate) struct DownloadFile {
-    /// UUID файла
+    /// UUID of the file
     pub(crate) uuid: Uuid,
     /// Hash of the file calculated with BLAKE3 (cryptographic hash function)
     pub(crate) hash: String,
-    /// Имя файла
+    /// File name
     pub(crate) filename: String,
-    /// Размер файла в байтах
+    /// File size in bytes
     pub(crate) filesize: i64,
-    /// Предварительно подписанный URL для скачивания файла
+    /// Pre-signed URL to download the file
     pub(crate) download_url: String,
 }
 

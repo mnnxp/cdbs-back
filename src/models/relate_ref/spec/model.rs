@@ -16,18 +16,18 @@ pub(crate) struct InsertableSpec {
     pub(crate) parent_spec_id: i32,
 }
 
-/// Данные о каталоге (элементе каталога) с локализацией
+/// Catalog (catalog element) data with localization
 #[derive(SimpleObject, Identifiable, Serialize, Deserialize, Queryable, Associations, Clone, Debug)]
 #[diesel(primary_key(spec_id, lang_id))]
 #[diesel(belongs_to(Spec, foreign_key = spec_id))]
 #[diesel(belongs_to(Language, foreign_key = lang_id))]
 #[diesel(table_name = spec_translate_list)]
 pub(crate) struct SpecTranslateList {
-    /// Идентификатор элемента каталога
+    /// Catalog element identifier
     pub(crate) spec_id: i32,
-    /// Идентификатор языка локализации наименования
+    /// Name localization language identifier
     pub(crate) lang_id: i32,
-    /// Локализованное наименование каталога
+    /// Localized catalog name
     pub(crate) spec: String,
 }
 
@@ -45,30 +45,30 @@ pub(crate) struct InsertableSpecTranslateList {
     pub(crate) spec: String,
 }
 
-/// Данные каталога в виде пути. Разделитель и глубина пути задаются при формировании.
-/// Например "Корень/Крепежные изделия/Болт", где "/" - разделитель, а глубина 3.
+/// Catalog data in the form of a path. Separator and depth of the path are set during generation.
+/// For example, "Root/Fasteners/Bolt", where "/" is the separator and the depth is 3.
 #[derive(Serialize, SimpleObject, Debug)]
 pub(crate) struct SpecPath {
-    /// Идентификатор элемента каталога
+    /// Catalog element identifier
     pub(crate) spec_id: i32,
-    /// Идентификатор языка локализации наименования
+    /// Name localization language identifier
     pub(crate) lang_id: i32,
-    /// Локализованное наименование каталога
+    /// Localized catalog name
     pub(crate) path: String,
 }
 
-/// Аргументы для запроса на получение путей каталогов
+/// Arguments for requesting catalog paths
 #[derive(InputObject, Deserialize, Debug)]
 pub(crate) struct IptSpecPathArg {
-    /// Фильтрация по идентификаторам каталогов
+    /// Filtering by directory identifiers
     pub(crate) spec_ids: Option<Vec<i32>>,
-    /// Символ для разделения уровней каталога (по-умолчанию "/")
+    /// Symbol for separating directory levels (default is "/")
     pub(crate) split_char: Option<char>,
-    /// Глубина формирования каталога (по-умолчанию 3)
+    /// Depth of directory formation (default is 3)
     pub(crate) depth_level: Option<i32>,
-    /// Ограничение выборки данных (максимальное кол-во записей)
+    /// Restriction of data sampling (maximum number of records)
     pub(crate) limit: Option<i32>,
-    /// Кол-во пропущенных записей в начале (смещение)
+    /// Number of skipping records at the beginning (offset)
     pub(crate) offset: Option<i32>,
 }
 
@@ -113,18 +113,18 @@ impl From<IptSpecPathArg> for SpecPathArg {
     }
 }
 
-/// Аргументы для поиска каталогов
+/// Arguments for requesting catalog paths
 #[derive(InputObject, Deserialize, Debug)]
 pub(crate) struct IptSearchSpecArg {
-    /// Текстовая строка для поиска (поисковая фраза)
+    /// Filtering by directory identifiers
     text: String,
-    /// Символ для разделения уровней каталога (по-умолчанию "/")
+    /// Symbol for separating directory levels (default is "/")
     split_char: Option<char>,
-    /// Глубина формирования каталога (по-умолчанию 3)
+    /// Depth of directory formation (default is 3)
     depth_level: Option<i32>,
-    /// Ограничение выборки данных (максимальное кол-во записей)
+    /// Restriction of data sampling (maximum number of records)
     limit: Option<i32>,
-    /// Кол-во пропущенных записей в начале (смещение)
+    /// Number of skipping records at the beginning (offset)
     offset: Option<i32>,
 }
 
@@ -169,16 +169,16 @@ impl From<IptSearchSpecArg> for SearchSpecArg {
     }
 }
 
-/// Аргументы для запроса получение информации о каталогах
+/// Arguments for requesting catalog information retrieval
 #[derive(InputObject, Deserialize, Debug)]
 pub(crate) struct IptSpecArg {
-    /// Фильтрация по идентификаторам каталогов
+    /// Filtering by catalog identifiers
     pub(crate) spec_ids: Option<Vec<i32>>,
-    /// Фильтрация по уровням каталогов
+    /// Filtering by catalog levels
     pub(crate) specs_levels: Option<Vec<i32>>,
-    /// Ограничение выборки данных (максимальное кол-во записей)
+    /// Restriction of data sampling (maximum number of records)
     pub(crate) limit: Option<i32>,
-    /// Кол-во пропущенных записей в начале (смещение)
+    /// Number of skipping records at the beginning (offset)
     pub(crate) offset: Option<i32>,
 }
 

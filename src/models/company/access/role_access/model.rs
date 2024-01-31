@@ -21,12 +21,12 @@ pub(crate) struct InsertableRoleAccess {
     pub(crate) type_access_id: i32,
 }
 
-/// Данные для запроса на добавление доступа к существующей роли
+/// Data for requesting to add access to an existing role
 #[derive(Debug, Deserialize, InputObject)]
 pub(crate) struct IptRoleAccessData {
-    /// Идентификатор роли
+    /// Role ID
     pub(crate) role_id: i32,
-    /// Идентификаторы типо доступа (перечень)
+    /// Access type identifiers (list)
     pub(crate) types_access_ids: Vec<i32>,
 }
 
@@ -51,12 +51,12 @@ impl From<&IptRoleAccessData> for Vec<InsertableRoleAccess> {
     }
 }
 
-/// Данные для удаления уровней доступа для роли
+/// Data for deleting access levels for a role
 #[derive(Debug, Deserialize, InputObject)]
 pub(crate) struct DelRoleAccessData {
-    /// Идентификатор роли
+    /// Role identifier
     pub(crate) role_id: i32,
-    /// Идентификаторы типов доступа для удаления (перечень)
+    /// Identifiers of access types to be deleted (list)
     pub(crate) types_access_ids: Vec<i32>,
 }
 

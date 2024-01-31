@@ -1,15 +1,15 @@
 use crate::schema::*;
 use async_graphql::*;
 
-/// Данные о программном или ином решении, используемом пользователями
+/// Data about the software or other solution used by users
 #[derive(Identifiable, Serialize, Deserialize, Queryable)]
 #[derive(SimpleObject, Clone, Default, Debug)]
 #[diesel(primary_key(id))]
 #[diesel(table_name = program_ref)]
 pub(crate) struct Program {
-    /// Идентификатор программного решения
+    /// Software solution identifier
     pub(crate) id: i32,
-    /// Наименование программного решения
+    /// Name of the software solution
     pub(crate) name: String,
 }
 
@@ -19,10 +19,10 @@ pub(crate) struct InsertableProgram {
     name: String,
 }
 
-/// Данные для запроса на регистрацию нового программного решения
+/// Data for request for registration of a new software solution
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub(crate) struct IptProgramData {
-    /// Наименование программного решения
+    /// Name of the software solution
     pub(crate) name: String,
 }
 
@@ -34,14 +34,14 @@ impl From<&IptProgramData> for InsertableProgram {
     }
 }
 
-/// Аргументы для запроса существующих программных решений на платформе
+/// Arguments for querying existing software solutions on the platform
 #[derive(InputObject, Deserialize, Debug)]
 pub(crate) struct IptProgramArg {
-    /// Фильтрация по идентификаторам программных решений
-    pub(crate) program_ids:  Option<Vec<i32>>,
-    /// Ограничение выборки данных (максимальное кол-во записей)
+    /// Filtering by program solution identifiers
+    pub(crate) program_ids: Option<Vec<i32>>,
+    /// Restriction of data sampling (maximum number of records)
     pub(crate) limit: Option<i32>,
-    /// Кол-во пропущенных записей в начале (смещение)
+    /// Number of skipping records at the beginning (offset)
     pub(crate) offset: Option<i32>,
 }
 

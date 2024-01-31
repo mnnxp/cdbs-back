@@ -5,46 +5,46 @@ use crate::models::relate_ref::region::model::RegionTranslateList;
 use async_graphql::*;
 use uuid::Uuid;
 
-/// Данные о представительстве компании
+/// Data on the company's representative office.
 #[derive(Identifiable, Serialize, Deserialize, Queryable, Associations)]
 #[derive(SimpleObject, Clone, Debug)]
 #[diesel(primary_key(uuid))]
 #[diesel(belongs_to(Company, foreign_key = company_uuid))]
 #[diesel(table_name = company_represent_ref)]
 pub(crate) struct CompanyRepresent {
-    /// Идентификатор представительства компании
+    /// Company representative office UUID
     pub(crate) uuid: Uuid,
-    /// Идентификатор компании
+    /// Сompany's UUID
     pub(crate) company_uuid: Uuid,
-    /// Идентификатор региона к которому относится представительство
+    /// Identifier of the region to which the representative office belongs
     pub(crate) region_id: i32,
-    /// Идентификатор типа представительства компании
+    /// Identifier of the type of the company's representative office
     pub(crate) representation_type_id: i32,
-    /// Наименование представительства компании
+    /// Name of the representative office
     pub(crate) name: String,
-    /// Адрес представительства компании
+    /// Address of the company's representative office
     pub(crate) address: String,
-    /// Номер телефона представительства компании
+    /// Phone number of the company's representative office
     pub(crate) phone: String,
 }
 
-/// Полнные даные о представительстве компании
-/// с локализацией для выбранного языка (или анг.яз.)
+/// Complete data on the company's representative office
+/// with localization for the selected language (or English by default).
 #[derive(Debug, Deserialize, SimpleObject)]
 pub(crate) struct CompanyRepresentAndRelatedData {
-    /// Идентификатор компании
+    /// UUID of the company's representative office
     pub(crate) uuid: Uuid,
-    /// Идентификатор компании
+    /// Сompany's UUID
     pub(crate) company_uuid: Uuid,
-    /// Данные региона к которому относится представительство
+    /// Data of the region to which the representative office belongs
     pub(crate) region: RegionTranslateList,
-    /// Данные по типу представительства компании
+    /// Data on the type of the representative office
     pub(crate) representation_type: RepresentationTypeTranslateList,
-    /// Наименование представительства компании
+    /// Name of the representative office
     pub(crate) name: String,
-    /// Адрес представительства компании
+    /// Address of the company's representative office
     pub(crate) address: String,
-    /// Номер телефона представительства компании
+    /// Phone number of the company's representative office
     pub(crate) phone: String,
 }
 
@@ -60,36 +60,36 @@ pub(crate) struct InsertableCompanyRepresent {
     pub(crate) phone: String,
 }
 
-/// Данные для добавления нового представительства компании
+/// Data for adding a new company representative office.
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub(crate) struct IptCompanyRepresentData {
-    /// Идентификатор компании
+    /// Сompany's UUID
     pub(crate) company_uuid: Uuid,
-    /// Идентификатор региона к которому относится представительство
+    /// Identifier of the region to which the representative office belongs
     pub(crate) region_id: i32,
-    /// Идентификатор типа представительства компании
+    /// Identifier of the type of the company's representative office
     pub(crate) representation_type_id: i32,
-    /// Наименование представительства компании
+    /// Name of the representative office
     pub(crate) name: String,
-    /// Адрес представительства компании
+    /// Address of the representative office
     pub(crate) address: String,
-    /// Номер телефона представительства компании
+    /// Phone number of the company's representative office
     pub(crate) phone: String,
 }
 
-/// Данные для обновления карточки представительства компании.
-/// Обновление данных происходит только для заданных значений.
+/// Data for updating the company representation card.
+/// The data is updated only for the specified values.
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub(crate) struct IptUpdateCompanyRepresentData {
-    /// Идентификатор региона к которому относится представительство
+    /// Identifier of the region to which the representative office belongs
     pub(crate) region_id: Option<i32>,
-    /// Идентификатор типа представительства компании
+    /// Identifier of the type of the company's representative office
     pub(crate) representation_type_id: Option<i32>,
-    /// Наименование представительства компании
+    /// Name of the representative office
     pub(crate) name: Option<String>,
-    /// Адрес представительства компании
+    /// Address of the representative office
     pub(crate) address: Option<String>,
-    /// Номер телефона представительства компании
+    /// Phone number of the company's representative office
     pub(crate) phone: Option<String>,
 }
 

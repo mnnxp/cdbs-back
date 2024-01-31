@@ -39,86 +39,86 @@ pub(crate) struct Component {
     pub(crate) updated_at: NaiveDateTime,
 }
 
-/// Полная информация о компоненте (части) и связанные с ним данные
+/// Complete information about the component (part) and related data
 #[derive(Debug, SimpleObject)]
 pub(crate) struct ComponentAndRelatedData {
-    /// Идентификатор компонента на платформе
+    /// Identifier of the component on the platform
     pub(crate) uuid: Uuid,
-    /// Идентификатор родительского компонента
+    /// Parent component identifier
     pub(crate) parent_component_uuid: Uuid,
-    /// Наименование компонента
+    /// Component name
     pub(crate) name: String,
-    /// Описание компонента
+    /// Component description
     pub(crate) description: String,
-    /// Данные для отображения основного вида компонента (части)
+    /// Data for displaying the main view of the component (part)
     pub(crate) image_file: DownloadFile,
-    /// Данные о профиле владеющем компонентом
+    /// Data about the profile owning the component
     pub(crate) owner_user: ShowUserShort,
-    /// Тип доступа к данным компонента
+    /// Type of access to the component data
     pub(crate) type_access: TypeAccessTranslateList,
-    /// Тип компонента (например, "стандартный")
+    /// Component type (e.g. "standard")
     pub(crate) component_type: ComponentTypeTranslateList,
-    /// Актуальный статус компонента (например, "в разработке")
+    /// Current status of the component (e.g. "in development")
     pub(crate) actual_status: ActualStatusTranslateList,
-    /// Для базовых компонентов возможна связь с множеством производителей/поставщиков
+    /// For basic components it is possible to link to multiple manufacturers/suppliers
     pub(crate) is_base: bool,
-    /// Количество добавивших компонент в закладки
+    /// Number of people who have added the component to bookmarks
     pub(crate) subscribers: i32,
-    /// Флаг наличия компонента в закладках пользователя
+    /// Flag of the presence of the component in the user's bookmarks
     pub(crate) is_followed: bool,
-    /// Дата создания профиля компонента
+    /// Date when the component profile was created
     pub(crate) created_at: NaiveDateTime,
-    /// Дата обновления основных данных компонента
+    /// Date of updating the component's master data
     pub(crate) updated_at: NaiveDateTime,
     // Связанные с компонентом данные
-    /// Лицензии распространения данных компонента
+    /// Component data distribution licenses
     pub(crate) licenses: Vec<License>,
-    /// Список параметров компонента
+    /// List of component parameters
     pub(crate) component_params: Vec<ComponentParamWithTranslation>,
-    /// Связанные с компонентом файлы
+    /// Files associated with the component
     pub(crate) files: Vec<ShowFileRelatedData>,
-    /// Каталоги в которые добавлен компонент
+    /// Catalogs to which the component is added
     pub(crate) component_specs: Vec<SpecTranslateList>,
-    /// Ключевые слова (теги) компонента
+    /// Component keywords (tags)
     pub(crate) component_keywords: Vec<Keyword>,
-    /// Модификации компонента и связанные с ними данные (такие как наборы файлов для САПР)
+    /// Component modifications and related data (such as CAD file sets)
     pub(crate) component_modifications: Vec<ComponentModificationAndRelatedData>,
-    /// Компания-производитель или поставщики компонента (если is_base истина)
+    /// Manufacturer or suppliers of the component (if is_base is true)
     pub(crate) component_suppliers: Vec<ComponentSupplierRelatedData>,
-    /// Список связанных с компонентом документов стандартизации
+    /// List of standardization documents associated with the component
     pub(crate) component_standards: Vec<ShowStandardShort>,
 }
 
-/// Сокращенные данные о компоненте
+/// Abbreviated component data
 #[derive(Debug, SimpleObject)]
 pub(crate) struct ShowComponentShort {
-    /// Идентификатор компонента на платформе
+    /// Identifier of the component on the platform
     pub(crate) uuid: Uuid,
-    /// Наименование компонента
+    /// Component name
     pub(crate) name: String,
-    /// Описание компонента
+    /// Component description
     pub(crate) description: String,
-    /// Данные для отображения основного вида компонента (части)
+    /// Data for displaying the main view of the component (part)
     pub(crate) image_file: DownloadFile,
-    /// Данные о профиле владеющем компонентом
+    /// Data about the profile owning the component
     pub(crate) owner_user: ShowUserShort,
-    /// Тип доступа к данным компонента
+    /// Type of access to the component data
     pub(crate) type_access: TypeAccessTranslateList,
-    /// Тип компонента (например, "стандартный")
+    /// Component type (e.g. "standard")
     pub(crate) component_type: ComponentTypeTranslateList,
-    /// Актуальный статус компонента (например, "в разработке")
+    /// Current status of the component (e.g. "in development")
     pub(crate) actual_status: ActualStatusTranslateList,
-    /// Для базовых компонентов возможна связь с множеством производителей/поставщиков
+    /// For basic components it is possible to link to multiple manufacturers/suppliers
     pub(crate) is_base: bool,
-    /// Флаг наличия компонента в закладках пользователя
+    /// Flag whether the component is available in the user's bookmarks
     pub(crate) is_followed: bool,
-    /// Дата обновления основных данных компонента
+    /// Update date of the basic component data
     pub(crate) updated_at: NaiveDateTime,
-    /// Лицензии распространения данных компонента
+    /// Component data distribution licenses
     pub(crate) licenses: Vec<License>,
-    /// Связанные с компонентом файлы (изображения)
+    /// Files (images) associated with the component
     pub(crate) files: Vec<DownloadFile>,
-    /// Компания-производитель или поставщики компонента (если is_base истина)
+    /// Manufacturer or suppliers of the component (if is_base is true)
     pub(crate) component_suppliers: Vec<ComponentSupplierRelatedData>,
 }
 

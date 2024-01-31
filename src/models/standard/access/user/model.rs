@@ -16,20 +16,20 @@ pub(crate) struct UserAccessStandard {
     pub(crate) updated_at: NaiveDateTime,
 }
 
-/// Данные о наличии доступа к стандарту у пользователя
+/// Data on whether the user has access to the standard
 #[derive(Debug, Deserialize, SimpleObject)]
 pub(crate) struct UserAccessStandardAndRelatedData {
-    /// UUID стандарта
+    /// UUID of the standard
     pub(crate) standard_uuid: Uuid,
-    /// UUID пользователя
+    /// User UUID
     pub(crate) user_uuid: Uuid,
-    /// Тип доступа с локализацией
+    /// Access type (level) with localization
     pub(crate) type_access: TypeAccessTranslateList,
-    /// Флаг активности доступа
+    /// Access activity flag
     pub(crate) is_enabled: bool,
-    /// Дата первой выдачи доступа пользователю
+    /// Date access was first issued to the user
     pub(crate) created_at: NaiveDateTime,
-    /// Дата обновления доступа
+    /// Access update date
     pub(crate) updated_at: NaiveDateTime,
 }
 
@@ -44,14 +44,14 @@ pub(crate) struct InsertableUserAccessStandard {
     pub(crate) updated_at: NaiveDateTime,
 }
 
-/// Данные для запроса на выдачу пользователю доступа к стандарту
+/// Data for requesting user access to the standard
 #[derive(Debug, Deserialize, InputObject)]
 pub(crate) struct IptUserAccessStandardData {
-    /// UUID стандарта
+    /// UUID of the standard
     pub(crate) standard_uuid: Uuid,
-    /// UUID пользователя
+    /// User UUID
     pub(crate) user_uuid: Uuid,
-    /// Идентификатор типа доступа
+    /// Access type (level) identifier
     pub(crate) type_access_id: i32,
 }
 
@@ -75,11 +75,11 @@ impl From<&IptUserAccessStandardData> for InsertableUserAccessStandard {
     }
 }
 
-/// Данные для удаления доступа пользователя к стандарту
+/// Data for a request to remove (deactivation) a user's access to a standard
 #[derive(Debug, Deserialize, InputObject)]
 pub(crate) struct DelUserAccessStandardData {
-    /// UUID стандарта
+    /// UUID of the standard
     pub(crate) standard_uuid: Uuid,
-    /// UUID пользователя
+    /// user UUID
     pub(crate) user_uuid: Uuid,
 }
