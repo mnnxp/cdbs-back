@@ -5,7 +5,7 @@ use crate::models::standard::access::util::check_access_standard_for_user;
 use diesel::prelude::*;
 use uuid::Uuid;
 
-/// Get all specs for standard
+/// Возвращает массив разделов каталога, связанных со стандартом.
 pub(crate) fn get_standard_specs(
     logged_user_uuid: &Uuid,
     arg: &StandardSpecsArg,

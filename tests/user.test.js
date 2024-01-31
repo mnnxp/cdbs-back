@@ -358,21 +358,28 @@ async function cleanupStandardDb() {
   ]);
 }
 
+// Sets a mark in the database that the file has been uploaded and verified
+async function setFileAsUploadedDb(fileUuid) {
+  return global.knex.raw('UPDATE file_ref SET is_checked=true, is_hidden=false WHERE uuid=?', [
+    fileUuid,
+  ]);
+}
+
 describe('users', () => {
   beforeAll(() => {
     // cleanupTokenDb();
+    // cleanupStandardDb();
+    // cleanupComponentParamDb();
+    // cleanupCompanyDb();
     cleanupUserDb();
-    cleanupComponentParamDb();
-    cleanupCompanyDb();
-    cleanupStandardDb();
     return;
   });
   afterAll(() => {
     // cleanupTokenDb();
+    // cleanupStandardDb();
+    // cleanupComponentParamDb();
+    // cleanupCompanyDb();
     cleanupUserDb();
-    cleanupComponentParamDb();
-    cleanupCompanyDb();
-    cleanupStandardDb();
     return;
   });
 
@@ -939,7 +946,7 @@ describe('users', () => {
     expect(selfData.uuid).toBe(userUuidFirst);
     expect(selfData.username).toBe(username);
     expect(selfData.favCompaniesCount).toBe(0);
-    expect(selfData.favComponentsCount).toBe(0);
+    expect(selfData.favComponentsCount).toBe(1); // only 1 favorite - set by default
     expect(selfData.favStandardsCount).toBe(0);
     expect(selfData.favUsersCount).toBe(0);
     done();
@@ -990,6 +997,7 @@ describe('users', () => {
       data: { uploadFavicon },
     } = body;
     uploadFaviconTestUuid = uploadFavicon.fileUuid;
+    await setFileAsUploadedDb(uploadFaviconTestUuid);
     expect(uploadFavicon.fileUuid).toBeNonEmptyString();
     expect(uploadFavicon.filename).toBe("new favicon.png");
     expect(uploadFavicon.uploadUrl).toBeNonEmptyString();
@@ -1254,6 +1262,7 @@ describe('users', () => {
       data: { uploadUserCertificate },
     } = body;
     fileCertificateTestUuid = uploadUserCertificate.fileUuid;
+    await setFileAsUploadedDb(fileCertificateTestUuid);
     expect(uploadUserCertificate.fileUuid).toBeNonEmptyString();
     expect(uploadUserCertificate.filename).toBe(goodFilenameCertificateTest);
     expect(uploadUserCertificate.uploadUrl).toBeNonEmptyString();
@@ -2108,7 +2117,7 @@ describe('users', () => {
     expect(selfData.uuid).toBe(userUuidFirst);
     expect(selfData.username).toBe(username);
     expect(selfData.favCompaniesCount).toBe(1);
-    expect(selfData.favComponentsCount).toBe(1);
+    expect(selfData.favComponentsCount).toBe(2); // + 1 default favorite for a new user
     expect(selfData.favStandardsCount).toBe(1);
     expect(selfData.favUsersCount).toBe(1);
     done();
@@ -2373,7 +2382,7 @@ describe('users', () => {
     expect(selfData.uuid).toBe(userUuidFirst);
     expect(selfData.username).toBe(username);
     expect(selfData.favCompaniesCount).toBe(0);
-    expect(selfData.favComponentsCount).toBe(0);
+    expect(selfData.favComponentsCount).toBe(1); // only 1 favorite - set by default
     expect(selfData.favStandardsCount).toBe(0);
     expect(selfData.favUsersCount).toBe(0);
     done();

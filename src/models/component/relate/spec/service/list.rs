@@ -7,7 +7,7 @@ use crate::models::relate_ref::spec::model::SpecTranslateList;
 use diesel::prelude::*;
 use uuid::Uuid;
 
-/// Get all specs for component
+/// Возвращает массив разделов каталога, связанных с компонентом.
 pub(crate) fn get_component_specs(
     logged_user_uuid: &Uuid,
     arg: &ComponentSpecsArg,

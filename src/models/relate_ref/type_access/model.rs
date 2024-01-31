@@ -20,7 +20,7 @@ pub(crate) struct InsertableTypeAccess {
     pub(crate) id: i32,
 }
 
-// TypeAccess translations
+/// Access type information with localization
 #[derive(Identifiable, Serialize, Deserialize, Queryable, Associations)]
 #[derive(SimpleObject, Clone, Default, Debug)]
 #[diesel(primary_key(type_access_id, lang_id))]
@@ -29,14 +29,20 @@ pub(crate) struct InsertableTypeAccess {
 #[diesel(belongs_to(Language, foreign_key = lang_id))]
 #[diesel(table_name = type_access_translate_list)]
 pub(crate) struct TypeAccessTranslateList {
+    /// Access type identifier
     pub(crate) type_access_id: i32,
+    /// Name localization language identifier
     pub(crate) lang_id: i32,
+    /// Localized name of the access type
     pub(crate) name: String,
 }
 
+/// Data for request to add access type
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub(crate) struct IptTypeAccessTranslateListData {
+    /// Name localization language identifier
     pub(crate) lang_id: i32,
+    /// Localized name of the access type
     pub(crate) name: String,
 }
 
@@ -48,10 +54,14 @@ pub(crate) struct InsertableTypeAccessTranslateList {
     pub(crate) name: String,
 }
 
+/// Arguments for requesting available access types
 #[derive(InputObject, Deserialize, Debug)]
 pub(crate) struct IptTypeAccessArg {
-    pub(crate) type_access_ids:  Option<Vec<i32>>,
+    /// Filtering by access type identifiers
+    pub(crate) type_access_ids: Option<Vec<i32>>,
+    /// Restriction of data sampling (maximum number of records)
     pub(crate) limit: Option<i32>,
+    /// Number of skipping records at the beginning (offset)
     pub(crate) offset: Option<i32>,
 }
 

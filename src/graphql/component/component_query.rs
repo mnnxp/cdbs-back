@@ -1,5 +1,6 @@
 use crate::errors::ServiceResult;
 use crate::database::{get_conn, PooledConnection};
+use crate::models::ExtraOptions;
 use crate::models::user::access::logged::{get_logged_user_uuid, check_authorized};
 use crate::models::component::{
     model::{
@@ -39,6 +40,8 @@ pub struct ComponentQuery;
 
 #[Object]
 impl ComponentQuery {
+    /// Returns brief information about components with filter by:
+    /// UUIDs, company, standard, user, favorite (for self or other user).
     async fn components(
         &self,
         cxt: &Context<'_>,
@@ -64,26 +67,34 @@ impl ComponentQuery {
         )
     }
 
+    /// Returns complete information about the component by UUID.
     async fn component(
         &self,
         cxt: &Context<'_>,
         component_uuid: Uuid,
+        limit: Option<i32>,
+        offset: Option<i32>,
     ) -> ServiceResult<ComponentAndRelatedData> {
         use crate::models::component::service::list::get_component_by_uuid;
 
         // authorization check
-        let logged_user_uuid: Uuid = get_logged_user_uuid(cxt, true)?;
+        let options = ExtraOptions::from_ipt(
+            get_logged_user_uuid(cxt, true)?,
+            get_set_language(cxt),
+            limit,
+            offset,
+        );
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         get_component_by_uuid(
-            &logged_user_uuid,
             &component_uuid,
-            &get_set_language(cxt),
+            &options,
             conn,
         )
     }
 
+    /// Returns a list of component modifications by component UUID.
     async fn component_modifications(
         &self,
         cxt: &Context<'_>,
@@ -106,6 +117,7 @@ impl ComponentQuery {
         )
     }
 
+    /// Returns a list of component suppliers.
     async fn component_suppliers(
         &self,
         cxt: &Context<'_>,
@@ -125,6 +137,7 @@ impl ComponentQuery {
         )
     }
 
+    /// Returns array of keywords associated with the component.
     async fn component_keywords(
         &self,
         cxt: &Context<'_>,
@@ -146,6 +159,7 @@ impl ComponentQuery {
         )
     }
 
+    /// Returns a list of companies that have access to a component.
     async fn get_companies_list_access_component(
         &self,
         cxt: &Context<'_>,
@@ -165,6 +179,7 @@ impl ComponentQuery {
         )
     }
 
+    /// Returns a list of users who have access to a component.
     async fn get_users_list_access_component(
         &self,
         cxt: &Context<'_>,
@@ -185,6 +200,7 @@ impl ComponentQuery {
         )
     }
 
+    /// Returns pre-signed URLs and other information for downloading component files.
     async fn component_files(
         &self,
         cxt: &Context<'_>,
@@ -204,6 +220,7 @@ impl ComponentQuery {
         )
     }
 
+    /// Returns information about files of a component.
     async fn component_files_list(
         &self,
         cxt: &Context<'_>,
@@ -223,6 +240,7 @@ impl ComponentQuery {
         )
     }
 
+    /// Returns an array of directory partitions associated with a component.
     async fn component_specs(
         &self,
         cxt: &Context<'_>,
@@ -245,6 +263,7 @@ impl ComponentQuery {
         )
     }
 
+    /// Returns pre-signed URLs and other information for downloading component modification files.
     async fn component_modification_files(
         &self,
         cxt: &Context<'_>,
@@ -262,6 +281,7 @@ impl ComponentQuery {
         get_component_modification_files(&logged_user_uuid, &args, conn)
     }
 
+    /// Returns information about files of a component modification.
     async fn component_modification_files_list(
         &self,
         cxt: &Context<'_>,
@@ -279,6 +299,8 @@ impl ComponentQuery {
         get_component_modification_files_list(&logged_user_uuid, &args, conn)
     }
 
+    /// Returns a list of filesets by component modification UUID.
+    /// Filtering by program IDs is available.
     async fn component_modification_filesets(
         &self,
         cxt: &Context<'_>,
@@ -297,6 +319,7 @@ impl ComponentQuery {
         )
     }
 
+    /// Returns information about files from a component modification fileset.
     async fn component_modification_files_of_fileset(
         &self,
         cxt: &Context<'_>,
@@ -315,6 +338,7 @@ impl ComponentQuery {
         )
     }
 
+    /// Returns pre-signed URLs and other information for downloading files of component modification fileset.
     async fn component_modification_fileset_files(
         &self,
         cxt: &Context<'_>,
@@ -333,6 +357,8 @@ impl ComponentQuery {
         )
     }
 
+    /// Returns a list of component types.
+    /// Filtering by component type IDs is available.
     async fn component_types(
         &self,
         cxt: &Context<'_>,
@@ -352,6 +378,8 @@ impl ComponentQuery {
         )
     }
 
+    /// Returns a list of available states (statuses) for components.
+    /// Filtering by component actual status IDs is available.
     async fn component_actual_statuses(
         &self,
         cxt: &Context<'_>,

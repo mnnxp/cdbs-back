@@ -1,4 +1,5 @@
 use crate::errors::{ServiceResult, ServiceError};
+use crate::models::ExtraOptions;
 use crate::models::component::{
     model::{Component, ShowComponentShort, ComponentAndRelatedData},
     actual_status::model::ActualStatusTranslateList,
@@ -34,6 +35,20 @@ impl Component {
         component_ref::component_ref
             .filter(component_ref::uuid.eq(target_component_uuid)
             .and(component_ref::is_delete.eq(false)))
+            .select((
+                component_ref::uuid,
+                component_ref::parent_component_uuid,
+                component_ref::name,
+                component_ref::description,
+                component_ref::image_file_uuid,
+                component_ref::user_uuid,
+                component_ref::type_access_id,
+                component_ref::component_type_id,
+                component_ref::actual_status_id,
+                component_ref::is_base,
+                component_ref::created_at,
+                component_ref::updated_at,
+            ))
             .first::<Component>(conn)
             .map_err(|err| {
                 debug!("Failed get component: {:?}", err);
@@ -46,28 +61,21 @@ impl ShowComponentShort {
     /// Gets components by filter or all public
     /// limit and offset works only without filter
     pub(crate) fn get_components(
-        logged_user_uuid: &Uuid,
         filter_components_uuids: &[Uuid],
-        limit: &i32,
-        offset: &i32,
-        set_lang_id: &i32,
+        options: &ExtraOptions,
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<ShowComponentShort>> {
         match filter_components_uuids.is_empty() {
             true => {
                 ShowComponentShort::get_all_public(
-                    logged_user_uuid,
-                    limit,
-                    offset,
-                    set_lang_id,
+                    options,
                     conn
                 )
             },
             false => {
                 ShowComponentShort::get_list_by_uuids(
                     filter_components_uuids,
-                    logged_user_uuid,
-                    set_lang_id,
+                    options,
                     conn
                 )
             }
@@ -75,34 +83,31 @@ impl ShowComponentShort {
     }
 
     pub(crate) fn get_by_uuid(
-        logged_user_uuid: &Uuid,
         component_uuid: &Uuid,
-        set_lang_id: &i32,
+        options: &ExtraOptions,
         conn: &mut PgConnection,
     ) -> ServiceResult<ShowComponentShort> {
         let need_access_level = 3; // todo!(create enum for manage access level)
 
         // check access user for select component
         check_access_component_for_user(
-            logged_user_uuid,
+            &options.logged_user_uuid,
             component_uuid,
             &need_access_level,
             conn
         )?;
 
         ShowComponentShort::get_without_check_by_uuid(
-            logged_user_uuid,
             component_uuid,
-            set_lang_id,
+            options,
             conn
         )
     }
 
     /// Gets component short data without checking access
     pub(crate) fn get_without_check_by_uuid(
-        logged_user_uuid: &Uuid,
         target_component_uuid: &Uuid,
-        set_lang_id: &i32,
+        options: &ExtraOptions,
         conn: &mut PgConnection,
     ) -> ServiceResult<ShowComponentShort> {
         // get target component
@@ -126,28 +131,28 @@ impl ShowComponentShort {
         // get component type with translation
         let type_access = TypeAccessTranslateList::get_type_access_by_id(
             &component.type_access_id,
-            set_lang_id,
+            &options.set_lang_id,
             conn
         ).expect("Error loading type_access");
 
         // get component type with translation for component
         let component_type = ComponentTypeTranslateList::get_by_id(
             &component.component_type_id,
-            set_lang_id,
+            &options.set_lang_id,
             conn
         ).expect("Error loading component_type");
 
         // get actual status with translation for component
         let actual_status = ActualStatusTranslateList::get_by_id(
             &component.actual_status_id,
-            set_lang_id,
+            &options.set_lang_id,
             conn
         ).expect("Error loading actual_status");
 
         // check whether the object is being tracked auth user
         let is_followed = crate::models::component::component_fav::util::check_subscriber_by_uuid(
             target_component_uuid,
-            logged_user_uuid,
+            &options.logged_user_uuid,
             conn
         ).expect("Error get is_followed");
 
@@ -165,8 +170,13 @@ impl ShowComponentShort {
                 conn
             )?;
 
-            DownloadFile::get_by_files_uuids(&image_uuids, conn)
-                .expect("Error loading component_file")
+            DownloadFile::get_by_file_uuids(
+                &image_uuids,
+                options.limit,
+                options.offset,
+                conn
+            )
+            .expect("Error loading component_file")
         };
 
         // collect data for supplier component
@@ -196,8 +206,7 @@ impl ShowComponentShort {
     /// Gets components short data by uuids
     pub(crate) fn get_list_by_uuids(
         target_components_uuids: &[Uuid],
-        logged_user_uuid: &Uuid,
-        set_lang_id: &i32,
+        options: &ExtraOptions,
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<ShowComponentShort>> {
         // the result for store the result :)
@@ -206,9 +215,8 @@ impl ShowComponentShort {
         // collecting data for each component
         for target_component_uuid in target_components_uuids.iter() {
             match ShowComponentShort::get_by_uuid(
-                logged_user_uuid,
                 target_component_uuid,
-                set_lang_id,
+                options,
                 conn
             ) {
                 Ok(value) => result.push(value),
@@ -224,18 +232,15 @@ impl ShowComponentShort {
 
     /// Gets all public components short data
     pub(crate) fn get_all_public(
-        logged_user_uuid: &Uuid,
-        limit: &i32,
-        offset: &i32,
-        set_lang_id: &i32,
+        options: &ExtraOptions,
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<ShowComponentShort>> {
         let target_components_uuids = component_ref::component_ref
             .filter(component_ref::type_access_id.eq(3)
             .and(component_ref::is_delete.eq(false)))
             .select(component_ref::uuid)
-            .limit(*limit as i64)
-            .offset(*offset as i64)
+            .limit(options.limit as i64)
+            .offset(options.offset as i64)
             .order(component_ref::name.asc())
             .load::<Uuid>(conn)
             .expect("Failed get public components");
@@ -246,9 +251,8 @@ impl ShowComponentShort {
         // collecting data for each component without check
         for target_component_uuid in target_components_uuids.iter() {
             result.push(ShowComponentShort::get_without_check_by_uuid(
-                logged_user_uuid,
                 target_component_uuid,
-                set_lang_id,
+                options,
                 conn
             )?);
         }
@@ -260,14 +264,13 @@ impl ComponentAndRelatedData {
     /// Collecting component data and related data using uuid
     pub(crate) fn get_component(
         target_component_uuid: &Uuid,
-        logged_user_uuid: &Uuid,
-        set_lang_id: &i32,
+        options: &ExtraOptions,
         conn: &mut PgConnection,
     ) -> ServiceResult<ComponentAndRelatedData> {
         let need_access_level = 3; // todo!(create enum for manage access level)
 
         check_access_component_for_user(
-            logged_user_uuid,
+            &options.logged_user_uuid,
             target_component_uuid,
             &need_access_level,
             conn
@@ -294,21 +297,21 @@ impl ComponentAndRelatedData {
         // get component type with translation
         let type_access = TypeAccessTranslateList::get_type_access_by_id(
             &component.type_access_id,
-            set_lang_id,
+            &options.set_lang_id,
             conn
         ).expect("Error loading type_access");
 
         // get component type with translation for component
         let component_type = ComponentTypeTranslateList::get_by_id(
             &component.component_type_id,
-            set_lang_id,
+            &options.set_lang_id,
             conn
         ).expect("Error loading component_type");
 
         // get actual status with translation for component
         let actual_status = ActualStatusTranslateList::get_by_id(
             &component.actual_status_id,
-            set_lang_id,
+            &options.set_lang_id,
             conn
         ).expect("Error loading actual status");
 
@@ -318,14 +321,14 @@ impl ComponentAndRelatedData {
         // check whether the object is being tracked auth user
         let is_followed = crate::models::component::component_fav::util::check_subscriber_by_uuid(
             target_component_uuid,
-            logged_user_uuid,
+            &options.logged_user_uuid,
             conn
         ).expect("Error get is_followed");
 
         // get params with translation for component
         let component_params = ComponentParamWithTranslation::by_component_uuid(
             &component.uuid,
-            set_lang_id,
+            &options.set_lang_id,
             conn
         ).expect("Error loading params component with translate");
 
@@ -338,13 +341,15 @@ impl ComponentAndRelatedData {
         // get files for component
         let files = ShowFileRelatedData::by_component_uuid(
             &component.uuid,
+            options.limit,
+            options.offset,
             conn
         ).expect("Error loading component files");
 
         // get specs with translation for component
         let component_specs = SpecTranslateList::for_component(
             &component,
-            set_lang_id,
+            &options.set_lang_id,
             conn
         ).expect("Error loading spec component with translate");
 
@@ -363,7 +368,7 @@ impl ComponentAndRelatedData {
         // get list component modifications with related data and translation
         let component_modifications = ComponentModificationAndRelatedData::for_modifications(
             &component_modifications,
-            set_lang_id,
+            &options.set_lang_id,
             conn
         ).expect("Error loading component modifications with related data");
 
@@ -376,8 +381,7 @@ impl ComponentAndRelatedData {
         // collect data for component standards
         let component_standards = ShowStandardShort::for_component(
             target_component_uuid,
-            logged_user_uuid,
-            set_lang_id,
+            options,
             conn
         ).expect("Error loading supplier component with relate");
 

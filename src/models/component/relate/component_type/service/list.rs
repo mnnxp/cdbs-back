@@ -2,7 +2,8 @@ use crate::errors::ServiceResult;
 use crate::models::component::relate::component_type::model::ComponentTypeTranslateList;
 use diesel::PgConnection;
 
-/// Gets component types list
+/// Возвращает список типов компонентов.
+/// Доступна фильтрация по идентификаторам типов компонентов.
 pub(crate) fn get_component_types(
     filter: &[i32],
     set_lang_id: &i32,

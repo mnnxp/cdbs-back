@@ -2,13 +2,18 @@ use crate::schema::*;
 use async_graphql::*;
 use chrono::*;
 
+/// Distribution license data
 #[derive(Identifiable, Serialize, Deserialize, Queryable, SimpleObject, Debug)]
 #[diesel(primary_key(id))]
 #[diesel(table_name = license_ref)]
 pub(crate) struct License {
+    /// License ID
     pub(crate) id: i32,
+    /// License name
     pub(crate) name: String,
+    /// Abbreviation or abbreviation of the license
     pub(crate) keyword: String,
+    /// Date of publication of the main text of the license
     pub(crate) publication_at: NaiveDateTime,
 }
 
@@ -20,16 +25,23 @@ pub(crate) struct InsertableLicense {
     pub(crate) publication_at: NaiveDateTime,
 }
 
+/// Data for the request to add a distribution license to the database
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub(crate) struct LicenseData {
+    /// License name
     pub(crate) name: String,
+    /// Abbreviation or abbreviation of the license
     pub(crate) keyword: String,
+    /// Date of publication of the main text of the license
     pub(crate) publication_at: NaiveDateTime,
 }
 
+/// Abbreviated data about the distribution license
 #[derive(Debug, Serialize, Deserialize, SimpleObject, Clone)]
 pub(crate) struct SlimLicense {
+    /// License Identifier
     pub(crate) id: i32,
+    /// License abbreviation or acronym
     pub(crate) keyword: String,
 }
 
@@ -43,10 +55,14 @@ impl From<&LicenseData> for InsertableLicense {
     }
 }
 
+/// Arguments for querying existing distribution licenses on the platform
 #[derive(InputObject, Deserialize, Debug)]
 pub(crate) struct IptLicenseArg {
-    pub(crate) license_ids:  Option<Vec<i32>>,
+    /// Filter on license identifiers
+    pub(crate) license_ids: Option<Vec<i32>>,
+    /// Restriction of data sampling (maximum number of records)
     pub(crate) limit: Option<i32>,
+    /// Number of skipping records at the beginning (offset)
     pub(crate) offset: Option<i32>,
 }
 

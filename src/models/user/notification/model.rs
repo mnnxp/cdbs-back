@@ -40,12 +40,18 @@ impl NotificationType {
     }
 }
 
+/// User notification data
 #[derive(Debug, Serialize, Clone, SimpleObject)]
 pub(crate) struct ShowNotification {
+    /// Notification ID
     pub(crate) id: i32,
+    /// Notification information
     pub(crate) notification: String,
+    /// Importance level of the notification with localization
     pub(crate) degree_importance: DegreeImportanceTranslateList,
+    /// Notification creation date
     pub(crate) created_at: NaiveDateTime,
+    /// Notification read flag
     pub(crate) is_read: bool,
 }
 
@@ -111,20 +117,28 @@ impl From<&NotificationData> for InsertableNotification {
     }
 }
 
+/// Data on the degree (level) of importance of the notification
 #[derive(Identifiable, Serialize, Queryable)]
 #[derive(Default, Clone, Debug, SimpleObject)]
 #[diesel(primary_key(degree_importance_id, lang_id))]
 #[diesel(table_name = degree_importance_translate_list)]
 pub(crate) struct DegreeImportanceTranslateList {
+    /// Identifier of the level of importance
     pub(crate) degree_importance_id: i32,
+    /// Localization language identifier
     pub(crate) lang_id: i32,
+    /// Text description of the level of importance
     pub(crate) degree: String,
 }
 
+/// User notification request arguments
 #[derive(InputObject, Deserialize, Debug)]
 pub(crate) struct IptNotificationArg {
-    pub(crate) notification_ids:  Option<Vec<i32>>,
+    /// Filter by notification severity identifiers
+    pub(crate) notification_ids: Option<Vec<i32>>,
+    /// Restriction of data sampling (maximum number of records)
     pub(crate) limit: Option<i32>,
+    /// Number of skipping records at the beginning (offset)
     pub(crate) offset: Option<i32>,
 }
 

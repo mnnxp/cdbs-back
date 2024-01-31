@@ -4,7 +4,7 @@ use crate::models::company::access::util::check_company_access;
 use diesel::PgConnection;
 use uuid::Uuid;
 
-/// Search company members for company by company uuid
+/// Возвращает агрегированные данные об участниках компании (сообщества).
 pub(crate) fn get_by_company_uuid(
     logged_user_uuid: &Uuid,
     target_company_uuid: &Uuid,

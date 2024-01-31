@@ -9,6 +9,7 @@ use crate::schema::degree_importance_translate_list::dsl as degree_importance_tr
 use diesel::prelude::*;
 use uuid::Uuid;
 
+/// Возвращает агрегированный список уведомлений пользователя.
 pub(crate) fn get_notifications(
     logged_user_uuid: &Uuid,
     args: &NotificationArg,

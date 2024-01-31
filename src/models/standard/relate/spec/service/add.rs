@@ -6,6 +6,7 @@ use crate::models::standard::access::util::check_access_standard_for_user;
 use diesel::prelude::*;
 use uuid::Uuid;
 
+/// Добавляет связи стандарта с разделами каталога.
 pub(crate) fn add_standard_specs(
     logged_user_uuid: &Uuid,
     data: &IptStandardSpecsData,

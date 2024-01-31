@@ -5,7 +5,7 @@ use crate::models::company::member::role::util::check_role_of_company;
 use diesel::prelude::*;
 use uuid::Uuid;
 
-/// Change role member in company
+/// Изменяет тип роли участника компании.
 pub(crate) fn change_role_member(
     logged_user_uuid: &Uuid,
     data: &IptCompanyMemberData,

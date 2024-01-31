@@ -6,7 +6,7 @@ use crate::models::component::access::util::check_access_component_for_user;
 use diesel::prelude::*;
 use uuid::Uuid;
 
-/// Get modifications for component
+/// Возвращает список модификаций компонента по UUID компонента.
 pub(crate) fn get_component_modifications(
     logged_user_uuid: &Uuid,
     args: &ComponentModificationArg,

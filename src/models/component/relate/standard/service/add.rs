@@ -7,8 +7,7 @@ use crate::schema::standard_to_component::dsl as standard_to_component;
 use diesel::prelude::*;
 use uuid::Uuid;
 
-/// Add related standard for component
-/// insert row in standard_to_component table
+/// Прикрепляет стандарт к компоненту.
 pub(crate) fn add_standard_to_component(
     logged_user_uuid: &Uuid,
     data: &IptStandardToComponentData,

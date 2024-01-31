@@ -1,5 +1,6 @@
 use crate::errors::ServiceResult;
 use crate::database::{get_conn, PooledConnection};
+use crate::models::ExtraOptions;
 use crate::models::user::access::logged::{get_logged_user_uuid, check_authorized};
 use crate::models::standard::{
     model::{
@@ -29,6 +30,8 @@ pub struct StandardQuery;
 
 #[Object]
 impl StandardQuery {
+    /// Returns brief information about standards with filter by:
+    /// UUIDs, company, user, favorite (for self or other user).
     async fn standards(
         &self,
         cxt: &Context<'_>,
@@ -54,26 +57,33 @@ impl StandardQuery {
         )
     }
 
+    /// Returns complete information about the standard by UUID.
     async fn standard(
         &self,
         cxt: &Context<'_>,
         standard_uuid: Uuid,
+        limit: Option<i32>,
+        offset: Option<i32>,
     ) -> ServiceResult<StandardAndRelatedData> {
         use crate::models::standard::service::list::find_by_uuid;
 
-        // authorization check
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let options = ExtraOptions::from_ipt(
+            get_logged_user_uuid(cxt, true)?,
+            get_set_language(cxt),
+            limit,
+            offset,
+        );
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         find_by_uuid(
-            &logged_user_uuid,
             &standard_uuid,
-            &get_set_language(cxt),
+            &options,
             conn,
         )
     }
 
+    /// Returns pre-signed URLs and other information for downloading standard files.
     async fn standard_files(
         &self,
         cxt: &Context<'_>,
@@ -95,6 +105,7 @@ impl StandardQuery {
         )
     }
 
+    /// Returns an array of directory partitions associated with a standard.
     async fn standard_specs(
         &self,
         cxt: &Context<'_>,
@@ -117,6 +128,7 @@ impl StandardQuery {
         )
     }
 
+    /// Returns array of keywords associated with the standard.
     async fn standard_keywords(
         &self,
         cxt: &Context<'_>,
@@ -138,6 +150,7 @@ impl StandardQuery {
         )
     }
 
+    /// Returns a list of companies that have access to a standard.
     async fn get_companies_list_access_standard(
         &self,
         cxt: &Context<'_>,
@@ -157,6 +170,7 @@ impl StandardQuery {
         )
     }
 
+    /// Returns a list of users who have access to a standard.
     async fn get_users_list_access_standard(
         &self,
         cxt: &Context<'_>,
@@ -177,6 +191,8 @@ impl StandardQuery {
         )
     }
 
+    /// Returns a list of available states (statuses) for standards.
+    /// Filtering by standard actual status IDs is available.
     async fn standard_statuses(
         &self,
         cxt: &Context<'_>,

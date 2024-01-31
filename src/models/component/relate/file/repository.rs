@@ -5,23 +5,59 @@ use diesel::prelude::*;
 use uuid::Uuid;
 
 impl ShowFileRelatedData {
-    /// Get files by component_uuid
+    /// Gets all files for modification fileset by uuid without check for hide, delete etc
     pub(crate) fn by_component_uuid(
         component_uuid: &Uuid,
+        limit: i32,
+        offset: i32,
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<ShowFileRelatedData>> {
-        let target_files_uuids: Vec<Uuid> = file_to_component::file_to_component
-            .filter(file_to_component::component_uuid.eq(component_uuid))
-            .select(file_to_component::file_uuid)
-            .load::<Uuid>(conn)
-            .map_err(|err| {
-                debug!("Failed get files for component: {:?}", err);
-                ServiceError::InternalServerError
-            })?;
+        let target_file_uuids: Vec<Uuid> = get_file_uuids_by_component_uuid(component_uuid, &[], conn)?;
 
         ShowFileRelatedData::get_file_by_uuids(
-            &target_files_uuids,
+            &target_file_uuids,
+            limit,
+            offset,
             conn
         )
     }
+}
+
+/// Returns an array of UUIDs of files relate with target component
+pub(crate) fn get_file_uuids_by_component_uuid(
+    component_uuid: &Uuid,
+    file_uuids: &[Uuid],
+    conn: &mut PgConnection,
+) -> ServiceResult<Vec<Uuid>> {
+    let mut query = file_to_component::file_to_component.into_boxed();
+
+    query = match file_uuids.is_empty() {
+        true => query.filter(file_to_component::component_uuid.eq(component_uuid)),
+        false => query.filter(file_to_component::component_uuid.eq(component_uuid)
+            .and(file_to_component::file_uuid.eq_any(file_uuids)))
+    };
+
+    query
+        .select(file_to_component::file_uuid)
+        .load::<Uuid>(conn)
+        .map_err(|err| {
+            debug!("Failed get files for component: {:?}", err);
+            ServiceError::InternalServerError
+        })
+}
+
+/// Determines a component UUID by a file UUID
+pub(crate) fn get_component_uuid_by_file_uuid(
+    file_uuid: &Uuid,
+    conn: &mut PgConnection,
+) -> ServiceResult<Option<Uuid>> {
+    file_to_component::file_to_component
+        .select(file_to_component::component_uuid)
+        .filter(file_to_component::file_uuid.eq(file_uuid))
+        .first::<Uuid>(conn)
+        .optional()
+        .map_err(|err| {
+            debug!("Failed get component uuid by file uuid: {:?}", err);
+            ServiceError::InternalServerError
+        })
 }

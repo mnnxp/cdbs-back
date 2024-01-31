@@ -8,7 +8,7 @@ use crate::schema::company_certificate_ref::dsl as company_certificate_ref;
 use diesel::prelude::*;
 use uuid::Uuid;
 
-/// Delete company certificate desctiption
+/// Удаляет сертификат компании.
 pub(crate) fn del_certificate_description(
     logged_user_uuid: &Uuid,
     data: &DelCompanyCertificateData,

@@ -8,13 +8,13 @@ use crate::schema::param_to_component::dsl::*;
 use diesel::prelude::*;
 use uuid::Uuid;
 
-/// Add new params with values for component
-/// or update values an existing component params
+/// Добавляет новые параметры со значениями для компонента.
+/// Обновляет значения существующих параметров компонента, если предоставленные имена параметров уже существуют.
 pub(crate) fn put_component_params(
     logged_user_uuid: &Uuid,
     data: &IptComponentParamsData,
     conn: &mut PgConnection
-) -> ServiceResult<i32> {
+) -> ServiceResult<usize> {
     let need_access_level = 1; // todo!(create enum for manage access level)
 
     check_access_component_for_user(
@@ -81,7 +81,7 @@ pub(crate) fn put_component_params(
         )?;
     }
 
-    Ok(count_changed_rows as i32)
+    Ok(count_changed_rows)
 }
 
 /// Add new params from array InsertableComponentParam's

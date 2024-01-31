@@ -3,6 +3,8 @@ use crate::models::relate_ref::param::model::{ParamTranslateList, ParamArg};
 use crate::schema::param_translate_list::dsl::*;
 use diesel::prelude::*;
 
+/// Возвращает список доступных параметров с фильтром по идентификаторам.
+/// Если фильтр на наименование параметров не указан, то агрегируются все существующие.
 pub(crate) fn get_params(
     args: &ParamArg,
     set_lang_id: &i32,

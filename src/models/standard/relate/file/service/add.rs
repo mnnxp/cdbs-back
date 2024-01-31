@@ -3,20 +3,18 @@ use crate::models::standard::file::model::{
     IptStandardFilesData, IptStandardFaviconData
 };
 use crate::models::standard::access::util::check_access_standard_for_user;
-use crate::models::relate_ref::file::model::{
-    ListObject, PreliminaryFileData, UploadFile
-};
 use crate::models::relate_ref::file::{
+    model::{ListObject, UploadFile},
     service::register::preregister_file,
-    util::{check_image_filename, get_default_image}
+    util::check_image_filename
 };
 use crate::storage::model::StorageAccess;
 use crate::storage::presigned_url::upload_presigned_url;
 use diesel::PgConnection;
 use uuid::Uuid;
 
-/// The return the pre-signed URLs (in wrapper UploadFile) to upload the file to storage
-/// and insert the line to link the file to the standard
+// Генерирует предварительную информацию о файлах для стандарта.
+/// Возвращает структуры с предварительно подписанным URL-адресом для загрузки файлов.
 pub(crate) fn add_standard_files(
     logged_user_uuid: &Uuid,
     data: &IptStandardFilesData,
@@ -40,13 +38,9 @@ pub(crate) fn add_standard_files(
     // Get data for write information about the file before upload to storage
     for filename in &data.filenames {
         let slim_file = preregister_file(
-            PreliminaryFileData::from_ipt_file_data(
-                *logged_user_uuid,
-                get_default_image(),
-                ListObject::Standard(data.standard_uuid),
-                filename,
-                conn
-            ),
+            logged_user_uuid,
+            ListObject::Standard(data.standard_uuid),
+            filename,
             conn
         )?;
 
@@ -67,7 +61,8 @@ pub(crate) fn add_standard_files(
     Ok(up_files)
 }
 
-/// Return pre-signed URLs (in wrapper UploadFile) for upload the favicon to storage
+/// Обновляет основное изображение стандарта.
+/// Возвращает структуру с предварительно подписанным URL-адресом для загрузки файла изображения.
 pub(crate) fn add_standard_favicon(
     logged_user_uuid: &Uuid,
     data: &IptStandardFaviconData,
@@ -93,13 +88,9 @@ pub(crate) fn add_standard_favicon(
     }
 
     let slim_file = preregister_file(
-        PreliminaryFileData::from_ipt_file_data(
-            *logged_user_uuid,
-            get_default_image(),
-            ListObject::StandardFavicon(data.standard_uuid),
-            &data.filename,
-            conn
-        ),
+        logged_user_uuid,
+        ListObject::StandardFavicon(data.standard_uuid),
+        &data.filename,
         conn
     )?;
 

@@ -6,7 +6,7 @@ use crate::models::user::model::{
 use diesel::PgConnection;
 use uuid::Uuid;
 
-/// Gets user data by uuid or username
+/// Возвращает основные и связанные с пользователем данные, по UUID пользователя.
 pub(crate) fn get_user_data (
     logged_user_uuid: &Uuid,
     args: &IptGetUserArg,
@@ -56,7 +56,7 @@ pub(crate) fn find_user_by_username(
     )
 }
 
-/// Gets slim data logged user
+/// Возвращает структуру с основной информацией о пользователе (SlimUser)
 pub(crate) fn get_self_slim_data(
     logged_user_uuid: &Uuid,
     conn: &mut PgConnection,
@@ -64,7 +64,7 @@ pub(crate) fn get_self_slim_data(
     SlimUser::get_by_uuid(logged_user_uuid, conn)
 }
 
-/// Gets self (logged user) with related data, with translate
+/// Возвращает полную информацию об авторизованном пользователе.
 pub(crate) fn get_self_user_data(
     logged_user_uuid: &Uuid,
     set_lang_id: &i32,
@@ -82,8 +82,8 @@ pub(crate) fn get_self_user_data(
     Ok(result)
 }
 
-/// Gets user short data with filter by:
-/// uuids, favorite list
+/// Возвращает агрегированные данные о пользователях.
+/// Получает краткие данные пользователей с фильтрацией по: UUID, пользователю (UUID), подписчикам, избранному (для себя).
 pub(crate) fn get_users(
     logged_user_uuid: &Uuid,
     arguments: &UsersArg,

@@ -11,8 +11,8 @@ use crate::schema::{
 use diesel::prelude::*;
 use uuid::Uuid;
 
-/// Delete standard and related data,
-/// with check ownership standard or company related with standard
+/// Удаляет стандарт и связанные с ним данные.
+/// Возвращает UUID удалённого стандарта.
 pub(crate) fn del_standard_data(
     logged_user_uuid: &Uuid,
     del_standard_uuid: &Uuid,

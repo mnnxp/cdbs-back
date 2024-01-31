@@ -1,12 +1,13 @@
 use crate::errors::{ServiceResult, ServiceError};
+use crate::models::ExtraOptions;
 use crate::models::standard::model::{
     ShowStandardShort, StandardAndRelatedData, StandardsArg,
 };
 use diesel::{PgConnection, prelude::*};
 use uuid::Uuid;
 
-/// Gets standard short data with filter by:
-/// uuids, company_uuid, favorite (for self, for other user)
+/// Возвращает агрегированные данные о стандартах.
+/// Получает краткие данные о стандартах с фильтром по: UUID, компании, пользователю, избранному (для себя или другого пользователя).
 pub(crate) fn get_standard(
     logged_user_uuid: &Uuid,
     arguments: &StandardsArg,
@@ -62,11 +63,14 @@ pub(crate) fn get_standard(
     }
 
     ShowStandardShort::get_standards(
-        logged_user_uuid,
         &target_standards_uuids,
-        limit, offset,
-        set_lang_id,
-        conn
+        &ExtraOptions {
+            logged_user_uuid: *logged_user_uuid,
+            set_lang_id: *set_lang_id,
+            limit: *limit,
+            offset: *offset,
+        },
+        conn,
     ).map_err(|err| {
         debug!("Error loading list standards and collect short data: {:?}", err);
         ServiceError::BadRequest("Access denied".to_string())
@@ -141,17 +145,16 @@ fn get_standards_followed_by_user(
         })
 }
 
+/// Возвращает полную информацию о стандарте по UUID.
 pub(crate) fn find_by_uuid(
-    logged_user_uuid: &Uuid,
     target_standard_uuid: &Uuid,
-    set_lang_id: &i32,
+    options: &ExtraOptions,
     conn: &mut PgConnection,
 ) -> ServiceResult<StandardAndRelatedData> {
     // collect data for standard
     let result: StandardAndRelatedData = StandardAndRelatedData::collect_related_data(
         target_standard_uuid,
-        logged_user_uuid,
-        set_lang_id,
+        options,
         conn
     ).expect("Error loading standard and collect related data");
 

@@ -5,7 +5,9 @@ use crate::schema::company_represent_ref::dsl as company_represent_ref;
 use diesel::prelude::*;
 use uuid::Uuid;
 
-/// Update company representative data
+/// Обновление информации о представительстве компании.
+/// Возвращает количество успешных изменений.
+/// И будет возвращена ошибка, если все отправленные данные уже отправлены.
 pub(crate) fn update_company_represent_by_uuid(
     logged_user_uuid: &Uuid,
     target_company_uuid: &Uuid,

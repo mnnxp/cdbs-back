@@ -19,6 +19,7 @@ pub struct StandardMutation;
 
 #[Object]
 impl StandardMutation {
+    /// Creates a standard, returns the UUID of the new standard.
     async fn register_standard(
         &self,
         cxt: &Context<'_>,
@@ -37,7 +38,7 @@ impl StandardMutation {
         )
     }
 
-    /// Transfer component ownership to another user
+    /// Transfers ownership of a standard to another user.
     async fn transfer_standard_ownership(
         &self,
         cxt: &Context<'_>,
@@ -57,7 +58,7 @@ impl StandardMutation {
         )
     }
 
-    /// Change standard type access
+    /// Changes the default access to a standard.
     async fn change_standard_access(
         &self,
         cxt: &Context<'_>,
@@ -77,6 +78,8 @@ impl StandardMutation {
         )
     }
 
+    /// Updates the standard's underlying data by UUID.
+    /// Returns the number of successful changes or an error if all the specified data already exists.
     async fn put_standard_update(
         &self,
         cxt: &Context<'_>,
@@ -97,6 +100,8 @@ impl StandardMutation {
         )
     }
 
+    /// Deletes a standard and its associated data.
+    /// Returns the UUID of the removed standard.
     async fn delete_standard(
         &self,
         cxt: &Context<'_>,
@@ -115,7 +120,8 @@ impl StandardMutation {
         )
     }
 
-    // Start Manage access standard
+    /// Sets access to a standard for a company.
+    /// This access applies to all members of the company according to their roles.
     async fn set_company_access_standard(
         &self,
         cxt: &Context<'_>,
@@ -135,6 +141,7 @@ impl StandardMutation {
         )
     }
 
+    /// Removes access to a standard for a company.
     async fn delete_company_access_standard(
         &self,
         cxt: &Context<'_>,
@@ -154,6 +161,7 @@ impl StandardMutation {
         )
     }
 
+    /// Sets access to a standard for a user.
     async fn set_user_access_standard(
         &self,
         cxt: &Context<'_>,
@@ -173,6 +181,7 @@ impl StandardMutation {
         )
     }
 
+    /// Removes access to a standard for a user.
     async fn delete_user_access_standard(
         &self,
         cxt: &Context<'_>,
@@ -191,8 +200,8 @@ impl StandardMutation {
             conn
         )
     }
-    // End Manage access component
 
+    /// Adds a standard connection to directory sections.
     async fn add_standard_specs(
         &self,
         cxt: &Context<'_>,
@@ -211,6 +220,7 @@ impl StandardMutation {
         )
     }
 
+    /// Removes a standard's association with directory partitions.
     async fn delete_standard_specs(
         &self,
         cxt: &Context<'_>,
@@ -229,6 +239,7 @@ impl StandardMutation {
         )
     }
 
+    /// Adds keywords to a standard by IDs.
     async fn add_standard_keywords(
         &self,
         cxt: &Context<'_>,
@@ -247,6 +258,7 @@ impl StandardMutation {
         )
     }
 
+    /// Adds keywords to a standard by words.
     async fn add_standard_keywords_by_names(
         &self,
         cxt: &Context<'_>,
@@ -265,6 +277,7 @@ impl StandardMutation {
         )
     }
 
+    /// Removes keywords from a standard.
     async fn delete_standard_keywords(
         &self,
         cxt: &Context<'_>,
@@ -283,6 +296,8 @@ impl StandardMutation {
         )
     }
 
+    /// Creates preliminary files information for a standard.
+    /// Returns structures with a pre-signed URL for uploading a files.
     async fn upload_standard_files(
         &self,
         cxt: &Context<'_>,
@@ -301,6 +316,8 @@ impl StandardMutation {
         )
     }
 
+    /// Updates the main image of the standard.
+    /// Returns a structure with a pre-signed URL for uploading an image file.
     async fn upload_standard_favicon(
         &self,
         cxt: &Context<'_>,
@@ -319,6 +336,7 @@ impl StandardMutation {
         )
     }
 
+    /// Deletes a file of a standard.
     async fn delete_standard_file(
         &self,
         cxt: &Context<'_>,

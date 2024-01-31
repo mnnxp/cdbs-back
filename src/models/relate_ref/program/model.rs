@@ -1,12 +1,15 @@
 use crate::schema::*;
 use async_graphql::*;
 
+/// Data about the software or other solution used by users
 #[derive(Identifiable, Serialize, Deserialize, Queryable)]
 #[derive(SimpleObject, Clone, Default, Debug)]
 #[diesel(primary_key(id))]
 #[diesel(table_name = program_ref)]
 pub(crate) struct Program {
+    /// Software solution identifier
     pub(crate) id: i32,
+    /// Name of the software solution
     pub(crate) name: String,
 }
 
@@ -16,8 +19,10 @@ pub(crate) struct InsertableProgram {
     name: String,
 }
 
+/// Data for request for registration of a new software solution
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub(crate) struct IptProgramData {
+    /// Name of the software solution
     pub(crate) name: String,
 }
 
@@ -29,10 +34,14 @@ impl From<&IptProgramData> for InsertableProgram {
     }
 }
 
+/// Arguments for querying existing software solutions on the platform
 #[derive(InputObject, Deserialize, Debug)]
 pub(crate) struct IptProgramArg {
-    pub(crate) program_ids:  Option<Vec<i32>>,
+    /// Filtering by program solution identifiers
+    pub(crate) program_ids: Option<Vec<i32>>,
+    /// Restriction of data sampling (maximum number of records)
     pub(crate) limit: Option<i32>,
+    /// Number of skipping records at the beginning (offset)
     pub(crate) offset: Option<i32>,
 }
 

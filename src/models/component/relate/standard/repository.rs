@@ -1,4 +1,5 @@
 use crate::errors::{ServiceResult, ServiceError};
+use crate::models::ExtraOptions;
 use crate::models::standard::model::ShowStandardShort;
 use diesel::prelude::*;
 use uuid::Uuid;
@@ -6,8 +7,7 @@ use uuid::Uuid;
 impl ShowStandardShort {
     pub(crate) fn for_component(
         target_component_uuid: &Uuid,
-        target_user_uuid: &Uuid,
-        set_lang_id: &i32,
+        options: &ExtraOptions,
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<ShowStandardShort>> {
         use crate::schema::standard_to_component::dsl::*;
@@ -31,8 +31,7 @@ impl ShowStandardShort {
         // collecting standards for component
         ShowStandardShort::get_list_by_uuids(
             &select_standards_uuids,
-            target_user_uuid,
-            set_lang_id,
+            options,
             conn,
         )
     }

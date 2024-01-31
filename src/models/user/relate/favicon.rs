@@ -1,41 +1,29 @@
 use crate::errors::ServiceResult;
-use crate::models::user::model::UserShort;
-use crate::models::relate_ref::file::model::{
-    ListObject, PreliminaryFileData, UploadFile
+use crate::models::relate_ref::file::{
+    model::{ListObject, UploadFile},
+    service::register::preregister_file,
 };
-use crate::models::relate_ref::file as file;
 use crate::storage::model::StorageAccess;
 use crate::storage::presigned_url::upload_presigned_url;
 use diesel::prelude::*;
 use uuid::Uuid;
 
+/// Обновляет аватар пользователя. Возвращает структуру с предварительно подписанным URL-адресом для загрузки файла изображения.
 pub(crate) fn update_favicon(
     target_user_uuid: &Uuid,
     filename: &str,
     conn: &mut PgConnection,
 ) -> ServiceResult<UploadFile> {
-    let user_short = UserShort::get_by_uuid(
+    let slim_file = preregister_file(
         target_user_uuid,
-        conn
-    )?;
-
-    // Get data for write information about the file before upload to storage
-    let preliminary_file_data = PreliminaryFileData::from_ipt_file_data(
-        *target_user_uuid,
-        user_short.image_file_uuid,
-        ListObject::User(user_short.uuid),
+        ListObject::User(*target_user_uuid),
         filename,
-        conn
-    );
-
-    let slim_file = file::service::register::preregister_file(
-        preliminary_file_data,
         conn
     )?;
 
     // change image uuid for user
     change_image_uuid(
-        &user_short.uuid,
+        target_user_uuid,
         &slim_file.uuid,
         conn,
     );

@@ -11,7 +11,7 @@ use crate::schema::company_access_to_component::dsl::*;
 use diesel::prelude::*;
 use uuid::Uuid;
 
-/// Get companies list have access to component
+/// Возвращает список компаний, имеющих доступ к компоненту.
 pub(crate) fn get_companies_list_access_component(
     logged_user_uuid: &Uuid,
     target_component_uuid: &Uuid,
@@ -42,7 +42,8 @@ pub(crate) fn get_companies_list_access_component(
     }
 }
 
-/// Manage component access for company
+/// Устанавливает доступ к компоненту для компании.
+/// Этот доступ распространяется на всех членов компании в соответствии с их ролями.
 pub(crate) fn set_company_access_component(
     logged_user_uuid: &Uuid,
     data: &IptCompanyAccessComponentData,
@@ -131,7 +132,7 @@ fn add_company_access_component(
     }
 }
 
-/// Remove access component for company
+/// Удаляет доступ к компоненту для компании.
 pub(crate) fn del_company_access_component(
     logged_user_uuid: &Uuid,
     data: &DelCompanyAccessComponentData,

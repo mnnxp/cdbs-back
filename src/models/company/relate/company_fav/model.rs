@@ -19,9 +19,12 @@ pub(crate) struct CompanyFav {
     pub(crate) created_at: NaiveDateTime,
 }
 
-#[derive(Debug, Deserialize, Clone, InputObject)]
+/// Data for adding a company to the user's favorites
+#[derive(Debug, Deserialize, Clone)]
 pub(crate) struct IptCompanyFavData {
+    /// UUID of the company to be added
     pub(crate) company_uuid: Uuid,
+    /// UUID of the user to whose favorites the company is added
     pub(crate) user_uuid: Uuid,
     // pub(crate) is_enabled: bool,
     // pub(crate) created_at: NaiveDateTime,

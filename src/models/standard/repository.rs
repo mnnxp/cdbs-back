@@ -1,4 +1,5 @@
 use crate::errors::{ServiceResult, ServiceError};
+use crate::models::ExtraOptions;
 use crate::models::standard::{
     model::{Standard, ShowStandardShort, StandardAndRelatedData},
     standard_status::model::StandardStatusTranslateList,
@@ -57,28 +58,21 @@ impl ShowStandardShort {
     /// Gets standards by filter or all public
     /// limit and offset works only without filter
     pub(crate) fn get_standards(
-        logged_user_uuid: &Uuid,
         filter_standards_uuids: &[Uuid],
-        limit: &i32,
-        offset: &i32,
-        set_lang_id: &i32,
+        options: &ExtraOptions,
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<ShowStandardShort>> {
         match filter_standards_uuids.is_empty() {
             true => {
                 ShowStandardShort::get_all_public(
-                    logged_user_uuid,
-                    limit,
-                    offset,
-                    set_lang_id,
+                    options,
                     conn
                 )
             },
             false => {
                 ShowStandardShort::get_list_by_uuids(
                     filter_standards_uuids,
-                    logged_user_uuid,
-                    set_lang_id,
+                    options,
                     conn
                 )
             }
@@ -87,15 +81,14 @@ impl ShowStandardShort {
 
     /// Gets standard short data by standard_uuid with check access
     pub(crate) fn get_by_uuid(
-        logged_user_uuid: &Uuid,
         target_standard_uuid: &Uuid,
-        set_lang_id: &i32,
+        options: &ExtraOptions,
         conn: &mut PgConnection,
     ) -> ServiceResult<ShowStandardShort> {
         let need_access_level = 3; // todo!(create enum for manage access level)
 
         check_access_standard_for_user(
-            logged_user_uuid,
+            &options.logged_user_uuid,
             target_standard_uuid,
             &need_access_level,
             conn
@@ -116,22 +109,22 @@ impl ShowStandardShort {
         // get standard owner company
         let owner_company = ShowCompanyShort::get_without_check_by_uuid(
             &standard.company_uuid,
-            logged_user_uuid,
-            set_lang_id,
+            &options.logged_user_uuid,
+            &options.set_lang_id,
             conn
         ).expect("Error loading company short data");
 
         // get standard type with translation for standard
         let standard_status = StandardStatusTranslateList::get_by_id(
             &standard.standard_status_id,
-            set_lang_id,
+            &options.set_lang_id,
             conn
         ).expect("Error loading standard_status");
 
         // check whether the object is being tracked auth user
         let is_followed = check_subscriber_by_uuid(
             target_standard_uuid,
-            logged_user_uuid,
+            &options.logged_user_uuid,
             conn
         ).expect("Error get is_followed");
 
@@ -152,82 +145,62 @@ impl ShowStandardShort {
     }
 
     pub(crate) fn get_list_by_uuids(
-        target_standards_uuids: &[Uuid],
-        logged_user_uuid: &Uuid,
-        set_lang_id: &i32,
+        standard_uuids: &[Uuid],
+        options: &ExtraOptions,
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<ShowStandardShort>> {
         // the for collect the result :)
         let mut result: Vec<ShowStandardShort> = Vec::new();
-
         // collecting data for each standard
-        for target_standard_uuid in target_standards_uuids.iter() {
-            match ShowStandardShort::get_by_uuid(
-                logged_user_uuid,
-                target_standard_uuid,
-                set_lang_id,
-                conn
-            ) {
-                Ok(value) => result.push(value),
-                Err(err) => {
-                    debug!("Failed get standard short data: {:?}", err);
-                },
-            }
+        for target_standard_uuid in standard_uuids.iter() {
+            let _res = ShowStandardShort::get_by_uuid(target_standard_uuid, options, conn)
+                .map(|value| result.push(value))
+                .map_err(|err| debug!("Failed get standard data: {:?}", err));
         }
         Ok(result)
     }
 
     /// Gets all public standards short data
     pub(crate) fn get_all_public(
-        logged_user_uuid: &Uuid,
-        limit: &i32,
-        offset: &i32,
-        set_lang_id: &i32,
+        options: &ExtraOptions,
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<ShowStandardShort>> {
         // gets all public standards uuids
-        let target_standards_uuids = standard_ref::standard_ref
+        let standard_uuids = standard_ref::standard_ref
             .filter(standard_ref::type_access_id.eq(3)
-            .and(standard_ref::is_delete.eq(false)))
+                .and(standard_ref::is_delete.eq(false)))
             .select(standard_ref::uuid)
-            .limit(*limit as i64)
-            .offset(*offset as i64)
+            .limit(options.limit as i64)
+            .offset(options.offset as i64)
             .load::<Uuid>(conn)
-            .expect("Failed get public standards");
-
+            .map_err(|err| {
+                debug!("Failed get public standards: {:?}", err);
+                ServiceError::InternalServerError
+            })?;
 
         // the for collect the result :)
         let mut result: Vec<ShowStandardShort> = Vec::new();
         // collecting data for each standard
-        for target_standard_uuid in target_standards_uuids.iter() {
-            match ShowStandardShort::get_by_uuid(
-                logged_user_uuid,
-                target_standard_uuid,
-                set_lang_id,
-                conn
-            ) {
-                Ok(value) => result.push(value),
-                Err(err) => {
-                    debug!("Failed get standard short data: {:?}", err);
-                },
-            }
+        for target_standard_uuid in standard_uuids.iter() {
+            let _res = ShowStandardShort::get_by_uuid(target_standard_uuid, options, conn)
+                .map(|value| result.push(value))
+                .map_err(|err| debug!("Failed get standard data: {:?}", err));
         }
         Ok(result)
     }
 }
 
 impl StandardAndRelatedData {
-    /// Collecting standard data and related data using uuid
+    /// Gathers data for a standard and related data by uuid
     pub(crate) fn collect_related_data(
         target_standard_uuid: &Uuid,
-        logged_user_uuid: &Uuid,
-        set_lang_id: &i32,
+        options: &ExtraOptions,
         conn: &mut PgConnection,
     ) -> ServiceResult<StandardAndRelatedData> {
         let need_access_level = 3; // todo!(create enum for manage access level)
 
         check_access_standard_for_user(
-            logged_user_uuid,
+            &options.logged_user_uuid,
             target_standard_uuid,
             &need_access_level,
             conn
@@ -245,43 +218,43 @@ impl StandardAndRelatedData {
             conn
         ).expect("Error get presigned url main image");
 
-        // get standard owner user
+        // get data a owner user for a standard
         let owner_user = crate::models::user::model::ShowUserShort::get_without_check_by_uuid(
             &standard.user_uuid,
             conn
         ).expect("Error loading slim_user");
 
-        // get standard owner company
+        // get data a owner company for a standard
         let owner_company = ShowCompanyShort::get_without_check_by_uuid(
             &standard.company_uuid,
-            logged_user_uuid,
-            set_lang_id,
+            &options.logged_user_uuid,
+            &options.set_lang_id,
             conn
         ).expect("Error loading company short data");
 
         // get standard type with translation for standard
-        let type_access: TypeAccessTranslateList = TypeAccessTranslateList::get_type_access_by_id(
+        let type_access = TypeAccessTranslateList::get_type_access_by_id(
             &standard.type_access_id,
-            set_lang_id,
+            &options.set_lang_id,
             conn
         ).expect("Error loading type_access");
 
         // get standard type with translation for standard
-        let standard_status: StandardStatusTranslateList = StandardStatusTranslateList::get_by_id(
+        let standard_status = StandardStatusTranslateList::get_by_id(
             &standard.standard_status_id,
-            set_lang_id,
+            &options.set_lang_id,
             conn
         ).expect("Error loading standard_status");
 
         // get region for company
-        let region: RegionTranslateList = RegionTranslateList::get_region_by_id(
+        let region = RegionTranslateList::get_region_by_id(
             &standard.region_id,
-            set_lang_id,
+            &options.set_lang_id,
             conn
         ).expect("Error loading company_type");
 
         // count subscribers standard
-        let subscribers: i32 = StandardFav::get_count_followers_by_uuid(
+        let subscribers = StandardFav::get_count_followers_by_uuid(
             &standard.uuid,
             conn
         ).expect("Error loading subscribers");
@@ -289,20 +262,22 @@ impl StandardAndRelatedData {
         // get files for standard
         let standard_files = ShowFileRelatedData::for_standard_by_uuid(
             &standard.uuid,
+            options.limit,
+            options.offset,
             conn
         ).expect("Error loading standard files");
 
         // get specs with translation for standard
         let standard_specs: Vec<SpecTranslateList> = SpecTranslateList::for_standard(
             &standard,
-            set_lang_id,
+            &options.set_lang_id,
             conn
         ).expect("Error loading spec standard with translate");
 
         // check whether the object is being tracked auth user
         let is_followed = check_subscriber_by_uuid(
             target_standard_uuid,
-            logged_user_uuid,
+            &options.logged_user_uuid,
             conn
         ).expect("Error get is_followed");
 
@@ -312,7 +287,7 @@ impl StandardAndRelatedData {
             conn
         ).expect("Error loading standard keywords");
 
-        let result = StandardAndRelatedData {
+        Ok(StandardAndRelatedData {
             uuid: standard.uuid,
             parent_standard_uuid: standard.parent_standard_uuid,
             classifier: standard.classifier,
@@ -334,8 +309,6 @@ impl StandardAndRelatedData {
             standard_keywords,
             subscribers,
             is_followed,
-        };
-
-        Ok(result)
+        })
     }
 }

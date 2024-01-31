@@ -20,6 +20,7 @@ pub(crate) struct InsertableRegion {
 }
 
 // Region translations
+/// Global (conditional) region data with localization
 #[derive(Identifiable, Serialize, Deserialize, Queryable, Associations)]
 #[derive(SimpleObject, Clone, Default, Debug)]
 #[diesel(primary_key(region_id, lang_id))]
@@ -30,14 +31,20 @@ pub(crate) struct InsertableRegion {
 #[diesel(belongs_to(Language, foreign_key = lang_id))]
 #[diesel(table_name = region_translate_list)]
 pub(crate) struct RegionTranslateList {
+    /// Region identifier
     pub(crate) region_id: i32,
+    /// Name localization language identifier
     pub(crate) lang_id: i32,
+    /// Name of global (conditional) region
     pub(crate) region: String,
 }
 
+/// Data for request to add a global (conditional) region
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub(crate) struct IptRegionTranslateListData {
+    /// Name localization language identifier
     pub(crate) lang_id: i32,
+    /// Name of global (conditional) region
     pub(crate) region: String,
 }
 
@@ -49,10 +56,14 @@ pub(crate) struct InsertableRegionTranslateList {
     pub(crate) region: String,
 }
 
+/// Arguments for querying existing global regions on the platform
 #[derive(InputObject, Deserialize, Debug)]
 pub(crate) struct IptRegionArg {
-    pub(crate) region_ids:  Option<Vec<i32>>,
+    /// Filtering by region identifiers
+    pub(crate) region_ids: Option<Vec<i32>>,
+    /// Restriction of data sampling (maximum number of records)
     pub(crate) limit: Option<i32>,
+    /// Number of skipping records at the beginning (offset)
     pub(crate) offset: Option<i32>,
 }
 

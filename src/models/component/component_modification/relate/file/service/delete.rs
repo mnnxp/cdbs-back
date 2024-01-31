@@ -9,8 +9,7 @@ use crate::schema::file_to_modification::dsl::*;
 use diesel::prelude::*;
 use uuid::Uuid;
 
-/// Delete row in file_to_modification table
-/// without delete row in  file_ref table and file in storage
+/// Удаляет файл модификации компонента.
 pub(crate) fn delete_modification_file(
     logged_user_uuid: &Uuid,
     data: &DelModificationFileData,

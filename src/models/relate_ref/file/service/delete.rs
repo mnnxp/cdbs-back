@@ -4,7 +4,7 @@ use crate::models::relate_ref::file::access::check_file_owner_err;
 use diesel::prelude::*;
 use uuid::Uuid;
 
-/// Delete file in storage and row in database
+/// Deletes a file in storage and row in database
 /// with check ownership by uuid
 pub(crate) fn delete_file_with_check_by_uuid(
     logged_user_uuid: &Uuid,
@@ -33,7 +33,11 @@ pub(crate) fn delete_file_by_uuid(
 
     diesel::update(file_ref::file_ref)
         .filter(file_ref::uuid.eq(file_uuid))
-        .set(file_ref::is_delete.eq(true))
+        .set((
+            file_ref::is_checked.eq(false),
+            file_ref::is_hidden.eq(true),
+            file_ref::is_delete.eq(true),
+        ))
         .returning(file_ref::is_delete)
         .get_result(conn)
         .map_err(|err| {
@@ -52,7 +56,11 @@ pub(crate) fn delete_file_by_uuids(
 
     let count = diesel::update(file_ref::file_ref)
         .filter(file_ref::uuid.eq_any(file_uuids))
-        .set(file_ref::is_delete.eq(true))
+        .set((
+            file_ref::is_checked.eq(false),
+            file_ref::is_hidden.eq(true),
+            file_ref::is_delete.eq(true),
+        ))
         .execute(conn)
         .map_err(|err| {
             debug!("Failded set delete flags database : {:?}", err);

@@ -29,7 +29,7 @@ pub(super) fn get_company_roles_ids(
     }
 }
 
-/// Gets roles data for company by uuid
+/// Возвращает агрегированные данные ролей для участников компании.
 pub(crate) fn get_roles_for_company(
     logged_user_uuid: &Uuid,
     target_company_uuid: &Uuid,

@@ -7,7 +7,7 @@ use crate::schema::user_certificate_ref::dsl as user_certificate_ref;
 use diesel::prelude::*;
 use uuid::Uuid;
 
-/// Delete user certificate desctiption
+/// Удаляет сертификат пользователя.
 pub(crate) fn del_certificate_description(
     logged_user_uuid: &Uuid,
     data: &DelUserCertificateData,

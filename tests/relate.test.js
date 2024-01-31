@@ -1,4 +1,4 @@
-const debug = require('debug')('cdbs-back:component.test.js');
+const debug = require('debug')('cdbs-back:relate.test.js');
 const request = require('supertest');
 
 const HttpStatus = require('http-status-codes');
@@ -1170,9 +1170,8 @@ describe('param', () => {
     const {
       data: { companyRepresentTypes }
     } = body;
-    expect(companyRepresentTypes).toBeEmptyArray();
-    // expect(companyRepresentTypes).toBeNonEmptyArray();
-    // expect(companyRepresentTypes[0].langId).toBe(2);
+    expect(companyRepresentTypes).toBeNonEmptyArray();
+    expect(companyRepresentTypes[0].langId).toBe(2);
     done();
   });
 });

@@ -7,6 +7,7 @@ use crate::schema::keyword_to_component::dsl as keyword_to_component;
 use diesel::prelude::*;
 use uuid::Uuid;
 
+/// Удаляет ключевые слова из компонента.
 pub(crate) fn del_component_keywords(
     logged_user_uuid: &Uuid,
     data: &IptComponentKeywordsData,

@@ -3,7 +3,7 @@ use crate::schema::user_fav::dsl as user_fav;
 use diesel::prelude::*;
 use uuid::Uuid;
 
-// Remove a user from user favorites user list
+/// Удаляет пользователя из списка избранного авторизованного пользователя.
 pub(crate) fn delete_user_fav(
     logged_user_uuid: &Uuid,
     user_favorite_uuid: &Uuid,

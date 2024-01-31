@@ -7,6 +7,7 @@ use crate::schema::keyword_to_standard::dsl as keyword_to_standard;
 use diesel::prelude::*;
 use uuid::Uuid;
 
+/// Удаляет ключевые слова из описания стандарта.
 pub(crate) fn del_standard_keywords(
     logged_user_uuid: &Uuid,
     data: &IptStandardKeywordsData,

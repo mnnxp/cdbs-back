@@ -6,6 +6,8 @@ use crate::schema::region_ref::dsl as region_ref;
 use crate::schema::region_translate_list::dsl as region_translate_list;
 use diesel::{PgConnection, prelude::*};
 
+/// Добавляет наименование региона. Возвращает идентификатор и наименование региона.
+/// Возвращает ошибку с идентификатором региона, если он уже существует.
 pub(crate) fn create_region(
     new_region_data: &IptRegionTranslateListData,
     conn: &mut PgConnection

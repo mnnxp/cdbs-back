@@ -6,7 +6,7 @@ use crate::models::component::access::util::check_is_owner_with_err;
 use diesel::prelude::*;
 use uuid::Uuid;
 
-/// Change component owner user
+/// Передает право собственности на компонент другому пользователю.
 pub(crate) fn change_component_owner_user(
     logged_user_uuid: &Uuid,
     data: &ChangeOwnerComponent,
@@ -36,7 +36,7 @@ pub(crate) fn change_component_owner_user(
     Ok(change_owner == data.new_owner_user_uuid)
 }
 
-/// Change component type_access
+/// Изменяет доступ по умолчанию к компоненту.
 pub(crate) fn change_component_type_access(
     logged_user_uuid: &Uuid,
     data: &ChangeTypeAccessComponent,

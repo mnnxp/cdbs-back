@@ -12,7 +12,7 @@ use async_graphql::*;
 use chrono::*;
 use uuid::Uuid;
 
-#[derive(Identifiable, Deserialize, Queryable, Associations, PartialEq, Clone, SimpleObject, Debug)]
+#[derive(Identifiable, Deserialize, Queryable, Associations, PartialEq, Clone, Debug)]
 #[diesel(primary_key(uuid))]
 #[diesel(belongs_to(Component, foreign_key = component_uuid))]
 #[diesel(table_name = component_modification_list)]
@@ -28,17 +28,28 @@ pub(crate) struct ComponentModification {
     pub(crate) updated_at: NaiveDateTime,
 }
 
+/// Full information about component (part) modification and related data
 #[derive(Deserialize, SimpleObject, Debug)]
 pub(crate) struct ComponentModificationAndRelatedData {
+    /// UUID of the component modification
     pub(crate) uuid: Uuid,
+    /// UUID of component
     pub(crate) component_uuid: Uuid,
+    /// UUID of the parent modification of the component
     pub(crate) parent_modification_uuid: Uuid,
+    /// Name of the component modification
     pub(crate) modification_name: String,
+    /// Description of the component modification
     pub(crate) description: String,
+    /// Current status of the component modification
     pub(crate) actual_status: ActualStatusTranslateList,
+    /// Date of creation of the component modification
     pub(crate) created_at: NaiveDateTime,
+    /// Date when the main data of the component modification was changed
     pub(crate) updated_at: NaiveDateTime,
+    /// Component modification file sets data (list)
     pub(crate) filesets_for_program: Vec<FilesetProgramRelatedData>,
+    /// Data on component modification parameters (list)
     pub(crate) modification_params: Vec<ModificationParamWithTranslation>,
 }
 
@@ -91,6 +102,21 @@ pub(crate) struct InsertableComponentModification {
 
 impl InsertableComponentModification {
     /// Check parent modification uuid on nil
+    pub(crate) fn get_default_for_component(component_uuid: &Uuid) -> Self {
+        Self {
+            uuid: Uuid::new_v4(),
+            component_uuid: *component_uuid,
+            parent_modification_uuid: Uuid::nil(),
+            modification_name: "N1".to_string(),
+            description: String::new(),
+            actual_status_id: 1,
+            is_delete: false,
+            created_at: chrono::Local::now().naive_local(),
+            updated_at: chrono::Local::now().naive_local(),
+        }
+    }
+
+    /// Check parent modification uuid on nil
     pub(crate) fn parent_uuid_is_nil(&self) -> bool {
         self.parent_modification_uuid.is_nil()
     }
@@ -101,12 +127,18 @@ impl InsertableComponentModification {
     }
 }
 
+/// Data for adding a new modification to a component
 #[derive(Debug, Deserialize, InputObject)]
 pub(crate) struct IptComponentModificationData {
+    /// UUID of the component to which the modification will be added
     pub(crate) component_uuid: Uuid,
+    /// UUID of the parent modification of the component (optional)
     pub(crate) parent_modification_uuid: Option<Uuid>,
+    /// Name of the component modification
     pub(crate) modification_name: String,
+    /// Description of the component modification
     pub(crate) description: String,
+    /// Current status of the component modification
     pub(crate) actual_status_id: i32,
 }
 
@@ -139,23 +171,29 @@ impl From<&IptComponentModificationData> for InsertableComponentModification {
     }
 }
 
+/// Structure for updating the basic data of a component modification
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub(crate) struct IptUpdateComponentModificationData {
-    // pub(crate) parent_modification_uuid: Option<Uuid>,
+    /// New name of the component modification (optional)
     pub(crate) modification_name: Option<String>,
+    /// New description of the component modification (optional)
     pub(crate) description: Option<String>,
+    /// Update the status of the component modification (optional)
     pub(crate) actual_status_id: Option<i32>,
 }
 
+/// Component modification deletion request data
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub(crate) struct DelComponentModificationData {
+    /// UUID of the component to which the component modification applies
     pub(crate) component_uuid: Uuid,
+    /// UUID of the component modification to be deleted
     pub(crate) modification_uuid: Uuid,
 }
 
 #[derive(InputObject, Deserialize, Debug)]
 pub(crate) struct IptComponentModificationArg {
-    pub(crate) component_uuid:  Uuid,
+    pub(crate) component_uuid: Uuid,
     pub(crate) limit: Option<i32>,
     pub(crate) offset: Option<i32>,
 }
@@ -194,18 +232,23 @@ impl From<IptComponentModificationArg> for ComponentModificationArg {
     }
 }
 
+/// Component modification file list request data
 #[derive(InputObject, Deserialize, Debug)]
 pub(crate) struct IptModificationFilesArg {
-    pub(crate) modification_uuid:  Uuid,
+    /// UUID of component modification
+    pub(crate) modification_uuid: Uuid,
+    /// Filtering files by UUID (list)
     pub(crate) files_uuids: Option<Vec<Uuid>>,
+    /// Restriction of data sampling (maximum number of records)
     pub(crate) limit: Option<i32>,
+    /// Number of skipping records at the beginning (offset)
     pub(crate) offset: Option<i32>,
 }
 
 #[derive(Debug)]
 pub(crate) struct ModificationFilesArg {
-    pub(crate) modification_uuid:  Uuid,
-    pub(crate) files_uuids: Vec<Uuid>,
+    pub(crate) modification_uuid: Uuid,
+    pub(crate) file_uuids: Vec<Uuid>,
     pub(crate) limit: i32,
     pub(crate) offset: i32,
 }
@@ -221,7 +264,7 @@ impl From<IptModificationFilesArg> for ModificationFilesArg {
 
         Self {
             modification_uuid,
-            files_uuids: files_uuids.unwrap_or_default(),
+            file_uuids: files_uuids.unwrap_or_default(),
             limit: limit.unwrap_or(100),
             offset: offset.unwrap_or(0),
         }

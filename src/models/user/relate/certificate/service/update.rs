@@ -3,7 +3,8 @@ use crate::models::user::certificate::model::IptUpdateUserCertificateData;
 use diesel::prelude::*;
 use uuid::Uuid;
 
-/// Update user certificate desctiption
+/// Обновляет описание сертификата пользователя.
+/// Возвращает true, если изменение прошло успешно, и false, если описание сертификата уже установлено.
 pub(crate) fn update_certificate_description(
     logged_user_uuid: &Uuid,
     data: &IptUpdateUserCertificateData,

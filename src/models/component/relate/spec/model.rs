@@ -5,7 +5,7 @@ use async_graphql::*;
 use uuid::Uuid;
 
 // Spec component models
-#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, Clone, Debug, SimpleObject)]
+#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, Clone, Debug)]
 #[diesel(primary_key(component_uuid, spec_id))]
 #[diesel(belongs_to(Component, foreign_key = component_uuid))]
 #[diesel(belongs_to(Spec, foreign_key = spec_id))]
@@ -15,9 +15,12 @@ pub(crate) struct ComponentSpec {
     pub(crate) component_uuid: Uuid,
 }
 
+/// Data for requests to add and remove directory links to the component
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub(crate) struct IptComponentSpecsData {
+    /// Component UUID
     pub(crate) component_uuid: Uuid,
+    /// Catalog identifiers (list)
     pub(crate) spec_ids: Vec<i32>,
 }
 
@@ -79,16 +82,20 @@ impl From<&IptComponentSpecsData> for DeleteComponentSpecs {
     }
 }
 
+/// Data for querying catalogs associated with the component
 #[derive(InputObject, Deserialize, Debug)]
 pub(crate) struct IptComponentSpecsArg {
-    pub(crate) component_uuid:  Uuid,
+    /// Component UUID
+    pub(crate) component_uuid: Uuid,
+    /// Restriction of data sampling (maximum number of records)
     pub(crate) limit: Option<i32>,
+    /// Number of skipping records at the beginning (offset)
     pub(crate) offset: Option<i32>,
 }
 
 #[derive(Debug)]
 pub(crate) struct ComponentSpecsArg {
-    pub(crate) component_uuid:  Uuid,
+    pub(crate) component_uuid: Uuid,
     pub(crate) limit: i32,
     pub(crate) offset: i32,
 }

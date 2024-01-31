@@ -6,7 +6,7 @@ use crate::schema::keyword_to_component::dsl as keyword_to_component;
 use diesel::prelude::*;
 use uuid::Uuid;
 
-/// Get all keywords for component
+/// Возвращает ключевые слова, связанные с компонентом.
 pub(crate) fn get_component_keywords(
     logged_user_uuid: &Uuid,
     arg: &ComponentKeywordsArg,

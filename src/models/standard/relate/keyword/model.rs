@@ -6,8 +6,7 @@ use async_graphql::*;
 use uuid::Uuid;
 
 // Keyword standard models
-#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations)]
-#[derive(SimpleObject, Clone, Debug)]
+#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, Clone, Debug)]
 #[diesel(primary_key(standard_uuid, keyword_id))]
 #[diesel(belongs_to(Standard, foreign_key = standard_uuid))]
 #[diesel(belongs_to(Keyword, foreign_key = keyword_id))]
@@ -17,27 +16,6 @@ pub(crate) struct StandardKeyword {
     pub(crate) keyword_id: i32,
 }
 
-#[derive(Deserialize, SimpleObject, Clone, Debug)]
-pub(crate) struct StandardKeywordRelatedData {
-    pub(crate) keyword: Keyword,
-    pub(crate) standard_uuid: Uuid,
-}
-
-// impl StandardKeywordRelatedData {
-//     /// Create struct with StandardKeyword data, Keyword data set default
-//     pub(crate) fn new(standard_uuid: &Uuid) -> Self {
-//         Self{
-//             keyword: Default::default(),
-//             standard_uuid: *standard_uuid,
-//         }
-//     }
-//
-//     /// Change keyword data
-//     pub(crate) fn put_keyword(&mut self, keyword: Keyword) {
-//         self.keyword = keyword;
-//     }
-// }
-
 #[derive(Debug, Insertable)]
 #[diesel(table_name = keyword_to_standard)]
 pub(crate) struct InsertableStandardKeyword {
@@ -45,15 +23,21 @@ pub(crate) struct InsertableStandardKeyword {
     pub(crate) keyword_id: i32,
 }
 
+/// Data for adding keywords (tags) to the standard by identifiers
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub(crate) struct IptStandardKeywordsData {
+    /// UUID of the standard
     pub(crate) standard_uuid: Uuid,
+    /// Keyword identifiers (list)
     pub(crate) keyword_ids: Vec<i32>,
 }
 
+/// Data for adding/removing keywords (tags) to a standard by name
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub(crate) struct IptStandardKeywordsNames {
+    /// UUID of the standard
     pub(crate) standard_uuid: Uuid,
+    /// Keywords (list)
     pub(crate) keywords: Vec<String>,
 }
 
@@ -109,16 +93,20 @@ impl From<&IptStandardKeywordsData> for DeleteStandardKeywords {
     }
 }
 
+/// Arguments for requesting keywords (tags) of the standard
 #[derive(InputObject, Deserialize, Debug)]
 pub(crate) struct IptStandardKeywordsArg {
-    pub(crate) standard_uuid:  Uuid,
+    /// UUID of the standard
+    pub(crate) standard_uuid: Uuid,
+    /// Restriction of data sampling (maximum number of records)
     pub(crate) limit: Option<i32>,
+    /// Number of skipping records at the beginning (offset)
     pub(crate) offset: Option<i32>,
 }
 
 #[derive(Debug)]
 pub(crate) struct StandardKeywordsArg {
-    pub(crate) standard_uuid:  Uuid,
+    pub(crate) standard_uuid: Uuid,
     pub(crate) limit: i32,
     pub(crate) offset: i32,
 }

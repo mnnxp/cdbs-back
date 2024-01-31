@@ -5,6 +5,8 @@ use crate::models::relate_ref::program::model::{
 use crate::schema::program_ref::dsl as program_ref;
 use diesel::{PgConnection, prelude::*};
 
+/// Возвращает список программ, с фильтром по идентификаторам.
+/// Если фильтр программ не указан, то агрегируются все существующие.
 pub(crate) fn get_programs(
     args: &ProgramArg,
     conn: &mut PgConnection,

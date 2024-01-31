@@ -15,36 +15,21 @@ pub(crate) struct ModificationFileFromFileset {
     pub(crate) file_uuid: Uuid,
 }
 
-#[derive(Debug, SimpleObject, Clone)]
-pub(crate) struct ModificationFileFromFilesetRelatedData {
-    pub(crate) fileset_uuid: Uuid,
-    pub(crate) files: Vec<ShowFileRelatedData>,
-}
-
-// impl ModificationFileFromFilesetRelatedData {
-//     /// Create struct with FilesetProgram data, Program data set default
-//     pub(crate) fn new(fileset_uuid: &Uuid) -> Self {
-//         Self{
-//             fileset_uuid: *fileset_uuid,
-//             files: Vec::new(),
-//         }
-//     }
-//
-//     /// Change files data
-//     pub(crate) fn put_files(&mut self, files: Vec<ShowFileRelatedData>) {
-//         self.files = files;
-//     }
-// }
-
+/// Data for requesting new files to be added to the file set
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub(crate) struct IptModificationFileFromFilesetData {
+    /// UUID of the file set to which the new files will be added
     pub(crate) fileset_uuid: Uuid,
+    /// Names of files to be added to the file set
     pub(crate) filenames: Vec<String>,
 }
 
+/// Data for a request to delete files from a set of files
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub(crate) struct DelModificationFileFromFilesetData {
+    /// UUID of the file set to which the files to be deleted belong
     pub(crate) fileset_uuid: Uuid,
+    /// UUIDs of files to be deleted from the file set
     pub(crate) file_uuids: Vec<Uuid>,
 }
 
@@ -55,11 +40,16 @@ pub(crate) struct InsertableModificationFileFromFileset {
     pub(crate) file_uuid: Uuid,
 }
 
+/// Data for requesting file data from a set of files
 #[derive(InputObject, Deserialize, Debug)]
 pub(crate) struct IptFileOfFilesetArg {
+    /// UUID of file set
     pub(crate) fileset_uuid: Uuid,
+    /// UUIDs of files to filter (optional)
     pub(crate) file_uuids: Option<Vec<Uuid>>,
+    /// Restriction of data sampling (maximum number of records)
     pub(crate) limit: Option<i32>,
+    /// Number of skipping records at the beginning (offset)
     pub(crate) offset: Option<i32>,
 }
 

@@ -16,13 +16,20 @@ pub(crate) struct UserAccessStandard {
     pub(crate) updated_at: NaiveDateTime,
 }
 
+/// Data on whether the user has access to the standard
 #[derive(Debug, Deserialize, SimpleObject)]
 pub(crate) struct UserAccessStandardAndRelatedData {
+    /// UUID of the standard
     pub(crate) standard_uuid: Uuid,
+    /// User UUID
     pub(crate) user_uuid: Uuid,
+    /// Access type (level) with localization
     pub(crate) type_access: TypeAccessTranslateList,
+    /// Access activity flag
     pub(crate) is_enabled: bool,
+    /// Date access was first issued to the user
     pub(crate) created_at: NaiveDateTime,
+    /// Access update date
     pub(crate) updated_at: NaiveDateTime,
 }
 
@@ -37,10 +44,14 @@ pub(crate) struct InsertableUserAccessStandard {
     pub(crate) updated_at: NaiveDateTime,
 }
 
+/// Data for requesting user access to the standard
 #[derive(Debug, Deserialize, InputObject)]
 pub(crate) struct IptUserAccessStandardData {
+    /// UUID of the standard
     pub(crate) standard_uuid: Uuid,
+    /// User UUID
     pub(crate) user_uuid: Uuid,
+    /// Access type (level) identifier
     pub(crate) type_access_id: i32,
 }
 
@@ -64,9 +75,11 @@ impl From<&IptUserAccessStandardData> for InsertableUserAccessStandard {
     }
 }
 
-
+/// Data for a request to remove (deactivation) a user's access to a standard
 #[derive(Debug, Deserialize, InputObject)]
 pub(crate) struct DelUserAccessStandardData {
+    /// UUID of the standard
     pub(crate) standard_uuid: Uuid,
+    /// user UUID
     pub(crate) user_uuid: Uuid,
 }

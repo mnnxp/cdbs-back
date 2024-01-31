@@ -11,6 +11,7 @@ use crate::schema::keyword_to_component::dsl as keyword_to_component;
 use diesel::prelude::*;
 use uuid::Uuid;
 
+/// Добавляет ключевые слова к компоненту по идентификаторам.
 pub(crate) fn add_component_keywords(
     logged_user_uuid: &Uuid,
     data: &IptComponentKeywordsData,
@@ -66,6 +67,7 @@ fn insert_rows_component_keywords(
         })
 }
 
+/// Добавляет ключевые слова к компоненту по словам.
 pub(crate) fn add_keywords_by_names(
     logged_user_uuid: &Uuid,
     data: &IptComponentKeywordsNames,

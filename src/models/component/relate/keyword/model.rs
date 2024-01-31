@@ -6,8 +6,7 @@ use async_graphql::*;
 use uuid::Uuid;
 
 // Keyword component models
-#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations)]
-#[derive(SimpleObject, Clone, Debug)]
+#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, Clone, Debug)]
 #[diesel(primary_key(component_uuid, keyword_id))]
 #[diesel(belongs_to(Component, foreign_key = component_uuid))]
 #[diesel(belongs_to(Keyword, foreign_key = keyword_id))]
@@ -17,21 +16,21 @@ pub(crate) struct ComponentKeyword {
     pub(crate) keyword_id: i32,
 }
 
-#[derive(Deserialize, SimpleObject, Clone, Debug)]
-pub(crate) struct ComponentKeywordRelatedData {
-    pub(crate) keyword: Keyword,
-    pub(crate) component_uuid: Uuid,
-}
-
+/// Data for requests to add and remove keyword relationships to the component
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub(crate) struct IptComponentKeywordsData {
+    /// Component UUID
     pub(crate) component_uuid: Uuid,
+    /// Keyword identifiers (list)
     pub(crate) keyword_ids: Vec<i32>,
 }
 
+/// Data for a request to add a keyword relationship to a component
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub(crate) struct IptComponentKeywordsNames {
+    /// Component UUID
     pub(crate) component_uuid: Uuid,
+    /// Keyword identifiers (list)
     pub(crate) keywords: Vec<String>,
 }
 
@@ -93,16 +92,20 @@ impl From<&IptComponentKeywordsData> for DeleteComponentKeyword {
     }
 }
 
+/// Data for querying keywords associated with the component
 #[derive(InputObject, Deserialize, Debug)]
 pub(crate) struct IptComponentKeywordsArg {
-    pub(crate) component_uuid:  Uuid,
+    /// component UUID
+    pub(crate) component_uuid: Uuid,
+    /// Restriction of data sampling (maximum number of records)
     pub(crate) limit: Option<i32>,
+    /// Number of skipping records at the beginning (offset)
     pub(crate) offset: Option<i32>,
 }
 
 #[derive(Debug)]
 pub(crate) struct ComponentKeywordsArg {
-    pub(crate) component_uuid:  Uuid,
+    pub(crate) component_uuid: Uuid,
     pub(crate) limit: i32,
     pub(crate) offset: i32,
 }

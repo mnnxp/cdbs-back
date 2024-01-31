@@ -5,6 +5,8 @@ use crate::models::relate_ref::type_access::model::{
 use crate::schema::type_access_translate_list::dsl::*;
 use diesel::{PgConnection, prelude::*};
 
+/// Возвращает типы доступа по идентификаторам.
+/// Если фильтр на типы доступа не указан, то агрегируются все существующие.
 pub(crate) fn get_type_access(
     args: &TypeAccessArg,
     set_lang_id: &i32,

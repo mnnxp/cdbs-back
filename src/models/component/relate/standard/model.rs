@@ -6,8 +6,7 @@ use async_graphql::*;
 use uuid::Uuid;
 
 // StandardTo component models
-#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations)]
-#[derive(SimpleObject, Clone, Debug)]
+#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, Clone, Debug)]
 #[diesel(primary_key(component_uuid, standard_uuid))]
 #[diesel(belongs_to(Component, foreign_key = component_uuid))]
 #[diesel(belongs_to(Standard, foreign_key = standard_uuid))]
@@ -17,9 +16,12 @@ pub(crate) struct StandardToComponent {
     pub(crate) standard_uuid: Uuid,
 }
 
+/// Data for requesting the creation of a link between a component and a standard
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub(crate) struct IptStandardToComponentData {
+    /// UUID of the standard
     pub(crate) standard_uuid: Uuid,
+    /// Component UUID
     pub(crate) component_uuid: Uuid,
 }
 
@@ -45,8 +47,11 @@ impl From<&IptStandardToComponentData> for InsertableStandardToComponent {
     }
 }
 
+/// Data for a request to remove a link between a component and standards
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub(crate) struct DelStandardToComponentData {
+    /// UUID of standards (list)
     pub(crate) standards_uuids: Vec<Uuid>,
+    /// UUID of the component
     pub(crate) component_uuid: Uuid,
 }

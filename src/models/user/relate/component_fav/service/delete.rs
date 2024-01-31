@@ -3,7 +3,7 @@ use crate::schema::component_fav::dsl as component_fav;
 use diesel::prelude::*;
 use uuid::Uuid;
 
-// Remove a component from user favorites component list
+/// Удаляет компонент из списка избранного авторизованного пользователя.
 pub(crate) fn delete_component_fav(
     logged_user_uuid: &Uuid,
     component_uuid: &Uuid,

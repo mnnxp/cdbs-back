@@ -5,6 +5,9 @@ use crate::models::relate_ref::keyword::model::{
 use crate::schema::keyword_ref::dsl::*;
 use diesel::{PgConnection, prelude::*};
 
+/// Возвращает ключевые слова по идентификаторам.
+/// Если фильтр на ключевые слова не указан, то агрегируются все существующие.
+/// Ключевые слова можно использовать для компонентов и стандартов, а также для компаний.
 pub(crate) fn get_keywords(
     args: &KeywordArg,
     conn: &mut PgConnection,

@@ -19,6 +19,8 @@ const userUuid = "31ecc6f8-0c09-4a59-a2d5-34b5b833e59b";
 const userUuid2 = "68b8281a-d19c-4d4b-88eb-6fd4a2afde1b";
 var authorizationUserFirst = "";
 var authorizationUserSecond = "";
+var authorizationTokenFirst = "";
+var authorizationTokenSecond = "";
 
 // data for standard
 const parentStandardUuid = "303ec2aa-2066-42e3-93fb-de4fb9344bcb";
@@ -193,6 +195,26 @@ updatedAt \
 isFollowed  \
 `;
 
+const showFileRevisionsQuery = ` \
+uuid \
+filename \
+revision \
+parentFileUuid \
+ownerUser { \
+  username \
+} \
+`;
+
+const showStandardFilesQuery = ` \
+standardFiles { \
+  uuid \
+  filename \
+  revision \
+  parentFileUuid \
+  createdAt \
+} \
+`;
+
 // data for company
 const orgname = "orgname supplier of the test";
 const orgname2 = "orgnametest not supplier of the test";
@@ -264,6 +286,13 @@ const goodFilenameStandardFaviconTest = "image file.png";
 
 var fileStandardFileTestUuid = "";
 var fileStandardFileTestUuid2 = "";
+var seconRevFileFileTestUuid = "";
+var seconRevFileFileTestUuid2 = "";
+var threeRevFileFileTestUuid2 = "";
+var fourthRevFileFileTestUuid2 = "";
+var fifthRevFileFileTestUuid2 = "";
+var sixthRevFileFileTestUuid2 = "";
+var seventhRevFileFileTestUuid2 = "";
 
 async function cleanupCompanyDb() {
   return global.knex.raw('DELETE FROM company_ref WHERE orgname in (?,?);', [
@@ -299,6 +328,25 @@ async function cleanupUserDb() {
 async function cleanupKeywordsDb() {
   return global.knex.raw('DELETE FROM keyword_ref WHERE keyword in (?,?,?,?,?)', [
     "asd2","asd3","asd4","asd5","asd6"
+  ]);
+}
+
+// Sets a mark in the database that the file has been uploaded and verified
+async function setFileAsUploadedDb(fileUuid) {
+  return global.knex.raw('UPDATE file_ref SET is_checked=true, is_hidden=false WHERE uuid=?', [
+    fileUuid,
+  ]);
+}
+
+async function setFlagHiddenAsOldRevDb(fileUuid) {
+  return global.knex.raw('UPDATE file_ref SET is_hidden=true WHERE uuid=?', [
+    fileUuid,
+  ]);
+}
+
+async function setFlagDeleteAsOldRevDb(fileUuid) {
+  return global.knex.raw('UPDATE file_ref SET is_hidden=true, is_delete=true WHERE uuid=?', [
+    fileUuid,
   ]);
 }
 
@@ -373,6 +421,7 @@ describe('company', () => {
         })
       .expect(HttpStatus.OK)
       .then(({ body, headers }) => {
+        debug('/login headers=%o', headers);
         debug('/login body=%o', body);
         expect(body.bearer).toBeNonEmptyString();
         authorizationTokenFirst = body.bearer;
@@ -429,6 +478,7 @@ describe('company', () => {
         })
       .expect(HttpStatus.OK)
       .then(({ body, headers }) => {
+        debug('/login headers=%o', headers);
         debug('/login body=%o', body);
         expect(body.bearer).toBeNonEmptyString();
         authorizationTokenSecond = body.bearer;
@@ -985,6 +1035,7 @@ describe('company', () => {
     expect(uploadStandardFavicon.fileUuid).toBeNonEmptyString();
     expect(uploadStandardFavicon.filename).toBe(goodFilenameStandardFaviconTest);
     expect(uploadStandardFavicon.uploadUrl).toBeNonEmptyString();
+    await setFileAsUploadedDb(changeStandardFaviconTestUuid);
     done();
   });
 
@@ -1106,6 +1157,8 @@ describe('company', () => {
     expect(uploadStandardFiles[1].fileUuid).toBeNonEmptyString();
     expect(uploadStandardFiles[1].filename).toBe(filenameStandardFileTest);
     expect(uploadStandardFiles[1].uploadUrl).toBeNonEmptyString();
+    await setFileAsUploadedDb(fileStandardFileTestUuid);
+    await setFileAsUploadedDb(fileStandardFileTestUuid2);
     done();
   });
 
@@ -1375,6 +1428,722 @@ describe('company', () => {
     expect(standard.standardFiles[0].parentFileUuid).toBeNonEmptyString();
     expect(standard.standardFiles[0].ownerUser.uuid).toBe(authorizationUserFirst);
     expect(standard.standardFiles[0].contentType).toBeNonEmptyString();
+    done();
+  });
+
+  // Testing new revisions
+  it('/graphql:M uploadStandardFiles - Ok new revision', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation {
+          uploadStandardFiles(args: {
+            standardUuid: "${standardUuidSecond}"
+            filenames: [
+              "${goodFilenameStandardFileTest}"
+              "${filenameStandardFileTest}"
+            ]
+          }) {
+            fileUuid
+            filename
+            uploadUrl
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql uploadStandardFiles=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { uploadStandardFiles },
+    } = body;
+    seconRevFileFileTestUuid = uploadStandardFiles[0].fileUuid;
+    expect(uploadStandardFiles[0].fileUuid).toBeNonEmptyString();
+    expect(uploadStandardFiles[0].filename).toBe(goodFilenameStandardFileTest);
+    seconRevFileFileTestUuid2 = uploadStandardFiles[1].fileUuid;
+    expect(uploadStandardFiles[1].fileUuid).toBeNonEmptyString();
+    expect(uploadStandardFiles[1].filename).toBe(filenameStandardFileTest);
+    await setFlagHiddenAsOldRevDb(fileStandardFileTestUuid);
+    await setFileAsUploadedDb(seconRevFileFileTestUuid);
+    await setFlagHiddenAsOldRevDb(fileStandardFileTestUuid2);
+    await setFileAsUploadedDb(seconRevFileFileTestUuid2);
+    done();
+  });
+
+  it('/graphql:Q showFileRevisions - Ok show revision for new file', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `query {
+          showFileRevisions(fileUuid: "${seconRevFileFileTestUuid}") {
+            ${showFileRevisionsQuery}
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql showFileRevisions=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { showFileRevisions },
+    } = body;
+    // expect(showFileRevisions[0].uuid).toBe(fileStandardFileTestUuid);
+    expect(showFileRevisions[0].filename).toBe(goodFilenameStandardFileTest);
+    expect(showFileRevisions[0].revision).toBe(1);
+    expect(showFileRevisions.length).toBe(1);
+    done();
+  });
+
+  it('/graphql:M uploadStandardFiles - Ok new revision 3', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation {
+          uploadStandardFiles(args: {
+            standardUuid: "${standardUuidSecond}"
+            filenames: [
+              "${filenameStandardFileTest}"
+            ]
+          }) {
+            fileUuid
+            filename
+            uploadUrl
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql uploadStandardFiles=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { uploadStandardFiles },
+    } = body;
+    threeRevFileFileTestUuid2 = uploadStandardFiles[0].fileUuid;
+    expect(uploadStandardFiles[0].fileUuid).toBeNonEmptyString();
+    expect(uploadStandardFiles[0].filename).toBe(filenameStandardFileTest);
+    expect(uploadStandardFiles[0].uploadUrl).toBeNonEmptyString();
+    await setFlagHiddenAsOldRevDb(seconRevFileFileTestUuid2);
+    await setFileAsUploadedDb(threeRevFileFileTestUuid2);
+    done();
+  });
+
+  it('/graphql:Q showFileRevisions - Ok show 3 revisions for second file', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `query {
+          showFileRevisions(fileUuid: "${threeRevFileFileTestUuid2}") {
+            ${showFileRevisionsQuery}
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql showFileRevisions=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { showFileRevisions },
+    } = body;
+    expect(showFileRevisions[0].uuid).toBe(fileStandardFileTestUuid2);
+    expect(showFileRevisions[0].revision).toBe(1);
+    expect(showFileRevisions[1].uuid).toBe(seconRevFileFileTestUuid2);
+    expect(showFileRevisions[1].revision).toBe(2);
+    expect(showFileRevisions[2].uuid).toBe(threeRevFileFileTestUuid2);
+    expect(showFileRevisions[2].revision).toBe(3);
+    expect(showFileRevisions.length).toBe(3);
+    await setFlagDeleteAsOldRevDb(threeRevFileFileTestUuid2);
+    done();
+  });
+
+  it('/graphql:M uploadStandardFiles - Ok new revision 4', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation {
+          uploadStandardFiles(args: {
+            standardUuid: "${standardUuidSecond}"
+            filenames: [
+              "${filenameStandardFileTest}"
+            ]
+          }) {
+            fileUuid
+            filename
+            uploadUrl
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql uploadStandardFiles=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { uploadStandardFiles },
+    } = body;
+    fourthRevFileFileTestUuid2 = uploadStandardFiles[0].fileUuid;
+    expect(uploadStandardFiles[0].fileUuid).toBeNonEmptyString();
+    expect(uploadStandardFiles[0].filename).toBe(filenameStandardFileTest);
+    expect(uploadStandardFiles[0].uploadUrl).toBeNonEmptyString();
+    await setFileAsUploadedDb(fourthRevFileFileTestUuid2);
+    done();
+  });
+
+  it('/graphql:Q showFileRevisions - Ok show 3/4 revisions for second file', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `query {
+          showFileRevisions(fileUuid: "${fourthRevFileFileTestUuid2}") {
+            ${showFileRevisionsQuery}
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql showFileRevisions=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { showFileRevisions },
+    } = body;
+    expect(showFileRevisions[0].uuid).toBe(fileStandardFileTestUuid2);
+    expect(showFileRevisions[0].revision).toBe(1);
+    expect(showFileRevisions[1].uuid).toBe(seconRevFileFileTestUuid2);
+    expect(showFileRevisions[1].revision).toBe(2);
+    expect(showFileRevisions[2].uuid).toBe(fourthRevFileFileTestUuid2);
+    expect(showFileRevisions[2].revision).toBe(3);
+    expect(showFileRevisions.length).toBe(3);
+    done();
+  });
+
+  it('/graphql:Q showFileRevisions - BadRequest revisions for hidden file', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `query {
+          showFileRevisions(fileUuid: "${seconRevFileFileTestUuid2}") {
+            ${showFileRevisionsQuery}
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql showFileRevisions=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Access denied'
+    );
+    expect(body.errors[0].path[0]).toBe('showFileRevisions');
+    done();
+  });
+
+  it('/graphql:Q showFileRevisions - BadRequest revisions for delete file', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `query {
+          showFileRevisions(fileUuid: "${threeRevFileFileTestUuid2}") {
+            ${showFileRevisionsQuery}
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql showFileRevisions=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Access denied'
+    );
+    expect(body.errors[0].path[0]).toBe('showFileRevisions');
+    done();
+  });
+
+  it('/graphql:Q showFileRevisions - BadRequest revisions for stranger file', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `query {
+          showFileRevisions(fileUuid: "${fourthRevFileFileTestUuid2}") {
+            ${showFileRevisionsQuery}
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql showFileRevisions=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Access denied'
+    );
+    expect(body.errors[0].path[0]).toBe('showFileRevisions');
+    done();
+  });
+
+  it('/graphql:M uploadStandardFiles - BadRequest stranger standard', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `mutation {
+          uploadStandardFiles(args: {
+            standardUuid: "${standardUuidSecond}"
+            filenames: [
+              "${filenameStandardFileTest}"
+            ]
+          }) {
+            fileUuid
+            filename
+            uploadUrl
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql uploadStandardFiles=%o', body);
+    // expect(body).toBe(0);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Access denied'
+    );
+    expect(body.errors[0].path[0]).toBe('uploadStandardFiles');
+    done();
+  });
+
+  // Testing change active revision for file
+  it('/graphql:M changeActiveFileRevision - Ok set revision 2 as active', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation {
+          changeActiveFileRevision(fileUuid: "${seconRevFileFileTestUuid2}")
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql changeActiveFileRevision=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { changeActiveFileRevision },
+    } = body;
+    expect(changeActiveFileRevision).toBe(true);
+    done();
+  });
+
+  it('/graphql:Q showFileRevisions - Ok show revisions for new active file revision', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `query {
+          showFileRevisions(fileUuid: "${seconRevFileFileTestUuid2}") {
+            ${showFileRevisionsQuery}
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql showFileRevisions=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { showFileRevisions },
+    } = body;
+    expect(showFileRevisions[0].uuid).toBe(fileStandardFileTestUuid2);
+    expect(showFileRevisions[0].revision).toBe(1);
+    expect(showFileRevisions[1].uuid).toBe(seconRevFileFileTestUuid2);
+    expect(showFileRevisions[1].revision).toBe(2);
+    expect(showFileRevisions[2].uuid).toBe(fourthRevFileFileTestUuid2);
+    expect(showFileRevisions[2].revision).toBe(3);
+    expect(showFileRevisions.length).toBe(3);
+    done();
+  });
+
+  it('/graphql:M changeActiveFileRevision - BadRequest set remove revision as active', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation {
+          changeActiveFileRevision(fileUuid: "${threeRevFileFileTestUuid2}")
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql changeActiveFileRevision=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Revision already active or deleted'
+    );
+    expect(body.errors[0].path[0]).toBe('changeActiveFileRevision');
+    done();
+  });
+
+  it('/graphql:M changeActiveFileRevision - BadRequest already active', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation {
+          changeActiveFileRevision(fileUuid: "${seconRevFileFileTestUuid2}")
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql changeActiveFileRevision=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Revision already active or deleted'
+    );
+    expect(body.errors[0].path[0]).toBe('changeActiveFileRevision');
+    done();
+  });
+
+  it('/graphql:M changeActiveFileRevision - BadRequest stranger standard', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `mutation {
+          changeActiveFileRevision(fileUuid: "${seconRevFileFileTestUuid2}")
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql changeActiveFileRevision=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Access denied'
+    );
+    expect(body.errors[0].path[0]).toBe('changeActiveFileRevision');
+    done();
+  });
+
+  it('/graphql:M uploadStandardFiles - Ok new revision 5', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation {
+          uploadStandardFiles(args: {
+            standardUuid: "${standardUuidSecond}"
+            filenames: [
+              "${filenameStandardFileTest}"
+            ]
+          }) {
+            fileUuid
+            filename
+            uploadUrl
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql uploadStandardFiles=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { uploadStandardFiles },
+    } = body;
+    fifthRevFileFileTestUuid2 = uploadStandardFiles[0].fileUuid;
+    expect(uploadStandardFiles[0].fileUuid).toBeNonEmptyString();
+    expect(uploadStandardFiles[0].filename).toBe(filenameStandardFileTest);
+    expect(uploadStandardFiles[0].uploadUrl).toBeNonEmptyString();
+    await setFlagHiddenAsOldRevDb(seconRevFileFileTestUuid2);
+    await setFileAsUploadedDb(fifthRevFileFileTestUuid2);
+    done();
+  });
+
+  it('/graphql:Q showFileRevisions - Ok show 4/5 revisions for second file', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `query {
+          showFileRevisions(fileUuid: "${fifthRevFileFileTestUuid2}") {
+            ${showFileRevisionsQuery}
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql showFileRevisions=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { showFileRevisions },
+    } = body;
+    expect(showFileRevisions[0].uuid).toBe(fileStandardFileTestUuid2);
+    expect(showFileRevisions[0].revision).toBe(1);
+    expect(showFileRevisions[1].uuid).toBe(seconRevFileFileTestUuid2);
+    expect(showFileRevisions[1].revision).toBe(2);
+    expect(showFileRevisions[2].uuid).toBe(fourthRevFileFileTestUuid2);
+    expect(showFileRevisions[2].revision).toBe(3);
+    expect(showFileRevisions[3].uuid).toBe(fifthRevFileFileTestUuid2);
+    expect(showFileRevisions[3].revision).toBe(4);
+    expect(showFileRevisions.length).toBe(4);
+    done();
+  });
+
+  it('/graphql:Q Get all files of Standard - OK check parent files', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `query standard {
+          standard (standardUuid: "${standardUuidSecond}"){
+            ${showStandardFilesQuery}
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql showStandardFilesQuery=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { standard },
+    } = body;
+    expect(standard.standardFiles[1].uuid).toBe(fifthRevFileFileTestUuid2);
+    expect(standard.standardFiles[1].filename).toBe(filenameStandardFileTest);
+    expect(standard.standardFiles[1].revision).toBe(4);
+    // expect(standard.standardFiles[1].parentFileUuid).toBe(seconRevFileFileTestUuid2);
+    expect(standard.standardFiles[1].parentFileUuid).toBe(fourthRevFileFileTestUuid2);
+    expect(standard.standardFiles.length).toBe(2);
+    done();
+  });
+
+  it('/graphql:M changeActiveFileRevision - Ok set revision 2 as active', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation {
+          changeActiveFileRevision(fileUuid: "${seconRevFileFileTestUuid2}")
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql changeActiveFileRevision=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { changeActiveFileRevision },
+    } = body;
+    expect(changeActiveFileRevision).toBe(true);
+    await setFlagHiddenAsOldRevDb(fileStandardFileTestUuid2);
+    await setFlagDeleteAsOldRevDb(fourthRevFileFileTestUuid2);
+    await setFlagHiddenAsOldRevDb(fifthRevFileFileTestUuid2);
+    done();
+  });
+
+  it('/graphql:Q showFileRevisions - Ok checking the grandchild after delete child', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `query {
+          showFileRevisions(fileUuid: "${seconRevFileFileTestUuid2}") {
+            ${showFileRevisionsQuery}
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql showFileRevisions=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { showFileRevisions },
+    } = body;
+    expect(showFileRevisions[0].uuid).toBe(fileStandardFileTestUuid2);
+    expect(showFileRevisions[0].revision).toBe(1);
+    expect(showFileRevisions[1].uuid).toBe(seconRevFileFileTestUuid2);
+    expect(showFileRevisions[1].revision).toBe(2);
+    // expect(showFileRevisions[2].uuid).toBe(fourthRevFileFileTestUuid2);
+    // expect(showFileRevisions[2].revision).toBe(3);
+    expect(showFileRevisions[2].uuid).toBe(fifthRevFileFileTestUuid2);
+    expect(showFileRevisions[2].revision).toBe(4);
+    expect(showFileRevisions.length).toBe(3);
+    await setFlagHiddenAsOldRevDb(seconRevFileFileTestUuid2);
+    done();
+  });
+
+  it('/graphql:M uploadStandardFiles - Ok new revision 6 other versions are hidden', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation {
+          uploadStandardFiles(args: {
+            standardUuid: "${standardUuidSecond}"
+            filenames: [
+              "${filenameStandardFileTest}"
+            ]
+          }) {
+            fileUuid
+            filename
+            uploadUrl
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql uploadStandardFiles=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { uploadStandardFiles },
+    } = body;
+    sixthRevFileFileTestUuid2 = uploadStandardFiles[0].fileUuid;
+    expect(uploadStandardFiles[0].fileUuid).toBeNonEmptyString();
+    expect(uploadStandardFiles[0].filename).toBe(filenameStandardFileTest);
+    expect(uploadStandardFiles[0].uploadUrl).toBeNonEmptyString();
+    // await setFlagHiddenAsOldRevDb(seconRevFileFileTestUuid2);
+    await setFileAsUploadedDb(sixthRevFileFileTestUuid2);
+    done();
+  });
+
+  it('/graphql:Q showFileRevisions - Ok show 5/6 revisions for second file', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `query {
+          showFileRevisions(fileUuid: "${sixthRevFileFileTestUuid2}") {
+            ${showFileRevisionsQuery}
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql showFileRevisions=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { showFileRevisions },
+    } = body;
+    expect(showFileRevisions[0].uuid).toBe(fileStandardFileTestUuid2);
+    expect(showFileRevisions[0].revision).toBe(1);
+    expect(showFileRevisions[1].uuid).toBe(seconRevFileFileTestUuid2);
+    expect(showFileRevisions[1].revision).toBe(2);
+    // expect(showFileRevisions[2].uuid).toBe(fourthRevFileFileTestUuid2);
+    // expect(showFileRevisions[2].revision).toBe(3);
+    expect(showFileRevisions[2].uuid).toBe(fifthRevFileFileTestUuid2);
+    expect(showFileRevisions[2].revision).toBe(4);
+    expect(showFileRevisions[3].uuid).toBe(sixthRevFileFileTestUuid2);
+    expect(showFileRevisions[3].revision).toBe(5);
+    expect(showFileRevisions.length).toBe(4);
+    await setFlagDeleteAsOldRevDb(fileStandardFileTestUuid2);
+    await setFlagDeleteAsOldRevDb(seconRevFileFileTestUuid2);
+    // await setFlagDeleteAsOldRevDb(fourthRevFileFileTestUuid2);
+    await setFlagDeleteAsOldRevDb(fifthRevFileFileTestUuid2);
+    await setFlagDeleteAsOldRevDb(sixthRevFileFileTestUuid2);
+    done();
+  });
+
+  it('/graphql:M uploadStandardFiles - Ok new revision 7 other versions are deleted', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation {
+          uploadStandardFiles(args: {
+            standardUuid: "${standardUuidSecond}"
+            filenames: [
+              "${filenameStandardFileTest}"
+            ]
+          }) {
+            fileUuid
+            filename
+            uploadUrl
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql uploadStandardFiles=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { uploadStandardFiles },
+    } = body;
+    seventhRevFileFileTestUuid2 = uploadStandardFiles[0].fileUuid;
+    expect(uploadStandardFiles[0].fileUuid).toBeNonEmptyString();
+    expect(uploadStandardFiles[0].filename).toBe(filenameStandardFileTest);
+    expect(uploadStandardFiles[0].uploadUrl).toBeNonEmptyString();
+    // await setFlagHiddenAsOldRevDb(seconRevFileFileTestUuid2);
+    await setFileAsUploadedDb(seventhRevFileFileTestUuid2);
+    done();
+  });
+
+  it('/graphql:Q showFileRevisions - Ok show 1/7 revisions for second file', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `query {
+          showFileRevisions(fileUuid: "${seventhRevFileFileTestUuid2}") {
+            ${showFileRevisionsQuery}
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql showFileRevisions=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { showFileRevisions },
+    } = body;
+    expect(showFileRevisions[0].uuid).toBe(seventhRevFileFileTestUuid2);
+    expect(showFileRevisions[0].revision).toBe(1);
+    expect(showFileRevisions.length).toBe(1);
     done();
   });
 

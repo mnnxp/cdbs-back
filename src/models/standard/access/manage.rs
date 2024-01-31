@@ -7,7 +7,7 @@ use crate::schema::standard_ref::dsl as standard_ref;
 use diesel::prelude::*;
 use uuid::Uuid;
 
-/// Change standard owner user
+/// Передает право собственности на стандарт другому пользователю.
 pub(crate) fn change_standard_owner_user(
     logged_user_uuid: &Uuid,
     data: &ChangeOwnerStandard,
@@ -35,7 +35,7 @@ pub(crate) fn change_standard_owner_user(
     Ok(change_owner == data.new_owner_user_uuid)
 }
 
-/// Change standard type_access
+/// Изменяет доступ по умолчанию к стандарту.
 pub(crate) fn change_standard_type_access(
     logged_user_uuid: &Uuid,
     data: &ChangeTypeAccessStandard,

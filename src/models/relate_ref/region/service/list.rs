@@ -5,6 +5,8 @@ use crate::models::relate_ref::region::model::{
 use crate::schema::region_translate_list::dsl as region_translate_list;
 use diesel::{PgConnection, prelude::*};
 
+/// Возвращает список регионов с фильтром по идентификаторам.
+/// Если фильтр не указан, то агрегируются все существующие.
 pub(crate) fn get_regions(
     args: &RegionArg,
     set_lang_id: &i32,

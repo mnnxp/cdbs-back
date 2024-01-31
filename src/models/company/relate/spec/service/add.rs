@@ -7,6 +7,9 @@ use crate::schema::spec_to_company::dsl as spec_to_company;
 use diesel::prelude::*;
 use uuid::Uuid;
 
+/// Добавляет подключения компании в указанные разделы каталога.
+/// Возвращает количество успешных подключений.
+/// И будет возвращена ошибка, если все соединения уже добавлены.
 pub(crate) fn add_company_specs(
     logged_user_uuid: &Uuid,
     data: &IptCompanySpecsData,

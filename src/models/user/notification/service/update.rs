@@ -2,12 +2,12 @@ use crate::errors::{ServiceResult, ServiceError};
 use diesel::prelude::*;
 use uuid::Uuid;
 
-/// Update is_read is true for target notification
+/// Устанавливает уведомление как прочитанное.
 pub(crate) fn set_notifications_as_read(
     logged_user_uuid: &Uuid,
     notifications_ids: &[i32],
     conn: &mut PgConnection,
-) -> ServiceResult<i32> {
+) -> ServiceResult<usize> {
     // use crate::schema::notification_ref::dsl as notification_ref;
     use crate::schema::notification_to_user::dsl as notification_to_user;
 
@@ -22,5 +22,5 @@ pub(crate) fn set_notifications_as_read(
             ServiceError::InternalServerError
         })?;
 
-    Ok(res_change as i32)
+    Ok(res_change)
 }

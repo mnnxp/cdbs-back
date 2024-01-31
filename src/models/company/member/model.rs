@@ -1,8 +1,8 @@
 use crate::schema::*;
 use crate::models::user::model::UserQuery;
-use crate::models::company::model::Company;
-use crate::models::company::member::role::model::{
-    RoleMember, RoleMemberAndRelatedData
+use crate::models::company::{
+    model::Company,
+    member::role::model::{RoleMember, RoleMemberAndRelatedData},
 };
 use async_graphql::*;
 use chrono::*;
@@ -24,20 +24,31 @@ pub(crate) struct CompanyMember {
     pub(crate) updated_at: NaiveDateTime,
 }
 
+/// Company (community) member data
 #[derive(Debug, Deserialize, SimpleObject)]
 pub(crate) struct CompanyMemberAndRelatedData {
+    /// Company UUID
     pub(crate) company_uuid: Uuid,
+    /// User UUID
     pub(crate) user_uuid: Uuid,
+    /// User's role in the company (access rights are granted based on the role)
     pub(crate) role: RoleMemberAndRelatedData,
+    /// Activity flag of the company member
     pub(crate) is_enabled: bool,
+    /// Date the user was added to the company
     pub(crate) created_at: NaiveDateTime,
+    /// Date the user's role or activity was changed
     pub(crate) updated_at: NaiveDateTime,
 }
 
+/// Abbreviated data about the company member
 #[derive(Debug, Deserialize, SimpleObject)]
 pub(crate) struct SlimCompanyMember {
+    /// Company UUID
     pub(crate) company_uuid: Uuid,
+    /// User UUID
     pub(crate) user_uuid: Uuid,
+    /// Identifier of the user's role in the company
     pub(crate) role_id: i32,
 }
 
@@ -69,10 +80,14 @@ pub(crate) struct InsertableCompanyMember {
     pub(crate) updated_at: NaiveDateTime,
 }
 
+/// Data for adding or changing the role of a company member
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub(crate) struct IptCompanyMemberData {
+    /// Company UUID
     pub(crate) company_uuid: Uuid,
+    /// User UUID
     pub(crate) user_uuid: Uuid,
+    /// Identifier of the user's role in the company
     pub(crate) role_id: i32,
 }
 
@@ -96,8 +111,11 @@ impl From<&IptCompanyMemberData> for InsertableCompanyMember {
     }
 }
 
+/// Deactivation (deletion of role/access) of a company member
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub(crate) struct DelCompanyMemberData {
+    /// Company UUID
     pub(crate) company_uuid: Uuid,
+    /// User UUID
     pub(crate) user_uuid: Uuid,
 }

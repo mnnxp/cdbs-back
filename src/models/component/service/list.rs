@@ -1,4 +1,5 @@
 use crate::errors::{ServiceResult, ServiceError};
+use crate::models::ExtraOptions;
 use crate::models::component::model::{
     ShowComponentShort, ComponentAndRelatedData, ComponentsArg
 };
@@ -6,8 +7,8 @@ use diesel::prelude::*;
 // use diesel::PgConnection;
 use uuid::Uuid;
 
-/// Gets components short data with filter by:
-/// uuids, favorite list, user_uuid, company_uuid
+/// Возвращает агрегированные данные о компонентах.
+/// Получает краткие данные о компонентах с фильтром по: UUID, компании, стандарту, пользователю, избранному (для себя или другого пользователя).
 pub(crate) fn get_components(
     logged_user_uuid: &Uuid,
     arguments: &ComponentsArg,
@@ -80,11 +81,13 @@ pub(crate) fn get_components(
     }
 
     ShowComponentShort::get_components(
-        logged_user_uuid,
         &target_components_uuids,
-        limit,
-        offset,
-        set_lang_id,
+        &ExtraOptions {
+            logged_user_uuid: *logged_user_uuid,
+            set_lang_id: *set_lang_id,
+            limit: *limit,
+            offset: *offset,
+        },
         conn
     )
 }
@@ -155,17 +158,16 @@ pub(crate) fn get_components_uuids_by_standard(
         })
 }
 
+/// Возвращает полную информацию о компоненте по UUID.
 pub(crate) fn get_component_by_uuid(
-    logged_user_uuid: &Uuid,
     target_component_uuid: &Uuid,
-    set_lang_id: &i32,
+    options: &ExtraOptions,
     conn: &mut PgConnection,
 ) -> ServiceResult<ComponentAndRelatedData> {
     // collect data for component
     ComponentAndRelatedData::get_component(
         target_component_uuid,
-        logged_user_uuid,
-        set_lang_id,
+        options,
         conn
     ).map_err(|err| {
         debug!("Error loading component and collect related data: {:?}", err);

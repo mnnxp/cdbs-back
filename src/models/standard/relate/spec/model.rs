@@ -5,7 +5,7 @@ use async_graphql::*;
 use uuid::Uuid;
 
 // Spec standard models
-#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, Clone, Debug, SimpleObject)]
+#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, Clone, Debug)]
 #[diesel(primary_key(standard_uuid, spec_id))]
 #[diesel(belongs_to(Standard, foreign_key = standard_uuid))]
 #[diesel(belongs_to(Spec, foreign_key = spec_id))]
@@ -22,9 +22,12 @@ pub(crate) struct InsertableStandardSpec {
     pub(crate) spec_id: i32,
 }
 
+/// Data for requesting to add/remove a standard's association with catalogs
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub(crate) struct IptStandardSpecsData {
+    /// Standard UUID
     pub(crate) standard_uuid: Uuid,
+    /// Catalog identifiers (list)
     pub(crate) spec_ids: Vec<i32>,
 }
 
@@ -80,16 +83,20 @@ impl From<&IptStandardSpecsData> for DeleteStandardSpecs {
     }
 }
 
+/// Arguments for querying standard-related directories
 #[derive(InputObject, Deserialize, Debug)]
 pub(crate) struct IptStandardSpecsArg {
-    pub(crate) standard_uuid:  Uuid,
+    /// Standard UUID
+    pub(crate) standard_uuid: Uuid,
+    /// Restriction of data sampling (maximum number of records)
     pub(crate) limit: Option<i32>,
+    /// Number of skipping records at the beginning (offset)
     pub(crate) offset: Option<i32>,
 }
 
 #[derive(Debug)]
 pub(crate) struct StandardSpecsArg {
-    pub(crate) standard_uuid:  Uuid,
+    pub(crate) standard_uuid: Uuid,
     pub(crate) limit: i32,
     pub(crate) offset: i32,
 }

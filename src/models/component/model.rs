@@ -21,7 +21,7 @@ use async_graphql::*;
 use chrono::*;
 use uuid::Uuid;
 
-#[derive(Identifiable, Deserialize, Queryable, SimpleObject, Debug)]
+#[derive(Identifiable, Deserialize, Queryable, Debug)]
 #[diesel(primary_key(uuid))]
 #[diesel(table_name = component_ref)]
 pub(crate) struct Component {
@@ -35,60 +35,90 @@ pub(crate) struct Component {
     pub(crate) component_type_id: i32,
     pub(crate) actual_status_id: i32,
     pub(crate) is_base: bool,
-    pub(crate) is_delete: bool,
     pub(crate) created_at: NaiveDateTime,
     pub(crate) updated_at: NaiveDateTime,
 }
 
+/// Complete information about the component (part) and related data
 #[derive(Debug, SimpleObject)]
 pub(crate) struct ComponentAndRelatedData {
+    /// Identifier of the component on the platform
     pub(crate) uuid: Uuid,
+    /// Parent component identifier
     pub(crate) parent_component_uuid: Uuid,
+    /// Component name
     pub(crate) name: String,
+    /// Component description
     pub(crate) description: String,
-    // for display main image
+    /// Data for displaying the main view of the component (part)
     pub(crate) image_file: DownloadFile,
+    /// Data about the profile owning the component
     pub(crate) owner_user: ShowUserShort,
+    /// Type of access to the component data
     pub(crate) type_access: TypeAccessTranslateList,
+    /// Component type (e.g. "standard")
     pub(crate) component_type: ComponentTypeTranslateList,
+    /// Current status of the component (e.g. "in development")
     pub(crate) actual_status: ActualStatusTranslateList,
+    /// For basic components it is possible to link to multiple manufacturers/suppliers
     pub(crate) is_base: bool,
+    /// Number of people who have added the component to bookmarks
     pub(crate) subscribers: i32,
-    // for display the checkbox "favorites"
+    /// Flag of the presence of the component in the user's bookmarks
     pub(crate) is_followed: bool,
+    /// Date when the component profile was created
     pub(crate) created_at: NaiveDateTime,
+    /// Date of updating the component's master data
     pub(crate) updated_at: NaiveDateTime,
-    // related data
+    // Связанные с компонентом данные
+    /// Component data distribution licenses
     pub(crate) licenses: Vec<License>,
+    /// List of component parameters
     pub(crate) component_params: Vec<ComponentParamWithTranslation>,
+    /// Files associated with the component
     pub(crate) files: Vec<ShowFileRelatedData>,
+    /// Catalogs to which the component is added
     pub(crate) component_specs: Vec<SpecTranslateList>,
+    /// Component keywords (tags)
     pub(crate) component_keywords: Vec<Keyword>,
+    /// Component modifications and related data (such as CAD file sets)
     pub(crate) component_modifications: Vec<ComponentModificationAndRelatedData>,
+    /// Manufacturer or suppliers of the component (if is_base is true)
     pub(crate) component_suppliers: Vec<ComponentSupplierRelatedData>,
-    // show the standards that fit the object
+    /// List of standardization documents associated with the component
     pub(crate) component_standards: Vec<ShowStandardShort>,
 }
 
+/// Abbreviated component data
 #[derive(Debug, SimpleObject)]
 pub(crate) struct ShowComponentShort {
+    /// Identifier of the component on the platform
     pub(crate) uuid: Uuid,
+    /// Component name
     pub(crate) name: String,
+    /// Component description
     pub(crate) description: String,
-    // for display main image
+    /// Data for displaying the main view of the component (part)
     pub(crate) image_file: DownloadFile,
+    /// Data about the profile owning the component
     pub(crate) owner_user: ShowUserShort,
+    /// Type of access to the component data
     pub(crate) type_access: TypeAccessTranslateList,
+    /// Component type (e.g. "standard")
     pub(crate) component_type: ComponentTypeTranslateList,
+    /// Current status of the component (e.g. "in development")
     pub(crate) actual_status: ActualStatusTranslateList,
+    /// For basic components it is possible to link to multiple manufacturers/suppliers
     pub(crate) is_base: bool,
-    // for display the checkbox "favorites"
+    /// Flag whether the component is available in the user's bookmarks
     pub(crate) is_followed: bool,
+    /// Update date of the basic component data
     pub(crate) updated_at: NaiveDateTime,
+    /// Component data distribution licenses
     pub(crate) licenses: Vec<License>,
-    // files for show image (models, draw)
+    /// Files (images) associated with the component
     pub(crate) files: Vec<DownloadFile>,
-    // show first supplier company
+    /// Manufacturer or suppliers of the component (if is_base is true)
     pub(crate) component_suppliers: Vec<ComponentSupplierRelatedData>,
 }
 
@@ -259,7 +289,7 @@ pub(crate) struct IptComponentFilesArg {
 #[derive(Debug)]
 pub(crate) struct ComponentFilesArg {
     pub(crate) component_uuid:  Uuid,
-    pub(crate) files_uuids: Vec<Uuid>,
+    pub(crate) file_uuids: Vec<Uuid>,
     pub(crate) limit: i32,
     pub(crate) offset: i32,
 }
@@ -275,7 +305,7 @@ impl From<IptComponentFilesArg> for ComponentFilesArg {
 
         Self {
             component_uuid,
-            files_uuids: files_uuids.unwrap_or_default(),
+            file_uuids: files_uuids.unwrap_or_default(),
             limit: limit.unwrap_or(100),
             offset: offset.unwrap_or(0),
         }

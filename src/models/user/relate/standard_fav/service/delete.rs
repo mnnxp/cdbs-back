@@ -3,7 +3,7 @@ use crate::schema::standard_fav::dsl as standard_fav;
 use diesel::prelude::*;
 use uuid::Uuid;
 
-// Remove a standard from user favorites standard list
+/// Удаляет стандарт из списка избранного авторизованного пользователя.
 pub(crate) fn delete_standard_fav(
     logged_user_uuid: &Uuid,
     standard_uuid: &Uuid,

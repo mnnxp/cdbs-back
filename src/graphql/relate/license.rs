@@ -16,6 +16,8 @@ pub struct LicenseMutation;
 
 #[Object]
 impl LicenseQuery {
+    /// Returns a list of available licenses.
+    /// If a filter for licenses is not specified, then all existing ones are aggregated.
     async fn licenses(
         &self,
         cxt: &Context<'_>,
@@ -36,6 +38,8 @@ impl LicenseQuery {
 
 #[Object]
 impl LicenseMutation {
+    /// Adds a new license.
+    /// Returns an error with the license ID if it already exists.
     async fn register_license(
         &self,
         cxt: &Context<'_>,

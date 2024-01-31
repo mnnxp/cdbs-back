@@ -5,6 +5,7 @@ use crate::models::relate_ref::language::model::{
 use crate::schema::language_ref::dsl::*;
 use diesel::{PgConnection, prelude::*};
 
+/// Возвращает список доступных языков.
 pub(crate) fn get_languages(
     args: &LanguageArg,
     conn: &mut PgConnection,

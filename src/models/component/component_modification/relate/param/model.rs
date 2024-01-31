@@ -18,10 +18,14 @@ pub(crate) struct ModificationParam {
     pub(crate) value: String,
 }
 
+/// Data about the modification parameter of the component with localization
 #[derive(Debug, Deserialize, SimpleObject, Clone, Default)]
 pub(crate) struct ModificationParamWithTranslation {
+    /// UUID of the component modification
     pub(crate) modification_uuid: Uuid,
+    /// Data about the parameter (name) with localization
     pub(crate) param: ParamTranslateList,
+    /// Value of the component modification parameter
     pub(crate) value: String,
 }
 
@@ -49,9 +53,12 @@ pub(crate) struct InsertableModificationParam {
     pub(crate) value: String,
 }
 
+/// Data for adding/updating component modification parameters
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub(crate) struct IptModificationParamData {
+    /// UUID of the component modification
     pub(crate) modification_uuid: Uuid,
+    /// List of parameters with values
     pub(crate) params: Vec<IptParamData>,
 }
 
@@ -76,8 +83,11 @@ impl From<IptModificationParamData> for Vec<InsertableModificationParam> {
     }
 }
 
+/// Data for requesting deletion of component modification parameters
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub(crate) struct DelModificationParamData {
+    /// UUID of the component modification
     pub(crate) modification_uuid: Uuid,
+    /// Component parameter identifiers (list)
     pub(crate) param_ids: Vec<i32>,
 }

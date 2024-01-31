@@ -14,7 +14,7 @@ use crate::schema::{
 use diesel::prelude::*;
 use uuid::Uuid;
 
-/// Delete all data user
+/// Удаляет пользователя и связанные с ним данные.
 pub(crate) fn delete_user(
     logged_user_uuid: &Uuid,
     user_password: &[u8],

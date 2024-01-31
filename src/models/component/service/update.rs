@@ -5,7 +5,8 @@ use crate::schema::component_ref::dsl as component_ref;
 use diesel::prelude::*;
 use uuid::Uuid;
 
-/// Update component main data by uuid
+/// Обновляет основные данные компонента по UUID.
+/// Возвращает количество успешных изменений или ошибку, если все указанные данные уже существуют.
 pub(crate) fn update_component_by_uuid(
     logged_user_uuid: &Uuid,
     target_component_uuid: &Uuid,

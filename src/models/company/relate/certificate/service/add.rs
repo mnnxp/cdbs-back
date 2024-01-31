@@ -4,9 +4,8 @@ use crate::models::company::certificate::model::{
 };
 use crate::models::company::access::util::check_company_access;
 use crate::models::relate_ref::file::{
-    model::{ListObject, PreliminaryFileData, UploadFile},
+    model::{ListObject, UploadFile},
     service::register::preregister_file,
-    util::get_default_image,
 };
 use crate::storage::model::StorageAccess;
 use crate::storage::presigned_url::upload_presigned_url;
@@ -14,6 +13,8 @@ use crate::schema::company_certificate_ref::dsl::*;
 use diesel::prelude::*;
 use uuid::Uuid;
 
+/// Загрузка нового сертификата компании.
+/// Возвращает структуру с предварительно подписанным URL-адресом для загрузки файла (сертификата).
 pub(crate) fn add_certificate(
     logged_user_uuid: &Uuid,
     cert_data: &IptCompanyCertificateData,
@@ -29,17 +30,10 @@ pub(crate) fn add_certificate(
         conn
     )?;
 
-    // Get data for write information about the file before upload to storage
-    let preliminary_file_data = PreliminaryFileData::from_ipt_file_data(
-        *logged_user_uuid,
-        get_default_image(),
+    let slim_file = preregister_file(
+        logged_user_uuid,
         ListObject::CompanyCertificate(cert_data.company_uuid),
         &cert_data.filename,
-        conn
-    );
-
-    let slim_file = preregister_file(
-        preliminary_file_data,
         conn
     )?;
 

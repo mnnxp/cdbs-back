@@ -7,7 +7,7 @@ lazy_static::lazy_static! {
         HeaderName::from_lowercase(b"accept-language").unwrap();
 }
 
-/// get SetLang from request
+/// Gets SetLang from request
 impl From<&HeaderMap> for SetLang {
     fn from(req: &HeaderMap) -> Self {
         let lang = req
@@ -36,11 +36,14 @@ impl From<&HeaderMap> for SetLang {
 }
 
 // Language models
-
+/// Localization data
 #[derive(Debug, Serialize, Deserialize, Queryable, SimpleObject)]
 pub(crate) struct Language {
+    /// Language identifier (within the platform)
     pub(crate) id: i32,
+    /// Full language name
     pub(crate) lang: String,
+    /// Abbreviated language name
     pub(crate) langshort: String,
 }
 
@@ -51,9 +54,12 @@ pub(crate) struct InsertableLanguage {
     pub(crate) langshort: String,
 }
 
+/// Data on localization names
 #[derive(Debug, Serialize, Deserialize, Queryable, Clone, InputObject)]
 pub(crate) struct LanguageData {
+    /// Full language name
     pub(crate) lang: String,
+    /// Abbreviated language name
     pub(crate) langshort: String,
 }
 
@@ -84,10 +90,14 @@ impl From<&str> for EngLangName {
     }
 }
 
+/// Arguments for requesting available localizations
 #[derive(InputObject, Deserialize, Debug)]
 pub(crate) struct IptLanguageArg {
-    pub(crate) lang_ids:  Option<Vec<i32>>,
+    /// Filtering localizations by identifiers
+    pub(crate) lang_ids: Option<Vec<i32>>,
+    /// Restriction of data sampling (maximum number of records)
     pub(crate) limit: Option<i32>,
+    /// Number of skipping records at the beginning (offset)
     pub(crate) offset: Option<i32>,
 }
 

@@ -6,7 +6,7 @@ use uuid::Uuid;
 use crate::models::user::model::ShowUserShort;
 use crate::models::relate_ref::program::model::Program;
 
-// list for insert data in related tables
+/// List for insert data in related tables
 #[derive(Deserialize, Clone, Debug)]
 pub(crate) enum ListObject {
     /// For bind file to the user
@@ -52,27 +52,13 @@ impl ListObject {
     }
 }
 
-#[derive(Debug, Queryable)]
-pub(crate) struct File {
-    pub(crate) uuid: Uuid,
-    // pub(crate) parent_file_uuid: Uuid,
-    pub(crate) hash: Vec<u8>,
-    // pub(crate) user_uuid: Uuid,
-    pub(crate) filename: String,
-    // pub(crate) content_type: String,
-    // pub(crate) id_ext: i32,
-    pub(crate) filesize: i64,
-    pub(crate) path_file: String,
-    // pub(crate) created_at: NaiveDateTime,
-    // pub(crate) updated_at: NaiveDateTime,
-}
-
 #[derive(Identifiable, Queryable, Clone, Debug)]
 #[diesel(primary_key(uuid))]
 #[diesel(table_name = file_ref)]
 pub(crate) struct ShowFile {
     pub(crate) uuid: Uuid,
     pub(crate) parent_file_uuid: Uuid,
+    pub(crate) revision: i32,
     pub(crate) user_uuid: Uuid,
     pub(crate) filename: String,
     pub(crate) content_type: String,
@@ -88,6 +74,7 @@ pub(crate) struct ShowFile {
 pub(crate) struct InsertableFile {
     pub(crate) uuid: Uuid,
     pub(crate) parent_file_uuid: Uuid,
+    pub(crate) revision: i32,
     pub(crate) hash: Vec<u8>,
     pub(crate) user_uuid: Uuid,
     pub(crate) filename: String,
@@ -95,6 +82,8 @@ pub(crate) struct InsertableFile {
     pub(crate) id_ext: i32,
     pub(crate) filesize: i64,
     pub(crate) path_file: String,
+    pub(crate) is_checked: bool,
+    pub(crate) is_hidden: bool,
     pub(crate) is_delete: bool,
     pub(crate) created_at: NaiveDateTime,
     pub(crate) updated_at: NaiveDateTime,
@@ -105,6 +94,7 @@ impl From<PreliminaryFileData> for InsertableFile {
     fn from(data: PreliminaryFileData) -> Self {
         let PreliminaryFileData {
             parent_file_uuid,
+            revision,
             object,
             user_uuid,
             filename,
@@ -127,6 +117,7 @@ impl From<PreliminaryFileData> for InsertableFile {
         Self {
             uuid: new_file_uuid,
             parent_file_uuid,
+            revision,
             hash: Vec::new(),
             user_uuid,
             filename,
@@ -134,6 +125,8 @@ impl From<PreliminaryFileData> for InsertableFile {
             id_ext,
             filesize: 0_i64,
             path_file,
+            is_checked: false,
+            is_hidden: true,
             is_delete: false,
             created_at: chrono::Local::now().naive_local(),
             updated_at: chrono::Local::now().naive_local(),
@@ -145,6 +138,7 @@ impl From<PreliminaryFileData> for InsertableFile {
 #[derive(Deserialize, Debug)]
 pub(crate) struct PreliminaryFileData {
     pub(crate) parent_file_uuid: Uuid,
+    pub(crate) revision: i32,
     pub(crate) user_uuid: Uuid,
     /// linked object, to create a new name in the storage (file_path)
     pub(crate) object: ListObject,
@@ -155,16 +149,30 @@ pub(crate) struct PreliminaryFileData {
     pub(crate) content_type: String,
 }
 
+impl PreliminaryFileData {
+    pub(crate) fn set_revision(
+        &mut self,
+        parent_file_uuid: Uuid,
+        revision: i32,
+    ) {
+        self.parent_file_uuid = parent_file_uuid;
+        self.revision = revision;
+
+    }
+}
+
 #[derive(Deserialize, Debug)]
 pub(crate) struct FileData {
-    pub(crate) parent_file_uuid: Option<Uuid>,
-    pub(crate) hash: Option<Vec<u8>>,
-    pub(crate) user_uuid: Option<Uuid>,
-    pub(crate) filename: Option<String>,
+    // pub(crate) parent_file_uuid: Option<Uuid>,
+    // pub(crate) hash: Option<Vec<u8>>,
+    // pub(crate) user_uuid: Option<Uuid>,
+    // pub(crate) filename: Option<String>,
     pub(crate) content_type: Option<String>,
-    pub(crate) id_ext: Option<i32>,
+    // pub(crate) id_ext: Option<i32>,
     pub(crate) filesize: Option<i64>,
-    pub(crate) path_file: Option<String>,
+    // pub(crate) path_file: Option<String>,
+    pub(crate) is_checked: bool,
+    pub(crate) is_hidden: bool,
 }
 
 #[derive(Identifiable, Queryable, Clone, Debug)]
@@ -178,53 +186,54 @@ pub(crate) struct SlimFile {
     pub(crate) path_file: String,
 }
 
-impl From<File> for SlimFile {
-    fn from(file: File) -> Self {
-        let File {
-            uuid,
-            hash,
-            filename,
-            filesize,
-            path_file,
-            ..
-        } = file;
-
-        Self {
-            uuid,
-            hash,
-            filename,
-            filesize,
-            path_file,
-        }
-    }
-}
-
+/// Data for uploading files to S3 storage
 #[derive(Serialize, Debug, SimpleObject)]
 pub(crate) struct UploadFile {
+    /// UUID of file on CADBase platform
     pub(crate) file_uuid: Uuid,
+    /// Name of the file to be uploaded
     pub(crate) filename: String,
+    /// Pre-signed URL for file upload
     pub(crate) upload_url: String,
 }
 
+/// Full data about the file uploaded to the repository
 #[derive(Debug, SimpleObject, Clone)]
 pub(crate) struct ShowFileRelatedData {
+    /// File UUID
     pub(crate) uuid: Uuid,
+    /// File name
     pub(crate) filename: String,
+    /// File revision number
+    pub(crate) revision: i32,
+    /// UUID of parent file
     pub(crate) parent_file_uuid: Uuid,
+    /// Data about the user who owns the file
     pub(crate) owner_user: ShowUserShort,
+    /// Estimated data content type
     pub(crate) content_type: String,
+    /// File size in bytes
     pub(crate) filesize: i64,
+    /// Software associated with the file (to open the file)
     pub(crate) program: Program,
+    /// File creation date
     pub(crate) created_at: NaiveDateTime,
+    /// Date the file description was updated
     pub(crate) updated_at: NaiveDateTime,
 }
 
+/// Data for retrieving a file from CADBase storage
 #[derive(Serialize, SimpleObject, Clone, Default, Debug)]
 pub(crate) struct DownloadFile {
+    /// UUID of the file
     pub(crate) uuid: Uuid,
+    /// Hash of the file calculated with BLAKE3 (cryptographic hash function)
     pub(crate) hash: String,
+    /// File name
     pub(crate) filename: String,
+    /// File size in bytes
     pub(crate) filesize: i64,
+    /// Pre-signed URL to download the file
     pub(crate) download_url: String,
 }
 

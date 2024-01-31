@@ -4,7 +4,8 @@ use crate::models::company::access::util::check_company_access;
 use diesel::prelude::*;
 use uuid::Uuid;
 
-/// Update company certificate desctiption
+/// Обновляет описание сертификата компании.
+/// Возвращает true, если изменение прошло успешно, и false, если описание сертификата уже установлено.
 pub(crate) fn update_certificate_description(
     logged_user_uuid: &Uuid,
     data: &IptUpdateCompanyCertificateData,

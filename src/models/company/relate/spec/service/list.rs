@@ -7,7 +7,7 @@ use crate::models::relate_ref::spec::model::SpecTranslateList;
 use diesel::prelude::*;
 use uuid::Uuid;
 
-/// Get all specs for company
+/// Возвращает список связанных с компанией каталогов.
 pub(crate) fn get_company_specs(
     logged_user_uuid: &Uuid,
     arg: &CompanySpecsArg,

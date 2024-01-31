@@ -12,22 +12,25 @@ impl RepresentationTypeTranslateList {
     ) -> ServiceResult<RepresentationTypeTranslateList> {
         let result = rttl::representation_type_translate_list
             .filter(rttl::representation_type_id.eq(target_id)
-            .and(rttl::lang_id.eq(set_lang_id)))
-            .first::<RepresentationTypeTranslateList>(conn);
+                .and(rttl::lang_id.eq(set_lang_id)))
+            .first::<RepresentationTypeTranslateList>(conn)
+            .map_err(|err| {
+                debug!("Failed get represent types: {:?}", err);
+                ServiceError::InternalServerError
+            });
 
-        match result {
-            Ok(res) => Ok(res),
-            Err(err) => {
-                debug!("Not found set lang for represent: {:?}", err);
-                rttl::representation_type_translate_list
-                    .filter(rttl::representation_type_id.eq(target_id))
-                    .first::<RepresentationTypeTranslateList>(conn)
-                    .map_err(|err| {
-                        debug!("Failed get represent types: {:?}", err);
-                        ServiceError::InternalServerError
-                    })
-            },
+        if let Err(err) = &result {
+            debug!("Not found set lang for represent: {:?}", err);
+            return rttl::representation_type_translate_list
+                .filter(rttl::representation_type_id.eq(target_id))
+                .first::<RepresentationTypeTranslateList>(conn)
+                .map_err(|err| {
+                    debug!("Failed get represent types (def lang): {:?}", err);
+                    ServiceError::InternalServerError
+                })
         }
+
+        result
     }
 
     /// Get all represent types with translate

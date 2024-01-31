@@ -1,29 +1,35 @@
 use crate::errors::{ServiceError, ServiceResult};
-use crate::models::relate_ref::file::model::{
-    ListObject, PreliminaryFileData, InsertableFile, SlimFile,
-};
 use crate::models::component::relate::file::model::{
     InsertableComponentFile, ComponentFile,
 };
-use crate::models::component::component_modification::relate::file::model::{
-    InsertableFileModification, FileModification,
+use crate::models::component::component_modification::relate::{
+    file::model::{InsertableFileModification, FileModification},
+    fileset_for_program::file::model::{ModificationFileFromFileset, InsertableModificationFileFromFileset},
 };
-use crate::models::component::component_modification::relate::fileset_for_program::file::model::{
-    ModificationFileFromFileset, InsertableModificationFileFromFileset,
+use crate::models::relate_ref::file::{
+    model::{ListObject, PreliminaryFileData, InsertableFile, SlimFile},
+    util::{get_default_image, parsing_old_file},
 };
-use crate::models::standard::file::model::{
-    StandardFile, InsertableStandardFile,
-};
+use crate::models::standard::file::model::{StandardFile, InsertableStandardFile};
 use crate::schema::file_ref::dsl as file_ref;
 use diesel::prelude::*;
 use uuid::Uuid;
 
 /// Preliminary registration a file in database and bind with related object
 pub(crate) fn preregister_file(
-    preliminary_file_data: PreliminaryFileData,
+    logged_user_uuid: &Uuid,
+    object: ListObject,
+    filename: &str,
     conn: &mut PgConnection,
 ) -> ServiceResult<SlimFile> {
-    let object = preliminary_file_data.object.clone();
+    let mut preliminary_file_data = PreliminaryFileData::from_ipt_file_data(
+        *logged_user_uuid,
+        object.clone(),
+        filename,
+        conn
+    );
+    // check for new revision file
+    let _has_parent = parsing_old_file(&mut preliminary_file_data, conn)?;
     // register data in file_ref table
     let value_slim_file_data = write_metadata(preliminary_file_data, conn)?;
     // register data in addiction table (depends on the request)
@@ -42,7 +48,7 @@ fn write_metadata(
     conn: &mut PgConnection
 ) -> ServiceResult<SlimFile> {
     let file: InsertableFile = file_data.into();
-    diesel::insert_into(file_ref::file_ref)
+    let res = diesel::insert_into(file_ref::file_ref)
         .values(&file)
         .returning((
             file_ref::uuid,
@@ -55,7 +61,18 @@ fn write_metadata(
         .map_err(|err| {
             debug!("Failed insert file row: {:?}", err);
             ServiceError::InternalServerError
-        })
+        })?;
+    // change the parent reference to itself
+    if file.parent_file_uuid == get_default_image() {
+        let _change_parent = diesel::update(file_ref::file_ref.filter(file_ref::uuid.eq(&res.uuid)))
+            .set(file_ref::parent_file_uuid.eq(&res.uuid))
+            .execute(conn)
+            .map_err(|err| {
+                debug!("Failed after insert file row: {:?}", err);
+                ServiceError::InternalServerError
+            })?;
+    }
+    Ok(res)
 }
 
 /// Write information of file to db file_to_component or file_to_modification
@@ -63,7 +80,7 @@ fn write_addiction_data(
     object: ListObject,
     file_uuid: Uuid,
     conn: &mut PgConnection
-) -> ServiceResult<bool>{
+) -> ServiceResult<bool> {
     // select addiction table for write additional data
     match object {
         ListObject::User(_) => Ok(false),

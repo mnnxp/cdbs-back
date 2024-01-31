@@ -5,7 +5,8 @@ use crate::schema::user_ref::dsl as user_ref;
 use diesel::prelude::*;
 // use uuid::Uuid;
 
-/// Create new user
+/// Добавляет нового пользователя.
+/// Обязательные значения: адрес электронной почты, имя пользователя и пароль.
 pub(crate) fn create_user(
     data: &IptUserData,
     conn: &mut PgConnection

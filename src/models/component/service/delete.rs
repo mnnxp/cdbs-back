@@ -9,8 +9,8 @@ use crate::schema::{
 use diesel::prelude::*;
 use uuid::Uuid;
 
-/// Delete component and related data,
-/// return err if logged user not owner
+/// Удаляет компонент и связанные с ним данные.
+/// Возвращает UUID удалённого компонента.
 pub(crate) fn del_component(
     logged_user_uuid: &Uuid,
     del_component_uuid: &Uuid,

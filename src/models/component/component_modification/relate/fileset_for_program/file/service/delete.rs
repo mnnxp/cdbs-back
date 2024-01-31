@@ -9,7 +9,7 @@ use crate::schema::modification_file_from_fileset::dsl as modification_file_from
 use diesel::prelude::*;
 use uuid::Uuid;
 
-/// Delete a set of files for the program
+/// Удаляет файлы из набора файлов модификации компонента.
 pub(crate) fn del_file_from_fileset(
     logged_user_uuid: &Uuid,
     data: &DelModificationFileFromFilesetData,

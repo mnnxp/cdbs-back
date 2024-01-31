@@ -30,6 +30,9 @@ impl Claims {
             .format("%Y-%m-%dT%H:%M:%S%.f")
             .to_string()
     }
+    async fn program_id(&self) -> i32 {
+        self.program_id
+    }
 }
 
 pub(crate) fn decode(token: &str) -> ServiceResult<Claims>  {

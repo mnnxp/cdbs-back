@@ -23,6 +23,7 @@ pub struct CompanyMutation;
 
 #[Object]
 impl CompanyMutation {
+    /// Creates a company, returns the UUID of the new company.
     async fn register_company(
         &self,
         cxt: &Context<'_>,
@@ -36,6 +37,7 @@ impl CompanyMutation {
         create_company(&logged_user_uuid, &args, conn)
     }
 
+    /// Updates baic company data. Returns the number of successful changes.
     async fn put_company_update(
         &self,
         cxt: &Context<'_>,
@@ -55,7 +57,8 @@ impl CompanyMutation {
         )
     }
 
-    /// Change company type access
+    /// Changes the type of access to the company.
+    /// Returns true if the change was successful, and false if the specified access is already installed.
     async fn change_company_access(
         &self,
         cxt: &Context<'_>,
@@ -74,6 +77,7 @@ impl CompanyMutation {
         )
     }
 
+    /// Deletes the company and its associated data. Returns the UUID of the remote company.
     async fn delete_company(
         &self,
         cxt: &Context<'_>,
@@ -92,6 +96,7 @@ impl CompanyMutation {
         )
     }
 
+    /// Updates the company avatar. Returns a structure with a pre-signed URL for uploading an image file.
     async fn upload_company_favicon(
         &self,
         cxt: &Context<'_>,
@@ -111,6 +116,7 @@ impl CompanyMutation {
         )
     }
 
+    /// Uploading a new company certificate. Returns a structure with a pre-signed URL for uploading a certificate file.
     async fn upload_company_certificate(
         &self,
         cxt: &Context<'_>,
@@ -128,7 +134,8 @@ impl CompanyMutation {
         )
     }
 
-    /// Update company certificate description
+    /// Updates a company certificate description.
+    /// Returns true if the change was successful, and false if the certificate description is already installed.
     async fn update_company_certificate(
         &self,
         cxt: &Context<'_>,
@@ -146,6 +153,7 @@ impl CompanyMutation {
         )
     }
 
+    /// Removes a company certificate.
     async fn delete_company_certificate(
         &self,
         cxt: &Context<'_>,
@@ -163,6 +171,9 @@ impl CompanyMutation {
         )
     }
 
+    /// Adds company connections to specified directory sections.
+    /// Returns the number of successful connections.
+    /// And an error will be returned if all connections have already been added.
     async fn add_company_specs(
         &self,
         cxt: &Context<'_>,
@@ -180,6 +191,7 @@ impl CompanyMutation {
         )
     }
 
+    /// Removes company connections to the specified directory partitions.
     async fn delete_company_specs(
         &self,
         cxt: &Context<'_>,
@@ -197,6 +209,7 @@ impl CompanyMutation {
         )
     }
 
+    /// Adding information about the company's representative office.
     async fn register_company_represent(
         &self,
         cxt: &Context<'_>,
@@ -214,6 +227,9 @@ impl CompanyMutation {
         )
     }
 
+    /// Updating information about the company's representative office.
+    /// Returns the number of successful changes.
+    /// And an error will be returned if all sent data has already been sent.
     async fn update_company_represent(
         &self,
         cxt: &Context<'_>,
@@ -235,6 +251,7 @@ impl CompanyMutation {
         )
     }
 
+    /// Deletes information about the company's representative office.
     async fn delete_company_represent(
         &self,
         cxt: &Context<'_>,
@@ -254,6 +271,9 @@ impl CompanyMutation {
         )
     }
 
+    /// Adds a company (community) member.
+    /// A company member will have authorized access to all company components and standards.
+    /// Returns an error if this user is already a member of the company.
     async fn add_company_member(
         &self,
         cxt: &Context<'_>,
@@ -271,7 +291,7 @@ impl CompanyMutation {
         )
     }
 
-    /// Change access role for member
+    /// Changes the role type of a company member.
     async fn change_role_member(
         &self,
         cxt: &Context<'_>,
@@ -289,6 +309,8 @@ impl CompanyMutation {
         )
     }
 
+    /// Removes a company member.
+    /// After deleting, the user will not have access to closed company objects.
     async fn delete_company_member(
         &self,
         cxt: &Context<'_>,
@@ -306,6 +328,7 @@ impl CompanyMutation {
         )
     }
 
+    /// Creates a new role in the specified company.
     async fn register_company_role(
         &self,
         cxt: &Context<'_>,
@@ -323,6 +346,7 @@ impl CompanyMutation {
         )
     }
 
+    /// Updates the name of the specified role for company members.
     async fn change_name_role_company(
         &self,
         cxt: &Context<'_>,
@@ -340,11 +364,12 @@ impl CompanyMutation {
         )
     }
 
+    /// Removes the role of company members.
     async fn delete_company_role(
         &self,
         cxt: &Context<'_>,
         args: DelRoleMemberData,
-    ) -> ServiceResult<i32> {
+    ) -> ServiceResult<usize> {
         use crate::models::company::member::role::service::delete::del_role_member;
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
@@ -357,6 +382,7 @@ impl CompanyMutation {
         )
     }
 
+    /// Adds access rights to the company member role.
     async fn add_access_role(
         &self,
         cxt: &Context<'_>,
@@ -374,11 +400,12 @@ impl CompanyMutation {
         )
     }
 
+    /// Removes access rights of the company member role.
     async fn delete_access_role(
         &self,
         cxt: &Context<'_>,
         args: DelRoleAccessData,
-    ) -> ServiceResult<i32> {
+    ) -> ServiceResult<usize> {
         use crate::models::company::access::role_access::service::delete::del_role_access;
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
@@ -391,7 +418,7 @@ impl CompanyMutation {
         )
     }
 
-    /// Add company to suppliers list component
+    /// Adds company to suppliers list a component.
     async fn add_component_supplier(
         &self,
         cxt: &Context<'_>,
@@ -409,7 +436,7 @@ impl CompanyMutation {
         )
     }
 
-    /// Set company as main supplier component
+    /// Sets the company as the primary supplier of the component.
     async fn set_company_owner_supplier(
         &self,
         cxt: &Context<'_>,
@@ -427,7 +454,7 @@ impl CompanyMutation {
         )
     }
 
-    /// Delete company of suppliers list
+    /// Removes a company from the list of suppliers.
     async fn delete_supplier_company(
         &self,
         cxt: &Context<'_>,

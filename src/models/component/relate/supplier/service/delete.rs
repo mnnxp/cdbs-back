@@ -3,13 +3,12 @@ use crate::models::component::supplier::model::DelSuppliersComponentData;
 use diesel::prelude::*;
 use uuid::Uuid;
 
-/// Remove related suppliers from component
-/// delete rows in supplier_to_component table
+/// Удаляет поставщиков компонента по UUIDs.
 pub(crate) fn del_suppliers_component(
     logged_user_uuid: &Uuid,
     data: &DelSuppliersComponentData,
     conn: &mut PgConnection
-) -> ServiceResult<i32> {
+) -> ServiceResult<usize> {
     use crate::schema::supplier_to_component::dsl::*;
 
     let need_access_level = 1; // todo!(create enum for manage access level)
@@ -27,7 +26,7 @@ pub(crate) fn del_suppliers_component(
         .execute(conn);
 
     match del_count {
-        Ok(count) => Ok(count as i32),
+        Ok(count) => Ok(count),
         Err(err) => {
             debug!("Failed delete related suppliers to component: {:?}", err);
             Err(ServiceError::BadRequest("Failed delete related suppliers to component".to_string()))
@@ -41,7 +40,7 @@ pub(crate) fn clear_suppliers_component(
     logged_user_uuid: &Uuid,
     target_component_uuid: &Uuid,
     conn: &mut PgConnection
-) -> ServiceResult<i32> {
+) -> ServiceResult<usize> {
     use crate::models::component::access::util::check_is_owner_with_err;
     use crate::schema::supplier_to_component::dsl::*;
 
@@ -59,7 +58,7 @@ pub(crate) fn clear_suppliers_component(
     match del_count {
         Ok(count) => {
             debug!("Delete {:?} suppliers component", count);
-            Ok(count as i32)
+            Ok(count)
         },
         Err(err) => {
             debug!("Failed delete related suppliers to component: {:?}", err);

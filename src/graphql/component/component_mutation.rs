@@ -43,6 +43,7 @@ pub struct ComponentMutation;
 
 #[Object]
 impl ComponentMutation {
+    /// Creates a component, returns the UUID of the new component.
     async fn register_component(
         &self,
         cxt: &Context<'_>,
@@ -62,7 +63,7 @@ impl ComponentMutation {
         )
     }
 
-    /// Transfer component ownership to another user
+    /// Transfers ownership of a component to another user.
     async fn transfer_component_ownership(
         &self,
         cxt: &Context<'_>,
@@ -82,7 +83,7 @@ impl ComponentMutation {
         )
     }
 
-    /// Change component type access
+    /// Changes the default access to a component.
     async fn change_component_access(
         &self,
         cxt: &Context<'_>,
@@ -102,6 +103,8 @@ impl ComponentMutation {
         )
     }
 
+    /// Updates the component's underlying data by UUID.
+    /// Returns the number of successful changes or an error if all the specified data already exists.
     async fn put_component_update(
         &self,
         cxt: &Context<'_>,
@@ -123,6 +126,8 @@ impl ComponentMutation {
         )
     }
 
+    /// Deletes a component and its associated data.
+    /// Returns the UUID of the removed component.
     async fn delete_component(
         &self,
         cxt: &Context<'_>,
@@ -142,7 +147,8 @@ impl ComponentMutation {
         )
     }
 
-    // Start Manage access component
+    /// Sets access to a component for a company.
+    /// This access applies to all members of the company according to their roles.
     async fn set_company_access_component(
         &self,
         cxt: &Context<'_>,
@@ -162,6 +168,7 @@ impl ComponentMutation {
         )
     }
 
+    /// Removes access to a component for a company.
     async fn delete_company_access_component(
         &self,
         cxt: &Context<'_>,
@@ -181,6 +188,7 @@ impl ComponentMutation {
         )
     }
 
+    /// Sets access to a component for a user.
     async fn set_user_access_component(
         &self,
         cxt: &Context<'_>,
@@ -200,6 +208,7 @@ impl ComponentMutation {
         )
     }
 
+    /// Removes access to a component for a user.
     async fn delete_user_access_component(
         &self,
         cxt: &Context<'_>,
@@ -218,13 +227,14 @@ impl ComponentMutation {
             conn
         )
     }
-    // End Manage access component
 
+    /// Adds new parameters with values ​​for a component.
+    /// Updates the values ​​of existing component parameters if the provided parameter names already exist.
     async fn put_component_params(
         &self,
         cxt: &Context<'_>,
         args: IptComponentParamsData,
-    ) -> ServiceResult<i32> {
+    ) -> ServiceResult<usize> {
         use component_param::service::change::put_component_params;
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
@@ -238,11 +248,13 @@ impl ComponentMutation {
         )
     }
 
+    /// Removes component parameters.
+    /// Returns the number of successfully removed parameters.
     async fn delete_component_params(
         &self,
         cxt: &Context<'_>,
         args: DelComponentParamData,
-    ) -> ServiceResult<i32> {
+    ) -> ServiceResult<usize> {
         use component_param::service::delete::del_component_params;
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
@@ -256,6 +268,7 @@ impl ComponentMutation {
         )
     }
 
+    /// Adds a license to a component.
     async fn add_component_license(
         &self,
         cxt: &Context<'_>,
@@ -274,6 +287,7 @@ impl ComponentMutation {
         )
     }
 
+    /// Removes a license for a component.
     async fn delete_component_license(
         &self,
         cxt: &Context<'_>,
@@ -292,6 +306,7 @@ impl ComponentMutation {
         )
     }
 
+    /// Adds a component connection to directory sections.
     async fn add_component_specs(
         &self,
         cxt: &Context<'_>,
@@ -310,6 +325,7 @@ impl ComponentMutation {
         )
     }
 
+    /// Removes a component's association with directory partitions.
     async fn delete_component_specs(
         &self,
         cxt: &Context<'_>,
@@ -328,6 +344,7 @@ impl ComponentMutation {
         )
     }
 
+    /// Adds keywords to a component by IDs.
     async fn add_component_keywords(
         &self,
         cxt: &Context<'_>,
@@ -346,6 +363,7 @@ impl ComponentMutation {
         )
     }
 
+    /// Adds keywords to a component by words.
     async fn add_component_keywords_by_names(
         &self,
         cxt: &Context<'_>,
@@ -364,6 +382,7 @@ impl ComponentMutation {
         )
     }
 
+    /// Removes keywords from a component.
     async fn delete_component_keywords(
         &self,
         cxt: &Context<'_>,
@@ -382,6 +401,8 @@ impl ComponentMutation {
         )
     }
 
+    /// Creates preliminary files information for a component.
+    /// Returns structures with a pre-signed URL for uploading a files.
     async fn upload_component_files(
         &self,
         cxt: &Context<'_>,
@@ -400,6 +421,8 @@ impl ComponentMutation {
         )
     }
 
+    /// Updates the main image of the component.
+    /// Returns a structure with a pre-signed URL for uploading an image file.
     async fn upload_component_favicon(
         &self,
         cxt: &Context<'_>,
@@ -418,6 +441,7 @@ impl ComponentMutation {
         )
     }
 
+    /// Deletes a file of a component.
     async fn delete_component_file(
         &self,
         cxt: &Context<'_>,
@@ -436,11 +460,12 @@ impl ComponentMutation {
         )
     }
 
+    /// Removes suppliers a component by UUIDs.
     async fn delete_suppliers_component(
         &self,
         cxt: &Context<'_>,
         args: DelSuppliersComponentData,
-    ) -> ServiceResult<i32> {
+    ) -> ServiceResult<usize> {
         use component_supplier::service::delete::del_suppliers_component;
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
@@ -454,6 +479,7 @@ impl ComponentMutation {
         )
     }
 
+    /// Attaches a standard to a component.
     async fn add_standard_to_component(
         &self,
         cxt: &Context<'_>,
@@ -472,11 +498,12 @@ impl ComponentMutation {
         )
     }
 
+    /// Unpins a standard from a component.
     async fn delete_standards_component(
         &self,
         cxt: &Context<'_>,
         args: DelStandardToComponentData,
-    ) -> ServiceResult<i32> {
+    ) -> ServiceResult<usize> {
         use component_standard::service::delete::del_standards_component;
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
@@ -490,6 +517,7 @@ impl ComponentMutation {
         )
     }
 
+    /// Creates a new modification for a component.
     async fn register_component_modification(
         &self,
         cxt: &Context<'_>,
@@ -508,6 +536,7 @@ impl ComponentMutation {
         )
     }
 
+    /// Updates modification's data of a component.
     async fn put_component_modification_update(
         &self,
         cxt: &Context<'_>,
@@ -529,6 +558,7 @@ impl ComponentMutation {
         )
     }
 
+    /// Removes a component modification.
     async fn delete_component_modification(
         &self,
         cxt: &Context<'_>,
@@ -548,11 +578,13 @@ impl ComponentMutation {
         )
     }
 
+    /// Adds new parameters with values ​​for a component modification.
+    /// Updates the values ​​of existing component modification parameters if the provided parameter names already exist.
     async fn put_modification_params(
         &self,
         cxt: &Context<'_>,
         args: IptModificationParamData,
-    ) -> ServiceResult<i32> {
+    ) -> ServiceResult<usize> {
         use component_modification::param::service::change::put_modification_params;
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
@@ -566,11 +598,12 @@ impl ComponentMutation {
         )
     }
 
+    /// Deletes parameters of a component modification.
     async fn delete_modification_params(
         &self,
         cxt: &Context<'_>,
         args: DelModificationParamData,
-    ) -> ServiceResult<i32> {
+    ) -> ServiceResult<usize> {
         use component_modification::param::service::delete::del_modification_params;
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
@@ -584,6 +617,8 @@ impl ComponentMutation {
         )
     }
 
+    /// Creates preliminary files information for a component modification.
+    /// Returns structures with a pre-signed URL for uploading a files.
     async fn upload_modification_files(
         &self,
         cxt: &Context<'_>,
@@ -602,6 +637,7 @@ impl ComponentMutation {
         )
     }
 
+    /// Deletes a file of a component modification.
     async fn delete_modification_file(
         &self,
         cxt: &Context<'_>,
@@ -620,6 +656,9 @@ impl ComponentMutation {
         )
     }
 
+    /// Creates a set of files for component modification.
+    /// The files necessary for the operation of a specific soft (CAD system) are loaded into file sets for this soft.
+    /// Also file sets are used to configure integrations with various CAD/CAM systems etc.
     async fn register_modification_fileset(
         &self,
         cxt: &Context<'_>,
@@ -638,6 +677,7 @@ impl ComponentMutation {
         )
     }
 
+    /// Removes a set of files from a component modification.
     async fn delete_modification_fileset(
         &self,
         cxt: &Context<'_>,
@@ -656,6 +696,8 @@ impl ComponentMutation {
         )
     }
 
+    /// Creates preliminary files information for a set of files from a component modification.
+    /// Returns structures with a pre-signed URL for uploading a files.
     async fn upload_files_to_fileset(
         &self,
         cxt: &Context<'_>,
@@ -674,6 +716,7 @@ impl ComponentMutation {
         )
     }
 
+    /// Removes files from the component modification fileset.
     async fn delete_files_from_fileset(
         &self,
         cxt: &Context<'_>,

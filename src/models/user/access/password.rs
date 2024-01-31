@@ -20,9 +20,12 @@ use uuid::Uuid;
 //             .expect("Password regexp failed!");
 // }
 
+/// Password update request data
 #[derive(Deserialize, InputObject)]
 pub(crate) struct IptUpdatePassword {
+    /// Valid password (to confirm the legitimacy of the request)
     pub(crate) old_password: String,
+    /// New user password
     pub(crate) new_password: String,
 }
 
@@ -44,7 +47,7 @@ impl HashPassword {
     }
 }
 
-/// Change password for user
+/// Устанавливает новый пароль для авторизованного пользователя.
 pub(crate) fn change_password(
     logged_user_uuid: &Uuid,
     data: &IptUpdatePassword,

@@ -7,6 +7,8 @@ use crate::schema::type_access_ref::dsl as type_access_ref;
 use crate::schema::type_access_translate_list::dsl as type_access_translate_list;
 use diesel::prelude::*;
 
+/// Добавляет тип доступа.
+/// Возвращает ошибку с идентификатором типа доступа, если он уже существует.
 pub(crate) fn create_type_access(
     data: &IptTypeAccessTranslateListData,
     conn: &mut PgConnection

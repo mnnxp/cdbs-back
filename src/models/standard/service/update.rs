@@ -9,7 +9,8 @@ use crate::schema::standard_ref::dsl as standard_ref;
 use diesel::prelude::*;
 use uuid::Uuid;
 
-/// Update main standard data
+/// Обновляет основные данные стандарта по UUID.
+/// Возвращает количество успешных изменений или ошибку, если все указанные данные уже существуют.
 pub(crate) fn update_standard_data(
     logged_user_uuid: &Uuid,
     target_standard_uuid: &Uuid,

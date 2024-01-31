@@ -4,12 +4,12 @@ use crate::models::component::component_modification::util::get_component_by_mod
 use diesel::prelude::*;
 use uuid::Uuid;
 
-/// Delete component modification params
+/// Удаляет параметры модификации компонента.
 pub(crate) fn del_modification_params(
     logged_user_uuid: &Uuid,
     data: &DelModificationParamData,
     conn: &mut PgConnection
-) -> ServiceResult<i32> {
+) -> ServiceResult<usize> {
 
     let need_access_level = 1; // todo!(create enum for manage access level)
 
@@ -33,24 +33,19 @@ pub(crate) fn del_modification_params(
             del_params.push(*pm_id)
         }
     }
-
-    // delete selected params by ids
-    if !del_params.is_empty() {
-        match delete_modification_params_values(
-            &data.modification_uuid,
-            &del_params,
-            conn
-        ) {
-            x if x > 0 => return Ok(x as i32),
-            _ => {
-                return Err(ServiceError::BadRequest(
-                    "Fail delete rows".to_string()
-                ))
-            },
-        }
+    if del_params.is_empty() {
+        return Ok(0)
     }
 
-    Ok(0)
+    // delete selected params by ids
+    match delete_modification_params_values(
+        &data.modification_uuid,
+        &del_params,
+        conn
+    ) {
+        x if x > 0 => Ok(x),
+        _ => Err(ServiceError::BadRequest("Fail delete rows".to_string())),
+    }
 }
 
 /// Delete params for target component modification by ids

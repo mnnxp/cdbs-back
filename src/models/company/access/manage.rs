@@ -4,7 +4,8 @@ use crate::models::company::access::util::check_is_owner_with_err;
 use diesel::prelude::*;
 use uuid::Uuid;
 
-/// Change company type_access
+/// Изменяет тип доступа к компании.
+/// Возвращает true, если изменение прошло успешно, и false, если указанный доступ уже установлен.
 pub(crate) fn change_company_type_access(
     logged_user_uuid: &Uuid,
     data: &ChangeTypeAccessCompany,

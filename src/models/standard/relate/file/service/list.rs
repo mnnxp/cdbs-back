@@ -1,55 +1,38 @@
-use crate::errors::{ServiceResult, ServiceError};
+use crate::errors::ServiceResult;
 use crate::models::relate_ref::file::model::DownloadFile;
 use crate::models::standard::{
     model::StandardFilesArg,
+    file::repository::get_file_uuids_by_standard_uuid,
     access::util::check_access_standard_for_user
 };
-use crate::schema::file_to_standard::dsl as file_to_standard;
 use diesel::prelude::*;
 use uuid::Uuid;
 
-/// Returns pre-signed URLs (in wrapper DownloadFile) to get files associated with standards
+/// Возвращает предварительно подписанные URL-адрес и другую информацию для загрузки файлов стандарта.
 pub(crate) fn get_standard_files(
     logged_user_uuid: &Uuid,
-    arguments: &StandardFilesArg,
+    args: &StandardFilesArg,
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<DownloadFile>> {
-    let StandardFilesArg {
-        standard_uuid,
-        files_uuids,
-    } = arguments;
-
     let need_access_level = 2; // todo!(create enum for manage access level)
 
     check_access_standard_for_user(
         logged_user_uuid,
-        standard_uuid,
+        &args.standard_uuid,
         &need_access_level,
         conn,
     )?;
 
-    let target_files_uuids: Vec<Uuid> = match files_uuids.is_empty() {
-        true => file_to_standard::file_to_standard
-            .filter(file_to_standard::standard_uuid.eq(standard_uuid))
-            .select(file_to_standard::file_uuid)
-            .load::<Uuid>(conn)
-            .map_err(|err| {
-                debug!("Failed get files for standard: {:?}", err);
-                ServiceError::InternalServerError
-            })?,
-        false => file_to_standard::file_to_standard
-            .filter(file_to_standard::standard_uuid.eq(standard_uuid)
-            .and(file_to_standard::file_uuid.eq_any(files_uuids)))
-            .select(file_to_standard::file_uuid)
-            .load::<Uuid>(conn)
-            .map_err(|err| {
-                debug!("Failed get files for standard: {:?}", err);
-                ServiceError::InternalServerError
-            })?,
-    };
+    let target_file_uuids = get_file_uuids_by_standard_uuid(
+        &args.standard_uuid,
+        &args.file_uuids,
+        conn,
+    )?;
 
-    DownloadFile::get_by_files_uuids(
-        &target_files_uuids,
-        conn
+    DownloadFile::get_by_file_uuids(
+        &target_file_uuids,
+        args.limit,
+        args.offset,
+        conn,
     )
 }

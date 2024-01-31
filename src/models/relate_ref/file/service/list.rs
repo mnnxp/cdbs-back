@@ -1,11 +1,13 @@
 use crate::errors::ServiceResult;
+use crate::models::ExtraOptions;
 use crate::models::relate_ref::file::access::check_file_owner_err;
-use crate::models::relate_ref::file::model::DownloadFile;
+use crate::models::relate_ref::file::model::{DownloadFile, ShowFileRelatedData};
 use diesel::PgConnection;
 use uuid::Uuid;
 
-/// Gets presigned url for download file
-/// with checking ownership for logged user
+/// Возвращает предварительно подписанный URL-адрес для загрузки файла из хранилища.
+/// Работает только в том случае, если файл поддерживает управление версиями, связан с:
+/// компонентом, модификацией компонента, набором файлов или стандартом.
 pub(crate) fn get_url_by_file_uuid(
     logged_user_uuid: &Uuid,
     target_file_uuid: &Uuid,
@@ -19,4 +21,25 @@ pub(crate) fn get_url_by_file_uuid(
     )?;
 
     DownloadFile::get_by_file_uuid(target_file_uuid, conn)
+}
+
+/// Возвращает информацию обо всех редакциях (версиях) файла.
+pub(crate) fn get_revisions_by_file_uuid(
+    file_uuid: &Uuid,
+    options: &ExtraOptions,
+    conn: &mut PgConnection,
+) -> ServiceResult<Vec<ShowFileRelatedData>> {
+    // check ownership file
+    check_file_owner_err(
+        &options.logged_user_uuid,
+        file_uuid,
+        conn
+    )?;
+
+    ShowFileRelatedData::get_revisions_by_uuid(
+        file_uuid,
+        &options.limit,
+        &options.offset,
+        conn
+    )
 }

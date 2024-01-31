@@ -6,8 +6,7 @@ use async_graphql::*;
 use uuid::Uuid;
 
 // Supplier component models
-#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations)]
-#[derive(SimpleObject, Clone, Debug)]
+#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, Clone, Debug)]
 #[diesel(primary_key(component_uuid, company_uuid))]
 #[diesel(belongs_to(Component, foreign_key = component_uuid))]
 #[diesel(belongs_to(Company, foreign_key = company_uuid))]
@@ -18,10 +17,14 @@ pub(crate) struct SupplierComponent {
     pub(crate) description: String,
 }
 
+/// Component supplier information with description
 #[derive(Deserialize, SimpleObject, Clone, Debug)]
 pub(crate) struct ComponentSupplierRelatedData {
+    /// Data about the supplier company
     pub(crate) supplier: SlimCompany,
+    /// Component UUID
     pub(crate) component_uuid: Uuid,
+    /// Description of the supplier for this component
     pub(crate) description: String,
 }
 
@@ -41,10 +44,15 @@ impl ComponentSupplierRelatedData {
     }
 }
 
+/// Data for requests to add the main supplier
+/// and add the company to the list of suppliers of the component (part)
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub(crate) struct IptSupplierComponentData {
+    /// Component UUID
     pub(crate) component_uuid: Uuid,
+    /// Company UUID
     pub(crate) company_uuid: Uuid,
+    /// Vendor description (note to the component from the vendor)
     pub(crate) description: String,
 }
 
@@ -73,8 +81,11 @@ impl From<&IptSupplierComponentData> for InsertableSupplierComponent {
     }
 }
 
+/// Data for the component's vendor assignment request
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub(crate) struct DelSuppliersComponentData {
+    /// UUID of the component
     pub(crate) component_uuid: Uuid,
+    /// UUIDs of supplier companies to be deleted
     pub(crate) companies_uuids: Vec<Uuid>,
 }

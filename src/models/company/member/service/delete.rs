@@ -5,6 +5,8 @@ use crate::schema::company_member_list::dsl as company_member_list;
 use diesel::prelude::*;
 use uuid::Uuid;
 
+/// Удаляет члена компании.
+/// После удаления пользователь не будет иметь доступа к закрытым объектам компании.
 pub(crate) fn del_company_member(
     logged_user_uuid: &Uuid,
     data: &DelCompanyMemberData,

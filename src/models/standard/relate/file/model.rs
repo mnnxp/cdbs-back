@@ -6,7 +6,7 @@ use async_graphql::*;
 use uuid::Uuid;
 
 // Structures for Standard
-#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, SimpleObject, Debug)]
+#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, Debug)]
 #[diesel(primary_key(file_uuid, standard_uuid))]
 #[diesel(belongs_to(ShowFileRelatedData, foreign_key = file_uuid))]
 #[diesel(belongs_to(Standard, foreign_key = standard_uuid))]
@@ -38,20 +38,29 @@ impl From<StandardFile> for InsertableStandardFile {
     }
 }
 
+/// Data for request to update the main image of the standard
 #[derive(InputObject, Deserialize, Debug)]
 pub(crate) struct IptStandardFaviconData {
+    /// Name of the file to be uploaded
     pub(crate) filename: String,
+    /// Standard UUID
     pub(crate) standard_uuid: Uuid,
 }
 
+/// Data for request to add standard files (illustrations, documentation, etc.)
 #[derive(InputObject, Deserialize, Debug)]
 pub(crate) struct IptStandardFilesData {
+    /// Names of files to be uploaded (list)
     pub(crate) filenames: Vec<String>,
+    /// UUID of the standard
     pub(crate) standard_uuid: Uuid,
 }
 
+/// Data for requesting deletion files of standard
 #[derive(InputObject, Deserialize, Debug)]
 pub(crate) struct DeleteStandardFileData {
+    /// UUID of the file to be deleted
     pub(crate) file_uuid: Uuid,
+    /// UUID of standard
     pub(crate) standard_uuid: Uuid,
 }

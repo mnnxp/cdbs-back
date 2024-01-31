@@ -3,6 +3,7 @@ use crate::models::company::access::util::check_is_owner_with_err;
 use diesel::prelude::*;
 use uuid::Uuid;
 
+/// Удаляет информацию о представительстве компании.
 pub(crate) fn delete_company_represent(
     logged_user_uuid: &Uuid,
     target_company_uuid: &Uuid,

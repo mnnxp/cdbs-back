@@ -17,6 +17,7 @@ pub struct ExtensionMutation;
 
 #[Object]
 impl ExtensionMutation {
+    /// Creates an association of an extension with a software solution.
     async fn register_extension(
         &self,
         cxt: &Context<'_>,

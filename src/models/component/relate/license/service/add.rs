@@ -6,6 +6,7 @@ use crate::schema::license_to_component::dsl as license_to_component;
 use diesel::prelude::*;
 use uuid::Uuid;
 
+/// Добавляет лицензию к компоненту.
 pub(crate) fn add_component_license(
     logged_user_uuid: &Uuid,
     data: &IptComponentLicenseData,

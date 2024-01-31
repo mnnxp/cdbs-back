@@ -43,48 +43,78 @@ pub(crate) struct Standard {
     pub(crate) updated_at: NaiveDateTime,
 }
 
+/// Full information about the standard (standardization document) and related data
 #[derive(Debug, SimpleObject)]
 pub(crate) struct StandardAndRelatedData {
+    /// UUID of the standard on the platform
     pub(crate) uuid: Uuid,
+    /// Parent standard UUID
     pub(crate) parent_standard_uuid: Uuid,
+    /// Standard classification
     pub(crate) classifier: String,
+    /// Standard name
     pub(crate) name: String,
+    /// Standard description
     pub(crate) description: String,
+    /// Tolerance of the standard
     pub(crate) specified_tolerance: String,
+    /// Technical Committee (standardization body)
     pub(crate) technical_committee: String,
+    /// Date of publication of the document (standard)
     pub(crate) publication_at: NaiveDateTime,
+    /// Data for displaying the main image of the standard
     pub(crate) image_file: DownloadFile,
+    /// Data about the profile that uploaded the standard
     pub(crate) owner_user: ShowUserShort,
+    /// Data about the company that owns the standard
     pub(crate) owner_company: ShowCompanyShort,
+    /// Type of access to the standard data
     pub(crate) type_access: TypeAccessTranslateList,
+    /// Current status of the standard (e.g., "in development")
     pub(crate) standard_status: StandardStatusTranslateList,
+    /// Main region of application of the standard
     pub(crate) region: RegionTranslateList,
+    /// Date the standard card was created
     pub(crate) created_at: NaiveDateTime,
+    /// Date the standard's master data was updated
     pub(crate) updated_at: NaiveDateTime,
-    // related data
-    pub(crate) standard_files: Vec<ShowFileRelatedData>, // <-- documentation files, etc.
+    // Связанные со стандартом данные
+    /// Standard files (documentation, etc.)
+    pub(crate) standard_files: Vec<ShowFileRelatedData>,
+    /// Catalogs to which the standard has been added
     pub(crate) standard_specs: Vec<SpecTranslateList>,
+    /// Key words (tags) of the standard
     pub(crate) standard_keywords: Vec<Keyword>,
-    // count users to folloded the standard
+    /// Number of people who have added the standard to their bookmarks
     pub(crate) subscribers: i32,
-    // for display the checkbox "favorites"
+    /// Flag of standard presence in user's bookmarks
     pub(crate) is_followed: bool,
 }
 
+/// Abbreviated data about the standard
 #[derive(Debug, SimpleObject)]
 pub(crate) struct ShowStandardShort {
+    /// Standard UUID on the platform
     pub(crate) uuid: Uuid,
+    /// Standard classification
     pub(crate) classifier: String,
+    /// Standard name
     pub(crate) name: String,
+    /// Standard description
     pub(crate) description: String,
+    /// Tolerance of the standard
     pub(crate) specified_tolerance: String,
+    /// Date of publication of the document (standard)
     pub(crate) publication_at: NaiveDateTime,
-    // for display main image
+    /// Data for displaying the main image of the standard
     pub(crate) image_file: DownloadFile,
+    /// Data about the company that owns the standard
     pub(crate) owner_company: ShowCompanyShort,
+    /// Current status of the standard (e.g., "in development")
     pub(crate) standard_status: StandardStatusTranslateList,
+    /// Date when the standard's main data was updated
     pub(crate) updated_at: NaiveDateTime,
-    // for display the checkbox "favorites"
+    /// Flag of the standard in the user's bookmarks
     pub(crate) is_followed: bool,
 }
 
@@ -132,18 +162,30 @@ impl InsertableStandard {
     }
 }
 
+/// Data for registering a new standard on the platform
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub(crate) struct IptStandardData {
+    /// Parent standard UUID (optional)
     pub(crate) parent_standard_uuid: Option<Uuid>,
+    /// Standard classification
     pub(crate) classifier: String,
+    /// Standard name
     pub(crate) name: String,
+    /// Standard description
     pub(crate) description: String,
+    /// Tolerance of the standard
     pub(crate) specified_tolerance: String,
+    /// Technical Committee (standardization body)
     pub(crate) technical_committee: String,
+    /// Date of publication of the document (standard)
     pub(crate) publication_at: NaiveDateTime,
+    /// Identifier of the company owning the standard
     pub(crate) company_uuid: Uuid,
+    /// Identifier of the type of access to the data of the standard
     pub(crate) type_access_id: i32,
+    /// Identifier of the status of the state (readiness) of the standard
     pub(crate) standard_status_id: i32,
+    /// Identifier of the region of application (development) of the standard
     pub(crate) region_id: i32,
 }
 
@@ -190,25 +232,42 @@ impl From<&IptStandardData> for InsertableStandard {
     }
 }
 
+/// Data for updating the standard card.
+/// The data is only updated for the specified values.
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub(crate) struct IptUpdateStandardData {
+    /// Standard classification
     pub(crate) classifier: Option<String>,
+    /// Standard name
     pub(crate) name: Option<String>,
+    /// Standard description
     pub(crate) description: Option<String>,
+    /// Tolerance of the standard
     pub(crate) specified_tolerance: Option<String>,
+    /// Technical Committee (standardization body)
     pub(crate) technical_committee: Option<String>,
+    /// Date of publication of the document (standard)
     pub(crate) publication_at: Option<NaiveDateTime>,
+    /// Identifier of the company owning the standard
     pub(crate) company_uuid: Option<Uuid>,
+    /// Identifier of the status of the state (readiness) of the standard
     pub(crate) standard_status_id: Option<i32>,
+    /// Identifier of the region of application (development) of the standard
     pub(crate) region_id: Option<i32>,
 }
 
+/// Arguments for filtering and searching by standards
 #[derive(InputObject, Deserialize, Debug)]
 pub(crate) struct IptStandardsArg {
-    pub(crate) standards_uuids:  Option<Vec<Uuid>>,
+    /// Filter by standard UUID
+    pub(crate) standards_uuids: Option<Vec<Uuid>>,
+    /// Filter by company owning the standard
     pub(crate) company_uuid: Option<Uuid>,
+    /// Filter by the presence of the standard in the user's favorites
     pub(crate) favorite: Option<bool>,
+    /// Restriction of data sampling (maximum number of records)
     pub(crate) limit: Option<i32>,
+    /// Number of skipping records at the beginning (offset)
     pub(crate) offset: Option<i32>,
 }
 
@@ -253,28 +312,34 @@ impl From<IptStandardsArg> for StandardsArg {
     }
 }
 
+/// Arguments for filtering and searching by standard files
 #[derive(InputObject, Deserialize, Debug)]
 pub(crate) struct IptStandardFilesArg {
-    pub(crate) standard_uuid:  Uuid,
+    /// Filter by standard UUID
+    pub(crate) standard_uuid: Uuid,
+    /// Filter by standard UUID files
     pub(crate) files_uuids: Option<Vec<Uuid>>,
+    /// Restriction of data sampling (maximum number of records)
+    pub(crate) limit: Option<i32>,
+    /// Number of skipping records at the beginning (offset)
+    pub(crate) offset: Option<i32>,
 }
 
 #[derive(Debug)]
 pub(crate) struct StandardFilesArg {
-    pub(crate) standard_uuid:  Uuid,
-    pub(crate) files_uuids: Vec<Uuid>,
+    pub(crate) standard_uuid: Uuid,
+    pub(crate) file_uuids: Vec<Uuid>,
+    pub(crate) limit: i32,
+    pub(crate) offset: i32,
 }
 
 impl From<IptStandardFilesArg> for StandardFilesArg {
     fn from(data: IptStandardFilesArg) -> Self {
-        let IptStandardFilesArg {
-            standard_uuid,
-            files_uuids,
-        } = data;
-
         Self {
-            standard_uuid,
-            files_uuids: files_uuids.unwrap_or_default(),
+            standard_uuid: data.standard_uuid,
+            file_uuids: data.files_uuids.unwrap_or_default(),
+            limit: data.limit.unwrap_or(100),
+            offset: data.offset.unwrap_or(0),
         }
     }
 }

@@ -8,6 +8,7 @@ use crate::models::company::company_represent::model::{
 use diesel::prelude::*;
 use uuid::Uuid;
 
+/// Добавление информации о представительстве компании.
 pub(crate) fn create_company_represent(
     logged_user_uuid: &Uuid,
     data: &IptCompanyRepresentData,

@@ -9,7 +9,7 @@ use crate::models::company::member::role::util::get_company_by_role;
 use diesel::prelude::*;
 use uuid::Uuid;
 
-/// Add new access for role
+/// Добавляет права доступа к роли члена компании.
 pub(crate) fn create_role_access(
     logged_user_uuid: &Uuid,
     data: &IptRoleAccessData,

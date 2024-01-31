@@ -17,38 +17,32 @@ pub(crate) struct FilesetProgram {
     pub(crate) program_id: i32,
 }
 
+/// File set data with the target software for this set
 #[derive(Debug, Deserialize, SimpleObject, Clone)]
 pub(crate) struct FilesetProgramRelatedData {
+    /// File set UUID
     pub(crate) uuid: Uuid,
+    /// Component modification UUID
     pub(crate) modification_uuid: Uuid,
+    /// File set target software data
     pub(crate) program: Program,
 }
 
-// impl FilesetProgramRelatedData {
-//     /// Create struct with FilesetProgram data, Program data set default
-//     pub(crate) fn new(data: &FilesetProgram) -> Self {
-//         Self{
-//             uuid: data.uuid,
-//             modification_uuid: data.modification_uuid,
-//             program: Default::default(),
-//         }
-//     }
-//
-//     /// Change program data
-//     pub(crate) fn put_program(&mut self, program: &Program) {
-//         self.program = program.clone();
-//     }
-// }
-
+/// Data of the request to add a set of files for modification of a component
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub(crate) struct IptFilesetProgramData {
+    /// UUID of the component modification
     pub(crate) modification_uuid: Uuid,
+    /// Software identifier
     pub(crate) program_id: i32,
 }
 
+/// Request data for deleting a set of files from a component modification
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub(crate) struct DelFilesetProgramData {
+    /// UUID of component modification
     pub(crate) modification_uuid: Uuid,
+    /// UUID of file set
     pub(crate) fileset_uuid: Uuid,
 }
 
@@ -75,11 +69,16 @@ impl From<&IptFilesetProgramData> for InsertableFilesetProgram {
     }
 }
 
+/// File request data from a set of component modification files
 #[derive(InputObject, Deserialize, Debug)]
 pub(crate) struct IptFilesetProgramArg {
+    /// UUID of component modification
     pub(crate) modification_uuid: Uuid,
+    /// Filtering by software identifiers (list)
     pub(crate) program_ids: Option<Vec<i32>>,
+    /// Restriction of data sampling (maximum number of records)
     pub(crate) limit: Option<i32>,
+    /// Number of skipping records at the beginning (offset)
     pub(crate) offset: Option<i32>,
 }
 

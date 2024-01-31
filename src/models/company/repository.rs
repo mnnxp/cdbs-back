@@ -356,7 +356,7 @@ impl CompanyAndRelatedData {
             conn
         ).expect("Error get set type access");
 
-        let result = CompanyAndRelatedData {
+        Ok(CompanyAndRelatedData {
             uuid: company.uuid,
             orgname: company.orgname,
             shortname: company.shortname,
@@ -381,8 +381,6 @@ impl CompanyAndRelatedData {
             is_followed,
             created_at: company.created_at,
             updated_at: company.updated_at,
-        };
-
-        Ok(result)
+        })
     }
 }

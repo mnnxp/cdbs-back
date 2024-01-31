@@ -6,6 +6,7 @@ use crate::schema::extension_ref::dsl as extension_ref;
 use diesel::prelude::*;
 // use uuid::Uuid;
 
+/// Создаёт связь расширения с программным решением.
 pub(crate) fn create_extension(
     new_extension_data: &IptExtensionData,
     conn: &mut PgConnection

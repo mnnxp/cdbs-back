@@ -6,7 +6,7 @@ use crate::schema::file_to_standard::dsl as file_to_standard;
 use diesel::prelude::*;
 use uuid::Uuid;
 
-/// Delete row in file_to_standard table
+/// Удаляет файл стандарта.
 pub(crate) fn delete_standard_file(
     logged_user_uuid: &Uuid,
     arguments: &DeleteStandardFileData,

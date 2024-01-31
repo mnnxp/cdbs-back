@@ -124,7 +124,7 @@ pub(crate) fn delete_user_token(
 pub(crate) fn delete_all_tokens(
     target_user_uuid: &Uuid,
     conn: &mut PgConnection,
-) -> ServiceResult<i32> {
+) -> ServiceResult<usize> {
     let del_tokens = diesel::delete(user_token_ref::user_token_ref)
         .filter(user_token_ref::user_uuid.eq_all(target_user_uuid))
         .execute(conn)
@@ -133,7 +133,7 @@ pub(crate) fn delete_all_tokens(
             ServiceError::InternalServerError
         })?;
 
-    Ok(del_tokens as i32)
+    Ok(del_tokens)
 }
 
 /// write token to table user_token_ref of database

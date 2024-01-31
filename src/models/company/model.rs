@@ -41,49 +41,81 @@ pub(crate) struct Company {
     pub(crate) updated_at: NaiveDateTime,
 }
 
+/// Full company information and related data
 #[derive(Debug, SimpleObject)]
 pub(crate) struct CompanyAndRelatedData {
+    /// Company UUID on the platform
     pub(crate) uuid: Uuid,
+    /// Company name
     pub(crate) orgname: String,
+    /// Abbreviated name
     pub(crate) shortname: String,
+    /// TIN or other tax identifier of the company
     pub(crate) inn: String,
+    /// Phone number
     pub(crate) phone: String,
+    /// Company e-mail
     pub(crate) email: String,
+    /// Company Description
     pub(crate) description: String,
+    /// Company address
     pub(crate) address: String,
+    /// Company website
     pub(crate) site_url: String,
+    /// Main time zone
     pub(crate) time_zone: String,
+    /// Data on the profile that owns the company
     pub(crate) owner_user: ShowUserShort,
+    /// Data for displaying the company logo
     pub(crate) image_file: DownloadFile,
+    /// Main company region
     pub(crate) region: RegionTranslateList,
+    /// Data on the company's representative offices
     pub(crate) company_represents: Vec<CompanyRepresentAndRelatedData>,
+    /// Type of company/society organization
     pub(crate) company_type: CompanyTypeTranslateList,
-    // show certificates company
+    /// List of certificates and competencies of the companies
     pub(crate) company_certificates: Vec<CompanyCertificateAndFile>,
+    /// List of catalogs monitored by the company
     pub(crate) company_specs: Vec<SpecTranslateList>,
+    /// Type of access to company profile
     pub(crate) type_access: TypeAccessTranslateList,
+    /// Supplier status (within the platform)
     pub(crate) is_supplier: bool,
+    /// E-mail confirmation result flag
     pub(crate) is_email_verified: bool,
-    // count users to folloded the company
+    /// Number of people who have added the company to their bookmarks
     pub(crate) subscribers: i32,
-    // for display the checkbox "favorites"
+    /// Flag of company presence in user's bookmarks
     pub(crate) is_followed: bool,
+    /// Date of creation of the company profile
     pub(crate) created_at: NaiveDateTime,
+    /// Date of update of the company's basic data
     pub(crate) updated_at: NaiveDateTime,
 }
 
+/// Abbreviated company data
 #[derive(Debug, SimpleObject)]
 pub(crate) struct ShowCompanyShort {
+    /// Company UUID on the platform
     pub(crate) uuid: Uuid,
+    /// Abbreviated name
     pub(crate) shortname: String,
+    /// TIN or other tax identifier of the company
     pub(crate) inn: String,
+    /// Company Description
     pub(crate) description: String,
+    /// Data for displaying the company logo
     pub(crate) image_file: DownloadFile,
+    /// Main region of the company's activity
     pub(crate) region: RegionTranslateList,
+    /// Type of company/community organization
     pub(crate) company_type: CompanyTypeTranslateList,
+    /// Supplier status (within the platform)
     pub(crate) is_supplier: bool,
-    // for display the checkbox "favorites"
+    /// Flag of company presence in user's bookmarks
     pub(crate) is_followed: bool,
+    /// Date of update of the company's basic data
     pub(crate) updated_at: NaiveDateTime,
 }
 
@@ -125,19 +157,32 @@ impl InsertableCompany {
     }
 }
 
+/// New company data
 #[derive(Debug, Deserialize, InputObject)]
 pub(crate) struct IptCompanyData {
+    /// Company name
     pub(crate) orgname: String,
+    /// Abbreviated name
     pub(crate) shortname: String,
+    /// TIN or other tax identifier of the company
     pub(crate) inn: String,
+    /// Phone number
     pub(crate) phone: String,
+    /// Company e-mail
     pub(crate) email: String,
+    /// Company Description
     pub(crate) description: String,
+    /// Company address
     pub(crate) address: String,
+    /// Company website
     pub(crate) site_url: String,
+    /// Main time zone
     pub(crate) time_zone: String,
+    /// Identifier of the company's main region
     pub(crate) region_id: i32,
+    /// Company/community organization type identifier
     pub(crate) company_type_id: i32,
+    /// Company profile access type identifier
     pub(crate) type_access_id: i32,
 }
 
@@ -184,25 +229,42 @@ impl From<&IptCompanyData> for InsertableCompany {
     }
 }
 
+/// Data for updating the company profile.
+/// The data is updated only for the provide values.
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub(crate) struct IptUpdateCompanyData {
+    /// Company name
     pub(crate) orgname: Option<String>,
+    /// Abbreviated name
     pub(crate) shortname: Option<String>,
+    /// TIN or other tax identifier of the company
     pub(crate) inn: Option<String>,
+    /// Phone number
     pub(crate) phone: Option<String>,
+    /// Company e-mail
     pub(crate) email: Option<String>,
+    /// Company Description
     pub(crate) description: Option<String>,
+    /// Company address
     pub(crate) address: Option<String>,
+    /// Company website
     pub(crate) site_url: Option<String>,
+    /// Main time zone
     pub(crate) time_zone: Option<String>,
+    /// Main company region
     pub(crate) region_id: Option<i32>,
+    /// Type of company/society organization
     pub(crate) company_type_id: Option<i32>,
 }
 
+/// Minimum information about the company
 #[derive(Debug, Serialize, Deserialize, Queryable, Clone, Default, SimpleObject)]
 pub(crate) struct SlimCompany {
+    /// Company UUID on the platform
     pub(crate) uuid: Uuid,
+    /// Abbreviated name
     pub(crate) shortname: String,
+    /// Supplier status (within the platform)
     pub(crate) is_supplier: bool,
 }
 
@@ -223,13 +285,20 @@ impl From<Company> for SlimCompany {
     }
 }
 
+/// Arguments for companies data query
 #[derive(InputObject, Deserialize, Debug)]
 pub(crate) struct IptCompaniesArg {
-    pub(crate) companies_uuids:  Option<Vec<Uuid>>,
+    /// Filter by company UUID
+    pub(crate) companies_uuids: Option<Vec<Uuid>>,
+    /// Filter by company owner
     pub(crate) user_uuid: Option<Uuid>,
+    /// Filter by availability of companies in user's favorites
     pub(crate) favorite: Option<bool>,
+    /// Filter by supplier status
     pub(crate) supplier: Option<bool>,
+    /// Restriction of data sampling (maximum number of records)
     pub(crate) limit: Option<i32>,
+    /// Number of skipping records at the beginning (offset)
     pub(crate) offset: Option<i32>,
 }
 

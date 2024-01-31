@@ -18,6 +18,7 @@ pub(crate) struct ReturnToken {
     pub(crate) bearer: String,
 }
 
+/// Возврщает токен авторизации (JWS) для пользователя CADBase.
 pub(super) async fn login(
     auth_data: web::Json<LoginQuery>,
     pool: web::Data<Pool>,

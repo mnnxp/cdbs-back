@@ -5,7 +5,7 @@ use crate::schema::company_ref::dsl as company_ref;
 use diesel::prelude::*;
 use uuid::Uuid;
 
-/// Update company main data
+/// Обновляет основные данные компании. Возвращает количество успешных изменений.
 pub(crate) fn update_company_by_uuid(
     logged_user_uuid: &Uuid,
     target_company_uuid: &Uuid,
