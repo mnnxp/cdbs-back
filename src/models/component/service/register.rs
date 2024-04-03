@@ -7,6 +7,7 @@ use crate::models::component::{
         service::register::single_modification,
     },
 };
+use crate::models::user::component_fav::service::add::component_to_fav_ft;
 use crate::schema::component_ref::dsl as component_ref;
 use diesel::prelude::*;
 use uuid::Uuid;
@@ -45,6 +46,9 @@ pub(crate) fn create_component(
                     ServiceError::InternalServerError
                 })?;
 
+            // add the new component to the user's favorites
+            component_to_fav_ft(logged_user_uuid, &new_uuid, conn)?;
+            // add a new modification to the component
             insert_new_modifiacation(&new_uuid, conn)?;
 
             diesel::update(component_ref::component_ref)
@@ -62,7 +66,7 @@ pub(crate) fn create_component(
             .returning(component_ref::uuid)
             .get_result(conn)
             .map_err(|err| {
-                debug!("Failed created standard: {:?}", err);
+                debug!("Failed created component: {:?}", err);
                 ServiceError::InternalServerError
         }),
     }

@@ -56,26 +56,36 @@ pub(crate) fn add_component_fav(
                 })
         },
         None => {
-            let data = IptComponentFavData{
-                user_uuid: *logged_user_uuid,
-                component_uuid: *component_uuid,
-            };
-
-            // add flag and date created
-            let insertable_fav: InsertableComponentFav = data.into();
-
-            diesel::insert_into(component_fav::component_fav)
-                .values(insertable_fav)
-                .returning(component_fav::is_enabled)
-                .get_result::<bool>(conn)
-                .map_err(|err| {
-                    debug!("Failed add fav component: {:?}", err);
-                    ServiceError::InternalServerError
-                })?;
-
+            // creating a new record for tracking the component by the user
+            component_to_fav_ft(logged_user_uuid, component_uuid, conn)?;
             new_notification(component_uuid, conn)
         },
     }
+}
+
+/// Добавление новой записи для добавления компонента в избранное пользователя
+/// Adding a new entry to add a component to a user's favorites for first time
+pub(crate) fn component_to_fav_ft(
+    user_uuid: &Uuid,
+    component_uuid: &Uuid,
+    conn: &mut PgConnection,
+) -> ServiceResult<bool> {
+    let data = IptComponentFavData{
+        user_uuid: *user_uuid,
+        component_uuid: *component_uuid,
+    };
+
+    // add flag and date created
+    let insertable_fav: InsertableComponentFav = data.into();
+
+    diesel::insert_into(component_fav::component_fav)
+        .values(insertable_fav)
+        .returning(component_fav::is_enabled)
+        .get_result::<bool>(conn)
+        .map_err(|err| {
+            debug!("Failed add fav component: {:?}", err);
+            ServiceError::InternalServerError
+        })
 }
 
 fn new_notification(

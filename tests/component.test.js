@@ -1036,6 +1036,24 @@ describe('component', () => {
   });
 
   // Testing favorite components search
+  it('/graphql:M ComponentFav - Ok delete after auto add', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation {
+            deleteComponentFav(componentUuid: "${componentUuidStandard}")
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql deleteComponentFav body=%o', body);
+    expect(body.data.deleteComponentFav).toBe(true);
+    done();
+  });
+
   it('/graphql:M ComponentFav - Ok add', async (done) => {
     const { body } = await agent
       .post('/graphql')
@@ -1094,9 +1112,10 @@ describe('component', () => {
     const {
       data: { components },
     } = body;
-    expect(components[0].uuid).toBe(componentUuidStandard);
-    expect(components[0].name).toBe(nameComponent);
-    expect(components[0].isFollowed).toBe(true);
+    expect(components[1].uuid).toBe(componentUuidStandard);
+    expect(components[1].name).toBe(nameComponent);
+    expect(components[1].isFollowed).toBe(true);
+    expect(components.length).toBe(4);
     done();
   });
 
@@ -1168,7 +1187,8 @@ describe('component', () => {
       data: { components },
     } = body;
     // expect(components).toBeEmptyArray();
-    expect(components.length).toBe(1); // only 1 favorite - set by default
+    // 3 favorite - 1 set by default and 2 automatic addition on creation
+    expect(components.length).toBe(3);
     done();
   });
 
@@ -2892,7 +2912,7 @@ describe('component', () => {
     expect(component.ownerUser.imageFile.uuid).toBeNonEmptyString();
     expect(component.componentType.componentType).toBeNonEmptyString();
     expect(component.actualStatus.name).toBeNonEmptyString();
-    expect(component.subscribers).toBe(1);
+    expect(component.subscribers).toBe(2);
     done();
   });
 
