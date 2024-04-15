@@ -22,7 +22,8 @@ pub(crate) fn get_modification_filesets(
         offset,
     } = arguments;
 
-    let need_access_level = 2; // todo!(create enum for manage access level)
+    // todo!(временное решение: убрать ограничение доступа файлам из набора модификации компонента)
+    let need_access_level = 3; // todo!(create enum for manage access level)
 
     check_access_component_for_user(
         logged_user_uuid,
