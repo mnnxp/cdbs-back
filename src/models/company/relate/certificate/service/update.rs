@@ -32,13 +32,7 @@ pub(crate) fn update_certificate_description(
         .execute(conn);
 
     match res {
-        Ok(x) => {
-            if x > 0 {
-                Ok(true)
-            } else {
-                Ok(false)
-            }
-        },
+        Ok(x) => Ok(x > 0),
         Err(err) => {
             debug!("Failed update data: {:?}", err);
 
