@@ -140,7 +140,7 @@ impl ShowCompanyShort {
         )
     }
 
-    /// Gets comapany short data by company_uuid wtihout check access
+    /// Gets company short data by company_uuid wtihout check access
     pub(crate) fn get_without_check_by_uuid(
         target_company_uuid: &Uuid,
         logged_user_uuid: &Uuid,
@@ -165,14 +165,14 @@ impl ShowCompanyShort {
             &company.region_id,
             set_lang_id,
             conn
-        ).expect("Error loading company_type");
+        ).expect("Error loading region with translate");
 
         // get company type with translation for company
         let company_type_with_translate: CompanyTypeTranslateList = CompanyTypeTranslateList::get_company_type_by_id(
             &company.company_type_id,
             set_lang_id,
             conn
-        ).expect("Error loading company_type");
+        ).expect("Error loading company type with translate");
 
         // check whether the object is being tracked auth user
         let is_followed = check_subscriber_by_uuid(
@@ -317,14 +317,14 @@ impl CompanyAndRelatedData {
             &company.region_id,
             set_lang_id,
             conn
-        ).expect("Error loading company_type");
+        ).expect("Error loading region with translate");
 
         // get company type with translation for company
         let company_type_with_translate: CompanyTypeTranslateList = CompanyTypeTranslateList::get_company_type_by_id(
             &company.company_type_id,
             set_lang_id,
             conn
-        ).expect("Error loading company_type");
+        ).expect("Error loading company type with translate");
 
         // check whether the object is being tracked auth user
         let is_followed = check_subscriber_by_uuid(
@@ -379,6 +379,110 @@ impl CompanyAndRelatedData {
             is_email_verified: company.is_email_verified,
             subscribers: company_subscribers_count,
             is_followed,
+            created_at: company.created_at,
+            updated_at: company.updated_at,
+        })
+    }
+
+    /// Collecting supplier data and related data using UUID.
+    /// Only publicly available data is selected without access verification.
+    pub(crate) fn get_supplier_by_uuid(
+        target_company_uuid: &Uuid,
+        set_lang_id: &i32,
+        conn: &mut PgConnection,
+    ) -> ServiceResult<CompanyAndRelatedData> {
+        // collect data for company
+        let company: Company = Company::get_company_by_uuid(
+            target_company_uuid,
+            conn
+        ).expect("Error loading company");
+
+        // todo!(create enum for manage access level)
+        // checking access type and supplier status of the company
+        if company.type_access_id != 3 || !company.is_supplier {
+            debug!("No suitable supplier: {:?}, {:?}", company.type_access_id, company.is_supplier);
+            return Err(ServiceError::BadRequest("No suitable supplier has been found.".to_string()))
+        }
+
+        // get company owner
+        let owner_user = crate::models::user::model::ShowUserShort::get_without_check_by_uuid(
+            &company.user_uuid,
+            conn
+        ).expect("Error loading slim_user");
+
+        // get image file (favicon) for company
+        let image_file = DownloadFile::get_by_file_uuid(
+            &company.image_file_uuid,
+            conn
+        ).expect("Error loading company file");
+
+        // get company represents for company
+        let company_represents_with_related_data = CompanyRepresentAndRelatedData::get_by_company_uuid(
+            &company.uuid,
+            set_lang_id,
+            conn
+        ).expect("Error loading company represents");
+
+        // get region for company
+        let region_with_translate: RegionTranslateList = RegionTranslateList::get_region_by_id(
+            &company.region_id,
+            set_lang_id,
+            conn
+        ).expect("Error loading region with translate");
+
+        // get company type with translation for company
+        let company_type_with_translate: CompanyTypeTranslateList = CompanyTypeTranslateList::get_company_type_by_id(
+            &company.company_type_id,
+            set_lang_id,
+            conn
+        ).expect("Error loading company type with translate");
+
+        // count subscribers company
+        let company_subscribers_count: i32 = CompanyFav::get_count_followers_by_uuid(&company.uuid, conn)?;
+
+        // get certificates with slimfile for company
+        let certificates_with_slimfile: Vec<CompanyCertificateAndFile> = CompanyCertificateAndFile::from_company(
+            &company.uuid,
+            conn
+        ).expect("Error loading spec company with translate");
+
+        // get specs with translation for company
+        let company_specs_with_translate: Vec<SpecTranslateList> = SpecTranslateList::for_company(
+            &company,
+            set_lang_id,
+            conn
+        ).expect("Error loading spec company with translate");
+
+        // get type access set for company
+        let type_access: TypeAccessTranslateList = TypeAccessTranslateList::get_type_access_by_id(
+            &company.type_access_id,
+            set_lang_id,
+            conn
+        ).expect("Error get set type access");
+
+        Ok(CompanyAndRelatedData {
+            uuid: company.uuid,
+            orgname: company.orgname,
+            shortname: company.shortname,
+            inn: company.inn,
+            phone: company.phone,
+            email: company.email,
+            description: company.description,
+            address: company.address,
+            site_url: company.site_url,
+            time_zone: company.time_zone,
+            owner_user,
+            image_file,
+            company_represents: company_represents_with_related_data,
+            region: region_with_translate,
+            company_type: company_type_with_translate,
+            company_certificates: certificates_with_slimfile,
+            company_specs: company_specs_with_translate,
+            type_access,
+            is_supplier: company.is_supplier,
+            is_email_verified: company.is_email_verified,
+            subscribers: company_subscribers_count,
+            is_followed: false,
             created_at: company.created_at,
             updated_at: company.updated_at,
         })

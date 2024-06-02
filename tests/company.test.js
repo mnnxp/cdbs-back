@@ -56,6 +56,12 @@ const goodFilenameCertificateTest = "name file certificate.pdf";
 
 var fileCertificateTestUuid = "";
 
+// company data in the database
+const supplierCompany1t = "fde011eb-0995-4e6a-b616-7fab2f2cf7ac"; // Builderings SS 1 true
+const supplierCompany3f = "0dec6985-c2d1-4941-99c3-2eb570d567d9"; // W.SOPR 3 false
+const supplierCompany3t = "4e149874-f680-4726-b0e7-af03a849b407";
+const supplierCompany3tShortName = "RI" // 3 true
+
 const companyFullDataQuery = ` \
 uuid \
 orgname \
@@ -326,6 +332,93 @@ describe('company', () => {
   });
 
   const agent = request.agent(url);
+
+  it('/graphql:Q company - Bad public supplier company (not public)', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .send({
+        query: `query GetSupplierCompany {
+          supplierCompany (companyUuid: "${supplierCompany1t}"){
+            ${companyFullDataQuery}
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql supplierCompany=%o', body);
+    // expect(body).toBe(0);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'Internal Server Error'
+    );
+    expect(body.errors[0].path[0]).toBe('supplierCompany');
+    done();
+  });
+
+  it('/graphql:Q company - Bad public supplier company (not supplier)', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .send({
+        query: `query GetSupplierCompany {
+          supplierCompany (companyUuid: "${supplierCompany3f}"){
+            ${companyFullDataQuery}
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql supplierCompany=%o', body);
+    // expect(body).toBe(0);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'Internal Server Error'
+    );
+    expect(body.errors[0].path[0]).toBe('supplierCompany');
+    done();
+  });
+
+  it('/graphql:Q company - OK public supplier company', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .send({
+        query: `query GetSupplierCompany {
+          supplierCompany (companyUuid: "${supplierCompany3t}"){
+            ${companyFullDataQuery}
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql supplierCompany=%o', body);
+    const {
+      data: { supplierCompany },
+    } = body;
+    expect(supplierCompany.uuid).toBe(supplierCompany3t);
+    expect(supplierCompany.shortname).toBe(supplierCompany3tShortName);
+    expect(supplierCompany.typeAccess.name).toBe("public");
+    expect(supplierCompany.isSupplier).toBe(true);
+    done();
+  });
+
+  it('/graphql:Q company - OK public supplier company (set lang)', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set('Accept-Language', 'ru')
+      .send({
+        query: `query GetSupplierCompany {
+          supplierCompany (companyUuid: "${supplierCompany3t}"){
+            ${companyFullDataQuery}
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql supplierCompany=%o', body);
+    const {
+      data: { supplierCompany },
+    } = body;
+    expect(supplierCompany.uuid).toBe(supplierCompany3t);
+    expect(supplierCompany.shortname).toBe(supplierCompany3tShortName);
+    expect(supplierCompany.typeAccess.name).toBe("публичный");
+    expect(supplierCompany.isSupplier).toBe(true);
+    done();
+  });
 
   it('/graphql:M register - OK', async (done) => {
     const { body } = await agent

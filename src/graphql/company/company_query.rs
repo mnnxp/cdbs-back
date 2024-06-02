@@ -71,6 +71,24 @@ impl CompanyQuery {
         )
     }
 
+    /// Returns the supplier company information and associated UUID data.
+    /// Does not require an authorization token, but only works for public companies with supplier status.
+    async fn supplier_company(
+        &self,
+        cxt: &Context<'_>,
+        company_uuid: Uuid,
+    ) -> ServiceResult<CompanyAndRelatedData> {
+        use company::service::list::get_supplier_by_uuid;
+
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+
+        get_supplier_by_uuid(
+            &company_uuid,
+            &get_set_language(cxt),
+            conn,
+        )
+    }
+
     /// Returns information about company representative offices.
     async fn company_represents(
         &self,

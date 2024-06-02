@@ -168,3 +168,22 @@ pub(crate) fn find_by_uuid(
         ServiceError::BadRequest("Access denied".to_string())
     })
 }
+
+/// Возвращает основные и связанные данные компании со статусом поставщика.
+/// Без проверки авторизации и прав пользователя.
+/// Фильтр на статус поставщика и открытый доступ.
+pub(crate) fn get_supplier_by_uuid(
+    target_company_uuid: &Uuid,
+    set_lang_id: &i32,
+    conn: &mut PgConnection,
+) -> ServiceResult<CompanyAndRelatedData> {
+    // collect data for company
+    CompanyAndRelatedData::get_supplier_by_uuid(
+        target_company_uuid,
+        set_lang_id,
+        conn
+    ).map_err(|err| {
+        debug!("Error loading supplier company and collect related data: {:?}", err);
+        ServiceError::InternalServerError
+    })
+}
