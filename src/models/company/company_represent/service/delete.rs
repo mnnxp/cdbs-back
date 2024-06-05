@@ -1,4 +1,5 @@
-use crate::errors::{ServiceError, ServiceResult};
+use crate::errors::{ServiceResult, ServiceError};
+use crate::errors::err_msg::{ErrorMessage, get_err_msg};
 use crate::models::company::access::util::check_is_owner_with_err;
 use diesel::prelude::*;
 use uuid::Uuid;
@@ -29,7 +30,7 @@ pub(crate) fn delete_company_represent(
         .first::<Uuid>(conn)
         .map_err(|err| {
             debug!("Failed search represent: {:?}", err);
-            ServiceError::BadRequest("Not found representative".to_string())
+            get_err_msg(ErrorMessage::NotFoundRepresentative)
         })?;
 
     let res = diesel::delete(company_represent_ref

@@ -1,4 +1,5 @@
 use crate::errors::{ServiceResult, ServiceError};
+use crate::errors::err_msg::{ErrorMessage, get_err_msg};
 use crate::models::component::file::repository::{
     get_file_uuids_by_component_uuid, get_component_uuid_by_file_uuid
 };
@@ -198,7 +199,7 @@ pub(crate) fn detect_relation_to_object(
     };
 
     debug!("This file does not require versioning");
-    Err(ServiceError::BadRequest("The file does not support versioning".to_string()))
+    Err(get_err_msg(ErrorMessage::FileDoedNotSupportVersioning))
 }
 
 /// Sets is_hidden value for file by UUID

@@ -1,4 +1,5 @@
-use crate::errors::{ServiceError, ServiceResult};
+use crate::errors::{ServiceResult, ServiceError};
+use crate::errors::err_msg::{ErrorMessage, get_err_msg};
 use crate::models::component::component_modification::param::model::{
     IptModificationParamData, InsertableModificationParam
 };
@@ -26,9 +27,7 @@ pub(crate) fn put_modification_params(
     )?;
 
     if data.params.is_empty() {
-        return Err(ServiceError::BadRequest(
-            "Not found params for adding or updating".to_string()
-        ))
+        return Err(get_err_msg(ErrorMessage::NotFoundParamsForAddingOrUpdaing))
     }
 
     let mut count_changed_rows: usize = 0;
@@ -70,9 +69,7 @@ pub(crate) fn put_modification_params(
     if !update_params.is_empty() {
         // Return error if found duplication of existing data detected
         if check_duplicated_params(&data.modification_uuid, &update_params, conn)? {
-            return Err(ServiceError::BadRequest(
-                "Duplication of existing data detected".to_string()
-            ))
+            return Err(get_err_msg(ErrorMessage::DuplicateOfExistingData))
         }
 
         count_changed_rows += update_modification_params_values(

@@ -1,4 +1,5 @@
-use crate::errors::{ServiceError, ServiceResult};
+use crate::errors::{ServiceResult, ServiceError};
+use crate::errors::err_msg::{ErrorMessage, get_err_msg};
 use crate::models::component::license::model::{
     IptComponentLicenseData, InsertableComponentLicense,
 };
@@ -22,7 +23,7 @@ pub(crate) fn add_component_license(
     )?;
 
     if data.license_id < 0 {
-        return Err(ServiceError::BadRequest("Error incorrect id".to_string()))
+        return Err(get_err_msg(ErrorMessage::ErrorIncorrectId))
     }
 
     let data: InsertableComponentLicense = data.into();
@@ -39,7 +40,7 @@ pub(crate) fn add_component_license(
     // debug!("fn create_license START SEARCH ={:?}", flag_found_license);
 
     if flag_found_license != 0 {
-        return Err(ServiceError::BadRequest("This license for the component is already".to_string()))
+        return Err(get_err_msg(ErrorMessage::LicenseAlreadySetForComponent))
     }
 
     let license_id = diesel::insert_into(license_to_component::license_to_component)

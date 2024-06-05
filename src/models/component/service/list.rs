@@ -1,4 +1,5 @@
 use crate::errors::{ServiceResult, ServiceError};
+use crate::errors::err_msg::{ErrorMessage, get_err_msg};
 use crate::models::ExtraOptions;
 use crate::models::component::model::{
     ShowComponentShort, ComponentAndRelatedData, ComponentsArg
@@ -67,11 +68,7 @@ pub(crate) fn get_components(
         (false, None, None, None) => {
             filter_components_uuids.to_vec()
         },
-        _ => {
-            return Err(ServiceError::BadRequest(
-                "Failed match arguments".to_string()
-            ))
-        },
+        _ => return Err(get_err_msg(ErrorMessage::FailedMatchArguments)),
     };
 
     // return not found if set filters and not select components
@@ -171,6 +168,6 @@ pub(crate) fn get_component_by_uuid(
         conn
     ).map_err(|err| {
         debug!("Error loading component and collect related data: {:?}", err);
-        ServiceError::BadRequest("Access denied".to_string())
+        get_err_msg(ErrorMessage::AccessDenied)
     })
 }

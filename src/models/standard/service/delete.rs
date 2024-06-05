@@ -1,4 +1,5 @@
-use crate::errors::{ServiceError, ServiceResult};
+use crate::errors::{ServiceResult, ServiceError};
+use crate::errors::err_msg::{ErrorMessage, get_err_msg};
 use crate::models::standard::access::util::check_is_owner;
 use crate::models::company::access::util::check_is_owner_with_err;
 use crate::models::relate_ref::file::service::delete::{
@@ -27,7 +28,7 @@ pub(crate) fn del_standard_data(
             .first::<Uuid>(conn)
             .map_err(|err| {
                 debug!("Not found standard: {:?}", err);
-                ServiceError::BadRequest("Not found standard".to_string())
+                get_err_msg(ErrorMessage::NotFoundStandard)
             })?;
 
         // check ownership company of standard

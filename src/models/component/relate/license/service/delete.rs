@@ -1,7 +1,5 @@
-use crate::errors::{
-    ServiceResult,
-    ServiceError,
-};
+use crate::errors::{ServiceResult, ServiceError};
+use crate::errors::err_msg::{ErrorMessage, get_err_msg};
 use crate::models::component::license::model::IptComponentLicenseData;
 use diesel::prelude::*;
 use uuid::Uuid;
@@ -25,7 +23,7 @@ pub(crate) fn del_component_license(
 
     if data.license_id < 0 {
         // return error if not correct license id
-        return Err(ServiceError::BadRequest("Error incorrect id".to_string()))
+        return Err(get_err_msg(ErrorMessage::ErrorIncorrectId))
     }
 
     diesel::delete(license_to_component)

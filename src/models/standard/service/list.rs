@@ -1,4 +1,5 @@
 use crate::errors::{ServiceResult, ServiceError};
+use crate::errors::err_msg::{ErrorMessage, get_err_msg};
 use crate::models::ExtraOptions;
 use crate::models::standard::model::{
     ShowStandardShort, StandardAndRelatedData, StandardsArg,
@@ -49,16 +50,11 @@ pub(crate) fn get_standard(
         (None, false) => {
             filter_standards_uuids.to_vec()
         },
-        _ => {
-            return Err(ServiceError::BadRequest(
-                "Failed match arguments".to_string()
-            ))
-        },
+        _ => return Err(get_err_msg(ErrorMessage::FailedMatchArguments)),
     };
 
     // return not found if set search favorite and no favorite standards
-    if (*favorite || company_uuid.is_some()) &&
-            target_standards_uuids.is_empty() {
+    if (*favorite || company_uuid.is_some()) && target_standards_uuids.is_empty() {
         return Ok(Vec::new());
     }
 
@@ -73,7 +69,7 @@ pub(crate) fn get_standard(
         conn,
     ).map_err(|err| {
         debug!("Error loading list standards and collect short data: {:?}", err);
-        ServiceError::BadRequest("Access denied".to_string())
+        get_err_msg(ErrorMessage::AccessDenied)
     })
 }
 
@@ -157,8 +153,6 @@ pub(crate) fn find_by_uuid(
         options,
         conn
     ).expect("Error loading standard and collect related data");
-
     debug!("Standard data: {:#?}", result);
-
     Ok(result)
 }

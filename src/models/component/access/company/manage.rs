@@ -1,4 +1,5 @@
-use crate::errors::{ServiceError, ServiceResult};
+use crate::errors::ServiceResult;
+use crate::errors::err_msg::{ErrorMessage, get_err_msg};
 use crate::models::component::access::company::model::{
     CompanyAccessComponent,
     CompanyAccessComponentAndRelatedData,
@@ -35,9 +36,7 @@ pub(crate) fn get_companies_list_access_component(
         },
         Err(err) => {
             debug!("Failed get companies list have access to component: {:?}", err);
-            Err(ServiceError::BadRequest(
-                "Failed get companies list have access to component".to_string()
-            ))
+            Err(get_err_msg(ErrorMessage::FailedGetCompaniesWithAccessComponent))
         },
     }
 }
@@ -69,10 +68,7 @@ pub(crate) fn set_company_access_component(
                 data,
                 conn
             )? { return Ok(true) }
-
-            Err(ServiceError::BadRequest(
-                "Failed set access for target company".to_string()
-            ))
+            Err(get_err_msg(ErrorMessage::FailedDeleteAccessForCompany))
         },
         Ok(x) => {
             debug!("Set access for target company: {:?}", x);
@@ -80,9 +76,7 @@ pub(crate) fn set_company_access_component(
         },
         Err(err) => {
             debug!("Failed set access for target company: {:?}", err);
-            Err(ServiceError::BadRequest(
-                "Failed set access for target company".to_string()
-            ))
+            Err(get_err_msg(ErrorMessage::FailedSetAccessCompany))
         },
     }
 }
@@ -125,9 +119,7 @@ fn add_company_access_component(
         },
         Err(err) => {
             debug!("Failed add access for target company: {:?}", err);
-            Err(ServiceError::BadRequest(
-                "Failed add access for target company".to_string()
-            ))
+            Err(get_err_msg(ErrorMessage::FailedAddAccess))
         },
     }
 }
@@ -148,21 +140,14 @@ pub(crate) fn del_company_access_component(
         .execute(conn);
 
     match del_access {
-        Ok(0) => {
-            // доступ не найден
-            Err(ServiceError::BadRequest(
-                "Access not found for company".to_string()
-            ))
-        },
+        Ok(0) => Err(get_err_msg(ErrorMessage::AccessNotFoundCompany)),
         Ok(x) => {
             debug!("Delete access for target company: {:?}", x);
             Ok(true)
         },
         Err(err) => {
             debug!("Failed delete access for target company: {:?}", err);
-            Err(ServiceError::BadRequest(
-                "Failed delete access for target company".to_string()
-            ))
+            Err(get_err_msg(ErrorMessage::FailedDeleteAccessForCompany))
         },
     }
 }

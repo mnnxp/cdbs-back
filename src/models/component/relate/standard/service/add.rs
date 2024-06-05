@@ -1,4 +1,5 @@
-use crate::errors::{ServiceError, ServiceResult};
+use crate::errors::{ServiceResult, ServiceError};
+use crate::errors::err_msg::{ErrorMessage, get_err_msg};
 use crate::models::component::standard::model::{
     IptStandardToComponentData, InsertableStandardToComponent
 };
@@ -32,9 +33,7 @@ pub(crate) fn add_standard_to_component(
         })?;
 
     if found_standard > 0 {
-        return Err(ServiceError::BadRequest(
-            "This standard is already associated with the component".to_string()
-        ))
+        return Err(get_err_msg(ErrorMessage::StanardIsAlreadyAssociatedWithComponent))
     }
 
     let new_component_standard: InsertableStandardToComponent = data.into();

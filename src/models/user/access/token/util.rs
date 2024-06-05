@@ -1,4 +1,5 @@
 use crate::errors::{ServiceResult, ServiceError};
+use crate::errors::err_msg::{ErrorMessage, get_err_msg};
 use crate::database::{get_conn, PooledConnection};
 use crate::models::user::{
     model::SlimUser,
@@ -21,7 +22,7 @@ pub(crate) fn token_from_cxt(
     };
     match token.bearer {
         Some(bearer) => Ok(bearer),
-        None => Err(ServiceError::BadRequest("Token not found.".to_string())),
+        None => Err(get_err_msg(ErrorMessage::TokenNotFound)),
     }
 }
 
@@ -44,7 +45,7 @@ pub(crate) fn get_slim_user(
     jwt: Claims
 ) -> ServiceResult<SlimUser> {
     SlimUser::try_from(jwt)
-        .map_err(|_| ServiceError::BadRequest("Fail get SlimUser from Claims.".to_string()))
+        .map_err(|_| get_err_msg(ErrorMessage::FailGetUserData))
 }
 
 /// updating a token with or without removing the old one
@@ -58,33 +59,29 @@ pub(crate) fn update(
 
     // get old token
     let old_token = token_from_cxt(cxt)?;
-    if check_token(old_token.as_str(), conn)? {
-        // decrypt old token
-        let old_data = decode(old_token.as_str())?;
-        if flag_delete_token {
-            // deactivate old token
-            delete_token(old_token.as_str(), conn)?;
+    if !check_token(old_token.as_str(), conn)? {
+        return Err(get_err_msg(ErrorMessage::TokenIsInvalid))
+    }
+
+    // decrypt old token
+    let old_data = decode(old_token.as_str())?;
+    if flag_delete_token {
+        // deactivate old token
+        delete_token(old_token.as_str(), conn)?;
+    }
+    // get data from old token
+    let user = get_slim_user(old_data)?;
+    // creating a new token
+    let new_token = generate(&user)?;
+    // decrypt new token
+    let new_data = decode(old_token.as_str())?;
+    match new_token.bearer {
+        None => Err(ServiceError::InternalServerError),
+        Some(ref token) => {
+            // insert data new token into the table
+            write_token(&user.uuid, token, new_data, conn)?;
+            Ok(new_token)
         }
-
-        // get data from old token
-        let user = get_slim_user(old_data)?;
-
-        // creating a new token
-        let new_token = generate(&user)?;
-
-        // decrypt new token
-        let new_data = decode(old_token.as_str())?;
-
-        match new_token.bearer {
-            None => Err(ServiceError::InternalServerError),
-            Some(ref token) => {
-                // insert data new token into the table
-                write_token(&user.uuid, token, new_data, conn)?;
-                Ok(new_token)
-            }
-        }
-    } else {
-        Err(ServiceError::BadRequest("Your token is invalid.".to_string()))
     }
 }
 
@@ -166,7 +163,7 @@ pub(crate) fn write_token(
                     ServiceError::InternalServerError
                 })
         },
-        1 => Err(ServiceError::BadRequest("Please, try again later.".to_string())),
+        1 => Err(get_err_msg(ErrorMessage::PleaseTryAgainLater)),
         _ => Err(ServiceError::InternalServerError), // found duplicates token
     }
 }
@@ -190,7 +187,7 @@ pub(crate) fn check_token(
     match get_token {
         0 => Ok(false),
         1 => Ok(true),
-        _ => Err(ServiceError::BadRequest("Duplicate token found.".to_string())),
+        _ => Err(get_err_msg(ErrorMessage::FoundDuplicateToken)),
     }
 }
 

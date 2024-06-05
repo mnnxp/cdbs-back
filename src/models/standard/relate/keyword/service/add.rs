@@ -1,4 +1,5 @@
-use crate::errors::{ServiceError, ServiceResult};
+use crate::errors::{ServiceResult, ServiceError};
+use crate::errors::err_msg::{ErrorMessage, get_err_msg};
 use crate::models::standard::{
     keyword::model::{IptStandardKeywordsData, IptStandardKeywordsNames, InsertableStandardKeyword},
     access::util::check_access_standard_for_user,
@@ -32,7 +33,7 @@ pub(crate) fn add_standard_keywords(
     clear_duplicates(&mut keywords);
 
     match keywords.is_empty() {
-        true => Err(ServiceError::BadRequest("Not found keywords".to_string())),
+        true => Err(get_err_msg(ErrorMessage::NotFoundKeywords)),
         false => {
             keywords.retain(|k| check_keyword_for_standard(k, conn));
             insert_rows_standard_keywords(&keywords, conn)

@@ -1,4 +1,5 @@
-use crate::errors::{ServiceError, ServiceResult};
+use crate::errors::ServiceResult;
+use crate::errors::err_msg::{ErrorMessage, get_err_msg};
 use crate::models::component::access::util::check_access_component_for_user;
 use crate::models::component::component_modification::model::IptUpdateComponentModificationData;
 use crate::models::component::component_modification::util::get_component_by_modification;
@@ -34,7 +35,7 @@ pub(crate) fn update_modification_data(
             .execute(conn)
             .map_err(|err| {
                 debug!("Failed update data: {:?}", err);
-                ServiceError::BadRequest("Failed update data".to_string())
+                get_err_msg(ErrorMessage::FailedUpdateData)
             })?;
     }
 
@@ -47,7 +48,7 @@ pub(crate) fn update_modification_data(
             .execute(conn)
             .map_err(|err| {
                 debug!("Failed update data: {:?}", err);
-                ServiceError::BadRequest("Failed update data".to_string())
+                get_err_msg(ErrorMessage::FailedUpdateData)
             })?;
     }
 
@@ -60,13 +61,13 @@ pub(crate) fn update_modification_data(
             .execute(conn)
             .map_err(|err| {
                 debug!("Failed update data: {:?}", err);
-                ServiceError::BadRequest("Failed update data".to_string())
+                get_err_msg(ErrorMessage::FailedUpdateData)
             })?;
     }
 
     if count_update_columns == 0 {
         // return error if new data not different with old data
-        return Err(ServiceError::BadRequest("The data has already".to_string()));
+        return Err(get_err_msg(ErrorMessage::DataHasAlready));
     }
 
     diesel::update(component_modification_list::component_modification_list
@@ -75,7 +76,7 @@ pub(crate) fn update_modification_data(
         .execute(conn)
         .map_err(|err| {
             debug!("Failed update data: {:?}", err);
-            ServiceError::BadRequest("Failed update data".to_string())
+            get_err_msg(ErrorMessage::FailedUpdateData)
         })?;
 
     debug!("Count update columns: {:?}", count_update_columns);

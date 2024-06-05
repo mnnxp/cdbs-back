@@ -1,4 +1,5 @@
 use crate::errors::{ServiceResult, ServiceError};
+use crate::errors::err_msg::{ErrorMessage, get_err_msg};
 use crate::models::relate_ref::file::model::FileByExtArg;
 use crate::schema::component_ref::dsl as component_ref;
 use diesel::prelude::*;
@@ -27,7 +28,7 @@ pub(crate) fn check_is_base(
         .get_result::<bool>(conn)
         .map_err(|err| {
             debug!("Failed get component status {:?}", err);
-            ServiceError::BadRequest("Failed check data".to_string())
+            get_err_msg(ErrorMessage::FailedCheckData)
         })
 }
 
@@ -44,12 +45,8 @@ pub(crate) fn check_is_base_with_err(
 
     match get_component_status {
         Ok(true) => Ok(true),
-        Ok(false) => Err(ServiceError::BadRequest(
-            "The component is not standard.".to_string(),
-        )),
-        _ => Err(ServiceError::BadRequest(
-            "Failed check data".to_string(),
-        )),
+        Ok(false) => Err(get_err_msg(ErrorMessage::ComponentIsNotStandard)),
+        _ => Err(get_err_msg(ErrorMessage::FailedCheckData)),
     }
 }
 

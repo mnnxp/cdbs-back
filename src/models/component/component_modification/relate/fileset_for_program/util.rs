@@ -1,4 +1,5 @@
-use crate::errors::{ServiceResult, ServiceError};
+use crate::errors::ServiceResult;
+use crate::errors::err_msg::{ErrorMessage, get_err_msg};
 use crate::models::component::component_modification::util::get_component_by_modification;
 use diesel::prelude::*;
 use uuid::Uuid;
@@ -28,6 +29,6 @@ pub(crate) fn get_modification_by_fileset(
         .first::<Uuid>(conn)
         .map_err(|err| {
             debug!("Failed get_modification_by_fileset data: {:?}", err);
-            ServiceError::BadRequest("Not found fileset data".to_string())
+            get_err_msg(ErrorMessage::NotFoundFilesetData)
         })
 }

@@ -1,4 +1,5 @@
 use crate::errors::{ServiceResult, ServiceError};
+use crate::errors::err_msg::{ErrorMessage, get_err_msg};
 use crate::schema::user_ref::dsl as user_ref;
 use diesel::prelude::*;
 use uuid::Uuid;
@@ -114,11 +115,8 @@ pub(crate) fn check_access_user_for_user(
     )? {
         return Ok(true)
     };
-
     // not found need access level for target user
-    Err(ServiceError::BadRequest(
-        "Access denied".to_string()
-    ))
+    Err(get_err_msg(ErrorMessage::AccessDenied))
 }
 
 /// Check users for membering in one company

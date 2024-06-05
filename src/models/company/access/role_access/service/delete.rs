@@ -1,4 +1,5 @@
-use crate::errors::{ServiceError, ServiceResult};
+use crate::errors::ServiceResult;
+use crate::errors::err_msg::{ErrorMessage, get_err_msg};
 use crate::models::company::access::role_access::model::DelRoleAccessData;
 use crate::models::company::access::util::check_is_owner_with_err;
 use crate::models::company::member::role::util::get_company_by_role;
@@ -31,8 +32,8 @@ pub(crate) fn del_role_access(
             Ok(count)
         },
         Err(err) => {
-            debug!("Failed: access not delete: {:?}", err);
-            Err(ServiceError::BadRequest("Failed: access not delete".to_string()))
+            debug!("Failed to remove access for a role: {:?}", err);
+            Err(get_err_msg(ErrorMessage::FailedRemoveAccessForRole))
         },
     }
 }

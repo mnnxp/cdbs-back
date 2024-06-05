@@ -1,4 +1,5 @@
-use crate::errors::{ServiceResult, ServiceError};
+use crate::errors::ServiceResult;
+use crate::errors::err_msg::{ErrorMessage, get_err_msg};
 use crate::models::standard::file::model::{
     IptStandardFilesData, IptStandardFaviconData
 };
@@ -31,7 +32,7 @@ pub(crate) fn add_standard_files(
 
     // return error if not correct file name
     if data.filenames.is_empty() || data.filenames.len() > 100 {
-        return Err(ServiceError::BadRequest("Bad filename".to_string()))
+        return Err(get_err_msg(ErrorMessage::BadFilename))
     }
 
     let mut up_files: Vec<UploadFile> = Vec::new();
@@ -79,12 +80,12 @@ pub(crate) fn add_standard_favicon(
 
     // return error if not correct file name
     if data.filename.is_empty() || data.filename.len() > 100 {
-        return Err(ServiceError::BadRequest("Bad filename".to_string()))
+        return Err(get_err_msg(ErrorMessage::BadFilename))
     }
 
     // return error if not correct file name
     if !check_image_filename(&data.filename) {
-        return Err(ServiceError::BadRequest("Selected file is not image.".to_string()))
+        return Err(get_err_msg(ErrorMessage::SelectedFileIsNotImage))
     }
 
     let slim_file = preregister_file(

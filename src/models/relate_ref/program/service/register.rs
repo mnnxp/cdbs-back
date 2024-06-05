@@ -1,4 +1,5 @@
-use crate::errors::{ServiceError, ServiceResult};
+use crate::errors::{ServiceResult, ServiceError};
+use crate::errors::err_msg::{ErrorMessage, get_err_msg};
 use crate::models::relate_ref::program::model::{
     InsertableProgram, Program, IptProgramData
 };
@@ -23,9 +24,8 @@ pub(crate) fn create_program(
         })?;
 
     match flag_found.first() {
-        Some(x) => {
-            Err(ServiceError::BadRequest(format!("This program name is already there. Id: {}", x)))
-        },
+        Some(x) =>
+            Err(get_err_msg(ErrorMessage::NameAlreadyThereX("program".to_string(), *x))),
         None => {
             let new_program_data: InsertableProgram = new_program_data.into();
             diesel::insert_into(program_ref::program_ref)

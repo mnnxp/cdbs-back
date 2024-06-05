@@ -1,4 +1,5 @@
-use crate::errors::{ServiceError, ServiceResult};
+use crate::errors::{ServiceResult, ServiceError};
+use crate::errors::err_msg::{ErrorMessage, get_err_msg};
 use crate::models::company::member::model::{
     IptCompanyMemberData, InsertableCompanyMember
 };
@@ -53,8 +54,6 @@ pub(crate) fn add_company_member(
                     ServiceError::InternalServerError
                 })
         },
-        _ => Err(ServiceError::BadRequest(
-            "The user has already member in the company".to_string(),
-        )),
+        _ => Err(get_err_msg(ErrorMessage::UserHasAlreadyMemberInTheCompany)),
     }
 }

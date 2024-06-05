@@ -1,4 +1,5 @@
-use crate::errors::{ServiceError, ServiceResult};
+use crate::errors::{ServiceResult, ServiceError};
+use crate::errors::err_msg::{ErrorMessage, get_err_msg};
 use crate::models::relate_ref::extension::model::{
     InsertableExtension, Extension, IptExtensionData
 };
@@ -22,9 +23,7 @@ pub(crate) fn create_extension(
         })?;
 
     match flag_found.first() {
-        Some(x) => {
-            Err(ServiceError::BadRequest(format!("This extension name is already there. Id: {}", x)))
-        },
+        Some(x) => Err(get_err_msg(ErrorMessage::NameAlreadyThereX("extension".to_string(), *x))),
         None => {
             let new_extension_data: InsertableExtension = new_extension_data.into();
             diesel::insert_into(extension_ref::extension_ref)

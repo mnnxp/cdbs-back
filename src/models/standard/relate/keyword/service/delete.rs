@@ -1,4 +1,5 @@
-use crate::errors::{ServiceError, ServiceResult};
+use crate::errors::{ServiceResult, ServiceError};
+use crate::errors::err_msg::{ErrorMessage, get_err_msg};
 use crate::models::standard::keyword::model::{
     IptStandardKeywordsData, DeleteStandardKeywords
 };
@@ -27,7 +28,7 @@ pub(crate) fn del_standard_keywords(
 
     if del_keywords.keyword_ids.is_empty() {
         // return error if not found correct keywords
-        return Err(ServiceError::BadRequest("Not found keywords".to_string()))
+        return Err(get_err_msg(ErrorMessage::NotFoundKeywords))
     }
 
     diesel::delete(keyword_to_standard::keyword_to_standard)

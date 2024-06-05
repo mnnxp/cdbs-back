@@ -584,7 +584,7 @@ describe('company', () => {
     debug('/graphql - body=%o', body);
     const { errors, data } = body;
     expect(data).toBeNull();
-    expect(errors[0].message).toBe("BadRequest: Token not found.");
+    expect(errors[0].message).toBe("BadRequest: Token not found");
     done();
   });
 
@@ -780,7 +780,7 @@ describe('company', () => {
     debug('/graphql - body=%o', body);
     const { errors, data } = body;
     expect(data).toBeNull();
-    expect(errors[0].message).toBe("BadRequest: The company is not supplier.");
+    expect(errors[0].message).toBe("BadRequest: The company is not supplier");
     done();
   });
 
@@ -878,7 +878,7 @@ describe('company', () => {
     debug('/graphql - body=%o', body);
     const { errors, data } = body;
     expect(data).toBeNull();
-    expect(errors[0].message).toBe("BadRequest: The company is not supplier.");
+    expect(errors[0].message).toBe("BadRequest: The company is not supplier");
     done();
   });
 
@@ -1000,7 +1000,7 @@ describe('company', () => {
     debug('/graphql uploadStandardFavicon=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Selected file is not image.'
+      'BadRequest: Selected file is not image'
     );
     expect(body.errors[0].path[0]).toBe('uploadStandardFavicon');
     done();
@@ -1115,7 +1115,7 @@ describe('company', () => {
     debug('/graphql uploadStandardFiles=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(body.errors[0].path[0]).toBe('uploadStandardFiles');
     done();
@@ -1209,7 +1209,7 @@ describe('company', () => {
     debug('/graphql standardFiles=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(body.errors[0].path[0]).toBe('standardFiles');
     done();
@@ -1322,7 +1322,7 @@ describe('company', () => {
     debug('/graphql deleteStandardFile=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(body.errors[0].path[0]).toBe('deleteStandardFile');
     done();
@@ -2163,7 +2163,7 @@ describe('company', () => {
     debug('/graphql addStandardSpecs=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(body.errors[0].path[0]).toBe('addStandardSpecs');
     done();
@@ -2344,7 +2344,7 @@ describe('company', () => {
     debug('/graphql standardSpecs=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(body.errors[0].path[0]).toBe('standardSpecs');
     done();
@@ -2465,7 +2465,7 @@ describe('company', () => {
     debug('/graphql deleteStandardSpecs=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(body.errors[0].path[0]).toBe('deleteStandardSpecs');
     done();
@@ -2615,7 +2615,7 @@ describe('company', () => {
     debug('/graphql addStandardKeywords=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(body.errors[0].path[0]).toBe('addStandardKeywords');
     done();
@@ -2759,7 +2759,7 @@ describe('company', () => {
     debug('/graphql addStandardKeywordsByNames=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(body.errors[0].path[0]).toBe('addStandardKeywordsByNames');
     done();
@@ -2935,7 +2935,7 @@ describe('company', () => {
     debug('/graphql standardKeywords=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(body.errors[0].path[0]).toBe('standardKeywords');
     done();
@@ -3054,7 +3054,7 @@ describe('company', () => {
     debug('/graphql deleteStandardKeywords=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(body.errors[0].path[0]).toBe('deleteStandardKeywords');
     done();
@@ -3151,7 +3151,7 @@ describe('company', () => {
     debug('/graphql - body=%o', body);
     const { errors, data } = body;
     expect(data).toBeNull();
-    expect(errors[0].message).toBe("BadRequest: Token not found.");
+    expect(errors[0].message).toBe("BadRequest: Token not found");
     done();
   });
 
@@ -4550,7 +4550,7 @@ describe('company', () => {
     debug('/graphql - body=%o', body);
     const { errors, data } = body;
     expect(data).toBeNull();
-    expect(errors[0].message).toBe("BadRequest: Token not found.");
+    expect(errors[0].message).toBe("BadRequest: Token not found");
     done();
   });
 

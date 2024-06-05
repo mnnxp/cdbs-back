@@ -1,4 +1,5 @@
-use crate::errors::{ServiceError, ServiceResult};
+use crate::errors::{ServiceResult, ServiceError};
+use crate::errors::err_msg::{ErrorMessage, get_err_msg};
 use crate::models::relate_ref::type_access::model::{
     InsertableTypeAccessTranslateList, IptTypeAccessTranslateListData,
     TypeAccessTranslateList
@@ -27,7 +28,8 @@ pub(crate) fn create_type_access(
     // debug!("fn create_type_access START SEARCH ={:?}", flag_found);
 
     match flag_found.first() {
-        Some(x) => Err(ServiceError::BadRequest(format!("This type_access name is already there. Id: {}", x))),
+        Some(x) =>
+            Err(get_err_msg(ErrorMessage::NameAlreadyThereX("type_access".to_string(), *x))),
         None => {
             let new_type_access_id = diesel::insert_into(type_access_ref::type_access_ref)
                 .default_values()

@@ -1,4 +1,5 @@
 use crate::errors::{ServiceResult, ServiceError};
+use crate::errors::err_msg::{ErrorMessage, get_err_msg};
 // use crate::models::company::member::role::model::RoleMember;
 use crate::schema::company_ref::dsl as company_ref;
 use diesel::prelude::*;
@@ -52,7 +53,7 @@ pub(crate) fn check_is_owner_with_err(
 ) -> ServiceResult<bool> {
     match check_is_owner(target_user_uuid, target_company_uuid, conn)? {
         true => Ok(true),
-        false => Err(ServiceError::BadRequest("Access denied".to_string())),
+        false => Err(get_err_msg(ErrorMessage::AccessDenied)),
     }
 }
 
@@ -91,7 +92,7 @@ pub(crate) fn check_company_access(
 
     match &found_type_access_id < required_access {
         true => Ok(true),
-        false => Err(ServiceError::BadRequest("Access denied".to_string())),
+        false => Err(get_err_msg(ErrorMessage::AccessDenied)),
     }
 }
 
@@ -112,7 +113,7 @@ pub(crate) fn member_role_in_company(
         .map_err(|err| {
             debug!("Failed get member role data: {:?}", err);
             // ServiceError::InternalServerError
-            ServiceError::BadRequest("Access denied".to_string())
+            get_err_msg(ErrorMessage::AccessDenied)
         })
 }
 
@@ -194,43 +195,3 @@ pub(crate) fn get_access_type_company(
             ServiceError::InternalServerError
         })
 }
-
-// /// Gets list of users uuids that have need level access to a company
-// pub(crate) fn get_users_have_access_to_company(
-//     target_company_uuid: &Uuid,
-//     required_access: &i32,
-//     conn: &mut PgConnection
-// ) -> ServiceResult<Vec<Uuid>> {
-//     use crate::schema::company_member_list::dsl::*;
-//
-//     let suitable_role = RoleMember::get_roles_for_type_access(
-//         required_access,
-//         conn
-//     );
-//
-//     if suitable_role.is_empty() {
-//         return Err(ServiceError::BadRequest(
-//             "Not found set access for target role".to_string()
-//         ))
-//     }
-//
-//     let users_uuids = company_member_list
-//         .filter(company_uuid.eq(target_company_uuid)
-//         .and(role_id.eq_any(&suitable_role)))
-//         .select(user_uuid)
-//         .load::<Uuid>(conn);
-//
-//     match users_uuids {
-//         Ok(ur_uuids) if !ur_uuids.is_empty() => Ok(ur_uuids),
-//         // not found companies with need access
-//         Ok(_) => Err(ServiceError::BadRequest(
-//             "Mot found users with access target company".to_string()
-//         )),
-//         Err(err) => {
-//             debug!("Failed check data: {:?}", err);
-//             Err(ServiceError::BadRequest(
-//                 "Failed check data".to_string()
-//             ))
-//         },
-//     }
-// }

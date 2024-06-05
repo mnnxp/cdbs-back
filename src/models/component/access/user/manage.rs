@@ -1,4 +1,5 @@
-use crate::errors::{ServiceError, ServiceResult};
+use crate::errors::{ServiceResult, ServiceError};
+use crate::errors::err_msg::{ErrorMessage, get_err_msg};
 use crate::models::component::access::user::model::{
     UserAccessComponentAndRelatedData,
     IptUserAccessComponentData,
@@ -110,6 +111,6 @@ pub(crate) fn del_user_access_component(
     match del_access {
         1 => Ok(true),
         // доступ не найден
-        _ => Err(ServiceError::BadRequest("Access not found for user".to_string())),
+        _ => Err(get_err_msg(ErrorMessage::AccessNotFoundUser)),
     }
 }

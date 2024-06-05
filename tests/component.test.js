@@ -785,7 +785,7 @@ describe('component', () => {
     debug('/graphql body=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(body.errors[0].path[0]).toBe('registerComponent');
     done();
@@ -1086,7 +1086,7 @@ describe('component', () => {
     debug('/graphql body=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(body.errors[0].path[0]).toBe('components');
     done();
@@ -1214,7 +1214,7 @@ describe('component', () => {
     debug('/graphql body=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(body.errors[0].path[0]).toBe('putComponentUpdate');
     done();
@@ -1360,7 +1360,7 @@ describe('component', () => {
     debug('/graphql addComponentKeywords=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(body.errors[0].path[0]).toBe('addComponentKeywords');
     done();
@@ -1538,7 +1538,7 @@ describe('component', () => {
     debug('/graphql componentKeywords=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(body.errors[0].path[0]).toBe('componentKeywords');
     done();
@@ -1684,7 +1684,7 @@ describe('component', () => {
     debug('/graphql deleteComponentKeywords=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(body.errors[0].path[0]).toBe('deleteComponentKeywords');
     done();
@@ -1781,7 +1781,7 @@ describe('component', () => {
     debug('/graphql componentActualStatuses=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(body.errors[0].path[0]).toBe('componentActualStatuses');
     done();
@@ -1895,7 +1895,7 @@ describe('component', () => {
     debug('/graphql componentTypes=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(body.errors[0].path[0]).toBe('componentTypes');
     done();
@@ -2005,7 +2005,7 @@ describe('component', () => {
     debug('/graphql addComponentLicense=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(body.errors[0].path[0]).toBe('addComponentLicense');
     done();
@@ -2148,7 +2148,7 @@ describe('component', () => {
     debug('/graphql deleteComponentLicense=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(body.errors[0].path[0]).toBe('deleteComponentLicense');
     done();
@@ -2237,7 +2237,7 @@ describe('component', () => {
     debug('/graphql addComponentSpecs=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(body.errors[0].path[0]).toBe('addComponentSpecs');
     done();
@@ -2417,7 +2417,7 @@ describe('component', () => {
     debug('/graphql componentSpecs=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(body.errors[0].path[0]).toBe('componentSpecs');
     done();
@@ -2538,7 +2538,7 @@ describe('component', () => {
     debug('/graphql deleteComponentSpecs=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(body.errors[0].path[0]).toBe('deleteComponentSpecs');
     done();
@@ -2632,7 +2632,7 @@ describe('component', () => {
     debug('/graphql body=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(body.errors[0].path[0]).toBe('component');
     done();
@@ -2652,7 +2652,7 @@ describe('component', () => {
     debug('/graphql body=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(body.errors[0].path[0]).toBe('components');
     done();
@@ -2933,7 +2933,7 @@ describe('component', () => {
     debug('/graphql body=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(body.errors[0].path[0]).toBe('addComponentSupplier');
     done();
@@ -2985,7 +2985,7 @@ describe('component', () => {
     debug('/graphql - body =%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: The company is not supplier.'
+      'BadRequest: The company is not supplier'
     );
     expect(body.errors[0].path[0]).toBe('addComponentSupplier');
     done();
@@ -3016,7 +3016,7 @@ describe('component', () => {
     debug('/graphql - body =%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: The component is not standard.'
+      'BadRequest: The component is not standard'
     );
     expect(body.errors[0].path[0]).toBe('addComponentSupplier');
     done();
@@ -3133,7 +3133,7 @@ describe('component', () => {
       .expect(HttpStatus.OK)
     debug('/graphql body=%o', body);
     expect(body.data).toBeNull();
-    expect(body.errors[0].message).toBe('BadRequest: Token not found.');
+    expect(body.errors[0].message).toBe('BadRequest: Token not found');
     expect(body.errors[0].path[0]).toBe('componentSuppliers');
     done();
   });
@@ -3275,7 +3275,7 @@ describe('component', () => {
     debug('/graphql body=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(body.errors[0].path[0]).toBe('deleteSuppliersComponent');
     done();
@@ -3379,7 +3379,7 @@ describe('component', () => {
     debug('/graphql body=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(body.errors[0].path[0]).toBe('addStandardToComponent');
     done();
@@ -3689,7 +3689,7 @@ describe('component', () => {
     debug('/graphql body=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(body.errors[0].path[0]).toBe('deleteStandardsComponent');
     done();
@@ -3895,7 +3895,7 @@ describe('component', () => {
     debug('/graphql componentFiles=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(body.errors[0].path[0]).toBe('componentFiles');
     done();
@@ -4694,7 +4694,7 @@ describe('component', () => {
     debug('/graphql uploadComponentFavicon=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Selected file is not image.'
+      'BadRequest: Selected file is not image'
     );
     expect(body.errors[0].path[0]).toBe('uploadComponentFavicon');
     done();
@@ -4802,7 +4802,7 @@ describe('component', () => {
     debug('/graphql componentFilesList=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(body.errors[0].path[0]).toBe('componentFilesList');
     done();
@@ -5118,7 +5118,7 @@ describe('component', () => {
     debug('/graphql body=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(body.errors[0].path[0]).toBe('putComponentParams');
     done();
@@ -5173,7 +5173,7 @@ describe('component', () => {
     debug('/graphql - body =%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Duplication of existing data detected'
+      'BadRequest: Duplication of existing data was detected'
     );
     expect(body.errors[0].path[0]).toBe('putComponentParams');
     done();
@@ -5255,7 +5255,7 @@ describe('component', () => {
     debug('/graphql body=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(body.errors[0].path[0]).toBe('deleteComponentParams');
     done();
@@ -5305,7 +5305,7 @@ describe('component', () => {
     debug('/graphql - body =%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Fail delete rows'
+      'BadRequest: Cannot delete rows'
     );
     expect(body.errors[0].path[0]).toBe('deleteComponentParams');
     done();
@@ -5359,7 +5359,7 @@ describe('component', () => {
     debug('/graphql body=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(body.errors[0].path[0]).toBe('registerComponentModification');
     done();
@@ -5495,7 +5495,7 @@ describe('component', () => {
     debug('/graphql body=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(body.errors[0].path[0]).toBe('putComponentModificationUpdate');
     done();
@@ -5607,7 +5607,7 @@ describe('component', () => {
     debug('/graphql body=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(body.errors[0].path[0]).toBe('putModificationParams');
     done();
@@ -5662,7 +5662,7 @@ describe('component', () => {
     debug('/graphql - body =%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Duplication of existing data detected'
+      'BadRequest: Duplication of existing data was detected'
     );
     expect(body.errors[0].path[0]).toBe('putModificationParams');
     done();
@@ -5752,7 +5752,7 @@ describe('component', () => {
     debug('/graphql body=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(body.errors[0].path[0]).toBe('componentModifications');
     done();
@@ -5830,7 +5830,7 @@ describe('component', () => {
     debug('/graphql body=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(body.errors[0].path[0]).toBe('deleteModificationParams');
     done();
@@ -5880,7 +5880,7 @@ describe('component', () => {
     debug('/graphql - body =%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Fail delete rows'
+      'BadRequest: Cannot delete rows'
     );
     expect(body.errors[0].path[0]).toBe('deleteModificationParams');
     done();
@@ -5932,7 +5932,7 @@ describe('component', () => {
     debug('/graphql componentModificationFiles=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(body.errors[0].path[0]).toBe('componentModificationFiles');
     done();
@@ -6075,7 +6075,7 @@ describe('component', () => {
     debug('/graphql componentModificationFilesList=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(body.errors[0].path[0]).toBe('componentModificationFilesList');
     done();
@@ -7012,7 +7012,7 @@ describe('component', () => {
     debug('/graphql componentModificationFilesets=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(body.errors[0].path[0]).toBe('componentModificationFilesets');
     done();
@@ -7063,7 +7063,7 @@ describe('component', () => {
     debug('/graphql registerModificationFileset=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(body.errors[0].path[0]).toBe('registerModificationFileset');
     done();
@@ -7298,7 +7298,7 @@ describe('component', () => {
     debug('/graphql componentModificationFilesOfFileset=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(body.errors[0].path[0]).toBe('componentModificationFilesOfFileset');
     done();
@@ -7481,7 +7481,7 @@ describe('component', () => {
     debug('/graphql componentModificationFilesetFiles=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(body.errors[0].path[0]).toBe('componentModificationFilesetFiles');
     done();
@@ -8386,7 +8386,7 @@ describe('component', () => {
     debug('/graphql deleteFilesFromFileset=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(body.errors[0].path[0]).toBe('deleteFilesFromFileset');
     done();
@@ -8492,7 +8492,7 @@ describe('component', () => {
     debug('/graphql deleteModificationFileset=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(body.errors[0].path[0]).toBe('deleteModificationFileset');
     done();
@@ -8595,7 +8595,7 @@ describe('component', () => {
     debug('/graphql body=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(body.errors[0].path[0]).toBe('putComponentUpdate');
     done();
@@ -9367,7 +9367,7 @@ describe('component', () => {
     debug('/graphql body=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(body.errors[0].path[0]).toBe('deleteComponentModification');
     done();
@@ -9625,7 +9625,7 @@ describe('component', () => {
     debug('/graphql body=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(body.errors[0].path[0]).toBe('deleteComponent');
     done();

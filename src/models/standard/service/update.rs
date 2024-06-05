@@ -1,4 +1,5 @@
-use crate::errors::{ServiceError, ServiceResult};
+use crate::errors::ServiceResult;
+use crate::errors::err_msg::{ErrorMessage, get_err_msg};
 use crate::models::standard::model::IptUpdateStandardData;
 use crate::models::company::{
     access::util::check_company_access,
@@ -50,7 +51,7 @@ pub(crate) fn update_standard_data(
             .execute(conn)
             .map_err(|err| {
                 debug!("Failed update data: {:?}", err);
-                ServiceError::BadRequest("Failed update data".to_string())
+                get_err_msg(ErrorMessage::FailedUpdateData)
             })?;
     }
 
@@ -63,7 +64,7 @@ pub(crate) fn update_standard_data(
             .execute(conn)
             .map_err(|err| {
                 debug!("Failed update data: {:?}", err);
-                ServiceError::BadRequest("Failed update data".to_string())
+                get_err_msg(ErrorMessage::FailedUpdateData)
             })?;
     }
 
@@ -76,7 +77,7 @@ pub(crate) fn update_standard_data(
             .execute(conn)
             .map_err(|err| {
                 debug!("Failed update data: {:?}", err);
-                ServiceError::BadRequest("Failed update data".to_string())
+                get_err_msg(ErrorMessage::FailedUpdateData)
             })?;
     }
 
@@ -89,7 +90,7 @@ pub(crate) fn update_standard_data(
             .execute(conn)
             .map_err(|err| {
                 debug!("Failed update data: {:?}", err);
-                ServiceError::BadRequest("Failed update data".to_string())
+                get_err_msg(ErrorMessage::FailedUpdateData)
             })?;
     }
 
@@ -102,7 +103,7 @@ pub(crate) fn update_standard_data(
             .execute(conn)
             .map_err(|err| {
                 debug!("Failed update data: {:?}", err);
-                ServiceError::BadRequest("Failed update data".to_string())
+                get_err_msg(ErrorMessage::FailedUpdateData)
             })?;
     }
 
@@ -115,7 +116,7 @@ pub(crate) fn update_standard_data(
             .execute(conn)
             .map_err(|err| {
                 debug!("Failed update data: {:?}", err);
-                ServiceError::BadRequest("Failed update data".to_string())
+                get_err_msg(ErrorMessage::FailedUpdateData)
             })?;
     }
 
@@ -128,7 +129,7 @@ pub(crate) fn update_standard_data(
             .execute(conn)
             .map_err(|err| {
                 debug!("Failed update data: {:?}", err);
-                ServiceError::BadRequest("Failed update data".to_string())
+                get_err_msg(ErrorMessage::FailedUpdateData)
             })?;
     }
 
@@ -141,7 +142,7 @@ pub(crate) fn update_standard_data(
             .execute(conn)
             .map_err(|err| {
                 debug!("Failed update data: {:?}", err);
-                ServiceError::BadRequest("Failed update data".to_string())
+                get_err_msg(ErrorMessage::FailedUpdateData)
             })?;
     }
 
@@ -154,13 +155,13 @@ pub(crate) fn update_standard_data(
             .execute(conn)
             .map_err(|err| {
                 debug!("Failed update data: {:?}", err);
-                ServiceError::BadRequest("Failed update data".to_string())
+                get_err_msg(ErrorMessage::FailedUpdateData)
             })?;
     }
 
     if count_update_columns == 0 {
         // return error if new data not different with old data
-        return Err(ServiceError::BadRequest("The data has already".to_string()));
+        return Err(get_err_msg(ErrorMessage::DataHasAlready));
     }
 
     diesel::update(standard_ref::standard_ref
@@ -169,7 +170,7 @@ pub(crate) fn update_standard_data(
         .execute(conn)
         .map_err(|err| {
             debug!("Failed update data: {:?}", err);
-            ServiceError::BadRequest("Failed update data".to_string())
+            get_err_msg(ErrorMessage::FailedUpdateData)
         })?;
 
     debug!("Count update columns: {:?}", count_update_columns);

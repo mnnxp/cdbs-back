@@ -1,4 +1,5 @@
-use crate::errors::{ServiceResult, ServiceError};
+use crate::errors::ServiceResult;
+use crate::errors::err_msg::{ErrorMessage, get_err_msg};
 use crate::models::component::supplier::model::IptSupplierComponentData;
 use crate::models::component::access::company::manage::give_company_top_access_component;
 use crate::models::component::supplier::service::add::{
@@ -50,9 +51,7 @@ pub(crate) fn set_company_owner_supplier(
 
     // check on no base component
     if check_is_base(&data.component_uuid, conn)? {
-        return Err(ServiceError::BadRequest(
-            "This not work for base component".to_string()
-        ))
+        return Err(get_err_msg(ErrorMessage::DoesNotWorkForBaseComponent))
     };
 
     // clear out supplier component list

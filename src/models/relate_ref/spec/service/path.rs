@@ -1,4 +1,5 @@
 use crate::errors::{ServiceResult, ServiceError};
+use crate::errors::err_msg::{ErrorMessage, get_err_msg};
 use crate::models::relate_ref::spec::model::{
     Spec, SpecTranslateList, SpecPath, SpecPathArg
 };
@@ -22,7 +23,7 @@ pub(crate) fn get_paths_specs(
 
     let select_ids = get_spec_ids(spec_ids, limit, offset, conn)?;
     if select_ids.len() > 100 {
-        return Err(ServiceError::BadRequest("Not more 100 path in one query".to_string()));
+        return Err(get_err_msg(ErrorMessage::NotMorePathInOneQuery))
     }
 
     let mut result: Vec<SpecPath> = Vec::new();
@@ -67,7 +68,7 @@ fn get_spec_ids(
         })?;
 
     if !spec_ids.is_empty() && res_ids.is_empty() {
-        return Err(ServiceError::BadRequest("Spec not found".to_string()));
+        return Err(get_err_msg(ErrorMessage::SpecNotFound))
     }
 
     Ok(res_ids)

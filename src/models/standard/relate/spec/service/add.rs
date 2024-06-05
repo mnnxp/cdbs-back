@@ -1,4 +1,5 @@
-use crate::errors::{ServiceError, ServiceResult};
+use crate::errors::{ServiceResult, ServiceError};
+use crate::errors::err_msg::{ErrorMessage, get_err_msg};
 use crate::models::standard::spec::model::{
     StandardSpec, IptStandardSpecsData, InsertableStandardSpec
 };
@@ -31,7 +32,7 @@ pub(crate) fn add_standard_specs(
 
     if new_standard_specs.is_empty() {
         // return error if not found correct specs
-        return Err(ServiceError::BadRequest("Not found specs".to_string()))
+        return Err(get_err_msg(ErrorMessage::NotFoundSpecs))
     }
 
     let mut insert_data: Vec<InsertableStandardSpec> = Vec::new();
@@ -44,7 +45,7 @@ pub(crate) fn add_standard_specs(
             .execute(conn)
             .map_err(|err| {
                 debug!("Failed check spec for standard: {:?}", err);
-                ServiceError::BadRequest("Failed check spec for standard".to_string())
+                get_err_msg(ErrorMessage::FailedCheckSpec)
             })?;
 
         match flag_found_spec {
@@ -59,9 +60,7 @@ pub(crate) fn add_standard_specs(
 
     if insert_data.is_empty() {
         // return error if all spec duplicate
-        return Err(ServiceError::BadRequest(
-            format!("This ids {:?} already has", error_keywords_has)
-        ))
+        return Err(get_err_msg(ErrorMessage::IdsAlreadyHas(error_keywords_has)))
     }
 
     diesel::insert_into(spec_to_standard)

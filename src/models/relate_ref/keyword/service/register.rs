@@ -1,4 +1,5 @@
-use crate::errors::{ServiceError, ServiceResult};
+use crate::errors::{ServiceResult, ServiceError};
+use crate::errors::err_msg::{ErrorMessage, get_err_msg};
 use crate::models::relate_ref::keyword::model::{
     Keyword, KeywordId, IptKeywordData, InsertableKeyword
 };
@@ -13,17 +14,13 @@ pub(crate) fn create_keyword(
     use crate::schema::keyword_ref::dsl as keyword_ref;
 
     if new_keyword.keyword.len() > 10 {
-        return Err(ServiceError::BadRequest(
-            "Keywords must be less than 10 symbols".to_string()
-        ));
+        return Err(get_err_msg(ErrorMessage::KeywordMustLess));
     }
 
     let check_keyword = KeywordId::get_by_name(&new_keyword.keyword, conn);
 
     match check_keyword {
-        Ok(x) => Err(ServiceError::BadRequest(
-            format!("This keyword name is already there. Id: {}", x))
-        ),
+        Ok(x) => Err(get_err_msg(ErrorMessage::NameAlreadyThereX("keyword".to_string(), x))),
         Err(err) => {
             debug!("Keyword not found: {:?}", err);
             let new_keyword: InsertableKeyword = new_keyword.into();

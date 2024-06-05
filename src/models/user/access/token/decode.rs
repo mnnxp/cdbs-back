@@ -36,5 +36,8 @@ impl Claims {
 }
 
 pub(crate) fn decode(token: &str) -> ServiceResult<Claims>  {
-    decode_token(token).map_err(|e| ServiceError::BadRequest(e.to_string()))
+    decode_token(token).map_err(|e| {
+        debug!("Err decode: {:?}", e);
+        ServiceError::InternalServerError
+    })
 }

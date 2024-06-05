@@ -1,4 +1,5 @@
-use crate::errors::{ServiceError, ServiceResult};
+use crate::errors::{ServiceResult, ServiceError};
+use crate::errors::err_msg::{ErrorMessage, get_err_msg};
 use crate::models::relate_ref::license::model::{InsertableLicense, License, LicenseData};
 use crate::schema::license_ref::dsl as license_ref;
 use diesel::prelude::*;
@@ -21,9 +22,8 @@ pub(crate) fn create_license(
         })?;
 
     match flag_found.first() {
-        Some(x) => {
-            Err(ServiceError::BadRequest(format!("This license name is already there. Id: {}", x)))
-        },
+        Some(x) =>
+            Err(get_err_msg(ErrorMessage::NameAlreadyThereX("license".to_string(), *x))),
         None => {
             let new_license_data: InsertableLicense = new_license_data.into();
             diesel::insert_into(license_ref::license_ref)

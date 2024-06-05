@@ -1,4 +1,5 @@
 use crate::errors::{ServiceResult, ServiceError};
+use crate::errors::err_msg::{ErrorMessage, get_err_msg};
 use crate::models::company::model::{
     ShowCompanyShort, CompanyAndRelatedData, CompaniesArg,
 };
@@ -78,7 +79,7 @@ pub(crate) fn get_companies(
         conn
     ).map_err(|err| {
         debug!("Failed get companies data: {:?}", err);
-        ServiceError::BadRequest("Access denied".to_string())
+        get_err_msg(ErrorMessage::AccessDenied)
     })
 }
 
@@ -165,7 +166,7 @@ pub(crate) fn find_by_uuid(
         conn
     ).map_err(|err| {
         debug!("Error loading company and collect related data: {:?}", err);
-        ServiceError::BadRequest("Access denied".to_string())
+        get_err_msg(ErrorMessage::AccessDenied)
     })
 }
 

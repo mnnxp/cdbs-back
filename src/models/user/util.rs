@@ -1,4 +1,5 @@
 use crate::errors::{ServiceResult, ServiceError};
+use crate::errors::err_msg::{ErrorMessage, get_err_msg};
 use crate::schema::user_ref::dsl as user_ref;
 use diesel::prelude::*;
 use uuid::Uuid;
@@ -16,7 +17,7 @@ pub(crate) fn get_uuid_by_username(
         .first::<Uuid>(conn)
         .map_err(|err| {
             debug!("Failed get user_uuid by username: {:?}", err);
-            ServiceError::BadRequest("Data not found".to_string())
+            get_err_msg(ErrorMessage::DataNotFound)
         })
 }
 

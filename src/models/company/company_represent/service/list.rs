@@ -1,4 +1,5 @@
 use crate::errors::{ServiceResult, ServiceError};
+use crate::errors::err_msg::{ErrorMessage, get_err_msg};
 use crate::models::company::company_represent::model::{
     CompanyRepresentAndRelatedData, CompanyRepresentsArg
 };
@@ -22,9 +23,7 @@ pub(crate) fn get_represents(
                 let company_uuid = get_company_of_represent(represent_uuid, conn)?;
                 args.set_company_uuid(&company_uuid);
             },
-            None => return Err(ServiceError::BadRequest(
-                "You need to choose a company or a representative company".to_string()
-            ))
+            None => return Err(get_err_msg(ErrorMessage::NeedToChooseCompanyOrRepresentative))
         }
     }
 

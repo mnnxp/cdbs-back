@@ -1,4 +1,5 @@
 use crate::errors::{ServiceResult, ServiceError};
+use crate::errors::err_msg::{ErrorMessage, get_err_msg};
 use crate::models::company::{
     model::{Company, SlimCompany, ShowCompanyShort, CompanyAndRelatedData},
     company_represent::model::CompanyRepresentAndRelatedData,
@@ -401,7 +402,7 @@ impl CompanyAndRelatedData {
         // checking access type and supplier status of the company
         if company.type_access_id != 3 || !company.is_supplier {
             debug!("No suitable supplier: {:?}, {:?}", company.type_access_id, company.is_supplier);
-            return Err(ServiceError::BadRequest("No suitable supplier has been found.".to_string()))
+            return Err(get_err_msg(ErrorMessage::NoSuitableSupplierHasBeenFound))
         }
 
         // get company owner

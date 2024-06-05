@@ -1,4 +1,5 @@
-use crate::errors::{ServiceResult, ServiceError};
+use crate::errors::ServiceResult;
+use crate::errors::err_msg::{ErrorMessage, get_err_msg};
 use crate::models::user::model::{
     SlimUser, ShowUserShort, UserAndRelatedData,
     ShowUserAndRelatedData, UsersArg, IptGetUserArg
@@ -26,11 +27,7 @@ pub(crate) fn get_user_data (
             set_lang_id,
             conn,
         ),
-        _ => {
-            Err(ServiceError::BadRequest(
-                "Need set userUuid or username".to_string()
-            ))
-        },
+        _ => Err(get_err_msg(ErrorMessage::NeedSetUuidOrUsername)),
     }
 }
 
@@ -76,9 +73,7 @@ pub(crate) fn get_self_user_data(
         set_lang_id,
         conn
     ).expect("Error loading user and collect related data");
-
     debug!("Self user data: {:#?}", result);
-
     Ok(result)
 }
 
@@ -142,10 +137,6 @@ pub(crate) fn get_users(
             }
 
         },
-        (true, true) => {
-            Err(ServiceError::BadRequest(
-                "Failed match arguments".to_string()
-            ))
-        },
+        (true, true) => Err(get_err_msg(ErrorMessage::FailedMatchArguments)),
     }
 }

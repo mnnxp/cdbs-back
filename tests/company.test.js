@@ -622,7 +622,7 @@ describe('company', () => {
     // expect(response1.body).toBe(0);
     expect(response1.body.data).toBeNull();
     expect(response1.body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(response1.body.errors[0].path[0]).toBe('company');
     done();
@@ -695,7 +695,7 @@ describe('company', () => {
     debug('/graphql body=%o', response1.body);
     expect(response1.body.data).toBeNull();
     expect(response1.body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(response1.body.errors[0].path[0]).toBe('companies');
     done();
@@ -1016,7 +1016,7 @@ describe('company', () => {
     debug('/graphql body=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(body.errors[0].path[0]).toBe('putCompanyUpdate');
     done();
@@ -1338,7 +1338,7 @@ describe('company', () => {
     debug('/graphql CompanyCertificate=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(body.errors[0].path[0]).toBe('company');
     done();
@@ -1364,7 +1364,7 @@ describe('company', () => {
     debug('/graphql CompanyCertificate=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(body.errors[0].path[0]).toBe('uploadCompanyCertificate');
     done();
@@ -1448,7 +1448,7 @@ describe('company', () => {
     debug('/graphql body=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(body.errors[0].path[0]).toBe('updateCompanyCertificate');
     done();
@@ -1618,7 +1618,7 @@ describe('company', () => {
     debug('/graphql addCompanySpecs=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(body.errors[0].path[0]).toBe('addCompanySpecs');
     done();
@@ -1799,7 +1799,7 @@ describe('company', () => {
     debug('/graphql companySpecs=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(body.errors[0].path[0]).toBe('companySpecs');
     done();
@@ -1920,7 +1920,7 @@ describe('company', () => {
     debug('/graphql deleteCompanySpecs=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(body.errors[0].path[0]).toBe('deleteCompanySpecs');
     done();
@@ -2159,7 +2159,7 @@ describe('company', () => {
     debug('/graphql - body=%o', body);
     const { errors, data } = body;
     expect(data).toBeNull();
-    expect(errors[0].message).toBe("BadRequest: The company is not supplier.");
+    expect(errors[0].message).toBe("BadRequest: The company is not supplier");
     done();
   });
 
@@ -2300,7 +2300,7 @@ describe('company', () => {
     debug('/graphql body=%o', response1.body);
     expect(response1.body.data).toBeNull();
     expect(response1.body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(response1.body.errors[0].path[0]).toBe('companyRepresents');
     done();
@@ -2539,7 +2539,7 @@ describe('company', () => {
     debug('/graphql body=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(body.errors[0].path[0]).toBe('deleteCompanyCertificate');
     done();
@@ -2634,7 +2634,7 @@ describe('company', () => {
     debug('/graphql body=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(body.errors[0].path[0]).toBe('registerCompanyRole');
     done();
@@ -2762,7 +2762,7 @@ describe('company', () => {
     debug('/graphql body=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(body.errors[0].path[0]).toBe('changeNameRoleCompany');
     done();
@@ -2893,7 +2893,7 @@ describe('company', () => {
     debug('/graphql body=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(body.errors[0].path[0]).toBe('companyRoles');
     done();
@@ -2970,7 +2970,7 @@ describe('company', () => {
     debug('/graphql body=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(body.errors[0].path[0]).toBe('addAccessRole');
     done();
@@ -3045,7 +3045,7 @@ describe('company', () => {
     debug('/graphql addAccessRole=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Duplicate data found'
+      'BadRequest: Found duplicate data'
     );
     expect(body.errors[0].path[0]).toBe('addAccessRole');
     done();
@@ -3215,7 +3215,7 @@ describe('company', () => {
     debug('/graphql body=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(body.errors[0].path[0]).toBe('deleteSupplierCompany');
     done();
@@ -3311,7 +3311,7 @@ describe('company', () => {
     debug('/graphql body=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(body.errors[0].path[0]).toBe('deleteAccessRole');
     done();
@@ -3408,7 +3408,7 @@ describe('company', () => {
     debug('/graphql body=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(body.errors[0].path[0]).toBe('addCompanyMember');
     done();
@@ -3535,7 +3535,7 @@ describe('company', () => {
     debug('/graphql body=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(body.errors[0].path[0]).toBe('changeRoleMember');
     done();
@@ -3688,7 +3688,7 @@ describe('company', () => {
     debug('/graphql body=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(body.errors[0].path[0]).toBe('companyMembers');
     done();
@@ -3778,7 +3778,7 @@ describe('company', () => {
     debug('/graphql body=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(body.errors[0].path[0]).toBe('deleteCompanyMember');
     done();
@@ -3902,7 +3902,7 @@ describe('company', () => {
     debug('/graphql body=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(body.errors[0].path[0]).toBe('deleteCompanyRole');
     done();
@@ -4025,7 +4025,7 @@ describe('company', () => {
     debug('/graphql body=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(body.errors[0].path[0]).toBe('deleteCompany');
     done();

@@ -1,4 +1,5 @@
-use crate::errors::{ServiceResult, ServiceError};
+use crate::errors::ServiceResult;
+use crate::errors::err_msg::{ErrorMessage, get_err_msg};
 use crate::models::component::component_modification::relate::file::model::IptModificationFilesData;
 use crate::models::component::component_modification::util::get_component_by_modification;
 use crate::models::relate_ref::file::{
@@ -30,7 +31,7 @@ pub(crate) fn add_modification_files(
 
     // return error if not found correct filename
     if data.filenames.is_empty() || data.filenames.len() > 100 {
-        return Err(ServiceError::BadRequest("Not found filename".to_string()))
+        return Err(get_err_msg(ErrorMessage::NotFoundFilename))
     }
 
     let mut up_files: Vec<UploadFile> = Vec::new();

@@ -1,4 +1,5 @@
-use crate::errors::{ServiceResult, ServiceError};
+use crate::errors::ServiceResult;
+use crate::errors::err_msg::{ErrorMessage, get_err_msg};
 use crate::models::company::access::util::check_company_access;
 use crate::models::company::supplier_component::model::DelCompanyOfSuppliersData;
 use diesel::prelude::*;
@@ -37,7 +38,7 @@ pub(crate) fn del_company_of_suppliers(
         },
         Err(err) => {
             debug!("Failed delete company of suppliers component: {:?}", err);
-            Err(ServiceError::BadRequest("Failed delete company of suppliers component".to_string()))
+            Err(get_err_msg(ErrorMessage::FailedDeleteSupplierComponent))
         },
     }
 }

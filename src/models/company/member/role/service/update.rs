@@ -1,4 +1,5 @@
-use crate::errors::{ServiceError, ServiceResult};
+use crate::errors::ServiceResult;
+use crate::errors::err_msg::{ErrorMessage, get_err_msg};
 use crate::models::company::member::role::model::IptUpdateNameRoleData;
 use crate::models::company::access::util::check_is_owner_with_err;
 use diesel::prelude::*;
@@ -30,10 +31,7 @@ pub(crate) fn change_name_role_company(
         Ok(x) => Ok(x > 0),
         Err(err) => {
             debug!("Failed update data: {:?}", err);
-
-            Err(ServiceError::BadRequest(
-                "Failed update data".to_string()
-            ))
+            Err(get_err_msg(ErrorMessage::FailedUpdateData))
         },
     }
 }

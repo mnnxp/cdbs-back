@@ -1,4 +1,5 @@
-use crate::errors::{ServiceError, ServiceResult};
+use crate::errors::{ServiceResult, ServiceError};
+use crate::errors::err_msg::{ErrorMessage, get_err_msg};
 use crate::models::standard::spec::model::{
     IptStandardSpecsData, DeleteStandardSpecs,
 };
@@ -27,7 +28,7 @@ pub(crate) fn del_standard_specs(
 
     if del_specs.spec_ids.is_empty() {
         // return error if not found correct specs
-        return Err(ServiceError::BadRequest("Not found specs".to_string()))
+        return Err(get_err_msg(ErrorMessage::NotFoundSpecs))
     }
 
     diesel::delete(spec_to_standard::spec_to_standard)

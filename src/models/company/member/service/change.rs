@@ -1,4 +1,5 @@
-use crate::errors::{ServiceResult, ServiceError};
+use crate::errors::ServiceResult;
+use crate::errors::err_msg::{ErrorMessage, get_err_msg};
 use crate::models::company::member::model::IptCompanyMemberData;
 use crate::models::company::access::util::check_company_access;
 use crate::models::company::member::role::util::check_role_of_company;
@@ -23,7 +24,7 @@ pub(crate) fn change_role_member(
         conn,
     )? {
         // return error if user not have access level
-        return Err(ServiceError::BadRequest("Access denied".to_string()))
+        return Err(get_err_msg(ErrorMessage::AccessDenied))
     }
 
     // return error if not found role
@@ -54,9 +55,7 @@ pub(crate) fn change_role_member(
         },
         Err(err) => {
             debug!("Failed update role member: {:?}", err);
-            Err(ServiceError::BadRequest(
-                "Failed update role member".to_string()
-            ))
+            Err(get_err_msg(ErrorMessage::FailedUpdateRoleMember))
         },
     }
 }
