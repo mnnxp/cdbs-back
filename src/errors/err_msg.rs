@@ -1,150 +1,152 @@
 use super::ServiceError;
 use super::msg_en::value_in_err_msg_en;
 
-// #[derive(Error, Debug)]
+/// Contains a list of all errors
 pub(crate) enum ErrorMessage {
-    /// "Access denied."
+    /// "Access denied"
     AccessDenied,
-    /// "Access has not been added."
+    /// "Access has not been added"
     AccessNotAdded,
-    /// "Access not found for company."
+    /// "Access not found for company"
     AccessNotFoundCompany,
-    /// "Access not found for user."
+    /// "Access not found for user"
     AccessNotFoundUser,
-    /// "Bad filename."
+    /// "Bad filename"
     BadFilename,
     /// "Cannot delete rows"
     CannotDeleteRows,
-    /// "Data not found."
+    /// "Data not found"
     DataNotFound,
     /// "Found duplicate data"
     FoundDuplicateData,
-    /// "Found duplicate token."
+    /// "Found duplicate token"
     FoundDuplicateToken,
-    /// "Duplication of existing data was detected."
+    /// "Duplication of existing data was detected"
     DuplicateOfExistingData,
-    /// "Error when deleting a role."
+    /// "Error when deleting a role"
     ErrorDeleteRole,
-    /// "Error incorrect id."
+    /// "Error incorrect id"
     ErrorIncorrectId,
-    /// "Error recording dependency data."
+    /// "Error recording dependency data"
     ErrorRecordingDependencyData,
-    /// "Fail get SlimUser from Claims."
+    /// "Fail get SlimUser from Claims"
     FailGetUserData,
-    /// "Failed add access for target company."
+    /// "Failed add access for target company"
     FailedAddAccess,
-    /// "Failed check data."
+    /// "Failed check data"
     FailedCheckData,
-    /// "Failed check role data."
+    /// "Failed check role data"
     FailedCheckRole,
-    /// "Failed check spec for standard."
+    /// "Failed check spec for standard"
     FailedCheckSpec,
-    /// "Failed delete access for target company."
+    /// "Failed delete access for target company"
     FailedDeleteAccessForCompany,
-    /// "Failed delete company of suppliers component."
+    /// "Failed delete company of suppliers component"
     FailedDeleteSupplierComponent,
-    /// "Failed delete related standards to component."
+    /// "Failed delete related standards to component"
     FailedDeleteRelatedStandardsComponent,
-    /// "Failed delete related suppliers to component."
+    /// "Failed delete related suppliers to component"
     FailedDeleteSuppliersComponent,
-    /// "Failed get companies list have access to component."
+    /// "Failed get companies list have access to component"
     FailedGetCompaniesWithAccessComponent,
-    /// "Failed get companies list have access to standard."
+    /// "Failed get companies list have access to standard"
     FailedGetCompaniesWithAccessStandard,
-    /// "Failed match arguments."
+    /// "Failed match arguments"
     FailedMatchArguments,
-    /// "Failed set access for target company."
+    /// "Failed set access for target company"
     FailedSetAccessCompany,
-    /// "Failed update data."
+    /// "Failed update data"
     FailedUpdateData,
-    /// "Failed update role member."
+    /// "Failed update role member"
     FailedUpdateRoleMember,
-    /// "Failed write metadata."
+    /// "Failed write metadata"
     FailedWriteMetadata,
-    /// "Failed: access not delete."
+    /// "Failed: access not delete"
     FailedRemoveAccessForRole,
-    /// "File to object association not found."
+    /// "File to object association not found"
     FileObjectNotFound,
-    /// "Keywords must be less than 10 symbols."
+    /// "Keywords must be less than 10 symbols"
     KeywordMustLess,
-    /// "Need set userUuid or username."
+    /// "Need set userUuid or username"
     NeedSetUuidOrUsername,
-    /// "No active file revision found."
+    /// "No active file revision found"
     NoActiveFileRevisionFound,
-    /// "No suitable supplier has been found."
+    /// "No suitable supplier has been found"
     NoSuitableSupplierHasBeenFound,
-    /// "Not found access for target role."
+    /// "Not found access for target role"
     NotFoundAccessForRole,
-    /// "Not found filename."
+    /// "Not found filename"
     NotFoundFilename,
-    /// "Not found fileset data."
+    /// "Not found fileset data"
     NotFoundFilesetData,
-    /// "Not found keywords."
+    /// "Not found keywords"
     NotFoundKeywords,
-    /// "Not found modification data."
+    /// "Not found modification data"
     NotFoundModificationData,
-    /// "Not found params for adding or updating."
+    /// "Not found params for adding or updating"
     NotFoundParamsForAddingOrUpdaing,
-    /// "Not found params for deleting."
+    /// "Not found params for deleting"
     NotFoundParamsForDeleting,
-    /// "Not found representative."
+    /// "Not found representative"
     NotFoundRepresentative,
-    /// "Not found roles for company."
+    /// "Not found roles for company"
     NotFoundRolesForCompany,
-    /// "Not found specs."
+    /// "Not found specs"
     NotFoundSpecs,
-    /// "Not found standard."
+    /// "Not found standard"
     NotFoundStandard,
-    /// "Not found target file."
+    /// "Not found target file"
     NotFoundTargetFile,
-    /// "Not more 100 path in one query."
+    /// "Not more 100 path in one query"
     NotMorePathInOneQuery,
     /// "Password is not correct"
     PasswordIsNotCorrect,
     /// "Please, try again later"
     PleaseTryAgainLater,
-    /// "Revision already active or deleted."
+    /// "Revision already active or deleted"
     RevisionAlreadyActiveOrDeleted,
-    /// "Role not found."
+    /// "Role not found"
     RoleNotFound,
     /// "Selected file is not image"
     SelectedFileIsNotImage,
-    /// "Spec not found."
+    /// "Spec not found"
     SpecNotFound,
     /// "The company is not supplier"
     CompanyIsNotSupplier,
     /// "The component is not standard"
     ComponentIsNotStandard,
-    /// "The data has already."
+    /// "The data has already"
     DataHasAlready,
-    /// "The file does not support versioning."
+    /// "The file does not support versioning"
     FileDoedNotSupportVersioning,
-    /// "The user has already member in the company."
+    /// "The user has already member in the company"
     UserHasAlreadyMemberInTheCompany,
-    /// "The user not found in the company."
+    /// "The user not found in the company"
     UserNotFoundInCompany,
-    /// "This license for the component is already."
+    /// "This license for the component is already"
     LicenseAlreadySetForComponent,
-    /// "This not work for base component."
+    /// "This not work for base component"
     DoesNotWorkForBaseComponent,
-    /// "This standard is already associated with the component."
+    /// "This standard is already associated with the component"
     StanardIsAlreadyAssociatedWithComponent,
-    /// "This username is already used."
+    /// "This username is already used"
     UsernameIsAlreadyUsed,
     /// "Token not found"
     TokenNotFound,
-    /// "Unsuccessful check data."
+    /// "Unsuccessful check data"
     UnsuccessfulCheckData,
-    /// "You need to choose a company or a representative company."
+    /// "You need to choose a company or a representative company"
     NeedToChooseCompanyOrRepresentative,
-    /// "Your token is invalid."
+    /// "Your token is invalid"
     TokenIsInvalid,
-    // format!("This {} name is already there. Id: {}", name, x)
+    /// format!("This {} name is already there. Id: {}", name, x)
     NameAlreadyThereX(String, i32),
-    // format!("This ids {:?} already has", error_ids)
+    /// format!("This ids {:?} already has", error_ids)
     IdsAlreadyHas(Vec<i32>),
 }
 
 pub(crate) fn get_err_msg(err_msg: ErrorMessage) -> ServiceError {
-    value_in_err_msg_en(err_msg)
+    ServiceError::BadRequest(
+        format!("BadRequest: {0}", value_in_err_msg_en(err_msg))
+    )
 }
