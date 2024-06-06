@@ -2136,7 +2136,7 @@ describe('company', () => {
     done();
   });
 
-  it('/graphql:M registerCompanyRepresent - BadRequest Not supplier', async (done) => {
+  it('/graphql:M registerCompanyRepresent - OK Not supplier', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .set(
@@ -2157,9 +2157,7 @@ describe('company', () => {
       })
       .expect(HttpStatus.OK)
     debug('/graphql - body=%o', body);
-    const { errors, data } = body;
-    expect(data).toBeNull();
-    expect(errors[0].message).toBe("BadRequest: The company is not supplier");
+    expect(body.data.registerCompanyRepresent).toBe(true);
     done();
   });
 

@@ -1,10 +1,7 @@
 use crate::errors::ServiceResult;
 use crate::errors::err_msg::{ErrorMessage, get_err_msg};
 use crate::models::standard::model::IptUpdateStandardData;
-use crate::models::company::{
-    access::util::check_company_access,
-    util::check_is_supplier,
-};
+use crate::models::company::access::util::check_company_access;
 use crate::models::standard::access::util::check_access_standard_for_user;
 use crate::schema::standard_ref::dsl as standard_ref;
 use diesel::prelude::*;
@@ -39,10 +36,7 @@ pub(crate) fn update_standard_data(
             conn,
         )?;
 
-        check_is_supplier(
-            value,
-            conn
-        )?;
+        // check_is_supplier(value, conn)?;
 
         count_update_columns += diesel::update(standard_ref::standard_ref
             .filter(standard_ref::uuid.eq(target_standard_uuid)

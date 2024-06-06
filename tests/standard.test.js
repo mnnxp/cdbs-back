@@ -42,6 +42,7 @@ const standardStatusId2 =  3;
 const regionId2 = 5;
 var standardUuidFirst = "";
 var standardUuidSecond = "";
+var standardUuidNoSupplier = "";
 
 const standardFullDataQuery = ` \
 uuid \
@@ -752,7 +753,7 @@ describe('company', () => {
     done();
   });
 
-  it('/graphql:M registerStandard - BadRequest not supplier', async (done) => {
+  it('/graphql:M registerStandard - OK not supplier', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .set(
@@ -762,7 +763,6 @@ describe('company', () => {
       .send({
         query: `mutation standardQuery {
           registerStandard(args: {
-            parentStandardUuid: "${standardUuidFirst}",
             classifier: "${classifierStandard}",
             name: "${nameStandard}",
             description: "${descriptionStandard}",
@@ -778,9 +778,30 @@ describe('company', () => {
       })
       .expect(HttpStatus.OK)
     debug('/graphql - body=%o', body);
-    const { errors, data } = body;
-    expect(data).toBeNull();
-    expect(errors[0].message).toBe("BadRequest: The company is not supplier");
+    standardUuidNoSupplier = body.data.registerStandard;
+    expect(body.data.registerStandard).toBeNonEmptyString();
+    done();
+  });
+
+  it('/graphql:M deleteStandard - OK delete no supplier', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation {
+          deleteStandard(standardUuid: "${standardUuidNoSupplier}")
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql deleteStandard=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { deleteStandard },
+    } = body;
+    expect(deleteStandard).toBe(standardUuidNoSupplier);
     done();
   });
 
@@ -850,7 +871,7 @@ describe('company', () => {
     done();
   });
 
-  it('/graphql:M putStandardUpdate - BadRequest not supplier', async (done) => {
+  it('/graphql:M putStandardUpdate - OK not supplier', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .set(
@@ -862,23 +883,16 @@ describe('company', () => {
           putStandardUpdate(
             standardUuid: "${standardUuidSecond}"
             args: {
-              classifier: "${classifierStandard}",
-              name: "${nameStandard}",
-              description: "${descriptionStandard}",
-              specifiedTolerance: "${specifiedTolerance}",
-              technicalCommittee: "${technicalCommittee}",
-              publicationAt: "${publicationAt}",
               companyUuid: "${companyUuidNoSupplier}",
-              standardStatusId: ${standardStatusId},
-              regionId: ${regionId}
           })
         }`,
       })
       .expect(HttpStatus.OK)
-    debug('/graphql - body=%o', body);
-    const { errors, data } = body;
-    expect(data).toBeNull();
-    expect(errors[0].message).toBe("BadRequest: The company is not supplier");
+    debug('/graphql - body =%o', body);
+    const {
+      data: { putStandardUpdate },
+    } = body;
+    expect(putStandardUpdate).toBe(1);
     done();
   });
 
@@ -900,6 +914,7 @@ describe('company', () => {
               specifiedTolerance: "${specifiedTolerance}",
               technicalCommittee: "${technicalCommittee}",
               publicationAt: "${publicationAt}",
+              companyUuid: "${companyUuidSupplier}",
               standardStatusId: ${standardStatusId},
               regionId: ${regionId}
           })
@@ -910,7 +925,7 @@ describe('company', () => {
     const {
       data: { putStandardUpdate },
     } = body;
-    expect(putStandardUpdate).toBe(8);
+    expect(putStandardUpdate).toBe(9);
     done();
   });
 
