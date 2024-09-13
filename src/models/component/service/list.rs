@@ -117,6 +117,7 @@ pub(crate) fn get_components_followed_by_user(
         .filter(component_fav::user_uuid.eq(target_user_uuid)
         .and(component_fav::is_enabled.eq(true)))
         .select(component_fav::component_uuid)
+        .order(component_fav::created_at.desc())
         .load::<Uuid>(conn).map_err(|err| {
             debug!("Fail load uuid list target user: {:?}", err);
             ServiceError::InternalServerError
