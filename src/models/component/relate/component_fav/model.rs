@@ -6,7 +6,7 @@ use uuid::Uuid;
 
 // Favorites component models
 #[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, Clone, Debug)]
-#[diesel(primary_key(component_uuid, component_uuid))]
+#[diesel(primary_key(component_uuid, user_uuid))]
 #[diesel(belongs_to(Component, foreign_key = component_uuid))]
 #[diesel(belongs_to(User, foreign_key = user_uuid))]
 #[diesel(table_name = component_fav)]

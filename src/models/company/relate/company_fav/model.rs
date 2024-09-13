@@ -8,7 +8,7 @@ use uuid::Uuid;
 // Favorites company models
 #[derive(Identifiable, Serialize, Deserialize, Queryable, Associations)]
 #[derive(SimpleObject, Clone, Debug)]
-#[diesel(primary_key(company_uuid, company_uuid))]
+#[diesel(primary_key(company_uuid, user_uuid))]
 #[diesel(belongs_to(Company, foreign_key = company_uuid))]
 #[diesel(belongs_to(User, foreign_key = user_uuid))]
 #[diesel(table_name = company_fav)]
