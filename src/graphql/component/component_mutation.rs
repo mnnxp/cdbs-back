@@ -23,7 +23,7 @@ use crate::models::component::{
     standard::model::{IptStandardToComponentData, DelStandardToComponentData},
     component_modification,
     component_modification::{
-        model::{IptComponentModificationData, IptUpdateComponentModificationData, DelComponentModificationData},
+        model::{IptComponentModificationData, IptMultipleModificationsData, IptUpdateComponentModificationData, DelComponentModificationData},
         fileset_for_program::file::model::{
             IptModificationFileFromFilesetData, DelModificationFileFromFilesetData
         },
@@ -534,6 +534,18 @@ impl ComponentMutation {
             &args,
             conn
         )
+    }
+
+    /// Creates multiple modifications for a component
+    async fn register_component_modifications(
+        &self,
+        cxt: &Context<'_>,
+        args: IptMultipleModificationsData,
+    ) -> ServiceResult<Vec<Uuid>> {
+        use component_modification::service::register::creation_multiple_modifications;
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+        creation_multiple_modifications(&logged_user_uuid, &args, conn)
     }
 
     /// Updates modification's data of a component.

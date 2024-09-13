@@ -101,7 +101,7 @@ pub(crate) struct InsertableComponentModification {
 }
 
 impl InsertableComponentModification {
-    /// Check parent modification uuid on nil
+    /// Returns a structure with the specified component UUID
     pub(crate) fn get_default_for_component(component_uuid: &Uuid) -> Self {
         Self {
             uuid: Uuid::new_v4(),
@@ -114,6 +114,26 @@ impl InsertableComponentModification {
             created_at: chrono::Local::now().naive_local(),
             updated_at: chrono::Local::now().naive_local(),
         }
+    }
+
+    /// Returns structures with the specified component UUID and modifications data
+    pub(crate) fn get_multiple_data(data: &IptMultipleModificationsData) -> Vec<Self> {
+        let mut res = Vec::new();
+        for md in data.modifications_data.iter() {
+            let local_time = chrono::Local::now().naive_local();
+            res.push(Self {
+                uuid: Uuid::new_v4(),
+                component_uuid: data.component_uuid,
+                parent_modification_uuid: Uuid::nil(),
+                modification_name: md.modification_name.clone(),
+                description: md.description.clone(),
+                actual_status_id: md.actual_status_id,
+                is_delete: false,
+                created_at: local_time,
+                updated_at: local_time,
+            })
+        }
+        res
     }
 
     /// Check parent modification uuid on nil
@@ -134,6 +154,26 @@ pub(crate) struct IptComponentModificationData {
     pub(crate) component_uuid: Uuid,
     /// UUID of the parent modification of the component (optional)
     pub(crate) parent_modification_uuid: Option<Uuid>,
+    /// Name of the component modification
+    pub(crate) modification_name: String,
+    /// Description of the component modification
+    pub(crate) description: String,
+    /// Current status of the component modification
+    pub(crate) actual_status_id: i32,
+}
+
+/// Data for adding multiple modifications to a component
+#[derive(Debug, Deserialize, InputObject)]
+pub(crate) struct IptMultipleModificationsData {
+    /// UUID of the component to which modifications will be added
+    pub(crate) component_uuid: Uuid,
+    /// Basic data of new modifications
+    pub(crate) modifications_data: Vec<IptModificationsData>,
+}
+
+/// Data for adding multiple modifications to a component
+#[derive(Debug, Deserialize, InputObject)]
+pub(crate) struct IptModificationsData {
     /// Name of the component modification
     pub(crate) modification_name: String,
     /// Description of the component modification

@@ -1,6 +1,6 @@
 use crate::errors::{ServiceError, ServiceResult};
 use crate::models::component::component_modification::model::{
-    InsertableComponentModification, IptComponentModificationData
+    InsertableComponentModification, IptComponentModificationData, IptMultipleModificationsData
 };
 use crate::models::component::access::util::check_access_component_for_user;
 use crate::schema::component_modification_list::dsl as component_modification_list;
@@ -39,6 +39,29 @@ pub(crate) fn create_component_modification(
                 })
         },
     }
+}
+
+/// Массовое создание модификаций для компонента
+pub(crate) fn creation_multiple_modifications(
+    logged_user_uuid: &Uuid,
+    data: &IptMultipleModificationsData,
+    conn: &mut PgConnection
+) -> ServiceResult<Vec<Uuid>> {
+    let need_access_level = 1; // todo!(create enum for manage access level)
+
+    check_access_component_for_user(
+        logged_user_uuid,
+        &data.component_uuid,
+        &need_access_level,
+        conn
+    )?;
+
+    let mut res = Vec::new();
+    for insert_item in InsertableComponentModification::get_multiple_data(data).iter_mut() {
+        single_modification(insert_item, conn)
+            .map(|new_uuid| res.push(new_uuid))?
+    }
+    Ok(res)
 }
 
 pub(crate) fn single_modification(
