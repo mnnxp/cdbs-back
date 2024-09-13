@@ -89,6 +89,15 @@ const filename3 = "file-test-name 3.pdf";
 const filename4 = "file-test-name 4.pdf";
 const filename5 = "file-test-name 5.pdf";
 
+const modificationNameM1 = "1/16/20-SS-V";
+const descriptionM1 = "Dest 1/ss-v";
+const actualStatusIdM1 = 1;
+const modificationNameM2 = "2/16/20-TT-V";
+const descriptionM2 = "Dest 2/tt-v";
+const actualStatusIdM2 = 2;
+const modificationNameM3 = "3/16/20-D-V";
+const descriptionM3 = "Dest 3/d-v";
+const actualStatusIdM3 = 3;
 const badFilenameComponentFaviconTest = "no image file.pdf";
 const goodFilenameComponentFaviconTest = "image file.png";
 
@@ -1141,9 +1150,9 @@ describe('component', () => {
     debug('/graphql body=%o', body);
     // expect(body).toBe(0);
     expect(body.data.components).toBeNonEmptyArray();
-    expect(body.data.components[0].uuid).toBe(componentUuidStandard);
-    expect(body.data.components[0].ownerUser.username).toBe(username);
-    expect(body.data.components[0].isFollowed).toBe(false);
+    expect(body.data.components[1].uuid).toBe(componentUuidStandard);
+    expect(body.data.components[1].ownerUser.username).toBe(username);
+    expect(body.data.components[1].isFollowed).toBe(false);
     expect(body.data.components.length).toBe(2); // + 1 default favorite for a new user
     done();
   });
@@ -2699,8 +2708,8 @@ describe('component', () => {
     const {
       data: { components }
     } = body;
-    expect(components[0].uuid).toBe(componentUuidStandard);
-    expect(components[0].name).toBe(nameComponent);
+    expect(components[1].uuid).toBe(componentUuidStandard);
+    expect(components[1].name).toBe(nameComponent);
     done();
   });
 
@@ -2724,8 +2733,8 @@ describe('component', () => {
     const {
       data: { components }
     } = body;
-    expect(components[0].uuid).toBe(componentUuidStandard);
-    expect(components[0].name).toBe(nameComponent);
+    expect(components[1].uuid).toBe(componentUuidStandard);
+    expect(components[1].name).toBe(nameComponent);
     done();
   });
 
@@ -5585,6 +5594,84 @@ describe('component', () => {
       'BadRequest: The data has already'
     );
     expect(body.errors[0].path[0]).toBe('putComponentModificationUpdate');
+    done();
+  });
+
+  // Testing query create multiple component modifications
+  it('/graphql:M registerComponentModifications - BadRequest access denied', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `mutation {
+          registerComponentModifications(args: {
+            componentUuid: "${componentUuidStandard}",
+            modificationsData: [
+              {
+                modificationName: "${modificationNameM1}",
+                description: "${descriptionM1}",
+                actualStatusId: ${actualStatusIdM1}
+              },
+              {
+                modificationName: "${modificationNameM2}",
+                description: "${descriptionM2}",
+                actualStatusId: ${actualStatusIdM2}
+              }
+            ]
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+      debug('/graphql body=%o', body);
+      expect(body.data).toBeNull();
+      expect(body.errors[0].message).toBe(
+        'BadRequest: Access denied'
+      );
+      expect(body.errors[0].path[0]).toBe('registerComponentModifications');
+      done();
+  });
+
+  it('/graphql:M registerComponentModifications - OK', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation {
+          registerComponentModifications(args: {
+            componentUuid: "${componentUuidStandard}",
+            modificationsData: [
+              {
+                modificationName: "${modificationNameM1}",
+                description: "${descriptionM1}",
+                actualStatusId: ${actualStatusIdM1}
+              },
+              {
+                modificationName: "${modificationNameM2}",
+                description: "${descriptionM2}",
+                actualStatusId: ${actualStatusIdM2}
+              },
+              {
+                modificationName: "${modificationNameM3}",
+                description: "${descriptionM3}",
+                actualStatusId: ${actualStatusIdM3}
+              }
+            ]
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    const {
+      data: { registerComponentModifications },
+    } = body;
+    expect(registerComponentModifications[0]).toBeNonEmptyString();
+    expect(registerComponentModifications.length).toBe(3);
     done();
   });
 
