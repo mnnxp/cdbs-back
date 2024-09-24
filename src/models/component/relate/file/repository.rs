@@ -1,4 +1,5 @@
 use crate::errors::{ServiceResult, ServiceError};
+use crate::models::search::order::Paginate;
 use crate::models::relate_ref::file::model::ShowFileRelatedData;
 use crate::schema::file_to_component::dsl as file_to_component;
 use diesel::prelude::*;
@@ -8,16 +9,14 @@ impl ShowFileRelatedData {
     /// Gets all files for modification fileset by uuid without check for hide, delete etc
     pub(crate) fn by_component_uuid(
         component_uuid: &Uuid,
-        limit: i32,
-        offset: i32,
+        paginate: &Paginate,
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<ShowFileRelatedData>> {
         let target_file_uuids: Vec<Uuid> = get_file_uuids_by_component_uuid(component_uuid, &[], conn)?;
 
         ShowFileRelatedData::get_file_by_uuids(
             &target_file_uuids,
-            limit,
-            offset,
+            paginate,
             conn
         )
     }

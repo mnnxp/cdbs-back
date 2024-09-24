@@ -1,3 +1,4 @@
+use crate::models::search::order::Sort;
 use crate::models::component::{
     component_type::model::ComponentTypeTranslateList,
     actual_status::model::ActualStatusTranslateList,
@@ -225,6 +226,8 @@ pub(crate) struct IptComponentsArg {
     pub(crate) standard_uuid: Option<Uuid>,
     pub(crate) user_uuid: Option<Uuid>,
     pub(crate) favorite: Option<bool>,
+    pub(crate) order_by: Option<String>,
+    pub(crate) as_desc: Option<bool>,
     pub(crate) limit: Option<i32>,
     pub(crate) offset: Option<i32>,
 }
@@ -236,6 +239,7 @@ pub(crate) struct ComponentsArg {
     pub(crate) standard_uuid: Option<Uuid>,
     pub(crate) user_uuid: Option<Uuid>,
     pub(crate) favorite: bool,
+    pub(crate) sort: Sort,
     pub(crate) limit: i32,
     pub(crate) offset: i32,
 }
@@ -248,6 +252,7 @@ impl Default for ComponentsArg {
             standard_uuid: None,
             user_uuid: None,
             favorite: false,
+            sort: Sort::set_by_table("component_ref"),
             limit: 100,
             offset: 0,
         }
@@ -262,16 +267,18 @@ impl From<IptComponentsArg> for ComponentsArg {
             standard_uuid,
             user_uuid,
             favorite,
+            order_by,
+            as_desc,
             limit,
             offset,
         } = data;
-
         Self {
             filter_components_uuids: components_uuids.unwrap_or_default(),
             company_uuid,
             standard_uuid,
             user_uuid,
             favorite: favorite.unwrap_or(false),
+            sort: Sort::parsing("component_ref", order_by.unwrap_or_default().as_str(), as_desc.unwrap_or_default()),
             limit: limit.unwrap_or(100),
             offset: offset.unwrap_or(0),
         }

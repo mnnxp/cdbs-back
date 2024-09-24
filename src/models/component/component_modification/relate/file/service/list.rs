@@ -5,6 +5,7 @@ use crate::models::component::component_modification::{
     file::repository::get_file_uuids_by_modification_uuid,
     util::get_component_by_modification,
 };
+use crate::models::search::order::Paginate;
 use crate::models::relate_ref::file::model::{DownloadFile, ShowFileRelatedData};
 use diesel::prelude::*;
 use uuid::Uuid;
@@ -32,8 +33,7 @@ pub(crate) fn get_component_modification_files(
 
     DownloadFile::get_by_file_uuids(
         &target_file_uuids,
-        args.limit,
-        args.offset,
+        &Paginate::parsing(args.limit, args.offset),
         conn
     )
 }
@@ -61,8 +61,7 @@ pub(crate) fn get_component_modification_files_list(
 
     ShowFileRelatedData::get_file_by_uuids(
         &target_file_uuids,
-        args.limit,
-        args.offset,
+        &Paginate::parsing(args.limit, args.offset),
         conn
     )
 }

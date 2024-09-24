@@ -1,5 +1,5 @@
 use crate::errors::{ServiceResult, ServiceError};
-use crate::models::ExtraOptions;
+use crate::models::search::model::ExtraOptions;
 use crate::models::standard::model::ShowStandardShort;
 use diesel::prelude::*;
 use uuid::Uuid;

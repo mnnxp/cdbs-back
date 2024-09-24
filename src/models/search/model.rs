@@ -1,0 +1,58 @@
+use diesel::sql_types;
+use diesel::prelude::*;
+use async_graphql::*;
+use uuid::Uuid;
+
+#[derive(QueryableByName)]
+pub(super) struct ObjectUuid {
+    #[diesel(sql_type = sql_types::Uuid)]
+    uuid: Uuid
+}
+
+impl ObjectUuid {
+    pub(super) fn get_uuids(objcts: &[ObjectUuid]) -> Vec<Uuid> {
+        let mut res = Vec::<Uuid>::new();
+        for item in objcts { res.push(item.uuid); }
+        res
+    }
+}
+
+#[derive(Debug)]
+pub(crate) struct ExtraOptions {
+    pub(crate) logged_user_uuid: Uuid,
+    pub(crate) set_lang_id: i32,
+}
+
+impl ExtraOptions {
+    pub(crate) fn from_ipt(logged_user_uuid: Uuid, set_lang_id: i32) -> Self {
+        Self {
+            logged_user_uuid,
+            set_lang_id,
+        }
+    }
+}
+
+/// Basic search attributes
+#[derive(InputObject, Deserialize, Debug)]
+pub(crate) struct IptSearchArg {
+    pub(crate) search: String,
+    #[graphql(default = false)]
+    pub(crate) by_params: bool,
+    #[graphql(default = false)]
+    pub(crate) by_specs: bool,
+    #[graphql(default = false)]
+    pub(crate) by_keywords: bool,
+    #[graphql(default = "")]
+    pub(crate) order_by: String,
+    #[graphql(default = false)]
+    pub(crate) as_desc: bool,
+    pub(crate) company_uuid: Option<Uuid>,
+    pub(crate) standard_uuid: Option<Uuid>,
+    pub(crate) user_uuid: Option<Uuid>,
+    #[graphql(default = false)]
+    pub(crate) favorite: bool,
+    #[graphql(default = 100)]
+    pub(crate) limit: i32,
+    #[graphql(default = 0)]
+    pub(crate) offset: i32,
+}

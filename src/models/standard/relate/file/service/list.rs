@@ -1,4 +1,5 @@
 use crate::errors::ServiceResult;
+use crate::models::search::order::Paginate;
 use crate::models::relate_ref::file::model::DownloadFile;
 use crate::models::standard::{
     model::StandardFilesArg,
@@ -31,8 +32,7 @@ pub(crate) fn get_standard_files(
 
     DownloadFile::get_by_file_uuids(
         &target_file_uuids,
-        args.limit,
-        args.offset,
+        &Paginate::parsing(args.limit, args.offset),
         conn,
     )
 }

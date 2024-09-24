@@ -5,6 +5,7 @@ use crate::models::component::{
     component_modification::fileset_for_program::util::get_component_by_fileset,
     access::util::check_access_component_for_user,
 };
+use crate::models::search::order::Paginate;
 use crate::models::relate_ref::file::model::{ShowFileRelatedData, DownloadFile};
 use diesel::prelude::*;
 use uuid::Uuid;
@@ -34,8 +35,7 @@ pub(crate) fn get_files_of_fileset(
 
     ShowFileRelatedData::get_file_by_uuids(
         &collect_file_uuids,
-        args.limit,
-        args.offset,
+        &Paginate::parsing(args.limit, args.offset),
         conn
     ).map_err(|err| {
         debug!("Error get files of fileset: {:?}", err);
@@ -67,8 +67,7 @@ pub(crate) fn get_fileset_files(
 
     DownloadFile::get_by_file_uuids(
         &collect_file_uuids,
-        args.limit,
-        args.offset,
+        &Paginate::parsing(args.limit, args.offset),
         conn
     ).map_err(|err| {
         debug!("Error get files of fileset: {:?}", err);

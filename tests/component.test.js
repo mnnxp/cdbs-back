@@ -915,7 +915,7 @@ describe('component', () => {
     done();
   });
 
-  // Testing self components seatch
+  // Testing self components
   it('/graphql:Q Components - BadRequest not correct params', async (done) => {
     const { body } = await agent
       .post('/graphql')
@@ -964,8 +964,8 @@ describe('component', () => {
     const {
       data: { components },
     } = body;
-    expect(components[1].uuid).toBe(componentUuidNoStandard);
-    expect(components[1].name).toBe(nameComponent2);
+    expect(components[0].uuid).toBe(componentUuidNoStandard);
+    expect(components[0].name).toBe(nameComponent2);
     expect(components.length).toBe(2);
     done();
   });
@@ -1044,7 +1044,7 @@ describe('component', () => {
     done();
   });
 
-  // Testing favorite components search
+  // Testing favorite components
   it('/graphql:M ComponentFav - Ok delete after auto add', async (done) => {
     const { body } = await agent
       .post('/graphql')
@@ -2688,7 +2688,7 @@ describe('component', () => {
     done();
   });
 
-  it('/graphql:Q List components - OK without params', async (done) => {
+  it('/graphql:Q List components - OK without params TokenFirst', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .set(
@@ -2708,12 +2708,12 @@ describe('component', () => {
     const {
       data: { components }
     } = body;
-    expect(components[1].uuid).toBe(componentUuidStandard);
-    expect(components[1].name).toBe(nameComponent);
+    expect(components[components.length-1].uuid).toBe(componentUuidStandard);
+    expect(components[components.length-1].name).toBe(nameComponent);
     done();
   });
 
-  it('/graphql:Q List components - OK without params', async (done) => {
+  it('/graphql:Q List components - OK without params TokenSecond', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .set(
@@ -2733,8 +2733,8 @@ describe('component', () => {
     const {
       data: { components }
     } = body;
-    expect(components[1].uuid).toBe(componentUuidStandard);
-    expect(components[1].name).toBe(nameComponent);
+    expect(components[components.length-1].uuid).toBe(componentUuidStandard);
+    expect(components[components.length-1].name).toBe(nameComponent);
     done();
   });
 

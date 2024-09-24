@@ -1,6 +1,7 @@
 use super::util::get_default_image;
 use crate::errors::{ServiceResult, ServiceError};
 use crate::models::user::model::ShowUserShort;
+use crate::models::search::order::Paginate;
 use crate::models::relate_ref::file::model::{
     ListObject, PreliminaryFileData, ShowFile,
     ShowFileRelatedData, DownloadFile, SlimFile,
@@ -16,8 +17,7 @@ use uuid::Uuid;
 impl ShowFile {
     fn get_by_uuids(
         target_file_uuids: &[Uuid],
-        limit: i32,
-        offset: i32,
+        paginate: &Paginate,
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<ShowFile>> {
         file_ref::file_ref.select((
@@ -37,8 +37,8 @@ impl ShowFile {
                 .and(file_ref::is_hidden.eq(false)
                 .and(file_ref::is_delete.eq(false))))
             .order(file_ref::filename.asc())
-            .limit(limit as i64)
-            .offset(offset as i64)
+            .limit(paginate.limit)
+            .offset(paginate.offset)
             .load::<ShowFile>(conn)
             .map_err(|err| {
                 debug!("Failed get files: {:?}", err);
@@ -82,14 +82,12 @@ impl ShowFile {
 impl ShowFileRelatedData {
     pub(crate) fn get_file_by_uuids(
         target_file_uuids: &[Uuid],
-        limit: i32,
-        offset: i32,
+        paginate: &Paginate,
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<ShowFileRelatedData>> {
         let files_data = ShowFile::get_by_uuids(
             target_file_uuids,
-            limit,
-            offset,
+            paginate,
             conn
         )?;
         let mut result: Vec<ShowFileRelatedData> = Vec::new();
@@ -182,8 +180,7 @@ impl SlimFile {
     /// Collects SlimFiles data by target files uuids
     pub(crate) fn get_by_file_uuids(
         target_file_uuids: &[Uuid],
-        limit: i32,
-        offset: i32,
+        paginate: &Paginate,
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<SlimFile>> {
         file_ref::file_ref
@@ -198,8 +195,8 @@ impl SlimFile {
                 .and(file_ref::is_hidden.eq(false)
                 .and(file_ref::is_delete.eq(false))))
             .order(file_ref::filename.asc())
-            .limit(limit as i64)
-            .offset(offset as i64)
+            .limit(paginate.limit)
+            .offset(paginate.offset)
             .load::<SlimFile>(conn)
             .map_err(|err| {
                 debug!("Failed get file: {:?}", err);
@@ -324,8 +321,7 @@ impl DownloadFile {
     /// Get structures of DownloadFile by files uuidsget_by_file_uuids
     pub(crate) fn get_by_file_uuids (
         target_file_uuids: &[Uuid],
-        limit: i32,
-        offset: i32,
+        paginate: &Paginate,
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<DownloadFile>> {
         let mut collect_res: Vec<DownloadFile> = Vec::new();
@@ -336,8 +332,7 @@ impl DownloadFile {
 
         let slim_files = SlimFile::get_by_file_uuids(
             target_file_uuids,
-            limit,
-            offset,
+            paginate,
             conn
         )?;
 

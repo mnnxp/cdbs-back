@@ -1,5 +1,5 @@
 use crate::errors::{ServiceResult, ServiceError};
-use crate::models::ExtraOptions;
+use crate::models::search::{model::ExtraOptions, order::Paginate};
 use crate::models::standard::{
     model::{Standard, ShowStandardShort, StandardAndRelatedData},
     standard_status::model::StandardStatusTranslateList,
@@ -60,22 +60,16 @@ impl ShowStandardShort {
     pub(crate) fn get_standards(
         filter_standards_uuids: &[Uuid],
         options: &ExtraOptions,
+        paginate: &Paginate,
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<ShowStandardShort>> {
         match filter_standards_uuids.is_empty() {
-            true => {
-                ShowStandardShort::get_all_public(
-                    options,
-                    conn
-                )
-            },
-            false => {
-                ShowStandardShort::get_list_by_uuids(
-                    filter_standards_uuids,
-                    options,
-                    conn
-                )
-            }
+            true => ShowStandardShort::get_all_public(options, paginate, conn),
+            false => ShowStandardShort::get_list_by_uuids(
+                filter_standards_uuids,
+                options,
+                conn
+            )
         }
     }
 
@@ -163,6 +157,7 @@ impl ShowStandardShort {
     /// Gets all public standards short data
     pub(crate) fn get_all_public(
         options: &ExtraOptions,
+        paginate: &Paginate,
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<ShowStandardShort>> {
         // gets all public standards uuids
@@ -170,8 +165,8 @@ impl ShowStandardShort {
             .filter(standard_ref::type_access_id.eq(3)
                 .and(standard_ref::is_delete.eq(false)))
             .select(standard_ref::uuid)
-            .limit(options.limit as i64)
-            .offset(options.offset as i64)
+            .limit(paginate.limit)
+            .offset(paginate.offset)
             .load::<Uuid>(conn)
             .map_err(|err| {
                 debug!("Failed get public standards: {:?}", err);
@@ -195,6 +190,7 @@ impl StandardAndRelatedData {
     pub(crate) fn collect_related_data(
         target_standard_uuid: &Uuid,
         options: &ExtraOptions,
+        paginate: &Paginate,
         conn: &mut PgConnection,
     ) -> ServiceResult<StandardAndRelatedData> {
         let need_access_level = 3; // todo!(create enum for manage access level)
@@ -262,8 +258,7 @@ impl StandardAndRelatedData {
         // get files for standard
         let standard_files = ShowFileRelatedData::for_standard_by_uuid(
             &standard.uuid,
-            options.limit,
-            options.offset,
+            paginate,
             conn
         ).expect("Error loading standard files");
 

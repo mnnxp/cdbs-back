@@ -1,5 +1,6 @@
 use crate::errors::{ServiceResult, ServiceError};
-use crate::models::ExtraOptions;
+use crate::models::search::order::{objects_order, Paginate, Sort};
+use crate::models::search::model::ExtraOptions;
 use crate::models::component::{
     model::{Component, ShowComponentShort, ComponentAndRelatedData},
     actual_status::model::ActualStatusTranslateList,
@@ -59,32 +60,29 @@ impl Component {
 
 impl ShowComponentShort {
     /// Gets components by filter or all public
-    /// limit and offset works only without filter
     pub(crate) fn get_components(
-        filter_components_uuids: &[Uuid],
+        filter_component_uuids: &[Uuid],
         options: &ExtraOptions,
+        sort: &Sort,
+        paginate: &Paginate,
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<ShowComponentShort>> {
-        match filter_components_uuids.is_empty() {
-            true => {
-                ShowComponentShort::get_all_public(
-                    options,
-                    conn
-                )
-            },
-            false => {
-                ShowComponentShort::get_list_by_uuids(
-                    filter_components_uuids,
-                    options,
-                    conn
-                )
-            }
+        match filter_component_uuids.is_empty() {
+            true => ShowComponentShort::get_all_public(options, sort, paginate, conn),
+            false => ShowComponentShort::get_list_by_uuids(
+                filter_component_uuids,
+                options,
+                sort,
+                paginate,
+                conn
+            ),
         }
     }
 
     pub(crate) fn get_by_uuid(
         component_uuid: &Uuid,
         options: &ExtraOptions,
+        paginate: &Paginate,
         conn: &mut PgConnection,
     ) -> ServiceResult<ShowComponentShort> {
         let need_access_level = 3; // todo!(create enum for manage access level)
@@ -100,6 +98,7 @@ impl ShowComponentShort {
         ShowComponentShort::get_without_check_by_uuid(
             component_uuid,
             options,
+            paginate,
             conn
         )
     }
@@ -108,6 +107,7 @@ impl ShowComponentShort {
     pub(crate) fn get_without_check_by_uuid(
         target_component_uuid: &Uuid,
         options: &ExtraOptions,
+        paginate: &Paginate,
         conn: &mut PgConnection,
     ) -> ServiceResult<ShowComponentShort> {
         // get target component
@@ -172,8 +172,7 @@ impl ShowComponentShort {
 
             DownloadFile::get_by_file_uuids(
                 &image_uuids,
-                options.limit,
-                options.offset,
+                paginate,
                 conn
             )
             .expect("Error loading component_file")
@@ -205,18 +204,19 @@ impl ShowComponentShort {
 
     /// Gets components short data by uuids
     pub(crate) fn get_list_by_uuids(
-        target_components_uuids: &[Uuid],
+        component_uuids: &[Uuid],
         options: &ExtraOptions,
+        sort: &Sort,
+        paginate: &Paginate,
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<ShowComponentShort>> {
-        // the result for store the result :)
         let mut result: Vec<ShowComponentShort> = Vec::new();
-
         // collecting data for each component
-        for target_component_uuid in target_components_uuids.iter() {
+        for ct_uuid in objects_order(component_uuids, sort, paginate, conn)? {
             match ShowComponentShort::get_by_uuid(
-                target_component_uuid,
+                &ct_uuid,
                 options,
+                paginate,
                 conn
             ) {
                 Ok(value) => result.push(value),
@@ -225,34 +225,34 @@ impl ShowComponentShort {
                 },
             };
         }
-        // sorting the list of components by name
-        result.sort_by(|a, b| a.name.cmp(&b.name));
         Ok(result)
     }
 
     /// Gets all public components short data
     pub(crate) fn get_all_public(
         options: &ExtraOptions,
+        sort: &Sort,
+        paginate: &Paginate,
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<ShowComponentShort>> {
-        let target_components_uuids = component_ref::component_ref
+        let component_uuids = component_ref::component_ref
             .filter(component_ref::type_access_id.eq(3)
             .and(component_ref::is_delete.eq(false)))
             .select(component_ref::uuid)
-            .limit(options.limit as i64)
-            .offset(options.offset as i64)
-            .order(component_ref::name.asc())
+            // .order(component_ref::created_at.desc())
+            // .limit(1000)
+            // .offset(options.offset as i64)
             .load::<Uuid>(conn)
             .expect("Failed get public components");
 
         // the result for store the result :)
         let mut result: Vec<ShowComponentShort> = Vec::new();
-
         // collecting data for each component without check
-        for target_component_uuid in target_components_uuids.iter() {
+        for ct_uuid in objects_order(&component_uuids, sort, paginate, conn)? {
             result.push(ShowComponentShort::get_without_check_by_uuid(
-                target_component_uuid,
+                &ct_uuid,
                 options,
+                paginate,
                 conn
             )?);
         }
@@ -265,6 +265,7 @@ impl ComponentAndRelatedData {
     pub(crate) fn get_component(
         target_component_uuid: &Uuid,
         options: &ExtraOptions,
+        paginate: &Paginate,
         conn: &mut PgConnection,
     ) -> ServiceResult<ComponentAndRelatedData> {
         let need_access_level = 3; // todo!(create enum for manage access level)
@@ -341,8 +342,7 @@ impl ComponentAndRelatedData {
         // get files for component
         let files = ShowFileRelatedData::by_component_uuid(
             &component.uuid,
-            options.limit,
-            options.offset,
+            paginate,
             conn
         ).expect("Error loading component files");
 

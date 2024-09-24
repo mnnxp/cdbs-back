@@ -1,6 +1,5 @@
 use crate::errors::ServiceResult;
 use crate::database::{get_pool, get_conn, PooledConnection};
-use crate::models::ExtraOptions;
 use crate::models::user::access::logged::get_logged_user_uuid;
 use crate::models::relate_ref::file::{
     model::{DownloadFile, ShowFileRelatedData},
@@ -44,18 +43,13 @@ impl StorageQuery {
         limit: Option<i32>,
         offset: Option<i32>,
     ) -> ServiceResult<Vec<ShowFileRelatedData>> {
-        let options = ExtraOptions::from_ipt(
-            get_logged_user_uuid(cxt, true)?,
-            1, // there is no need to specify the language
-            limit,
-            offset,
-        );
-
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         get_revisions_by_file_uuid(
             &file_uuid,
-            &options,
+            &get_logged_user_uuid(cxt, true)?,
+            limit.unwrap_or(100),
+            offset.unwrap_or(0),
             conn,
         )
     }

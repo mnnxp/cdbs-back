@@ -1,6 +1,6 @@
 use crate::errors::{ServiceResult, ServiceError};
 use crate::errors::err_msg::{ErrorMessage, get_err_msg};
-use crate::models::ExtraOptions;
+use crate::models::search::{model::ExtraOptions, order::Paginate};
 use crate::models::standard::model::{
     ShowStandardShort, StandardAndRelatedData, StandardsArg,
 };
@@ -63,9 +63,8 @@ pub(crate) fn get_standard(
         &ExtraOptions {
             logged_user_uuid: *logged_user_uuid,
             set_lang_id: *set_lang_id,
-            limit: *limit,
-            offset: *offset,
         },
+        &Paginate::parsing(*limit, *offset),
         conn,
     ).map_err(|err| {
         debug!("Error loading list standards and collect short data: {:?}", err);
@@ -145,12 +144,15 @@ fn get_standards_followed_by_user(
 pub(crate) fn find_by_uuid(
     target_standard_uuid: &Uuid,
     options: &ExtraOptions,
+    limit: i32,
+    offset: i32,
     conn: &mut PgConnection,
 ) -> ServiceResult<StandardAndRelatedData> {
     // collect data for standard
     let result: StandardAndRelatedData = StandardAndRelatedData::collect_related_data(
         target_standard_uuid,
         options,
+        &Paginate::parsing(limit, offset),
         conn
     ).expect("Error loading standard and collect related data");
     debug!("Standard data: {:#?}", result);
