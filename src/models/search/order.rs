@@ -1,7 +1,7 @@
-use super::model::ObjectUuid;
-use crate::errors::{ServiceResult, ServiceError};
 use diesel::prelude::*;
 use uuid::Uuid;
+use crate::errors::{ServiceResult, ServiceError};
+use super::model::ObjectUuid;
 
 #[derive(Debug)]
 pub(crate) struct Paginate {
