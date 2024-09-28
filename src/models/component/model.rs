@@ -1,25 +1,9 @@
+use crate::graphql::component_model::{IptComponentData, IptComponentsArg, IptComponentFilesArg};
 use crate::models::search::order::Sort;
-use crate::models::component::{
-    component_type::model::ComponentTypeTranslateList,
-    actual_status::model::ActualStatusTranslateList,
-    param::model::ComponentParamWithTranslation,
-    supplier::model::ComponentSupplierRelatedData,
-    component_modification::model::ComponentModificationAndRelatedData,
-    util::get_root_component_uuid,
-};
-use crate::models::user::model::ShowUserShort;
-use crate::models::standard::model::ShowStandardShort;
-use crate::models::relate_ref::{
-    type_access::model::TypeAccessTranslateList,
-    license::model::License,
-    keyword::model::Keyword,
-    file::model::{ShowFileRelatedData, DownloadFile},
-    file::util::get_default_image,
-    spec::model::SpecTranslateList,
-};
-use crate::schema::*;
-use async_graphql::*;
-use chrono::*;
+use crate::models::component::util::get_root_component_uuid;
+use crate::models::relate_ref::file::util::get_default_image;
+use crate::schema::component_ref;
+use chrono::{NaiveDateTime, Local};
 use uuid::Uuid;
 
 #[derive(Identifiable, Deserialize, Queryable, Debug)]
@@ -38,89 +22,6 @@ pub(crate) struct Component {
     pub(crate) is_base: bool,
     pub(crate) created_at: NaiveDateTime,
     pub(crate) updated_at: NaiveDateTime,
-}
-
-/// Complete information about the component (part) and related data
-#[derive(Debug, SimpleObject)]
-pub(crate) struct ComponentAndRelatedData {
-    /// Identifier of the component on the platform
-    pub(crate) uuid: Uuid,
-    /// Parent component identifier
-    pub(crate) parent_component_uuid: Uuid,
-    /// Component name
-    pub(crate) name: String,
-    /// Component description
-    pub(crate) description: String,
-    /// Data for displaying the main view of the component (part)
-    pub(crate) image_file: DownloadFile,
-    /// Data about the profile owning the component
-    pub(crate) owner_user: ShowUserShort,
-    /// Type of access to the component data
-    pub(crate) type_access: TypeAccessTranslateList,
-    /// Component type (e.g. "standard")
-    pub(crate) component_type: ComponentTypeTranslateList,
-    /// Current status of the component (e.g. "in development")
-    pub(crate) actual_status: ActualStatusTranslateList,
-    /// For basic components it is possible to link to multiple manufacturers/suppliers
-    pub(crate) is_base: bool,
-    /// Number of people who have added the component to bookmarks
-    pub(crate) subscribers: i32,
-    /// Flag of the presence of the component in the user's bookmarks
-    pub(crate) is_followed: bool,
-    /// Date when the component profile was created
-    pub(crate) created_at: NaiveDateTime,
-    /// Date of updating the component's master data
-    pub(crate) updated_at: NaiveDateTime,
-    // Связанные с компонентом данные
-    /// Component data distribution licenses
-    pub(crate) licenses: Vec<License>,
-    /// List of component parameters
-    pub(crate) component_params: Vec<ComponentParamWithTranslation>,
-    /// Files associated with the component
-    pub(crate) files: Vec<ShowFileRelatedData>,
-    /// Catalogs to which the component is added
-    pub(crate) component_specs: Vec<SpecTranslateList>,
-    /// Component keywords (tags)
-    pub(crate) component_keywords: Vec<Keyword>,
-    /// Component modifications and related data (such as CAD file sets)
-    pub(crate) component_modifications: Vec<ComponentModificationAndRelatedData>,
-    /// Manufacturer or suppliers of the component (if is_base is true)
-    pub(crate) component_suppliers: Vec<ComponentSupplierRelatedData>,
-    /// List of standardization documents associated with the component
-    pub(crate) component_standards: Vec<ShowStandardShort>,
-}
-
-/// Abbreviated component data
-#[derive(Debug, SimpleObject)]
-pub(crate) struct ShowComponentShort {
-    /// Identifier of the component on the platform
-    pub(crate) uuid: Uuid,
-    /// Component name
-    pub(crate) name: String,
-    /// Component description
-    pub(crate) description: String,
-    /// Data for displaying the main view of the component (part)
-    pub(crate) image_file: DownloadFile,
-    /// Data about the profile owning the component
-    pub(crate) owner_user: ShowUserShort,
-    /// Type of access to the component data
-    pub(crate) type_access: TypeAccessTranslateList,
-    /// Component type (e.g. "standard")
-    pub(crate) component_type: ComponentTypeTranslateList,
-    /// Current status of the component (e.g. "in development")
-    pub(crate) actual_status: ActualStatusTranslateList,
-    /// For basic components it is possible to link to multiple manufacturers/suppliers
-    pub(crate) is_base: bool,
-    /// Flag whether the component is available in the user's bookmarks
-    pub(crate) is_followed: bool,
-    /// Update date of the basic component data
-    pub(crate) updated_at: NaiveDateTime,
-    /// Component data distribution licenses
-    pub(crate) licenses: Vec<License>,
-    /// Files (images) associated with the component
-    pub(crate) files: Vec<DownloadFile>,
-    /// Manufacturer or suppliers of the component (if is_base is true)
-    pub(crate) component_suppliers: Vec<ComponentSupplierRelatedData>,
 }
 
 #[derive(Debug, Insertable)]
@@ -163,17 +64,6 @@ impl InsertableComponent {
     }
 }
 
-#[derive(Debug, Deserialize, InputObject)]
-pub(crate) struct IptComponentData {
-    pub(crate) parent_component_uuid: Option<Uuid>,
-    pub(crate) name: String,
-    pub(crate) description: String,
-    pub(crate) type_access_id: i32,
-    pub(crate) component_type_id: i32,
-    pub(crate) actual_status_id: i32,
-    pub(crate) is_base: bool,
-}
-
 impl From<&IptComponentData> for InsertableComponent {
     fn from(ipt_data: &IptComponentData) -> Self {
         let IptComponentData {
@@ -204,32 +94,10 @@ impl From<&IptComponentData> for InsertableComponent {
             actual_status_id: *actual_status_id,
             is_base: *is_base,
             is_delete: false,
-            created_at: chrono::Local::now().naive_local(),
-            updated_at: chrono::Local::now().naive_local(),
+            created_at: Local::now().naive_local(),
+            updated_at: Local::now().naive_local(),
         }
     }
-}
-
-#[derive(InputObject, Deserialize, Debug)]
-pub(crate) struct IptUpdateComponentData {
-    pub(crate) parent_component_uuid: Option<Uuid>,
-    pub(crate) name: Option<String>,
-    pub(crate) description: Option<String>,
-    pub(crate) component_type_id: Option<i32>,
-    pub(crate) actual_status_id: Option<i32>,
-}
-
-#[derive(InputObject, Deserialize, Debug)]
-pub(crate) struct IptComponentsArg {
-    pub(crate) components_uuids:  Option<Vec<Uuid>>,
-    pub(crate) company_uuid: Option<Uuid>,
-    pub(crate) standard_uuid: Option<Uuid>,
-    pub(crate) user_uuid: Option<Uuid>,
-    pub(crate) favorite: Option<bool>,
-    pub(crate) order_by: Option<String>,
-    pub(crate) as_desc: Option<bool>,
-    pub(crate) limit: Option<i32>,
-    pub(crate) offset: Option<i32>,
 }
 
 #[derive(Debug)]
@@ -283,14 +151,6 @@ impl From<IptComponentsArg> for ComponentsArg {
             offset: offset.unwrap_or(0),
         }
     }
-}
-
-#[derive(InputObject, Deserialize, Debug)]
-pub(crate) struct IptComponentFilesArg {
-    pub(crate) component_uuid:  Uuid,
-    pub(crate) files_uuids: Option<Vec<Uuid>>,
-    pub(crate) limit: Option<i32>,
-    pub(crate) offset: Option<i32>,
 }
 
 #[derive(Debug)]

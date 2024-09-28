@@ -1,6 +1,6 @@
 use crate::errors::ServiceResult;
 use crate::errors::err_msg::{ErrorMessage, get_err_msg};
-use crate::models::component::model::IptUpdateComponentData;
+use crate::graphql::component_model::IptUpdateComponentData;
 use crate::models::component::access::util::check_access_component_for_user;
 use crate::schema::component_ref::dsl as component_ref;
 use diesel::prelude::*;

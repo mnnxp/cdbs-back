@@ -1,8 +1,9 @@
 use crate::errors::{ServiceResult, ServiceError};
 use crate::models::search::order::{objects_order, Paginate, Sort};
 use crate::models::search::model::ExtraOptions;
+use crate::graphql::component_model::{ComponentAndRelatedData, ShowComponentShort};
 use crate::models::component::{
-    model::{Component, ShowComponentShort, ComponentAndRelatedData},
+    model::Component,
     actual_status::model::ActualStatusTranslateList,
     component_type::model::ComponentTypeTranslateList,
     param::model::ComponentParamWithTranslation,

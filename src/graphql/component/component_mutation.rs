@@ -1,8 +1,9 @@
 use crate::database::{get_conn, PooledConnection};
 use crate::errors::ServiceResult;
+use crate::graphql::component_model::{IptComponentData, IptUpdateComponentData};
 use crate::models::user::access::logged::get_logged_user_uuid;
 use crate::models::component::{
-    model::{IptComponentData, IptUpdateComponentData},
+    // model::{IptComponentData, IptUpdateComponentData},
     access::model::{ChangeOwnerComponent, ChangeTypeAccessComponent},
     access::company::model::{
         IptCompanyAccessComponentData, DelCompanyAccessComponentData

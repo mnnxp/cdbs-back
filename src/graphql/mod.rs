@@ -9,7 +9,7 @@ mod standard;
 mod user;
 
 pub use company::{CompanyMutation, CompanyQuery};
-pub use component::{ComponentMutation, ComponentQuery};
+pub use component::{ComponentMutation, ComponentQuery, component_model};
 pub use standard::{StandardMutation, StandardQuery};
 pub use user::{UserMutation, UserQuery};
 pub use relate::extension::ExtensionMutation;

@@ -1,9 +1,10 @@
 use crate::errors::{ServiceResult, ServiceError};
 use crate::errors::err_msg::{ErrorMessage, get_err_msg};
+use crate::graphql::component_model::{ComponentAndRelatedData, ShowComponentShort};
 use crate::models::search::order::{Sort, Paginate, objects_order};
 use crate::models::search::model::{ExtraOptions, IptSearchArg};
 use crate::models::component::{
-    model::{ShowComponentShort, ComponentAndRelatedData, ComponentsArg},
+    model::ComponentsArg,
     search::search_components,
     access::util::check_access_component_for_user,
 };

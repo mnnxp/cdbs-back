@@ -1,12 +1,13 @@
 use crate::errors::ServiceResult;
 use crate::database::{get_conn, PooledConnection};
+use crate::graphql::component_model::{
+    ComponentAndRelatedData, ShowComponentShort, IptComponentsArg, IptComponentFilesArg,
+};
 use crate::models::search::model::{ExtraOptions, IptSearchArg};
 use crate::models::user::access::logged::{get_logged_user_uuid, check_authorized};
+// use crate::models::user::model::ShowUserShort;
 use crate::models::component::{
-    model::{
-        ComponentAndRelatedData, ShowComponentShort,
-        ComponentsArg, IptComponentsArg, IptComponentFilesArg, ComponentFilesArg
-    },
+    model::{ComponentsArg, ComponentFilesArg},
     relate::{
         supplier::model::ComponentSupplierRelatedData,
         keyword::model::{IptComponentKeywordsArg, ComponentKeywordsArg},
