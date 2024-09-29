@@ -72,7 +72,7 @@ pub(crate) fn get_components_by_uuids(
     // collecting data for each component
     for ct_uuid in ct_uuids_with_check.iter() {
         result.push(
-            ShowComponentShort::get_without_check_by_uuid(ct_uuid, options, paginate, conn)
+            ShowComponentShort::get_without_check_by_uuid(ct_uuid, options, conn)
                 .map_err(|err| {
                     debug!("Failed get components: {:?}", err);
                     ServiceError::InternalServerError

@@ -10,20 +10,33 @@ pub(crate) struct Paginate {
 }
 
 impl Default for Paginate {
-    /// Default arguments limit=1000 and offset=0
+    /// Default arguments limit=100 and offset=0
     fn default() -> Self {
         Self {
-            limit: 1000,
+            limit: 100,
             offset: 0,
         }
     }
 }
 
 impl Paginate {
+    /// Sets the limit and offset for pagination
+    /// by specifying current page and number of elements per page.
+    pub(crate) fn parsing_by_page(current_page: i32, per_page: i32) -> Self {
+        if current_page <= 0 || per_page <= 0 {
+            debug!("Invalid current page {} or a specified per page {}.", current_page, per_page);
+            return Self::default()
+        }
+        Self {
+            limit: per_page as i64,
+            offset: ((current_page - 1) * per_page) as i64,
+        }
+    }
+
     /// Sets the arguments for pagination.
-    /// If the limit exceeds the offset by 1000, the default value is returned
+    /// If the limit exceeds the offset by 500, the default value is returned
     pub(crate) fn parsing(limit: i32, offset: i32) -> Self {
-        if (limit - offset) > 1000 {
+        if (limit - offset) > 500 {
             debug!("Invalid limit {} for a specified offset {}.", limit, offset);
             return Self::default()
         }
@@ -47,18 +60,34 @@ pub(crate) struct TableColumn {
 
 impl TableColumn {
     /// Returns the structure after table and column mapping (minimal validation).
-    /// The column value can be set by default (if there is no match).
+    /// The column value can be set to default or empty if there are no table matches.
     fn parsing(table: &str, column: &str) -> Self {
-        if table != "component_ref" {
-            debug!("Fields for the {} table are not described.", table);
-        }
-        // if table == "component_ref" { ... }
-        Self {
-            table: table.to_string(),
-            column: match column {
-                "name" => "name".to_string(),
-                "update" => "updated_at".to_string(),
-                _ => "created_at".to_string(),
+        match table {
+            "component_ref" => Self {
+                table: table.to_string(),
+                column: match column {
+                    "name" => "name".to_string(),
+                    "update" => "updated_at".to_string(),
+                    _ => "created_at".to_string(),
+                }
+            },
+            "file_ref" => Self {
+                table: table.to_string(),
+                column: match column {
+                    "revision" => "revision".to_string(),
+                    "filename" => "filename".to_string(),
+                    "type" => "id_ext".to_string(),
+                    "size" => "filesize".to_string(),
+                    "update" => "updated_at".to_string(),
+                    _ => "created_at".to_string(),
+                }
+            },
+            _ => {
+                debug!("Fields for the {} table are not described.", table);
+                Self {
+                    table: String::new(),
+                    column: String::new()
+                }
             }
         }
     }
@@ -71,6 +100,11 @@ impl TableColumn {
     /// Returns string `table.column` with names of table and column
     fn get_with_point(&self) -> String {
         format!("{}.{}", self.table, self.column)
+    }
+
+    /// Returns false if any of the values is empty
+    fn is_empty(&self) -> bool {
+        self.table.is_empty() && self.column.is_empty()
     }
 }
 
@@ -103,8 +137,9 @@ impl Sort {
     /// Returns string `ORDER BY...` with sorting options, or an empty string if no arguments are found
     fn get_complete(&self) -> String {
         match self {
-            Self::Desc(ob) => format!("ORDER BY {} DESC", ob.get_with_point()),
-            Self::Asc(ob) => format!("ORDER BY {} Asc", ob.get_with_point()),
+            Self::Desc(ob) if !ob.is_empty() => format!("ORDER BY {} DESC", ob.get_with_point()),
+            Self::Asc(ob) if !ob.is_empty() => format!("ORDER BY {} ASC", ob.get_with_point()),
+            _ => String::new(),
         }
     }
 }
@@ -128,7 +163,7 @@ pub(crate) fn objects_order(
         sort = sort.get_complete(),
         paginate = paginate.get_complete(),
     );
-    debug!("SQL search query: {}", query);
+    debug!("SQL objects order query: {}", query);
 
     let temp: Vec<ObjectUuid> = diesel::sql_query(query)
         .load(conn)

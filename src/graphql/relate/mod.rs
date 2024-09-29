@@ -1,3 +1,4 @@
+pub mod attributes;
 pub mod extension;
 pub mod keyword;
 pub mod language;

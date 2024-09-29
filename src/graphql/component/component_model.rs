@@ -1,3 +1,5 @@
+use crate::database::{get_conn, PooledConnection};
+use crate::graphql::relate::attributes::IptPaginate;
 use	crate::models::user::model::ShowUserShort;
 use	crate::models::standard::model::ShowStandardShort;
 use	crate::models::relate_ref::{
@@ -15,10 +17,9 @@ use	crate::models::component::{
     component_modification::model::ComponentModificationAndRelatedData,
     actual_status::model::ActualStatusTranslateList,
 };
-use async_graphql::{SimpleObject, InputObject};
+use crate::models::search::order::Paginate;
+use async_graphql::{Context, Object, SimpleObject, InputObject};
 use chrono::NaiveDateTime;
-// use async_graphql::{Context, Object, SimpleObject, InputObject};
-// use chrono::{NaiveDateTime, Local};
 use uuid::Uuid;
 
 /// Complete information about the component (part) and related data
@@ -72,7 +73,7 @@ pub struct ComponentAndRelatedData {
 }
 
 /// Abbreviated component data
-#[derive(Debug, SimpleObject)]
+#[derive(Debug)]
 pub struct ShowComponentShort {
     /// Identifier of the component on the platform
     pub(crate) uuid: Uuid,
@@ -98,101 +99,90 @@ pub struct ShowComponentShort {
     pub(crate) updated_at: NaiveDateTime,
     /// Component data distribution licenses
     pub(crate) licenses: Vec<License>,
-    /// Files (images) associated with the component
-    pub(crate) files: Vec<DownloadFile>,
-    /// Manufacturer or suppliers of the component (if is_base is true)
-    pub(crate) component_suppliers: Vec<ComponentSupplierRelatedData>,
 }
 
-// #[Object]
-// impl ShowComponentShort {
-//         /// Identifier of the component on the platform
-//         async fn uuid(&self) -> Uuid {
-//             Uuid::nil()
-//         }
-//         /// Component name
-//         async fn name(&self) -> String {
-//             String::new()
-//         }
-//         /// Component description
-//         async fn description(&self) -> String {
-//             String::new()
-//         }
-//         /// Data for displaying the main view of the component (part)
-//         async fn image_file(&self) -> DownloadFile {
-//             DownloadFile {
-//                 uuid: Uuid::nil(),
-//                 hash: "hash".to_string(),
-//                 filename: "filename".to_string(),
-//                 filesize: 1,
-//                 download_url: "download_url".to_string(),
-//             }
-//         }
-//         /// Data about the profile owning the component
-//         async fn owner_user(&self) -> ShowUserShort {
-//             ShowUserShort {
-//                 uuid: Uuid::nil(),
-//                 firstname: "firstname".to_string(),
-//                 lastname: "lastname".to_string(),
-//                 username: "username".to_string(),
-//                 image_file: DownloadFile {
-//                     uuid: Uuid::nil(),
-//                     hash: "hash".to_string(),
-//                     filename: "filename".to_string(),
-//                     filesize: 1,
-//                     download_url: "download_url".to_string(),
-//                 },
-//             }
-//         }
-//         /// Type of access to the component data
-//         async fn type_access(&self) -> TypeAccessTranslateList {
-//             TypeAccessTranslateList {
-//                 type_access_id: 1,
-//                 lang_id: 1,
-//                 name: "1".to_string(),
-//             }
-//         }
-//         /// Component type (e.g. "standard")
-//         async fn component_type(&self) -> ComponentTypeTranslateList {
-//             ComponentTypeTranslateList {
-//                 component_type_id: 1,
-//                 lang_id: 1,
-//                 component_type: "1".to_string(),
-//             }
-//         }
-//         /// Current status of the component (e.g. "in development")
-//         async fn actual_status(&self) -> ActualStatusTranslateList {
-//             ActualStatusTranslateList {
-//                 actual_status_id: 1,
-//                 lang_id: 1,
-//                 name: "1".to_string(),
-//             }
-//         }
-//         /// For basic components it is possible to link to multiple manufacturers/suppliers
-//         async fn is_base(&self) -> bool {
-//             false
-//         }
-//         /// Flag whether the component is available in the user's bookmarks
-//         async fn is_followed(&self) -> bool {
-//             false
-//         }
-//         /// Update date of the basic component data
-//         async fn updated_at(&self) -> NaiveDateTime {
-//             Local::now().naive_local()
-//         }
-//         /// Component data distribution licenses
-//         async fn licenses(&self) -> Vec<License> {
-//             Vec::new()
-//         }
-//         // /// Files (images) associated with the component
-//         async fn files(&self, ctx: &Context<'_>, material_type: Option<String>) -> Vec<DownloadFile> {
-//             Vec::new()
-//         }
-//         /// Manufacturer or suppliers of the component (if is_base is true)
-//         async fn component_suppliers(&self) -> Vec<ComponentSupplierRelatedData> {
-//             Vec::new()
-//         }
-// }
+#[Object]
+impl ShowComponentShort {
+        /// Identifier of the component on the platform
+        async fn uuid(&self) -> &Uuid {
+            &self.uuid
+        }
+        /// Component name
+        async fn name(&self) -> &String {
+            &self.name
+        }
+        /// Component description
+        async fn description(&self) -> &String {
+            &self.description
+        }
+        /// Data for displaying the main view of the component (part)
+        async fn image_file(&self) -> &DownloadFile {
+            &self.image_file
+        }
+        /// Data about the profile owning the component
+        async fn owner_user(&self) -> &ShowUserShort {
+            &self.owner_user
+        }
+        /// Type of access to the component data
+        async fn type_access(&self) -> &TypeAccessTranslateList {
+            &self.type_access
+        }
+        /// Component type (e.g. "standard")
+        async fn component_type(&self) -> &ComponentTypeTranslateList {
+            &self.component_type
+        }
+        /// Current status of the component (e.g. "in development")
+        async fn actual_status(&self) -> &ActualStatusTranslateList {
+            &self.actual_status
+        }
+        /// For basic components it is possible to link to multiple manufacturers/suppliers
+        async fn is_base(&self) -> bool {
+            self.is_base
+        }
+        /// Flag whether the component is available in the user's bookmarks
+        async fn is_followed(&self) -> bool {
+            self.is_followed
+        }
+        /// Update date of the basic component data
+        async fn updated_at(&self) -> &NaiveDateTime {
+            &self.updated_at
+        }
+        /// Component data distribution licenses
+        async fn licenses(&self) -> &[License] {
+            &self.licenses
+        }
+        /// Files (images by default) associated with the component
+        async fn files(
+            &self,
+            ctx: &Context<'_>,
+            paginate: Option<IptPaginate>,
+            images: Option<bool>,
+        ) -> Vec<DownloadFile> {
+            let conn: &mut PooledConnection = &mut get_conn(ctx).expect("Error get conn to DB");
+            let p = paginate
+                .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
+                .unwrap_or_default();
+            match images {
+                Some(false) => DownloadFile::by_component_uuid(&self.uuid, &p, conn)
+                    .expect("Error loading component files"),
+                _ => DownloadFile::component_image_files(&self.uuid, &p, conn)
+                    .expect("Error loading component image files"),
+            }
+        }
+        /// Manufacturer or suppliers (for is_base is true) of the component
+        async fn component_suppliers(
+            &self,
+            ctx: &Context<'_>,
+            paginate: Option<IptPaginate>,
+        ) -> Vec<ComponentSupplierRelatedData> {
+            let conn: &mut PooledConnection = &mut get_conn(ctx).expect("Error get conn to DB");
+            let p = paginate
+                .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
+                .unwrap_or_default();
+            ComponentSupplierRelatedData::by_component_uuid(&self.uuid, &p, conn)
+                .expect("Error loading component suppliers")
+        }
+}
 
 #[derive(Debug, Deserialize, InputObject)]
 pub(crate) struct IptComponentData {

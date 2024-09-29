@@ -2135,6 +2135,7 @@ describe('component', () => {
         })
       .expect(HttpStatus.OK)
     debug('/graphql filter component=%o', body.data.component);
+    // expect(body).toBe(0);
     expect(body.data.component.uuid).toBe(componentUuidNoStandard);
     expect(body.data.component.licenses).toBeNonEmptyArray();
     expect(body.data.component.licenses[0].id).toBe(licenseIdOk);

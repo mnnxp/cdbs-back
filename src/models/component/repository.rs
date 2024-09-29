@@ -13,14 +13,13 @@ use crate::models::component::{
         ComponentModification, ComponentModificationAndRelatedData, ComponentModificationArg
     },
     access::util::check_access_component_for_user,
-    util::get_files_by_ext,
 };
 use crate::models::user::model::ShowUserShort;
 use crate::models::standard::model::ShowStandardShort;
 use crate::models::relate_ref::{
     type_access::model::TypeAccessTranslateList,
     license::model::License,
-    file::model::{ShowFileRelatedData, DownloadFile, FileByExtArg},
+    file::model::{ShowFileRelatedData, DownloadFile},
     keyword::model::Keyword,
     spec::model::SpecTranslateList,
 };
@@ -83,7 +82,6 @@ impl ShowComponentShort {
     pub(crate) fn get_by_uuid(
         component_uuid: &Uuid,
         options: &ExtraOptions,
-        paginate: &Paginate,
         conn: &mut PgConnection,
     ) -> ServiceResult<ShowComponentShort> {
         let need_access_level = 3; // todo!(create enum for manage access level)
@@ -99,7 +97,6 @@ impl ShowComponentShort {
         ShowComponentShort::get_without_check_by_uuid(
             component_uuid,
             options,
-            paginate,
             conn
         )
     }
@@ -108,7 +105,6 @@ impl ShowComponentShort {
     pub(crate) fn get_without_check_by_uuid(
         target_component_uuid: &Uuid,
         options: &ExtraOptions,
-        paginate: &Paginate,
         conn: &mut PgConnection,
     ) -> ServiceResult<ShowComponentShort> {
         // get target component
@@ -163,28 +159,6 @@ impl ShowComponentShort {
             conn
         ).expect("Error loading license");
 
-        // get files for component
-        let files = {
-            let image_uuids: Vec<Uuid> = get_files_by_ext(
-                &component.uuid,
-                &FileByExtArg::image(),
-                conn
-            )?;
-
-            DownloadFile::get_by_file_uuids(
-                &image_uuids,
-                paginate,
-                conn
-            )
-            .expect("Error loading component_file")
-        };
-
-        // collect data for supplier component
-        let component_suppliers = ComponentSupplierRelatedData::get_first_supplier(
-            &component.uuid,
-            conn
-        ).expect("Error loading supplier_component_with_relate");
-
         Ok(ShowComponentShort {
             uuid: component.uuid,
             name: component.name,
@@ -198,8 +172,6 @@ impl ShowComponentShort {
             is_followed,
             updated_at: component.updated_at,
             licenses,
-            files,
-            component_suppliers,
         })
     }
 
@@ -214,12 +186,7 @@ impl ShowComponentShort {
         let mut result: Vec<ShowComponentShort> = Vec::new();
         // collecting data for each component
         for ct_uuid in objects_order(component_uuids, sort, paginate, conn)? {
-            match ShowComponentShort::get_by_uuid(
-                &ct_uuid,
-                options,
-                paginate,
-                conn
-            ) {
+            match ShowComponentShort::get_by_uuid(&ct_uuid, options, conn) {
                 Ok(value) => result.push(value),
                 Err(err) => {
                     debug!("Failed get component short data: {:?}", err);
@@ -253,7 +220,6 @@ impl ShowComponentShort {
             result.push(ShowComponentShort::get_without_check_by_uuid(
                 &ct_uuid,
                 options,
-                paginate,
                 conn
             )?);
         }
@@ -376,6 +342,7 @@ impl ComponentAndRelatedData {
         // collect data for supplier component
         let component_suppliers = ComponentSupplierRelatedData::by_component_uuid(
             &component.uuid,
+            paginate,
             conn
         ).expect("Error loading supplier component with relate");
 

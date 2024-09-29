@@ -1,11 +1,11 @@
 use crate::errors::ServiceResult;
 use crate::database::{get_conn, PooledConnection};
-use crate::graphql::component_model::{
-    ComponentAndRelatedData, ShowComponentShort, IptComponentsArg, IptComponentFilesArg,
+use crate::graphql::{
+    component_model::{ComponentAndRelatedData, ShowComponentShort, IptComponentsArg, IptComponentFilesArg},
+    relate::attributes::IptPaginate,
 };
 use crate::models::search::model::{ExtraOptions, IptSearchArg};
 use crate::models::user::access::logged::{get_logged_user_uuid, check_authorized};
-// use crate::models::user::model::ShowUserShort;
 use crate::models::component::{
     model::{ComponentsArg, ComponentFilesArg},
     relate::{
@@ -33,6 +33,7 @@ use crate::models::relate_ref::{
     spec::model::SpecTranslateList,
     language::get_set_language,
 };
+use crate::models::search::order::Paginate;
 use async_graphql::{self, Context, Object};
 use uuid::Uuid;
 
@@ -139,17 +140,19 @@ impl ComponentQuery {
         &self,
         cxt: &Context<'_>,
         component_uuid: Uuid,
+        paginate: Option<IptPaginate>,
     ) -> ServiceResult<Vec<ComponentSupplierRelatedData>> {
         use crate::models::component::supplier::service::list::get_component_suppliers;
-
         // authorization check
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
-
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
-
+        let p = paginate
+                .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
+                .unwrap_or_default();
         get_component_suppliers(
             &logged_user_uuid,
             &component_uuid,
+            &p,
             conn
         )
     }

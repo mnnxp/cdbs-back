@@ -5,11 +5,11 @@ use diesel::prelude::*;
 
 impl License {
     pub(crate) fn get_license_by_ids(
-        target_vec_license_id: &[i32],
+        license_ids: &[i32],
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<License>> {
         license_ref::license_ref
-            .filter(license_ref::id.eq_any(target_vec_license_id))
+            .filter(license_ref::id.eq_any(license_ids))
             .load::<License>(conn)
             .map_err(|err| {
                 debug!("Failed get license: {:?}", err);
