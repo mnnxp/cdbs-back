@@ -53,26 +53,42 @@ impl Paginate {
 }
 
 #[derive(Debug)]
+pub(crate) enum TableName {
+    ComponentRef,
+    FileRef,
+}
+
+impl TableName {
+    // Returns table name, e.g. `name_ref`
+    fn name(&self) -> &str {
+        match self {
+            Self::ComponentRef => "component_ref",
+            Self::FileRef => "file_ref",
+        }
+    }
+}
+
+#[derive(Debug)]
 pub(crate) struct TableColumn {
-    table: String,
+    table: TableName,
     column: String,
 }
 
 impl TableColumn {
     /// Returns the structure after table and column mapping (minimal validation).
     /// The column value can be set to default or empty if there are no table matches.
-    fn parsing(table: &str, column: &str) -> Self {
+    fn parsing(table: TableName, column: &str) -> Self {
         match table {
-            "component_ref" => Self {
-                table: table.to_string(),
+            TableName::ComponentRef => Self {
+                table,
                 column: match column {
                     "name" => "name".to_string(),
                     "update" => "updated_at".to_string(),
                     _ => "created_at".to_string(),
                 }
             },
-            "file_ref" => Self {
-                table: table.to_string(),
+            TableName::FileRef => Self {
+                table,
                 column: match column {
                     "revision" => "revision".to_string(),
                     "filename" => "filename".to_string(),
@@ -82,29 +98,23 @@ impl TableColumn {
                     _ => "created_at".to_string(),
                 }
             },
-            _ => {
-                debug!("Fields for the {} table are not described.", table);
-                Self {
-                    table: String::new(),
-                    column: String::new()
-                }
-            }
         }
     }
 
     /// Returns string `FROM...` with text of table field
     fn get_from(&self) -> String {
-        format!("FROM {}", self.table)
+        format!("FROM {}", self.table.name())
     }
 
     /// Returns string `table.column` with names of table and column
     fn get_with_point(&self) -> String {
-        format!("{}.{}", self.table, self.column)
+        format!("{}.{}", self.table.name(), self.column)
     }
 
-    /// Returns false if any of the values is empty
+    /// Returns false if column name is empty
     fn is_empty(&self) -> bool {
-        self.table.is_empty() && self.column.is_empty()
+        // self.table.is_empty() && self.column.is_empty()
+        self.column.is_empty()
     }
 }
 
@@ -115,11 +125,11 @@ pub(crate) enum Sort {
 }
 
 impl Sort {
-    pub(crate) fn set_by_table(table: &str) -> Self {
+    pub(crate) fn set_by_table(table: TableName) -> Self {
         Self::Asc(TableColumn::parsing(table, ""))
     }
 
-    pub(crate) fn parsing(table: &str, order_by: &str, as_desc: bool) -> Sort {
+    pub(crate) fn parsing(table: TableName, order_by: &str, as_desc: bool) -> Sort {
         match as_desc {
             true => Sort::Desc(TableColumn::parsing(table, order_by)),
             false => Sort::Asc(TableColumn::parsing(table, order_by)),

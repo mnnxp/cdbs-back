@@ -1,5 +1,5 @@
 use crate::graphql::component_model::{IptComponentData, IptComponentsArg, IptComponentFilesArg};
-use crate::models::search::order::Sort;
+use crate::models::search::order::{Sort, TableName};
 use crate::models::component::util::get_root_component_uuid;
 use crate::models::relate_ref::file::util::get_default_image;
 use crate::schema::component_ref;
@@ -120,7 +120,7 @@ impl Default for ComponentsArg {
             standard_uuid: None,
             user_uuid: None,
             favorite: false,
-            sort: Sort::set_by_table("component_ref"),
+            sort: Sort::set_by_table(TableName::ComponentRef),
             limit: 100,
             offset: 0,
         }
@@ -146,7 +146,7 @@ impl From<IptComponentsArg> for ComponentsArg {
             standard_uuid,
             user_uuid,
             favorite: favorite.unwrap_or(false),
-            sort: Sort::parsing("component_ref", order_by.unwrap_or_default().as_str(), as_desc.unwrap_or_default()),
+            sort: Sort::parsing(TableName::ComponentRef, order_by.unwrap_or_default().as_str(), as_desc.unwrap_or_default()),
             limit: limit.unwrap_or(100),
             offset: offset.unwrap_or(0),
         }

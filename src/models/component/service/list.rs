@@ -1,7 +1,7 @@
 use crate::errors::{ServiceResult, ServiceError};
 use crate::errors::err_msg::{ErrorMessage, get_err_msg};
 use crate::graphql::component_model::{ComponentAndRelatedData, ShowComponentShort};
-use crate::models::search::order::{Sort, Paginate, objects_order};
+use crate::models::search::order::{Paginate, Sort, TableName, objects_order};
 use crate::models::search::model::{ExtraOptions, IptSearchArg};
 use crate::models::component::{
     model::ComponentsArg,
@@ -63,7 +63,7 @@ pub(crate) fn get_components_by_uuids(
     let paginate = &Paginate::parsing(args.limit, args.offset);
     ct_uuids_with_check = objects_order(
         &ct_uuids_with_check,
-        &Sort::parsing("component_ref", args.order_by.as_str(), args.as_desc),
+        &Sort::parsing(TableName::ComponentRef, args.order_by.as_str(), args.as_desc),
         paginate,
         conn
     )?;
