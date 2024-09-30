@@ -103,85 +103,85 @@ pub struct ShowComponentShort {
 
 #[Object]
 impl ShowComponentShort {
-        /// Identifier of the component on the platform
-        async fn uuid(&self) -> &Uuid {
-            &self.uuid
+    /// Identifier of the component on the platform
+    async fn uuid(&self) -> &Uuid {
+        &self.uuid
+    }
+    /// Component name
+    async fn name(&self) -> &String {
+        &self.name
+    }
+    /// Component description
+    async fn description(&self) -> &String {
+        &self.description
+    }
+    /// Data for displaying the main view of the component (part)
+    async fn image_file(&self) -> &DownloadFile {
+        &self.image_file
+    }
+    /// Data about the profile owning the component
+    async fn owner_user(&self) -> &ShowUserShort {
+        &self.owner_user
+    }
+    /// Type of access to the component data
+    async fn type_access(&self) -> &TypeAccessTranslateList {
+        &self.type_access
+    }
+    /// Component type (e.g. "standard")
+    async fn component_type(&self) -> &ComponentTypeTranslateList {
+        &self.component_type
+    }
+    /// Current status of the component (e.g. "in development")
+    async fn actual_status(&self) -> &ActualStatusTranslateList {
+        &self.actual_status
+    }
+    /// For basic components it is possible to link to multiple manufacturers/suppliers
+    async fn is_base(&self) -> bool {
+        self.is_base
+    }
+    /// Flag whether the component is available in the user's bookmarks
+    async fn is_followed(&self) -> bool {
+        self.is_followed
+    }
+    /// Update date of the basic component data
+    async fn updated_at(&self) -> &NaiveDateTime {
+        &self.updated_at
+    }
+    /// Component data distribution licenses
+    async fn licenses(&self) -> &[License] {
+        &self.licenses
+    }
+    /// Files (images by default) associated with the component
+    async fn files(
+        &self,
+        ctx: &Context<'_>,
+        paginate: Option<IptPaginate>,
+        images: Option<bool>,
+    ) -> Vec<DownloadFile> {
+        let conn: &mut PooledConnection = &mut get_conn(ctx).expect("Error get conn to DB");
+        let p = paginate
+            .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
+            .unwrap_or_default();
+        match images {
+            Some(false) => DownloadFile::by_component_uuid(&self.uuid, &p, conn)
+                .expect("Error loading component files"),
+            _ => DownloadFile::component_image_files(&self.uuid, &p, conn)
+                .expect("Error loading component image files"),
         }
-        /// Component name
-        async fn name(&self) -> &String {
-            &self.name
-        }
-        /// Component description
-        async fn description(&self) -> &String {
-            &self.description
-        }
-        /// Data for displaying the main view of the component (part)
-        async fn image_file(&self) -> &DownloadFile {
-            &self.image_file
-        }
-        /// Data about the profile owning the component
-        async fn owner_user(&self) -> &ShowUserShort {
-            &self.owner_user
-        }
-        /// Type of access to the component data
-        async fn type_access(&self) -> &TypeAccessTranslateList {
-            &self.type_access
-        }
-        /// Component type (e.g. "standard")
-        async fn component_type(&self) -> &ComponentTypeTranslateList {
-            &self.component_type
-        }
-        /// Current status of the component (e.g. "in development")
-        async fn actual_status(&self) -> &ActualStatusTranslateList {
-            &self.actual_status
-        }
-        /// For basic components it is possible to link to multiple manufacturers/suppliers
-        async fn is_base(&self) -> bool {
-            self.is_base
-        }
-        /// Flag whether the component is available in the user's bookmarks
-        async fn is_followed(&self) -> bool {
-            self.is_followed
-        }
-        /// Update date of the basic component data
-        async fn updated_at(&self) -> &NaiveDateTime {
-            &self.updated_at
-        }
-        /// Component data distribution licenses
-        async fn licenses(&self) -> &[License] {
-            &self.licenses
-        }
-        /// Files (images by default) associated with the component
-        async fn files(
-            &self,
-            ctx: &Context<'_>,
-            paginate: Option<IptPaginate>,
-            images: Option<bool>,
-        ) -> Vec<DownloadFile> {
-            let conn: &mut PooledConnection = &mut get_conn(ctx).expect("Error get conn to DB");
-            let p = paginate
-                .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
-                .unwrap_or_default();
-            match images {
-                Some(false) => DownloadFile::by_component_uuid(&self.uuid, &p, conn)
-                    .expect("Error loading component files"),
-                _ => DownloadFile::component_image_files(&self.uuid, &p, conn)
-                    .expect("Error loading component image files"),
-            }
-        }
-        /// Manufacturer or suppliers (for is_base is true) of the component
-        async fn component_suppliers(
-            &self,
-            ctx: &Context<'_>,
-            paginate: Option<IptPaginate>,
-        ) -> Vec<ComponentSupplierRelatedData> {
-            let conn: &mut PooledConnection = &mut get_conn(ctx).expect("Error get conn to DB");
-            let p = paginate
-                .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
-                .unwrap_or_default();
-            ComponentSupplierRelatedData::by_component_uuid(&self.uuid, &p, conn)
-                .expect("Error loading component suppliers")
-        }
+    }
+    /// Manufacturer or suppliers (for is_base is true) of the component
+    async fn component_suppliers(
+        &self,
+        ctx: &Context<'_>,
+        paginate: Option<IptPaginate>,
+    ) -> Vec<ComponentSupplierRelatedData> {
+        let conn: &mut PooledConnection = &mut get_conn(ctx).expect("Error get conn to DB");
+        let p = paginate
+            .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
+            .unwrap_or_default();
+        ComponentSupplierRelatedData::by_component_uuid(&self.uuid, &p, conn)
+            .expect("Error loading component suppliers")
+    }
 }
 
 #[derive(Debug, Deserialize, InputObject)]
