@@ -47,7 +47,7 @@ impl Paginate {
     }
 
     /// Returns `LIMIT...OFFSET...` string with pagination parameters
-    fn get_complete(&self) -> String {
+    pub(crate) fn get_complete(&self) -> String {
         format!("LIMIT {} OFFSET {}", self.limit, self.offset)
     }
 }
@@ -55,7 +55,9 @@ impl Paginate {
 #[derive(Debug)]
 pub(crate) enum TableName {
     ComponentRef,
+    ComponentModification,
     FileRef,
+    ParamTranslateList,
 }
 
 impl TableName {
@@ -63,7 +65,9 @@ impl TableName {
     fn name(&self) -> &str {
         match self {
             Self::ComponentRef => "component_ref",
+            Self::ComponentModification => "component_modification_list",
             Self::FileRef => "file_ref",
+            Self::ParamTranslateList => "ptl",
         }
     }
 }
@@ -77,25 +81,41 @@ pub(crate) struct TableColumn {
 impl TableColumn {
     /// Returns the structure after table and column mapping (minimal validation).
     /// The column value can be set to default or empty if there are no table matches.
-    fn parsing(table: TableName, column: &str) -> Self {
+    fn parsing(table: TableName, field: &str) -> Self {
         match table {
             TableName::ComponentRef => Self {
                 table,
-                column: match column {
+                column: match field {
                     "name" => "name".to_string(),
-                    "update" => "updated_at".to_string(),
+                    "actualStatusId" => "actual_status_id".to_string(),
+                    "updatedAt" => "updated_at".to_string(),
+                    _ => "created_at".to_string(),
+                }
+            },
+            TableName::ComponentModification => Self {
+                table,
+                column: match field {
+                    "name" => "modification_name".to_string(),
+                    "actualStatusId" => "actual_status_id".to_string(),
+                    "updatedAt" => "updated_at".to_string(),
                     _ => "created_at".to_string(),
                 }
             },
             TableName::FileRef => Self {
                 table,
-                column: match column {
+                column: match field {
                     "revision" => "revision".to_string(),
                     "filename" => "filename".to_string(),
-                    "type" => "id_ext".to_string(),
                     "size" => "filesize".to_string(),
-                    "update" => "updated_at".to_string(),
+                    "updatedAt" => "updated_at".to_string(),
                     _ => "created_at".to_string(),
+                }
+            },
+            TableName::ParamTranslateList => Self {
+                table,
+                column: match field {
+                    "paramname" => "paramname".to_string(),
+                    _ => "param_id".to_string(),
                 }
             },
         }
@@ -129,10 +149,10 @@ impl Sort {
         Self::Asc(TableColumn::parsing(table, ""))
     }
 
-    pub(crate) fn parsing(table: TableName, order_by: &str, as_desc: bool) -> Sort {
+    pub(crate) fn parsing(table: TableName, field: &str, as_desc: bool) -> Sort {
         match as_desc {
-            true => Sort::Desc(TableColumn::parsing(table, order_by)),
-            false => Sort::Asc(TableColumn::parsing(table, order_by)),
+            true => Sort::Desc(TableColumn::parsing(table, field)),
+            false => Sort::Asc(TableColumn::parsing(table, field)),
         }
     }
 
@@ -145,7 +165,7 @@ impl Sort {
     }
 
     /// Returns string `ORDER BY...` with sorting options, or an empty string if no arguments are found
-    fn get_complete(&self) -> String {
+    pub(crate) fn get_complete(&self) -> String {
         match self {
             Self::Desc(ob) if !ob.is_empty() => format!("ORDER BY {} DESC", ob.get_with_point()),
             Self::Asc(ob) if !ob.is_empty() => format!("ORDER BY {} ASC", ob.get_with_point()),

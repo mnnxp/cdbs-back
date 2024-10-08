@@ -1,7 +1,10 @@
 use crate::errors::ServiceResult;
 use crate::database::{get_conn, PooledConnection};
 use crate::graphql::{
-    component_model::{ComponentAndRelatedData, ShowComponentShort, IptComponentsArg, IptComponentFilesArg},
+    component_model::{
+        ComponentAndRelatedData, ShowComponentShort, IptComponentsArg, IptComponentFilesArg,
+        ComponentModificationAndRelatedData
+    },
     relate::attributes::IptPaginate,
 };
 use crate::models::search::model::{ExtraOptions, IptSearchArg};
@@ -18,7 +21,7 @@ use crate::models::component::{
     component_modification,
     component_modification::{
         model::{
-            ComponentModificationAndRelatedData, IptComponentModificationArg, ComponentModificationArg,
+            IptComponentModificationArg, ComponentModificationArg,
             IptModificationFilesArg, ModificationFilesArg
         },
         fileset_for_program::model::{FilesetProgramRelatedData, IptFilesetProgramArg, FilesetProgramArg},
@@ -52,10 +55,7 @@ impl ComponentQuery {
         use crate::models::component::service::list::get_components_by_uuids;
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
         // authorization check
-        let options = ExtraOptions::from_ipt(
-            get_logged_user_uuid(cxt, true)?,
-            get_set_language(cxt),
-        );
+        let options = ExtraOptions::from_cxt(cxt)?;
         get_components_by_uuids(&args, &options, conn)
     }
 
@@ -91,23 +91,16 @@ impl ComponentQuery {
         &self,
         cxt: &Context<'_>,
         component_uuid: Uuid,
-        limit: Option<i32>,
-        offset: Option<i32>,
     ) -> ServiceResult<ComponentAndRelatedData> {
         use crate::models::component::service::list::get_component_by_uuid;
 
         // authorization check
-        let options = ExtraOptions::from_ipt(
-            get_logged_user_uuid(cxt, true)?,
-            get_set_language(cxt),
-        );
+        let options = ExtraOptions::from_cxt(cxt)?;
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         get_component_by_uuid(
             &component_uuid,
             &options,
-            limit.unwrap_or(100),
-            offset.unwrap_or(0),
             conn,
         )
     }

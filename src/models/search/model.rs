@@ -1,5 +1,7 @@
-use diesel::sql_types;
-use diesel::prelude::*;
+use crate::errors::ServiceResult;
+use crate::models::user::access::logged::get_logged_user_uuid;
+use crate::models::relate_ref::language::get_set_language;
+use diesel::{sql_types, prelude::*};
 use async_graphql::*;
 use uuid::Uuid;
 
@@ -24,11 +26,11 @@ pub(crate) struct ExtraOptions {
 }
 
 impl ExtraOptions {
-    pub(crate) fn from_ipt(logged_user_uuid: Uuid, set_lang_id: i32) -> Self {
-        Self {
-            logged_user_uuid,
-            set_lang_id,
-        }
+    pub(crate) fn from_cxt(cxt: &Context<'_>) -> ServiceResult<Self> {
+        Ok(Self {
+            logged_user_uuid: get_logged_user_uuid(cxt, true)?,
+            set_lang_id: get_set_language(cxt),
+        })
     }
 }
 

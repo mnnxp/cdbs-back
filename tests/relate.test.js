@@ -1013,7 +1013,7 @@ describe('param', () => {
     const {
       data: { searchSpecs }
     } = body;
-    expect(searchSpecs.length).toBe(1);
+    expect(searchSpecs.length).toBe(2);
     done();
   });
 

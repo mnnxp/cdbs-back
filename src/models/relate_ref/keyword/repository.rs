@@ -10,6 +10,7 @@ impl Keyword {
     ) -> ServiceResult<Vec<Keyword>> {
         keyword_ref::keyword_ref
             .filter(keyword_ref::id.eq_any(target_keyword_ids))
+            .limit(1000)
             .load::<Keyword>(conn)
             .map_err(|err| {
                 debug!("Failed get keyword: {:?}", err);

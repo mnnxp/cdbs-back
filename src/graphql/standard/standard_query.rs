@@ -66,14 +66,8 @@ impl StandardQuery {
         offset: Option<i32>,
     ) -> ServiceResult<StandardAndRelatedData> {
         use crate::models::standard::service::list::find_by_uuid;
-
-        let options = ExtraOptions::from_ipt(
-            get_logged_user_uuid(cxt, true)?,
-            get_set_language(cxt),
-        );
-
+        let options = ExtraOptions::from_cxt(cxt)?;
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
-
         find_by_uuid(
             &standard_uuid,
             &options,

@@ -2497,7 +2497,7 @@ describe('component', () => {
       data: { componentSpecs },
     } = body;
     expect(componentSpecs.length).toBe(1);
-    expect(componentSpecs[0].specId).toBe(22);
+    expect(componentSpecs[0].specId).toBe(44);
     expect(componentSpecs[0].spec).toBeNonEmptyString();
     done();
   });

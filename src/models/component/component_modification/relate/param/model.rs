@@ -29,22 +29,6 @@ pub(crate) struct ModificationParamWithTranslation {
     pub(crate) value: String,
 }
 
-impl ModificationParamWithTranslation {
-    /// Set modification uuid and param value without param translate
-    pub(crate) fn new(data: &ModificationParam) -> Self {
-        Self {
-            modification_uuid: data.modification_uuid,
-            value: data.value.clone(),
-            ..Default::default()
-        }
-    }
-
-    /// Change modification param
-    pub(crate) fn put_param_translate(&mut self, param: ParamTranslateList) {
-        self.param = param;
-    }
-}
-
 #[derive(Debug, Insertable)]
 #[diesel(table_name = param_to_modification)]
 pub(crate) struct InsertableModificationParam {

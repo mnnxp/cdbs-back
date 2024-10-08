@@ -2429,7 +2429,7 @@ describe('company', () => {
       data: { standardSpecs },
     } = body;
     expect(standardSpecs.length).toBe(1);
-    expect(standardSpecs[0].specId).toBe(22);
+    expect(standardSpecs[0].specId).toBe(44);
     expect(standardSpecs[0].spec).toBeNonEmptyString();
     done();
   });

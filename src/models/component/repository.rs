@@ -1,25 +1,19 @@
 use crate::errors::{ServiceResult, ServiceError};
-use crate::models::search::order::{objects_order, Paginate, Sort};
+use crate::models::search::order::{Paginate, Sort, objects_order};
 use crate::models::search::model::ExtraOptions;
 use crate::graphql::component_model::{ComponentAndRelatedData, ShowComponentShort};
 use crate::models::component::{
     model::Component,
     actual_status::model::ActualStatusTranslateList,
     component_type::model::ComponentTypeTranslateList,
-    param::model::ComponentParamWithTranslation,
     component_fav::model::ComponentFav,
-    supplier::model::ComponentSupplierRelatedData,
-    component_modification::model::{
-        ComponentModification, ComponentModificationAndRelatedData, ComponentModificationArg
-    },
     access::util::check_access_component_for_user,
 };
 use crate::models::user::model::ShowUserShort;
-use crate::models::standard::model::ShowStandardShort;
 use crate::models::relate_ref::{
     type_access::model::TypeAccessTranslateList,
     license::model::License,
-    file::model::{ShowFileRelatedData, DownloadFile},
+    file::model::DownloadFile,
     keyword::model::Keyword,
     spec::model::SpecTranslateList,
 };
@@ -207,9 +201,7 @@ impl ShowComponentShort {
             .filter(component_ref::type_access_id.eq(3)
             .and(component_ref::is_delete.eq(false)))
             .select(component_ref::uuid)
-            // .order(component_ref::created_at.desc())
-            // .limit(1000)
-            // .offset(options.offset as i64)
+            .limit(1000)
             .load::<Uuid>(conn)
             .expect("Failed get public components");
 
@@ -232,7 +224,6 @@ impl ComponentAndRelatedData {
     pub(crate) fn get_component(
         target_component_uuid: &Uuid,
         options: &ExtraOptions,
-        paginate: &Paginate,
         conn: &mut PgConnection,
     ) -> ServiceResult<ComponentAndRelatedData> {
         let need_access_level = 3; // todo!(create enum for manage access level)
@@ -293,25 +284,11 @@ impl ComponentAndRelatedData {
             conn
         ).expect("Error get is_followed");
 
-        // get params with translation for component
-        let component_params = ComponentParamWithTranslation::by_component_uuid(
-            &component.uuid,
-            &options.set_lang_id,
-            conn
-        ).expect("Error loading params component with translate");
-
         // get licenses for component
         let licenses = License::get_by_component(
             &component,
             conn
         ).expect("Error loading license");
-
-        // get files for component
-        let files = ShowFileRelatedData::by_component_uuid(
-            &component.uuid,
-            paginate,
-            conn
-        ).expect("Error loading component files");
 
         // get specs with translation for component
         let component_specs = SpecTranslateList::for_component(
@@ -325,33 +302,6 @@ impl ComponentAndRelatedData {
             &component,
             conn
         ).expect("Error loading component keywords");
-
-        // collect data for modifications the component
-        let component_modifications = ComponentModification::by_args(
-            &ComponentModificationArg::component_uuid(&component.uuid),
-            conn
-        ).expect("Error loading component modifications");
-
-        // get list component modifications with related data and translation
-        let component_modifications = ComponentModificationAndRelatedData::for_modifications(
-            &component_modifications,
-            &options.set_lang_id,
-            conn
-        ).expect("Error loading component modifications with related data");
-
-        // collect data for supplier component
-        let component_suppliers = ComponentSupplierRelatedData::by_component_uuid(
-            &component.uuid,
-            paginate,
-            conn
-        ).expect("Error loading supplier component with relate");
-
-        // collect data for component standards
-        let component_standards = ShowStandardShort::for_component(
-            target_component_uuid,
-            options,
-            conn
-        ).expect("Error loading supplier component with relate");
 
         Ok(ComponentAndRelatedData {
             uuid: component.uuid,
@@ -368,14 +318,9 @@ impl ComponentAndRelatedData {
             is_followed,
             created_at: component.created_at,
             updated_at: component.updated_at,
-            component_params,
             licenses,
-            files,
             component_specs,
             component_keywords,
-            component_modifications,
-            component_suppliers,
-            component_standards,
         })
     }
 }

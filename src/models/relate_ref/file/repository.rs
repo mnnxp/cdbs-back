@@ -17,7 +17,6 @@ use uuid::Uuid;
 impl ShowFile {
     fn get_by_uuids(
         target_file_uuids: &[Uuid],
-        paginate: &Paginate,
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<ShowFile>> {
         file_ref::file_ref.select((
@@ -37,8 +36,7 @@ impl ShowFile {
                 .and(file_ref::is_hidden.eq(false)
                 .and(file_ref::is_delete.eq(false))))
             .order(file_ref::filename.asc())
-            .limit(paginate.limit)
-            .offset(paginate.offset)
+            .limit(1000)
             .load::<ShowFile>(conn)
             .map_err(|err| {
                 debug!("Failed get files: {:?}", err);
@@ -82,14 +80,9 @@ impl ShowFile {
 impl ShowFileRelatedData {
     pub(crate) fn get_file_by_uuids(
         target_file_uuids: &[Uuid],
-        paginate: &Paginate,
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<ShowFileRelatedData>> {
-        let files_data = ShowFile::get_by_uuids(
-            target_file_uuids,
-            paginate,
-            conn
-        )?;
+        let files_data = ShowFile::get_by_uuids(target_file_uuids, conn)?;
         let mut result: Vec<ShowFileRelatedData> = Vec::new();
         for fd in files_data {
             result.push(ShowFileRelatedData::data_enrichment(fd, conn)?)

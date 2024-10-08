@@ -1,12 +1,8 @@
 use crate::models::component::{
     model::Component,
-    relate::actual_status::model::ActualStatusTranslateList,
+    component_modification::util::get_root_modification_uuid,
 };
-use crate::models::component::component_modification::{
-    param::model::ModificationParamWithTranslation,
-    fileset_for_program::model::FilesetProgramRelatedData,
-    util::get_root_modification_uuid,
-};
+use crate::models::search::order::{Paginate, Sort, TableName};
 use crate::schema::*;
 use async_graphql::*;
 use chrono::*;
@@ -26,64 +22,6 @@ pub(crate) struct ComponentModification {
     pub(crate) is_delete: bool,
     pub(crate) created_at: NaiveDateTime,
     pub(crate) updated_at: NaiveDateTime,
-}
-
-/// Full information about component (part) modification and related data
-#[derive(Deserialize, SimpleObject, Debug)]
-pub(crate) struct ComponentModificationAndRelatedData {
-    /// UUID of the component modification
-    pub(crate) uuid: Uuid,
-    /// UUID of component
-    pub(crate) component_uuid: Uuid,
-    /// UUID of the parent modification of the component
-    pub(crate) parent_modification_uuid: Uuid,
-    /// Name of the component modification
-    pub(crate) modification_name: String,
-    /// Description of the component modification
-    pub(crate) description: String,
-    /// Current status of the component modification
-    pub(crate) actual_status: ActualStatusTranslateList,
-    /// Date of creation of the component modification
-    pub(crate) created_at: NaiveDateTime,
-    /// Date when the main data of the component modification was changed
-    pub(crate) updated_at: NaiveDateTime,
-    /// Component modification file sets data (list)
-    pub(crate) filesets_for_program: Vec<FilesetProgramRelatedData>,
-    /// Data on component modification parameters (list)
-    pub(crate) modification_params: Vec<ModificationParamWithTranslation>,
-}
-
-impl ComponentModificationAndRelatedData {
-    /// Create struct with data ComponentModification, set default data for related data
-    pub(crate) fn new(data: &ComponentModification) -> Self {
-        Self{
-            uuid: data.uuid,
-            component_uuid: data.component_uuid,
-            parent_modification_uuid: data.parent_modification_uuid,
-            modification_name: data.modification_name.clone(),
-            description: data.description.clone(),
-            actual_status: Default::default(),
-            created_at: data.created_at,
-            updated_at: data.updated_at,
-            filesets_for_program: Vec::new(),
-            modification_params: Vec::new(),
-        }
-    }
-
-    /// Change actual satus data
-    pub(crate) fn put_actual_status(&mut self, actual_status: &ActualStatusTranslateList) {
-        self.actual_status = actual_status.clone();
-    }
-
-    /// Change filesets data
-    pub(crate) fn put_fileset_program(&mut self, fileset: Vec<FilesetProgramRelatedData>) {
-        self.filesets_for_program = fileset;
-    }
-
-    /// Change modification params
-    pub(crate) fn put_modification_params(&mut self, params: Vec<ModificationParamWithTranslation>) {
-        self.modification_params = params;
-    }
 }
 
 #[derive(Debug, Insertable)]
@@ -241,19 +179,8 @@ pub(crate) struct IptComponentModificationArg {
 #[derive(Debug)]
 pub(crate) struct ComponentModificationArg {
     pub(crate) component_uuid: Uuid,
-    pub(crate) limit: i32,
-    pub(crate) offset: i32,
-}
-
-impl ComponentModificationArg {
-    /// Generate default limit 100 and offset 0
-    pub(crate) fn component_uuid(component_uuid: &Uuid) -> Self {
-        Self {
-            component_uuid: *component_uuid,
-            limit: 100,
-            offset: 0,
-        }
-    }
+    pub(crate) sort: Sort,
+    pub(crate) paginate: Paginate,
 }
 
 impl From<IptComponentModificationArg> for ComponentModificationArg {
@@ -266,8 +193,11 @@ impl From<IptComponentModificationArg> for ComponentModificationArg {
 
         Self {
             component_uuid,
-            limit: limit.unwrap_or(100),
-            offset: offset.unwrap_or(0),
+            sort: Sort::set_by_table(TableName::ComponentModification),
+            paginate: Paginate::parsing(
+                limit.unwrap_or(10),
+                offset.unwrap_or(0),
+            ),
         }
     }
 }

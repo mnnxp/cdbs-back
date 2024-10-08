@@ -234,15 +234,12 @@ pub(crate) fn get_components_uuids_by_standard(
 pub(crate) fn get_component_by_uuid(
     target_component_uuid: &Uuid,
     options: &ExtraOptions,
-    limit: i32,
-    offset: i32,
     conn: &mut PgConnection,
 ) -> ServiceResult<ComponentAndRelatedData> {
     // collect data for component
     ComponentAndRelatedData::get_component(
         target_component_uuid,
         options,
-        &Paginate::parsing(limit, offset),
         conn
     ).map_err(|err| {
         debug!("Error loading component and collect related data: {:?}", err);

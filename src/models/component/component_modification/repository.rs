@@ -1,27 +1,22 @@
 use crate::errors::{ServiceResult, ServiceError};
-use crate::models::component::{
-    actual_status::model::ActualStatusTranslateList,
-    component_modification::{
-        model::{ComponentModification, ComponentModificationAndRelatedData, ComponentModificationArg},
-        param::model::ModificationParamWithTranslation,
-        fileset_for_program::model::FilesetProgramRelatedData,
-    },
-};
+use crate::graphql::component_model::ComponentModificationAndRelatedData;
+use crate::models::component::actual_status::model::ActualStatusTranslateList;
+use crate::models::component::component_modification::model::ComponentModification;
+use crate::models::search::order::{Paginate, Sort, objects_order};
 use crate::schema::component_modification_list::dsl as component_modification_list;
 use diesel::prelude::*;
+use uuid::Uuid;
 
 impl ComponentModification {
-    pub(crate) fn by_args(
-        args: &ComponentModificationArg,
+    /// Returns ComponentModification structures by modification uuids
+    pub(crate) fn by_uuid(
+        modification_uuid: &Uuid,
         conn: &mut PgConnection,
-    ) -> ServiceResult<Vec<ComponentModification>> {
+    ) -> ServiceResult<ComponentModification> {
         // collect data for modifications the component
         component_modification_list::component_modification_list
-            .filter(component_modification_list::component_uuid.eq(&args.component_uuid))
-            .limit(args.limit as i64)
-            .offset(args.offset as i64)
-            .order_by(component_modification_list::created_at.asc())
-            .load::<ComponentModification>(conn)
+            .filter(component_modification_list::uuid.eq(modification_uuid))
+            .first::<ComponentModification>(conn)
             .map_err(|err| {
                 debug!("Failed get component modification: {:?}", err);
                 ServiceError::InternalServerError
@@ -30,48 +25,59 @@ impl ComponentModification {
 }
 
 impl ComponentModificationAndRelatedData {
-    /// Get related data for component modification
-    pub(crate) fn for_modification(
-        component_modification: &ComponentModification,
-        set_lang_id: &i32,
-        conn: &mut PgConnection
-    ) -> ServiceResult<ComponentModificationAndRelatedData> {
-        let mut data = ComponentModificationAndRelatedData::new(component_modification);
-
-        // set actual status with translation for list component modification
-        data.put_actual_status(&ActualStatusTranslateList::get_by_id(
-            &component_modification.actual_status_id,
-            set_lang_id,
-            conn
-        )?);
-
-        // get sets of files for programs for component modification list
-        data.put_fileset_program(FilesetProgramRelatedData::by_modification_uuid(
-            &component_modification.uuid,
-            conn
-        )?);
-
-        // get sets of files for programs for component modification list
-        data.put_modification_params(ModificationParamWithTranslation::by_modification_uuid(
-            &component_modification.uuid,
-            set_lang_id,
-            conn
-        )?);
-
-        Ok(data)
-    }
-
-    pub(crate) fn for_modifications(
-        component_modifications: &[ComponentModification],
+    pub(crate) fn by_args(
+        component_uuid: &Uuid,
+        sort: &Sort,
+        paginate: &Paginate,
         set_lang_id: &i32,
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<ComponentModificationAndRelatedData>> {
-        let mut result: Vec<ComponentModificationAndRelatedData> = Vec::new();
-        for x in component_modifications.iter() {
-            result.push(ComponentModificationAndRelatedData::for_modification(x, set_lang_id, conn)?);
+        let object_uuids = get_modification_uuids_by_component_uuid(component_uuid, conn)?;
+        // collect data for modifications the component
+        let mut res = Vec::new();
+        for modification_uuid in &objects_order(&object_uuids, sort, paginate, conn)? {
+            let cm = ComponentModification::by_uuid(modification_uuid, conn)?;
+            res.push(Self::for_modification(&cm, set_lang_id, conn)?)
         }
-        // sorting the list of component modifications
-        result.sort_by(|a, b| a.modification_name.cmp(&b.modification_name));
-        Ok(result)
+        Ok(res)
     }
+
+    /// Get related data for component modification
+    pub(crate) fn for_modification(
+        cm: &ComponentModification,
+        set_lang_id: &i32,
+        conn: &mut PgConnection
+    ) -> ServiceResult<ComponentModificationAndRelatedData> {
+        let actual_status = ActualStatusTranslateList::get_by_id(
+            &cm.actual_status_id,
+            set_lang_id,
+            conn
+        )?;
+        Ok(Self{
+            uuid: cm.uuid,
+            component_uuid: cm.component_uuid,
+            parent_modification_uuid: cm.parent_modification_uuid,
+            modification_name: cm.modification_name.clone(),
+            description: cm.description.clone(),
+            actual_status,
+            created_at: cm.created_at,
+            updated_at: cm.updated_at,
+        })
+    }
+}
+
+/// Returns an array of UUIDs of modification uuids relate with target component
+pub(crate) fn get_modification_uuids_by_component_uuid(
+    component_uuid: &Uuid,
+    conn: &mut PgConnection,
+) -> ServiceResult<Vec<Uuid>> {
+    component_modification_list::component_modification_list
+        .select(component_modification_list::uuid)
+        .filter(component_modification_list::component_uuid.eq(component_uuid))
+        .limit(1000)
+        .load::<Uuid>(conn)
+        .map_err(|err| {
+            debug!("Failed get modification uuids for component: {:?}", err);
+            ServiceError::InternalServerError
+        })
 }

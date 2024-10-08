@@ -1,8 +1,9 @@
 use crate::errors::ServiceResult;
-use crate::models::component::component_modification::model::{
-    ComponentModificationArg, ComponentModification, ComponentModificationAndRelatedData
+use crate::graphql::component_model::ComponentModificationAndRelatedData;
+use crate::models::component::{
+    component_modification::model::ComponentModificationArg,
+    access::util::check_access_component_for_user,
 };
-use crate::models::component::access::util::check_access_component_for_user;
 use diesel::prelude::*;
 use uuid::Uuid;
 
@@ -22,10 +23,10 @@ pub(crate) fn get_component_modifications(
         conn
     )?;
 
-    let component_modifications = ComponentModification::by_args(args, conn)?;
-
-    ComponentModificationAndRelatedData::for_modifications(
-        &component_modifications,
+    ComponentModificationAndRelatedData::by_args(
+        &args.component_uuid,
+        &args.sort,
+        &args.paginate,
         set_lang_id,
         conn
     )

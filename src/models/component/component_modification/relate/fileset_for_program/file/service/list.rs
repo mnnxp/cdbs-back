@@ -5,7 +5,7 @@ use crate::models::component::{
     component_modification::fileset_for_program::util::get_component_by_fileset,
     access::util::check_access_component_for_user,
 };
-use crate::models::search::order::Paginate;
+use crate::models::search::order::{Paginate, Sort, TableName, objects_order};
 use crate::models::relate_ref::file::model::{ShowFileRelatedData, DownloadFile};
 use diesel::prelude::*;
 use uuid::Uuid;
@@ -27,20 +27,22 @@ pub(crate) fn get_files_of_fileset(
     )?;
 
     // Gets uuids from target files for get files data or dowload urls
-    let collect_file_uuids = get_file_uuids_by_fileset_uuid(
+    let object_uuids = get_file_uuids_by_fileset_uuid(
         &args.fileset_uuid,
         &args.file_uuids,
         conn
     )?;
-
-    ShowFileRelatedData::get_file_by_uuids(
-        &collect_file_uuids,
+    let target_file_uuids: Vec<Uuid> = objects_order(
+        &object_uuids,
+        &Sort::parsing(TableName::FileRef, "", false),
         &Paginate::parsing(args.limit, args.offset),
         conn
-    ).map_err(|err| {
-        debug!("Error get files of fileset: {:?}", err);
-        ServiceError::InternalServerError
-    })
+    )?;
+    ShowFileRelatedData::get_file_by_uuids(&target_file_uuids, conn)
+        .map_err(|err| {
+            debug!("Error get files of fileset: {:?}", err);
+            ServiceError::InternalServerError
+        })
 }
 
 /// Возвращает предварительно подписанные URL-адреса и другую информацию для загрузки файлов набора файлов модификации компонента.

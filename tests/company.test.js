@@ -1869,7 +1869,7 @@ describe('company', () => {
       data: { companySpecs },
     } = body;
     expect(companySpecs.length).toBe(1);
-    expect(companySpecs[0].specId).toBe(22);
+    expect(companySpecs[0].specId).toBe(44);
     expect(companySpecs[0].spec).toBeNonEmptyString();
     done();
   });

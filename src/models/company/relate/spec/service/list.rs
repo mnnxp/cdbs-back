@@ -4,6 +4,7 @@ use crate::models::company::{
     access::util::check_company_access,
 };
 use crate::models::relate_ref::spec::model::SpecTranslateList;
+use crate::models::search::order::Paginate;
 use diesel::prelude::*;
 use uuid::Uuid;
 
@@ -25,8 +26,9 @@ pub(crate) fn get_company_specs(
     )?;
 
     SpecTranslateList::for_company_by_uuid(
-        arg,
+        &arg.company_uuid,
         set_lang_id,
+        &Paginate::parsing(arg.limit, arg.offset),
         conn
     )
 }

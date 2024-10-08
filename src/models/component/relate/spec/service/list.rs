@@ -4,6 +4,7 @@ use crate::models::component::{
     access::util::check_access_component_for_user,
 };
 use crate::models::relate_ref::spec::model::SpecTranslateList;
+use crate::models::search::order::Paginate;
 use diesel::prelude::*;
 use uuid::Uuid;
 
@@ -25,8 +26,9 @@ pub(crate) fn get_component_specs(
     )?;
 
     SpecTranslateList::for_component_by_uuid(
-        arg,
+        &arg.component_uuid,
         set_lang_id,
+        &Paginate::parsing(arg.limit, arg.offset),
         conn
     )
 }
