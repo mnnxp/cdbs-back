@@ -67,7 +67,7 @@ impl TableName {
             Self::ComponentRef => "component_ref",
             Self::ComponentModification => "component_modification_list",
             Self::FileRef => "file_ref",
-            Self::ParamTranslateList => "ptl",
+            Self::ParamTranslateList => "", // table is specified in fields
         }
     }
 }
@@ -114,8 +114,9 @@ impl TableColumn {
             TableName::ParamTranslateList => Self {
                 table,
                 column: match field {
-                    "paramname" => "paramname".to_string(),
-                    _ => "param_id".to_string(),
+                    "value" => "pt.value".to_string(),
+                    "paramname" => "ptl.paramname".to_string(),
+                    _ => "ptl.param_id".to_string(),
                 }
             },
         }
@@ -128,6 +129,10 @@ impl TableColumn {
 
     /// Returns string `table.column` with names of table and column
     fn get_with_point(&self) -> String {
+        if self.table.name().is_empty() {
+            // if a table is specified in fields (small hack)
+            return self.column.clone()
+        }
         format!("{}.{}", self.table.name(), self.column)
     }
 

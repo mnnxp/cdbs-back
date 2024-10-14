@@ -36,10 +36,10 @@ impl ModificationParamWithTranslation {
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<ModificationParamWithTranslation>> {
         let query = format!("
-        SELECT ptm.modification_uuid, ptm.value, ptl.param_id, ptl.lang_id, ptl.paramname
-        FROM param_to_modification AS ptm
-        INNER JOIN param_translate_list AS ptl ON ptm.param_id = ptl.param_id
-        WHERE ptm.modification_uuid = '{object_uuid}' AND ptl.lang_id IN ({lang}, 1)
+        SELECT pt.modification_uuid, pt.value, ptl.param_id, ptl.lang_id, ptl.paramname
+        FROM param_to_modification AS pt
+        INNER JOIN param_translate_list AS ptl ON pt.param_id = ptl.param_id
+        WHERE pt.modification_uuid = '{object_uuid}' AND ptl.lang_id IN ({lang}, 1)
         {sort}
         {paginate}",
             object_uuid = modification_uuid,

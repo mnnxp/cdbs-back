@@ -146,17 +146,22 @@ impl ComponentAndRelatedData {
         &self.licenses
     }
 
-    /// List of component parameters
+    /// Data on component parameters (list).
+    /// Default sorting: `paramId`. Sorting by `paramname` and `value` is available.
     async fn component_params(
         &self,
         cxt: &Context<'_>,
+        sort: Option<IptSort>,
         paginate: Option<IptPaginate>,
     ) -> Vec<ComponentParamWithTranslation> {
         let conn: &mut PooledConnection = &mut get_conn(cxt).expect("Error get conn to DB");
+        let s = sort
+            .map(|s| Sort::parsing(TableName::ParamTranslateList, &s.by_field, s.as_desc))
+            .unwrap_or(Sort::parsing(TableName::ParamTranslateList, "", false));
         let p = paginate
             .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
             .unwrap_or_default();
-        ComponentParamWithTranslation::by_component_uuid(&self.uuid, &get_set_language(cxt), &p, conn)
+        ComponentParamWithTranslation::by_component_uuid(&self.uuid, &get_set_language(cxt), &s, &p, conn)
            .expect("Error loading component parameters")
     }
 
@@ -480,7 +485,7 @@ impl ComponentModificationAndRelatedData {
     }
 
     /// Data on component modification parameters (list).
-    /// Default sorting: `paramId`. Sorting by `paramname` is available.
+    /// Default sorting: `paramId`. Sorting by `paramname` and `value` is available.
     async fn modification_params(
         &self,
         cxt: &Context<'_>,
