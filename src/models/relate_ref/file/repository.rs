@@ -1,10 +1,9 @@
 use super::util::get_default_image;
 use crate::errors::{ServiceResult, ServiceError};
 use crate::models::user::model::ShowUserShort;
-use crate::models::search::order::Paginate;
+use crate::models::search::order::{Paginate, Sort, TableName, objects_order};
 use crate::models::relate_ref::file::model::{
-    ListObject, PreliminaryFileData, ShowFile,
-    ShowFileRelatedData, DownloadFile, SlimFile,
+    ListObject, PreliminaryFileData, ShowFile, ShowFileRelatedData, DownloadFile, SlimFile,
 };
 use crate::models::relate_ref::program::model::Program;
 use crate::storage::model::StorageAccess;
@@ -14,43 +13,48 @@ use crate::schema::presigned_url_ref::dsl as presigned_url_ref;
 use diesel::prelude::*;
 use uuid::Uuid;
 
-impl ShowFile {
-    fn get_by_uuids(
-        target_file_uuids: &[Uuid],
-        conn: &mut PgConnection,
-    ) -> ServiceResult<Vec<ShowFile>> {
-        file_ref::file_ref.select((
-                file_ref::uuid,
-                file_ref::parent_file_uuid,
-                file_ref::revision,
-                file_ref::user_uuid,
-                file_ref::filename,
-                file_ref::content_type,
-                file_ref::id_ext,
-                file_ref::filesize,
-                // file_ref::path_file,
-                file_ref::created_at,
-                file_ref::updated_at,
-            ))
-            .filter(file_ref::uuid.eq_any(target_file_uuids)
-                .and(file_ref::is_hidden.eq(false)
-                .and(file_ref::is_delete.eq(false))))
-            .order(file_ref::filename.asc())
-            .limit(1000)
-            .load::<ShowFile>(conn)
-            .map_err(|err| {
-                debug!("Failed get files: {:?}", err);
-                ServiceError::InternalServerError
-            })
-    }
+/// Возвращает Uuid найденных по списку из file_uuids файлов, исключая удалённые и скрытые файлы
+fn get_by_uuids(
+    file_uuids: &[Uuid],
+    conn: &mut PgConnection,
+) -> ServiceResult<Vec<Uuid>> {
+    file_ref::file_ref.select(file_ref::uuid)
+        .filter(file_ref::uuid.eq_any(file_uuids)
+            .and(file_ref::is_hidden.eq(false)
+            .and(file_ref::is_delete.eq(false))))
+        .limit(1000)
+        .load::<Uuid>(conn)
+        .map_err(|err| {
+            debug!("Failed get files: {:?}", err);
+            ServiceError::InternalServerError
+        })
+}
 
-    fn get_hide_by_uuids(
-        target_file_uuids: &[Uuid],
-        limit: i32,
-        offset: i32,
-        conn: &mut PgConnection,
-    ) -> ServiceResult<Vec<ShowFile>> {
-        file_ref::file_ref.select((
+/// Возвращает Uuid найденных по списку из file_uuids файлов, исключаются только удалённые файлы
+fn get_hide_by_uuids(
+    file_uuids: &[Uuid],
+    conn: &mut PgConnection
+) -> ServiceResult<Vec<Uuid>> {
+    file_ref::file_ref.select(file_ref::uuid)
+        .filter(file_ref::uuid.eq_any(file_uuids)
+            // .and(file_ref::is_hidden.eq(true)
+            .and(file_ref::is_delete.eq(false)))
+        .order(file_ref::revision.asc())
+        .limit(1000)
+        .load::<Uuid>(conn)
+        .map_err(|err| {
+            debug!("Failed get files: {:?}", err);
+            ServiceError::InternalServerError
+        })
+}
+
+impl ShowFile {
+    fn get_by_uuid(
+        file_uuid: &Uuid,
+        conn: &mut PgConnection
+    ) -> ServiceResult<ShowFile> {
+        file_ref::file_ref
+            .select((
                 file_ref::uuid,
                 file_ref::parent_file_uuid,
                 file_ref::revision,
@@ -59,19 +63,13 @@ impl ShowFile {
                 file_ref::content_type,
                 file_ref::id_ext,
                 file_ref::filesize,
-                // file_ref::path_file,
                 file_ref::created_at,
-                file_ref::updated_at,
+                file_ref::updated_at
             ))
-            .filter(file_ref::uuid.eq_any(target_file_uuids)
-                // .and(file_ref::is_hidden.eq(true)
-                .and(file_ref::is_delete.eq(false)))
-            .order(file_ref::revision.asc())
-            .limit(limit as i64)
-            .offset(offset as i64)
-            .load::<ShowFile>(conn)
+            .filter(file_ref::uuid.eq(&file_uuid))
+            .first::<ShowFile>(conn)
             .map_err(|err| {
-                debug!("Failed get files: {:?}", err);
+                debug!("Failed get file: {:?}", err);
                 ServiceError::InternalServerError
             })
     }
@@ -80,69 +78,56 @@ impl ShowFile {
 impl ShowFileRelatedData {
     pub(crate) fn get_file_by_uuids(
         target_file_uuids: &[Uuid],
+        sort: &Sort,
+        paginate: &Paginate,
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<ShowFileRelatedData>> {
-        let files_data = ShowFile::get_by_uuids(target_file_uuids, conn)?;
-        let mut result: Vec<ShowFileRelatedData> = Vec::new();
-        for fd in files_data {
-            result.push(ShowFileRelatedData::data_enrichment(fd, conn)?)
-        }
-        Ok(result)
+        let file_uuids = get_by_uuids(target_file_uuids, conn)?;
+        ShowFileRelatedData::data_enrichment(&file_uuids, sort, paginate, conn)
     }
 
     /// Adds information from other tables to the data (about the user, relevante program by extension)
     fn data_enrichment(
-        file_data: ShowFile,
+        file_uuids: &[Uuid],
+        sort: &Sort,
+        paginate: &Paginate,
         conn: &mut PgConnection,
-    ) -> ServiceResult<ShowFileRelatedData> {
-        // collect data for user
-        let owner_user: ShowUserShort = ShowUserShort::get_without_check_by_uuid(
-            &file_data.user_uuid,
-            conn
-        ).expect("Error loading user");
-
-        // get program by ext for file
-        let program: Program = Program::get_program_for_ext(
-            &file_data.id_ext,
-            conn
-        ).expect("Error loading user");
-
-        Ok(ShowFileRelatedData {
-            uuid: file_data.uuid,
-            filename: file_data.filename,
-            revision: file_data.revision,
-            parent_file_uuid: file_data.parent_file_uuid,
-            owner_user,
-            content_type: file_data.content_type,
-            filesize: file_data.filesize,
-            program,
-            created_at: file_data.created_at,
-            updated_at: file_data.updated_at,
-        })
+    ) -> ServiceResult<Vec<ShowFileRelatedData>> {
+        let mut res = Vec::new();
+        for file_uuid in &objects_order(file_uuids, sort, paginate, conn)? {
+            let sf = ShowFile::get_by_uuid(file_uuid, conn)?;
+            res.push(ShowFileRelatedData {
+                uuid: sf.uuid,
+                filename: sf.filename.clone(),
+                revision: sf.revision,
+                parent_file_uuid: sf.parent_file_uuid,
+                owner_user: ShowUserShort::get_without_check_by_uuid(&sf.user_uuid, conn)?,
+                content_type: sf.content_type.clone(),
+                filesize: sf.filesize,
+                program: Program::get_program_for_ext(&sf.id_ext,conn)?,
+                created_at: sf.created_at,
+                updated_at: sf.updated_at,
+            })
+        }
+        Ok(res)
     }
 
     pub(crate) fn get_revisions_by_uuid(
         file_uuid: &Uuid,
-        limit: &i32,
-        offset: &i32,
+        paginate: &Paginate,
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<ShowFileRelatedData>> {
         let mut revision_uuids = Vec::new();
         prev_revision_uuids_by_uuid(&mut revision_uuids, file_uuid, conn)?;
         next_revision_uuids_by_uuid(&mut revision_uuids, file_uuid, conn)?;
 
-        let files_data = ShowFile::get_hide_by_uuids(
-            &revision_uuids,
-            *limit,
-            *offset,
+        let file_uuids = get_hide_by_uuids(&revision_uuids, conn)?;
+        ShowFileRelatedData::data_enrichment(
+            &file_uuids,
+            &Sort::parsing(TableName::FileRef, "revision", false),
+            paginate,
             conn
-        )?;
-
-        let mut result: Vec<ShowFileRelatedData> = Vec::new();
-        for fd in files_data {
-            result.push(ShowFileRelatedData::data_enrichment(fd, conn)?)
-        }
-        Ok(result)
+        )
     }
 }
 

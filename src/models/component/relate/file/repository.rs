@@ -3,7 +3,7 @@ use crate::models::component::util::get_files_by_ext;
 use crate::models::relate_ref::file::model::{
     ShowFileRelatedData, DownloadFile, FileByExtArg
 };
-use crate::models::search::order::{Paginate, Sort, objects_order};
+use crate::models::search::order::{Paginate, Sort};
 use crate::schema::file_to_component::dsl as file_to_component;
 use diesel::prelude::*;
 use uuid::Uuid;
@@ -17,13 +17,7 @@ impl ShowFileRelatedData {
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<ShowFileRelatedData>> {
         let object_uuids = get_file_uuids_by_component_uuid(component_uuid, &[], conn)?;
-        let target_file_uuids: Vec<Uuid> = objects_order(
-            &object_uuids,
-            sort,
-            paginate,
-            conn
-        )?;
-        ShowFileRelatedData::get_file_by_uuids(&target_file_uuids, conn)
+        ShowFileRelatedData::get_file_by_uuids(&object_uuids, sort, paginate, conn)
     }
 }
 

@@ -1,5 +1,5 @@
 use crate::errors::{ServiceResult, ServiceError};
-use crate::models::search::order::{Paginate, Sort, TableName, objects_order};
+use crate::models::search::order::{Paginate, Sort};
 use crate::models::relate_ref::file::model::ShowFileRelatedData;
 use crate::schema::file_to_standard::dsl as file_to_standard;
 use diesel::prelude::*;
@@ -9,17 +9,16 @@ impl ShowFileRelatedData {
     /// Gets all files for standard by uuid without check for hide, delete etc
     pub(crate) fn for_standard_by_uuid(
         standard_uuid: &Uuid,
+        sort: &Sort,
         paginate: &Paginate,
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<ShowFileRelatedData>> {
-        let object_uuids = get_file_uuids_by_standard_uuid(standard_uuid, &[], conn)?;
-        let target_file_uuids: Vec<Uuid> = objects_order(
-            &object_uuids,
-            &Sort::parsing(TableName::FileRef, "", false),
+        ShowFileRelatedData::get_file_by_uuids(
+            &get_file_uuids_by_standard_uuid(standard_uuid, &[], conn)?,
+            sort,
             paginate,
             conn
-        )?;
-        ShowFileRelatedData::get_file_by_uuids(&target_file_uuids, conn)
+        )
     }
 }
 

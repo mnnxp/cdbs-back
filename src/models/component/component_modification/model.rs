@@ -209,18 +209,12 @@ pub(crate) struct IptModificationFilesArg {
     pub(crate) modification_uuid: Uuid,
     /// Filtering files by UUID (list)
     pub(crate) files_uuids: Option<Vec<Uuid>>,
-    /// Restriction of data sampling (maximum number of records)
-    pub(crate) limit: Option<i32>,
-    /// Number of skipping records at the beginning (offset)
-    pub(crate) offset: Option<i32>,
 }
 
 #[derive(Debug)]
 pub(crate) struct ModificationFilesArg {
     pub(crate) modification_uuid: Uuid,
     pub(crate) file_uuids: Vec<Uuid>,
-    pub(crate) limit: i32,
-    pub(crate) offset: i32,
 }
 
 impl From<IptModificationFilesArg> for ModificationFilesArg {
@@ -228,15 +222,11 @@ impl From<IptModificationFilesArg> for ModificationFilesArg {
         let IptModificationFilesArg {
             modification_uuid,
             files_uuids,
-            limit,
-            offset,
         } = data;
 
         Self {
             modification_uuid,
             file_uuids: files_uuids.unwrap_or_default(),
-            limit: limit.unwrap_or(100),
-            offset: offset.unwrap_or(0),
         }
     }
 }

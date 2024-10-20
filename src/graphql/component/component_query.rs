@@ -5,7 +5,7 @@ use crate::graphql::{
         ComponentAndRelatedData, ShowComponentShort, IptComponentsArg, IptComponentFilesArg,
         ComponentModificationAndRelatedData
     },
-    relate::attributes::IptPaginate,
+    relate::attributes::{IptPaginate, IptSort},
 };
 use crate::models::search::model::{ExtraOptions, IptSearchArg};
 use crate::models::user::access::logged::{get_logged_user_uuid, check_authorized};
@@ -36,7 +36,7 @@ use crate::models::relate_ref::{
     spec::model::SpecTranslateList,
     language::get_set_language,
 };
-use crate::models::search::order::Paginate;
+use crate::models::search::order::{Paginate, Sort, TableName};
 use async_graphql::{self, Context, Object};
 use uuid::Uuid;
 
@@ -218,19 +218,19 @@ impl ComponentQuery {
         &self,
         cxt: &Context<'_>,
         args: IptComponentFilesArg,
+        paginate: Option<IptPaginate>,
     ) -> ServiceResult<Vec<DownloadFile>> {
         use crate::models::component::file::service::list::get_component_files;
 
         // authorization check
         let logged_user_uuid: Uuid = get_logged_user_uuid(cxt, true)?;
         let arguments: ComponentFilesArg = args.into();
+        let p = paginate
+            .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
+            .unwrap_or_default();
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        get_component_files(
-            &logged_user_uuid,
-            &arguments,
-            conn
-        )
+        get_component_files(&logged_user_uuid, &arguments, &p, conn)
     }
 
     /// Returns information about files of a component.
@@ -238,19 +238,22 @@ impl ComponentQuery {
         &self,
         cxt: &Context<'_>,
         args: IptComponentFilesArg,
+        sort: Option<IptSort>,
+        paginate: Option<IptPaginate>,
     ) -> ServiceResult<Vec<ShowFileRelatedData>> {
         use crate::models::component::file::service::list::get_component_files_list;
 
         // authorization check
         let logged_user_uuid: Uuid = get_logged_user_uuid(cxt, true)?;
         let arguments: ComponentFilesArg = args.into();
+        let s = sort
+            .map(|s| Sort::parsing(TableName::FileRef, &s.by_field, s.as_desc))
+            .unwrap_or(Sort::parsing(TableName::FileRef, "", false));
+        let p = paginate
+            .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
+            .unwrap_or_default();
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
-
-        get_component_files_list(
-            &logged_user_uuid,
-            &arguments,
-            conn
-        )
+        get_component_files_list(&logged_user_uuid, &arguments, &s, &p, conn)
     }
 
     /// Returns an array of directory partitions associated with a component.
@@ -281,17 +284,18 @@ impl ComponentQuery {
         &self,
         cxt: &Context<'_>,
         args: IptModificationFilesArg,
+        paginate: Option<IptPaginate>,
     ) -> ServiceResult<Vec<DownloadFile>> {
         use component_modification::file::service::list::get_component_modification_files;
 
         // authorization check
         let logged_user_uuid: Uuid = get_logged_user_uuid(cxt, true)?;
-
         let args: ModificationFilesArg = args.into();
-
+        let p = paginate
+            .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
+            .unwrap_or_default();
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
-
-        get_component_modification_files(&logged_user_uuid, &args, conn)
+        get_component_modification_files(&logged_user_uuid, &args, &p, conn)
     }
 
     /// Returns information about files of a component modification.
@@ -299,17 +303,21 @@ impl ComponentQuery {
         &self,
         cxt: &Context<'_>,
         args: IptModificationFilesArg,
+        sort: Option<IptSort>,
+        paginate: Option<IptPaginate>,
     ) -> ServiceResult<Vec<ShowFileRelatedData>> {
         use component_modification::file::service::list::get_component_modification_files_list;
-
         // authorization check
         let logged_user_uuid: Uuid = get_logged_user_uuid(cxt, true)?;
-
         let args: ModificationFilesArg = args.into();
-
+        let s = sort
+            .map(|s| Sort::parsing(TableName::FileRef, &s.by_field, s.as_desc))
+            .unwrap_or(Sort::parsing(TableName::FileRef, "", false));
+        let p = paginate
+            .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
+            .unwrap_or_default();
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
-
-        get_component_modification_files_list(&logged_user_uuid, &args, conn)
+        get_component_modification_files_list(&logged_user_uuid, &args, &s, &p, conn)
     }
 
     /// Returns a list of filesets by component modification UUID.
@@ -337,18 +345,20 @@ impl ComponentQuery {
         &self,
         cxt: &Context<'_>,
         args: IptFileOfFilesetArg,
+        sort: Option<IptSort>,
+        paginate: Option<IptPaginate>,
     ) -> ServiceResult<Vec<ShowFileRelatedData>> {
         use component_modification::fileset_for_program::file::service::list::get_files_of_fileset;
-
         let logged_user_uuid: Uuid = get_logged_user_uuid(cxt, true)?;
         let arguments: FileOfFilesetArg = FileOfFilesetArg::from(args);
+        let s = sort
+            .map(|s| Sort::parsing(TableName::FileRef, &s.by_field, s.as_desc))
+            .unwrap_or(Sort::parsing(TableName::FileRef, "", false));
+        let p = paginate
+            .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
+            .unwrap_or_default();
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
-
-        get_files_of_fileset(
-            &logged_user_uuid,
-            &arguments,
-            conn
-        )
+        get_files_of_fileset(&logged_user_uuid, &arguments, &s, &p, conn)
     }
 
     /// Returns pre-signed URLs and other information for downloading files of component modification fileset.
@@ -356,18 +366,18 @@ impl ComponentQuery {
         &self,
         cxt: &Context<'_>,
         args: IptFileOfFilesetArg,
+        paginate: Option<IptPaginate>,
     ) -> ServiceResult<Vec<DownloadFile>> {
         use component_modification::fileset_for_program::file::service::list::get_fileset_files;
 
         let logged_user_uuid: Uuid = get_logged_user_uuid(cxt, true)?;
         let arguments: FileOfFilesetArg = FileOfFilesetArg::from(args);
+        let p = paginate
+            .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
+            .unwrap_or_default();
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        get_fileset_files(
-            &logged_user_uuid,
-            &arguments,
-            conn
-        )
+        get_fileset_files(&logged_user_uuid, &arguments, &p, conn)
     }
 
     /// Returns a list of component types.

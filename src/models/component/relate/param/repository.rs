@@ -47,7 +47,7 @@ impl ComponentParamWithTranslation {
             sort = sort.get_complete(),
             paginate = paginate.get_complete(),
         );
-        debug!("SQL param query: {}", query);
+        debug!("SQL component param query: {}", query);
         let pre_result = diesel::sql_query(query)
             .load::<ComponentParamAndTranslate>(conn)
             .map_err(|err| {

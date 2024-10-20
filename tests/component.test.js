@@ -3529,7 +3529,12 @@ describe('component', () => {
           query: `query {
             component(componentUuid: "${componentUuidStandard}") {
               uuid
-              componentStandards {
+              componentStandards (
+                paginate: {
+                  currentPage: 2
+                  perPage: 1
+                }
+              ) {
                 uuid
                 classifier
                 name
@@ -3936,6 +3941,68 @@ describe('component', () => {
     expect(componentFiles[0].uuid).toBe(fileUuid1);
     expect(componentFiles[1].uuid).toBe(fileUuid2);
     expect(componentFiles.length).toBe(5);
+    done();
+  });
+
+  it('/graphql:Q component - Ok files of component', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `query {
+          component(componentUuid: "${componentUuidNoStandard}") {
+            uuid
+            name
+            files (
+              sort: {
+                byField: "name"
+                asDesc: true
+              }
+              paginate: {
+                currentPage: 2
+                perPage: 3
+              }
+            ) {
+              uuid
+              filename
+              updatedAt
+              contentType
+            }
+            componentModifications {
+              modificationName
+              files {
+                filename
+                updatedAt
+                contentType
+              }
+              filesetsForProgram {
+                program {
+                  name
+                }
+                files {
+                  filename
+                  updatedAt
+                  contentType
+                }
+              }
+            }
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql component=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { component },
+    } = body;
+    expect(component.files[0].uuid).toBe(fileUuid2);
+    expect(component.files[1].uuid).toBe(fileUuid1);
+    expect(component.files.length).toBe(2);
+    expect(component.componentModifications[0].files).toBeEmptyArray();
+    expect(component.componentModifications[0].filesetsForProgram).toBeEmptyArray();
     done();
   });
 
@@ -4492,9 +4559,10 @@ describe('component', () => {
       )
       .send({
         query: `query {
-          componentFilesList(args:{
-            componentUuid: "${componentUuidNoStandard}"
-          }){
+          componentFilesList(
+            args:{componentUuid: "${componentUuidNoStandard}"}
+            sort:{byField: "filename"}
+          ){
             ${showFilesQuery}
           }
         }`,
@@ -4852,9 +4920,10 @@ describe('component', () => {
       )
       .send({
           query: `query {
-            componentFilesList(args:{
-              componentUuid: "${componentUuidNoStandard}"
-            }){
+            componentFilesList(
+              args:{componentUuid: "${componentUuidNoStandard}"}
+              sort:{byField: "filename"}
+            ){
               ${showFileRelatedDataFields}
             }
           }`,
@@ -4890,11 +4959,17 @@ describe('component', () => {
       )
       .send({
           query: `query {
-            componentFilesList(args:{
-              componentUuid: "${componentUuidNoStandard}"
-              limit: 2
-              offset: 2
-            }){
+            componentFilesList(
+              args:{componentUuid: "${componentUuidNoStandard}"}
+              sort:{
+                byField: "filename"
+                asDesc: false
+              }
+              paginate: {
+                currentPage: 2
+                perPage: 2
+              }
+            ){
               ${showFileRelatedDataFields}
             }
           }`,
@@ -6245,11 +6320,17 @@ describe('component', () => {
       )
       .send({
           query: `query {
-            componentModificationFilesList(args:{
-              modificationUuid: "${componentModificationUuidSecond}"
-              limit: 2
-              offset: 2
-            }){
+            componentModificationFilesList(
+              args:{modificationUuid: "${componentModificationUuidSecond}"}
+              sort:{
+                byField: "filename"
+                asDesc: false
+              }
+              paginate: {
+                currentPage: 2
+                perPage: 2
+              }
+            ){
               ${showFileRelatedDataFields}
             }
           }`,
@@ -6769,9 +6850,13 @@ describe('component', () => {
       )
       .send({
         query: `query {
-          componentModificationFilesList(args:{
-            modificationUuid: "${componentModificationUuidSecond}"
-          }){
+          componentModificationFilesList(
+            args:{modificationUuid: "${componentModificationUuidSecond}"}
+            sort:{
+              byField: "filename"
+              asDesc: false
+            }
+          ){
             ${showFilesQuery}
           }
         }`,
@@ -8290,9 +8375,13 @@ describe('component', () => {
       )
       .send({
         query: `query {
-          componentModificationFilesOfFileset(args:{
-            filesetUuid: "${filesetForProgramUuid}"
-          }){
+          componentModificationFilesOfFileset(
+            args:{filesetUuid: "${filesetForProgramUuid}"}
+            sort:{
+              byField: "filename"
+              asDesc: false
+            }
+          ){
             ${showFilesQuery}
           }
         }`,

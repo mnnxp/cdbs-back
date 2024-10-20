@@ -4,7 +4,7 @@ use crate::models::component::{
     model::ComponentFilesArg,
     access::util::check_access_component_for_user,
 };
-use crate::models::search::order::{Paginate, Sort, TableName, objects_order};
+use crate::models::search::order::{Paginate, Sort};
 use crate::models::relate_ref::file::model::{DownloadFile, ShowFileRelatedData};
 use diesel::prelude::*;
 use uuid::Uuid;
@@ -13,6 +13,7 @@ use uuid::Uuid;
 pub(crate) fn get_component_files(
     logged_user_uuid: &Uuid,
     args: &ComponentFilesArg,
+    paginate: &Paginate,
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<DownloadFile>> {
     let need_access_level = 3; // todo!(create enum for manage access level)
@@ -24,19 +25,17 @@ pub(crate) fn get_component_files(
         conn
     )?;
 
-    let target_file_uuids = get_file_uuids_by_component_uuid(&args.component_uuid, &args.file_uuids, conn)?;
-
-    DownloadFile::get_by_file_uuids(
-        &target_file_uuids,
-        &Paginate::parsing(args.limit, args.offset),
-        conn
-    )
+    let target_file_uuids =
+        get_file_uuids_by_component_uuid(&args.component_uuid, &args.file_uuids, conn)?;
+    DownloadFile::get_by_file_uuids(&target_file_uuids, paginate, conn)
 }
 
 /// Возвращает информацию о файлах компонента.
 pub(crate) fn get_component_files_list(
     logged_user_uuid: &Uuid,
     args: &ComponentFilesArg,
+    sort: &Sort,
+    paginate: &Paginate,
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<ShowFileRelatedData>> {
     let need_access_level = 3; // todo!(create enum for manage access level)
@@ -49,11 +48,10 @@ pub(crate) fn get_component_files_list(
     )?;
 
     let object_uuids = get_file_uuids_by_component_uuid(&args.component_uuid, &args.file_uuids, conn)?;
-    let target_file_uuids: Vec<Uuid> = objects_order(
+    ShowFileRelatedData::get_file_by_uuids(
         &object_uuids,
-        &Sort::parsing(TableName::FileRef, "", false),
-        &Paginate::parsing(args.limit, args.offset),
+        sort,
+        paginate,
         conn
-    )?;
-    ShowFileRelatedData::get_file_by_uuids(&target_file_uuids, conn)
+    )
 }

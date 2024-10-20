@@ -186,6 +186,9 @@ pub(crate) fn objects_order(
     paginate: &Paginate,
     conn: &mut PgConnection
 ) -> ServiceResult<Vec<Uuid>> {
+    if object_uuids.is_empty() {
+        return Ok(Vec::new())
+    }
     let zero_point = Uuid::nil().to_string();
     let query = format!("
     SELECT uuid

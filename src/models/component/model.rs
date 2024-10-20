@@ -157,8 +157,6 @@ impl From<IptComponentsArg> for ComponentsArg {
 pub(crate) struct ComponentFilesArg {
     pub(crate) component_uuid:  Uuid,
     pub(crate) file_uuids: Vec<Uuid>,
-    pub(crate) limit: i32,
-    pub(crate) offset: i32,
 }
 
 impl From<IptComponentFilesArg> for ComponentFilesArg {
@@ -166,15 +164,11 @@ impl From<IptComponentFilesArg> for ComponentFilesArg {
         let IptComponentFilesArg {
             component_uuid,
             files_uuids,
-            limit,
-            offset,
         } = data;
 
         Self {
             component_uuid,
             file_uuids: files_uuids.unwrap_or_default(),
-            limit: limit.unwrap_or(100),
-            offset: offset.unwrap_or(0),
         }
     }
 }

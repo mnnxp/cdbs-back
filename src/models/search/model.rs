@@ -12,9 +12,9 @@ pub(super) struct ObjectUuid {
 }
 
 impl ObjectUuid {
-    pub(super) fn get_uuids(objcts: &[ObjectUuid]) -> Vec<Uuid> {
+    pub(super) fn get_uuids(objects: &[ObjectUuid]) -> Vec<Uuid> {
         let mut res = Vec::<Uuid>::new();
-        for item in objcts { res.push(item.uuid); }
+        for item in objects { res.push(item.uuid); }
         res
     }
 }

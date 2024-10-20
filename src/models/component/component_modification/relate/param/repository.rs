@@ -47,7 +47,7 @@ impl ModificationParamWithTranslation {
             sort = sort.get_complete(),
             paginate = paginate.get_complete(),
         );
-        debug!("SQL param query: {}", query);
+        debug!("SQL modification param query: {}", query);
         let pre_result = diesel::sql_query(query)
             .load::<ModificationParamAndTranslate>(conn)
             .map_err(|err| {
