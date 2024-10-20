@@ -18,7 +18,7 @@ pub(crate) struct FilesetProgram {
 }
 
 /// File set data with the target software for this set
-#[derive(Debug, Deserialize, SimpleObject, Clone)]
+#[derive(Debug, Deserialize, Clone)]
 pub(crate) struct FilesetProgramRelatedData {
     /// File set UUID
     pub(crate) uuid: Uuid,

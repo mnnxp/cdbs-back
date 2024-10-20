@@ -7,8 +7,8 @@ use	crate::models::relate_ref::{
     spec::model::SpecTranslateList,
     license::model::License,
     keyword::model::Keyword,
-    file::model::ShowFileRelatedData,
-    file::model::DownloadFile,
+    file::model::{ShowFileRelatedData, DownloadFile},
+    program::model::Program,
     language::get_set_language,
 };
 use	crate::models::component::{
@@ -409,8 +409,6 @@ pub(crate) struct IptComponentsArg {
 pub(crate) struct IptComponentFilesArg {
     pub(crate) component_uuid:  Uuid,
     pub(crate) files_uuids: Option<Vec<Uuid>>,
-    pub(crate) limit: Option<i32>,
-    pub(crate) offset: Option<i32>,
 }
 
 
@@ -501,5 +499,61 @@ impl ComponentModificationAndRelatedData {
             .unwrap_or_default();
         ModificationParamWithTranslation::by_modification_uuid(&self.uuid, &get_set_language(cxt), &s, &p, conn)
             .expect("Error loading parameters for modification")
+    }
+
+    /// Files associated with the component modification. Default sorting: `createdAt`.
+    /// Sorting by `revision`, `filename`, `size`, `updatedAt` is available.
+    async fn files(
+        &self,
+        cxt: &Context<'_>,
+        sort: Option<IptSort>,
+        paginate: Option<IptPaginate>,
+    ) -> Vec<ShowFileRelatedData> {
+        let s = sort
+            .map(|s| Sort::parsing(TableName::FileRef, &s.by_field, s.as_desc))
+            .unwrap_or(Sort::parsing(TableName::FileRef, "", false));
+        let p = paginate
+            .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
+            .unwrap_or_default();
+        let conn: &mut PooledConnection = &mut get_conn(cxt).expect("Error get conn to DB");
+        ShowFileRelatedData::get_component_modification_files_offsec(&self.uuid, &[], &s, &p, conn)
+            .expect("Error loading files of component modification")
+    }
+}
+
+#[Object]
+impl FilesetProgramRelatedData {
+    /// File set UUID
+    async fn uuid(&self) -> &Uuid {
+        &self.uuid
+    }
+
+    /// Component modification UUID
+    async fn modification_uuid(&self) -> &Uuid {
+        &self.modification_uuid
+    }
+
+    /// File set target software data
+    async fn program(&self) -> &Program {
+        &self.program
+    }
+
+    /// Files associated with the fileset. Default sorting: `createdAt`.
+    /// Sorting by `revision`, `filename`, `size`, `updatedAt` is available.
+    async fn files(
+        &self,
+        cxt: &Context<'_>,
+        sort: Option<IptSort>,
+        paginate: Option<IptPaginate>,
+    ) -> Vec<ShowFileRelatedData> {
+        let s = sort
+            .map(|s| Sort::parsing(TableName::FileRef, &s.by_field, s.as_desc))
+            .unwrap_or(Sort::parsing(TableName::FileRef, "", false));
+        let p = paginate
+            .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
+            .unwrap_or_default();
+        let conn: &mut PooledConnection = &mut get_conn(cxt).expect("Error get conn to DB");
+        ShowFileRelatedData::get_files_of_fileset_offsec(&self.uuid, &[], &s, &p, conn)
+            .expect("Error loading files of fileset")
     }
 }
