@@ -420,6 +420,7 @@ const showFileRevisionsQuery = ` \
 uuid \
 filename \
 revision \
+commitMsg \
 parentFileUuid \
 ownerUser { \
   username \
@@ -4074,6 +4075,7 @@ describe('component', () => {
               "${filename0}"
               "${filename2}"
             ]
+            commitMsg: "test message"
           }) {
             fileUuid
             filename
@@ -4123,6 +4125,7 @@ describe('component', () => {
     // expect(showFileRevisions[0].uuid).toBe(fileUuid1);
     expect(showFileRevisions[0].filename).toBe(filename0);
     expect(showFileRevisions[0].revision).toBe(1);
+    expect(showFileRevisions[0].commitMsg).toBe("test message");
     expect(showFileRevisions.length).toBe(1);
     done();
   });
@@ -6432,6 +6435,7 @@ describe('component', () => {
             filenames: [
               "${filename2}"
             ]
+            commitMsg: "Secon revision (rev.2)"
           }) {
             fileUuid
             filename
@@ -6476,10 +6480,12 @@ describe('component', () => {
     } = body;
     expect(showFileRevisions[0].uuid).toBe(fileUuid2);
     expect(showFileRevisions[0].revision).toBe(1);
+    expect(showFileRevisions[0].commitMsg).toBe("");
     expect(showFileRevisions[1].uuid).toBe(seconRevFileFileTestUuid2);
     expect(showFileRevisions[1].revision).toBe(2);
     expect(showFileRevisions[2].uuid).toBe(threeRevFileFileTestUuid2);
     expect(showFileRevisions[2].revision).toBe(3);
+    expect(showFileRevisions[2].commitMsg).toBe("Secon revision (rev.2)");
     expect(showFileRevisions.length).toBe(3);
     await setFlagDeleteAsOldRevDb(threeRevFileFileTestUuid2);
     done();

@@ -57,6 +57,7 @@ impl ListObject {
 pub(crate) struct ShowFile {
     pub(crate) uuid: Uuid,
     pub(crate) parent_file_uuid: Uuid,
+    pub(crate) commit_uuid: Uuid,
     pub(crate) revision: i32,
     pub(crate) user_uuid: Uuid,
     pub(crate) filename: String,
@@ -74,6 +75,7 @@ pub(crate) struct InsertableFile {
     pub(crate) uuid: Uuid,
     pub(crate) parent_file_uuid: Uuid,
     pub(crate) revision: i32,
+    pub(crate) commit_uuid: Uuid,
     pub(crate) hash: Vec<u8>,
     pub(crate) user_uuid: Uuid,
     pub(crate) filename: String,
@@ -98,6 +100,7 @@ impl From<PreliminaryFileData> for InsertableFile {
             user_uuid,
             filename,
             id_ext,
+            commit_uuid,
             content_type,
             // filesize,
             ..
@@ -117,6 +120,7 @@ impl From<PreliminaryFileData> for InsertableFile {
             uuid: new_file_uuid,
             parent_file_uuid,
             revision,
+            commit_uuid,
             hash: Vec::new(),
             user_uuid,
             filename,
@@ -145,6 +149,8 @@ pub(crate) struct PreliminaryFileData {
     pub(crate) filename: String,
     /// get id for extension with find_id_ext(filename, conn)
     pub(crate) id_ext: i32,
+    /// file comment (a new one is created if the same one is not found)
+    pub(crate) commit_uuid: Uuid,
     pub(crate) content_type: String,
 }
 
@@ -205,6 +211,8 @@ pub(crate) struct ShowFileRelatedData {
     pub(crate) filename: String,
     /// File revision number
     pub(crate) revision: i32,
+    /// Commit message (comment on the file or its revision)
+    pub(crate) commit_msg: String,
     /// UUID of parent file
     pub(crate) parent_file_uuid: Uuid,
     /// Data about the user who owns the file

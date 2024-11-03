@@ -1,4 +1,5 @@
-use super::util::get_default_image;
+use super::util::{get_default_image, find_id_ext};
+use super::commit::Commit;
 use crate::errors::{ServiceResult, ServiceError};
 use crate::models::user::model::ShowUserShort;
 use crate::models::search::order::{Paginate, Sort, TableName, objects_order};
@@ -57,6 +58,7 @@ impl ShowFile {
             .select((
                 file_ref::uuid,
                 file_ref::parent_file_uuid,
+                file_ref::commit_uuid,
                 file_ref::revision,
                 file_ref::user_uuid,
                 file_ref::filename,
@@ -100,6 +102,7 @@ impl ShowFileRelatedData {
                 uuid: sf.uuid,
                 filename: sf.filename.clone(),
                 revision: sf.revision,
+                commit_msg: Commit::get_message(&sf.commit_uuid, conn)?,
                 parent_file_uuid: sf.parent_file_uuid,
                 owner_user: ShowUserShort::get_without_check_by_uuid(&sf.user_uuid, conn)?,
                 content_type: sf.content_type.clone(),
@@ -217,6 +220,7 @@ impl PreliminaryFileData {
         user_uuid: Uuid,
         object: ListObject,
         filename: &str,
+        commit_uuid: Uuid,
         conn: &mut PgConnection,
     ) -> PreliminaryFileData {
         // set default parent
@@ -224,7 +228,7 @@ impl PreliminaryFileData {
         // getting rid of dangerous names
         let filename = sanitize_filename::sanitize(filename);
         // get id for extension
-        let id_ext = super::util::find_id_ext(&filename, conn);
+        let id_ext = find_id_ext(&filename, conn);
 
         Self {
             parent_file_uuid,
@@ -233,6 +237,7 @@ impl PreliminaryFileData {
             user_uuid,
             filename,
             id_ext,
+            commit_uuid,
             content_type: "application/text".to_string(), // <-- todo!(add parse of filename)
         }
     }

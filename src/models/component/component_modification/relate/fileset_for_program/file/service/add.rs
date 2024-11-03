@@ -6,6 +6,7 @@ use crate::models::component::component_modification::relate::fileset_for_progra
 use crate::models::relate_ref::file::{
     model::{ListObject, UploadFile},
     service::register::preregister_file,
+    commit::Commit,
 };
 use crate::storage::model::StorageAccess;
 use crate::storage::presigned_url::upload_presigned_url;
@@ -34,6 +35,8 @@ pub(crate) fn add_files_of_modification_set(
         return Err(get_err_msg(ErrorMessage::NotFoundFilename))
     }
 
+    // create commit message for the changes
+    let commit_uuid = Commit::create_commit(&data.commit_msg, conn)?;
     let mut up_files: Vec<UploadFile> = Vec::new();
     // Get data for write information about the file before upload to storage
     for filename in &data.filenames {
@@ -42,6 +45,7 @@ pub(crate) fn add_files_of_modification_set(
             logged_user_uuid,
             ListObject::ComponentModificationSet(data.fileset_uuid),
             filename,
+            &commit_uuid,
             conn
         )?;
 

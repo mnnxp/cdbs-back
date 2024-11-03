@@ -22,6 +22,10 @@ pub(crate) struct IptModificationFileFromFilesetData {
     pub(crate) fileset_uuid: Uuid,
     /// Names of files to be added to the file set
     pub(crate) filenames: Vec<String>,
+    /// Change comment has length limit of 225.
+    /// Exceeding the limit will be replaced with `...`.
+    #[graphql(default = "")]
+    pub(crate) commit_msg: String,
 }
 
 /// Data for a request to delete files from a set of files

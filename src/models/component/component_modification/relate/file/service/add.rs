@@ -5,6 +5,7 @@ use crate::models::component::component_modification::util::get_component_by_mod
 use crate::models::relate_ref::file::{
     model::{ListObject, UploadFile},
     service::register::preregister_file,
+    commit::Commit,
 };
 use crate::models::component::access::util::check_access_component_for_user;
 use crate::storage::model::StorageAccess;
@@ -34,6 +35,8 @@ pub(crate) fn add_modification_files(
         return Err(get_err_msg(ErrorMessage::NotFoundFilename))
     }
 
+    // create commit message for the changes
+    let commit_uuid = Commit::create_commit(&data.commit_msg, conn)?;
     let mut up_files: Vec<UploadFile> = Vec::new();
     // Get data for write information about the file before upload to storage
     for filename in &data.filenames {
@@ -42,6 +45,7 @@ pub(crate) fn add_modification_files(
             logged_user_uuid,
             ListObject::ComponentModification(data.modification_uuid),
             filename,
+            &commit_uuid,
             conn
         )?;
 

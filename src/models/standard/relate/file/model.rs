@@ -54,6 +54,10 @@ pub(crate) struct IptStandardFilesData {
     pub(crate) filenames: Vec<String>,
     /// UUID of the standard
     pub(crate) standard_uuid: Uuid,
+    /// Change comment has length limit of 225.
+    /// Exceeding the limit will be replaced with `...`.
+    #[graphql(default = "")]
+    pub(crate) commit_msg: String,
 }
 
 /// Data for requesting deletion files of standard
