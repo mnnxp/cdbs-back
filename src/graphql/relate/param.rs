@@ -39,8 +39,8 @@ impl ParamQuery {
 
 #[Object]
 impl ParamMutation {
-    /// Adds a new parameter name.
-    /// Returns a ID of the parameter name if it already exists.
+    /// Returns a ID of the parameter name.
+    /// A new parameter is not registered if one already exists.
     async fn register_param(
         &self,
         cxt: &Context<'_>,
