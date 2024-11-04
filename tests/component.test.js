@@ -4144,6 +4144,7 @@ describe('component', () => {
             filenames: [
               "${filename2}"
             ]
+            commitMsg: "Very long message to test the length limit of 225 characters. It's important to remember that char represents a Unicode Scalar Value, and may not match your idea of what a 'character' is. Iteration over grapheme clusters may be what you actually want."
           }) {
             fileUuid
             filename
@@ -4190,8 +4191,11 @@ describe('component', () => {
     expect(showFileRevisions[0].revision).toBe(1);
     expect(showFileRevisions[1].uuid).toBe(seconRevFileFileTestUuid2);
     expect(showFileRevisions[1].revision).toBe(2);
+    expect(showFileRevisions[1].commitMsg).toBe("test message");
     expect(showFileRevisions[2].uuid).toBe(threeRevFileFileTestUuid2);
+    expect(showFileRevisions[2].filename).toBe(filename2);
     expect(showFileRevisions[2].revision).toBe(3);
+    expect(showFileRevisions[2].commitMsg).toBe("Very long message to test the length limit of 225 characters. It's important to remember that char represents a Unicode Scalar Value, and may not match your idea of what a 'character' is. Iteration over grapheme clusters m...");
     expect(showFileRevisions.length).toBe(3);
     await setFlagDeleteAsOldRevDb(threeRevFileFileTestUuid2);
     done();
