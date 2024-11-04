@@ -76,18 +76,12 @@ pub(crate) struct IptFilesetProgramArg {
     pub(crate) modification_uuid: Uuid,
     /// Filtering by software identifiers (list)
     pub(crate) program_ids: Option<Vec<i32>>,
-    /// Restriction of data sampling (maximum number of records)
-    pub(crate) limit: Option<i32>,
-    /// Number of skipping records at the beginning (offset)
-    pub(crate) offset: Option<i32>,
 }
 
 #[derive(Debug)]
 pub(crate) struct FilesetProgramArg {
     pub(crate) modification_uuid: Uuid,
     pub(crate) program_ids: Vec<i32>,
-    pub(crate) limit: i32,
-    pub(crate) offset: i32,
 }
 
 impl From<IptFilesetProgramArg> for FilesetProgramArg {
@@ -95,15 +89,11 @@ impl From<IptFilesetProgramArg> for FilesetProgramArg {
         let IptFilesetProgramArg {
             modification_uuid,
             program_ids,
-            limit,
-            offset,
         } = data;
 
         Self {
             modification_uuid,
             program_ids: program_ids.unwrap_or_default(),
-            limit: limit.unwrap_or(100),
-            offset: offset.unwrap_or(0),
         }
     }
 }

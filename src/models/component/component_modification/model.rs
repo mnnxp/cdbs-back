@@ -2,7 +2,7 @@ use crate::models::component::{
     model::Component,
     component_modification::util::get_root_modification_uuid,
 };
-use crate::models::search::order::{Paginate, Sort, TableName};
+use crate::models::search::order::{Paginate, Sort};
 use crate::schema::*;
 use async_graphql::*;
 use chrono::*;
@@ -169,37 +169,13 @@ pub(crate) struct DelComponentModificationData {
     pub(crate) modification_uuid: Uuid,
 }
 
-#[derive(InputObject, Deserialize, Debug)]
-pub(crate) struct IptComponentModificationArg {
-    pub(crate) component_uuid: Uuid,
-    pub(crate) limit: Option<i32>,
-    pub(crate) offset: Option<i32>,
-}
 
 #[derive(Debug)]
 pub(crate) struct ComponentModificationArg {
     pub(crate) component_uuid: Uuid,
     pub(crate) sort: Sort,
     pub(crate) paginate: Paginate,
-}
-
-impl From<IptComponentModificationArg> for ComponentModificationArg {
-    fn from(data: IptComponentModificationArg) -> Self {
-        let IptComponentModificationArg {
-            component_uuid,
-            limit,
-            offset,
-        } = data;
-
-        Self {
-            component_uuid,
-            sort: Sort::set_by_table(TableName::ComponentModification),
-            paginate: Paginate::parsing(
-                limit.unwrap_or(10),
-                offset.unwrap_or(0),
-            ),
-        }
-    }
+    pub(crate) set_lang_id: i32,
 }
 
 /// Component modification file list request data

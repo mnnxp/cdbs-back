@@ -62,10 +62,6 @@ pub struct ComponentAndRelatedData {
     // Связанные с компонентом данные
     /// Component data distribution licenses
     pub(crate) licenses: Vec<License>,
-    /// Catalogs to which the component is added
-    pub(crate) component_specs: Vec<SpecTranslateList>,
-    /// Component keywords (tags)
-    pub(crate) component_keywords: Vec<Keyword>,
 }
 
 #[Object]
@@ -157,7 +153,7 @@ impl ComponentAndRelatedData {
         let conn: &mut PooledConnection = &mut get_conn(cxt).expect("Error get conn to DB");
         let s = sort
             .map(|s| Sort::parsing(TableName::ParamTranslateList, &s.by_field, s.as_desc))
-            .unwrap_or(Sort::parsing(TableName::ParamTranslateList, "", false));
+            .unwrap_or(Sort::set_by_table(TableName::ParamTranslateList));
         let p = paginate
             .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
             .unwrap_or_default();
@@ -176,7 +172,7 @@ impl ComponentAndRelatedData {
         let conn: &mut PooledConnection = &mut get_conn(cxt).expect("Error get conn to DB");
         let s = sort
             .map(|s| Sort::parsing(TableName::FileRef, &s.by_field, s.as_desc))
-            .unwrap_or(Sort::parsing(TableName::FileRef, "", false));
+            .unwrap_or(Sort::set_by_table(TableName::FileRef));
         let p = paginate
             .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
             .unwrap_or_default();
@@ -185,13 +181,28 @@ impl ComponentAndRelatedData {
     }
 
     /// Catalogs to which the component is added
-    async fn component_specs(&self) -> &[SpecTranslateList] {
-        &self.component_specs
+    async fn component_specs(&self,
+        cxt: &Context<'_>,
+        paginate: Option<IptPaginate>,
+    ) -> Vec<SpecTranslateList> {
+        let conn: &mut PooledConnection = &mut get_conn(cxt).expect("Error get conn to DB");
+        let p = paginate.map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
+            .unwrap_or_default();
+        SpecTranslateList::for_component_by_uuid(&self.uuid, &get_set_language(cxt), &p, conn)
+            .expect("Error loading component keywords")
     }
 
     /// Component keywords (tags)
-    async fn component_keywords(&self) -> &[Keyword] {
-        &self.component_keywords
+    async fn component_keywords(
+        &self,
+        cxt: &Context<'_>,
+        paginate: Option<IptPaginate>,
+    ) -> Vec<Keyword> {
+        let conn: &mut PooledConnection = &mut get_conn(cxt).expect("Error get conn to DB");
+        let p = paginate.map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
+            .unwrap_or_default();
+        Keyword::for_component_without_check(&self.uuid, &p, conn)
+            .expect("Error loading component keywords")
     }
 
     /// Component modifications and related data (such as filesets for CADs)
@@ -205,7 +216,7 @@ impl ComponentAndRelatedData {
         let conn: &mut PooledConnection = &mut get_conn(cxt).expect("Error get conn to DB");
         let s = sort
             .map(|s| Sort::parsing(TableName::ComponentModification, &s.by_field, s.as_desc))
-            .unwrap_or(Sort::parsing(TableName::ComponentModification, "", false));
+            .unwrap_or(Sort::set_by_table(TableName::ComponentModification));
         let p = paginate
             .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
             .unwrap_or_default();
@@ -399,10 +410,6 @@ pub(crate) struct IptComponentsArg {
     pub(crate) standard_uuid: Option<Uuid>,
     pub(crate) user_uuid: Option<Uuid>,
     pub(crate) favorite: Option<bool>,
-    pub(crate) order_by: Option<String>,
-    pub(crate) as_desc: Option<bool>,
-    pub(crate) limit: Option<i32>,
-    pub(crate) offset: Option<i32>,
 }
 
 #[derive(InputObject, Deserialize, Debug)]
@@ -493,7 +500,7 @@ impl ComponentModificationAndRelatedData {
         let conn: &mut PooledConnection = &mut get_conn(cxt).expect("Error get conn to DB");
         let s = sort
             .map(|s| Sort::parsing(TableName::ParamTranslateList, &s.by_field, s.as_desc))
-            .unwrap_or(Sort::parsing(TableName::ParamTranslateList, "", false));
+            .unwrap_or(Sort::set_by_table(TableName::ParamTranslateList));
         let p = paginate
             .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
             .unwrap_or_default();
@@ -511,7 +518,7 @@ impl ComponentModificationAndRelatedData {
     ) -> Vec<ShowFileRelatedData> {
         let s = sort
             .map(|s| Sort::parsing(TableName::FileRef, &s.by_field, s.as_desc))
-            .unwrap_or(Sort::parsing(TableName::FileRef, "", false));
+            .unwrap_or(Sort::set_by_table(TableName::FileRef));
         let p = paginate
             .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
             .unwrap_or_default();
@@ -548,7 +555,7 @@ impl FilesetProgramRelatedData {
     ) -> Vec<ShowFileRelatedData> {
         let s = sort
             .map(|s| Sort::parsing(TableName::FileRef, &s.by_field, s.as_desc))
-            .unwrap_or(Sort::parsing(TableName::FileRef, "", false));
+            .unwrap_or(Sort::set_by_table(TableName::FileRef));
         let p = paginate
             .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
             .unwrap_or_default();

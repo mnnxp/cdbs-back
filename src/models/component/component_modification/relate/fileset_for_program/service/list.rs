@@ -8,8 +8,8 @@ use crate::schema::fileset_for_program::dsl as fileset_for_program;
 use diesel::prelude::*;
 use uuid::Uuid;
 
-/// Возвращает список наборов файлов по UUID модификации компонента.
-/// Доступна фильтрация по идентификаторам программ.
+/// Returns a list of file sets by component modification UUID.
+/// Filtering by program identifiers is available.
 pub(crate) fn get_modification_filesets(
     logged_user_uuid: &Uuid,
     arguments: &FilesetProgramArg,
@@ -18,8 +18,6 @@ pub(crate) fn get_modification_filesets(
     let FilesetProgramArg {
         modification_uuid,
         program_ids,
-        limit,
-        offset,
     } = arguments;
 
     // todo!(временное решение: убрать ограничение доступа файлам из набора модификации компонента)
@@ -44,8 +42,7 @@ pub(crate) fn get_modification_filesets(
             .and(fileset_for_program::program_id.eq_any(program_ids))),
     };
 
-    let filesets = query.limit(*limit as i64)
-        .offset(*offset as i64)
+    let filesets = query
         .load::<FilesetProgram>(conn)
         .map_err(|err| {
             debug!("Error get filesets for programs: {:?}", err);

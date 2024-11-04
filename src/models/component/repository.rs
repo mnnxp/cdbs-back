@@ -14,8 +14,6 @@ use crate::models::relate_ref::{
     type_access::model::TypeAccessTranslateList,
     license::model::License,
     file::model::DownloadFile,
-    keyword::model::Keyword,
-    spec::model::SpecTranslateList,
 };
 use crate::schema::component_ref::dsl as component_ref;
 use diesel::prelude::*;
@@ -290,19 +288,6 @@ impl ComponentAndRelatedData {
             conn
         ).expect("Error loading license");
 
-        // get specs with translation for component
-        let component_specs = SpecTranslateList::for_component(
-            &component,
-            &options.set_lang_id,
-            conn
-        ).expect("Error loading spec component with translate");
-
-        // get keywords for component
-        let component_keywords = Keyword::get_by_component(
-            &component,
-            conn
-        ).expect("Error loading component keywords");
-
         Ok(ComponentAndRelatedData {
             uuid: component.uuid,
             parent_component_uuid: component.parent_component_uuid,
@@ -319,8 +304,6 @@ impl ComponentAndRelatedData {
             created_at: component.created_at,
             updated_at: component.updated_at,
             licenses,
-            component_specs,
-            component_keywords,
         })
     }
 }

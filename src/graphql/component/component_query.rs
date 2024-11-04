@@ -13,17 +13,12 @@ use crate::models::component::{
     model::{ComponentsArg, ComponentFilesArg},
     relate::{
         supplier::model::ComponentSupplierRelatedData,
-        keyword::model::{IptComponentKeywordsArg, ComponentKeywordsArg},
-        spec::model::{IptComponentSpecsArg, ComponentSpecsArg},
         component_type::model::ComponentTypeTranslateList,
         actual_status::model::ActualStatusTranslateList,
     },
     component_modification,
     component_modification::{
-        model::{
-            IptComponentModificationArg, ComponentModificationArg,
-            IptModificationFilesArg, ModificationFilesArg
-        },
+        model::{ComponentModificationArg, IptModificationFilesArg, ModificationFilesArg},
         fileset_for_program::model::{FilesetProgramRelatedData, IptFilesetProgramArg, FilesetProgramArg},
         fileset_for_program::file::model::{IptFileOfFilesetArg, FileOfFilesetArg},
     },
@@ -64,26 +59,25 @@ impl ComponentQuery {
     async fn components(
         &self,
         cxt: &Context<'_>,
-        args: Option<IptComponentsArg>
+        args: Option<IptComponentsArg>,
+        sort: Option<IptSort>,
+        paginate: Option<IptPaginate>,
     ) -> ServiceResult<Vec<ShowComponentShort>> {
         use crate::models::component::service::list::get_components;
 
         // authorization check
         let logged_user_uuid: Uuid = get_logged_user_uuid(cxt, true)?;
-
         let arguments: ComponentsArg = match args {
-            Some(x) => ComponentsArg::from(x),
-            None => ComponentsArg::default(),
+            Some(x) => ComponentsArg::by_arg(x, get_set_language(cxt)),
+            None => ComponentsArg::by_lang(get_set_language(cxt)),
         };
-
+        let s = sort.map(|s| Sort::parsing(TableName::ComponentRef, &s.by_field, s.as_desc))
+            .unwrap_or(Sort::set_by_table(TableName::ComponentRef));
+        let p = paginate.map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
+            .unwrap_or_default();
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        get_components(
-            &logged_user_uuid,
-            &arguments,
-            &get_set_language(cxt),
-            conn,
-        )
+        get_components(&logged_user_uuid, &arguments, &s, &p, conn)
     }
 
     /// Returns complete information about the component by UUID.
@@ -109,21 +103,27 @@ impl ComponentQuery {
     async fn component_modifications(
         &self,
         cxt: &Context<'_>,
-        args: IptComponentModificationArg,
+        component_uuid: Uuid,
+        sort: Option<IptSort>,
+        paginate: Option<IptPaginate>,
     ) -> ServiceResult<Vec<ComponentModificationAndRelatedData>> {
         use crate::models::component::component_modification::service::list::get_component_modifications;
 
         // authorization check
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
-
-        let args: ComponentModificationArg = args.into();
-
+        let args = ComponentModificationArg {
+            component_uuid,
+            sort: sort.map(|s| Sort::parsing(TableName::ComponentModification, &s.by_field, s.as_desc))
+                .unwrap_or(Sort::set_by_table(TableName::ComponentModification)),
+            paginate: paginate.map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
+                .unwrap_or_default(),
+            set_lang_id: get_set_language(cxt),
+        };
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         get_component_modifications(
             &logged_user_uuid,
             &args,
-            &get_set_language(cxt),
             conn
         )
     }
@@ -154,20 +154,22 @@ impl ComponentQuery {
     async fn component_keywords(
         &self,
         cxt: &Context<'_>,
-        args: IptComponentKeywordsArg,
+        component_uuid: Uuid,
+        paginate: Option<IptPaginate>,
     ) -> ServiceResult<Vec<Keyword>> {
         use crate::models::component::keyword::service::list::get_component_keywords;
 
         // authorization check
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
-
-        let arguments: ComponentKeywordsArg = args.into();
-
+        let p = paginate
+            .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
+            .unwrap_or_default();
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         get_component_keywords(
             &logged_user_uuid,
-            &arguments,
+            &component_uuid,
+            &p,
             conn
         )
     }
@@ -248,7 +250,7 @@ impl ComponentQuery {
         let arguments: ComponentFilesArg = args.into();
         let s = sort
             .map(|s| Sort::parsing(TableName::FileRef, &s.by_field, s.as_desc))
-            .unwrap_or(Sort::parsing(TableName::FileRef, "", false));
+            .unwrap_or(Sort::set_by_table(TableName::FileRef));
         let p = paginate
             .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
             .unwrap_or_default();
@@ -260,21 +262,23 @@ impl ComponentQuery {
     async fn component_specs(
         &self,
         cxt: &Context<'_>,
-        args: IptComponentSpecsArg,
+        component_uuid: Uuid,
+        paginate: Option<IptPaginate>,
     ) -> ServiceResult<Vec<SpecTranslateList>> {
         use crate::models::component::spec::service::list::get_component_specs;
 
         // authorization check
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
-
-        let arguments: ComponentSpecsArg = args.into();
-
+        let p = paginate
+            .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
+            .unwrap_or_default();
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         get_component_specs(
             &logged_user_uuid,
-            &arguments,
+            &component_uuid,
             &get_set_language(cxt),
+            &p,
             conn
         )
     }
@@ -312,7 +316,7 @@ impl ComponentQuery {
         let args: ModificationFilesArg = args.into();
         let s = sort
             .map(|s| Sort::parsing(TableName::FileRef, &s.by_field, s.as_desc))
-            .unwrap_or(Sort::parsing(TableName::FileRef, "", false));
+            .unwrap_or(Sort::set_by_table(TableName::FileRef));
         let p = paginate
             .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
             .unwrap_or_default();
@@ -353,7 +357,7 @@ impl ComponentQuery {
         let arguments: FileOfFilesetArg = FileOfFilesetArg::from(args);
         let s = sort
             .map(|s| Sort::parsing(TableName::FileRef, &s.by_field, s.as_desc))
-            .unwrap_or(Sort::parsing(TableName::FileRef, "", false));
+            .unwrap_or(Sort::set_by_table(TableName::FileRef));
         let p = paginate
             .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
             .unwrap_or_default();

@@ -1536,9 +1536,9 @@ describe('component', () => {
       .post('/graphql')
       .send({
         query: `query  {
-          componentKeywords(args: {
+          componentKeywords(
             componentUuid: "${componentUuidNoStandard}"
-          }){
+          ){
             id
             keyword
           }
@@ -1563,9 +1563,9 @@ describe('component', () => {
       )
       .send({
         query: `query  {
-          componentKeywords(args: {
+          componentKeywords(
             componentUuid: "${componentUuidNoStandard}"
-          }){
+          ){
             id
             keyword
           }
@@ -1590,9 +1590,9 @@ describe('component', () => {
       )
       .send({
         query: `query  {
-          componentKeywords(args: {
+          componentKeywords(
             componentUuid: "${componentUuidNoStandard}"
-          }){
+          ){
             id
             keyword
           }
@@ -1616,7 +1616,7 @@ describe('component', () => {
     done();
   });
 
-  it('/graphql:Q componentKeywords - OK with limit and offset', async (done) => {
+  it('/graphql:Q componentKeywords - OK with paginate', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .set(
@@ -1625,11 +1625,13 @@ describe('component', () => {
       )
       .send({
         query: `query  {
-          componentKeywords(args: {
+          componentKeywords(
             componentUuid: "${componentUuidNoStandard}"
-            limit: 2
-            offset: 3
-          }){
+            paginate: {
+              currentPage: 2
+              perPage: 3
+            }
+          ){
             id
             keyword
           }
@@ -1658,11 +1660,13 @@ describe('component', () => {
       )
       .send({
         query: `query  {
-          componentKeywords(args: {
+          componentKeywords(
             componentUuid: "${componentUuidNoStandard}"
-            limit: 5
-            offset: 500
-          }){
+            paginate: {
+              currentPage: 2
+              perPage: 500
+            }
+          ){
             id
             keyword
           }
@@ -2415,9 +2419,9 @@ describe('component', () => {
       .post('/graphql')
       .send({
         query: `query  {
-          componentSpecs(args: {
+          componentSpecs(
             componentUuid: "${componentUuidNoStandard}"
-          }){
+          ){
             specId
             langId
             spec
@@ -2443,9 +2447,9 @@ describe('component', () => {
       )
       .send({
         query: `query  {
-          componentSpecs(args: {
+          componentSpecs(
             componentUuid: "${componentUuidNoStandard}"
-          }){
+          ){
             specId
             langId
             spec
@@ -2471,7 +2475,7 @@ describe('component', () => {
     done();
   });
 
-  it('/graphql:Q componentSpecs - OK with limit and offset', async (done) => {
+  it('/graphql:Q componentSpecs - OK with paginate', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .set(
@@ -2480,11 +2484,13 @@ describe('component', () => {
       )
       .send({
         query: `query  {
-          componentSpecs(args: {
+          componentSpecs(
             componentUuid: "${componentUuidNoStandard}"
-            limit: 1
-            offset: 3
-          }){
+            paginate: {
+              currentPage: 4
+              perPage: 1
+            }
+          ){
             specId
             langId
             spec
@@ -2512,11 +2518,13 @@ describe('component', () => {
       )
       .send({
         query: `query  {
-          componentSpecs(args: {
+          componentSpecs(
             componentUuid: "${componentUuidNoStandard}"
-            limit: 50
-            offset: 500
-          }){
+            paginate: {
+              currentPage: 10
+              perPage: 50
+            }
+          ){
             specId
             langId
             spec
@@ -5911,9 +5919,9 @@ describe('component', () => {
       .post('/graphql')
       .send({
           query: `query {
-            componentModifications(args: {
+            componentModifications(
               componentUuid: "${componentUuidNoStandard}"
-            }){
+            ){
               ${componentModificationFields}
             }
           }`,
@@ -5937,9 +5945,9 @@ describe('component', () => {
       )
       .send({
           query: `query {
-            componentModifications(args: {
+            componentModifications(
               componentUuid: "${componentUuidNoStandard}"
-            }){
+            ){
               ${componentModificationFields}
             }
           }`,
@@ -5963,9 +5971,9 @@ describe('component', () => {
       )
       .send({
           query: `query {
-            componentModifications(args: {
+            componentModifications(
               componentUuid: "${componentUuidNoStandard}"
-            }){
+            ){
               ${componentModificationFields}
             }
           }`,
@@ -5981,6 +5989,44 @@ describe('component', () => {
     expect(componentModifications[1].modificationParams[0].param.paramId).toBe(paramnameIndex);
     expect(componentModifications[1].modificationParams[0].param.paramname).toBeNonEmptyString();
     expect(componentModifications[1].modificationParams[0].value).toBe(paramValueTest2);
+    done();
+  });
+
+
+  it('/graphql:Q componentModifications - OK sort and paginate', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+          query: `query {
+            componentModifications(
+              componentUuid: "${componentUuidStandard}"
+              sort:{
+                byField: "name"
+                asDesc: false
+              }
+              paginate: {
+                currentPage: 3
+                perPage: 2
+              }
+            ){
+              ${componentModificationFields}
+            }
+          }`,
+        })
+      .expect(HttpStatus.OK)
+    debug('/graphql filter component=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { componentModifications },
+    } = body;
+    expect(componentModifications.length).toBe(2);
+    expect(componentModifications[0].componentUuid).toBe(componentUuidStandard);
+    expect(componentModifications[0].modificationName).toBe(nameModificationForUpdate);
+    expect(componentModifications[1].modificationName).toBe(modificationName);
     done();
   });
 

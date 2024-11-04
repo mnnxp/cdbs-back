@@ -11,7 +11,6 @@ use uuid::Uuid;
 pub(crate) fn get_component_modifications(
     logged_user_uuid: &Uuid,
     args: &ComponentModificationArg,
-    set_lang_id: &i32,
     conn: &mut PgConnection
 ) -> ServiceResult<Vec<ComponentModificationAndRelatedData>> {
     let need_access_level = 3; // todo!(create enum for manage access level)
@@ -27,7 +26,7 @@ pub(crate) fn get_component_modifications(
         &args.component_uuid,
         &args.sort,
         &args.paginate,
-        set_lang_id,
+        &args.set_lang_id,
         conn
     )
 }

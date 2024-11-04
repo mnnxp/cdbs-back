@@ -91,37 +91,3 @@ impl From<&IptComponentKeywordsData> for DeleteComponentKeyword {
         }
     }
 }
-
-/// Data for querying keywords associated with the component
-#[derive(InputObject, Deserialize, Debug)]
-pub(crate) struct IptComponentKeywordsArg {
-    /// component UUID
-    pub(crate) component_uuid: Uuid,
-    /// Restriction of data sampling (maximum number of records)
-    pub(crate) limit: Option<i32>,
-    /// Number of skipping records at the beginning (offset)
-    pub(crate) offset: Option<i32>,
-}
-
-#[derive(Debug)]
-pub(crate) struct ComponentKeywordsArg {
-    pub(crate) component_uuid: Uuid,
-    pub(crate) limit: i32,
-    pub(crate) offset: i32,
-}
-
-impl From<IptComponentKeywordsArg> for ComponentKeywordsArg {
-    fn from(data: IptComponentKeywordsArg) -> Self {
-        let IptComponentKeywordsArg {
-            component_uuid,
-            limit,
-            offset,
-        } = data;
-
-        Self {
-            component_uuid,
-            limit: limit.unwrap_or(100),
-            offset: offset.unwrap_or(0),
-        }
-    }
-}

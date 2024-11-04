@@ -1,5 +1,4 @@
 use crate::graphql::component_model::{IptComponentData, IptComponentsArg, IptComponentFilesArg};
-use crate::models::search::order::{Sort, TableName};
 use crate::models::component::util::get_root_component_uuid;
 use crate::models::relate_ref::file::util::get_default_image;
 use crate::schema::component_ref;
@@ -107,38 +106,18 @@ pub(crate) struct ComponentsArg {
     pub(crate) standard_uuid: Option<Uuid>,
     pub(crate) user_uuid: Option<Uuid>,
     pub(crate) favorite: bool,
-    pub(crate) sort: Sort,
-    pub(crate) limit: i32,
-    pub(crate) offset: i32,
+    pub(crate) set_lang_id: i32,
 }
 
-impl Default for ComponentsArg {
-    fn default() -> Self {
-        Self {
-            filter_components_uuids: Vec::new(),
-            company_uuid: None,
-            standard_uuid: None,
-            user_uuid: None,
-            favorite: false,
-            sort: Sort::set_by_table(TableName::ComponentRef),
-            limit: 100,
-            offset: 0,
-        }
-    }
-}
-
-impl From<IptComponentsArg> for ComponentsArg {
-    fn from(data: IptComponentsArg) -> Self {
+impl ComponentsArg {
+    /// Returns a ComponentsArg with the given arguments and language
+    pub(crate) fn by_arg(data: IptComponentsArg, set_lang_id: i32) -> Self {
         let IptComponentsArg {
             components_uuids,
             company_uuid,
             standard_uuid,
             user_uuid,
             favorite,
-            order_by,
-            as_desc,
-            limit,
-            offset,
         } = data;
         Self {
             filter_components_uuids: components_uuids.unwrap_or_default(),
@@ -146,9 +125,19 @@ impl From<IptComponentsArg> for ComponentsArg {
             standard_uuid,
             user_uuid,
             favorite: favorite.unwrap_or(false),
-            sort: Sort::parsing(TableName::ComponentRef, order_by.unwrap_or_default().as_str(), as_desc.unwrap_or_default()),
-            limit: limit.unwrap_or(100),
-            offset: offset.unwrap_or(0),
+            set_lang_id,
+        }
+    }
+
+    /// Returns a ComponentsArg with the specified language and default arguments
+    pub(crate) fn by_lang(set_lang_id: i32) -> Self {
+        Self {
+            filter_components_uuids: Vec::new(),
+            company_uuid: None,
+            standard_uuid: None,
+            user_uuid: None,
+            favorite: false,
+            set_lang_id,
         }
     }
 }

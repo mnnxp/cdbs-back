@@ -87,7 +87,8 @@ pub(crate) fn get_components_by_uuids(
 pub(crate) fn get_components(
     logged_user_uuid: &Uuid,
     arguments: &ComponentsArg,
-    set_lang_id: &i32,
+    sort: &Sort,
+    paginate: &Paginate,
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<ShowComponentShort>> {
     // structure for reduce the number of function arguments
@@ -97,9 +98,7 @@ pub(crate) fn get_components(
         standard_uuid,
         user_uuid,
         favorite,
-        sort,
-        limit,
-        offset,
+        set_lang_id,
     } = arguments;
     // select target components uuids
     let target_components_uuids = match (favorite, user_uuid, standard_uuid, company_uuid) {
@@ -158,7 +157,7 @@ pub(crate) fn get_components(
             set_lang_id: *set_lang_id,
         },
         sort,
-        &Paginate::parsing(*limit, *offset),
+        paginate,
         conn
     )
 }
