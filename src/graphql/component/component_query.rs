@@ -46,12 +46,18 @@ impl ComponentQuery {
         &self,
         cxt: &Context<'_>,
         args: IptSearchArg,
+        sort: Option<IptSort>,
+        paginate: Option<IptPaginate>,
     ) -> ServiceResult<Vec<ShowComponentShort>> {
         use crate::models::component::service::list::get_components_by_uuids;
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
         // authorization check
         let options = ExtraOptions::from_cxt(cxt)?;
-        get_components_by_uuids(&args, &options, conn)
+        let s = sort.map(|s| Sort::parsing(TableName::ComponentRef, &s.by_field, s.as_desc))
+            .unwrap_or(Sort::set_by_table(TableName::ComponentRef));
+        let p = paginate.map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
+            .unwrap_or_default();
+        get_components_by_uuids(&args, &options, &s, &p, conn)
     }
 
     /// Returns brief information about components with filter by:

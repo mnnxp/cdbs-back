@@ -1,7 +1,7 @@
 use crate::errors::{ServiceResult, ServiceError};
 use crate::errors::err_msg::{ErrorMessage, get_err_msg};
 use crate::graphql::component_model::{ComponentAndRelatedData, ShowComponentShort};
-use crate::models::search::order::{Paginate, Sort, TableName, objects_order};
+use crate::models::search::order::{Paginate, Sort, objects_order};
 use crate::models::search::model::{ExtraOptions, IptSearchArg};
 use crate::models::component::{
     model::ComponentsArg,
@@ -16,6 +16,8 @@ use uuid::Uuid;
 pub(crate) fn get_components_by_uuids(
     args: &IptSearchArg,
     options: &ExtraOptions,
+    sort: &Sort,
+    paginate: &Paginate,
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<ShowComponentShort>> {
     let need_access_level = 3; // todo!(create enum for manage access level)
@@ -60,14 +62,8 @@ pub(crate) fn get_components_by_uuids(
             err => debug!("Bad access (get_list_by_uuids): {:?}", err),
         }
     }
-    let paginate = &Paginate::parsing(args.limit, args.offset);
-    ct_uuids_with_check = objects_order(
-        &ct_uuids_with_check,
-        &Sort::parsing(TableName::ComponentRef, args.order_by.as_str(), args.as_desc),
-        paginate,
-        conn
-    )?;
-    // the result for store the result :)
+    ct_uuids_with_check = objects_order(&ct_uuids_with_check, sort, paginate, conn)?;
+    // for store the result
     let mut result: Vec<ShowComponentShort> = Vec::new();
     // collecting data for each component
     for ct_uuid in ct_uuids_with_check.iter() {

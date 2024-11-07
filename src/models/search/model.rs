@@ -44,17 +44,9 @@ pub(crate) struct IptSearchArg {
     pub(crate) by_specs: bool,
     #[graphql(default = false)]
     pub(crate) by_keywords: bool,
-    #[graphql(default = "")]
-    pub(crate) order_by: String,
-    #[graphql(default = false)]
-    pub(crate) as_desc: bool,
     pub(crate) company_uuid: Option<Uuid>,
     pub(crate) standard_uuid: Option<Uuid>,
     pub(crate) user_uuid: Option<Uuid>,
     #[graphql(default = false)]
     pub(crate) favorite: bool,
-    #[graphql(default = 100)]
-    pub(crate) limit: i32,
-    #[graphql(default = 0)]
-    pub(crate) offset: i32,
 }
