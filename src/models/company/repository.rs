@@ -15,6 +15,7 @@ use crate::models::relate_ref::{
     spec::model::SpecTranslateList,
     type_access::model::TypeAccessTranslateList,
 };
+use crate::models::search::order::Paginate;
 use crate::schema::company_ref::dsl as company_ref;
 use diesel::prelude::*;
 use uuid::Uuid;
@@ -82,14 +83,13 @@ impl Company {
 }
 
 impl ShowCompanyShort {
-    /// Gets companies by filter or all public
-    /// limit and offset works only without filter
+    /// Gets companies by filter or all public.
+    /// Paginate works only without filter.
     pub(crate) fn get_companies(
         logged_user_uuid: &Uuid,
         filter_companies_uuids: &[Uuid],
         supplier: &bool,
-        limit: &i32,
-        offset: &i32,
+        paginate: &Paginate,
         set_lang_id: &i32,
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<ShowCompanyShort>> {
@@ -98,8 +98,7 @@ impl ShowCompanyShort {
                 ShowCompanyShort::get_all_public(
                     logged_user_uuid,
                     supplier,
-                    limit,
-                    offset,
+                    paginate,
                     set_lang_id,
                     conn
                 )
@@ -231,8 +230,7 @@ impl ShowCompanyShort {
     pub(crate) fn get_all_public(
         logged_user_uuid: &Uuid,
         supplier: &bool,
-        limit: &i32,
-        offset: &i32,
+        paginate: &Paginate,
         set_lang_id: &i32,
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<ShowCompanyShort>> {
@@ -249,8 +247,8 @@ impl ShowCompanyShort {
 
         let target_companies_uuids = query
             .select(company_ref::uuid)
-            .limit(*limit as i64)
-            .offset(*offset as i64)
+            .limit(paginate.limit)
+            .offset(paginate.offset)
             .load::<Uuid>(conn)
             .expect("Failed get public companies");
 

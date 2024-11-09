@@ -36,18 +36,15 @@ impl Keyword {
         let kywords_ids = keyword_to_component::keyword_to_component
             .filter(keyword_to_component::component_uuid.eq(component_uuid))
             .select(keyword_to_component::keyword_id)
-            .limit(paginate.limit)
-            .offset(paginate.offset)
+            .limit(1000)
             .load::<i32>(conn)
             .map_err(|err| {
                 debug!("Failed get keywords for component: {:?}", err);
                 ServiceError::InternalServerError
             })?;
-
         if kywords_ids.is_empty() {
             return Ok(Vec::new()) // not found keywords
         }
-
-        Keyword::get_by_ids(&kywords_ids, conn)
+        Keyword::get_by_ids(&kywords_ids, paginate, conn)
     }
 }

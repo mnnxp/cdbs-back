@@ -1,15 +1,16 @@
 use crate::errors::ServiceResult;
-use crate::models::standard::spec::model::StandardSpecsArg;
+use crate::models::search::order::Paginate;
 use crate::models::relate_ref::spec::model::SpecTranslateList;
 use crate::models::standard::access::util::check_access_standard_for_user;
 use diesel::prelude::*;
 use uuid::Uuid;
 
-/// Возвращает массив разделов каталога, связанных со стандартом.
+/// Returns an array of directory sections associated with the standard
 pub(crate) fn get_standard_specs(
     logged_user_uuid: &Uuid,
-    arg: &StandardSpecsArg,
+    standard_uuid: &Uuid,
     set_lang_id: &i32,
+    paginate: &Paginate,
     conn: &mut PgConnection
 ) -> ServiceResult<Vec<SpecTranslateList>> {
 
@@ -17,14 +18,10 @@ pub(crate) fn get_standard_specs(
 
     check_access_standard_for_user(
         logged_user_uuid,
-        &arg.standard_uuid,
+        standard_uuid,
         &need_access_level,
         conn
     )?;
 
-    SpecTranslateList::for_standard_by_uuid(
-        arg,
-        set_lang_id,
-        conn
-    )
+    SpecTranslateList::for_standard_by_uuid(standard_uuid, set_lang_id, paginate, conn)
 }

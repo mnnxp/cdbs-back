@@ -92,37 +92,3 @@ impl From<&IptStandardKeywordsData> for DeleteStandardKeywords {
         }
     }
 }
-
-/// Arguments for requesting keywords (tags) of the standard
-#[derive(InputObject, Deserialize, Debug)]
-pub(crate) struct IptStandardKeywordsArg {
-    /// UUID of the standard
-    pub(crate) standard_uuid: Uuid,
-    /// Restriction of data sampling (maximum number of records)
-    pub(crate) limit: Option<i32>,
-    /// Number of skipping records at the beginning (offset)
-    pub(crate) offset: Option<i32>,
-}
-
-#[derive(Debug)]
-pub(crate) struct StandardKeywordsArg {
-    pub(crate) standard_uuid: Uuid,
-    pub(crate) limit: i32,
-    pub(crate) offset: i32,
-}
-
-impl From<IptStandardKeywordsArg> for StandardKeywordsArg {
-    fn from(data: IptStandardKeywordsArg) -> Self {
-        let IptStandardKeywordsArg {
-            standard_uuid,
-            limit,
-            offset,
-        } = data;
-
-        Self {
-            standard_uuid,
-            limit: limit.unwrap_or(100),
-            offset: offset.unwrap_or(0),
-        }
-    }
-}

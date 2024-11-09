@@ -1,7 +1,8 @@
 use crate::errors::{ServiceResult, ServiceError};
+use crate::models::search::order::Paginate;
 use crate::models::user::notification::model::{
     Notification, NotificationToUser, ShowNotification,
-    DegreeImportanceTranslateList, NotificationArg,
+    DegreeImportanceTranslateList,
 };
 use crate::schema::notification_ref::dsl as notification_ref;
 use crate::schema::notification_to_user::dsl as notification_to_user;
@@ -12,26 +13,26 @@ use uuid::Uuid;
 /// Возвращает агрегированный список уведомлений пользователя.
 pub(crate) fn get_notifications(
     logged_user_uuid: &Uuid,
-    args: &NotificationArg,
+    notification_ids: &[i32],
+    paginate: &Paginate,
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<ShowNotification>> {
-    match args.notification_ids.is_empty() {
-        true => get_all( logged_user_uuid, &args.limit, &args.offset, conn),
-        false => get_by_ids(logged_user_uuid, args, conn),
+    match notification_ids.is_empty() {
+        true => get_all(logged_user_uuid, paginate, conn),
+        false => get_by_ids(logged_user_uuid, notification_ids, paginate, conn),
     }
 }
 
 /// Gets all notification for target user
 fn get_all(
     logged_user_uuid: &Uuid,
-    limit: &i32,
-    offset: &i32,
+    paginate: &Paginate,
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<ShowNotification>> {
     let get_list = notification_to_user::notification_to_user
         .filter(notification_to_user::user_uuid.eq(logged_user_uuid))
-        .limit(*limit as i64)
-        .offset(*offset as i64)
+        .limit(paginate.limit)
+        .offset(paginate.offset)
         .select((
             notification_to_user::notification_id,
             notification_to_user::is_read
@@ -65,14 +66,15 @@ fn get_all(
 /// Gets notification for target user by ids list
 fn get_by_ids(
     logged_user_uuid: &Uuid,
-    args: &NotificationArg,
+    notification_ids: &[i32],
+    paginate: &Paginate,
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<ShowNotification>> {
     let get_list = notification_to_user::notification_to_user
         .filter(notification_to_user::user_uuid.eq(logged_user_uuid)
-        .and(notification_to_user::notification_id.eq_any(&args.notification_ids)))
-        .limit(args.limit as i64)
-        .offset(args.offset as i64)
+        .and(notification_to_user::notification_id.eq_any(notification_ids)))
+        .limit(paginate.limit)
+        .offset(paginate.offset)
         .select((
             notification_to_user::notification_id,
             notification_to_user::is_read

@@ -1,30 +1,29 @@
 use crate::errors::{ServiceResult, ServiceError};
-use crate::models::relate_ref::license::model::{
-    License, LicenseArg
-};
+use crate::models::relate_ref::license::model::License;
+use crate::models::search::order::Paginate;
 use crate::schema::license_ref::dsl as license_ref;
 use diesel::{PgConnection, prelude::*};
 
-/// Возвращает список доступных лицензий.
-/// Если фильтр лицензий не указан, то агрегируются все существующие.
+/// Returns a list of available licenses.
+/// If no license filter is specified, all existing licenses are aggregated.
 pub(crate) fn get_licenses(
-    args: &LicenseArg,
+    license_ids: &[i32],
+    paginate: &Paginate,
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<License>> {
-    match args.license_ids.is_empty()  {
-        true => find_all_license(&args.limit, &args.offset, conn),
-        false => find_license_id(args, conn)
+    match license_ids.is_empty()  {
+        true => find_all_license(paginate, conn),
+        false => find_license_id(license_ids, paginate, conn)
     }
 }
 
 fn find_all_license(
-    limit: &i32,
-    offset: &i32,
+    paginate: &Paginate,
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<License>> {
     license_ref::license_ref
-        .limit(*limit as i64)
-        .offset(*offset as i64)
+        .limit(paginate.limit)
+        .offset(paginate.offset)
         .load::<License>(conn)
         .map_err(|err| {
             debug!("Failed get license: {:?}", err);
@@ -33,13 +32,14 @@ fn find_all_license(
 }
 
 fn find_license_id(
-    args: &LicenseArg,
+    license_ids: &[i32],
+    paginate: &Paginate,
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<License>> {
     license_ref::license_ref
-        .filter(license_ref::id.eq_any(&args.license_ids))
-        .limit(args.limit as i64)
-        .offset(args.offset as i64)
+        .filter(license_ref::id.eq_any(license_ids))
+        .limit(paginate.limit)
+        .offset(paginate.offset)
         .load::<License>(conn)
         .map_err(|err| {
             debug!("Failed get licenses: {:?}", err);

@@ -1629,7 +1629,7 @@ describe('component', () => {
             componentUuid: "${componentUuidNoStandard}"
             paginate: {
               currentPage: 2
-              perPage: 3
+              perPage: 2
             }
           ){
             id
@@ -1644,7 +1644,7 @@ describe('component', () => {
       data: { componentKeywords },
     } = body;
     expect(componentKeywords.length).toBe(2);
-    expect(componentKeywords[0].id).toBe(2);
+    expect(componentKeywords[0].id).toBe(3);
     expect(componentKeywords[0].keyword).toBeNonEmptyString();
     expect(componentKeywords[1].id).toBe(4);
     expect(componentKeywords[1].keyword).toBeNonEmptyString();

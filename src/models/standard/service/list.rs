@@ -7,12 +7,13 @@ use crate::models::standard::model::{
 use diesel::{PgConnection, prelude::*};
 use uuid::Uuid;
 
-/// Возвращает агрегированные данные о стандартах.
-/// Получает краткие данные о стандартах с фильтром по: UUID, компании, пользователю, избранному (для себя или другого пользователя).
+/// Returns aggregated standards data. Gets a summary of standards filtered by:
+/// UUID, company, user, favorites (for yourself or another user).
 pub(crate) fn get_standard(
     logged_user_uuid: &Uuid,
     arguments: &StandardsArg,
     set_lang_id: &i32,
+    paginate: &Paginate,
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<ShowStandardShort>> {
     // structure for reduce the number of function arguments
@@ -20,8 +21,6 @@ pub(crate) fn get_standard(
         filter_standards_uuids,
         company_uuid,
         favorite,
-        limit,
-        offset,
     } = arguments;
 
     // collect standards uuids for check access
@@ -31,8 +30,7 @@ pub(crate) fn get_standard(
             get_standards_by_user(
                 filter_standards_uuids,
                 cy_uuid, // company_uuid
-                limit,
-                offset,
+                paginate,
                 conn
             )?
         },
@@ -41,8 +39,7 @@ pub(crate) fn get_standard(
             get_standards_followed_by_user(
                 filter_standards_uuids,
                 logged_user_uuid,
-                limit,
-                offset,
+                paginate,
                 conn
             )?
         },
@@ -64,7 +61,7 @@ pub(crate) fn get_standard(
             logged_user_uuid: *logged_user_uuid,
             set_lang_id: *set_lang_id,
         },
-        &Paginate::parsing(*limit, *offset),
+        paginate,
         conn,
     ).map_err(|err| {
         debug!("Error loading list standards and collect short data: {:?}", err);
@@ -77,8 +74,7 @@ pub(crate) fn get_standard(
 fn get_standards_by_user(
     filter_standards_uuids: &[Uuid],
     company_uuid: &Uuid,
-    limit: &i32,
-    offset: &i32,
+    paginate: &Paginate,
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<Uuid>> {
     use crate::schema::standard_ref::dsl as standard_ref;
@@ -96,8 +92,8 @@ fn get_standards_by_user(
     };
 
     query.select(standard_ref::uuid)
-        .limit(*limit as i64)
-        .offset(*offset as i64)
+        .limit(paginate.limit)
+        .offset(paginate.offset)
         .load::<Uuid>(conn)
         .map_err(|err| {
             debug!("Failed get company: {:?}", err);
@@ -110,8 +106,7 @@ fn get_standards_by_user(
 fn get_standards_followed_by_user(
     filter_standards_uuids: &[Uuid],
     user_uuid: &Uuid,
-    limit: &i32,
-    offset: &i32,
+    paginate: &Paginate,
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<Uuid>> {
     use crate::schema::standard_fav::dsl as standard_fav;
@@ -131,8 +126,8 @@ fn get_standards_followed_by_user(
     };
 
     query.select(standard_fav::standard_uuid)
-        .limit(*limit as i64)
-        .offset(*offset as i64)
+        .limit(paginate.limit)
+        .offset(paginate.offset)
         .load::<Uuid>(conn)
         .map_err(|err| {
             debug!("Failed get standards fav: {:?}", err);
@@ -144,15 +139,14 @@ fn get_standards_followed_by_user(
 pub(crate) fn find_by_uuid(
     target_standard_uuid: &Uuid,
     options: &ExtraOptions,
-    limit: i32,
-    offset: i32,
+    paginate: &Paginate,
     conn: &mut PgConnection,
 ) -> ServiceResult<StandardAndRelatedData> {
     // collect data for standard
     let result: StandardAndRelatedData = StandardAndRelatedData::collect_related_data(
         target_standard_uuid,
         options,
-        &Paginate::parsing(limit, offset),
+        paginate,
         conn
     ).expect("Error loading standard and collect related data");
     debug!("Standard data: {:#?}", result);

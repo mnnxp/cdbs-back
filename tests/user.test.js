@@ -2790,10 +2790,12 @@ describe('users', () => {
       )
       .send({
         query: `query {
-            users(args: {
-              limit: 2
-              offset: 1
-            }){
+            users(
+              paginate: {
+                currentPage: 2
+                perPage: 2
+              }
+            ){
               ${usersListQuery}
             }
         }`,

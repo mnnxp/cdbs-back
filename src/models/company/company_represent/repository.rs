@@ -4,6 +4,7 @@ use crate::models::company::company_represent::model::{
 };
 use crate::models::company::company_represent::representation_type::model::RepresentationTypeTranslateList;
 use crate::models::relate_ref::region::model::RegionTranslateList;
+use crate::models::search::order::Paginate;
 use crate::schema::company_represent_ref::dsl as company_represent_ref;
 use diesel::prelude::*;
 use uuid::Uuid;
@@ -28,13 +29,14 @@ impl CompanyRepresent {
     /// Gets company represent without related data by represents uuids
     pub(crate) fn get_by_args(
         args: &CompanyRepresentsArg,
+        paginate: &Paginate,
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<CompanyRepresent>> {
         // collect data for represents the company
         company_represent_ref::company_represent_ref
             .filter(company_represent_ref::uuid.eq_any(&args.represents_uuids))
-            .limit(args.limit as i64)
-            .offset(args.offset as i64)
+            .limit(paginate.limit)
+            .offset(paginate.offset)
             .order(company_represent_ref::name.asc())
             .load::<CompanyRepresent>(conn)
             .map_err(|err| {
@@ -99,17 +101,14 @@ impl CompanyRepresentAndRelatedData {
     /// with type and region data with translation for a given language
     pub(crate) fn get_by_args(
         args: &CompanyRepresentsArg,
-        set_lang_id: &i32,
+        paginate: &Paginate,
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<CompanyRepresentAndRelatedData>> {
-        let company_represents = &CompanyRepresent::get_by_args(
-            args,
-            conn
-        )?;
+        let company_represents = &CompanyRepresent::get_by_args(args, paginate, conn)?;
         debug!("company_represents: {:?}", company_represents);
         CompanyRepresentAndRelatedData::get_by_represents(
             company_represents,
-            set_lang_id,
+            &args.set_lang_id,
             conn
         )
     }

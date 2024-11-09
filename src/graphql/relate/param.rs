@@ -2,13 +2,15 @@ use async_graphql::{self, Context, Object};
 
 use crate::database::{get_conn, PooledConnection};
 use crate::errors::ServiceResult;
+use crate::models::search::order::Paginate;
 use crate::models::user::access::logged::check_authorized;
 use crate::models::relate_ref::param::{
-    model::{IptParamTranslateListData, ParamTranslateList, IptParamArg, ParamArg},
+    model::{IptParamTranslateListData, ParamTranslateList},
     service::list::get_params,
     service::register::create_param,
 };
 use crate::models::relate_ref::language::get_set_language;
+use super::attributes::IptPaginate;
 
 #[derive(Default)]
 pub struct ParamQuery;
@@ -22,18 +24,14 @@ impl ParamQuery {
     async fn params(
         &self,
         cxt: &Context<'_>,
-        args: Option<IptParamArg>,
+        param_ids: Option<Vec<i32>>,
+        paginate: Option<IptPaginate>,
     ) -> ServiceResult<Vec<ParamTranslateList>> {
         check_authorized(cxt)?; // authorization check
-
-        let arguments = match args {
-            Some(x) => ParamArg::from(x),
-            None => ParamArg::default(),
-        };
-
+        let p = paginate.map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
+            .unwrap_or_default();
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
-
-        get_params(&arguments, &get_set_language(cxt), conn)
+        get_params(&param_ids.unwrap_or_default(), &get_set_language(cxt), &p, conn)
     }
 }
 

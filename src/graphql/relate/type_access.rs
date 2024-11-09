@@ -1,15 +1,15 @@
 use crate::errors::ServiceResult;
 use crate::database::{get_conn, PooledConnection};
 use crate::models::relate_ref::{
-    type_access,
-    type_access::model::{
-        IptTypeAccessTranslateListData, TypeAccessTranslateList,
-        IptTypeAccessArg, TypeAccessArg
-    },
+    type_access::service::{list::get_type_access, register::create_type_access},
+    type_access::model::{IptTypeAccessTranslateListData, TypeAccessTranslateList},
     language::get_set_language,
 };
+use crate::models::search::order::Paginate;
 use crate::models::user::access::logged::check_authorized;
 use async_graphql::{self, Context, Object};
+
+use super::attributes::IptPaginate;
 
 #[derive(Default)]
 pub struct TypeAccessQuery;
@@ -23,18 +23,13 @@ impl TypeAccessQuery {
     async fn types_access(
         &self,
         cxt: &Context<'_>,
-        args: Option<IptTypeAccessArg>,
+        type_access_ids: Option<Vec<i32>>,
+        paginate: Option<IptPaginate>,
     ) -> ServiceResult<Vec<TypeAccessTranslateList>> {
-        use type_access::service::list::get_type_access;
-
-        let arguments = match args {
-            Some(x) => TypeAccessArg::from(x),
-            None => TypeAccessArg::default(),
-        };
-
+        let p = paginate.map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
+            .unwrap_or_default();
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
-
-        get_type_access(&arguments, &get_set_language(cxt), conn)
+        get_type_access(&type_access_ids.unwrap_or_default(), &get_set_language(cxt), &p, conn)
     }
 }
 
@@ -47,12 +42,8 @@ impl TypeAccessMutation {
         cxt: &Context<'_>,
         args: IptTypeAccessTranslateListData,
     ) -> ServiceResult<TypeAccessTranslateList> {
-        use type_access::service::register::create_type_access;
-
         check_authorized(cxt)?;
-
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
-
         create_type_access(&args, conn)
     }
 }

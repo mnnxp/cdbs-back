@@ -6,17 +6,18 @@ use crate::models::relate_ref::spec::model::{
 use crate::models::search::order::Paginate;
 use diesel::{PgConnection, prelude::*};
 
-/// Возвращает пути к разделам каталога по идентификаторам.
-/// При создании пути раздела используется заданный разделитель или разделитель по умолчанию "/".
-/// Значение "deep_level" устанавливает предел глубины до родительского раздела.
+/// Returns paths to directory partitions by ID.
+/// When creating a partition path, the specified separator or default separator "/" is used.
+/// A value of `deep_level` sets the depth limit to the parent partition.
 pub(crate) fn get_paths_specs(
     args: &SpecPathArg,
     set_lang_id: &i32,
+    paginate: &Paginate,
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<SpecPath>> {
     let select_ids = get_spec_ids(
         &args.spec_ids,
-        &Paginate::parsing(args.limit, args.offset),
+        paginate,
         conn
     )?;
     if select_ids.len() > 100 {

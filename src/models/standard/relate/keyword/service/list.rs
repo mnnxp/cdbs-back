@@ -1,15 +1,16 @@
 use crate::errors::{ServiceResult, ServiceError};
-use crate::models::standard::keyword::model::StandardKeywordsArg;
+use crate::models::search::order::Paginate;
 use crate::models::relate_ref::keyword::model::Keyword;
 use crate::models::standard::access::util::check_access_standard_for_user;
 use crate::schema::keyword_to_standard::dsl as keyword_to_standard;
 use diesel::prelude::*;
 use uuid::Uuid;
 
-/// Возвращает ключевые слова, связанные со стандартом.
+/// Returns standard-related keywords
 pub(crate) fn get_standard_keywords(
     logged_user_uuid: &Uuid,
-    arg: &StandardKeywordsArg,
+    standard_uuid: &Uuid,
+    paginate: &Paginate,
     conn: &mut PgConnection
 ) -> ServiceResult<Vec<Keyword>> {
 
@@ -17,28 +18,22 @@ pub(crate) fn get_standard_keywords(
 
     check_access_standard_for_user(
         logged_user_uuid,
-        &arg.standard_uuid,
+        standard_uuid,
         &need_access_level,
         conn
     )?;
 
     let kywords_ids = keyword_to_standard::keyword_to_standard
-        .filter(keyword_to_standard::standard_uuid.eq(&arg.standard_uuid))
+        .filter(keyword_to_standard::standard_uuid.eq(standard_uuid))
         .select(keyword_to_standard::keyword_id)
-        .limit(arg.limit as i64)
-        .offset(arg.offset as i64)
+        .limit(1000)
         .load::<i32>(conn)
         .map_err(|err| {
             debug!("Failed get keywords for standard: {:?}", err);
             ServiceError::InternalServerError
         })?;
-
     if kywords_ids.is_empty() {
         return Ok(Vec::new()) // not found keywords
     }
-
-    Keyword::get_by_ids(
-        &kywords_ids,
-        conn
-    )
+    Keyword::get_by_ids(&kywords_ids, paginate, conn)
 }

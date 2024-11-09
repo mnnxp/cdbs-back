@@ -20,29 +20,20 @@ impl Default for Paginate {
 }
 
 impl Paginate {
-    /// Sets the limit and offset for pagination
-    /// by specifying current page and number of elements per page.
+    /// Sets the limit and offset for pagination by specifying current page
+    /// and number of elements per page. Maximum per page: 1000.
     pub(crate) fn parsing_by_page(current_page: i32, per_page: i32) -> Self {
         if current_page <= 0 || per_page <= 0 {
             debug!("Invalid current page {} or a specified per page {}.", current_page, per_page);
             return Self::default()
         }
-        Self {
-            limit: per_page as i64,
-            offset: ((current_page - 1) * per_page) as i64,
-        }
-    }
-
-    /// Sets the arguments for pagination.
-    /// If the limit exceeds the offset by 500, the default value is returned
-    pub(crate) fn parsing(limit: i32, offset: i32) -> Self {
-        if (limit - offset) > 500 {
-            debug!("Invalid limit {} for a specified offset {}.", limit, offset);
+        if per_page > 1000 {
+            debug!("Invalid limit {}. Max: 1000.", per_page);
             return Self::default()
         }
         Self {
-            limit: limit as i64,
-            offset: offset as i64,
+            limit: per_page as i64,
+            offset: ((current_page - 1) * per_page) as i64,
         }
     }
 

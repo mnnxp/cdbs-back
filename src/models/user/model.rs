@@ -430,31 +430,13 @@ pub(crate) struct IptUsersArg {
     pub(crate) subscribers: Option<bool>,
     /// Filter by the presence of users in favorites of the active user
     pub(crate) favorite: Option<bool>,
-    /// Restriction of data sampling (maximum number of records)
-    pub(crate) limit: Option<i32>,
-    /// Number of skipping records at the beginning (offset)
-    pub(crate) offset: Option<i32>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub(crate) struct UsersArg {
     pub(crate) filter_users_uuids: Vec<Uuid>,
     pub(crate) subscribers: bool,
     pub(crate) favorite: bool,
-    pub(crate) limit: i32,
-    pub(crate) offset: i32,
-}
-
-impl Default for UsersArg {
-    fn default() -> Self {
-        Self {
-            filter_users_uuids: Vec::new(),
-            subscribers: false,
-            favorite: false,
-            limit: 100,
-            offset: 0,
-        }
-    }
 }
 
 impl From<IptUsersArg> for UsersArg {
@@ -463,16 +445,12 @@ impl From<IptUsersArg> for UsersArg {
             users_uuids,
             subscribers,
             favorite,
-            limit,
-            offset,
         } = data;
 
         Self {
             filter_users_uuids: users_uuids.unwrap_or_default(),
             subscribers: subscribers.unwrap_or(false),
             favorite: favorite.unwrap_or(false),
-            limit: limit.unwrap_or(100),
-            offset: offset.unwrap_or(0),
         }
     }
 }

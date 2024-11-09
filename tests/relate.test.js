@@ -325,9 +325,9 @@ describe('param', () => {
       )
       .send({
         query: `query ListUserParams {
-            params(args:{
+            params(
               paramIds: ${paramnameIndex}
-            }){
+            ){
                 paramId
                 paramname
             }
@@ -351,9 +351,9 @@ describe('param', () => {
       )
       .send({
         query: `query ListUserParams {
-            params(args:{
+            params(
               paramIds: [1, ${paramnameIndex}]
-            }){
+            ){
                 paramId
                 paramname
             }
@@ -372,9 +372,9 @@ describe('param', () => {
       .post('/graphql')
       .send({
         query: `query ListUserParams {
-            params(args:{
+            params(
               paramIds: [1, ${paramnameIndex}]
-            }){
+            ){
                 paramId
                 paramname
             }
@@ -524,7 +524,7 @@ describe('param', () => {
     } = body;
     specPath10 = specsPaths[10].path;
     expect(specsPaths[1].path).toBeNonEmptyString();
-    expect(specsPaths.length).toBe(30);
+    expect(specsPaths.length).toBe(100);
     done();
   });
 
@@ -559,7 +559,7 @@ describe('param', () => {
     done();
   });
 
-  it('/graphql:Q Specs paths - OK with offset and limit', async (done) => {
+  it('/graphql:Q Specs paths - OK with paginate', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .set(
@@ -568,10 +568,12 @@ describe('param', () => {
       )
       .send({
         query: `query {
-            specsPaths (args:{
-                offset: 9
-                limit: 10
-            }){
+            specsPaths (
+              paginate: {
+                currentPage: 2
+                perPage: 10
+              }
+            ){
               specId
               langId
               path
@@ -584,7 +586,7 @@ describe('param', () => {
     const {
       data: { specsPaths }
     } = body;
-    expect(specsPaths[1].path).toBe(specPath10);
+    expect(specsPaths[0].path).toBe(specPath10);
     expect(specsPaths.length).toBe(10);
     done();
   });
@@ -783,7 +785,7 @@ describe('param', () => {
     done();
   });
 
-  it('/graphql:Q Specs - OK with offset and limit', async (done) => {
+  it('/graphql:Q Specs - OK with paginate', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .set(
@@ -792,12 +794,16 @@ describe('param', () => {
       )
       .send({
         query: `query {
-            specs (args:{
-              specIds: [${specLevels3}]
-              specsLevels: 3
-              offset: 3
-              limit: 2
-            }){
+            specs (
+              args:{
+                specIds: [${specLevels3}]
+                specsLevels: 3
+              }
+              paginate: {
+                currentPage: 2
+                perPage: 3
+              }
+            ){
               specId
               spec
               langId
@@ -811,7 +817,7 @@ describe('param', () => {
       data: { specs }
     } = body;
     expect(specs[1].spec).toBe(specName4);
-    expect(specs.length).toBe(2);
+    expect(specs.length).toBe(3);
     done();
   });
 
@@ -986,7 +992,7 @@ describe('param', () => {
     done();
   });
 
-  it('/graphql:Q searchSpecs - OK with offset and limit', async (done) => {
+  it('/graphql:Q searchSpecs - OK with paginate', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .set(
@@ -995,12 +1001,16 @@ describe('param', () => {
       )
       .send({
         query: `query {
-            searchSpecs (args:{
-              text: "bolt"
-              depthLevel: 1
-              offset: 1
-              limit: 2
-            }){
+            searchSpecs (
+              args:{
+                text: "bolt"
+                depthLevel: 1
+              }
+              paginate: {
+                currentPage: 2
+                perPage: 2
+              }
+            ){
               specId
               path
               langId

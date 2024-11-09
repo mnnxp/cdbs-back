@@ -82,37 +82,3 @@ impl From<&IptStandardSpecsData> for DeleteStandardSpecs {
         }
     }
 }
-
-/// Arguments for querying standard-related directories
-#[derive(InputObject, Deserialize, Debug)]
-pub(crate) struct IptStandardSpecsArg {
-    /// Standard UUID
-    pub(crate) standard_uuid: Uuid,
-    /// Restriction of data sampling (maximum number of records)
-    pub(crate) limit: Option<i32>,
-    /// Number of skipping records at the beginning (offset)
-    pub(crate) offset: Option<i32>,
-}
-
-#[derive(Debug)]
-pub(crate) struct StandardSpecsArg {
-    pub(crate) standard_uuid: Uuid,
-    pub(crate) limit: i32,
-    pub(crate) offset: i32,
-}
-
-impl From<IptStandardSpecsArg> for StandardSpecsArg {
-    fn from(data: IptStandardSpecsArg) -> Self {
-        let IptStandardSpecsArg {
-            standard_uuid,
-            limit,
-            offset,
-        } = data;
-
-        Self {
-            standard_uuid,
-            limit: limit.unwrap_or(100),
-            offset: offset.unwrap_or(0),
-        }
-    }
-}

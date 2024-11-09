@@ -283,6 +283,7 @@ impl StandardAndRelatedData {
         // get keywords for standard
         let standard_keywords: Vec<Keyword> = Keyword::for_standard_by_uuid(
             &standard.uuid,
+            paginate,
             conn
         ).expect("Error loading standard keywords");
 

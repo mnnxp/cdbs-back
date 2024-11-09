@@ -1,21 +1,22 @@
 use crate::errors::{ServiceResult, ServiceError};
 use crate::models::search::order::Paginate;
 use crate::models::standard::model::Standard;
-use crate::models::standard::spec::model::{StandardSpec, StandardSpecsArg};
+use crate::models::standard::spec::model::StandardSpec;
 use crate::models::relate_ref::spec::model::SpecTranslateList;
 use crate::schema::spec_to_standard::dsl as spec_to_standard;
 use diesel::prelude::*;
-// use uuid::Uuid;
+use uuid::Uuid;
 
 impl SpecTranslateList {
     /// Gets all specs for standard by uuid
     pub(crate) fn for_standard_by_uuid(
-        arg: &StandardSpecsArg,
+        standard_uuid: &Uuid,
         set_lang_id: &i32,
+        paginate: &Paginate,
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<SpecTranslateList>> {
         let specs_ids = spec_to_standard::spec_to_standard
-            .filter(spec_to_standard::standard_uuid.eq(arg.standard_uuid))
+            .filter(spec_to_standard::standard_uuid.eq(standard_uuid))
             .select(spec_to_standard::spec_id)
             .limit(1000)
             .load::<i32>(conn)
@@ -23,21 +24,15 @@ impl SpecTranslateList {
                 debug!("Failed get specs for standard: {:?}", err);
                 ServiceError::InternalServerError
             })?;
-
         if specs_ids.is_empty() {
             return Ok(Vec::new()) // not found specs
         }
-
         // get specs with translation for standard
-        SpecTranslateList::get_by_ids(
-            &specs_ids,
-            set_lang_id,
-            &Paginate::parsing(arg.limit, arg.offset),
-            conn
-        ).map_err(|err| {
-            debug!("Failed get specs for standard: {:?}", err);
-            ServiceError::InternalServerError
-        })
+        SpecTranslateList::get_by_ids(&specs_ids, set_lang_id, paginate, conn)
+            .map_err(|err| {
+                debug!("Failed get specs for standard: {:?}", err);
+                ServiceError::InternalServerError
+            })
     }
 
     /// Gets all specs for standard

@@ -1,5 +1,6 @@
 use crate::errors::ServiceResult;
 use crate::errors::err_msg::{ErrorMessage, get_err_msg};
+use crate::models::search::order::Paginate;
 use crate::models::user::model::{
     SlimUser, ShowUserShort, UserAndRelatedData,
     ShowUserAndRelatedData, UsersArg, IptGetUserArg
@@ -77,11 +78,12 @@ pub(crate) fn get_self_user_data(
     Ok(result)
 }
 
-/// Возвращает агрегированные данные о пользователях.
-/// Получает краткие данные пользователей с фильтрацией по: UUID, пользователю (UUID), подписчикам, избранному (для себя).
+/// Returns aggregated user data. Gets a summary of users filtered by:
+/// UUID, user (UUID), subscribers, favorites (for yourself).
 pub(crate) fn get_users(
     logged_user_uuid: &Uuid,
     arguments: &UsersArg,
+    paginate: &Paginate,
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<ShowUserShort>> {
     // structure for reduce the number of function arguments
@@ -89,51 +91,35 @@ pub(crate) fn get_users(
         filter_users_uuids,
         subscribers,
         favorite,
-        limit,
-        offset,
     } = arguments;
 
     // select target users uuids
     match (subscribers, favorite) {
         // gets users of self subscribers list
         // for authorized user with/without filter
-        (true, false) => {
-            ShowUserShort::get_followers_by_user_uuid(
-                logged_user_uuid,
-                filter_users_uuids,
-                limit,
-                offset,
-                conn
-            )
-        },
+        (true, false) => ShowUserShort::get_followers_by_user_uuid(
+            logged_user_uuid,
+            filter_users_uuids,
+            paginate,
+            conn
+        ),
         // gets users of self favorite list
         // for authorized user with/without filter
-        (false, true) => {
-            ShowUserShort::get_favorites_by_user_uuid(
-                logged_user_uuid,
-                filter_users_uuids,
-                limit,
-                offset,
-                conn
-            )
-        },
+        (false, true) => ShowUserShort::get_favorites_by_user_uuid(
+            logged_user_uuid,
+            filter_users_uuids,
+            paginate,
+            conn
+        ),
         // get all public users
         (false, false) => {
             match filter_users_uuids.is_empty() {
-                true => {
-                    ShowUserShort::get_all_public_users(
-                        limit,
-                        offset,
-                        conn
-                    )
-                },
-                false => {
-                    ShowUserShort::get_users_by_uuids(
-                        logged_user_uuid,
-                        filter_users_uuids,
-                        conn
-                    )
-                },
+                true => ShowUserShort::get_all_public_users(paginate, conn),
+                false => ShowUserShort::get_users_by_uuids(
+                    logged_user_uuid,
+                    filter_users_uuids,
+                    conn
+                ),
             }
 
         },
