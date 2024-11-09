@@ -22,7 +22,7 @@ pub struct SpecQuery;
 
 #[Object]
 impl SpecQuery {
-    /// Returns directory partitions.
+    /// Returns catalogs.
     /// It is possible to specify the top level (parent) section from which the list of children will be generated.
     /// Regardless of specifying the top section, specifying a filter by section IDs is available.
     async fn specs(
@@ -43,8 +43,8 @@ impl SpecQuery {
         get_specs(&arguments, &get_set_language(cxt), &p, conn)
     }
 
-    /// Returns directory partition paths by IDs.
-    /// When creating a partition path, the specified separator or the default separator "/" is used.
+    /// Returns catalogs paths by IDs.
+    /// When creating a catalog path, the specified separator or the default separator "/" is used.
     /// The value "deep_level" sets the depth limit to the parent section.
     async fn specs_paths(
         &self,
@@ -64,8 +64,8 @@ impl SpecQuery {
         get_paths_specs(&arguments, &get_set_language(cxt), &p, conn)
     }
 
-    /// Returns paths to directory sections searched for by name partition.
-    /// When creating a partition path, the specified separator or the default separator "/" is used.
+    /// Returns paths to directory sections searched for by name catalog.
+    /// When creating a catalog path, the specified separator or the default separator "/" is used.
     /// The value "deep_level" sets the depth limit to the parent section.
     async fn search_specs(
         &self,

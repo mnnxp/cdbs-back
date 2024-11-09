@@ -191,7 +191,7 @@ impl CompanyMutation {
         )
     }
 
-    /// Removes company connections to the specified directory partitions.
+    /// Removes a company's association with catalogs
     async fn delete_company_specs(
         &self,
         cxt: &Context<'_>,

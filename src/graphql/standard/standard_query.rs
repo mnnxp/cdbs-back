@@ -90,7 +90,7 @@ impl StandardQuery {
         get_standard_files(&logged_user_uuid, &arguments, &p, conn)
     }
 
-    /// Returns an array of directory partitions associated with a standard.
+    /// Returns an array of catalogs associated with standard
     async fn standard_specs(
         &self,
         cxt: &Context<'_>,

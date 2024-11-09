@@ -264,7 +264,7 @@ impl ComponentQuery {
         get_component_files_list(&logged_user_uuid, &arguments, &s, &p, conn)
     }
 
-    /// Returns an array of directory partitions associated with a component.
+    /// Returns an array of catalogs associated with a component
     async fn component_specs(
         &self,
         cxt: &Context<'_>,

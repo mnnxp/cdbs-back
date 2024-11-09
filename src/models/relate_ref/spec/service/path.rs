@@ -6,9 +6,9 @@ use crate::models::relate_ref::spec::model::{
 use crate::models::search::order::Paginate;
 use diesel::{PgConnection, prelude::*};
 
-/// Returns paths to directory partitions by ID.
-/// When creating a partition path, the specified separator or default separator "/" is used.
-/// A value of `deep_level` sets the depth limit to the parent partition.
+/// Returns paths to catalogs by ID.
+/// When creating a catalog path, the specified separator or default separator "/" is used.
+/// A value of `deep_level` sets the depth limit to the parent catalog.
 pub(crate) fn get_paths_specs(
     args: &SpecPathArg,
     set_lang_id: &i32,

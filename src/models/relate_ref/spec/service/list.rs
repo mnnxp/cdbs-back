@@ -3,8 +3,8 @@ use crate::models::relate_ref::spec::model::{SpecTranslateList, SpecArg};
 use crate::models::search::order::Paginate;
 use diesel::PgConnection;
 
-/// Returns catalog partitions. The top-level (parent) section
-/// is specified in the `specs_levels` from which the list will be generated.
+/// Returns catalogs with translation in the `SpecTranslateList` structure.
+/// The top-level (parent) section is specified in the `specs_levels` from which the list will be generated.
 /// Regardless of whether you specify a top section, you can filter by section IDs.
 pub(crate) fn get_specs(
     args: &SpecArg,

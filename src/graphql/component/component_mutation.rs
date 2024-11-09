@@ -326,7 +326,7 @@ impl ComponentMutation {
         )
     }
 
-    /// Removes a component's association with directory partitions.
+    /// Removes a component's association with catalogs
     async fn delete_component_specs(
         &self,
         cxt: &Context<'_>,
