@@ -6,12 +6,12 @@ use diesel::prelude::*;
 
 impl Keyword {
     pub(crate) fn get_by_ids(
-        target_keyword_ids: &[i32],
+        keyword_ids: &[i32],
         paginate: &Paginate,
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<Keyword>> {
         keyword_ref::keyword_ref
-            .filter(keyword_ref::id.eq_any(target_keyword_ids))
+            .filter(keyword_ref::id.eq_any(keyword_ids))
             .limit(paginate.limit)
             .offset(paginate.offset)
             .order(keyword_ref::id.asc())

@@ -33,7 +33,7 @@ impl Keyword {
         paginate: &Paginate,
         conn: &mut PgConnection
     ) -> ServiceResult<Vec<Keyword>> {
-        let kywords_ids = keyword_to_component::keyword_to_component
+        let keyword_ids = keyword_to_component::keyword_to_component
             .filter(keyword_to_component::component_uuid.eq(component_uuid))
             .select(keyword_to_component::keyword_id)
             .limit(1000)
@@ -42,9 +42,9 @@ impl Keyword {
                 debug!("Failed get keywords for component: {:?}", err);
                 ServiceError::InternalServerError
             })?;
-        if kywords_ids.is_empty() {
+        if keyword_ids.is_empty() {
             return Ok(Vec::new()) // not found keywords
         }
-        Keyword::get_by_ids(&kywords_ids, paginate, conn)
+        Keyword::get_by_ids(&keyword_ids, paginate, conn)
     }
 }

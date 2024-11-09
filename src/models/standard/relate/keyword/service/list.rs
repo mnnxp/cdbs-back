@@ -23,7 +23,7 @@ pub(crate) fn get_standard_keywords(
         conn
     )?;
 
-    let kywords_ids = keyword_to_standard::keyword_to_standard
+    let keyword_ids = keyword_to_standard::keyword_to_standard
         .filter(keyword_to_standard::standard_uuid.eq(standard_uuid))
         .select(keyword_to_standard::keyword_id)
         .limit(1000)
@@ -32,8 +32,8 @@ pub(crate) fn get_standard_keywords(
             debug!("Failed get keywords for standard: {:?}", err);
             ServiceError::InternalServerError
         })?;
-    if kywords_ids.is_empty() {
+    if keyword_ids.is_empty() {
         return Ok(Vec::new()) // not found keywords
     }
-    Keyword::get_by_ids(&kywords_ids, paginate, conn)
+    Keyword::get_by_ids(&keyword_ids, paginate, conn)
 }
