@@ -1,9 +1,10 @@
+use crate::graphql::file::ShowFileRelatedData;
 use super::standard_status::model::StandardStatusTranslateList;
 use crate::models::company::model::ShowCompanyShort;
 use crate::models::user::model::ShowUserShort;
 use crate::models::relate_ref::{
     type_access::model::TypeAccessTranslateList,
-    file::model::{ShowFileRelatedData, DownloadFile},
+    file::model::DownloadFile,
     file::util::get_default_image,
     region::model::RegionTranslateList,
     spec::model::SpecTranslateList,

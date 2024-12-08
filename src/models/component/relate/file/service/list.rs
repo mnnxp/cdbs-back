@@ -1,11 +1,12 @@
 use crate::errors::ServiceResult;
+use crate::graphql::file::ShowFileRelatedData;
 use crate::models::component::file::repository::get_file_uuids_by_component_uuid;
 use crate::models::component::{
     model::ComponentFilesArg,
     access::util::check_access_component_for_user,
 };
 use crate::models::search::order::{Paginate, Sort};
-use crate::models::relate_ref::file::model::{DownloadFile, ShowFileRelatedData};
+use crate::models::relate_ref::file::model::DownloadFile;
 use diesel::prelude::*;
 use uuid::Uuid;
 

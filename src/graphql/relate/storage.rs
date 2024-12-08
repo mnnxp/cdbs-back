@@ -1,9 +1,10 @@
 use crate::errors::ServiceResult;
 use crate::database::{get_pool, get_conn, PooledConnection};
 use crate::graphql::relate::attributes::IptPaginate;
+use crate::graphql::file::ShowFileRelatedData;
 use crate::models::user::access::logged::get_logged_user_uuid;
 use crate::models::relate_ref::file::{
-    model::{DownloadFile, ShowFileRelatedData},
+    model::DownloadFile,
     service::list::{get_url_by_file_uuid, get_revisions_by_file_uuid},
     service::update::{confirm_upload, set_active_revision_by_uuid},
     service::delete::delete_file_with_check_by_uuid,

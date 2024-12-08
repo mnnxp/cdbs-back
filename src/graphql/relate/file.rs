@@ -1,0 +1,109 @@
+use crate::database::{get_conn, PooledConnection};
+use	crate::models::user::model::ShowUserShort;
+use crate::models::relate_ref::file::model::SlimFile;
+use crate::models::relate_ref::program::model::Program;
+use async_graphql::{Context, Object};
+use chrono::NaiveDateTime;
+use uuid::Uuid;
+
+/// Full data about the file uploaded to CADBase storage.
+/// And data for retrieving a file from the storage.
+#[derive(Debug, Clone)]
+pub(crate) struct ShowFileRelatedData {
+    /// File UUID
+    pub(crate) uuid: Uuid,
+    /// File name
+    pub(crate) filename: String,
+    /// File revision number
+    pub(crate) revision: i32,
+    /// Commit message (comment on the file or its revision)
+    pub(crate) commit_msg: String,
+    /// UUID of parent file
+    pub(crate) parent_file_uuid: Uuid,
+    /// Data about the user who owns the file
+    pub(crate) owner_user: ShowUserShort,
+    /// Estimated data content type
+    pub(crate) content_type: String,
+    /// File size in bytes
+    pub(crate) filesize: i64,
+    /// Software associated with the file (to open the file)
+    pub(crate) program: Program,
+    /// File creation date
+    pub(crate) created_at: NaiveDateTime,
+    /// Date the file description was updated
+    pub(crate) updated_at: NaiveDateTime,
+}
+
+#[Object]
+impl ShowFileRelatedData {
+    /// File UUID
+    async fn uuid(&self) -> &Uuid {
+        &self.uuid
+    }
+
+    /// File name
+    async fn filename(&self) -> &String {
+        &self.filename
+    }
+
+    /// File revision number
+    async fn revision(&self) -> &i32 {
+        &self.revision
+    }
+
+    /// Commit message (comment on the file or its revision)
+    async fn commit_msg(&self) -> &String {
+        &self.commit_msg
+    }
+
+    /// UUID of parent file
+    async fn parent_file_uuid(&self) -> &Uuid {
+        &self.parent_file_uuid
+    }
+
+    /// Data about the user who owns the file
+    async fn owner_user(&self) -> &ShowUserShort {
+        &self.owner_user
+    }
+
+    /// Estimated data content type
+    async fn content_type(&self) -> &String {
+        &self.content_type
+    }
+
+    /// File size in bytes
+    async fn filesize(&self) -> &i64 {
+        &self.filesize
+    }
+
+    /// Software associated with the file (to open the file)
+    async fn program(&self) -> &Program {
+        &self.program
+    }
+
+    /// Hash of the file calculated with BLAKE3 (cryptographic hash function)
+    async fn hash(&self, cxt: &Context<'_>) -> String {
+        let conn: &mut PooledConnection = &mut get_conn(cxt).expect("Error get conn to DB");
+        SlimFile::get_file_by_uuid(&self.uuid, conn)
+            .map(|sf| sf.encode_hash())
+            .expect("Error get slim file data (encode hash)")
+    }
+
+    /// Pre-signed URL to download the file
+    async fn download_url(&self, cxt: &Context<'_>) -> String {
+        let conn: &mut PooledConnection = &mut get_conn(cxt).expect("Error get conn to DB");
+        SlimFile::get_file_by_uuid(&self.uuid, conn)
+            .map(|sf| sf.get_download_string(conn).expect("Error get download string"))
+            .expect("Error get slim file data (download string)")
+    }
+
+    /// File creation date
+    async fn created_at(&self) -> &NaiveDateTime {
+        &self.created_at
+    }
+
+    /// Date the file description was updated
+    async fn updated_at(&self) -> &NaiveDateTime {
+        &self.updated_at
+    }
+}

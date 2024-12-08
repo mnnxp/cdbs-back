@@ -1,4 +1,5 @@
 use crate::errors::ServiceResult;
+use crate::graphql::file::ShowFileRelatedData;
 use crate::models::component::access::util::check_access_component_for_user;
 use crate::models::component::component_modification::{
     model::ModificationFilesArg,
@@ -6,7 +7,7 @@ use crate::models::component::component_modification::{
     util::get_component_by_modification,
 };
 use crate::models::search::order::{Paginate, Sort};
-use crate::models::relate_ref::file::model::{DownloadFile, ShowFileRelatedData};
+use crate::models::relate_ref::file::model::DownloadFile;
 use diesel::prelude::*;
 use uuid::Uuid;
 

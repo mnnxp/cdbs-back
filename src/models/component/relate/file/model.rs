@@ -1,6 +1,6 @@
 use crate::schema::*;
 use crate::models::component::model::Component;
-use crate::models::relate_ref::file::model::ShowFileRelatedData;
+use crate::graphql::file::ShowFileRelatedData;
 use async_graphql::*;
 // use chrono::*;
 use uuid::Uuid;

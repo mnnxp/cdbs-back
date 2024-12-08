@@ -4965,7 +4965,7 @@ describe('component', () => {
     done();
   });
 
-  it('/graphql:Q componentFilesList - OK limit offset', async (done) => {
+  it('/graphql:Q componentFilesList - OK limit offset (added hash and download url fields)', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .set(
@@ -4986,19 +4986,26 @@ describe('component', () => {
               }
             ){
               ${showFileRelatedDataFields}
+              hash
+              downloadUrl
             }
           }`,
         })
       .expect(HttpStatus.OK)
     debug('/graphql componentFilesList=%o', body);
+    // expect(body).toBe(0);
     const {
       data: { componentFilesList },
     } = body;
     expect(componentFilesList).toBeNonEmptyArray();
     expect(componentFilesList[0].uuid).toBe(fileUuid3);
     expect(componentFilesList[0].filename).toBe(filename3);
+    expect(componentFilesList[0].hash).toBe("");
+    expect(componentFilesList[0].downloadUrl).toBeNonEmptyString();
     expect(componentFilesList[1].uuid).toBe(fileUuid4);
     expect(componentFilesList[1].filename).toBe(filename4);
+    expect(componentFilesList[1].hash).toBe("");
+    expect(componentFilesList[1].downloadUrl).toBeNonEmptyString();
     expect(componentFilesList.length).toBe(2);
     done();
   });
@@ -6361,6 +6368,60 @@ describe('component', () => {
     expect(componentModificationFilesList[4].parentFileUuid).toBe(fileUuid5);
     expect(componentModificationFilesList[4].filename).toBe(filename5);
     expect(componentModificationFilesList[4].filesize).toBe(0);
+    done();
+  });
+
+  it('/graphql:Q componentModificationFilesList - OK 5 files (added hash and download url fields)', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+          query: `query {
+            componentModificationFilesList(args:{
+              modificationUuid: "${componentModificationUuidSecond}"
+            }){
+              ${showFileRelatedDataFields}
+              hash
+              downloadUrl
+            }
+          }`,
+        })
+      .expect(HttpStatus.OK)
+    debug('/graphql componentModificationFilesList=%o', body);
+    const {
+      data: { componentModificationFilesList },
+    } = body;
+    expect(componentModificationFilesList).toBeNonEmptyArray();
+    expect(componentModificationFilesList[0].uuid).toBe(fileUuid1);
+    expect(componentModificationFilesList[0].parentFileUuid).toBe(fileUuid1);
+    expect(componentModificationFilesList[0].filename).toBe(filename1);
+    expect(componentModificationFilesList[0].filesize).toBe(0);
+    expect(componentModificationFilesList[0].hash).toBe("");
+    expect(componentModificationFilesList[0].downloadUrl).toBeNonEmptyString();
+    expect(componentModificationFilesList[1].uuid).toBe(fileUuid2);
+    expect(componentModificationFilesList[1].parentFileUuid).toBe(fileUuid2);
+    expect(componentModificationFilesList[1].filename).toBe(filename2);
+    expect(componentModificationFilesList[1].hash).toBe("");
+    expect(componentModificationFilesList[1].downloadUrl).toBeNonEmptyString();
+    expect(componentModificationFilesList[2].uuid).toBe(fileUuid3);
+    expect(componentModificationFilesList[2].parentFileUuid).toBe(fileUuid3);
+    expect(componentModificationFilesList[2].filename).toBe(filename3);
+    expect(componentModificationFilesList[2].hash).toBe("");
+    expect(componentModificationFilesList[2].downloadUrl).toBeNonEmptyString();
+    expect(componentModificationFilesList[3].uuid).toBe(fileUuid4);
+    expect(componentModificationFilesList[3].parentFileUuid).toBe(fileUuid4);
+    expect(componentModificationFilesList[3].filename).toBe(filename4);
+    expect(componentModificationFilesList[3].hash).toBe("");
+    expect(componentModificationFilesList[3].downloadUrl).toBeNonEmptyString();
+    expect(componentModificationFilesList[4].uuid).toBe(fileUuid5);
+    expect(componentModificationFilesList[4].parentFileUuid).toBe(fileUuid5);
+    expect(componentModificationFilesList[4].filename).toBe(filename5);
+    expect(componentModificationFilesList[4].filesize).toBe(0);
+    expect(componentModificationFilesList[4].hash).toBe("");
+    expect(componentModificationFilesList[4].downloadUrl).toBeNonEmptyString();
     done();
   });
 

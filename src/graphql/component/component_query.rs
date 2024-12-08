@@ -5,6 +5,7 @@ use crate::graphql::{
         ComponentAndRelatedData, ShowComponentShort, IptComponentsArg, IptComponentFilesArg,
         ComponentModificationAndRelatedData
     },
+    file::ShowFileRelatedData,
     relate::attributes::{IptPaginate, IptSort},
 };
 use crate::models::search::model::{ExtraOptions, IptSearchArg};
@@ -26,7 +27,7 @@ use crate::models::component::{
     access::user::model::UserAccessComponentAndRelatedData,
 };
 use crate::models::relate_ref::{
-    file::model::{DownloadFile, ShowFileRelatedData},
+    file::model::DownloadFile,
     keyword::model::Keyword,
     spec::model::SpecTranslateList,
     language::get_set_language,

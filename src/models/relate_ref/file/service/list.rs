@@ -1,6 +1,7 @@
 use crate::errors::ServiceResult;
+use crate::graphql::file::ShowFileRelatedData;
 use crate::models::relate_ref::file::access::check_file_owner_err;
-use crate::models::relate_ref::file::model::{DownloadFile, ShowFileRelatedData};
+use crate::models::relate_ref::file::model::DownloadFile;
 use crate::models::search::order::Paginate;
 use diesel::PgConnection;
 use uuid::Uuid;

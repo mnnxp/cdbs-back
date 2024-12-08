@@ -1,4 +1,5 @@
 use crate::errors::{ServiceResult, ServiceError};
+use crate::graphql::file::ShowFileRelatedData;
 use crate::models::standard::{
     model::{Standard, ShowStandardShort, StandardAndRelatedData},
     standard_status::model::StandardStatusTranslateList,
@@ -10,7 +11,7 @@ use crate::models::company::model::ShowCompanyShort;
 use crate::models::relate_ref::{
     spec::model::SpecTranslateList,
     type_access::model::TypeAccessTranslateList,
-    file::model::{ShowFileRelatedData, DownloadFile},
+    file::model::DownloadFile,
     region::model::RegionTranslateList,
     keyword::model::Keyword,
 };

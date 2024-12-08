@@ -1,8 +1,7 @@
 use crate::errors::{ServiceResult, ServiceError};
+use crate::graphql::file::ShowFileRelatedData;
 use crate::models::component::util::get_files_by_ext;
-use crate::models::relate_ref::file::model::{
-    ShowFileRelatedData, DownloadFile, FileByExtArg
-};
+use crate::models::relate_ref::file::model::{DownloadFile, FileByExtArg};
 use crate::models::search::order::{Paginate, Sort};
 use crate::schema::file_to_component::dsl as file_to_component;
 use diesel::prelude::*;

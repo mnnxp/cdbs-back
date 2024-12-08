@@ -1,10 +1,11 @@
 use super::util::{get_default_image, find_id_ext};
 use super::commit::Commit;
 use crate::errors::{ServiceResult, ServiceError};
+use crate::graphql::file::ShowFileRelatedData;
 use crate::models::user::model::ShowUserShort;
 use crate::models::search::order::{Paginate, Sort, TableName, objects_order};
 use crate::models::relate_ref::file::model::{
-    ListObject, PreliminaryFileData, ShowFile, ShowFileRelatedData, DownloadFile, SlimFile,
+    ListObject, PreliminaryFileData, ShowFile, DownloadFile, SlimFile,
 };
 use crate::models::relate_ref::program::model::Program;
 use crate::storage::model::StorageAccess;
@@ -212,6 +213,38 @@ impl SlimFile {
                 ServiceError::InternalServerError
             })
     }
+
+    /// Returns a string in which each byte of data is encoded using two hexadecimal digits
+    pub(crate) fn encode_hash(&self) -> String {
+        hex::encode(&self.hash)
+    }
+
+    /// Returns a pre-signed link to a file in the repository (without check access)
+    pub(crate) fn get_download_string(&self, conn: &mut PgConnection) -> ServiceResult<String> {
+        let naive_local_now = chrono::Local::now().naive_local();
+        let get_url_from_db = presigned_url_ref::presigned_url_ref
+            .select(presigned_url_ref::presigned_url)
+            .filter(presigned_url_ref::file_uuid.eq(&self.uuid)
+                .and(presigned_url_ref::expiration_at.gt(naive_local_now)))
+            .limit(1)
+            .load::<String>(conn)
+            .map_err(|err| {
+                debug!("Failed get presigned_url: {:?}", err);
+                ServiceError::InternalServerError
+            })?;
+        if let Some(url) = get_url_from_db.into_iter().next() {
+            return Ok(url)
+        }
+        debug!("Failed get presigned_url");
+        // creates and saves (updates) download presigned url for a file in the database
+        let presigned_url = download_presigned_url(
+            &StorageAccess::from_env(),
+            self,
+        )?;
+        // save presigned url to database
+        save_presign_url(&self.uuid, &presigned_url, conn)?;
+        Ok(presigned_url)
+    }
 }
 
 impl PreliminaryFileData {
@@ -249,40 +282,12 @@ impl DownloadFile {
         slim_file: &SlimFile,
         conn: &mut PgConnection,
     ) -> ServiceResult<DownloadFile> {
-        let naive_local_now = chrono::Local::now().naive_local();
-
-        let get_url_from_db = presigned_url_ref::presigned_url_ref
-            .select(presigned_url_ref::presigned_url)
-            .filter(presigned_url_ref::file_uuid.eq(&slim_file.uuid)
-                .and(presigned_url_ref::expiration_at.gt(naive_local_now)))
-            .limit(1)
-            .load::<String>(conn)
-            .map_err(|err| {
-                debug!("Failed get presigned_url: {:?}", err);
-                ServiceError::InternalServerError
-            })?;
-
-        let download_url = match get_url_from_db.first() {
-            Some(url) => url.clone(),
-            None => {
-                debug!("Failed get presigned_url");
-                // creates and saves (updates) download presigned url for a file in the database
-                let presigned_url = download_presigned_url(
-                    &StorageAccess::from_env(),
-                    slim_file,
-                )?;
-                // save presigned url to database
-                save_presign_url(&slim_file.uuid, &presigned_url, conn)?;
-                presigned_url
-            },
-        };
-
         Ok(DownloadFile{
             uuid: slim_file.uuid,
-            hash: hex::encode(&slim_file.hash),
+            hash: slim_file.encode_hash(),
             filename: slim_file.filename.clone(),
             filesize: slim_file.filesize,
-            download_url,
+            download_url: slim_file.get_download_string(conn)?,
         })
     }
 
@@ -294,8 +299,7 @@ impl DownloadFile {
     ) -> ServiceResult<DownloadFile> {
         let file = match SlimFile::get_file_by_uuid(target_file_uuid, conn) {
             Ok(slim_file) => slim_file,
-            Err(_) =>
-                SlimFile::get_file_by_uuid(&get_default_image(), conn)?,
+            Err(_) => SlimFile::get_file_by_uuid(&get_default_image(), conn)?,
         };
 
         DownloadFile::get_by_slim_file(&file, conn)

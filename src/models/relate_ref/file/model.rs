@@ -1,5 +1,3 @@
-use crate::models::user::model::ShowUserShort;
-use crate::models::relate_ref::program::model::Program;
 use crate::schema::file_ref;
 use async_graphql::*;
 use chrono::NaiveDateTime;
@@ -200,33 +198,6 @@ pub(crate) struct UploadFile {
     pub(crate) filename: String,
     /// Pre-signed URL for file upload
     pub(crate) upload_url: String,
-}
-
-/// Full data about the file uploaded to the repository
-#[derive(Debug, SimpleObject, Clone)]
-pub(crate) struct ShowFileRelatedData {
-    /// File UUID
-    pub(crate) uuid: Uuid,
-    /// File name
-    pub(crate) filename: String,
-    /// File revision number
-    pub(crate) revision: i32,
-    /// Commit message (comment on the file or its revision)
-    pub(crate) commit_msg: String,
-    /// UUID of parent file
-    pub(crate) parent_file_uuid: Uuid,
-    /// Data about the user who owns the file
-    pub(crate) owner_user: ShowUserShort,
-    /// Estimated data content type
-    pub(crate) content_type: String,
-    /// File size in bytes
-    pub(crate) filesize: i64,
-    /// Software associated with the file (to open the file)
-    pub(crate) program: Program,
-    /// File creation date
-    pub(crate) created_at: NaiveDateTime,
-    /// Date the file description was updated
-    pub(crate) updated_at: NaiveDateTime,
 }
 
 /// Data for retrieving a file from CADBase storage
