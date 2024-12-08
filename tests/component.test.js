@@ -8625,6 +8625,57 @@ describe('component', () => {
     done();
   });
 
+  it('/graphql:M component - Ok check Counting', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+          query: `query {
+            component(componentUuid: "${componentUuidNoStandard}") {
+              uuid
+              filesCount
+              paramsCount
+              suppliersCount
+              standardsCount
+              modificationsCount
+              componentModifications {
+                filesCount
+                paramsCount
+                filesetsCount
+                filesetsForProgram {
+                  filesCount
+                }
+              }
+            }
+          }`,
+        })
+      .expect(HttpStatus.OK)
+    debug('/graphql component check count=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { component },
+    } = body;
+    expect(component.uuid).toBe(componentUuidNoStandard);
+    expect(component.filesCount).toBe(6);
+    expect(component.modificationsCount).toBe(2);
+    expect(component.paramsCount).toBe(0);
+    expect(component.standardsCount).toBe(1);
+    expect(component.suppliersCount).toBe(0);
+    expect(component.componentModifications[0].filesCount).toBe(0);
+    expect(component.componentModifications[0].filesetsCount).toBe(0);
+    expect(component.componentModifications[0].filesetsForProgram).toBeEmptyArray();
+    expect(component.componentModifications[0].paramsCount).toBe(0);
+    expect(component.componentModifications[1].filesCount).toBe(7);
+    expect(component.componentModifications[1].filesetsCount).toBe(2);
+    expect(component.componentModifications[1].filesetsForProgram[0].filesCount).toBe(11);
+    expect(component.componentModifications[1].filesetsForProgram[1].filesCount).toBe(0);
+    expect(component.componentModifications[1].paramsCount).toBe(0);
+    done();
+  });
+
   it('/graphql:M deleteFilesFromFileset - Ok delete 2 files to fileset', async (done) => {
     const { body } = await agent
       .post('/graphql')

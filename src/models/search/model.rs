@@ -19,6 +19,12 @@ impl ObjectUuid {
     }
 }
 
+#[derive(Debug, QueryableByName)]
+pub(super) struct ObjectI64 {
+    #[diesel(sql_type = sql_types::BigInt)]
+    pub(super) count: i64
+}
+
 #[derive(Debug)]
 pub(crate) struct ExtraOptions {
     pub(crate) logged_user_uuid: Uuid,

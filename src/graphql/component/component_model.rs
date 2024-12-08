@@ -161,6 +161,12 @@ impl ComponentAndRelatedData {
            .expect("Error loading component parameters")
     }
 
+    /// Returns the total number of params in the component (without filters)
+    async fn params_count(&self, cxt: &Context<'_>) -> i64 {
+        let conn: &mut PooledConnection = &mut get_conn(cxt).expect("Error get conn to DB");
+        Paginate::get_count(&self.uuid, &TableName::ParamToComponent, conn).expect("Error count items")
+    }
+
     /// Files associated with the component. Default sorting: `createdAt`.
     /// Sorting by `revision`, `filename`, `size`, `updatedAt` is available.
     async fn files(
@@ -178,6 +184,12 @@ impl ComponentAndRelatedData {
             .unwrap_or_default();
         ShowFileRelatedData::by_component_uuid(&self.uuid, &s, &p, conn)
             .expect("Error loading component files")
+    }
+
+    /// Returns the total number of files in the component (without filters)
+    async fn files_count(&self, cxt: &Context<'_>) -> i64 {
+        let conn: &mut PooledConnection = &mut get_conn(cxt).expect("Error get conn to DB");
+        Paginate::get_count(&self.uuid, &TableName::FileToComponent, conn).expect("Error count items")
     }
 
     /// Catalogs to which the component is added
@@ -225,6 +237,12 @@ impl ComponentAndRelatedData {
             .expect("Error loading component modifications with related data")
     }
 
+    /// Returns the total number of modifications in the component (without filters)
+    async fn modifications_count(&self, cxt: &Context<'_>) -> i64 {
+        let conn: &mut PooledConnection = &mut get_conn(cxt).expect("Error get conn to DB");
+        Paginate::get_count(&self.uuid, &TableName::ComponentModification, conn).expect("Error count items")
+    }
+
     /// Manufacturer or suppliers of the component (if component.is_base is true)
     async fn component_suppliers(
         &self,
@@ -237,6 +255,12 @@ impl ComponentAndRelatedData {
             .unwrap_or_default();
         ComponentSupplierRelatedData::by_component_uuid(&self.uuid, &p, conn)
             .expect("Error loading component suppliers")
+    }
+
+    /// Returns the total number of suppliers in the component (without filters)
+    async fn suppliers_count(&self, cxt: &Context<'_>) -> i64 {
+        let conn: &mut PooledConnection = &mut get_conn(cxt).expect("Error get conn to DB");
+        Paginate::get_count(&self.uuid, &TableName::SupplierToComponent, conn).expect("Error count items")
     }
 
     /// List of standards associated with the component.
@@ -253,9 +277,14 @@ impl ComponentAndRelatedData {
         let options = ExtraOptions::from_cxt(cxt).expect("Failed to get options");
         // collect data for component standards
         ShowStandardShort::for_component(&self.uuid, &p, &options, conn)
-            .expect("Error loading supplier component with relate")
+            .expect("Error loading standard component with relate")
     }
 
+    /// Returns the total number of standards in the component (without filters)
+    async fn standards_count(&self, cxt: &Context<'_>) -> i64 {
+        let conn: &mut PooledConnection = &mut get_conn(cxt).expect("Error get conn to DB");
+        Paginate::get_count(&self.uuid, &TableName::StandardToComponent, conn).expect("Error count items")
+    }
 }
 
 /// Abbreviated component data
@@ -489,6 +518,12 @@ impl ComponentModificationAndRelatedData {
             .expect("Error loading filesets for modification")
     }
 
+    /// Returns the total number of filesets in the modification (without filters)
+    async fn filesets_count(&self, cxt: &Context<'_>) -> i64 {
+        let conn: &mut PooledConnection = &mut get_conn(cxt).expect("Error get conn to DB");
+        Paginate::get_count(&self.uuid, &TableName::FilesetForProgram, conn).expect("Error count items")
+    }
+
     /// Data on component modification parameters (list).
     /// Default sorting: `paramId`. Sorting by `paramname` and `value` is available.
     async fn modification_params(
@@ -508,6 +543,12 @@ impl ComponentModificationAndRelatedData {
             .expect("Error loading parameters for modification")
     }
 
+    /// Returns the total number of parameters in the modification (without filters)
+    async fn params_count(&self, cxt: &Context<'_>) -> i64 {
+        let conn: &mut PooledConnection = &mut get_conn(cxt).expect("Error get conn to DB");
+        Paginate::get_count(&self.uuid, &TableName::ParamToModification, conn).expect("Error count items")
+    }
+
     /// Files associated with the component modification. Default sorting: `createdAt`.
     /// Sorting by `revision`, `filename`, `size`, `updatedAt` is available.
     async fn files(
@@ -525,6 +566,12 @@ impl ComponentModificationAndRelatedData {
         let conn: &mut PooledConnection = &mut get_conn(cxt).expect("Error get conn to DB");
         ShowFileRelatedData::get_component_modification_files_offsec(&self.uuid, &[], &s, &p, conn)
             .expect("Error loading files of component modification")
+    }
+
+    /// Returns the total number of files in the modification (without filters)
+    async fn files_count(&self, cxt: &Context<'_>) -> i64 {
+        let conn: &mut PooledConnection = &mut get_conn(cxt).expect("Error get conn to DB");
+        Paginate::get_count(&self.uuid, &TableName::FileToModification, conn).expect("Error count items")
     }
 }
 
@@ -562,5 +609,11 @@ impl FilesetProgramRelatedData {
         let conn: &mut PooledConnection = &mut get_conn(cxt).expect("Error get conn to DB");
         ShowFileRelatedData::get_files_of_fileset_offsec(&self.uuid, &[], &s, &p, conn)
             .expect("Error loading files of fileset")
+    }
+
+    /// Returns the total number of files in the fileset (without filters)
+    async fn files_count(&self, cxt: &Context<'_>) -> i64 {
+        let conn: &mut PooledConnection = &mut get_conn(cxt).expect("Error get conn to DB");
+        Paginate::get_count(&self.uuid, &TableName::FileToFilesetForProgram, conn).expect("Error count items")
     }
 }

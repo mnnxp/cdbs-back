@@ -1,7 +1,7 @@
 use diesel::prelude::*;
 use uuid::Uuid;
 use crate::errors::{ServiceResult, ServiceError};
-use super::model::ObjectUuid;
+use super::model::{ObjectUuid, ObjectI64};
 
 #[derive(Debug)]
 pub(crate) struct Paginate {
@@ -41,6 +41,31 @@ impl Paginate {
     pub(crate) fn get_complete(&self) -> String {
         format!("LIMIT {} OFFSET {}", self.limit, self.offset)
     }
+
+    /// Returns total number of elements on which pagination is applied
+    pub(crate) fn get_count(
+        object_uuid: &Uuid,
+        table_name: &TableName,
+        conn: &mut PgConnection
+    ) -> ServiceResult<i64> {
+        let column = table_name.relationship();
+        if column.is_empty() {
+            debug!("SQL query execution is impossible without a column name");
+            return Err(ServiceError::InternalServerError)
+        }
+        let query = format!(
+            "SELECT count(*) FROM {} WHERE {} = '{}'",
+            table_name.name(), column, object_uuid
+        );
+        debug!("SQL objects count query: {}", query);
+        diesel::sql_query(query)
+            .get_result::<ObjectI64>(conn)
+            .map_err(|err| {
+                debug!("Failed count number: {:?}", err);
+                ServiceError::InternalServerError
+            })
+            .map(|res| res.count)
+    }
 }
 
 #[derive(Debug)]
@@ -49,16 +74,49 @@ pub(crate) enum TableName {
     ComponentModification,
     FileRef,
     ParamTranslateList,
+    ParamToComponent,
+    FileToComponent,
+    StandardToComponent,
+    SupplierToComponent,
+    ParamToModification,
+    FileToModification,
+    FilesetForProgram,
+    FileToFilesetForProgram,
 }
 
 impl TableName {
-    // Returns table name, e.g. `name_ref`
+    /// Returns table name, e.g. `name_ref`
     fn name(&self) -> &str {
         match self {
             Self::ComponentRef => "component_ref",
             Self::ComponentModification => "component_modification_list",
             Self::FileRef => "file_ref",
             Self::ParamTranslateList => "", // table is specified in fields
+            // Returns a name of a table for the relationship between two objects
+            Self::ParamToComponent => "param_to_component",
+            Self::FileToComponent => "file_to_component",
+            Self::StandardToComponent => "standard_to_component",
+            Self::SupplierToComponent => "supplier_to_component",
+            Self::ParamToModification => "param_to_modification",
+            Self::FileToModification => "file_to_modification",
+            Self::FilesetForProgram => "fileset_for_program",
+            Self::FileToFilesetForProgram => "modification_file_from_fileset",
+        }
+    }
+
+    /// Returns column of table for the relationship between two objects
+    fn relationship(&self) -> &str {
+        match &self {
+            Self::ComponentModification => "component_uuid",
+            Self::ParamToComponent => "component_uuid",
+            Self::FileToComponent => "component_uuid",
+            Self::StandardToComponent => "component_uuid",
+            Self::SupplierToComponent => "component_uuid",
+            Self::ParamToModification => "modification_uuid",
+            Self::FileToModification => "modification_uuid",
+            Self::FilesetForProgram => "modification_uuid",
+            Self::FileToFilesetForProgram => "fileset_uuid",
+            _ => "",
         }
     }
 }
@@ -110,6 +168,7 @@ impl TableColumn {
                     _ => "ptl.param_id".to_string(),
                 }
             },
+            _ => Self {table, column: String::new()}
         }
     }
 
