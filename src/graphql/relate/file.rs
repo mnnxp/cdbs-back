@@ -84,17 +84,15 @@ impl ShowFileRelatedData {
     /// Hash of the file calculated with BLAKE3 (cryptographic hash function)
     async fn hash(&self, cxt: &Context<'_>) -> String {
         let conn: &mut PooledConnection = &mut get_conn(cxt).expect("Error get conn to DB");
-        SlimFile::get_file_by_uuid(&self.uuid, conn)
-            .map(|sf| sf.encode_hash())
-            .expect("Error get slim file data (encode hash)")
+        SlimFile::encode_hash(&self.uuid, conn)
+            .expect("Error get encode hash (slim file)")
     }
 
     /// Pre-signed URL to download the file
     async fn download_url(&self, cxt: &Context<'_>) -> String {
         let conn: &mut PooledConnection = &mut get_conn(cxt).expect("Error get conn to DB");
-        SlimFile::get_file_by_uuid(&self.uuid, conn)
-            .map(|sf| sf.get_download_string(conn).expect("Error get download string"))
-            .expect("Error get slim file data (download string)")
+        SlimFile::get_download_string(&self.uuid, conn)
+            .expect("Error get download string (slim file)")
     }
 
     /// File creation date

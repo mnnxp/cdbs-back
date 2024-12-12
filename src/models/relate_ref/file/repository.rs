@@ -206,7 +206,6 @@ impl SlimFile {
                 .and(file_ref::is_checked.eq(false)
                 .and(file_ref::is_hidden.eq(true)
                 .and(file_ref::is_delete.eq(false))))))
-            // .order(file_ref::filename.asc())
             .load::<SlimFile>(conn)
             .map_err(|err| {
                 debug!("Failed get file: {:?}", err);
@@ -215,16 +214,38 @@ impl SlimFile {
     }
 
     /// Returns a string in which each byte of data is encoded using two hexadecimal digits
-    pub(crate) fn encode_hash(&self) -> String {
-        hex::encode(&self.hash)
+    pub(crate) fn encode_hash(file_uuid: &Uuid, conn: &mut PgConnection) -> ServiceResult<String> {
+        let hash = file_ref::file_ref
+            .select(file_ref::hash)
+            .filter(file_ref::uuid.eq(file_uuid).and(file_ref::is_delete.eq(false)))
+            .first::<Vec<u8>>(conn)
+            .map_err(|err| {
+                debug!("Failed get file hash: {:?}", err);
+                ServiceError::InternalServerError
+            })?;
+        Ok(hex::encode(hash))
     }
 
     /// Returns a pre-signed link to a file in the repository (without check access)
-    pub(crate) fn get_download_string(&self, conn: &mut PgConnection) -> ServiceResult<String> {
+    pub(crate) fn get_download_string(file_uuid: &Uuid, conn: &mut PgConnection) -> ServiceResult<String> {
+        let slim_file = file_ref::file_ref
+            .select((
+                file_ref::uuid,
+                file_ref::hash,
+                file_ref::filename,
+                file_ref::filesize,
+                file_ref::path_file,
+            ))
+            .filter(file_ref::uuid.eq(file_uuid).and(file_ref::is_delete.eq(false)))
+            .first::<SlimFile>(conn)
+            .map_err(|err| {
+                debug!("Failed get download string for file: {:?}", err);
+                ServiceError::InternalServerError
+            })?;
         let naive_local_now = chrono::Local::now().naive_local();
         let get_url_from_db = presigned_url_ref::presigned_url_ref
             .select(presigned_url_ref::presigned_url)
-            .filter(presigned_url_ref::file_uuid.eq(&self.uuid)
+            .filter(presigned_url_ref::file_uuid.eq(&slim_file.uuid)
                 .and(presigned_url_ref::expiration_at.gt(naive_local_now)))
             .limit(1)
             .load::<String>(conn)
@@ -239,10 +260,10 @@ impl SlimFile {
         // creates and saves (updates) download presigned url for a file in the database
         let presigned_url = download_presigned_url(
             &StorageAccess::from_env(),
-            self,
+            &slim_file,
         )?;
         // save presigned url to database
-        save_presign_url(&self.uuid, &presigned_url, conn)?;
+        save_presign_url(&slim_file.uuid, &presigned_url, conn)?;
         Ok(presigned_url)
     }
 }
@@ -284,10 +305,10 @@ impl DownloadFile {
     ) -> ServiceResult<DownloadFile> {
         Ok(DownloadFile{
             uuid: slim_file.uuid,
-            hash: slim_file.encode_hash(),
+            hash: hex::encode(&slim_file.hash),
             filename: slim_file.filename.clone(),
             filesize: slim_file.filesize,
-            download_url: slim_file.get_download_string(conn)?,
+            download_url: SlimFile::get_download_string(&slim_file.uuid, conn)?,
         })
     }
 

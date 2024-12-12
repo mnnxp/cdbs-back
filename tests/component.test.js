@@ -6580,6 +6580,8 @@ describe('component', () => {
         query: `query {
           showFileRevisions(fileUuid: "${threeRevFileFileTestUuid2}") {
             ${showFileRevisionsQuery}
+            hash
+            downloadUrl
           }
         }`,
       })
@@ -6591,11 +6593,15 @@ describe('component', () => {
     } = body;
     expect(showFileRevisions[0].uuid).toBe(fileUuid2);
     expect(showFileRevisions[0].revision).toBe(1);
+    expect(showFileRevisions[0].hash).toBe("");
+    expect(showFileRevisions[0].downloadUrl).toBeNonEmptyString();
     expect(showFileRevisions[0].commitMsg).toBe("");
     expect(showFileRevisions[1].uuid).toBe(seconRevFileFileTestUuid2);
     expect(showFileRevisions[1].revision).toBe(2);
     expect(showFileRevisions[2].uuid).toBe(threeRevFileFileTestUuid2);
     expect(showFileRevisions[2].revision).toBe(3);
+    expect(showFileRevisions[2].hash).toBe("");
+    expect(showFileRevisions[2].downloadUrl).toBeNonEmptyString();
     expect(showFileRevisions[2].commitMsg).toBe("Secon revision (rev.2)");
     expect(showFileRevisions.length).toBe(3);
     await setFlagDeleteAsOldRevDb(threeRevFileFileTestUuid2);
