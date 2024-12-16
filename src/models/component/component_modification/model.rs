@@ -173,6 +173,7 @@ pub(crate) struct DelComponentModificationData {
 #[derive(Debug)]
 pub(crate) struct ComponentModificationArg {
     pub(crate) component_uuid: Uuid,
+    pub(crate) filter: Vec<Uuid>,
     pub(crate) sort: Sort,
     pub(crate) paginate: Paginate,
     pub(crate) set_lang_id: i32,

@@ -111,26 +111,17 @@ impl ComponentQuery {
         &self,
         cxt: &Context<'_>,
         component_uuid: Uuid,
+        filter: Option<Vec<Uuid>>,
         sort: Option<IptSort>,
         paginate: Option<IptPaginate>,
     ) -> ServiceResult<Vec<ComponentModificationAndRelatedData>> {
         use crate::models::component::component_modification::service::list::get_component_modifications;
-
         // authorization check
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
-        let args = ComponentModificationArg {
-            component_uuid,
-            sort: sort.map(|s| Sort::parsing(TableName::ComponentModification, &s.by_field, s.as_desc))
-                .unwrap_or(Sort::set_by_table(TableName::ComponentModification)),
-            paginate: paginate.map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
-                .unwrap_or_default(),
-            set_lang_id: get_set_language(cxt),
-        };
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
-
         get_component_modifications(
             &logged_user_uuid,
-            &args,
+            &ComponentModificationArg::parsing(component_uuid, filter, sort, paginate, get_set_language(cxt)),
             conn
         )
     }

@@ -5917,6 +5917,47 @@ describe('component', () => {
     expect(component.componentModifications[1].modificationParams[0].param.paramId).toBe(paramnameIndex);
     expect(component.componentModifications[1].modificationParams[0].param.paramname).toBeNonEmptyString();
     expect(component.componentModifications[1].modificationParams[0].value).toBe(paramValueTest2);
+    expect(component.componentModifications.length).toBe(2);
+    done();
+  });
+
+  it('/graphql:Q Get full data Component - OK check filter modification', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+          query: `query componentQuery{
+            component(componentUuid: "${componentUuidNoStandard}") {
+              uuid \
+              componentModifications(filter: ["${componentModificationUuidSecond}"]) { \
+                modificationParams { \
+                  modificationUuid \
+                  param { \
+                    paramId \
+                    langId \
+                    paramname \
+                  } \
+                  value \
+                } \
+              } \
+            } \
+          }`,
+        })
+      .expect(HttpStatus.OK)
+    debug('/graphql filter component=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { component },
+    } = body;
+    expect(component.uuid).toBe(componentUuidNoStandard);
+    expect(component.componentModifications[0].modificationParams[0].modificationUuid).toBe(componentModificationUuidSecond);
+    expect(component.componentModifications[0].modificationParams[0].param.paramId).toBe(paramnameIndex);
+    expect(component.componentModifications[0].modificationParams[0].param.paramname).toBeNonEmptyString();
+    expect(component.componentModifications[0].modificationParams[0].value).toBe(paramValueTest2);
+    expect(component.componentModifications.length).toBe(1);
     done();
   });
 
@@ -5999,6 +6040,62 @@ describe('component', () => {
     done();
   });
 
+  it('/graphql:Q componentModifications - OK filter', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+          query: `query {
+            componentModifications(
+              componentUuid: "${componentUuidStandard}"
+              filter: ["${componentModificationUuidSecond}"]
+            ){
+              ${componentModificationFields}
+            }
+          }`,
+        })
+      .expect(HttpStatus.OK)
+    debug('/graphql filter component=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { componentModifications },
+    } = body;
+    expect(componentModifications.length).toBe(0);
+    done();
+  });
+
+  it('/graphql:Q componentModifications - OK filter', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+          query: `query {
+            componentModifications(
+              componentUuid: "${componentUuidStandard}"
+              filter: ["${componentModificationUuidFirst}"]
+            ){
+              ${componentModificationFields}
+            }
+          }`,
+        })
+      .expect(HttpStatus.OK)
+    debug('/graphql filter component=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { componentModifications },
+    } = body;
+    expect(componentModifications.length).toBe(1);
+    expect(componentModifications[0].componentUuid).toBe(componentUuidStandard);
+    expect(componentModifications[0].uuid).toBe(componentModificationUuidFirst);
+    expect(componentModifications[0].modificationName).toBe(nameModificationForUpdate);
+    done();
+  });
 
   it('/graphql:Q componentModifications - OK sort and paginate', async (done) => {
     const { body } = await agent

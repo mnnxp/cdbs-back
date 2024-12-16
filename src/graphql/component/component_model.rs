@@ -18,6 +18,7 @@ use	crate::models::component::{
     component_type::model::ComponentTypeTranslateList,
     actual_status::model::ActualStatusTranslateList,
     component_modification::{
+        model::ComponentModificationArg,
         param::model::ModificationParamWithTranslation,
         fileset_for_program::model::FilesetProgramRelatedData,
     },
@@ -27,6 +28,26 @@ use crate::models::search::model::ExtraOptions;
 use async_graphql::{Context, Object, InputObject};
 use chrono::NaiveDateTime;
 use uuid::Uuid;
+
+impl ComponentModificationArg {
+    pub(crate) fn parsing(
+        component_uuid: Uuid,
+        filter: Option<Vec<Uuid>>,
+        sort: Option<IptSort>,
+        paginate: Option<IptPaginate>,
+        set_lang_id: i32,
+    ) -> Self {
+        Self {
+            component_uuid,
+            filter: filter.unwrap_or_default(),
+            sort: sort.map(|s| Sort::parsing(TableName::ComponentModification, &s.by_field, s.as_desc))
+                .unwrap_or(Sort::set_by_table(TableName::ComponentModification)),
+            paginate: paginate.map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
+                .unwrap_or_default(),
+            set_lang_id,
+        }
+    }
+}
 
 /// Complete information about component (part) and related data.
 /// Default sorting: `createdAt`. Sorting by `name`, `actualStatusId`, `updatedAt` is available.
@@ -223,18 +244,14 @@ impl ComponentAndRelatedData {
     async fn component_modifications(
         &self,
         cxt: &Context<'_>,
+        filter: Option<Vec<Uuid>>,
         sort: Option<IptSort>,
         paginate: Option<IptPaginate>,
     ) -> Vec<ComponentModificationAndRelatedData> {
         let conn: &mut PooledConnection = &mut get_conn(cxt).expect("Error get conn to DB");
-        let s = sort
-            .map(|s| Sort::parsing(TableName::ComponentModification, &s.by_field, s.as_desc))
-            .unwrap_or(Sort::set_by_table(TableName::ComponentModification));
-        let p = paginate
-            .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
-            .unwrap_or_default();
+        let args = ComponentModificationArg::parsing(self.uuid, filter, sort, paginate, get_set_language(cxt));
         // get list component modifications with related data and translation
-        ComponentModificationAndRelatedData::by_args(&self.uuid, &s, &p, &get_set_language(cxt), conn)
+        ComponentModificationAndRelatedData::by_args(&args, conn)
             .expect("Error loading component modifications with related data")
     }
 

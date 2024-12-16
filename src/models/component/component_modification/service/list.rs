@@ -14,19 +14,11 @@ pub(crate) fn get_component_modifications(
     conn: &mut PgConnection
 ) -> ServiceResult<Vec<ComponentModificationAndRelatedData>> {
     let need_access_level = 3; // todo!(create enum for manage access level)
-
     check_access_component_for_user(
         logged_user_uuid,
         &args.component_uuid,
         &need_access_level,
         conn
     )?;
-
-    ComponentModificationAndRelatedData::by_args(
-        &args.component_uuid,
-        &args.sort,
-        &args.paginate,
-        &args.set_lang_id,
-        conn
-    )
+    ComponentModificationAndRelatedData::by_args(args, conn)
 }
