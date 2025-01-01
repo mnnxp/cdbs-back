@@ -33,6 +33,7 @@ const paramnameIndex = 2;
 const paramname = "Selector";
 const paramNameTest = "testparametr";
 const paramNameTest2 = "testparametr2";
+const paramNameTest3 = "testparametr3";
 var paramIdTest = 1000000;
 var paramIdTest2 = 1000000;
 
@@ -49,6 +50,12 @@ var specName4 = "";
 var specName5 = "";
 var specPath10 = "";
 
+const paramTranslateList = ` \
+paramId \
+langId \
+paramname \
+`;
+
 async function cleanupParamDb() {
   return global.knex.raw('DELETE FROM param_ref WHERE id in (?,?)', [
     paramIdTest,
@@ -57,9 +64,10 @@ async function cleanupParamDb() {
 }
 
 async function cleanupParamTranslateDb() {
-  return global.knex.raw('DELETE FROM param_translate_list WHERE paramname in (?,?)', [
+  return global.knex.raw('DELETE FROM param_translate_list WHERE paramname in (?,?,?)', [
     paramNameTest,
     paramNameTest2,
+    paramNameTest3,
   ]);
 }
 
@@ -208,7 +216,9 @@ describe('param', () => {
             registerParam(args: {
                 langId: ${langId1},
                 paramname: "${paramNameTest}"
-            })
+            }){
+              ${paramTranslateList}
+            }
         }`,
       })
       .expect(HttpStatus.OK)
@@ -233,7 +243,9 @@ describe('param', () => {
             registerParam(args: {
                 langId: ${langId1},
                 paramname: "${paramNameTest}",
-            })
+            }){
+              ${paramTranslateList}
+            }
         }`,
       })
       .expect(HttpStatus.OK)
@@ -241,8 +253,9 @@ describe('param', () => {
     const {
       data: { registerParam },
     } = body;
-    paramIdTest = registerParam;   // <-- save data for test "already param"
-    expect(registerParam).not.toBeNull();
+    paramIdTest = registerParam.paramId;   // <-- save data for test "already param"
+    expect(registerParam.langId).toBe(langId1);
+    expect(registerParam.paramname).toBe(paramNameTest);
     done();
   });
 
@@ -258,7 +271,9 @@ describe('param', () => {
             registerParam(args: {
                 langId: ${langId1},
                 paramname: "${paramNameTest}"
-            })
+            }){
+              ${paramTranslateList}
+            }
         }`,
       })
       .expect(HttpStatus.OK)
@@ -266,7 +281,9 @@ describe('param', () => {
     const {
       data: { registerParam },
     } = body;
-    expect(registerParam).toBe(paramIdTest);
+    expect(registerParam.paramId).toBe(paramIdTest);
+    expect(registerParam.langId).toBe(langId1);
+    expect(registerParam.paramname).toBe(paramNameTest);
     done();
   });
 
@@ -282,7 +299,9 @@ describe('param', () => {
             registerParam(args: {
                 langId: ${langId1},
                 paramname: "${paramNameTest2}",
-            })
+            }){
+              ${paramTranslateList}
+            }
         }`,
       })
       .expect(HttpStatus.OK)
@@ -291,7 +310,58 @@ describe('param', () => {
       data: { registerParam },
     } = body;
     expect(registerParam).not.toBeNull();
-    paramIdTest2 = registerParam;
+    paramIdTest2 = registerParam.paramId;
+    done();
+  });
+
+  it('/graphql:M registerParams - OK 2 params name is already, 1 new lang and 1 new', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation  {
+            registerParams(args: [
+              {
+                  langId: ${langId1},
+                  paramname: "${paramNameTest}"
+              },
+              {
+                  langId: ${langId1},
+                  paramname: "${paramNameTest2}"
+              },
+              {
+                  langId: ${langId2},
+                  paramname: "${paramNameTest2}"
+              },
+              {
+                  langId: ${langId1},
+                  paramname: "${paramNameTest3}"
+              }
+            ]){
+              ${paramTranslateList}
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    const {
+      data: { registerParams },
+    } = body;
+    expect(registerParams[0].paramId).toBe(paramIdTest);
+    expect(registerParams[0].langId).toBe(langId1);
+    expect(registerParams[0].paramname).toBe(paramNameTest);
+    expect(registerParams[1].paramId).toBe(paramIdTest2);
+    expect(registerParams[1].langId).toBe(langId1);
+    expect(registerParams[1].paramname).toBe(paramNameTest2);
+    expect(registerParams[2].paramId).not.toBe(paramIdTest2);
+    expect(registerParams[2].langId).toBe(langId2);
+    expect(registerParams[2].paramname).toBe(paramNameTest2);
+    expect(registerParams[3].paramId).not.toBeNull();
+    expect(registerParams[3].langId).toBe(langId1);
+    expect(registerParams[3].paramname).toBe(paramNameTest3);
     done();
   });
 
@@ -336,7 +406,6 @@ describe('param', () => {
       .expect(HttpStatus.OK)
     debug('/graphql body=%o', response1.body);
     // expect(response1.body).toBe(0);
-    expect(response1.body.data.params).toBeNonEmptyArray();
     expect(response1.body.data.params[0].paramId).toBe(paramnameIndex);
     expect(response1.body.data.params[0].paramname).toBe(paramname);
     done();
@@ -361,7 +430,6 @@ describe('param', () => {
       })
       .expect(HttpStatus.OK)
     debug('/graphql body=%o', response1.body);
-    expect(response1.body.data.params).toBeNonEmptyArray();
     expect(response1.body.data.params[1].paramId).toBe(paramnameIndex);
     expect(response1.body.data.params[1].paramname).toBe(paramname);
     done();

@@ -2,6 +2,7 @@ use async_graphql::{self, Context, Object};
 
 use crate::database::{get_conn, PooledConnection};
 use crate::errors::ServiceResult;
+use crate::models::relate_ref::param::service::register::create_parameters;
 use crate::models::search::order::Paginate;
 use crate::models::user::access::logged::check_authorized;
 use crate::models::relate_ref::param::{
@@ -19,8 +20,8 @@ pub struct ParamMutation;
 
 #[Object]
 impl ParamQuery {
-    /// Returns a list of available parameters with a filter by IDs.
-    /// If a filter for parameter names is not specified, then all existing ones are aggregated.
+    /// Returns a list of available parameters with a filter by IDs. If no parameter filter by ids is specified,
+    /// then sampling is performed by all parameters taking into account the specified language.
     async fn params(
         &self,
         cxt: &Context<'_>,
@@ -37,17 +38,26 @@ impl ParamQuery {
 
 #[Object]
 impl ParamMutation {
-    /// Returns a ID of the parameter name.
-    /// A new parameter is not registered if one already exists.
+    /// Returns a ParamTranslateList structure of a new or existing parameter if an identical one is found
     async fn register_param(
         &self,
         cxt: &Context<'_>,
         args: IptParamTranslateListData,
-    ) -> ServiceResult<i32> {
+    ) -> ServiceResult<ParamTranslateList> {
         check_authorized(cxt)?;
-
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
-
         create_param(&args, conn)
+    }
+
+    /// Returns an array with ParamTranslateList of new or existing parameters,
+    /// new parameters are not created if identical ones are found
+    async fn register_params(
+        &self,
+        cxt: &Context<'_>,
+        args: Vec<IptParamTranslateListData>,
+    ) -> ServiceResult<Vec<ParamTranslateList>> {
+        check_authorized(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+        create_parameters(&args, conn)
     }
 }
