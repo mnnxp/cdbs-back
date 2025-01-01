@@ -2,6 +2,7 @@ use crate::models::component::{
     model::Component,
     component_modification::util::get_root_modification_uuid,
 };
+use crate::models::relate_ref::param::model::IptParamData;
 use crate::models::search::order::{Paginate, Sort};
 use crate::schema::*;
 use async_graphql::*;
@@ -41,6 +42,7 @@ pub(crate) struct InsertableComponentModification {
 impl InsertableComponentModification {
     /// Returns a structure with the specified component UUID
     pub(crate) fn get_default_for_component(component_uuid: &Uuid) -> Self {
+        let local_time = chrono::Local::now().naive_local();
         Self {
             uuid: Uuid::new_v4(),
             component_uuid: *component_uuid,
@@ -49,29 +51,28 @@ impl InsertableComponentModification {
             description: String::new(),
             actual_status_id: 1,
             is_delete: false,
-            created_at: chrono::Local::now().naive_local(),
-            updated_at: chrono::Local::now().naive_local(),
+            created_at: local_time,
+            updated_at: local_time,
         }
     }
 
     /// Returns structures with the specified component UUID and modifications data
-    pub(crate) fn get_multiple_data(data: &IptMultipleModificationsData) -> Vec<Self> {
-        let mut res = Vec::new();
-        for md in data.modifications_data.iter() {
-            let local_time = chrono::Local::now().naive_local();
-            res.push(Self {
-                uuid: Uuid::new_v4(),
-                component_uuid: data.component_uuid,
-                parent_modification_uuid: Uuid::nil(),
-                modification_name: md.modification_name.clone(),
-                description: md.description.clone(),
-                actual_status_id: md.actual_status_id,
-                is_delete: false,
-                created_at: local_time,
-                updated_at: local_time,
-            })
+    pub(crate) fn get_multiple_data(
+        component_uuid: Uuid,
+        modifications_data: &IptModificationsData
+    ) -> Self {
+        let local_time = chrono::Local::now().naive_local();
+        Self {
+            uuid: Uuid::new_v4(),
+            component_uuid,
+            parent_modification_uuid: Uuid::nil(),
+            modification_name: modifications_data.modification_name.clone(),
+            description: modifications_data.description.clone(),
+            actual_status_id: modifications_data.actual_status_id,
+            is_delete: false,
+            created_at: local_time,
+            updated_at: local_time,
         }
-        res
     }
 
     /// Check parent modification uuid on nil
@@ -118,6 +119,8 @@ pub(crate) struct IptModificationsData {
     pub(crate) description: String,
     /// Current status of the component modification
     pub(crate) actual_status_id: i32,
+    /// Parameters for component modification
+    pub(crate) parameters: Vec<IptParamData>,
 }
 
 impl From<&IptComponentModificationData> for InsertableComponentModification {

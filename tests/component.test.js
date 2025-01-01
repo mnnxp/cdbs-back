@@ -98,6 +98,9 @@ const actualStatusIdM2 = 2;
 const modificationNameM3 = "3/16/20-D-V";
 const descriptionM3 = "Dest 3/d-v";
 const actualStatusIdM3 = 3;
+const modificationNameM4 = "4/16/20-D-V";
+const descriptionM4 = "Dest 4/d-v";
+const actualStatusIdM4 = 4;
 const badFilenameComponentFaviconTest = "no image file.pdf";
 const goodFilenameComponentFaviconTest = "image file.png";
 
@@ -5712,11 +5715,13 @@ describe('component', () => {
                 modificationName: "${modificationNameM1}",
                 description: "${descriptionM1}",
                 actualStatusId: ${actualStatusIdM1}
+                parameters: []
               },
               {
                 modificationName: "${modificationNameM2}",
                 description: "${descriptionM2}",
                 actualStatusId: ${actualStatusIdM2}
+                parameters: []
               }
             ]
           })
@@ -5732,7 +5737,43 @@ describe('component', () => {
       done();
   });
 
-  it('/graphql:M registerComponentModifications - OK', async (done) => {
+  it('/graphql:M registerComponentModifications - OK with duplicate parameters (they have been omitted)', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation {
+          registerComponentModifications(args: {
+            componentUuid: "${componentUuidStandard}",
+            modificationsData: [
+              {
+                modificationName: "${modificationNameM3}",
+                description: "${descriptionM3}",
+                actualStatusId: ${actualStatusIdM3},
+                parameters: [
+                  { paramId: 26, value: "par26" },
+                  { paramId: 26, value: "par26 is duplicate" },
+                ]
+              }
+            ]
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { registerComponentModifications },
+    } = body;
+    expect(registerComponentModifications[0]).toBeNonEmptyString();
+    expect(registerComponentModifications.length).toBe(1);
+    done();
+  });
+
+  it('/graphql:M registerComponentModifications - OK with params', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .set(
@@ -5747,17 +5788,48 @@ describe('component', () => {
               {
                 modificationName: "${modificationNameM1}",
                 description: "${descriptionM1}",
-                actualStatusId: ${actualStatusIdM1}
+                actualStatusId: ${actualStatusIdM1},
+                parameters: [
+                  { paramId: 4, value: "par4" },
+                  { paramId: 6, value: "par6" },
+                  { paramId: 7, value: "par7" },
+                  { paramId: 8, value: "par8" },
+                  { paramId: 9, value: "par9" },
+                  { paramId: 11, value: "par11" },
+                  { paramId: 12, value: "par12" },
+                  { paramId: 13, value: "par13" },
+                ]
               },
               {
                 modificationName: "${modificationNameM2}",
                 description: "${descriptionM2}",
-                actualStatusId: ${actualStatusIdM2}
+                actualStatusId: ${actualStatusIdM2},
+                parameters: []
               },
               {
                 modificationName: "${modificationNameM3}",
                 description: "${descriptionM3}",
-                actualStatusId: ${actualStatusIdM3}
+                actualStatusId: ${actualStatusIdM3},
+                parameters: [
+                  { paramId: 20, value: "par20" },
+                  { paramId: 21, value: "par21" },
+                ]
+              },
+              {
+                modificationName: "${modificationNameM4}",
+                description: "${descriptionM4}",
+                actualStatusId: ${actualStatusIdM4},
+                parameters: [
+                  { paramId: 20, value: "par20" },
+                  { paramId: 21, value: "par21" },
+                  { paramId: 22, value: "par22" },
+                  { paramId: 23, value: "par23" },
+                  { paramId: 24, value: "par24" },
+                  { paramId: 10, value: "par10" },
+                  { paramId: 11, value: "par11" },
+                  { paramId: 12, value: "par12" },
+                  { paramId: 13, value: "par13" },
+                ]
               }
             ]
           })
@@ -5765,6 +5837,7 @@ describe('component', () => {
       })
       .expect(HttpStatus.OK)
     debug('/graphql body=%o', body);
+    // expect(body).toBe(0);
     const {
       data: { registerComponentModifications },
     } = body;
@@ -5918,6 +5991,80 @@ describe('component', () => {
     expect(component.componentModifications[1].modificationParams[0].param.paramname).toBeNonEmptyString();
     expect(component.componentModifications[1].modificationParams[0].value).toBe(paramValueTest2);
     expect(component.componentModifications.length).toBe(2);
+    done();
+  });
+
+  it('/graphql:Q Get full data Component - OK check update modification param', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+          query: `query componentQuery{
+            component(componentUuid: "${componentUuidStandard}") {
+              uuid \
+              componentModifications (
+                  sort:{
+                    byField: "name"
+                    asDesc: false
+                  }
+              ){ \
+                modificationName \
+                modificationParams(
+                  sort:{
+                    byField: "paramId"
+                    asDesc: true
+                  }
+                ){ \
+                  modificationUuid \
+                  param { \
+                    paramId \
+                    langId \
+                    paramname \
+                  } \
+                  value \
+                } \
+              } \
+            } \
+          }`,
+        })
+      .expect(HttpStatus.OK)
+    debug('/graphql filter component=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { component },
+    } = body;
+    expect(component.uuid).toBe(componentUuidStandard);
+    expect(component.componentModifications.length).toBe(7);
+    expect(component.componentModifications[0].modificationName).toBe(modificationNameM1);
+    expect(component.componentModifications[0].modificationParams.length).toBe(8);
+    expect(component.componentModifications[0].modificationParams[0].param.paramId).toBe(13);
+    expect(component.componentModifications[0].modificationParams[0].param.paramname).toBeNonEmptyString();
+    expect(component.componentModifications[0].modificationParams[0].value).toBe("par13");
+    expect(component.componentModifications[0].modificationParams[7].param.paramId).toBe(4);
+    expect(component.componentModifications[0].modificationParams[7].param.paramname).toBeNonEmptyString();
+    expect(component.componentModifications[0].modificationParams[7].value).toBe("par4");
+    expect(component.componentModifications[1].modificationName).toBe(modificationNameM2);
+    expect(component.componentModifications[1].modificationParams.length).toBe(0);
+    expect(component.componentModifications[2].modificationName).toBe(modificationNameM3);
+    expect(component.componentModifications[2].modificationParams.length).toBe(1);
+    expect(component.componentModifications[2].modificationParams[0].param.paramId).toBe(26);
+    expect(component.componentModifications[2].modificationParams[0].param.paramname).toBeNonEmptyString();
+    expect(component.componentModifications[2].modificationParams[0].value).toBe("par26");
+    expect(component.componentModifications[3].modificationName).toBe(modificationNameM4);
+    expect(component.componentModifications[3].modificationParams.length).toBe(9);
+    expect(component.componentModifications[3].modificationParams[0].param.paramId).toBe(24);
+    expect(component.componentModifications[3].modificationParams[0].param.paramname).toBeNonEmptyString();
+    expect(component.componentModifications[3].modificationParams[0].value).toBe("par24");
+    expect(component.componentModifications[3].modificationParams[8].param.paramId).toBe(10);
+    expect(component.componentModifications[3].modificationParams[8].param.paramname).toBeNonEmptyString();
+    expect(component.componentModifications[3].modificationParams[8].value).toBe("par10");
+    expect(component.componentModifications[4].modificationName).toBe('N1');
+    expect(component.componentModifications[4].modificationParams).toBeEmptyArray();
+    expect(component.componentModifications[5].modificationParams).toBeEmptyArray();
+    expect(component.componentModifications[6].modificationParams.length).toBe(0);
     done();
   });
 
@@ -6128,9 +6275,9 @@ describe('component', () => {
       data: { componentModifications },
     } = body;
     expect(componentModifications.length).toBe(2);
-    expect(componentModifications[0].componentUuid).toBe(componentUuidStandard);
-    expect(componentModifications[0].modificationName).toBe(nameModificationForUpdate);
-    expect(componentModifications[1].modificationName).toBe(modificationName);
+    expect(componentModifications[0].modificationName).toBe('N1');
+    expect(componentModifications[1].componentUuid).toBe(componentUuidStandard);
+    expect(componentModifications[1].modificationName).toBe(nameModificationForUpdate);
     done();
   });
 
