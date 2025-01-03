@@ -5699,7 +5699,7 @@ describe('component', () => {
   });
 
   // Testing query create multiple component modifications
-  it('/graphql:M registerComponentModifications - BadRequest access denied', async (done) => {
+  it('/graphql:M registerComponentModificationsBulk - BadRequest access denied', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .set(
@@ -5708,7 +5708,7 @@ describe('component', () => {
       )
       .send({
         query: `mutation {
-          registerComponentModifications(args: {
+          registerComponentModificationsBulk(args: {
             componentUuid: "${componentUuidStandard}",
             modificationsData: [
               {
@@ -5733,11 +5733,11 @@ describe('component', () => {
       expect(body.errors[0].message).toBe(
         'BadRequest: Access denied'
       );
-      expect(body.errors[0].path[0]).toBe('registerComponentModifications');
+      expect(body.errors[0].path[0]).toBe('registerComponentModificationsBulk');
       done();
   });
 
-  it('/graphql:M registerComponentModifications - OK with duplicate parameters (they have been omitted)', async (done) => {
+  it('/graphql:M registerComponentModificationsBulk - OK with duplicate parameters (they have been omitted)', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .set(
@@ -5746,7 +5746,7 @@ describe('component', () => {
       )
       .send({
         query: `mutation {
-          registerComponentModifications(args: {
+          registerComponentModificationsBulk(args: {
             componentUuid: "${componentUuidStandard}",
             modificationsData: [
               {
@@ -5766,14 +5766,14 @@ describe('component', () => {
     debug('/graphql body=%o', body);
     // expect(body).toBe(0);
     const {
-      data: { registerComponentModifications },
+      data: { registerComponentModificationsBulk },
     } = body;
-    expect(registerComponentModifications[0]).toBeNonEmptyString();
-    expect(registerComponentModifications.length).toBe(1);
+    expect(registerComponentModificationsBulk[0]).toBeNonEmptyString();
+    expect(registerComponentModificationsBulk.length).toBe(1);
     done();
   });
 
-  it('/graphql:M registerComponentModifications - OK with params', async (done) => {
+  it('/graphql:M registerComponentModificationsBulk - OK with params', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .set(
@@ -5782,7 +5782,7 @@ describe('component', () => {
       )
       .send({
         query: `mutation {
-          registerComponentModifications(args: {
+          registerComponentModificationsBulk(args: {
             componentUuid: "${componentUuidStandard}",
             modificationsData: [
               {
@@ -5839,10 +5839,10 @@ describe('component', () => {
     debug('/graphql body=%o', body);
     // expect(body).toBe(0);
     const {
-      data: { registerComponentModifications },
+      data: { registerComponentModificationsBulk },
     } = body;
-    expect(registerComponentModifications[0]).toBeNonEmptyString();
-    expect(registerComponentModifications.length).toBe(3);
+    expect(registerComponentModificationsBulk[0]).toBeNonEmptyString();
+    expect(registerComponentModificationsBulk.length).toBe(3);
     done();
   });
 

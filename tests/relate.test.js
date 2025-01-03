@@ -314,7 +314,7 @@ describe('param', () => {
     done();
   });
 
-  it('/graphql:M registerParams - OK 2 params name is already, 1 new lang and 1 new', async (done) => {
+  it('/graphql:M registerParamsBulk - OK 2 params name is already, 1 new lang and 1 new', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .set(
@@ -323,7 +323,7 @@ describe('param', () => {
       )
       .send({
         query: `mutation  {
-            registerParams(args: [
+            registerParamsBulk(args: [
               {
                   langId: ${langId1},
                   paramname: "${paramNameTest}"
@@ -348,20 +348,20 @@ describe('param', () => {
       .expect(HttpStatus.OK)
     debug('/graphql body=%o', body);
     const {
-      data: { registerParams },
+      data: { registerParamsBulk },
     } = body;
-    expect(registerParams[0].paramId).toBe(paramIdTest);
-    expect(registerParams[0].langId).toBe(langId1);
-    expect(registerParams[0].paramname).toBe(paramNameTest);
-    expect(registerParams[1].paramId).toBe(paramIdTest2);
-    expect(registerParams[1].langId).toBe(langId1);
-    expect(registerParams[1].paramname).toBe(paramNameTest2);
-    expect(registerParams[2].paramId).not.toBe(paramIdTest2);
-    expect(registerParams[2].langId).toBe(langId2);
-    expect(registerParams[2].paramname).toBe(paramNameTest2);
-    expect(registerParams[3].paramId).not.toBeNull();
-    expect(registerParams[3].langId).toBe(langId1);
-    expect(registerParams[3].paramname).toBe(paramNameTest3);
+    expect(registerParamsBulk[0].paramId).toBe(paramIdTest);
+    expect(registerParamsBulk[0].langId).toBe(langId1);
+    expect(registerParamsBulk[0].paramname).toBe(paramNameTest);
+    expect(registerParamsBulk[1].paramId).toBe(paramIdTest2);
+    expect(registerParamsBulk[1].langId).toBe(langId1);
+    expect(registerParamsBulk[1].paramname).toBe(paramNameTest2);
+    expect(registerParamsBulk[2].paramId).not.toBe(paramIdTest2);
+    expect(registerParamsBulk[2].langId).toBe(langId2);
+    expect(registerParamsBulk[2].paramname).toBe(paramNameTest2);
+    expect(registerParamsBulk[3].paramId).not.toBeNull();
+    expect(registerParamsBulk[3].langId).toBe(langId1);
+    expect(registerParamsBulk[3].paramname).toBe(paramNameTest3);
     done();
   });
 

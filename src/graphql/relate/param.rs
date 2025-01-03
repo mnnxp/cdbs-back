@@ -51,7 +51,7 @@ impl ParamMutation {
 
     /// Returns an array with ParamTranslateList of new or existing parameters,
     /// new parameters are not created if identical ones are found
-    async fn register_params(
+    async fn register_params_bulk(
         &self,
         cxt: &Context<'_>,
         args: Vec<IptParamTranslateListData>,

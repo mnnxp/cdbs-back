@@ -538,7 +538,7 @@ impl ComponentMutation {
     }
 
     /// Creates modifications and their parameters for a component
-    async fn register_component_modifications(
+    async fn register_component_modifications_bulk(
         &self,
         cxt: &Context<'_>,
         args: IptMultipleModificationsData,
