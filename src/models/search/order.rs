@@ -122,9 +122,18 @@ impl TableName {
 }
 
 #[derive(Debug)]
+enum DataType {
+    String,
+    Date,
+    Number,
+    None,
+}
+
+#[derive(Debug)]
 pub(crate) struct TableColumn {
     table: TableName,
     column: String,
+    data_type: DataType,
 }
 
 impl TableColumn {
@@ -132,43 +141,43 @@ impl TableColumn {
     /// The column value can be set to default or empty if there are no table matches.
     fn parsing(table: TableName, field: &str) -> Self {
         match table {
-            TableName::ComponentRef => Self {
-                table,
-                column: match field {
-                    "name" => "name".to_string(),
-                    "actualStatusId" => "actual_status_id".to_string(),
-                    "updatedAt" => "updated_at".to_string(),
-                    _ => "created_at".to_string(),
-                }
+            TableName::ComponentRef => {
+                let (column, data_type) = match field {
+                    "name" => ("name".to_string(), DataType::String),
+                    "actualStatusId" => ("actual_status_id".to_string(), DataType::Number),
+                    "updatedAt" => ("updated_at".to_string(), DataType::Date),
+                    _ => ("created_at".to_string(), DataType::Date),
+                };
+                Self { table, column, data_type }
             },
-            TableName::ComponentModification => Self {
-                table,
-                column: match field {
-                    "name" => "modification_name".to_string(),
-                    "actualStatusId" => "actual_status_id".to_string(),
-                    "updatedAt" => "updated_at".to_string(),
-                    _ => "created_at".to_string(),
-                }
+            TableName::ComponentModification => {
+                let (column, data_type) = match field {
+                    "name" => ("modification_name".to_string(), DataType::String),
+                    "actualStatusId" => ("actual_status_id".to_string(), DataType::Number),
+                    "updatedAt" => ("updated_at".to_string(), DataType::Date),
+                    _ => ("created_at".to_string(), DataType::Date),
+                };
+                Self { table, column, data_type }
             },
-            TableName::FileRef => Self {
-                table,
-                column: match field {
-                    "revision" => "revision".to_string(),
-                    "filename" => "filename".to_string(),
-                    "size" => "filesize".to_string(),
-                    "updatedAt" => "updated_at".to_string(),
-                    _ => "created_at".to_string(),
-                }
+            TableName::FileRef => {
+                let (column, data_type) = match field {
+                    "revision" => ("revision".to_string(), DataType::Number),
+                    "filename" => ("filename".to_string(), DataType::String),
+                    "size" => ("filesize".to_string(), DataType::Number),
+                    "updatedAt" => ("updated_at".to_string(), DataType::Date),
+                    _ => ("created_at".to_string(), DataType::Date),
+                };
+                Self { table, column, data_type }
             },
-            TableName::ParamTranslateList => Self {
-                table,
-                column: match field {
-                    "value" => "pt.value".to_string(),
-                    "paramname" => "ptl.paramname".to_string(),
-                    _ => "ptl.param_id".to_string(),
-                }
+            TableName::ParamTranslateList => {
+                let (column, data_type) = match field {
+                    "value" => ("pt.value".to_string(), DataType::String),
+                    "paramname" => ("ptl.paramname".to_string(), DataType::String),
+                    _ => ("ptl.param_id".to_string(), DataType::Number),
+                };
+                Self { table, column, data_type }
             },
-            _ => Self {table, column: String::new()}
+            _ => Self { table, column: String::new(), data_type: DataType::None },
         }
     }
 
@@ -177,13 +186,18 @@ impl TableColumn {
         format!("FROM {}", self.table.name())
     }
 
-    /// Returns string `table.column` with names of table and column
+    /// Returns string `table.column` with names of table and column.
+    /// For string-type columns, length is added to specify the sort order.
     fn get_with_point(&self) -> String {
         if self.table.name().is_empty() {
             // if a table is specified in fields (small hack)
             return self.column.clone()
         }
-        format!("{}.{}", self.table.name(), self.column)
+        let point = format!("{}.{}", self.table.name(), self.column);
+        match self.data_type {
+            DataType::String => format!("(length({}), {})", point, point),
+            _ => point,
+        }
     }
 
     /// Returns false if column name is empty
