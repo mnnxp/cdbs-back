@@ -53,12 +53,10 @@ impl Paginate {
             debug!("SQL query execution is impossible without a column name");
             return Err(ServiceError::InternalServerError)
         }
+        // define the request to count object files
         let number_of_files = matches!(
             table_name,
-            TableName::FileRef |
-            TableName::FileToComponent |
-            TableName::FileToModification |
-            TableName::FileToFilesetForProgram
+            TableName::FileToComponent | TableName::FileToModification | TableName::FileToFilesetForProgram
         );
         // deleted and hidden files are not included in the calculation
         let query = match number_of_files {
