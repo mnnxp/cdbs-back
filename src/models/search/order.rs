@@ -1,6 +1,7 @@
 use diesel::prelude::*;
 use uuid::Uuid;
-use crate::errors::{ServiceResult, ServiceError};
+use crate::errors::{ServiceError, ServiceResult};
+use super::get_vec_in_string;
 use super::model::{ObjectUuid, ObjectI64};
 
 #[derive(Debug)]
@@ -266,15 +267,14 @@ pub(crate) fn objects_order(
     if object_uuids.is_empty() {
         return Ok(Vec::new())
     }
-    let zero_point = Uuid::nil().to_string();
     let query = format!("
     SELECT uuid
     {from}
-    WHERE uuid IN ('{object_uuids}')
+    WHERE uuid IN ({object_uuids})
     {sort}
     {paginate}",
         from = sort.get_from(),
-        object_uuids = object_uuids.iter().fold(zero_point, |acc, &x| format!("{acc}', '{x}")),
+        object_uuids = get_vec_in_string(object_uuids),
         sort = sort.get_complete(),
         paginate = paginate.get_complete(),
     );
