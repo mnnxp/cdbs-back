@@ -2,6 +2,7 @@ use crate::errors::ServiceResult;
 use crate::errors::err_msg::{ErrorMessage, get_err_msg};
 use crate::models::component::component_modification::param::model::DelModificationParamData;
 use crate::models::component::component_modification::util::get_component_by_modification;
+use crate::models::component::service::update::change_updated_at;
 use diesel::prelude::*;
 use uuid::Uuid;
 
@@ -13,10 +14,10 @@ pub(crate) fn del_modification_params(
 ) -> ServiceResult<usize> {
 
     let need_access_level = 1; // todo!(create enum for manage access level)
-
+    let target_component_uuid = get_component_by_modification(&data.modification_uuid, conn)?;
     crate::models::component::access::util::check_access_component_for_user(
         logged_user_uuid,
-        &get_component_by_modification(&data.modification_uuid, conn)?,
+        &target_component_uuid,
         &need_access_level,
         conn
     )?;
@@ -42,7 +43,10 @@ pub(crate) fn del_modification_params(
         &del_params,
         conn
     ) {
-        x if x > 0 => Ok(x),
+        x if x > 0 => {
+            change_updated_at(&target_component_uuid, Some(&data.modification_uuid), conn)?;
+            Ok(x)
+        },
         _ => Err(get_err_msg(ErrorMessage::CannotDeleteRows)),
     }
 }

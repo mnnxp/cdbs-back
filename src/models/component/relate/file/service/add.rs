@@ -4,6 +4,7 @@ use crate::models::component::access::util::check_access_component_for_user;
 use crate::models::component::relate::file::model::{
     IptComponentFilesData, IptComponentFaviconData
 };
+use crate::models::component::service::update::change_updated_at;
 use crate::models::relate_ref::file::{
     model::{ListObject, UploadFile},
     service::register::preregister_file,
@@ -63,6 +64,10 @@ pub(crate) fn add_component_files(
             upload_url,
         });
     }
+    // update the updated_at date if new files are added
+    if !up_files.is_empty() {
+        change_updated_at(&data.component_uuid, None, conn)?;
+    }
 
     Ok(up_files)
 }
@@ -108,6 +113,8 @@ pub(crate) fn add_component_favicon(
         &StorageAccess::from_env(),
         &slim_file.path_file,
     )?;
+
+    change_updated_at(&data.component_uuid, None, conn)?;
 
     Ok(UploadFile {
         file_uuid: slim_file.uuid,

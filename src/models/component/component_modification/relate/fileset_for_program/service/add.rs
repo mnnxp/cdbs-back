@@ -1,4 +1,5 @@
 use crate::errors::{ServiceError, ServiceResult};
+use crate::models::component::service::update::change_updated_at;
 use crate::models::component::{
     component_modification::{
         fileset_for_program::model::{IptFilesetProgramData, InsertableFilesetProgram},
@@ -20,10 +21,10 @@ pub(crate) fn create_modification_fileset(
 ) -> ServiceResult<Uuid> {
 
     let need_access_level = 1; // todo!(create enum for manage access level)
-
+    let target_component_uuid = get_component_by_modification(&arg.modification_uuid, conn)?;
     check_access_component_for_user(
         logged_user_uuid,
-        &get_component_by_modification(&arg.modification_uuid, conn)?,
+        &target_component_uuid,
         &need_access_level,
         conn
     )?;
@@ -45,8 +46,9 @@ pub(crate) fn create_modification_fileset(
             Ok(*x)
         },
         None => {
+            // update the updated_at for component and modification if new fileset are added
+            change_updated_at(&target_component_uuid, Some(&arg.modification_uuid), conn)?;
             let data: InsertableFilesetProgram = arg.into();
-
             diesel::insert_into(fileset_for_program::fileset_for_program)
                 .values(&data)
                 .returning(fileset_for_program::uuid)

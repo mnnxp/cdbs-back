@@ -2,7 +2,9 @@ use crate::errors::ServiceResult;
 use crate::errors::err_msg::{ErrorMessage, get_err_msg};
 use crate::models::component::access::util::check_access_component_for_user;
 use crate::models::component::component_modification::fileset_for_program::file::model::IptModificationFileFromFilesetData;
+use crate::models::component::component_modification::fileset_for_program::util::get_modification_by_fileset;
 use crate::models::component::component_modification::relate::fileset_for_program::util::get_component_by_fileset;
+use crate::models::component::service::update::change_updated_at;
 use crate::models::relate_ref::file::{
     model::{ListObject, UploadFile},
     service::register::preregister_file,
@@ -22,10 +24,11 @@ pub(crate) fn add_files_of_modification_set(
 ) -> ServiceResult<Vec<UploadFile>> {
 
     let need_access_level = 1; // todo!(create enum for manage access level)
-
+    let target_component_uuid = get_component_by_fileset(&data.fileset_uuid, conn)?;
+    let target_modification_uuid = get_modification_by_fileset(&data.fileset_uuid, conn)?;
     check_access_component_for_user(
         logged_user_uuid,
-        &get_component_by_fileset(&data.fileset_uuid, conn)?,
+        &target_component_uuid,
         &need_access_level,
         conn
     )?;
@@ -62,6 +65,9 @@ pub(crate) fn add_files_of_modification_set(
             upload_url,
         });
     }
-
+    // update the updated_at for component and modification if new files are added
+    if !up_files.is_empty() {
+        change_updated_at(&target_component_uuid, Some(&target_modification_uuid), conn)?;
+    }
     Ok(up_files)
 }

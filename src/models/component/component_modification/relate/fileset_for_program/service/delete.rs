@@ -1,5 +1,6 @@
 use crate::errors::{ServiceError, ServiceResult};
 use crate::models::component::component_modification::fileset_for_program::file::repository::get_file_uuids_by_fileset_uuid;
+use crate::models::component::service::update::change_updated_at;
 use crate::models::component::{
     component_modification::fileset_for_program::model::DelFilesetProgramData,
     component_modification::relate::fileset_for_program::util::get_component_by_fileset,
@@ -18,10 +19,10 @@ pub(crate) fn del_modification_fileset(
     conn: &mut PgConnection,
 ) -> ServiceResult<bool> {
     let need_access_level = 1; // todo!(create enum for manage access level)
-
+    let target_component_uuid = get_component_by_fileset(&data.fileset_uuid, conn)?;
     check_access_component_for_user(
         logged_user_uuid,
-        &get_component_by_fileset(&data.fileset_uuid, conn)?,
+        &target_component_uuid,
         &need_access_level,
         conn
     )?;
@@ -32,6 +33,8 @@ pub(crate) fn del_modification_fileset(
     if !files_of_set.is_empty() {
         // set flags for delete files in storage
         delete_file_by_uuids(&files_of_set, conn)?;
+        // update the updated_at for component and modification if a new set of files has been deleted
+        change_updated_at(&target_component_uuid, Some(&data.modification_uuid), conn)?;
     }
 
     delete_fileset_row(data, conn)

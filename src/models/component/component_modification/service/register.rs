@@ -4,6 +4,7 @@ use crate::models::component::component_modification::model::{
 };
 use crate::models::component::access::util::check_access_component_for_user;
 use crate::models::component::component_modification::param::service::change::put_new_modification_params;
+use crate::models::component::service::update::change_updated_at;
 use crate::schema::component_modification_list::dsl as component_modification_list;
 use diesel::prelude::*;
 use uuid::Uuid;
@@ -22,8 +23,9 @@ pub(crate) fn create_component_modification(
         &need_access_level,
         conn
     )?;
-
     let mut insert_data: InsertableComponentModification = data.into();
+    // update updated_at date for component
+    change_updated_at(&data.component_uuid, None, conn)?;
     match insert_data.parent_uuid_is_nil() {
         true => single_modification(&mut insert_data, conn),
         false => {
@@ -72,6 +74,10 @@ pub(crate) fn creation_multiple_modifications(
                 res.push(new_uuid);
             },
         }
+    }
+    // update the updated_at of component if new modification are added
+    if !res.is_empty() {
+        change_updated_at(&data.component_uuid, None, conn)?;
     }
     Ok(res)
 }

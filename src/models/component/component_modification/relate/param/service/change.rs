@@ -6,6 +6,7 @@ use crate::models::component::component_modification::param::model::{
     IptModificationParamData, InsertableModificationParam
 };
 use crate::models::component::component_modification::util::get_component_by_modification;
+use crate::models::component::service::update::change_updated_at;
 use crate::models::relate_ref::param::model::IptParamData;
 use crate::models::component::access::util::check_access_component_for_user;
 use crate::schema::param_to_modification::dsl as param_to_modification;
@@ -20,9 +21,10 @@ pub(crate) fn put_modification_params(
     conn: &mut PgConnection
 ) -> ServiceResult<usize> {
     let need_access_level = 1; // todo!(create enum for manage access level)
+    let target_component_uuid = get_component_by_modification(&data.modification_uuid, conn)?;
     check_access_component_for_user(
         logged_user_uuid,
-        &get_component_by_modification(&data.modification_uuid, conn)?,
+        &target_component_uuid,
         &need_access_level,
         conn
     )?;
@@ -73,7 +75,10 @@ pub(crate) fn put_modification_params(
             conn
         )?;
     }
-
+    // update the updated_at of component if modification are updated
+    if count_changed_rows > 0 {
+        change_updated_at(&target_component_uuid, Some(&data.modification_uuid), conn)?;
+    }
     Ok(count_changed_rows)
 }
 

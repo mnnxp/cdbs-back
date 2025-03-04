@@ -1,5 +1,6 @@
 use crate::errors::{ServiceResult, ServiceError};
 use crate::errors::err_msg::{ErrorMessage, get_err_msg};
+use crate::models::component::service::update::change_updated_at;
 use crate::models::component::{
     param::model::{IptComponentParamsData, InsertableComponentParam},
     access::util::check_access_component_for_user,
@@ -76,6 +77,8 @@ pub(crate) fn put_component_params(
             &update_params,
             conn
         )?;
+
+        change_updated_at(&data.component_uuid, None, conn)?;
     }
 
     Ok(count_changed_rows)
