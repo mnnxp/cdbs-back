@@ -34,8 +34,7 @@ impl ComponentModificationArg {
         component_uuid: Uuid,
         filter: Option<Vec<Uuid>>,
         sort: Option<IptSort>,
-        paginate: Option<IptPaginate>,
-        set_lang_id: i32,
+        paginate: Option<IptPaginate>
     ) -> Self {
         Self {
             component_uuid,
@@ -44,7 +43,6 @@ impl ComponentModificationArg {
                 .unwrap_or(Sort::set_by_table(TableName::ComponentModification)),
             paginate: paginate.map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
                 .unwrap_or_default(),
-            set_lang_id,
         }
     }
 }
@@ -249,9 +247,9 @@ impl ComponentAndRelatedData {
         paginate: Option<IptPaginate>,
     ) -> Vec<ComponentModificationAndRelatedData> {
         let conn: &mut PooledConnection = &mut get_conn(cxt).expect("Error get conn to DB");
-        let args = ComponentModificationArg::parsing(self.uuid, filter, sort, paginate, get_set_language(cxt));
+        let args = ComponentModificationArg::parsing(self.uuid, filter, sort, paginate);
         // get list component modifications with related data and translation
-        ComponentModificationAndRelatedData::by_args(&args, conn)
+        ComponentModificationAndRelatedData::by_args(&args, &get_set_language(cxt), conn)
             .expect("Error loading component modifications with related data")
     }
 
@@ -292,7 +290,7 @@ impl ComponentAndRelatedData {
         let p = paginate
             .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
             .unwrap_or_default();
-        let options = ExtraOptions::from_cxt(cxt, false).expect("Failed to get options");
+        let options = ExtraOptions::from_cxt(cxt, true).expect("Failed to get options");
         // collect data for component standards
         ShowStandardShort::for_component(&self.uuid, &p, &options, conn)
             .expect("Error loading standard component with relate")

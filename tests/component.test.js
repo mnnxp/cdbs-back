@@ -1537,7 +1537,7 @@ describe('component', () => {
   });
 
   // Testing get keywords for component
-  it('/graphql:Q componentKeywords - BadRequest no token', async (done) => {
+  it('/graphql:Q componentKeywords - BadRequest no token (Access denied)', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .send({
@@ -1554,7 +1554,7 @@ describe('component', () => {
     debug('/graphql componentKeywords=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found'
+      'BadRequest: Access denied'
     );
     expect(body.errors[0].path[0]).toBe('componentKeywords');
     done();
@@ -2420,7 +2420,7 @@ describe('component', () => {
   });
 
   // Testing get specs for component
-  it('/graphql:Q componentSpecs - BadRequest no token', async (done) => {
+  it('/graphql:Q componentSpecs - BadRequest no token (Access denied)', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .send({
@@ -2438,7 +2438,7 @@ describe('component', () => {
     debug('/graphql componentSpecs=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found'
+      'BadRequest: Access denied'
     );
     expect(body.errors[0].path[0]).toBe('componentSpecs');
     done();
@@ -3165,12 +3165,12 @@ describe('component', () => {
   });
 
   // Testing get components by company (has one component)
-  it('/graphql:Q componentSuppliers - BadRequest no token', async (done) => {
+  it('/graphql:Q componentSuppliers - BadRequest no token (Access denied)', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .send({
         query: `query {
-          componentSuppliers(componentUuid:  "${componentUuidStandard}") {
+          componentSuppliers(componentUuid:  "${componentUuidNoStandard}") {
             componentUuid
             supplier {
               uuid
@@ -3184,7 +3184,7 @@ describe('component', () => {
       .expect(HttpStatus.OK)
     debug('/graphql body=%o', body);
     expect(body.data).toBeNull();
-    expect(body.errors[0].message).toBe('BadRequest: Token not found');
+    expect(body.errors[0].message).toBe('BadRequest: Access denied');
     expect(body.errors[0].path[0]).toBe('componentSuppliers');
     done();
   });
@@ -3214,6 +3214,35 @@ describe('component', () => {
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe('BadRequest: Access denied');
     expect(body.errors[0].path[0]).toBe('componentSuppliers');
+    done();
+  });
+
+  it('/graphql:Q componentSuppliers - Ok without token (no entry)', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .send({
+        query: `query {
+          componentSuppliers(componentUuid:  "${componentUuidStandard}") {
+            componentUuid
+            supplier {
+              uuid
+              isSupplier
+              shortname
+            }
+            description
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { componentSuppliers },
+    } = body;
+    expect(componentSuppliers).toBeNonEmptyArray();
+    expect(componentSuppliers[0].componentUuid).toBe(componentUuidStandard);
+    expect(componentSuppliers[0].supplier.uuid).toBe(companyUuidSupplier);
+    expect(componentSuppliers.length).toBe(1);
     done();
   });
 
@@ -4010,7 +4039,7 @@ describe('component', () => {
     done();
   });
 
-  it('/graphql:Q componentFiles - BadRequest not token', async (done) => {
+  it('/graphql:Q componentFiles - BadRequest not token (Access denied)', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .send({
@@ -4026,7 +4055,7 @@ describe('component', () => {
     debug('/graphql componentFiles=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found'
+      'BadRequest: Access denied'
     );
     expect(body.errors[0].path[0]).toBe('componentFiles');
     done();
@@ -4986,7 +5015,7 @@ describe('component', () => {
   });
 
   // Testing component files list
-  it('/graphql:Q componentFilesList - BadRequest no token', async (done) => {
+  it('/graphql:Q componentFilesList - BadRequest no token (Access denied)', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .send({
@@ -5002,7 +5031,7 @@ describe('component', () => {
     debug('/graphql componentFilesList=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found'
+      'BadRequest: Access denied'
     );
     expect(body.errors[0].path[0]).toBe('componentFilesList');
     done();
@@ -6276,7 +6305,7 @@ describe('component', () => {
   });
 
   // Testing get component modification
-  it('/graphql:Q componentModifications - BadRequest no token', async (done) => {
+  it('/graphql:Q componentModifications - BadRequest no token (Access denied)', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .send({
@@ -6292,7 +6321,7 @@ describe('component', () => {
     debug('/graphql body=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found'
+      'BadRequest: Access denied'
     );
     expect(body.errors[0].path[0]).toBe('componentModifications');
     done();
@@ -6550,7 +6579,7 @@ describe('component', () => {
   // });
 
   // Testing component modification files
-  it('/graphql:Q ModificationFiles - BadRequest no token', async (done) => {
+  it('/graphql:Q ModificationFiles - BadRequest no token (Access denied)', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .send({
@@ -6566,7 +6595,7 @@ describe('component', () => {
     debug('/graphql componentModificationFiles=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found'
+      'BadRequest: Access denied'
     );
     expect(body.errors[0].path[0]).toBe('componentModificationFiles');
     done();
@@ -6757,7 +6786,7 @@ describe('component', () => {
   });
 
   // Testing component modification files list
-  it('/graphql:Q componentModificationFilesList - BadRequest no token', async (done) => {
+  it('/graphql:Q componentModificationFilesList - BadRequest no token (Access denied)', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .send({
@@ -6773,7 +6802,7 @@ describe('component', () => {
     debug('/graphql componentModificationFilesList=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found'
+      'BadRequest: Access denied'
     );
     expect(body.errors[0].path[0]).toBe('componentModificationFilesList');
     done();
@@ -7824,7 +7853,7 @@ describe('component', () => {
   });
 
   // Testing component modification fileset
-  it('/graphql:Q componentModificationFilesets - BadRequest no token', async (done) => {
+  it('/graphql:Q componentModificationFilesets - BadRequest no token (Access denied)', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .send({
@@ -7845,7 +7874,7 @@ describe('component', () => {
     debug('/graphql componentModificationFilesets=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found'
+      'BadRequest: Access denied'
     );
     expect(body.errors[0].path[0]).toBe('componentModificationFilesets');
     done();
@@ -8178,7 +8207,7 @@ describe('component', () => {
   });
 
   // Testing component modification file of fileset
-  it('/graphql:Q componentModificationFilesOfFileset - BadRequest no token', async (done) => {
+  it('/graphql:Q componentModificationFilesOfFileset - BadRequest no token (Access denied)', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .send({
@@ -8195,7 +8224,7 @@ describe('component', () => {
     debug('/graphql componentModificationFilesOfFileset=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found'
+      'BadRequest: Access denied'
     );
     expect(body.errors[0].path[0]).toBe('componentModificationFilesOfFileset');
     done();

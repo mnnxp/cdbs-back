@@ -27,6 +27,7 @@ impl ComponentModification {
 impl ComponentModificationAndRelatedData {
     pub(crate) fn by_args(
         args: &ComponentModificationArg,
+        set_lang_id: &i32,
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<ComponentModificationAndRelatedData>> {
         let object_uuids = get_modification_uuids_by_component_uuid(&args.component_uuid, &args.filter, conn)?;
@@ -34,7 +35,7 @@ impl ComponentModificationAndRelatedData {
         let mut res = Vec::new();
         for modification_uuid in &objects_order(&object_uuids, &args.sort, &args.paginate, conn)? {
             let cm = ComponentModification::by_uuid(modification_uuid, conn)?;
-            res.push(Self::for_modification(&cm, &args.set_lang_id, conn)?)
+            res.push(Self::for_modification(&cm, set_lang_id, conn)?)
         }
         Ok(res)
     }
