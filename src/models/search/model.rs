@@ -1,5 +1,5 @@
 use crate::errors::ServiceResult;
-use crate::models::user::access::logged::get_logged_user_uuid;
+use crate::models::user::access::logged::{get_logged_user_uuid, default_user_uuid};
 use crate::models::relate_ref::language::get_set_language;
 use diesel::{sql_types, prelude::*};
 use async_graphql::*;
@@ -29,14 +29,36 @@ pub(super) struct ObjectI64 {
 pub(crate) struct ExtraOptions {
     pub(crate) logged_user_uuid: Uuid,
     pub(crate) set_lang_id: i32,
+    pub(crate) no_entry: bool,
 }
 
 impl ExtraOptions {
-    pub(crate) fn from_cxt(cxt: &Context<'_>) -> ServiceResult<Self> {
-        Ok(Self {
-            logged_user_uuid: get_logged_user_uuid(cxt, true)?,
-            set_lang_id: get_set_language(cxt),
-        })
+    /// Returns the structure with logged user uuid and set language.
+    /// If token validation fails and no_entry is true, will be made to retrieve the default user UUID.
+    /// If the default user UUID could not be obtained, the first error received during token validation will be returned.
+    pub(crate) fn from_cxt(cxt: &Context<'_>, no_entry: bool) -> ServiceResult<Self> {
+        let set_lang_id = get_set_language(cxt);
+        match get_logged_user_uuid(cxt, true) {
+            Ok(logged_user_uuid) => Ok(Self {
+                logged_user_uuid,
+                set_lang_id,
+                no_entry: false,
+            }),
+            Err(err) => {
+                if let (Ok(logged_user_uuid), true) = (default_user_uuid(cxt), no_entry) {
+                    // default user uuid and set language
+                    return Ok(
+                        Self {
+                            logged_user_uuid,
+                            set_lang_id,
+                            no_entry: true,
+                        }
+                    )
+                }
+                // error message
+                Err(err)
+            },
+        }
     }
 }
 

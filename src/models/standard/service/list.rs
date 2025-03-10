@@ -10,9 +10,8 @@ use uuid::Uuid;
 /// Returns aggregated standards data. Gets a summary of standards filtered by:
 /// UUID, company, user, favorites (for yourself or another user).
 pub(crate) fn get_standard(
-    logged_user_uuid: &Uuid,
     arguments: &StandardsArg,
-    set_lang_id: &i32,
+    options: &ExtraOptions,
     paginate: &Paginate,
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<ShowStandardShort>> {
@@ -38,7 +37,7 @@ pub(crate) fn get_standard(
         (None, true) => {
             get_standards_followed_by_user(
                 filter_standards_uuids,
-                logged_user_uuid,
+                &options.logged_user_uuid,
                 paginate,
                 conn
             )?
@@ -57,10 +56,7 @@ pub(crate) fn get_standard(
 
     ShowStandardShort::get_standards(
         &target_standards_uuids,
-        &ExtraOptions {
-            logged_user_uuid: *logged_user_uuid,
-            set_lang_id: *set_lang_id,
-        },
+        options,
         paginate,
         conn,
     ).map_err(|err| {

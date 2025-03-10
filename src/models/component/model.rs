@@ -99,45 +99,27 @@ impl From<&IptComponentData> for InsertableComponent {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub(crate) struct ComponentsArg {
     pub(crate) filter_components_uuids: Vec<Uuid>,
     pub(crate) company_uuid: Option<Uuid>,
     pub(crate) standard_uuid: Option<Uuid>,
     pub(crate) user_uuid: Option<Uuid>,
     pub(crate) favorite: bool,
-    pub(crate) set_lang_id: i32,
 }
 
 impl ComponentsArg {
-    /// Returns a ComponentsArg with the given arguments and language
-    pub(crate) fn by_arg(data: IptComponentsArg, set_lang_id: i32) -> Self {
-        let IptComponentsArg {
-            components_uuids,
-            company_uuid,
-            standard_uuid,
-            user_uuid,
-            favorite,
-        } = data;
-        Self {
-            filter_components_uuids: components_uuids.unwrap_or_default(),
-            company_uuid,
-            standard_uuid,
-            user_uuid,
-            favorite: favorite.unwrap_or(false),
-            set_lang_id,
-        }
-    }
-
-    /// Returns a ComponentsArg with the specified language and default arguments
-    pub(crate) fn by_lang(set_lang_id: i32) -> Self {
-        Self {
-            filter_components_uuids: Vec::new(),
-            company_uuid: None,
-            standard_uuid: None,
-            user_uuid: None,
-            favorite: false,
-            set_lang_id,
+    /// Returns a ComponentsArg with the given arguments
+    pub(crate) fn by_arg(data: Option<IptComponentsArg>) -> Self {
+        match data {
+            Some(data) => Self {
+                filter_components_uuids: data.components_uuids.unwrap_or_default(),
+                company_uuid: data.company_uuid,
+                standard_uuid: data.standard_uuid,
+                user_uuid: data.user_uuid,
+                favorite: data.favorite.unwrap_or_default(),
+            },
+            None => ComponentsArg::default(),
         }
     }
 }

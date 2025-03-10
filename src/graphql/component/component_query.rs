@@ -53,7 +53,7 @@ impl ComponentQuery {
         use crate::models::component::service::list::get_components_by_uuids;
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
         // authorization check
-        let options = ExtraOptions::from_cxt(cxt)?;
+        let options = ExtraOptions::from_cxt(cxt, false)?;
         let s = sort.map(|s| Sort::parsing(TableName::ComponentRef, &s.by_field, s.as_desc))
             .unwrap_or(Sort::set_by_table(TableName::ComponentRef));
         let p = paginate.map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
@@ -72,19 +72,19 @@ impl ComponentQuery {
     ) -> ServiceResult<Vec<ShowComponentShort>> {
         use crate::models::component::service::list::get_components;
 
-        // authorization check
-        let logged_user_uuid: Uuid = get_logged_user_uuid(cxt, true)?;
-        let arguments: ComponentsArg = match args {
-            Some(x) => ComponentsArg::by_arg(x, get_set_language(cxt)),
-            None => ComponentsArg::by_lang(get_set_language(cxt)),
-        };
+        let arguments = ComponentsArg::by_arg(args);
+        // authorization check, if token verification fails, try to get the default user UUID
+        let options = ExtraOptions::from_cxt(cxt, !arguments.favorite)?;
+        if options.no_entry {
+            debug!("Get components without login (no_entry)");
+        }
         let s = sort.map(|s| Sort::parsing(TableName::ComponentRef, &s.by_field, s.as_desc))
             .unwrap_or(Sort::set_by_table(TableName::ComponentRef));
         let p = paginate.map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
             .unwrap_or_default();
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        get_components(&logged_user_uuid, &arguments, &s, &p, conn)
+        get_components(&arguments, &options, &s, &p, conn)
     }
 
     /// Returns complete information about the component by UUID.
@@ -94,11 +94,12 @@ impl ComponentQuery {
         component_uuid: Uuid,
     ) -> ServiceResult<ComponentAndRelatedData> {
         use crate::models::component::service::list::get_component_by_uuid;
-
-        // authorization check
-        let options = ExtraOptions::from_cxt(cxt)?;
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
-
+        // authorization check, if token verification fails, try to get the default user UUID
+        let options = ExtraOptions::from_cxt(cxt, true)?;
+        if options.no_entry {
+            debug!("Get component without login (no_entry): {:?}", component_uuid);
+        }
         get_component_by_uuid(
             &component_uuid,
             &options,

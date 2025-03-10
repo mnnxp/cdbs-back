@@ -81,8 +81,8 @@ pub(crate) fn get_components_by_uuids(
 /// Возвращает агрегированные данные о компонентах.
 /// Получает краткие данные о компонентах с фильтром по: UUID, компании, стандарту, пользователю, избранному (для себя или другого пользователя).
 pub(crate) fn get_components(
-    logged_user_uuid: &Uuid,
     arguments: &ComponentsArg,
+    options: &ExtraOptions,
     sort: &Sort,
     paginate: &Paginate,
     conn: &mut PgConnection,
@@ -94,14 +94,13 @@ pub(crate) fn get_components(
         standard_uuid,
         user_uuid,
         favorite,
-        set_lang_id,
     } = arguments;
     // select target components uuids
     let target_components_uuids = match (favorite, user_uuid, standard_uuid, company_uuid) {
         // gets components of self favorite list for authorized user
         (true, None, None, None) => {
             get_components_followed_by_user(
-                logged_user_uuid,
+                &options.logged_user_uuid,
                 conn
             )?
         },
@@ -148,10 +147,7 @@ pub(crate) fn get_components(
 
     ShowComponentShort::get_components(
         &target_components_uuids,
-        &ExtraOptions {
-            logged_user_uuid: *logged_user_uuid,
-            set_lang_id: *set_lang_id,
-        },
+        options,
         sort,
         paginate,
         conn

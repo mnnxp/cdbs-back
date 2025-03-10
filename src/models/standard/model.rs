@@ -275,18 +275,16 @@ pub(crate) struct StandardsArg {
     pub(crate) favorite: bool,
 }
 
-impl From<IptStandardsArg> for StandardsArg {
-    fn from(data: IptStandardsArg) -> Self {
-        let IptStandardsArg {
-            standards_uuids,
-            company_uuid,
-            favorite,
-        } = data;
-
-        Self {
-            filter_standards_uuids: standards_uuids.unwrap_or_default(),
-            company_uuid,
-            favorite: favorite.unwrap_or(false),
+impl StandardsArg {
+    /// Returns a StandardsArg with the given arguments
+    pub(crate) fn by_arg(data: Option<IptStandardsArg>) -> Self {
+        match data {
+            Some(data) => Self {
+                filter_standards_uuids: data.standards_uuids.unwrap_or_default(),
+                company_uuid: data.company_uuid,
+                favorite: data.favorite.unwrap_or_default(),
+            },
+            None => StandardsArg::default(),
         }
     }
 }

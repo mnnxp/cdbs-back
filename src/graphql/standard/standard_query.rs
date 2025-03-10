@@ -38,18 +38,14 @@ impl StandardQuery {
         use crate::models::standard::service::list::get_standard;
 
         // authorization check
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
-        let arguments: StandardsArg = match args {
-            Some(x) => StandardsArg::from(x),
-            None => StandardsArg::default(),
-        };
+        let options = ExtraOptions::from_cxt(cxt, false)?;
+        let arguments = StandardsArg::by_arg(args);
         let p = paginate.map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
             .unwrap_or_default();
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
         get_standard(
-            &logged_user_uuid,
             &arguments,
-            &get_set_language(cxt),
+            &options,
             &p,
             conn,
         )
@@ -64,7 +60,7 @@ impl StandardQuery {
         paginate: Option<IptPaginate>,
     ) -> ServiceResult<StandardAndRelatedData> {
         use crate::models::standard::service::list::find_by_uuid;
-        let options = ExtraOptions::from_cxt(cxt)?;
+        let options = ExtraOptions::from_cxt(cxt, false)?;
         // let s = sort.map(|s| Sort::parsing(TableName::StandardRef, &s.by_field, s.as_desc))
         //     .unwrap_or(Sort::set_by_table(TableName::StandardRef));
         let p = paginate.map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))

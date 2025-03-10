@@ -292,7 +292,7 @@ impl ComponentAndRelatedData {
         let p = paginate
             .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
             .unwrap_or_default();
-        let options = ExtraOptions::from_cxt(cxt).expect("Failed to get options");
+        let options = ExtraOptions::from_cxt(cxt, false).expect("Failed to get options");
         // collect data for component standards
         ShowStandardShort::for_component(&self.uuid, &p, &options, conn)
             .expect("Error loading standard component with relate")

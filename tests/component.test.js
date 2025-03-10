@@ -2643,27 +2643,27 @@ describe('component', () => {
     done();
   });
 
-  it('/graphql:Q Get full data Component - BadRequest no token', async (done) => {
+  it('/Get full data Component - BadRequest Access denied (no token)', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .send({
         query: `query componentQuery{
-          component(componentUuid: "${parentComponentUuid}") {
+          component(componentUuid: "${componentUuidNoStandard}") {
             ${componentFullDataQuery}
           }
         }`,
       })
       .expect(HttpStatus.OK)
-    debug('/graphql body=%o', body);
+    debug('/graphql component=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found'
+      "BadRequest: Access denied"
     );
     expect(body.errors[0].path[0]).toBe('component');
     done();
   });
 
-  it('/graphql:Q List components - BadRequest no token', async (done) => {
+  it('/graphql:Q List components - Ok (no token)', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .send({
@@ -2675,11 +2675,12 @@ describe('component', () => {
       })
       .expect(HttpStatus.OK)
     debug('/graphql body=%o', body);
-    expect(body.data).toBeNull();
-    expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found'
-    );
-    expect(body.errors[0].path[0]).toBe('components');
+    // expect(body).toBe(0);
+    const {
+      data: { components }
+    } = body;
+    expect(components[0].typeAccess.typeAccessId).toBe(typeAccessId3);
+    expect(components.length).toBe(1);
     done();
   });
 
@@ -2834,6 +2835,31 @@ describe('component', () => {
     expect(body.data.components[1].uuid).toBe(componentUuidNoStandard);
     expect(body.data.components[1].ownerUser.username).toBe(username2);
     expect(body.data.components.length).toBe(2);
+    done();
+  });
+
+  it('/graphql:Q List components - Ok get without 2 (no access)', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .send({
+        query: `query selectComponentQuery{
+          components(args: {componentsUuids: [
+            "${componentUuidStandard}",
+            "${componentUuidNoStandard}",
+            "${parentComponentUuid}",
+          ]}) {
+            ${componentsListQuery}
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    // expect(body).toBe(0);
+    debug('/graphql body=%o', body);
+    expect(body.data.components).toBeNonEmptyArray();
+    expect(body.data.components[0].uuid).toBe(componentUuidStandard);
+    expect(body.data.components[0].typeAccess.typeAccessId).toBe(typeAccessId3);
+    expect(body.data.components[0].ownerUser.username).toBe(username);
+    expect(body.data.components.length).toBe(1);
     done();
   });
 
