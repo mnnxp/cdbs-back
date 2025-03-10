@@ -52,8 +52,8 @@ impl ComponentQuery {
     ) -> ServiceResult<Vec<ShowComponentShort>> {
         use crate::models::component::service::list::get_components_by_uuids;
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
-        // authorization check
-        let options = ExtraOptions::from_cxt(cxt, false)?;
+        // authorization check, search maybe without login (no_entry)
+        let options = ExtraOptions::from_cxt(cxt, true)?;
         let s = sort.map(|s| Sort::parsing(TableName::ComponentRef, &s.by_field, s.as_desc))
             .unwrap_or(Sort::set_by_table(TableName::ComponentRef));
         let p = paginate.map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
@@ -75,9 +75,6 @@ impl ComponentQuery {
         let arguments = ComponentsArg::by_arg(args);
         // authorization check, if token verification fails, try to get the default user UUID
         let options = ExtraOptions::from_cxt(cxt, !arguments.favorite)?;
-        if options.no_entry {
-            debug!("Get components without login (no_entry)");
-        }
         let s = sort.map(|s| Sort::parsing(TableName::ComponentRef, &s.by_field, s.as_desc))
             .unwrap_or(Sort::set_by_table(TableName::ComponentRef));
         let p = paginate.map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
