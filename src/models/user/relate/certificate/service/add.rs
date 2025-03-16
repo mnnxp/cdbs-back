@@ -5,6 +5,7 @@ use crate::models::user::certificate::model::{
 use crate::models::relate_ref::file::{
     model::{ListObject, UploadFile},
     service::register::preregister_file,
+    commit::Commit,
 };
 use crate::storage::model::StorageAccess;
 use crate::storage::presigned_url::upload_presigned_url;
@@ -23,19 +24,15 @@ pub(crate) fn add_certificate(
         logged_user_uuid,
         ListObject::UserCertificate(*logged_user_uuid),
         &cert_data.filename,
+        &Commit::create_commit("Upload certificate for user", conn)?,
         conn
     )?;
-
-    // workaround until i figure make the pre-url generation
-    // let temp_string = format!("This will be url for upload file {:?}", slim_file.path_file);
 
     let new_user_certificate = InsertableUserCertificate{
         file_uuid: slim_file.uuid,
         user_uuid: *logged_user_uuid,
         description: cert_data.description.to_string(),
     };
-
-    // debug!("fn create_favorite START SEARCH ={:?}", flag_found_favorite);
 
     let user_inserted_certificate = diesel::insert_into(user_certificate_ref)
         .values(new_user_certificate)

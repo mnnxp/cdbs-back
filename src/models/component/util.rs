@@ -62,8 +62,7 @@ pub(crate) fn get_files_by_ext(
     let file_uuids = file_to_component::file_to_component
         .select(file_to_component::file_uuid)
         .filter(file_to_component::component_uuid.eq(component_uuid))
-        .limit(arg.limit)
-        .offset(arg.offset)
+        .limit(1000)
         .load::<Uuid>(conn)
         .map_err(|err| {
             debug!("Failed get component files {:?}", err);
@@ -76,6 +75,8 @@ pub(crate) fn get_files_by_ext(
             .and(file_ref::id_ext.eq(&arg.ext_id)
             .and(file_ref::is_hidden.eq(false)
             .and(file_ref::is_delete.eq(false)))))
+        .limit(arg.limit)
+        .offset(arg.offset)
         .load::<Uuid>(conn)
         .map_err(|err| {
             debug!("Failed get image files {:?}", err);

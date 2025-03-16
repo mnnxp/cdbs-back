@@ -1,4 +1,5 @@
 use crate::errors::{ServiceResult, ServiceError};
+use crate::models::search::order::Paginate;
 use crate::models::user::user_fav::model::UserFav;
 use crate::models::user::model::ShowUserShort;
 use crate::schema::user_fav::dsl as user_fav;
@@ -10,8 +11,7 @@ impl ShowUserShort {
     pub(crate) fn get_followers_by_user_uuid(
         logged_user_uuid: &Uuid,
         filter_users_uuids: &[Uuid],
-        limit: &i32,
-        offset: &i32,
+        paginate: &Paginate,
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<ShowUserShort>> {
         let mut query = user_fav::user_fav.into_boxed();
@@ -30,8 +30,8 @@ impl ShowUserShort {
 
         let target_list_user_uuid = query
             .select(user_fav::user_follower_uuid)
-            .limit(*limit as i64)
-            .offset(*offset as i64)
+            .limit(paginate.limit)
+            .offset(paginate.offset)
             .load::<Uuid>(conn)
             .map_err(|err| {
                 debug!("Fail load uuid list target user: {:?}", err);
@@ -49,8 +49,7 @@ impl ShowUserShort {
     pub(crate) fn get_favorites_by_user_uuid(
         logged_user_uuid: &Uuid,
         filter_users_uuids: &[Uuid],
-        limit: &i32,
-        offset: &i32,
+        paginate: &Paginate,
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<ShowUserShort>> {
         let mut query = user_fav::user_fav.into_boxed();
@@ -69,8 +68,8 @@ impl ShowUserShort {
 
         let target_list_user_uuid = query
             .select(user_fav::user_favorite_uuid)
-            .limit(*limit as i64)
-            .offset(*offset as i64)
+            .limit(paginate.limit)
+            .offset(paginate.offset)
             .load::<Uuid>(conn)
             .map_err(|err| {
                 debug!("Fail load uuid list target user: {:?}", err);

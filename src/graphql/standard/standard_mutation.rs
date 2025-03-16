@@ -220,7 +220,7 @@ impl StandardMutation {
         )
     }
 
-    /// Removes a standard's association with directory partitions.
+    /// Removes a standard's association with catalogs
     async fn delete_standard_specs(
         &self,
         cxt: &Context<'_>,

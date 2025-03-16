@@ -1,5 +1,5 @@
 use crate::errors::{ServiceResult, ServiceError};
-use crate::models::search::{model::ExtraOptions, order::Paginate};
+use crate::graphql::file::ShowFileRelatedData;
 use crate::models::standard::{
     model::{Standard, ShowStandardShort, StandardAndRelatedData},
     standard_status::model::StandardStatusTranslateList,
@@ -11,9 +11,13 @@ use crate::models::company::model::ShowCompanyShort;
 use crate::models::relate_ref::{
     spec::model::SpecTranslateList,
     type_access::model::TypeAccessTranslateList,
-    file::model::{ShowFileRelatedData, DownloadFile},
+    file::model::DownloadFile,
     region::model::RegionTranslateList,
     keyword::model::Keyword,
+};
+use crate::models::search::{
+    model::ExtraOptions,
+    order::{Paginate, Sort, TableName},
 };
 use crate::schema::standard_ref::dsl as standard_ref;
 use diesel::prelude::*;
@@ -258,6 +262,7 @@ impl StandardAndRelatedData {
         // get files for standard
         let standard_files = ShowFileRelatedData::for_standard_by_uuid(
             &standard.uuid,
+            &Sort::parsing(TableName::FileRef, "", false),
             paginate,
             conn
         ).expect("Error loading standard files");
@@ -279,6 +284,7 @@ impl StandardAndRelatedData {
         // get keywords for standard
         let standard_keywords: Vec<Keyword> = Keyword::for_standard_by_uuid(
             &standard.uuid,
+            paginate,
             conn
         ).expect("Error loading standard keywords");
 

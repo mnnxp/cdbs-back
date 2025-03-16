@@ -1,8 +1,9 @@
 use crate::database::{get_conn, PooledConnection};
 use crate::errors::ServiceResult;
+use crate::graphql::component_model::{IptComponentData, IptUpdateComponentData};
 use crate::models::user::access::logged::get_logged_user_uuid;
 use crate::models::component::{
-    model::{IptComponentData, IptUpdateComponentData},
+    // model::{IptComponentData, IptUpdateComponentData},
     access::model::{ChangeOwnerComponent, ChangeTypeAccessComponent},
     access::company::model::{
         IptCompanyAccessComponentData, DelCompanyAccessComponentData
@@ -325,7 +326,7 @@ impl ComponentMutation {
         )
     }
 
-    /// Removes a component's association with directory partitions.
+    /// Removes a component's association with catalogs
     async fn delete_component_specs(
         &self,
         cxt: &Context<'_>,
@@ -536,8 +537,8 @@ impl ComponentMutation {
         )
     }
 
-    /// Creates multiple modifications for a component
-    async fn register_component_modifications(
+    /// Creates modifications and their parameters for a component
+    async fn register_component_modifications_bulk(
         &self,
         cxt: &Context<'_>,
         args: IptMultipleModificationsData,

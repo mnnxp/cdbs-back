@@ -2346,9 +2346,9 @@ describe('company', () => {
       .post('/graphql')
       .send({
         query: `query  {
-          standardSpecs(args: {
+          standardSpecs(
             standardUuid: "${standardUuidSecond}"
-          }){
+          ){
             specId
             langId
             spec
@@ -2374,9 +2374,9 @@ describe('company', () => {
       )
       .send({
         query: `query  {
-          standardSpecs(args: {
+          standardSpecs(
             standardUuid: "${standardUuidFirst}"
-          }){
+          ){
             specId
             langId
             spec
@@ -2411,11 +2411,13 @@ describe('company', () => {
       )
       .send({
         query: `query  {
-          standardSpecs(args: {
+          standardSpecs(
             standardUuid: "${standardUuidFirst}"
-            limit: 1
-            offset: 3
-          }){
+            paginate: {
+              currentPage: 4
+              perPage: 1
+            }
+          ){
             specId
             langId
             spec
@@ -2429,7 +2431,7 @@ describe('company', () => {
       data: { standardSpecs },
     } = body;
     expect(standardSpecs.length).toBe(1);
-    expect(standardSpecs[0].specId).toBe(22);
+    expect(standardSpecs[0].specId).toBe(44);
     expect(standardSpecs[0].spec).toBeNonEmptyString();
     done();
   });
@@ -2443,11 +2445,13 @@ describe('company', () => {
       )
       .send({
         query: `query  {
-          standardSpecs(args: {
+          standardSpecs(
             standardUuid: "${standardUuidFirst}"
-            limit: 50
-            offset: 500
-          }){
+            paginate: {
+              currentPage: 10
+              perPage: 50
+            }
+          ){
             specId
             langId
             spec
@@ -2918,6 +2922,7 @@ describe('company', () => {
         })
       .expect(HttpStatus.OK)
     debug('/graphql filter standard=%o', body.data.standard);
+    // expect(body).toBe(0);
     expect(body.data.standard.uuid).toBe(standardUuidFirst);
     expect(body.data.standard.standardKeywords[0].id).toBe(1);
     expect(body.data.standard.standardKeywords[0].keyword).toBeNonEmptyString();
@@ -2938,9 +2943,9 @@ describe('company', () => {
       .post('/graphql')
       .send({
         query: `query  {
-          standardKeywords(args: {
+          standardKeywords(
             standardUuid: "${standardUuidSecond}"
-          }){
+          ){
             id
             keyword
           }
@@ -2965,9 +2970,9 @@ describe('company', () => {
       )
       .send({
         query: `query  {
-          standardKeywords(args: {
+          standardKeywords(
             standardUuid: "${standardUuidFirst}"
-          }){
+          ){
             id
             keyword
           }
@@ -2975,6 +2980,7 @@ describe('company', () => {
       })
       .expect(HttpStatus.OK)
     debug('/graphql body=%o', body);
+    // expect(body).toBe(0);
     const {
       data: { standardKeywords },
     } = body;
@@ -3000,11 +3006,13 @@ describe('company', () => {
       )
       .send({
         query: `query  {
-          standardKeywords(args: {
+          standardKeywords(
             standardUuid: "${standardUuidFirst}"
-            limit: 2
-            offset: 3
-          }){
+            paginate: {
+              currentPage: 2
+              perPage: 2
+            }
+          ){
             id
             keyword
           }
@@ -3017,7 +3025,7 @@ describe('company', () => {
       data: { standardKeywords },
     } = body;
     expect(standardKeywords.length).toBe(2);
-    expect(standardKeywords[0].id).toBe(2);
+    expect(standardKeywords[0].id).toBe(3);
     expect(standardKeywords[0].keyword).toBeNonEmptyString();
     expect(standardKeywords[1].id).toBe(4);
     expect(standardKeywords[1].keyword).toBeNonEmptyString();
@@ -3033,11 +3041,13 @@ describe('company', () => {
       )
       .send({
         query: `query  {
-          standardKeywords(args: {
+          standardKeywords(
             standardUuid: "${standardUuidFirst}"
-            limit: 5
-            offset: 500
-          }){
+            paginate: {
+              currentPage: 10
+              perPage: 50
+            }
+          ){
             id
             keyword
           }

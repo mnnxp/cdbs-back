@@ -57,7 +57,7 @@ $ yarn testci -- user.test.js
 - PostgreSQL database server or use our docker-compose.yml (require docker)
 
 ## The CADBase project is based on the Canduma project
-- bases - [link](https://github.com/clifinger/cdbs-back)
+- bases - [link](https://github.com/clifinger/canduma)
 
 ## Collection of major crates used in CADBase
 - actix - [link](https://actix.rs/)

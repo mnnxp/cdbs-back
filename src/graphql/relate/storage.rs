@@ -1,12 +1,15 @@
 use crate::errors::ServiceResult;
 use crate::database::{get_pool, get_conn, PooledConnection};
+use crate::graphql::relate::attributes::IptPaginate;
+use crate::graphql::file::ShowFileRelatedData;
 use crate::models::user::access::logged::get_logged_user_uuid;
 use crate::models::relate_ref::file::{
-    model::{DownloadFile, ShowFileRelatedData},
+    model::DownloadFile,
     service::list::{get_url_by_file_uuid, get_revisions_by_file_uuid},
     service::update::{confirm_upload, set_active_revision_by_uuid},
     service::delete::delete_file_with_check_by_uuid,
 };
+use crate::models::search::order::Paginate;
 use async_graphql::{self, Context, Object};
 use uuid::Uuid;
 
@@ -40,16 +43,16 @@ impl StorageQuery {
     async fn show_file_revisions(
         &self, cxt: &Context<'_>,
         file_uuid: Uuid,
-        limit: Option<i32>,
-        offset: Option<i32>,
+        paginate: Option<IptPaginate>,
     ) -> ServiceResult<Vec<ShowFileRelatedData>> {
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
-
+        let p = paginate
+            .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
+            .unwrap_or_default();
         get_revisions_by_file_uuid(
             &file_uuid,
             &get_logged_user_uuid(cxt, true)?,
-            limit.unwrap_or(100),
-            offset.unwrap_or(0),
+            &p,
             conn,
         )
     }

@@ -7,6 +7,7 @@ use crate::models::standard::access::util::check_access_standard_for_user;
 use crate::models::relate_ref::file::{
     model::{ListObject, UploadFile},
     service::register::preregister_file,
+    commit::Commit,
     util::check_image_filename
 };
 use crate::storage::model::StorageAccess;
@@ -35,6 +36,8 @@ pub(crate) fn add_standard_files(
         return Err(get_err_msg(ErrorMessage::BadFilename))
     }
 
+    // create commit message for the changes
+    let commit_uuid = Commit::create_commit(&data.commit_msg, conn)?;
     let mut up_files: Vec<UploadFile> = Vec::new();
     // Get data for write information about the file before upload to storage
     for filename in &data.filenames {
@@ -42,6 +45,7 @@ pub(crate) fn add_standard_files(
             logged_user_uuid,
             ListObject::Standard(data.standard_uuid),
             filename,
+            &commit_uuid,
             conn
         )?;
 
@@ -92,6 +96,7 @@ pub(crate) fn add_standard_favicon(
         logged_user_uuid,
         ListObject::StandardFavicon(data.standard_uuid),
         &data.filename,
+        &Commit::create_commit("Upload main image of the standard", conn)?,
         conn
     )?;
 

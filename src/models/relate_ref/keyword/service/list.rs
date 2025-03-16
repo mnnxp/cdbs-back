@@ -1,31 +1,29 @@
 use crate::errors::{ServiceResult, ServiceError};
-use crate::models::relate_ref::keyword::model::{
-    Keyword, KeywordArg
-};
+use crate::models::relate_ref::keyword::model::Keyword;
+use crate::models::search::order::Paginate;
 use crate::schema::keyword_ref::dsl::*;
 use diesel::{PgConnection, prelude::*};
 
-/// Возвращает ключевые слова по идентификаторам.
-/// Если фильтр на ключевые слова не указан, то агрегируются все существующие.
-/// Ключевые слова можно использовать для компонентов и стандартов, а также для компаний.
+/// Returns keywords by IDs. If no keyword filter is specified, all existing ones are aggregated.
+/// Keywords can be used for components and standards as well as companies.
 pub(crate) fn get_keywords(
-    args: &KeywordArg,
+    keyword_ids: &[i32],
+    paginate: &Paginate,
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<Keyword>> {
-    match args.keyword_ids.is_empty() {
-        true => find_all_keywords(&args.limit, &args.offset, conn),
-        false => find_keyword_ids(args, conn)
+    match keyword_ids.is_empty() {
+        true => find_all_keywords(paginate, conn),
+        false => find_keyword_ids(keyword_ids, paginate, conn)
     }
 }
 
 fn find_all_keywords(
-    limit: &i32,
-    offset: &i32,
+    paginate: &Paginate,
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<Keyword>> {
     keyword_ref
-        .limit(*limit as i64)
-        .offset(*offset as i64)
+        .limit(paginate.limit)
+        .offset(paginate.offset)
         .load::<Keyword>(conn)
         .map_err(|err| {
             debug!("Failed get keyword: {:?}", err);
@@ -34,13 +32,14 @@ fn find_all_keywords(
 }
 
 fn find_keyword_ids(
-    args: &KeywordArg,
+    keyword_ids: &[i32],
+    paginate: &Paginate,
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<Keyword>> {
     keyword_ref
-        .filter(id.eq_any(&args.keyword_ids))
-        .limit(args.limit as i64)
-        .offset(args.offset as i64)
+        .filter(id.eq_any(keyword_ids))
+        .limit(paginate.limit)
+        .offset(paginate.offset)
         .load::<Keyword>(conn)
         .map_err(|err| {
             debug!("Failed get keyword: {:?}", err);

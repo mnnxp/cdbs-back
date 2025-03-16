@@ -1,7 +1,8 @@
 use diesel::prelude::*;
 use uuid::Uuid;
-use crate::errors::{ServiceResult, ServiceError};
-use super::model::ObjectUuid;
+use crate::errors::{ServiceError, ServiceResult};
+use super::get_vec_in_string;
+use super::model::{ObjectUuid, ObjectI64};
 
 #[derive(Debug)]
 pub(crate) struct Paginate {
@@ -10,67 +11,213 @@ pub(crate) struct Paginate {
 }
 
 impl Default for Paginate {
-    /// Default arguments limit=1000 and offset=0
+    /// Default arguments limit=100 and offset=0
     fn default() -> Self {
         Self {
-            limit: 1000,
+            limit: 100,
             offset: 0,
         }
     }
 }
 
 impl Paginate {
-    /// Sets the arguments for pagination.
-    /// If the limit exceeds the offset by 1000, the default value is returned
-    pub(crate) fn parsing(limit: i32, offset: i32) -> Self {
-        if (limit - offset) > 1000 {
-            debug!("Invalid limit {} for a specified offset {}.", limit, offset);
+    /// Sets the limit and offset for pagination by specifying current page
+    /// and number of elements per page. Maximum per page: 1000.
+    pub(crate) fn parsing_by_page(current_page: i32, per_page: i32) -> Self {
+        if current_page <= 0 || per_page <= 0 {
+            debug!("Invalid current page {} or a specified per page {}.", current_page, per_page);
+            return Self::default()
+        }
+        if per_page > 1000 {
+            debug!("Invalid limit {}. Max: 1000.", per_page);
             return Self::default()
         }
         Self {
-            limit: limit as i64,
-            offset: offset as i64,
+            limit: per_page as i64,
+            offset: ((current_page - 1) * per_page) as i64,
         }
     }
 
     /// Returns `LIMIT...OFFSET...` string with pagination parameters
-    fn get_complete(&self) -> String {
+    pub(crate) fn get_complete(&self) -> String {
         format!("LIMIT {} OFFSET {}", self.limit, self.offset)
+    }
+
+    /// Returns total number of elements on which pagination is applied
+    pub(crate) fn get_count(
+        object_uuid: &Uuid,
+        table_name: &TableName,
+        conn: &mut PgConnection
+    ) -> ServiceResult<i64> {
+        let column = table_name.relationship();
+        if column.is_empty() {
+            debug!("SQL query execution is impossible without a column name");
+            return Err(ServiceError::InternalServerError)
+        }
+        // define the request to count object files
+        let number_of_files = matches!(
+            table_name,
+            TableName::FileToComponent | TableName::FileToModification | TableName::FileToFilesetForProgram
+        );
+        // deleted and hidden files are not included in the calculation
+        let query = match number_of_files {
+            true => format!(
+                "SELECT count(file_uuid) FROM {} INNER JOIN file_ref AS fr ON fr.uuid = file_uuid
+                WHERE {} = '{}' AND fr.is_hidden = 'f' AND fr.is_delete = 'f'",
+                table_name.name(), column, object_uuid
+            ),
+            false => format!(
+                "SELECT count(*) FROM {} WHERE {} = '{}'",
+                table_name.name(), column, object_uuid
+            ),
+        };
+        debug!("SQL objects count query: {}", query);
+        diesel::sql_query(query)
+            .get_result::<ObjectI64>(conn)
+            .map_err(|err| {
+                debug!("Failed count number: {:?}", err);
+                ServiceError::InternalServerError
+            })
+            .map(|res| res.count)
     }
 }
 
 #[derive(Debug)]
+pub(crate) enum TableName {
+    ComponentRef,
+    ComponentModification,
+    FileRef,
+    ParamTranslateList,
+    ParamToComponent,
+    FileToComponent,
+    StandardToComponent,
+    SupplierToComponent,
+    ParamToModification,
+    FileToModification,
+    FilesetForProgram,
+    FileToFilesetForProgram,
+}
+
+impl TableName {
+    /// Returns table name, e.g. `name_ref`
+    fn name(&self) -> &str {
+        match self {
+            Self::ComponentRef => "component_ref",
+            Self::ComponentModification => "component_modification_list",
+            Self::FileRef => "file_ref",
+            Self::ParamTranslateList => "", // table is specified in fields
+            // Returns a name of a table for the relationship between two objects
+            Self::ParamToComponent => "param_to_component",
+            Self::FileToComponent => "file_to_component",
+            Self::StandardToComponent => "standard_to_component",
+            Self::SupplierToComponent => "supplier_to_component",
+            Self::ParamToModification => "param_to_modification",
+            Self::FileToModification => "file_to_modification",
+            Self::FilesetForProgram => "fileset_for_program",
+            Self::FileToFilesetForProgram => "modification_file_from_fileset",
+        }
+    }
+
+    /// Returns column of table for the relationship between two objects
+    fn relationship(&self) -> &str {
+        match &self {
+            Self::ComponentModification => "component_uuid",
+            Self::ParamToComponent => "component_uuid",
+            Self::FileToComponent => "component_uuid",
+            Self::StandardToComponent => "component_uuid",
+            Self::SupplierToComponent => "component_uuid",
+            Self::ParamToModification => "modification_uuid",
+            Self::FileToModification => "modification_uuid",
+            Self::FilesetForProgram => "modification_uuid",
+            Self::FileToFilesetForProgram => "fileset_uuid",
+            _ => "",
+        }
+    }
+}
+
+#[derive(Debug)]
+enum DataType {
+    String,
+    Date,
+    Number,
+    None,
+}
+
+#[derive(Debug)]
 pub(crate) struct TableColumn {
-    table: String,
+    table: TableName,
     column: String,
+    data_type: DataType,
 }
 
 impl TableColumn {
     /// Returns the structure after table and column mapping (minimal validation).
-    /// The column value can be set by default (if there is no match).
-    fn parsing(table: &str, column: &str) -> Self {
-        if table != "component_ref" {
-            debug!("Fields for the {} table are not described.", table);
-        }
-        // if table == "component_ref" { ... }
-        Self {
-            table: table.to_string(),
-            column: match column {
-                "name" => "name".to_string(),
-                "update" => "updated_at".to_string(),
-                _ => "created_at".to_string(),
-            }
+    /// The column value can be set to default or empty if there are no table matches.
+    fn parsing(table: TableName, field: &str) -> Self {
+        match table {
+            TableName::ComponentRef => {
+                let (column, data_type) = match field {
+                    "name" => ("name".to_string(), DataType::String),
+                    "actualStatusId" => ("actual_status_id".to_string(), DataType::Number),
+                    "updatedAt" => ("updated_at".to_string(), DataType::Date),
+                    _ => ("created_at".to_string(), DataType::Date),
+                };
+                Self { table, column, data_type }
+            },
+            TableName::ComponentModification => {
+                let (column, data_type) = match field {
+                    "name" => ("modification_name".to_string(), DataType::String),
+                    "actualStatusId" => ("actual_status_id".to_string(), DataType::Number),
+                    "updatedAt" => ("updated_at".to_string(), DataType::Date),
+                    _ => ("created_at".to_string(), DataType::Date),
+                };
+                Self { table, column, data_type }
+            },
+            TableName::FileRef => {
+                let (column, data_type) = match field {
+                    "revision" => ("revision".to_string(), DataType::Number),
+                    "filename" => ("filename".to_string(), DataType::String),
+                    "size" => ("filesize".to_string(), DataType::Number),
+                    "updatedAt" => ("updated_at".to_string(), DataType::Date),
+                    _ => ("created_at".to_string(), DataType::Date),
+                };
+                Self { table, column, data_type }
+            },
+            TableName::ParamTranslateList => {
+                let (column, data_type) = match field {
+                    "value" => ("pt.value".to_string(), DataType::String),
+                    "paramname" => ("ptl.paramname".to_string(), DataType::String),
+                    _ => ("ptl.param_id".to_string(), DataType::Number),
+                };
+                Self { table, column, data_type }
+            },
+            _ => Self { table, column: String::new(), data_type: DataType::None },
         }
     }
 
     /// Returns string `FROM...` with text of table field
     fn get_from(&self) -> String {
-        format!("FROM {}", self.table)
+        format!("FROM {}", self.table.name())
     }
 
-    /// Returns string `table.column` with names of table and column
+    /// Returns string `table.column` with names of table and column.
+    /// For string-type columns, length is added to specify the sort order.
     fn get_with_point(&self) -> String {
-        format!("{}.{}", self.table, self.column)
+        if self.table.name().is_empty() {
+            // if a table is specified in fields (small hack)
+            return self.column.clone()
+        }
+        let point = format!("{}.{}", self.table.name(), self.column);
+        match self.data_type {
+            DataType::String => format!("(length({}), {})", point, point),
+            _ => point,
+        }
+    }
+
+    /// Returns false if column name is empty
+    fn is_empty(&self) -> bool {
+        // self.table.is_empty() && self.column.is_empty()
+        self.column.is_empty()
     }
 }
 
@@ -81,14 +228,14 @@ pub(crate) enum Sort {
 }
 
 impl Sort {
-    pub(crate) fn set_by_table(table: &str) -> Self {
+    pub(crate) fn set_by_table(table: TableName) -> Self {
         Self::Asc(TableColumn::parsing(table, ""))
     }
 
-    pub(crate) fn parsing(table: &str, order_by: &str, as_desc: bool) -> Sort {
+    pub(crate) fn parsing(table: TableName, field: &str, as_desc: bool) -> Sort {
         match as_desc {
-            true => Sort::Desc(TableColumn::parsing(table, order_by)),
-            false => Sort::Asc(TableColumn::parsing(table, order_by)),
+            true => Sort::Desc(TableColumn::parsing(table, field)),
+            false => Sort::Asc(TableColumn::parsing(table, field)),
         }
     }
 
@@ -101,10 +248,11 @@ impl Sort {
     }
 
     /// Returns string `ORDER BY...` with sorting options, or an empty string if no arguments are found
-    fn get_complete(&self) -> String {
+    pub(crate) fn get_complete(&self) -> String {
         match self {
-            Self::Desc(ob) => format!("ORDER BY {} DESC", ob.get_with_point()),
-            Self::Asc(ob) => format!("ORDER BY {} Asc", ob.get_with_point()),
+            Self::Desc(ob) if !ob.is_empty() => format!("ORDER BY {} DESC", ob.get_with_point()),
+            Self::Asc(ob) if !ob.is_empty() => format!("ORDER BY {} ASC", ob.get_with_point()),
+            _ => String::new(),
         }
     }
 }
@@ -116,19 +264,21 @@ pub(crate) fn objects_order(
     paginate: &Paginate,
     conn: &mut PgConnection
 ) -> ServiceResult<Vec<Uuid>> {
-    let zero_point = Uuid::nil().to_string();
+    if object_uuids.is_empty() {
+        return Ok(Vec::new())
+    }
     let query = format!("
     SELECT uuid
     {from}
-    WHERE uuid IN ('{object_uuids}')
+    WHERE uuid IN ({object_uuids})
     {sort}
     {paginate}",
         from = sort.get_from(),
-        object_uuids = object_uuids.iter().fold(zero_point, |acc, &x| format!("{acc}', '{x}")),
+        object_uuids = get_vec_in_string(object_uuids),
         sort = sort.get_complete(),
         paginate = paginate.get_complete(),
     );
-    debug!("SQL search query: {}", query);
+    debug!("SQL objects order query: {}", query);
 
     let temp: Vec<ObjectUuid> = diesel::sql_query(query)
         .load(conn)

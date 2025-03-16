@@ -1,20 +1,16 @@
 use crate::errors::{ServiceResult, ServiceError};
 use crate::database::{get_conn, PooledConnection};
-
+use crate::models::user::access::token::{token_from_cxt, whose_token, check_token};
+use crate::schema::user_ref::dsl as user_ref;
+use diesel::prelude::*;
 use async_graphql::Context;
 use uuid::Uuid;
 
 /// Checking user authorization
 /// Return error if token not found or not valid
-pub(crate) fn check_authorized(
-    cxt: &Context<'_>
-) -> ServiceResult<bool> {
-    use crate::models::user::access::token::{token_from_cxt, check_token};
-
+pub(crate) fn check_authorized(cxt: &Context<'_>) -> ServiceResult<bool> {
     let conn: &mut PooledConnection = &mut get_conn(cxt)?;
-
     let token = token_from_cxt(cxt)?;
-
     match check_token(token.as_str(), conn)? {
         true => Ok(true),
         false => Err(ServiceError::Unauthorized),
@@ -27,12 +23,8 @@ pub(crate) fn get_logged_user_uuid(
     cxt: &Context<'_>,
     need_check: bool
 ) -> ServiceResult<Uuid> {
-    use crate::models::user::access::token::{token_from_cxt, whose_token, check_token};
-
     let target_token = token_from_cxt(cxt)?;
-
     let conn: &mut PooledConnection = &mut get_conn(cxt)?;
-
     match need_check {
         false => whose_token(target_token.as_str(), conn),
         true => {
@@ -43,4 +35,19 @@ pub(crate) fn get_logged_user_uuid(
             }
         }
     }
+}
+
+/// Returns the default user uuid
+pub(crate) fn default_user_uuid(cxt: &Context<'_>) -> ServiceResult<Uuid> {
+    let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+    user_ref::user_ref
+        .filter(user_ref::username.eq("default"))
+        // .and(user_ref::is_enabled.eq(false))
+        // .and(user_ref::is_delete.eq(false)))
+        .select(user_ref::uuid)
+        .first::<Uuid>(conn)
+        .map_err(|err| {
+            debug!("Failed find default user on database: {:?}", err);
+            ServiceError::InternalServerError
+        })
 }

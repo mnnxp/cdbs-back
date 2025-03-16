@@ -1,5 +1,6 @@
 use crate::errors::{ServiceResult, ServiceError};
 use crate::models::component::relate::file::model::DelComponentFileData;
+use crate::models::component::service::update::change_updated_at;
 use crate::models::relate_ref::file::service::delete::delete_file_by_uuid;
 use crate::schema::file_to_component::dsl::*;
 use diesel::prelude::*;
@@ -33,6 +34,9 @@ pub(crate) fn delete_component_file(
         // not found file
         0 => Ok(false),
         // set flag for delete file in storage
-        _ => delete_file_by_uuid(&data.file_uuid, conn),
+        _ => {
+            change_updated_at(&data.component_uuid, None, conn)?;
+            delete_file_by_uuid(&data.file_uuid, conn)
+        },
     }
 }

@@ -22,12 +22,13 @@ pub(crate) fn get_uuid_by_username(
 }
 
 /// Checking if a username already used
+/// (trim is applied to the passed username)
 pub(crate) fn check_use_username(
     username: &str,
     conn: &mut PgConnection,
 ) -> ServiceResult<bool> {
     let found = user_ref::user_ref
-        .filter(user_ref::username.eq(username))
+        .filter(user_ref::username.eq(username.trim()))
         .limit(1)
         .execute(conn)
         .map_err(|err| {

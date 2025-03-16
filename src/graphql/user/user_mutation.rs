@@ -24,13 +24,8 @@ impl UserMutation {
         args: IptUserData,
     ) -> ServiceResult<SlimUser> {
         use crate::models::user::service::register::create_user;
-
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
-
-        create_user(
-            &args,
-            conn
-        )
+        create_user(args, conn)
     }
 
     /// Deletes a user and associated data.

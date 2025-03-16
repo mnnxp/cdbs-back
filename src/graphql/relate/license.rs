@@ -1,13 +1,14 @@
 use async_graphql::{self, Context, Object};
-
 use crate::database::{get_conn, PooledConnection};
 use crate::errors::ServiceResult;
+use crate::models::search::order::Paginate;
 use crate::models::user::access::logged::check_authorized;
 use crate::models::relate_ref::license::{
-    model::{License, LicenseData, IptLicenseArg, LicenseArg},
+    model::{License, LicenseData},
     service::list::get_licenses,
     service::register::create_license,
 };
+use super::attributes::IptPaginate;
 
 #[derive(Default)]
 pub struct LicenseQuery;
@@ -21,18 +22,14 @@ impl LicenseQuery {
     async fn licenses(
         &self,
         cxt: &Context<'_>,
-        args: Option<IptLicenseArg>,
+        license_ids: Option<Vec<i32>>,
+        paginate: Option<IptPaginate>,
     ) -> ServiceResult<Vec<License>> {
         check_authorized(cxt)?; // authorization check
-
-        let arguments = match args {
-            Some(x) => LicenseArg::from(x),
-            None => LicenseArg::default(),
-        };
-
+        let p = paginate.map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
+            .unwrap_or_default();
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
-
-        get_licenses(&arguments, conn)
+        get_licenses(&license_ids.unwrap_or_default(), &p, conn)
     }
 }
 

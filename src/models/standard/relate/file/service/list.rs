@@ -13,6 +13,7 @@ use uuid::Uuid;
 pub(crate) fn get_standard_files(
     logged_user_uuid: &Uuid,
     args: &StandardFilesArg,
+    paginate: &Paginate,
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<DownloadFile>> {
     let need_access_level = 2; // todo!(create enum for manage access level)
@@ -30,9 +31,5 @@ pub(crate) fn get_standard_files(
         conn,
     )?;
 
-    DownloadFile::get_by_file_uuids(
-        &target_file_uuids,
-        &Paginate::parsing(args.limit, args.offset),
-        conn,
-    )
+    DownloadFile::get_by_file_uuids(&target_file_uuids, paginate, conn)
 }

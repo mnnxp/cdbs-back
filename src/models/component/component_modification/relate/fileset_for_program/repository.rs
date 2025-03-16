@@ -20,20 +20,7 @@ impl FilesetProgramRelatedData {
                 debug!("Failed get fileset for program: {:?}", err);
                 ServiceError::InternalServerError
             })?;
-
         FilesetProgramRelatedData::for_filesets(&filesets, conn)
-    }
-
-    /// Get program translate data for fileset
-    pub(crate) fn for_fileset(
-        filesets: &FilesetProgram,
-        conn: &mut PgConnection,
-    ) -> ServiceResult<FilesetProgramRelatedData> {
-        Ok(FilesetProgramRelatedData{
-            uuid: filesets.uuid,
-            modification_uuid: filesets.modification_uuid,
-            program: Program::get_program_by_id(&filesets.program_id, conn)?,
-        })
     }
 
     /// Get program translate data for filesets list
@@ -42,8 +29,13 @@ impl FilesetProgramRelatedData {
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<FilesetProgramRelatedData>> {
         let mut result: Vec<FilesetProgramRelatedData> = Vec::new();
-        for x in filesets {
-            result.push(FilesetProgramRelatedData::for_fileset(x, conn)?);
+        for fset in filesets {
+            // get program translate data for fileset
+            result.push(FilesetProgramRelatedData{
+                uuid: fset.uuid,
+                modification_uuid: fset.modification_uuid,
+                program: Program::get_program_by_id(&fset.program_id, conn)?,
+            });
         }
         // sorting the list of program names alphabetically
         result.sort_by(|a, b| a.program.name.cmp(&b.program.name));

@@ -1,12 +1,9 @@
 use crate::models::component::{
     model::Component,
-    relate::actual_status::model::ActualStatusTranslateList,
+    component_modification::util::get_root_modification_uuid,
 };
-use crate::models::component::component_modification::{
-    param::model::ModificationParamWithTranslation,
-    fileset_for_program::model::FilesetProgramRelatedData,
-    util::get_root_modification_uuid,
-};
+use crate::models::relate_ref::param::model::IptParamData;
+use crate::models::search::order::{Paginate, Sort};
 use crate::schema::*;
 use async_graphql::*;
 use chrono::*;
@@ -28,64 +25,6 @@ pub(crate) struct ComponentModification {
     pub(crate) updated_at: NaiveDateTime,
 }
 
-/// Full information about component (part) modification and related data
-#[derive(Deserialize, SimpleObject, Debug)]
-pub(crate) struct ComponentModificationAndRelatedData {
-    /// UUID of the component modification
-    pub(crate) uuid: Uuid,
-    /// UUID of component
-    pub(crate) component_uuid: Uuid,
-    /// UUID of the parent modification of the component
-    pub(crate) parent_modification_uuid: Uuid,
-    /// Name of the component modification
-    pub(crate) modification_name: String,
-    /// Description of the component modification
-    pub(crate) description: String,
-    /// Current status of the component modification
-    pub(crate) actual_status: ActualStatusTranslateList,
-    /// Date of creation of the component modification
-    pub(crate) created_at: NaiveDateTime,
-    /// Date when the main data of the component modification was changed
-    pub(crate) updated_at: NaiveDateTime,
-    /// Component modification file sets data (list)
-    pub(crate) filesets_for_program: Vec<FilesetProgramRelatedData>,
-    /// Data on component modification parameters (list)
-    pub(crate) modification_params: Vec<ModificationParamWithTranslation>,
-}
-
-impl ComponentModificationAndRelatedData {
-    /// Create struct with data ComponentModification, set default data for related data
-    pub(crate) fn new(data: &ComponentModification) -> Self {
-        Self{
-            uuid: data.uuid,
-            component_uuid: data.component_uuid,
-            parent_modification_uuid: data.parent_modification_uuid,
-            modification_name: data.modification_name.clone(),
-            description: data.description.clone(),
-            actual_status: Default::default(),
-            created_at: data.created_at,
-            updated_at: data.updated_at,
-            filesets_for_program: Vec::new(),
-            modification_params: Vec::new(),
-        }
-    }
-
-    /// Change actual satus data
-    pub(crate) fn put_actual_status(&mut self, actual_status: &ActualStatusTranslateList) {
-        self.actual_status = actual_status.clone();
-    }
-
-    /// Change filesets data
-    pub(crate) fn put_fileset_program(&mut self, fileset: Vec<FilesetProgramRelatedData>) {
-        self.filesets_for_program = fileset;
-    }
-
-    /// Change modification params
-    pub(crate) fn put_modification_params(&mut self, params: Vec<ModificationParamWithTranslation>) {
-        self.modification_params = params;
-    }
-}
-
 #[derive(Debug, Insertable)]
 #[diesel(table_name = component_modification_list)]
 pub(crate) struct InsertableComponentModification {
@@ -103,6 +42,7 @@ pub(crate) struct InsertableComponentModification {
 impl InsertableComponentModification {
     /// Returns a structure with the specified component UUID
     pub(crate) fn get_default_for_component(component_uuid: &Uuid) -> Self {
+        let local_time = chrono::Local::now().naive_local();
         Self {
             uuid: Uuid::new_v4(),
             component_uuid: *component_uuid,
@@ -111,29 +51,28 @@ impl InsertableComponentModification {
             description: String::new(),
             actual_status_id: 1,
             is_delete: false,
-            created_at: chrono::Local::now().naive_local(),
-            updated_at: chrono::Local::now().naive_local(),
+            created_at: local_time,
+            updated_at: local_time,
         }
     }
 
     /// Returns structures with the specified component UUID and modifications data
-    pub(crate) fn get_multiple_data(data: &IptMultipleModificationsData) -> Vec<Self> {
-        let mut res = Vec::new();
-        for md in data.modifications_data.iter() {
-            let local_time = chrono::Local::now().naive_local();
-            res.push(Self {
-                uuid: Uuid::new_v4(),
-                component_uuid: data.component_uuid,
-                parent_modification_uuid: Uuid::nil(),
-                modification_name: md.modification_name.clone(),
-                description: md.description.clone(),
-                actual_status_id: md.actual_status_id,
-                is_delete: false,
-                created_at: local_time,
-                updated_at: local_time,
-            })
+    pub(crate) fn get_multiple_data(
+        component_uuid: Uuid,
+        modifications_data: &IptModificationsData
+    ) -> Self {
+        let local_time = chrono::Local::now().naive_local();
+        Self {
+            uuid: Uuid::new_v4(),
+            component_uuid,
+            parent_modification_uuid: Uuid::nil(),
+            modification_name: modifications_data.modification_name.clone(),
+            description: modifications_data.description.clone(),
+            actual_status_id: modifications_data.actual_status_id,
+            is_delete: false,
+            created_at: local_time,
+            updated_at: local_time,
         }
-        res
     }
 
     /// Check parent modification uuid on nil
@@ -180,6 +119,8 @@ pub(crate) struct IptModificationsData {
     pub(crate) description: String,
     /// Current status of the component modification
     pub(crate) actual_status_id: i32,
+    /// Parameters for component modification
+    pub(crate) parameters: Vec<IptParamData>,
 }
 
 impl From<&IptComponentModificationData> for InsertableComponentModification {
@@ -231,45 +172,13 @@ pub(crate) struct DelComponentModificationData {
     pub(crate) modification_uuid: Uuid,
 }
 
-#[derive(InputObject, Deserialize, Debug)]
-pub(crate) struct IptComponentModificationArg {
-    pub(crate) component_uuid: Uuid,
-    pub(crate) limit: Option<i32>,
-    pub(crate) offset: Option<i32>,
-}
 
 #[derive(Debug)]
 pub(crate) struct ComponentModificationArg {
     pub(crate) component_uuid: Uuid,
-    pub(crate) limit: i32,
-    pub(crate) offset: i32,
-}
-
-impl ComponentModificationArg {
-    /// Generate default limit 100 and offset 0
-    pub(crate) fn component_uuid(component_uuid: &Uuid) -> Self {
-        Self {
-            component_uuid: *component_uuid,
-            limit: 100,
-            offset: 0,
-        }
-    }
-}
-
-impl From<IptComponentModificationArg> for ComponentModificationArg {
-    fn from(data: IptComponentModificationArg) -> Self {
-        let IptComponentModificationArg {
-            component_uuid,
-            limit,
-            offset,
-        } = data;
-
-        Self {
-            component_uuid,
-            limit: limit.unwrap_or(100),
-            offset: offset.unwrap_or(0),
-        }
-    }
+    pub(crate) filter: Vec<Uuid>,
+    pub(crate) sort: Sort,
+    pub(crate) paginate: Paginate,
 }
 
 /// Component modification file list request data
@@ -279,18 +188,12 @@ pub(crate) struct IptModificationFilesArg {
     pub(crate) modification_uuid: Uuid,
     /// Filtering files by UUID (list)
     pub(crate) files_uuids: Option<Vec<Uuid>>,
-    /// Restriction of data sampling (maximum number of records)
-    pub(crate) limit: Option<i32>,
-    /// Number of skipping records at the beginning (offset)
-    pub(crate) offset: Option<i32>,
 }
 
 #[derive(Debug)]
 pub(crate) struct ModificationFilesArg {
     pub(crate) modification_uuid: Uuid,
     pub(crate) file_uuids: Vec<Uuid>,
-    pub(crate) limit: i32,
-    pub(crate) offset: i32,
 }
 
 impl From<IptModificationFilesArg> for ModificationFilesArg {
@@ -298,15 +201,11 @@ impl From<IptModificationFilesArg> for ModificationFilesArg {
         let IptModificationFilesArg {
             modification_uuid,
             files_uuids,
-            limit,
-            offset,
         } = data;
 
         Self {
             modification_uuid,
             file_uuids: files_uuids.unwrap_or_default(),
-            limit: limit.unwrap_or(100),
-            offset: offset.unwrap_or(0),
         }
     }
 }

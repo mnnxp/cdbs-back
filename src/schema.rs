@@ -13,6 +13,13 @@ table! {
 }
 
 table! {
+    commit_ref (uuid) {
+        uuid -> Uuid,
+        commit_msg -> Varchar,
+    }
+}
+
+table! {
     company_access_to_component (component_uuid, company_uuid) {
         component_uuid -> Uuid,
         company_uuid -> Uuid,
@@ -250,6 +257,7 @@ table! {
         uuid -> Uuid,
         parent_file_uuid -> Uuid,
         revision -> Int4,
+        commit_uuid -> Uuid,
         hash -> Bytea,
         user_uuid -> Uuid,
         filename -> Varchar,
@@ -793,6 +801,7 @@ joinable!(discussion_component_ref -> component_ref (component_uuid));
 joinable!(discussion_component_ref -> user_ref (author_uuid));
 joinable!(extension_ref -> program_ref (program_id));
 joinable!(file_ref -> extension_ref (id_ext));
+joinable!(file_ref -> commit_ref (commit_uuid));
 joinable!(file_to_component -> component_ref (component_uuid));
 joinable!(file_to_component -> file_ref (file_uuid));
 joinable!(file_to_modification -> component_modification_list (modification_uuid));
@@ -883,6 +892,7 @@ joinable!(user_token_ref -> user_ref (user_uuid));
 allow_tables_to_appear_in_same_query!(
     actual_status_ref,
     actual_status_translate_list,
+    commit_ref,
     company_access_to_component,
     company_access_to_standard,
     company_certificate_ref,

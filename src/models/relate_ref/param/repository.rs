@@ -4,6 +4,7 @@ use crate::schema::param_translate_list::dsl as param_translate_list;
 use diesel::prelude::*;
 
 impl ParamTranslateList {
+    /// Returns ParamTranslateList with translation for a specified language or by default
     pub(crate) fn get_by_id(
         param_id: &i32,
         set_lang_id: &i32,

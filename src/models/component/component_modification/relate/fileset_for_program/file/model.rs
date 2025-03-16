@@ -1,6 +1,6 @@
 use crate::schema::*;
 use crate::models::component::component_modification::fileset_for_program::model::FilesetProgram;
-use crate::models::relate_ref::file::model::ShowFileRelatedData;
+use crate::graphql::file::ShowFileRelatedData;
 use async_graphql::*;
 // use chrono::*;
 use uuid::Uuid;
@@ -22,6 +22,10 @@ pub(crate) struct IptModificationFileFromFilesetData {
     pub(crate) fileset_uuid: Uuid,
     /// Names of files to be added to the file set
     pub(crate) filenames: Vec<String>,
+    /// Change comment has length limit of 225.
+    /// Exceeding the limit will be replaced with `...`.
+    #[graphql(default = "")]
+    pub(crate) commit_msg: String,
 }
 
 /// Data for a request to delete files from a set of files
@@ -47,18 +51,12 @@ pub(crate) struct IptFileOfFilesetArg {
     pub(crate) fileset_uuid: Uuid,
     /// UUIDs of files to filter (optional)
     pub(crate) file_uuids: Option<Vec<Uuid>>,
-    /// Restriction of data sampling (maximum number of records)
-    pub(crate) limit: Option<i32>,
-    /// Number of skipping records at the beginning (offset)
-    pub(crate) offset: Option<i32>,
 }
 
 #[derive(Debug)]
 pub(crate) struct FileOfFilesetArg {
     pub(crate) fileset_uuid: Uuid,
     pub(crate) file_uuids: Vec<Uuid>,
-    pub(crate) limit: i32,
-    pub(crate) offset: i32,
 }
 
 impl From<IptFileOfFilesetArg> for FileOfFilesetArg {
@@ -66,15 +64,11 @@ impl From<IptFileOfFilesetArg> for FileOfFilesetArg {
         let IptFileOfFilesetArg {
             fileset_uuid,
             file_uuids,
-            limit,
-            offset,
         } = data;
 
         Self {
             fileset_uuid,
             file_uuids: file_uuids.unwrap_or_default(),
-            limit: limit.unwrap_or(100),
-            offset: offset.unwrap_or(0),
         }
     }
 }

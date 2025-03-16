@@ -1,33 +1,32 @@
 use crate::errors::{ServiceResult, ServiceError};
-use crate::models::relate_ref::region::model::{
-    RegionTranslateList, RegionArg
-};
+use crate::models::relate_ref::region::model::RegionTranslateList;
+use crate::models::search::order::Paginate;
 use crate::schema::region_translate_list::dsl as region_translate_list;
 use diesel::{PgConnection, prelude::*};
 
-/// Возвращает список регионов с фильтром по идентификаторам.
-/// Если фильтр не указан, то агрегируются все существующие.
+/// Returns a list of available regions with a filter by IDs.
+/// If a filter is not specified, then all existing ones are aggregated.
 pub(crate) fn get_regions(
-    args: &RegionArg,
+    region_ids: &[i32],
     set_lang_id: &i32,
+    paginate: &Paginate,
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<RegionTranslateList>> {
-    match args.region_ids.is_empty() {
-        true => find_all_regions(&args.limit, &args.offset, set_lang_id, conn),
-        false => find_region_id(args, set_lang_id, conn),
+    match region_ids.is_empty() {
+        true => find_all_regions(set_lang_id, paginate, conn),
+        false => find_region_id(region_ids, set_lang_id, paginate, conn),
     }
 }
 
 fn find_all_regions(
-    limit: &i32,
-    offset: &i32,
     set_lang_id: &i32,
+    paginate: &Paginate,
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<RegionTranslateList>> {
     region_translate_list::region_translate_list
         .filter(region_translate_list::lang_id.eq(set_lang_id))
-        .limit(*limit as i64)
-        .offset(*offset as i64)
+        .limit(paginate.limit)
+        .offset(paginate.offset)
         .order(region_translate_list::region.asc())
         .load::<RegionTranslateList>(conn)
         .map_err(|err| {
@@ -37,15 +36,16 @@ fn find_all_regions(
 }
 
 fn find_region_id(
-    args: &RegionArg,
+    region_ids: &[i32],
     set_lang_id: &i32,
+    paginate: &Paginate,
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<RegionTranslateList>> {
     region_translate_list::region_translate_list
-        .filter(region_translate_list::region_id.eq_any(&args.region_ids)
+        .filter(region_translate_list::region_id.eq_any(region_ids)
         .and(region_translate_list::lang_id.eq(set_lang_id)))
-        .limit(args.limit as i64)
-        .offset(args.offset as i64)
+        .limit(paginate.limit)
+        .offset(paginate.offset)
         .load::<RegionTranslateList>(conn)
         .map_err(|err| {
             debug!("Failed get region: {:?}", err);

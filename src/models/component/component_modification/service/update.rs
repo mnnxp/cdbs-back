@@ -3,6 +3,7 @@ use crate::errors::err_msg::{ErrorMessage, get_err_msg};
 use crate::models::component::access::util::check_access_component_for_user;
 use crate::models::component::component_modification::model::IptUpdateComponentModificationData;
 use crate::models::component::component_modification::util::get_component_by_modification;
+use crate::models::component::service::update::change_updated_at;
 use crate::schema::component_modification_list::dsl as component_modification_list;
 use diesel::prelude::*;
 use uuid::Uuid;
@@ -15,10 +16,10 @@ pub(crate) fn update_modification_data(
     conn: &mut PgConnection,
 ) -> ServiceResult<usize> {
     let need_access_level = 1; // todo!(create enum for manage access level)
-
+    let target_component_uuid = get_component_by_modification(target_modification_uuid, conn)?;
     check_access_component_for_user(
         logged_user_uuid,
-        &get_component_by_modification(target_modification_uuid, conn)?,
+        &target_component_uuid,
         &need_access_level,
         conn
     )?;
@@ -70,16 +71,10 @@ pub(crate) fn update_modification_data(
         return Err(get_err_msg(ErrorMessage::DataHasAlready));
     }
 
-    diesel::update(component_modification_list::component_modification_list
-        .filter(component_modification_list::uuid.eq(target_modification_uuid)))
-        .set(component_modification_list::updated_at.eq(chrono::Local::now().naive_local()))
-        .execute(conn)
-        .map_err(|err| {
-            debug!("Failed update data: {:?}", err);
-            get_err_msg(ErrorMessage::FailedUpdateData)
-        })?;
-
+    // update the updated_at of component and modification if modification are updated
+    if count_update_columns > 0{
+        change_updated_at(&target_component_uuid, Some(target_modification_uuid), conn)?;
+    }
     debug!("Count update columns: {:?}", count_update_columns);
-
     Ok(count_update_columns)
 }

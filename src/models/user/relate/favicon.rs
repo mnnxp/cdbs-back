@@ -2,6 +2,7 @@ use crate::errors::ServiceResult;
 use crate::models::relate_ref::file::{
     model::{ListObject, UploadFile},
     service::register::preregister_file,
+    commit::Commit,
 };
 use crate::storage::model::StorageAccess;
 use crate::storage::presigned_url::upload_presigned_url;
@@ -18,6 +19,7 @@ pub(crate) fn update_favicon(
         target_user_uuid,
         ListObject::User(*target_user_uuid),
         filename,
+        &Commit::create_commit("Upload favicon", conn)?,
         conn
     )?;
 

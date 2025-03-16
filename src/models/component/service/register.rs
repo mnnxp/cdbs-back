@@ -1,6 +1,7 @@
 use crate::errors::{ServiceResult, ServiceError};
+use crate::graphql::component_model::IptComponentData;
 use crate::models::component::{
-    model::{IptComponentData, InsertableComponent},
+    model::InsertableComponent,
     access::util::check_access_component_for_user,
     component_modification::{
         model::InsertableComponentModification,

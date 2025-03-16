@@ -1,6 +1,8 @@
 use crate::errors::ServiceResult;
+use crate::graphql::file::ShowFileRelatedData;
 use crate::models::relate_ref::file::access::check_file_owner_err;
-use crate::models::relate_ref::file::model::{DownloadFile, ShowFileRelatedData};
+use crate::models::relate_ref::file::model::DownloadFile;
+use crate::models::search::order::Paginate;
 use diesel::PgConnection;
 use uuid::Uuid;
 
@@ -26,8 +28,7 @@ pub(crate) fn get_url_by_file_uuid(
 pub(crate) fn get_revisions_by_file_uuid(
     file_uuid: &Uuid,
     logged_user_uuid: &Uuid,
-    limit: i32,
-    offset: i32,
+    paginate: &Paginate,
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<ShowFileRelatedData>> {
     // check ownership file
@@ -39,8 +40,7 @@ pub(crate) fn get_revisions_by_file_uuid(
 
     ShowFileRelatedData::get_revisions_by_uuid(
         file_uuid,
-        &limit,
-        &offset,
+        paginate,
         conn
     )
 }

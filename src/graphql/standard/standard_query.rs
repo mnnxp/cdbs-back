@@ -1,17 +1,15 @@
 use crate::errors::ServiceResult;
 use crate::database::{get_conn, PooledConnection};
+use crate::graphql::relate::attributes::IptPaginate;
 use crate::models::search::model::ExtraOptions;
+use crate::models::search::order::Paginate;
 use crate::models::user::access::logged::{get_logged_user_uuid, check_authorized};
 use crate::models::standard::{
     model::{
         ShowStandardShort, StandardAndRelatedData, StandardsArg, IptStandardsArg,
         StandardFilesArg, IptStandardFilesArg
     },
-    relate::{
-        spec::model::{IptStandardSpecsArg, StandardSpecsArg},
-        keyword::model::{IptStandardKeywordsArg, StandardKeywordsArg},
-        standard_status::model::StandardStatusTranslateList,
-    },
+    relate::standard_status::model::StandardStatusTranslateList,
     access::company::model::CompanyAccessStandardAndRelatedData,
     access::user::model::UserAccessStandardAndRelatedData,
 };
@@ -21,7 +19,6 @@ use crate::models::relate_ref::{
     file::model::DownloadFile,
     language::get_set_language,
 };
-
 use async_graphql::{self, Context, Object};
 use uuid::Uuid;
 
@@ -36,23 +33,20 @@ impl StandardQuery {
         &self,
         cxt: &Context<'_>,
         args: Option<IptStandardsArg>,
+        paginate: Option<IptPaginate>,
     ) -> ServiceResult<Vec<ShowStandardShort>> {
         use crate::models::standard::service::list::get_standard;
 
         // authorization check
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
-
-        let arguments: StandardsArg = match args {
-            Some(x) => StandardsArg::from(x),
-            None => StandardsArg::default(),
-        };
-
+        let options = ExtraOptions::from_cxt(cxt, false)?;
+        let arguments = StandardsArg::by_arg(args);
+        let p = paginate.map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
+            .unwrap_or_default();
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
-
         get_standard(
-            &logged_user_uuid,
             &arguments,
-            &get_set_language(cxt),
+            &options,
+            &p,
             conn,
         )
     }
@@ -62,25 +56,17 @@ impl StandardQuery {
         &self,
         cxt: &Context<'_>,
         standard_uuid: Uuid,
-        limit: Option<i32>,
-        offset: Option<i32>,
+        // sort: Option<IptSort>,
+        paginate: Option<IptPaginate>,
     ) -> ServiceResult<StandardAndRelatedData> {
         use crate::models::standard::service::list::find_by_uuid;
-
-        let options = ExtraOptions::from_ipt(
-            get_logged_user_uuid(cxt, true)?,
-            get_set_language(cxt),
-        );
-
+        let options = ExtraOptions::from_cxt(cxt, false)?;
+        // let s = sort.map(|s| Sort::parsing(TableName::StandardRef, &s.by_field, s.as_desc))
+        //     .unwrap_or(Sort::set_by_table(TableName::StandardRef));
+        let p = paginate.map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
+            .unwrap_or_default();
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
-
-        find_by_uuid(
-            &standard_uuid,
-            &options,
-            limit.unwrap_or(100),
-            offset.unwrap_or(0),
-            conn,
-        )
+        find_by_uuid(&standard_uuid, &options, &p, conn)
     }
 
     /// Returns pre-signed URLs and other information for downloading standard files.
@@ -88,42 +74,37 @@ impl StandardQuery {
         &self,
         cxt: &Context<'_>,
         args: IptStandardFilesArg,
+        paginate: Option<IptPaginate>,
     ) -> ServiceResult<Vec<DownloadFile>> {
         use crate::models::standard::file::service::list::get_standard_files;
-
         // authorization check
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
-
         let arguments: StandardFilesArg = args.into();
-
+        let p = paginate.map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
+            .unwrap_or_default();
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
-
-        get_standard_files(
-            &logged_user_uuid,
-            &arguments,
-            conn
-        )
+        get_standard_files(&logged_user_uuid, &arguments, &p, conn)
     }
 
-    /// Returns an array of directory partitions associated with a standard.
+    /// Returns an array of catalogs associated with standard
     async fn standard_specs(
         &self,
         cxt: &Context<'_>,
-        args: IptStandardSpecsArg,
+        standard_uuid: Uuid,
+        paginate: Option<IptPaginate>,
     ) -> ServiceResult<Vec<SpecTranslateList>> {
         use crate::models::standard::spec::service::list::get_standard_specs;
 
         // authorization check
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
-
-        let arguments: StandardSpecsArg = args.into();
-
+        let p = paginate.map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
+            .unwrap_or_default();
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
-
         get_standard_specs(
             &logged_user_uuid,
-            &arguments,
+            &standard_uuid,
             &get_set_language(cxt),
+            &p,
             conn
         )
     }
@@ -132,20 +113,20 @@ impl StandardQuery {
     async fn standard_keywords(
         &self,
         cxt: &Context<'_>,
-        args: IptStandardKeywordsArg,
+        standard_uuid: Uuid,
+        paginate: Option<IptPaginate>,
     ) -> ServiceResult<Vec<Keyword>> {
         use crate::models::standard::keyword::service::list::get_standard_keywords;
 
         // authorization check
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
-
-        let arguments: StandardKeywordsArg = args.into();
-
+        let p = paginate.map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
+            .unwrap_or_default();
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
-
         get_standard_keywords(
             &logged_user_uuid,
-            &arguments,
+            &standard_uuid,
+            &p,
             conn
         )
     }

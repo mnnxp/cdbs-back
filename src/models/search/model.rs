@@ -1,5 +1,7 @@
-use diesel::sql_types;
-use diesel::prelude::*;
+use crate::errors::ServiceResult;
+use crate::models::user::access::logged::{get_logged_user_uuid, default_user_uuid};
+use crate::models::relate_ref::language::get_set_language;
+use diesel::{sql_types, prelude::*};
 use async_graphql::*;
 use uuid::Uuid;
 
@@ -10,24 +12,52 @@ pub(super) struct ObjectUuid {
 }
 
 impl ObjectUuid {
-    pub(super) fn get_uuids(objcts: &[ObjectUuid]) -> Vec<Uuid> {
+    pub(super) fn get_uuids(objects: &[ObjectUuid]) -> Vec<Uuid> {
         let mut res = Vec::<Uuid>::new();
-        for item in objcts { res.push(item.uuid); }
+        for item in objects { res.push(item.uuid); }
         res
     }
+}
+
+#[derive(Debug, QueryableByName)]
+pub(super) struct ObjectI64 {
+    #[diesel(sql_type = sql_types::BigInt)]
+    pub(super) count: i64
 }
 
 #[derive(Debug)]
 pub(crate) struct ExtraOptions {
     pub(crate) logged_user_uuid: Uuid,
     pub(crate) set_lang_id: i32,
+    pub(crate) no_entry: bool,
 }
 
 impl ExtraOptions {
-    pub(crate) fn from_ipt(logged_user_uuid: Uuid, set_lang_id: i32) -> Self {
-        Self {
-            logged_user_uuid,
-            set_lang_id,
+    /// Returns the structure with logged user uuid and set language.
+    /// If token validation fails and no_entry is true, will be made to retrieve the default user UUID.
+    /// If the default user UUID could not be obtained, the first error received during token validation will be returned.
+    pub(crate) fn from_cxt(cxt: &Context<'_>, no_entry: bool) -> ServiceResult<Self> {
+        let set_lang_id = get_set_language(cxt);
+        match get_logged_user_uuid(cxt, true) {
+            Ok(logged_user_uuid) => Ok(Self {
+                logged_user_uuid,
+                set_lang_id,
+                no_entry: false,
+            }),
+            Err(err) => {
+                if let (Ok(logged_user_uuid), true) = (default_user_uuid(cxt), no_entry) {
+                    // default user uuid and set language
+                    return Ok(
+                        Self {
+                            logged_user_uuid,
+                            set_lang_id,
+                            no_entry: true,
+                        }
+                    )
+                }
+                // error message
+                Err(err)
+            },
         }
     }
 }
@@ -42,17 +72,9 @@ pub(crate) struct IptSearchArg {
     pub(crate) by_specs: bool,
     #[graphql(default = false)]
     pub(crate) by_keywords: bool,
-    #[graphql(default = "")]
-    pub(crate) order_by: String,
-    #[graphql(default = false)]
-    pub(crate) as_desc: bool,
     pub(crate) company_uuid: Option<Uuid>,
     pub(crate) standard_uuid: Option<Uuid>,
     pub(crate) user_uuid: Option<Uuid>,
     #[graphql(default = false)]
     pub(crate) favorite: bool,
-    #[graphql(default = 100)]
-    pub(crate) limit: i32,
-    #[graphql(default = 0)]
-    pub(crate) offset: i32,
 }

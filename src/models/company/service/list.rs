@@ -3,6 +3,7 @@ use crate::errors::err_msg::{ErrorMessage, get_err_msg};
 use crate::models::company::model::{
     ShowCompanyShort, CompanyAndRelatedData, CompaniesArg,
 };
+use crate::models::search::order::Paginate;
 use diesel::{PgConnection, prelude::*};
 use uuid::Uuid;
 
@@ -12,7 +13,8 @@ use uuid::Uuid;
 pub(crate) fn get_companies(
     logged_user_uuid: &Uuid,
     arguments: &CompaniesArg,
-    set_lang_id: &i32,
+    // sort: &Sort,
+    paginate: &Paginate,
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<ShowCompanyShort>> {
     // structure for reduce the number of function arguments
@@ -21,8 +23,7 @@ pub(crate) fn get_companies(
         user_uuid,
         favorite,
         supplier,
-        limit,
-        offset,
+        set_lang_id,
     } = arguments;
 
     // collect companies uuids for check access
@@ -32,8 +33,7 @@ pub(crate) fn get_companies(
             get_companies_by_user(
                 filter_companies_uuids,
                 ur_uuid, // user_uuid
-                limit,
-                offset,
+                paginate,
                 conn
             )?
         },
@@ -42,8 +42,7 @@ pub(crate) fn get_companies(
             get_companies_followed_by_user(
                 filter_companies_uuids,
                 ur_uuid, // user_uuid
-                limit,
-                offset,
+                paginate,
                 conn
             )?
         },
@@ -52,15 +51,12 @@ pub(crate) fn get_companies(
             get_companies_followed_by_user(
                 filter_companies_uuids,
                 logged_user_uuid,
-                limit,
-                offset,
+                paginate,
                 conn
             )?
         },
         // get all public companies
-        (None, false) => {
-            filter_companies_uuids.to_vec()
-        },
+        (None, false) => filter_companies_uuids.to_vec(),
     };
 
     // return not found if set search favorite and no favorite companies
@@ -73,8 +69,7 @@ pub(crate) fn get_companies(
         logged_user_uuid,
         &target_companies_uuids,
         supplier,
-        limit,
-        offset,
+        paginate,
         set_lang_id,
         conn
     ).map_err(|err| {
@@ -88,8 +83,7 @@ pub(crate) fn get_companies(
 fn get_companies_by_user(
     filter_companies_uuids: &[Uuid],
     user_uuid: &Uuid,
-    limit: &i32,
-    offset: &i32,
+    paginate: &Paginate,
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<Uuid>> {
     use crate::schema::company_ref::dsl as company_ref;
@@ -107,8 +101,8 @@ fn get_companies_by_user(
     };
 
     query.select(company_ref::uuid)
-        .limit(*limit as i64)
-        .offset(*offset as i64)
+        .limit(paginate.limit)
+        .offset(paginate.offset)
         .load::<Uuid>(conn)
         .map_err(|err| {
             debug!("Failed get company: {:?}", err);
@@ -121,8 +115,7 @@ fn get_companies_by_user(
 fn get_companies_followed_by_user(
     filter_companies_uuids: &[Uuid],
     user_uuid: &Uuid,
-    limit: &i32,
-    offset: &i32,
+    paginate: &Paginate,
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<Uuid>> {
     use crate::schema::company_fav::dsl as company_fav;
@@ -142,8 +135,8 @@ fn get_companies_followed_by_user(
     };
 
     query.select(company_fav::company_uuid)
-        .limit(*limit as i64)
-        .offset(*offset as i64)
+        .limit(paginate.limit)
+        .offset(paginate.offset)
         .load::<Uuid>(conn)
         .map_err(|err| {
             debug!("Failed get company fav: {:?}", err);

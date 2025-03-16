@@ -5,7 +5,7 @@ use diesel::prelude::*;
 use uuid::Uuid;
 
 /// Get access type for user
-pub(crate) fn get_access_type_user(
+fn get_access_type_user(
     target_user_uuid: &Uuid,
     conn: &mut PgConnection
 ) -> ServiceResult<i32> {

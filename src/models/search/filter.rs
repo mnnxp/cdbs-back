@@ -1,7 +1,7 @@
 use diesel::prelude::*;
 use uuid::Uuid;
 use crate::errors::{ServiceResult, ServiceError};
-use super::model::ObjectUuid;
+use super::{get_vec_in_string, model::ObjectUuid};
 
 pub(crate) struct Filter {
     field_name: String,
@@ -16,12 +16,9 @@ impl Filter {
                 filter_items: "".to_string(),
             }
         }
-        let zero_point = Uuid::nil().to_string();
         Filter {
             field_name: field_name.to_string(),
-            filter_items: object_uuids.iter().fold(zero_point, |acc, &x|
-                format!("{acc}', '{x}")
-            )
+            filter_items: get_vec_in_string(object_uuids)
         }
     }
 
@@ -30,7 +27,7 @@ impl Filter {
         if self.field_name.is_empty() || self.filter_items.is_empty() {
             return String::new()
         }
-        format!("AND {} IN ('{}')", self.field_name, self.filter_items)
+        format!("AND {} IN ({})", self.field_name, self.filter_items)
     }
 }
 

@@ -1,9 +1,10 @@
 use crate::errors::{ServiceResult, ServiceError};
 use crate::errors::err_msg::{ErrorMessage, get_err_msg};
-use crate::models::search::order::{Sort, Paginate, objects_order};
+use crate::graphql::component_model::{ComponentAndRelatedData, ShowComponentShort};
+use crate::models::search::order::{Paginate, Sort, objects_order};
 use crate::models::search::model::{ExtraOptions, IptSearchArg};
 use crate::models::component::{
-    model::{ShowComponentShort, ComponentAndRelatedData, ComponentsArg},
+    model::ComponentsArg,
     search::search_components,
     access::util::check_access_component_for_user,
 };
@@ -15,6 +16,8 @@ use uuid::Uuid;
 pub(crate) fn get_components_by_uuids(
     args: &IptSearchArg,
     options: &ExtraOptions,
+    sort: &Sort,
+    paginate: &Paginate,
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<ShowComponentShort>> {
     let need_access_level = 3; // todo!(create enum for manage access level)
@@ -59,19 +62,13 @@ pub(crate) fn get_components_by_uuids(
             err => debug!("Bad access (get_list_by_uuids): {:?}", err),
         }
     }
-    let paginate = &Paginate::parsing(args.limit, args.offset);
-    ct_uuids_with_check = objects_order(
-        &ct_uuids_with_check,
-        &Sort::parsing("component_ref", args.order_by.as_str(), args.as_desc),
-        paginate,
-        conn
-    )?;
-    // the result for store the result :)
+    ct_uuids_with_check = objects_order(&ct_uuids_with_check, sort, paginate, conn)?;
+    // for store the result
     let mut result: Vec<ShowComponentShort> = Vec::new();
     // collecting data for each component
     for ct_uuid in ct_uuids_with_check.iter() {
         result.push(
-            ShowComponentShort::get_without_check_by_uuid(ct_uuid, options, paginate, conn)
+            ShowComponentShort::get_without_check_by_uuid(ct_uuid, options, conn)
                 .map_err(|err| {
                     debug!("Failed get components: {:?}", err);
                     ServiceError::InternalServerError
@@ -84,9 +81,10 @@ pub(crate) fn get_components_by_uuids(
 /// Возвращает агрегированные данные о компонентах.
 /// Получает краткие данные о компонентах с фильтром по: UUID, компании, стандарту, пользователю, избранному (для себя или другого пользователя).
 pub(crate) fn get_components(
-    logged_user_uuid: &Uuid,
     arguments: &ComponentsArg,
-    set_lang_id: &i32,
+    options: &ExtraOptions,
+    sort: &Sort,
+    paginate: &Paginate,
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<ShowComponentShort>> {
     // structure for reduce the number of function arguments
@@ -96,16 +94,13 @@ pub(crate) fn get_components(
         standard_uuid,
         user_uuid,
         favorite,
-        sort,
-        limit,
-        offset,
     } = arguments;
     // select target components uuids
     let target_components_uuids = match (favorite, user_uuid, standard_uuid, company_uuid) {
         // gets components of self favorite list for authorized user
         (true, None, None, None) => {
             get_components_followed_by_user(
-                logged_user_uuid,
+                &options.logged_user_uuid,
                 conn
             )?
         },
@@ -152,12 +147,9 @@ pub(crate) fn get_components(
 
     ShowComponentShort::get_components(
         &target_components_uuids,
-        &ExtraOptions {
-            logged_user_uuid: *logged_user_uuid,
-            set_lang_id: *set_lang_id,
-        },
+        options,
         sort,
-        &Paginate::parsing(*limit, *offset),
+        paginate,
         conn
     )
 }
@@ -233,15 +225,12 @@ pub(crate) fn get_components_uuids_by_standard(
 pub(crate) fn get_component_by_uuid(
     target_component_uuid: &Uuid,
     options: &ExtraOptions,
-    limit: i32,
-    offset: i32,
     conn: &mut PgConnection,
 ) -> ServiceResult<ComponentAndRelatedData> {
     // collect data for component
     ComponentAndRelatedData::get_component(
         target_component_uuid,
         options,
-        &Paginate::parsing(limit, offset),
         conn
     ).map_err(|err| {
         debug!("Error loading component and collect related data: {:?}", err);

@@ -3,29 +3,26 @@ use crate::errors::err_msg::{ErrorMessage, get_err_msg};
 use crate::models::relate_ref::spec::model::{
     Spec, SpecTranslateList, SpecPath, SpecPathArg
 };
+use crate::models::search::order::Paginate;
 use diesel::{PgConnection, prelude::*};
 
-/// Возвращает пути к разделам каталога по идентификаторам.
-/// При создании пути раздела используется заданный разделитель или разделитель по умолчанию "/".
-/// Значение "deep_level" устанавливает предел глубины до родительского раздела.
+/// Returns paths to catalogs by ID.
+/// When creating a catalog path, the specified separator or default separator "/" is used.
+/// A value of `deep_level` sets the depth limit to the parent catalog.
 pub(crate) fn get_paths_specs(
-    arguments: &SpecPathArg,
+    args: &SpecPathArg,
     set_lang_id: &i32,
+    paginate: &Paginate,
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<SpecPath>> {
-    let SpecPathArg {
-        spec_ids,
-        split_char,
-        depth_level,
-        limit,
-        offset,
-    } = arguments;
-
-    let select_ids = get_spec_ids(spec_ids, limit, offset, conn)?;
+    let select_ids = get_spec_ids(
+        &args.spec_ids,
+        paginate,
+        conn
+    )?;
     if select_ids.len() > 100 {
         return Err(get_err_msg(ErrorMessage::NotMorePathInOneQuery))
     }
-
     let mut result: Vec<SpecPath> = Vec::new();
     for sid in &select_ids {
         result.push(SpecPath{
@@ -33,44 +30,38 @@ pub(crate) fn get_paths_specs(
             lang_id: *set_lang_id,
             path: collect_path_spec(
                 sid,
-                split_char,
-                depth_level,
+                &args.split_char,
+                &args.depth_level,
                 set_lang_id,
                 conn
             )?
         });
     }
-
     Ok(result)
 }
 
 /// Gets spec ids from db without filter
 fn get_spec_ids(
     spec_ids: &[i32],
-    limit: &i32,
-    offset: &i32,
+    paginate: &Paginate,
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<i32>> {
     use crate::schema::spec_ref::dsl as spec_ref;
-
     let mut query = spec_ref::spec_ref.into_boxed();
     if !spec_ids.is_empty() {
         query = query.filter(spec_ref::id.eq_any(spec_ids));
     }
-
     let res_ids = query.select(spec_ref::id)
-        .offset(*offset as i64)
-        .limit(*limit as i64)
+        .offset(paginate.offset)
+        .limit(paginate.limit)
         .load::<i32>(conn)
         .map_err(|err| {
             debug!("Failed get spec ids: {}", err);
             ServiceError::InternalServerError
         })?;
-
     if !spec_ids.is_empty() && res_ids.is_empty() {
         return Err(get_err_msg(ErrorMessage::SpecNotFound))
     }
-
     Ok(res_ids)
 }
 
@@ -93,9 +84,8 @@ fn collect_path_spec(
 
     let target_specs_data = SpecTranslateList::get_by_ids(
         &target_specs_ids,
-        &100,
-        &0,
         set_lang_id,
+        &Paginate::default(),
         conn
     ).map_err(|err| {
         debug!("Failed get spec data by ids: {}", err);

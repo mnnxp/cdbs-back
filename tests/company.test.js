@@ -1786,9 +1786,9 @@ describe('company', () => {
       .post('/graphql')
       .send({
         query: `query  {
-          companySpecs(args: {
+          companySpecs(
             companyUuid: "${companyUuidNoSupplier}"
-          }){
+          ){
             specId
             langId
             spec
@@ -1814,9 +1814,9 @@ describe('company', () => {
       )
       .send({
         query: `query  {
-          companySpecs(args: {
+          companySpecs(
             companyUuid: "${companyUuidNoSupplier}"
-          }){
+          ){
             specId
             langId
             spec
@@ -1851,11 +1851,13 @@ describe('company', () => {
       )
       .send({
         query: `query  {
-          companySpecs(args: {
+          companySpecs(
             companyUuid: "${companyUuidNoSupplier}"
-            limit: 1
-            offset: 3
-          }){
+            paginate: {
+              currentPage: 4
+              perPage: 1
+            }
+          ){
             specId
             langId
             spec
@@ -1869,7 +1871,7 @@ describe('company', () => {
       data: { companySpecs },
     } = body;
     expect(companySpecs.length).toBe(1);
-    expect(companySpecs[0].specId).toBe(22);
+    expect(companySpecs[0].specId).toBe(44);
     expect(companySpecs[0].spec).toBeNonEmptyString();
     done();
   });
@@ -1883,11 +1885,13 @@ describe('company', () => {
       )
       .send({
         query: `query  {
-          companySpecs(args: {
+          companySpecs(
             companyUuid: "${companyUuidNoSupplier}"
-            limit: 50
-            offset: 500
-          }){
+            paginate: {
+              currentPage: 50
+              perPage: 500
+            }
+          ){
             specId
             langId
             spec

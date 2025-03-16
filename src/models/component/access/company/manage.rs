@@ -8,24 +8,28 @@ use crate::models::component::access::company::model::{
     DelCompanyAccessComponentData,
 };
 use crate::models::component::access::util::check_is_owner_with_err;
+use crate::models::search::model::ExtraOptions;
 use crate::schema::company_access_to_component::dsl::*;
 use diesel::prelude::*;
 use uuid::Uuid;
 
 /// Возвращает список компаний, имеющих доступ к компоненту.
 pub(crate) fn get_companies_list_access_component(
-    logged_user_uuid: &Uuid,
     target_component_uuid: &Uuid,
-    set_lang_id: &i32,
+    options: &ExtraOptions,
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<CompanyAccessComponentAndRelatedData>> {
     // 1. проверить пользователя на владение компонентом
-    check_is_owner_with_err(logged_user_uuid, target_component_uuid, conn)?;
+    check_is_owner_with_err(
+        &options.logged_user_uuid,
+        target_component_uuid,
+        conn
+    )?;
 
     // 2. получить список пользователей с доступом к компоненту
     let list_companies_with_access = CompanyAccessComponentAndRelatedData::from_component_by_uuid(
         target_component_uuid,
-        set_lang_id,
+        &options.set_lang_id,
         conn
     );
 

@@ -4,9 +4,11 @@ use crate::models::component::access::util::check_access_component_for_user;
 use crate::models::component::relate::file::model::{
     IptComponentFilesData, IptComponentFaviconData
 };
+use crate::models::component::service::update::change_updated_at;
 use crate::models::relate_ref::file::{
     model::{ListObject, UploadFile},
     service::register::preregister_file,
+    commit::Commit,
     util::check_image_filename
 };
 use crate::storage::model::StorageAccess;
@@ -36,6 +38,8 @@ pub(crate) fn add_component_files(
         return Err(get_err_msg(ErrorMessage::BadFilename))
     }
 
+    // create commit message for the changes
+    let commit_uuid = Commit::create_commit(&data.commit_msg, conn)?;
     let mut up_files: Vec<UploadFile> = Vec::new();
     // Get data for write information about the file before upload to storage
     for filename in &data.filenames {
@@ -43,6 +47,7 @@ pub(crate) fn add_component_files(
             logged_user_uuid,
             ListObject::Component(data.component_uuid),
             filename,
+            &commit_uuid,
             conn
         )?;
 
@@ -58,6 +63,10 @@ pub(crate) fn add_component_files(
             filename: slim_file.filename,
             upload_url,
         });
+    }
+    // update the updated_at date if new files are added
+    if !up_files.is_empty() {
+        change_updated_at(&data.component_uuid, None, conn)?;
     }
 
     Ok(up_files)
@@ -94,6 +103,7 @@ pub(crate) fn add_component_favicon(
         logged_user_uuid,
         ListObject::ComponentFavicon(data.component_uuid),
         &data.filename,
+        &Commit::create_commit("Upload main image of the component", conn)?,
         conn
     )?;
 
@@ -103,6 +113,8 @@ pub(crate) fn add_component_favicon(
         &StorageAccess::from_env(),
         &slim_file.path_file,
     )?;
+
+    change_updated_at(&data.component_uuid, None, conn)?;
 
     Ok(UploadFile {
         file_uuid: slim_file.uuid,

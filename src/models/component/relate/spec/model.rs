@@ -81,37 +81,3 @@ impl From<&IptComponentSpecsData> for DeleteComponentSpecs {
         }
     }
 }
-
-/// Data for querying catalogs associated with the component
-#[derive(InputObject, Deserialize, Debug)]
-pub(crate) struct IptComponentSpecsArg {
-    /// Component UUID
-    pub(crate) component_uuid: Uuid,
-    /// Restriction of data sampling (maximum number of records)
-    pub(crate) limit: Option<i32>,
-    /// Number of skipping records at the beginning (offset)
-    pub(crate) offset: Option<i32>,
-}
-
-#[derive(Debug)]
-pub(crate) struct ComponentSpecsArg {
-    pub(crate) component_uuid: Uuid,
-    pub(crate) limit: i32,
-    pub(crate) offset: i32,
-}
-
-impl From<IptComponentSpecsArg> for ComponentSpecsArg {
-    fn from(data: IptComponentSpecsArg) -> Self {
-        let IptComponentSpecsArg {
-            component_uuid,
-            limit,
-            offset,
-        } = data;
-
-        Self {
-            component_uuid,
-            limit: limit.unwrap_or(100),
-            offset: offset.unwrap_or(0),
-        }
-    }
-}

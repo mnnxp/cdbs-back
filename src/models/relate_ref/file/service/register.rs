@@ -21,12 +21,14 @@ pub(crate) fn preregister_file(
     logged_user_uuid: &Uuid,
     object: ListObject,
     filename: &str,
+    commit_uuid: &Uuid,
     conn: &mut PgConnection,
 ) -> ServiceResult<SlimFile> {
     let mut preliminary_file_data = PreliminaryFileData::from_ipt_file_data(
         *logged_user_uuid,
         object.clone(),
         filename,
+        *commit_uuid,
         conn
     );
     // check for new revision file

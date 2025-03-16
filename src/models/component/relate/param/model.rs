@@ -30,22 +30,6 @@ pub(crate) struct ComponentParamWithTranslation {
     pub(crate) value: String,
 }
 
-impl ComponentParamWithTranslation {
-    /// Set component uuid and param value without param translate
-    pub(crate) fn new(data: &ComponentParam) -> Self {
-        Self {
-            component_uuid: data.component_uuid,
-            param: Default::default(),
-            value: data.value.clone(),
-        }
-    }
-
-    /// Change component param
-    pub(crate) fn put_param_translate(&mut self, param: ParamTranslateList) {
-        self.param = param;
-    }
-}
-
 #[derive(Debug, Insertable)]
 #[diesel(table_name = param_to_component)]
 pub(crate) struct InsertableComponentParam {
