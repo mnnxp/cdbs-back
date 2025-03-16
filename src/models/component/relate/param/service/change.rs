@@ -1,4 +1,6 @@
-use crate::errors::{ServiceError, ServiceResult};
+use crate::errors::{ServiceResult, ServiceError};
+use crate::errors::err_msg::{ErrorMessage, get_err_msg};
+use crate::models::component::service::update::change_updated_at;
 use crate::models::component::{
     param::model::{IptComponentParamsData, InsertableComponentParam},
     access::util::check_access_component_for_user,
@@ -25,9 +27,7 @@ pub(crate) fn put_component_params(
     )?;
 
     if data.params.is_empty() {
-        return Err(ServiceError::BadRequest(
-            "Not found params for adding or updating".to_string()
-        ))
+        return Err(get_err_msg(ErrorMessage::NotFoundParamsForAddingOrUpdaing))
     }
 
     let mut count_changed_rows: usize = 0;
@@ -69,9 +69,7 @@ pub(crate) fn put_component_params(
     if !update_params.is_empty() {
         // Return error if found duplication of existing data detected
         if check_duplicated_params(&data.component_uuid, &update_params, conn)? {
-            return Err(ServiceError::BadRequest(
-                "Duplication of existing data detected".to_string()
-            ))
+            return Err(get_err_msg(ErrorMessage::DuplicateOfExistingData))
         }
 
         count_changed_rows += update_component_params_values(
@@ -79,6 +77,8 @@ pub(crate) fn put_component_params(
             &update_params,
             conn
         )?;
+
+        change_updated_at(&data.component_uuid, None, conn)?;
     }
 
     Ok(count_changed_rows)

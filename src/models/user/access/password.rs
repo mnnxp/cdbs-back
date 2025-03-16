@@ -1,4 +1,5 @@
 use crate::errors::{ServiceResult, ServiceError};
+use crate::errors::err_msg::{ErrorMessage, get_err_msg};
 use crate::models::user::{
     access::hash::{make_hash_salt, make_salt, verify},
     notification::{
@@ -54,9 +55,6 @@ pub(crate) fn change_password(
     conn: &mut PgConnection,
 ) -> ServiceResult<bool> {
     if data.old_password == data.new_password {
-        // return Err(ServiceError::BadRequest(
-        //     "Need different passwords".to_string()
-        // ))
         return Ok(false)
     }
 
@@ -140,10 +138,6 @@ pub(crate) fn check_password(
         password,
     ) {
         true => Ok(true),
-        false => {
-            Err(ServiceError::BadRequest(
-                "Password is not correct.".to_string()
-            ))
-        },
+        false => Err(get_err_msg(ErrorMessage::PasswordIsNotCorrect)),
     }
 }

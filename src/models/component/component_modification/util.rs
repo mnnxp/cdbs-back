@@ -1,4 +1,5 @@
-use crate::errors::{ServiceResult, ServiceError};
+use crate::errors::ServiceResult;
+use crate::errors::err_msg::{ErrorMessage, get_err_msg};
 use diesel::prelude::*;
 use uuid::Uuid;
 
@@ -26,6 +27,6 @@ pub(crate) fn get_component_by_modification(
         .first::<Uuid>(conn)
         .map_err(|err| {
             debug!("Failed get_component_by_modification data: {:?}", err);
-            ServiceError::BadRequest("Not found modification data".to_string())
+            get_err_msg(ErrorMessage::NotFoundModificationData)
         })
 }

@@ -1,4 +1,5 @@
 use crate::errors::{ServiceResult, ServiceError};
+use crate::errors::err_msg::{ErrorMessage, get_err_msg};
 use crate::models::relate_ref::region::model::{
     InsertableRegionTranslateList, IptRegionTranslateListData, RegionTranslateList
 };
@@ -25,7 +26,7 @@ pub(crate) fn create_region(
 
     match flag_found.first() {
         Some(x) => {
-            Err(ServiceError::BadRequest(format!("This region name is already there. Id: {}", x)))
+            Err(get_err_msg(ErrorMessage::NameAlreadyThereX("region".to_string(), *x)))
         }
         None => {
             let new_region_id = diesel::insert_into(region_ref::region_ref)

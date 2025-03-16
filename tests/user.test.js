@@ -401,7 +401,7 @@ describe('users', () => {
     debug('/graphql body=%o', response1.body);
     expect(response1.body.data).toBeNull();
     expect(response1.body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(response1.body.errors[0].path[0]).toBe('user');
     done();
@@ -423,7 +423,7 @@ describe('users', () => {
     debug('/graphql body=%o', response1.body);
     expect(response1.body.data).toBeNull();
     expect(response1.body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(response1.body.errors[0].path[0]).toBe('user');
     done();
@@ -717,7 +717,7 @@ describe('users', () => {
     debug('/graphql body=%o', response3.body);
     expect(response3.body.data).toBeNull();
     expect(response3.body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(response3.body.errors[0].path[0]).toBe('decodeToken');
     done();
@@ -779,7 +779,7 @@ describe('users', () => {
       .expect(HttpStatus.OK);
     debug('/graphql body=%o', response2.body);
     expect(response2.body.errors[0].message).toBe(
-      'BadRequest: Please, try again later.'
+      'BadRequest: Please, try again later'
     );
     done();
   });
@@ -969,7 +969,7 @@ describe('users', () => {
     debug('/graphql uploadFavicon=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(body.errors[0].path[0]).toBe('uploadFavicon');
     done();
@@ -1058,7 +1058,7 @@ describe('users', () => {
     debug('/graphql body=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(body.errors[0].path[0]).toBe('putUserUpdate');
     done();
@@ -1230,7 +1230,7 @@ describe('users', () => {
     debug('/graphql UserCertificate=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(body.errors[0].path[0]).toBe('uploadUserCertificate');
     done();
@@ -1283,7 +1283,7 @@ describe('users', () => {
     debug('/graphql UserCertificate=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(body.errors[0].path[0]).toBe('selfData');
     done();
@@ -1331,7 +1331,7 @@ describe('users', () => {
     debug('/graphql body=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(body.errors[0].path[0]).toBe('updateUserCertificate');
     done();
@@ -1623,7 +1623,7 @@ describe('users', () => {
     debug('/graphql body=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Password is not correct.'
+      'BadRequest: Password is not correct'
     );
     expect(body.errors[0].path[0]).toBe('putUpdatePassword');
     done();
@@ -1718,7 +1718,7 @@ describe('users', () => {
     debug('/graphql body=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(body.errors[0].path[0]).toBe('deleteUserCertificate');
     done();
@@ -2405,7 +2405,7 @@ describe('users', () => {
     debug('/graphql users=%o', response1.body);
     expect(response1.body.data).toBeNull();
     expect(response1.body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(response1.body.errors[0].path[0]).toBe('users');
     done();
@@ -2790,10 +2790,12 @@ describe('users', () => {
       )
       .send({
         query: `query {
-            users(args: {
-              limit: 2
-              offset: 1
-            }){
+            users(
+              paginate: {
+                currentPage: 2
+                perPage: 2
+              }
+            ){
               ${usersListQuery}
             }
         }`,
@@ -3778,7 +3780,7 @@ describe('users', () => {
     debug('/graphql body=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Password is not correct.'
+      'BadRequest: Password is not correct'
     );
     expect(body.errors[0].path[0]).toBe('deleteUserData');
     done();

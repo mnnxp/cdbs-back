@@ -1,4 +1,4 @@
-use crate::errors::{ServiceResult, ServiceError};
+use crate::{errors::{ServiceError, ServiceResult}, models::search::order::Paginate};
 use super::{
     model::{
         SlimUser, UserQuery, UserShort, ShowUserShort,
@@ -146,11 +146,9 @@ impl ShowUserShort {
         Ok(data)
     }
 
-    /// get ShowUserShort data of public users
-    /// with filter by user_uuids
+    /// get ShowUserShort data of public users with filter by user_uuids
     pub(crate) fn get_all_public_users(
-        limit: &i32,
-        offset: &i32,
+        paginate: &Paginate,
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<ShowUserShort>> {
         let users = user_ref::user_ref
@@ -164,8 +162,8 @@ impl ShowUserShort {
             .filter(user_ref::type_access_id.eq(3)
                 .and(user_ref::is_enabled.eq(true))
                 .and(user_ref::is_delete.eq(false)))
-            .limit(*limit as i64)
-            .offset(*offset as i64)
+            .limit(paginate.limit)
+            .offset(paginate.offset)
             .load::<UserShort>(conn)
             .map_err(|err| {
                 debug!("Faile get user_data: {:?}", err);

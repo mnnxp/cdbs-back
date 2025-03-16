@@ -10,11 +10,6 @@ lazy_static::lazy_static! {
     static ref BEARER_REGEXP : Regex = Regex::new(r"^Bearer\s(.*)$").expect("Bearer regexp failed!");
 }
 
-#[derive(Clone)]
-pub struct DecodedToken {
-    pub jwt: Option<Claims>,
-}
-
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Claims {
     // issuer

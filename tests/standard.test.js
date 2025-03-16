@@ -42,6 +42,7 @@ const standardStatusId2 =  3;
 const regionId2 = 5;
 var standardUuidFirst = "";
 var standardUuidSecond = "";
+var standardUuidNoSupplier = "";
 
 const standardFullDataQuery = ` \
 uuid \
@@ -584,7 +585,7 @@ describe('company', () => {
     debug('/graphql - body=%o', body);
     const { errors, data } = body;
     expect(data).toBeNull();
-    expect(errors[0].message).toBe("BadRequest: Token not found.");
+    expect(errors[0].message).toBe("BadRequest: Token not found");
     done();
   });
 
@@ -752,7 +753,7 @@ describe('company', () => {
     done();
   });
 
-  it('/graphql:M registerStandard - BadRequest not supplier', async (done) => {
+  it('/graphql:M registerStandard - OK not supplier', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .set(
@@ -762,7 +763,6 @@ describe('company', () => {
       .send({
         query: `mutation standardQuery {
           registerStandard(args: {
-            parentStandardUuid: "${standardUuidFirst}",
             classifier: "${classifierStandard}",
             name: "${nameStandard}",
             description: "${descriptionStandard}",
@@ -778,9 +778,30 @@ describe('company', () => {
       })
       .expect(HttpStatus.OK)
     debug('/graphql - body=%o', body);
-    const { errors, data } = body;
-    expect(data).toBeNull();
-    expect(errors[0].message).toBe("BadRequest: The company is not supplier.");
+    standardUuidNoSupplier = body.data.registerStandard;
+    expect(body.data.registerStandard).toBeNonEmptyString();
+    done();
+  });
+
+  it('/graphql:M deleteStandard - OK delete no supplier', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation {
+          deleteStandard(standardUuid: "${standardUuidNoSupplier}")
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql deleteStandard=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { deleteStandard },
+    } = body;
+    expect(deleteStandard).toBe(standardUuidNoSupplier);
     done();
   });
 
@@ -850,7 +871,7 @@ describe('company', () => {
     done();
   });
 
-  it('/graphql:M putStandardUpdate - BadRequest not supplier', async (done) => {
+  it('/graphql:M putStandardUpdate - OK not supplier', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .set(
@@ -862,23 +883,16 @@ describe('company', () => {
           putStandardUpdate(
             standardUuid: "${standardUuidSecond}"
             args: {
-              classifier: "${classifierStandard}",
-              name: "${nameStandard}",
-              description: "${descriptionStandard}",
-              specifiedTolerance: "${specifiedTolerance}",
-              technicalCommittee: "${technicalCommittee}",
-              publicationAt: "${publicationAt}",
               companyUuid: "${companyUuidNoSupplier}",
-              standardStatusId: ${standardStatusId},
-              regionId: ${regionId}
           })
         }`,
       })
       .expect(HttpStatus.OK)
-    debug('/graphql - body=%o', body);
-    const { errors, data } = body;
-    expect(data).toBeNull();
-    expect(errors[0].message).toBe("BadRequest: The company is not supplier.");
+    debug('/graphql - body =%o', body);
+    const {
+      data: { putStandardUpdate },
+    } = body;
+    expect(putStandardUpdate).toBe(1);
     done();
   });
 
@@ -900,6 +914,7 @@ describe('company', () => {
               specifiedTolerance: "${specifiedTolerance}",
               technicalCommittee: "${technicalCommittee}",
               publicationAt: "${publicationAt}",
+              companyUuid: "${companyUuidSupplier}",
               standardStatusId: ${standardStatusId},
               regionId: ${regionId}
           })
@@ -910,7 +925,7 @@ describe('company', () => {
     const {
       data: { putStandardUpdate },
     } = body;
-    expect(putStandardUpdate).toBe(8);
+    expect(putStandardUpdate).toBe(9);
     done();
   });
 
@@ -1000,7 +1015,7 @@ describe('company', () => {
     debug('/graphql uploadStandardFavicon=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Selected file is not image.'
+      'BadRequest: Selected file is not image'
     );
     expect(body.errors[0].path[0]).toBe('uploadStandardFavicon');
     done();
@@ -1115,7 +1130,7 @@ describe('company', () => {
     debug('/graphql uploadStandardFiles=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(body.errors[0].path[0]).toBe('uploadStandardFiles');
     done();
@@ -1209,7 +1224,7 @@ describe('company', () => {
     debug('/graphql standardFiles=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(body.errors[0].path[0]).toBe('standardFiles');
     done();
@@ -1322,7 +1337,7 @@ describe('company', () => {
     debug('/graphql deleteStandardFile=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(body.errors[0].path[0]).toBe('deleteStandardFile');
     done();
@@ -2163,7 +2178,7 @@ describe('company', () => {
     debug('/graphql addStandardSpecs=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(body.errors[0].path[0]).toBe('addStandardSpecs');
     done();
@@ -2331,9 +2346,9 @@ describe('company', () => {
       .post('/graphql')
       .send({
         query: `query  {
-          standardSpecs(args: {
+          standardSpecs(
             standardUuid: "${standardUuidSecond}"
-          }){
+          ){
             specId
             langId
             spec
@@ -2344,7 +2359,7 @@ describe('company', () => {
     debug('/graphql standardSpecs=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(body.errors[0].path[0]).toBe('standardSpecs');
     done();
@@ -2359,9 +2374,9 @@ describe('company', () => {
       )
       .send({
         query: `query  {
-          standardSpecs(args: {
+          standardSpecs(
             standardUuid: "${standardUuidFirst}"
-          }){
+          ){
             specId
             langId
             spec
@@ -2396,11 +2411,13 @@ describe('company', () => {
       )
       .send({
         query: `query  {
-          standardSpecs(args: {
+          standardSpecs(
             standardUuid: "${standardUuidFirst}"
-            limit: 1
-            offset: 3
-          }){
+            paginate: {
+              currentPage: 4
+              perPage: 1
+            }
+          ){
             specId
             langId
             spec
@@ -2414,7 +2431,7 @@ describe('company', () => {
       data: { standardSpecs },
     } = body;
     expect(standardSpecs.length).toBe(1);
-    expect(standardSpecs[0].specId).toBe(22);
+    expect(standardSpecs[0].specId).toBe(44);
     expect(standardSpecs[0].spec).toBeNonEmptyString();
     done();
   });
@@ -2428,11 +2445,13 @@ describe('company', () => {
       )
       .send({
         query: `query  {
-          standardSpecs(args: {
+          standardSpecs(
             standardUuid: "${standardUuidFirst}"
-            limit: 50
-            offset: 500
-          }){
+            paginate: {
+              currentPage: 10
+              perPage: 50
+            }
+          ){
             specId
             langId
             spec
@@ -2465,7 +2484,7 @@ describe('company', () => {
     debug('/graphql deleteStandardSpecs=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(body.errors[0].path[0]).toBe('deleteStandardSpecs');
     done();
@@ -2615,7 +2634,7 @@ describe('company', () => {
     debug('/graphql addStandardKeywords=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(body.errors[0].path[0]).toBe('addStandardKeywords');
     done();
@@ -2759,7 +2778,7 @@ describe('company', () => {
     debug('/graphql addStandardKeywordsByNames=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(body.errors[0].path[0]).toBe('addStandardKeywordsByNames');
     done();
@@ -2903,6 +2922,7 @@ describe('company', () => {
         })
       .expect(HttpStatus.OK)
     debug('/graphql filter standard=%o', body.data.standard);
+    // expect(body).toBe(0);
     expect(body.data.standard.uuid).toBe(standardUuidFirst);
     expect(body.data.standard.standardKeywords[0].id).toBe(1);
     expect(body.data.standard.standardKeywords[0].keyword).toBeNonEmptyString();
@@ -2923,9 +2943,9 @@ describe('company', () => {
       .post('/graphql')
       .send({
         query: `query  {
-          standardKeywords(args: {
+          standardKeywords(
             standardUuid: "${standardUuidSecond}"
-          }){
+          ){
             id
             keyword
           }
@@ -2935,7 +2955,7 @@ describe('company', () => {
     debug('/graphql standardKeywords=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(body.errors[0].path[0]).toBe('standardKeywords');
     done();
@@ -2950,9 +2970,9 @@ describe('company', () => {
       )
       .send({
         query: `query  {
-          standardKeywords(args: {
+          standardKeywords(
             standardUuid: "${standardUuidFirst}"
-          }){
+          ){
             id
             keyword
           }
@@ -2960,6 +2980,7 @@ describe('company', () => {
       })
       .expect(HttpStatus.OK)
     debug('/graphql body=%o', body);
+    // expect(body).toBe(0);
     const {
       data: { standardKeywords },
     } = body;
@@ -2985,11 +3006,13 @@ describe('company', () => {
       )
       .send({
         query: `query  {
-          standardKeywords(args: {
+          standardKeywords(
             standardUuid: "${standardUuidFirst}"
-            limit: 2
-            offset: 3
-          }){
+            paginate: {
+              currentPage: 2
+              perPage: 2
+            }
+          ){
             id
             keyword
           }
@@ -3002,7 +3025,7 @@ describe('company', () => {
       data: { standardKeywords },
     } = body;
     expect(standardKeywords.length).toBe(2);
-    expect(standardKeywords[0].id).toBe(2);
+    expect(standardKeywords[0].id).toBe(3);
     expect(standardKeywords[0].keyword).toBeNonEmptyString();
     expect(standardKeywords[1].id).toBe(4);
     expect(standardKeywords[1].keyword).toBeNonEmptyString();
@@ -3018,11 +3041,13 @@ describe('company', () => {
       )
       .send({
         query: `query  {
-          standardKeywords(args: {
+          standardKeywords(
             standardUuid: "${standardUuidFirst}"
-            limit: 5
-            offset: 500
-          }){
+            paginate: {
+              currentPage: 10
+              perPage: 50
+            }
+          ){
             id
             keyword
           }
@@ -3054,7 +3079,7 @@ describe('company', () => {
     debug('/graphql deleteStandardKeywords=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(body.errors[0].path[0]).toBe('deleteStandardKeywords');
     done();
@@ -3151,7 +3176,7 @@ describe('company', () => {
     debug('/graphql - body=%o', body);
     const { errors, data } = body;
     expect(data).toBeNull();
-    expect(errors[0].message).toBe("BadRequest: Token not found.");
+    expect(errors[0].message).toBe("BadRequest: Token not found");
     done();
   });
 
@@ -4550,7 +4575,7 @@ describe('company', () => {
     debug('/graphql - body=%o', body);
     const { errors, data } = body;
     expect(data).toBeNull();
-    expect(errors[0].message).toBe("BadRequest: Token not found.");
+    expect(errors[0].message).toBe("BadRequest: Token not found");
     done();
   });
 

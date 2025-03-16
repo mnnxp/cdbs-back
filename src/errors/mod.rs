@@ -4,6 +4,9 @@ use diesel::result::Error as DBError;
 use std::convert::From;
 use thiserror::Error;
 
+pub(crate) mod err_msg;
+pub(crate) mod msg_en;
+
 #[derive(Error, Debug)]
 pub enum HostingError {
     #[error("Error whith access to S3")]
@@ -15,7 +18,7 @@ pub enum ServiceError {
     #[error("Internal Server Error")]
     InternalServerError,
 
-    #[error("BadRequest: {0}")]
+    #[error("{0}")]
     BadRequest(String),
 
     #[error("Unauthorized")]

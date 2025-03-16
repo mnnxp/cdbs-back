@@ -1,6 +1,6 @@
 use crate::schema::*;
 use crate::models::component::component_modification::model::ComponentModification;
-use crate::models::relate_ref::file::model::ShowFileRelatedData;
+use crate::graphql::file::ShowFileRelatedData;
 use async_graphql::*;
 // use chrono::*;
 use uuid::Uuid;
@@ -47,6 +47,10 @@ pub(crate) struct IptModificationFilesData {
     pub(crate) filenames: Vec<String>,
     /// UUID of the component modification
     pub(crate) modification_uuid: Uuid,
+    /// Change comment has length limit of 225.
+    /// Exceeding the limit will be replaced with `...`.
+    #[graphql(default = "")]
+    pub(crate) commit_msg: String,
 }
 
 /// Component modification file deletion request data

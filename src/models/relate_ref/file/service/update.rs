@@ -1,4 +1,5 @@
-use crate::errors::{ServiceError, ServiceResult};
+use crate::errors::{ServiceResult, ServiceError};
+use crate::errors::err_msg::{ErrorMessage, get_err_msg};
 use crate::database::PgPool;
 use crate::models::component::access::util::check_is_owner_with_err as component_check_is_owner_with_err;
 use crate::models::component::component_modification::{
@@ -79,9 +80,7 @@ pub(crate) async fn confirm_upload(
 
     match confirm_files == file_uuids.len() {
         true => Ok(confirm_files),
-        false => Err(ServiceError::BadRequest(
-            "Unsuccessful check data".to_string()
-        )),
+        false => Err(get_err_msg(ErrorMessage::UnsuccessfulCheckData)),
     }
 }
 
@@ -114,7 +113,7 @@ fn update_file_data_by_uuid(
         })?;
 
     if target_file_uuid.is_nil() {
-        return Err(ServiceError::BadRequest("Not found target file".to_string()))
+        return Err(get_err_msg(ErrorMessage::NotFoundTargetFile))
     }
 
     let mut count_update_columns = 0;
@@ -127,7 +126,7 @@ fn update_file_data_by_uuid(
             .execute(conn)
             .map_err(|err| {
                 debug!("Failed update data: {:?}", err);
-                ServiceError::BadRequest("Failed update data".to_string())
+                get_err_msg(ErrorMessage::FailedUpdateData)
             })?;
     }
     if let Some(value) = new_file_data.filesize {
@@ -138,7 +137,7 @@ fn update_file_data_by_uuid(
             .execute(conn)
             .map_err(|err| {
                 debug!("Failed update data: {:?}", err);
-                ServiceError::BadRequest("Failed update data".to_string())
+                get_err_msg(ErrorMessage::FailedUpdateData)
             })?;
     }
 
@@ -161,7 +160,7 @@ fn update_file_data_by_uuid(
     }
 
     // return error if new data not different with old data
-    Err(ServiceError::BadRequest("The data has already".to_string()))
+    Err(get_err_msg(ErrorMessage::DataHasAlready))
 }
 
 /// Устанавливает указанную редакцию файла как активную.
@@ -197,14 +196,14 @@ pub(crate) fn set_active_revision_by_uuid(
         },
         _not_match => {
             debug!("This file does not require versioning");
-            return Err(ServiceError::BadRequest("File to object association not found".to_string()))
+            return Err(get_err_msg(ErrorMessage::FileObjectNotFound))
         },
     }
     // find active revision
     let filename = get_filename_hidden_rev_by_uuid(file_uuid, conn)
         .map_err(|err| {
             debug!("File already active or delete: {:?}", err);
-            ServiceError::BadRequest("Revision already active or deleted".to_string())
+            get_err_msg(ErrorMessage::RevisionAlreadyActiveOrDeleted)
         })?;
     match get_active_file_revision(&relate_object, &filename, conn)? {
         Some((ref current_revision_uuid, _)) => {
@@ -219,7 +218,7 @@ pub(crate) fn set_active_revision_by_uuid(
         },
         None => {
             debug!("No active file revision found for: {:?}", filename);
-            Err(ServiceError::BadRequest("No active file revision found".to_string()))
+            Err(get_err_msg(ErrorMessage::NoActiveFileRevisionFound))
         },
     }
 }

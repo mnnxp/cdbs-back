@@ -1,4 +1,5 @@
-use crate::errors::{ServiceError, ServiceResult};
+use crate::errors::ServiceResult;
+use crate::errors::err_msg::{ErrorMessage, get_err_msg};
 use crate::models::component::supplier::model::DelSuppliersComponentData;
 use diesel::prelude::*;
 use uuid::Uuid;
@@ -29,7 +30,7 @@ pub(crate) fn del_suppliers_component(
         Ok(count) => Ok(count),
         Err(err) => {
             debug!("Failed delete related suppliers to component: {:?}", err);
-            Err(ServiceError::BadRequest("Failed delete related suppliers to component".to_string()))
+            Err(get_err_msg(ErrorMessage::FailedDeleteSuppliersComponent))
         },
     }
 }
@@ -62,7 +63,7 @@ pub(crate) fn clear_suppliers_component(
         },
         Err(err) => {
             debug!("Failed delete related suppliers to component: {:?}", err);
-            Err(ServiceError::BadRequest("Failed delete related suppliers to component".to_string()))
+            Err(get_err_msg(ErrorMessage::FailedDeleteSuppliersComponent))
         },
     }
 }

@@ -296,10 +296,6 @@ pub(crate) struct IptCompaniesArg {
     pub(crate) favorite: Option<bool>,
     /// Filter by supplier status
     pub(crate) supplier: Option<bool>,
-    /// Restriction of data sampling (maximum number of records)
-    pub(crate) limit: Option<i32>,
-    /// Number of skipping records at the beginning (offset)
-    pub(crate) offset: Option<i32>,
 }
 
 #[derive(Debug)]
@@ -308,41 +304,35 @@ pub(crate) struct CompaniesArg {
     pub(crate) user_uuid: Option<Uuid>,
     pub(crate) favorite: bool,
     pub(crate) supplier: bool,
-    pub(crate) limit: i32,
-    pub(crate) offset: i32,
+    pub(crate) set_lang_id: i32,
 }
 
-impl Default for CompaniesArg {
-    fn default() -> Self {
-        Self {
-            filter_companies_uuids: Vec::new(),
-            user_uuid: None,
-            favorite: false,
-            supplier: false,
-            limit: 100,
-            offset: 0,
-        }
-    }
-}
-
-impl From<IptCompaniesArg> for CompaniesArg {
-    fn from(data: IptCompaniesArg) -> Self {
+impl CompaniesArg {
+    /// Returns a CompaniesArg with the given arguments and language
+    pub(crate) fn by_arg(data: IptCompaniesArg, set_lang_id: i32) -> Self {
         let IptCompaniesArg {
             companies_uuids,
             user_uuid,
             favorite,
             supplier,
-            limit,
-            offset,
         } = data;
-
         Self {
             filter_companies_uuids: companies_uuids.unwrap_or_default(),
             user_uuid,
             favorite: favorite.unwrap_or(false),
             supplier: supplier.unwrap_or(false),
-            limit: limit.unwrap_or(100),
-            offset: offset.unwrap_or(0),
+            set_lang_id,
+        }
+    }
+
+    /// Returns a CompaniesArg with the specified language and default arguments
+    pub(crate) fn by_lang(set_lang_id: i32) -> Self {
+        Self {
+            filter_companies_uuids: Vec::new(),
+            user_uuid: None,
+            favorite: false,
+            supplier: false,
+            set_lang_id,
         }
     }
 }

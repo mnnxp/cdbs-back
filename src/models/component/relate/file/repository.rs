@@ -1,5 +1,8 @@
 use crate::errors::{ServiceResult, ServiceError};
-use crate::models::relate_ref::file::model::ShowFileRelatedData;
+use crate::graphql::file::ShowFileRelatedData;
+use crate::models::component::util::get_files_by_ext;
+use crate::models::relate_ref::file::model::{DownloadFile, FileByExtArg};
+use crate::models::search::order::{Paginate, Sort};
 use crate::schema::file_to_component::dsl as file_to_component;
 use diesel::prelude::*;
 use uuid::Uuid;
@@ -8,18 +11,12 @@ impl ShowFileRelatedData {
     /// Gets all files for modification fileset by uuid without check for hide, delete etc
     pub(crate) fn by_component_uuid(
         component_uuid: &Uuid,
-        limit: i32,
-        offset: i32,
+        sort: &Sort,
+        paginate: &Paginate,
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<ShowFileRelatedData>> {
-        let target_file_uuids: Vec<Uuid> = get_file_uuids_by_component_uuid(component_uuid, &[], conn)?;
-
-        ShowFileRelatedData::get_file_by_uuids(
-            &target_file_uuids,
-            limit,
-            offset,
-            conn
-        )
+        let object_uuids = get_file_uuids_by_component_uuid(component_uuid, &[], conn)?;
+        ShowFileRelatedData::get_file_by_uuids(&object_uuids, sort, paginate, conn)
     }
 }
 
@@ -60,4 +57,34 @@ pub(crate) fn get_component_uuid_by_file_uuid(
             debug!("Failed get component uuid by file uuid: {:?}", err);
             ServiceError::InternalServerError
         })
+}
+
+impl DownloadFile {
+    pub(crate) fn component_image_files(
+        component_uuid: &Uuid,
+        paginate: &Paginate,
+        conn: &mut PgConnection,
+    ) -> ServiceResult<Vec<DownloadFile>> {
+        match get_files_by_ext(component_uuid, &FileByExtArg::image(), conn) {
+            Ok(image_uuids) =>
+                DownloadFile::get_by_file_uuids(&image_uuids, paginate, conn),
+            Err(err) => {
+                debug!("Error get files by ext: {}", err);
+                Ok(Vec::new())
+            },
+        }
+    }
+
+    /// Gets all files for modification fileset by uuid without check for hide, delete etc
+    pub(crate) fn by_component_uuid(
+        component_uuid: &Uuid,
+        paginate: &Paginate,
+        conn: &mut PgConnection,
+    ) -> ServiceResult<Vec<DownloadFile>> {
+        let target_file_uuids: Vec<Uuid> = get_file_uuids_by_component_uuid(component_uuid, &[], conn)?;
+        if target_file_uuids.is_empty() {
+            return Ok(Vec::new())
+        }
+        DownloadFile::get_by_file_uuids(&target_file_uuids, paginate, conn)
+    }
 }

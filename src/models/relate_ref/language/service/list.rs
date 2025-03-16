@@ -1,29 +1,28 @@
 use crate::errors::{ServiceResult, ServiceError};
-use crate::models::relate_ref::language::model::{
-    Language, LanguageArg
-};
+use crate::models::relate_ref::language::model::Language;
+use crate::models::search::order::Paginate;
 use crate::schema::language_ref::dsl::*;
 use diesel::{PgConnection, prelude::*};
 
-/// Возвращает список доступных языков.
+/// Returns a list of available languages
 pub(crate) fn get_languages(
-    args: &LanguageArg,
+    lang_ids: &[i32],
+    paginate: &Paginate,
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<Language>> {
-    match args.lang_ids.is_empty() {
-        true => find_all_languages(&args.limit, &args.offset, conn),
-        false => find_lang_iduage(args, conn)
+    match lang_ids.is_empty() {
+        true => find_all_languages(paginate, conn),
+        false => find_lang_iduage(lang_ids, paginate, conn)
     }
 }
 
 fn find_all_languages(
-    limit: &i32,
-    offset: &i32,
+    paginate: &Paginate,
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<Language>> {
     language_ref
-        .limit(*limit as i64)
-        .offset(*offset as i64)
+        .limit(paginate.limit)
+        .offset(paginate.offset)
         .load::<Language>(conn)
         .map_err(|err| {
             debug!("Failed get lang: {:?}", err);
@@ -32,13 +31,14 @@ fn find_all_languages(
 }
 
 fn find_lang_iduage(
-    args: &LanguageArg,
+    lang_ids: &[i32],
+    paginate: &Paginate,
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<Language>> {
     language_ref
-        .filter(id.eq_any(&args.lang_ids))
-        .limit(args.limit as i64)
-        .offset(args.offset as i64)
+        .filter(id.eq_any(lang_ids))
+        .limit(paginate.limit)
+        .offset(paginate.offset)
         .load::<Language>(conn)
         .map_err(|err| {
             debug!("Failed get lang: {:?}", err);

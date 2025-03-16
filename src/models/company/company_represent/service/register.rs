@@ -22,7 +22,7 @@ pub(crate) fn create_company_represent(
         conn
     )?;
 
-    crate::models::company::util::check_is_supplier(&data.company_uuid, conn)?;
+    // check_is_supplier(&data.company_uuid, conn)?;
 
     let company_represent: InsertableCompanyRepresent = data.into();
     diesel::insert_into(company_represent_ref)

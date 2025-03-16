@@ -1,18 +1,90 @@
 use crate::errors::{ServiceResult, ServiceError};
-use crate::models::ExtraOptions;
-use crate::models::component::model::{
-    ShowComponentShort, ComponentAndRelatedData, ComponentsArg
+use crate::errors::err_msg::{ErrorMessage, get_err_msg};
+use crate::graphql::component_model::{ComponentAndRelatedData, ShowComponentShort};
+use crate::models::search::order::{Paginate, Sort, objects_order};
+use crate::models::search::model::{ExtraOptions, IptSearchArg};
+use crate::models::component::{
+    model::ComponentsArg,
+    search::search_components,
+    access::util::check_access_component_for_user,
 };
 use diesel::prelude::*;
 // use diesel::PgConnection;
 use uuid::Uuid;
 
+/// Gets components short data by uuids
+pub(crate) fn get_components_by_uuids(
+    args: &IptSearchArg,
+    options: &ExtraOptions,
+    sort: &Sort,
+    paginate: &Paginate,
+    conn: &mut PgConnection,
+) -> ServiceResult<Vec<ShowComponentShort>> {
+    let need_access_level = 3; // todo!(create enum for manage access level)
+    let mut filter_uuids = Vec::new();
+    // gets uuids for other search attributes
+    if args.favorite {
+        if let Some(ref ur_uuid) = args.user_uuid {
+            filter_uuids.append(&mut get_components_followed_by_user(ur_uuid, conn)?);
+        } else {
+            filter_uuids.append(&mut get_components_followed_by_user(&options.logged_user_uuid, conn)?);
+        }
+    }
+    // gets components by user
+    if let Some(ref ur_uuid) = args.user_uuid {
+        filter_uuids.append(&mut get_components_uuids_by_user(ur_uuid, conn)?);
+    }
+    // gets components relate with company
+    if let Some(ref cy_uuid) = args.company_uuid {
+        filter_uuids.append(&mut get_components_uuids_by_company(cy_uuid, conn)?);
+    }
+    // gets components relate with standard
+    if let Some(ref sd_uuid) = args.standard_uuid {
+        filter_uuids.append(&mut get_components_uuids_by_standard(sd_uuid, conn)?);
+    }
+    // search for all components matching the text query
+    let mut found_component_uuids = search_components(args, filter_uuids.to_vec(), conn)?;
+    // duplicate filtering
+    found_component_uuids.sort_unstable();
+    found_component_uuids.dedup();
+
+    let mut ct_uuids_with_check = Vec::new();
+    // selection of available components
+    for ct_uuid in found_component_uuids {
+        // check access user for select component
+        match check_access_component_for_user(
+            &options.logged_user_uuid,
+            &ct_uuid,
+            &need_access_level,
+            conn
+        ){
+            Ok(true) => ct_uuids_with_check.push(ct_uuid),
+            err => debug!("Bad access (get_list_by_uuids): {:?}", err),
+        }
+    }
+    ct_uuids_with_check = objects_order(&ct_uuids_with_check, sort, paginate, conn)?;
+    // for store the result
+    let mut result: Vec<ShowComponentShort> = Vec::new();
+    // collecting data for each component
+    for ct_uuid in ct_uuids_with_check.iter() {
+        result.push(
+            ShowComponentShort::get_without_check_by_uuid(ct_uuid, options, conn)
+                .map_err(|err| {
+                    debug!("Failed get components: {:?}", err);
+                    ServiceError::InternalServerError
+                })?
+        );
+    }
+    Ok(result)
+}
+
 /// Возвращает агрегированные данные о компонентах.
 /// Получает краткие данные о компонентах с фильтром по: UUID, компании, стандарту, пользователю, избранному (для себя или другого пользователя).
 pub(crate) fn get_components(
-    logged_user_uuid: &Uuid,
     arguments: &ComponentsArg,
-    set_lang_id: &i32,
+    options: &ExtraOptions,
+    sort: &Sort,
+    paginate: &Paginate,
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<ShowComponentShort>> {
     // structure for reduce the number of function arguments
@@ -22,16 +94,13 @@ pub(crate) fn get_components(
         standard_uuid,
         user_uuid,
         favorite,
-        limit,
-        offset,
     } = arguments;
-
     // select target components uuids
     let target_components_uuids = match (favorite, user_uuid, standard_uuid, company_uuid) {
         // gets components of self favorite list for authorized user
         (true, None, None, None) => {
             get_components_followed_by_user(
-                logged_user_uuid,
+                &options.logged_user_uuid,
                 conn
             )?
         },
@@ -67,11 +136,7 @@ pub(crate) fn get_components(
         (false, None, None, None) => {
             filter_components_uuids.to_vec()
         },
-        _ => {
-            return Err(ServiceError::BadRequest(
-                "Failed match arguments".to_string()
-            ))
-        },
+        _ => return Err(get_err_msg(ErrorMessage::FailedMatchArguments)),
     };
 
     // return not found if set filters and not select components
@@ -82,12 +147,9 @@ pub(crate) fn get_components(
 
     ShowComponentShort::get_components(
         &target_components_uuids,
-        &ExtraOptions {
-            logged_user_uuid: *logged_user_uuid,
-            set_lang_id: *set_lang_id,
-            limit: *limit,
-            offset: *offset,
-        },
+        options,
+        sort,
+        paginate,
         conn
     )
 }
@@ -120,6 +182,7 @@ pub(crate) fn get_components_followed_by_user(
         .filter(component_fav::user_uuid.eq(target_user_uuid)
         .and(component_fav::is_enabled.eq(true)))
         .select(component_fav::component_uuid)
+        .order(component_fav::created_at.desc())
         .load::<Uuid>(conn).map_err(|err| {
             debug!("Fail load uuid list target user: {:?}", err);
             ServiceError::InternalServerError
@@ -171,6 +234,6 @@ pub(crate) fn get_component_by_uuid(
         conn
     ).map_err(|err| {
         debug!("Error loading component and collect related data: {:?}", err);
-        ServiceError::BadRequest("Access denied".to_string())
+        get_err_msg(ErrorMessage::AccessDenied)
     })
 }

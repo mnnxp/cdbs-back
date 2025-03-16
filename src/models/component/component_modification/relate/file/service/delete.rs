@@ -1,4 +1,5 @@
 use crate::errors::{ServiceResult, ServiceError};
+use crate::models::component::service::update::change_updated_at;
 use crate::models::component::{
     access::util::check_access_component_for_user,
     component_modification::relate::file::model::DelModificationFileData,
@@ -16,10 +17,10 @@ pub(crate) fn delete_modification_file(
     conn: &mut PgConnection,
 ) -> ServiceResult<bool> {
     let need_access_level = 1; // todo!(create enum for manage access level)
-
+    let target_component_uuid = get_component_by_modification(&data.modification_uuid, conn)?;
     check_access_component_for_user(
         logged_user_uuid,
-        &get_component_by_modification(&data.modification_uuid, conn)?,
+        &target_component_uuid,
         &need_access_level,
         conn
     )?;
@@ -37,6 +38,9 @@ pub(crate) fn delete_modification_file(
         // not found file
         0 => Ok(false),
         // set flag for delete file in storage
-        _ => delete_file_by_uuid(&data.file_uuid, conn),
+        _ => {
+            change_updated_at(&target_component_uuid, Some(&data.modification_uuid), conn)?;
+            delete_file_by_uuid(&data.file_uuid, conn)
+        },
     }
 }

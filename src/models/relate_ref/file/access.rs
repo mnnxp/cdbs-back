@@ -1,4 +1,5 @@
-use crate::errors::{ServiceResult, ServiceError};
+use crate::errors::ServiceResult;
+use crate::errors::err_msg::{ErrorMessage, get_err_msg};
 use crate::schema::file_ref::dsl as file_ref;
 use diesel::prelude::*;
 use uuid::Uuid;
@@ -20,6 +21,6 @@ pub(crate) fn check_file_owner_err(
         .first(conn)
         .map_err(|err| {
             debug!("Not found file: {:?}", err);
-            ServiceError::BadRequest("Access denied".to_string())
+            get_err_msg(ErrorMessage::AccessDenied)
         })
 }

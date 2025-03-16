@@ -1,4 +1,5 @@
 use crate::errors::{ServiceResult, ServiceError};
+use crate::models::component::service::update::change_updated_at;
 use crate::models::component::{
     component_modification::model::DelComponentModificationData,
     access::util::check_is_owner_with_err,
@@ -21,7 +22,8 @@ pub(crate) fn del_component_modification(
         &data.component_uuid,
         conn
     )?;
-
+    // update the updated_at component if modification has been removed
+    change_updated_at(&data.component_uuid, None, conn)?;
     diesel::delete(component_modification_list::component_modification_list
         .filter(component_modification_list::component_uuid.eq(data.component_uuid)
         .and(component_modification_list::uuid.eq(data.modification_uuid))))

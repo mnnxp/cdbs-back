@@ -1,4 +1,5 @@
-use crate::errors::{ServiceResult, ServiceError};
+use crate::errors::ServiceResult;
+use crate::errors::err_msg::{ErrorMessage, get_err_msg};
 use crate::models::company::certificate::model::IptUpdateCompanyCertificateData;
 use crate::models::company::access::util::check_company_access;
 use diesel::prelude::*;
@@ -32,19 +33,10 @@ pub(crate) fn update_certificate_description(
         .execute(conn);
 
     match res {
-        Ok(x) => {
-            if x > 0 {
-                Ok(true)
-            } else {
-                Ok(false)
-            }
-        },
+        Ok(x) => Ok(x > 0),
         Err(err) => {
             debug!("Failed update data: {:?}", err);
-
-            Err(ServiceError::BadRequest(
-                "Failed update data".to_string()
-            ))
+            Err(get_err_msg(ErrorMessage::FailedUpdateData))
         },
     }
 }

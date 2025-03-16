@@ -1,4 +1,5 @@
-use crate::errors::{ServiceError, ServiceResult};
+use crate::errors::ServiceResult;
+use crate::errors::err_msg::{ErrorMessage, get_err_msg};
 use crate::models::company::access::role_access::model::{
     RoleAccess,
     IptRoleAccessData,
@@ -31,17 +32,11 @@ pub(crate) fn create_role_access(
         Ok(0) => (), // <-- not found duplicate access for role
         Ok(x) => {
             debug!("Duplicate data found: {:?}", x);
-
-            return Err(ServiceError::BadRequest(
-                "Duplicate data found".to_string()
-            ))
+            return Err(get_err_msg(ErrorMessage::FoundDuplicateData))
         },
         Err(err) => {
             debug!("Failed check data: {:?}", err);
-
-            return Err(ServiceError::BadRequest(
-                "Failed check data".to_string()
-            ))
+            return Err(get_err_msg(ErrorMessage::FailedCheckData))
         },
     }
 
@@ -58,10 +53,7 @@ pub(crate) fn create_role_access(
         },
         Err(err) => {
             debug!("Access not added: {:?}", err);
-
-            Err(ServiceError::BadRequest(
-                "Access not added".to_string()
-            ))
+            Err(get_err_msg(ErrorMessage::AccessNotAdded))
         },
     }
 

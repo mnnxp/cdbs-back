@@ -1,4 +1,5 @@
-use crate::errors::{ServiceError, ServiceResult};
+use crate::errors::ServiceResult;
+use crate::errors::err_msg::{ErrorMessage, get_err_msg};
 use crate::models::component::standard::model::DelStandardToComponentData;
 use diesel::prelude::*;
 use uuid::Uuid;
@@ -29,7 +30,7 @@ pub(crate) fn del_standards_component(
         Ok(count) => Ok(count),
         Err(err) => {
             debug!("Failed delete related standards to component: {:?}", err);
-            Err(ServiceError::BadRequest("Failed delete related standards to component".to_string()))
+            Err(get_err_msg(ErrorMessage::FailedDeleteRelatedStandardsComponent))
         },
     }
 }

@@ -1,4 +1,5 @@
-use crate::errors::{ServiceResult, ServiceError};
+use crate::errors::ServiceResult;
+use crate::errors::err_msg::{ErrorMessage, get_err_msg};
 use crate::models::company::model::IptUpdateCompanyData;
 use crate::models::company::access::util::check_is_owner_with_err;
 use crate::schema::company_ref::dsl as company_ref;
@@ -31,7 +32,7 @@ pub(crate) fn update_company_by_uuid(
             .execute(conn)
             .map_err(|err| {
                 debug!("Failed update data: {:?}", err);
-                ServiceError::BadRequest("Failed update data".to_string())
+                get_err_msg(ErrorMessage::FailedUpdateData)
             })?;
     }
 
@@ -44,7 +45,7 @@ pub(crate) fn update_company_by_uuid(
             .execute(conn)
             .map_err(|err| {
                 debug!("Failed update data: {:?}", err);
-                ServiceError::BadRequest("Failed update data".to_string())
+                get_err_msg(ErrorMessage::FailedUpdateData)
             })?;
     }
 
@@ -57,7 +58,7 @@ pub(crate) fn update_company_by_uuid(
             .execute(conn)
             .map_err(|err| {
                 debug!("Failed update data: {:?}", err);
-                ServiceError::BadRequest("Failed update data".to_string())
+                get_err_msg(ErrorMessage::FailedUpdateData)
             })?;
     }
 
@@ -70,7 +71,7 @@ pub(crate) fn update_company_by_uuid(
             .execute(conn)
             .map_err(|err| {
                 debug!("Failed update data: {:?}", err);
-                ServiceError::BadRequest("Failed update data".to_string())
+                get_err_msg(ErrorMessage::FailedUpdateData)
             })?;
     }
 
@@ -83,7 +84,7 @@ pub(crate) fn update_company_by_uuid(
             .execute(conn)
             .map_err(|err| {
                 debug!("Failed update data: {:?}", err);
-                ServiceError::BadRequest("Failed update data".to_string())
+                get_err_msg(ErrorMessage::FailedUpdateData)
             })?;
     }
 
@@ -96,7 +97,7 @@ pub(crate) fn update_company_by_uuid(
             .execute(conn)
             .map_err(|err| {
                 debug!("Failed update data: {:?}", err);
-                ServiceError::BadRequest("Failed update data".to_string())
+                get_err_msg(ErrorMessage::FailedUpdateData)
             })?;
     }
 
@@ -109,7 +110,7 @@ pub(crate) fn update_company_by_uuid(
             .execute(conn)
             .map_err(|err| {
                 debug!("Failed update data: {:?}", err);
-                ServiceError::BadRequest("Failed update data".to_string())
+                get_err_msg(ErrorMessage::FailedUpdateData)
             })?;
     }
 
@@ -122,7 +123,7 @@ pub(crate) fn update_company_by_uuid(
             .execute(conn)
             .map_err(|err| {
                 debug!("Failed update data: {:?}", err);
-                ServiceError::BadRequest("Failed update data".to_string())
+                get_err_msg(ErrorMessage::FailedUpdateData)
             })?;
     }
 
@@ -135,7 +136,7 @@ pub(crate) fn update_company_by_uuid(
             .execute(conn)
             .map_err(|err| {
                 debug!("Failed update data: {:?}", err);
-                ServiceError::BadRequest("Failed update data".to_string())
+                get_err_msg(ErrorMessage::FailedUpdateData)
             })?;
     }
 
@@ -148,7 +149,7 @@ pub(crate) fn update_company_by_uuid(
             .execute(conn)
             .map_err(|err| {
                 debug!("Failed update data: {:?}", err);
-                ServiceError::BadRequest("Failed update data".to_string())
+                get_err_msg(ErrorMessage::FailedUpdateData)
             })?;
     }
 
@@ -161,13 +162,13 @@ pub(crate) fn update_company_by_uuid(
             .execute(conn)
             .map_err(|err| {
                 debug!("Failed update data: {:?}", err);
-                ServiceError::BadRequest("Failed update data".to_string())
+                get_err_msg(ErrorMessage::FailedUpdateData)
             })?;
     }
 
     if count_update_columns == 0 {
         // return error if new data not different with old data
-        return Err(ServiceError::BadRequest("The data has already".to_string()))
+        return Err(get_err_msg(ErrorMessage::DataHasAlready))
     }
 
     diesel::update(company_ref::company_ref
@@ -176,7 +177,7 @@ pub(crate) fn update_company_by_uuid(
         .execute(conn)
         .map_err(|err| {
             debug!("Failed update data: {:?}", err);
-            ServiceError::BadRequest("Failed update data".to_string())
+            get_err_msg(ErrorMessage::FailedUpdateData)
         })?;
 
     debug!("Count update columns: {:?}", count_update_columns);

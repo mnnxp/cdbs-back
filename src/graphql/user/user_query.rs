@@ -1,12 +1,14 @@
 use crate::errors::ServiceResult;
 use crate::database::{get_conn, PooledConnection};
+use crate::graphql::relate::attributes::IptPaginate;
 use crate::jwt::model::{Claims, Token};
+use crate::models::search::order::Paginate;
 use crate::models::user::access::logged::{check_authorized, get_logged_user_uuid};
 use crate::models::user::model::{
     ShowUserShort, SlimUser, UserAndRelatedData,
     ShowUserAndRelatedData, UsersArg, IptUsersArg, IptGetUserArg
 };
-use crate::models::user::notification::model::{ShowNotification, IptNotificationArg, NotificationArg};
+use crate::models::user::notification::model::ShowNotification;
 use crate::models::user::access::model::UserToken;
 use crate::models::relate_ref::language::get_set_language;
 
@@ -24,20 +26,20 @@ impl UserQuery {
         &self,
         cxt: &Context<'_>,
         args: Option<IptUsersArg>,
+        paginate: Option<IptPaginate>,
     ) -> ServiceResult<Vec<ShowUserShort>> {
         use crate::models::user::service::list::get_users;
 
         // authorization check
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
-
         let arguments: UsersArg = match args {
             Some(x) => UsersArg::from(x),
             None => UsersArg::default(),
         };
-
+        let p = paginate.map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
+            .unwrap_or_default();
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
-
-        get_users(&logged_user_uuid, &arguments, conn)
+        get_users(&logged_user_uuid, &arguments, &p, conn)
     }
 
     /// Returns basic and associated user data by UUID.
@@ -194,19 +196,19 @@ impl UserQuery {
     async fn notifications(
         &self,
         cxt: &Context<'_>,
-        args: Option<IptNotificationArg>,
+        notification_ids: Option<Vec<i32>>,
+        paginate: Option<IptPaginate>,
     ) -> ServiceResult<Vec<ShowNotification>> {
         use crate::models::user::notification::service::list::get_notifications;
-
-        let arguments = match args {
-            Some(x) => NotificationArg::from(x),
-            None => NotificationArg::default(),
-        };
-
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
-
+        let p = paginate.map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
+            .unwrap_or_default();
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
-
-        get_notifications(&logged_user_uuid, &arguments, conn)
+        get_notifications(
+            &logged_user_uuid,
+            &notification_ids.unwrap_or_default(),
+            &p,
+            conn
+        )
     }
 }

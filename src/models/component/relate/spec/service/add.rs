@@ -1,4 +1,5 @@
 use crate::errors::{ServiceResult, ServiceError};
+use crate::errors::err_msg::{ErrorMessage, get_err_msg};
 use crate::models::component::spec::model::{
     IptComponentSpecsData, InsertableComponentSpec
 };
@@ -30,7 +31,7 @@ pub(crate) fn add_component_specs(
 
     if new_component_specs.is_empty() {
         // return error if not found correct specs
-        return Err(ServiceError::BadRequest("Not found specs".to_string()))
+        return Err(get_err_msg(ErrorMessage::NotFoundSpecs))
     }
 
     let mut insert_data: Vec<InsertableComponentSpec> = Vec::new();
@@ -58,9 +59,7 @@ pub(crate) fn add_component_specs(
 
     if insert_data.is_empty() {
         // return error if all spec duplicate
-        return Err(ServiceError::BadRequest(
-            format!("This ids {:?} already has", error_kw_has)
-        ))
+        return Err(get_err_msg(ErrorMessage::IdsAlreadyHas(error_kw_has)))
     }
 
     diesel::insert_into(spec_to_component::spec_to_component)

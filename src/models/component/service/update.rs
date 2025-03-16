@@ -1,8 +1,11 @@
-use crate::errors::{ServiceError, ServiceResult};
-use crate::models::component::model::IptUpdateComponentData;
+use crate::errors::ServiceResult;
+use crate::errors::err_msg::{ErrorMessage, get_err_msg};
+use crate::graphql::component_model::IptUpdateComponentData;
 use crate::models::component::access::util::check_access_component_for_user;
 use crate::schema::component_ref::dsl as component_ref;
+use crate::schema::component_modification_list::dsl as component_modification_list;
 use diesel::prelude::*;
+use chrono::Local;
 use uuid::Uuid;
 
 /// Обновляет основные данные компонента по UUID.
@@ -35,7 +38,7 @@ pub(crate) fn update_component_by_uuid(
             .execute(conn)
             .map_err(|err| {
                 debug!("Failed update data: {:?}", err);
-                ServiceError::BadRequest("Failed update data".to_string())
+                get_err_msg(ErrorMessage::FailedUpdateData)
             })?;
     }
 
@@ -48,7 +51,7 @@ pub(crate) fn update_component_by_uuid(
             .execute(conn)
             .map_err(|err| {
                 debug!("Failed update data: {:?}", err);
-                ServiceError::BadRequest("Failed update data".to_string())
+                get_err_msg(ErrorMessage::FailedUpdateData)
             })?;
     }
 
@@ -61,7 +64,7 @@ pub(crate) fn update_component_by_uuid(
             .execute(conn)
             .map_err(|err| {
                 debug!("Failed update data: {:?}", err);
-                ServiceError::BadRequest("Failed update data".to_string())
+                get_err_msg(ErrorMessage::FailedUpdateData)
             })?;
     }
 
@@ -74,7 +77,7 @@ pub(crate) fn update_component_by_uuid(
             .execute(conn)
             .map_err(|err| {
                 debug!("Failed update data: {:?}", err);
-                ServiceError::BadRequest("Failed update data".to_string())
+                get_err_msg(ErrorMessage::FailedUpdateData)
             })?;
     }
 
@@ -87,25 +90,46 @@ pub(crate) fn update_component_by_uuid(
             .execute(conn)
             .map_err(|err| {
                 debug!("Failed update data: {:?}", err);
-                ServiceError::BadRequest("Failed update data".to_string())
+                get_err_msg(ErrorMessage::FailedUpdateData)
             })?;
     }
 
     if count_update_columns == 0 {
         // return error if new data not different with old data
-        return Err(ServiceError::BadRequest("The data has already".to_string()));
+        return Err(get_err_msg(ErrorMessage::DataHasAlready));
     }
 
-    diesel::update(component_ref::component_ref
-        .filter(component_ref::uuid.eq(target_component_uuid)))
-        .set(component_ref::updated_at.eq(chrono::Local::now().naive_local()))
-        .execute(conn)
-        .map_err(|err| {
-            debug!("Failed update data: {:?}", err);
-            ServiceError::BadRequest("Failed update data".to_string())
-        })?;
+    change_updated_at(target_component_uuid, None, conn)?;
 
     debug!("Count update columns: {:?}", count_update_columns);
 
     Ok(count_update_columns)
+}
+
+/// Sets current time as value updated at for target component and modification (optional)
+pub(crate) fn change_updated_at(
+    target_component_uuid: &Uuid,
+    target_modification_uuid: Option<&Uuid>,
+    conn: &mut PgConnection
+) -> ServiceResult<usize> {
+    let new_updated_at = Local::now().naive_local();
+    let res = diesel::update(component_ref::component_ref
+        .filter(component_ref::uuid.eq(target_component_uuid)))
+        .set(component_ref::updated_at.eq(new_updated_at))
+        .execute(conn)
+        .map_err(|err| {
+            debug!("Failed update data: {:?}", err);
+            get_err_msg(ErrorMessage::FailedUpdateData)
+        })?;
+    if let Some(tmu) = target_modification_uuid {
+        diesel::update(component_modification_list::component_modification_list
+            .filter(component_modification_list::uuid.eq(tmu)))
+            .set(component_modification_list::updated_at.eq(new_updated_at))
+            .execute(conn)
+            .map_err(|err| {
+                debug!("Failed update data: {:?}", err);
+                get_err_msg(ErrorMessage::FailedUpdateData)
+            })?;
+    }
+    Ok(res)
 }

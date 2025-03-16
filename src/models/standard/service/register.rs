@@ -3,10 +3,7 @@ use crate::models::standard::{
     model::{IptStandardData, InsertableStandard},
     access::util::check_access_standard_for_user,
 };
-use crate::models::company::{
-    access::util::check_company_access,
-    util::check_is_supplier,
-};
+use crate::models::company::access::util::check_company_access;
 use crate::schema::standard_ref::dsl as standard_ref;
 use diesel::prelude::*;
 use uuid::Uuid;
@@ -26,10 +23,7 @@ pub(crate) fn create_standard(
         conn,
     )?;
 
-    check_is_supplier(
-        &data.company_uuid,
-        conn
-    )?;
+    // check_is_supplier(&data.company_uuid, conn)?;
 
     if let Some(parent_standard_uuid) = &data.parent_standard_uuid {
         check_access_standard_for_user(

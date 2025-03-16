@@ -1,5 +1,5 @@
 use crate::errors::{ServiceResult, ServiceError};
-use crate::models::ExtraOptions;
+use crate::models::search::{model::ExtraOptions, order::Paginate};
 use crate::models::standard::model::ShowStandardShort;
 use diesel::prelude::*;
 use uuid::Uuid;
@@ -7,6 +7,7 @@ use uuid::Uuid;
 impl ShowStandardShort {
     pub(crate) fn for_component(
         target_component_uuid: &Uuid,
+        paginate: &Paginate,
         options: &ExtraOptions,
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<ShowStandardShort>> {
@@ -16,6 +17,9 @@ impl ShowStandardShort {
         let select_standards_uuids: Vec<Uuid> = standard_to_component
             .filter(component_uuid.eq(target_component_uuid))
             .select(standard_uuid)
+            .order(standard_uuid.asc())
+            .limit(paginate.limit)
+            .offset(paginate.offset)
             .load::<Uuid>(conn)
             .map_err(|err| {
                 debug!("Fail getting standards for the component: {:?}", err);

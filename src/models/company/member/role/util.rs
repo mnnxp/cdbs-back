@@ -1,4 +1,5 @@
-use crate::errors::{ServiceResult, ServiceError};
+use crate::errors::ServiceResult;
+use crate::errors::err_msg::{ErrorMessage, get_err_msg};
 use diesel::{PgConnection, prelude::*};
 use uuid::Uuid;
 
@@ -18,9 +19,7 @@ pub(crate) fn get_company_by_role(
         Ok(x) => Ok(x),
         Err(err) => {
             debug!("Role not found: {:?}", err);
-            Err(ServiceError::BadRequest(
-                "Role not found".to_string()
-            ))
+            Err(get_err_msg(ErrorMessage::RoleNotFound))
         }
     }
 }
@@ -43,15 +42,11 @@ pub(crate) fn check_role_of_company(
         Ok(1_usize) => Ok(true),
         Ok(x) => {
             debug!("Role not found or found: {:?}", x);
-            Err(ServiceError::BadRequest(
-                "Role not found".to_string()
-            ))
+            Err(get_err_msg(ErrorMessage::RoleNotFound))
         },
         Err(err) => {
             debug!("Failed check role data: {:?}", err);
-            Err(ServiceError::BadRequest(
-                "Failed check role data".to_string()
-            ))
+            Err(get_err_msg(ErrorMessage::FailedCheckRole))
         },
     }
 }

@@ -1,4 +1,5 @@
 use crate::errors::{ServiceResult, ServiceError};
+use crate::errors::err_msg::{ErrorMessage, get_err_msg};
 use crate::schema::standard_ref::dsl as standard_ref;
 use diesel::prelude::*;
 use uuid::Uuid;
@@ -31,7 +32,7 @@ pub(crate) fn check_is_owner_with_err(
 ) -> ServiceResult<bool> {
     match check_is_owner(target_user_uuid, target_standard_uuid, conn)? {
         true => Ok(true),
-        false => Err(ServiceError::BadRequest("Access denied".to_string())),
+        false => Err(get_err_msg(ErrorMessage::AccessDenied)),
     }
 }
 
@@ -77,7 +78,7 @@ pub(crate) fn check_access_standard_for_user(
     };
 
     // not found need access level for target user
-    Err(ServiceError::BadRequest("Access denied".to_string()))
+    Err(get_err_msg(ErrorMessage::AccessDenied))
 }
 
 /// Checking the required level of user access to the standard
@@ -147,7 +148,7 @@ pub(crate) fn get_companies_have_access_to_standard(
 
     match companies_uuids.is_empty() {
         // not found companies with need access
-        true => Err(ServiceError::BadRequest("Access denied".to_string())),
+        true => Err(get_err_msg(ErrorMessage::AccessDenied)),
         false => Ok(companies_uuids),
     }
 }

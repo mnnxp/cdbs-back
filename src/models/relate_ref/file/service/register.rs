@@ -1,4 +1,5 @@
-use crate::errors::{ServiceError, ServiceResult};
+use crate::errors::{ServiceResult, ServiceError};
+use crate::errors::err_msg::{ErrorMessage, get_err_msg};
 use crate::models::component::relate::file::model::{
     InsertableComponentFile, ComponentFile,
 };
@@ -20,12 +21,14 @@ pub(crate) fn preregister_file(
     logged_user_uuid: &Uuid,
     object: ListObject,
     filename: &str,
+    commit_uuid: &Uuid,
     conn: &mut PgConnection,
 ) -> ServiceResult<SlimFile> {
     let mut preliminary_file_data = PreliminaryFileData::from_ipt_file_data(
         *logged_user_uuid,
         object.clone(),
         filename,
+        *commit_uuid,
         conn
     );
     // check for new revision file
@@ -35,8 +38,8 @@ pub(crate) fn preregister_file(
     // register data in addiction table (depends on the request)
     write_addiction_data(object, value_slim_file_data.uuid, conn)
         .map_err(|err| {
-            debug!("Fail write addiction data: {:?}", err);
-            ServiceError::BadRequest("Fail write addiction data".to_string())
+            debug!("Error recording dependency data: {:?}", err);
+            get_err_msg(ErrorMessage::ErrorRecordingDependencyData)
         })?;
 
     Ok(value_slim_file_data)
@@ -198,8 +201,7 @@ fn write_addiction_data(
         },
         not_match => {
             debug!("Failed write metadata: {:?}", not_match);
-
-            Err(ServiceError::BadRequest("Failed write metadata".to_string()))
+            Err(get_err_msg(ErrorMessage::FailedWriteMetadata))
         },
     }
 }

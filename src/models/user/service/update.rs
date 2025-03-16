@@ -1,4 +1,5 @@
-use crate::errors::{ServiceError, ServiceResult};
+use crate::errors::ServiceResult;
+use crate::errors::err_msg::{ErrorMessage, get_err_msg};
 use crate::models::user::model::IptUpdateUserData;
 use crate::models::user::util::check_use_username;
 use crate::schema::user_ref::dsl as user_ref;
@@ -14,9 +15,7 @@ pub(crate) fn update_user(
 ) -> ServiceResult<usize> {
     if let Some(username) = &data.username {
         if check_use_username(username, conn)? {
-            return Err(ServiceError::BadRequest(
-                "This username is already used".to_string()
-            ));
+            return Err(get_err_msg(ErrorMessage::UsernameIsAlreadyUsed))
         }
     }
 
@@ -32,7 +31,7 @@ pub(crate) fn update_user(
             .execute(conn)
             .map_err(|err| {
                 debug!("Failed update data: {:?}", err);
-                ServiceError::BadRequest("Failed update data".to_string())
+                get_err_msg(ErrorMessage::FailedUpdateData)
             })?;
     }
 
@@ -45,7 +44,7 @@ pub(crate) fn update_user(
             .execute(conn)
             .map_err(|err| {
                 debug!("Failed update data: {:?}", err);
-                ServiceError::BadRequest("Failed update data".to_string())
+                get_err_msg(ErrorMessage::FailedUpdateData)
             })?;
     }
 
@@ -58,7 +57,7 @@ pub(crate) fn update_user(
             .execute(conn)
             .map_err(|err| {
                 debug!("Failed update data: {:?}", err);
-                ServiceError::BadRequest("Failed update data".to_string())
+                get_err_msg(ErrorMessage::FailedUpdateData)
             })?;
     }
 
@@ -71,7 +70,7 @@ pub(crate) fn update_user(
             .execute(conn)
             .map_err(|err| {
                 debug!("Failed update data: {:?}", err);
-                ServiceError::BadRequest("Failed update data".to_string())
+                get_err_msg(ErrorMessage::FailedUpdateData)
             })?;
     }
 
@@ -84,7 +83,7 @@ pub(crate) fn update_user(
             .execute(conn)
             .map_err(|err| {
                 debug!("Failed update data: {:?}", err);
-                ServiceError::BadRequest("Failed update data".to_string())
+                get_err_msg(ErrorMessage::FailedUpdateData)
             })?;
     }
 
@@ -97,7 +96,7 @@ pub(crate) fn update_user(
             .execute(conn)
             .map_err(|err| {
                 debug!("Failed update data: {:?}", err);
-                ServiceError::BadRequest("Failed update data".to_string())
+                get_err_msg(ErrorMessage::FailedUpdateData)
             })?;
     }
 
@@ -110,7 +109,7 @@ pub(crate) fn update_user(
             .execute(conn)
             .map_err(|err| {
                 debug!("Failed update data: {:?}", err);
-                ServiceError::BadRequest("Failed update data".to_string())
+                get_err_msg(ErrorMessage::FailedUpdateData)
             })?;
     }
 
@@ -123,7 +122,7 @@ pub(crate) fn update_user(
             .execute(conn)
             .map_err(|err| {
                 debug!("Failed update data: {:?}", err);
-                ServiceError::BadRequest("Failed update data".to_string())
+                get_err_msg(ErrorMessage::FailedUpdateData)
             })?;
     }
 
@@ -136,7 +135,7 @@ pub(crate) fn update_user(
             .execute(conn)
             .map_err(|err| {
                 debug!("Failed update data: {:?}", err);
-                ServiceError::BadRequest("Failed update data".to_string())
+                get_err_msg(ErrorMessage::FailedUpdateData)
             })?;
     }
 
@@ -149,7 +148,7 @@ pub(crate) fn update_user(
             .execute(conn)
             .map_err(|err| {
                 debug!("Failed update data: {:?}", err);
-                ServiceError::BadRequest("Failed update data".to_string())
+                get_err_msg(ErrorMessage::FailedUpdateData)
             })?;
     }
 
@@ -162,7 +161,7 @@ pub(crate) fn update_user(
             .execute(conn)
             .map_err(|err| {
                 debug!("Failed update data: {:?}", err);
-                ServiceError::BadRequest("Failed update data".to_string())
+                get_err_msg(ErrorMessage::FailedUpdateData)
             })?;
     }
 
@@ -175,14 +174,14 @@ pub(crate) fn update_user(
             .execute(conn)
             .map_err(|err| {
                 debug!("Failed update data: {:?}", err);
-                ServiceError::BadRequest("Failed update data".to_string())
+                get_err_msg(ErrorMessage::FailedUpdateData)
             })?;
     }
 
     // new date for updated_at in user_ref table if update more one column
     if count_update_columns == 0 {
         // return error if new data not different with old data
-        return Err(ServiceError::BadRequest("The data has already".to_string()));
+        return Err(get_err_msg(ErrorMessage::DataHasAlready))
     }
 
     diesel::update(user_ref::user_ref
@@ -191,7 +190,7 @@ pub(crate) fn update_user(
         .execute(conn)
         .map_err(|err| {
             debug!("Failed update data: {:?}", err);
-            ServiceError::BadRequest("Failed update data".to_string())
+            get_err_msg(ErrorMessage::FailedUpdateData)
         })?;
 
     debug!("Count update columns: {:?}", count_update_columns);

@@ -1,30 +1,29 @@
 use crate::errors::{ServiceResult, ServiceError};
-use crate::models::relate_ref::program::model::{
-    Program, ProgramArg
-};
+use crate::models::relate_ref::program::model::Program;
+use crate::models::search::order::Paginate;
 use crate::schema::program_ref::dsl as program_ref;
 use diesel::{PgConnection, prelude::*};
 
-/// Возвращает список программ, с фильтром по идентификаторам.
-/// Если фильтр программ не указан, то агрегируются все существующие.
+/// Returns a list of programs, filtered by IDs.
+/// If no program filter is specified, all existing programs are aggregated.
 pub(crate) fn get_programs(
-    args: &ProgramArg,
+    program_ids: &[i32],
+    paginate: &Paginate,
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<Program>> {
-    match args.program_ids.is_empty() {
-        true => find_all_program(&args.limit, &args.offset, conn),
-        false => find_program_id(args, conn),
+    match program_ids.is_empty() {
+        true => find_all_program(paginate, conn),
+        false => find_program_id(program_ids, paginate, conn),
     }
 }
 
 fn find_all_program(
-    limit: &i32,
-    offset: &i32,
+    paginate: &Paginate,
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<Program>> {
     program_ref::program_ref
-        .limit(*limit as i64)
-        .offset(*offset as i64)
+        .limit(paginate.limit)
+        .offset(paginate.offset)
         .order(program_ref::name.asc())
         .load::<Program>(conn)
         .map_err(|err| {
@@ -34,13 +33,14 @@ fn find_all_program(
 }
 
 fn find_program_id(
-    args: &ProgramArg,
+    program_ids: &[i32],
+    paginate: &Paginate,
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<Program>> {
     program_ref::program_ref
-        .filter(program_ref::id.eq_any(&args.program_ids))
-        .limit(args.limit as i64)
-        .offset(args.offset as i64)
+        .filter(program_ref::id.eq_any(program_ids))
+        .limit(paginate.limit)
+        .offset(paginate.offset)
         .load::<Program>(conn)
         .map_err(|err| {
             debug!("Failed get program: {:?}", err);

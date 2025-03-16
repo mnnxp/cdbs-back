@@ -11,13 +11,13 @@ impl License {
         component: &Component,
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<License>> {
-        let licenses_ids: Vec<i32> = ComponentLicense::belonging_to(component)
+        let license_ids: Vec<i32> = ComponentLicense::belonging_to(component)
             .select(license_to_component::license_id)
             .load::<i32>(conn)
             .map_err(|err| {
                 debug!("Fail load license ids: {:?}", err);
                 ServiceError::InternalServerError
             })?;
-        License::get_license_by_ids(&licenses_ids, conn)
+        License::get_license_by_ids(&license_ids, conn)
     }
 }

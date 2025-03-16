@@ -56,6 +56,12 @@ const goodFilenameCertificateTest = "name file certificate.pdf";
 
 var fileCertificateTestUuid = "";
 
+// company data in the database
+const supplierCompany1t = "fde011eb-0995-4e6a-b616-7fab2f2cf7ac"; // Builderings SS 1 true
+const supplierCompany3f = "0dec6985-c2d1-4941-99c3-2eb570d567d9"; // W.SOPR 3 false
+const supplierCompany3t = "4e149874-f680-4726-b0e7-af03a849b407";
+const supplierCompany3tShortName = "RI" // 3 true
+
 const companyFullDataQuery = ` \
 uuid \
 orgname \
@@ -327,6 +333,93 @@ describe('company', () => {
 
   const agent = request.agent(url);
 
+  it('/graphql:Q company - Bad public supplier company (not public)', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .send({
+        query: `query GetSupplierCompany {
+          supplierCompany (companyUuid: "${supplierCompany1t}"){
+            ${companyFullDataQuery}
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql supplierCompany=%o', body);
+    // expect(body).toBe(0);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'Internal Server Error'
+    );
+    expect(body.errors[0].path[0]).toBe('supplierCompany');
+    done();
+  });
+
+  it('/graphql:Q company - Bad public supplier company (not supplier)', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .send({
+        query: `query GetSupplierCompany {
+          supplierCompany (companyUuid: "${supplierCompany3f}"){
+            ${companyFullDataQuery}
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql supplierCompany=%o', body);
+    // expect(body).toBe(0);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'Internal Server Error'
+    );
+    expect(body.errors[0].path[0]).toBe('supplierCompany');
+    done();
+  });
+
+  it('/graphql:Q company - OK public supplier company', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .send({
+        query: `query GetSupplierCompany {
+          supplierCompany (companyUuid: "${supplierCompany3t}"){
+            ${companyFullDataQuery}
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql supplierCompany=%o', body);
+    const {
+      data: { supplierCompany },
+    } = body;
+    expect(supplierCompany.uuid).toBe(supplierCompany3t);
+    expect(supplierCompany.shortname).toBe(supplierCompany3tShortName);
+    expect(supplierCompany.typeAccess.name).toBe("public");
+    expect(supplierCompany.isSupplier).toBe(true);
+    done();
+  });
+
+  it('/graphql:Q company - OK public supplier company (set lang)', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set('Accept-Language', 'ru')
+      .send({
+        query: `query GetSupplierCompany {
+          supplierCompany (companyUuid: "${supplierCompany3t}"){
+            ${companyFullDataQuery}
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql supplierCompany=%o', body);
+    const {
+      data: { supplierCompany },
+    } = body;
+    expect(supplierCompany.uuid).toBe(supplierCompany3t);
+    expect(supplierCompany.shortname).toBe(supplierCompany3tShortName);
+    expect(supplierCompany.typeAccess.name).toBe("публичный");
+    expect(supplierCompany.isSupplier).toBe(true);
+    done();
+  });
+
   it('/graphql:M register - OK', async (done) => {
     const { body } = await agent
       .post('/graphql')
@@ -529,7 +622,7 @@ describe('company', () => {
     // expect(response1.body).toBe(0);
     expect(response1.body.data).toBeNull();
     expect(response1.body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(response1.body.errors[0].path[0]).toBe('company');
     done();
@@ -602,7 +695,7 @@ describe('company', () => {
     debug('/graphql body=%o', response1.body);
     expect(response1.body.data).toBeNull();
     expect(response1.body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(response1.body.errors[0].path[0]).toBe('companies');
     done();
@@ -923,7 +1016,7 @@ describe('company', () => {
     debug('/graphql body=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(body.errors[0].path[0]).toBe('putCompanyUpdate');
     done();
@@ -1245,7 +1338,7 @@ describe('company', () => {
     debug('/graphql CompanyCertificate=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(body.errors[0].path[0]).toBe('company');
     done();
@@ -1271,7 +1364,7 @@ describe('company', () => {
     debug('/graphql CompanyCertificate=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(body.errors[0].path[0]).toBe('uploadCompanyCertificate');
     done();
@@ -1355,7 +1448,7 @@ describe('company', () => {
     debug('/graphql body=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(body.errors[0].path[0]).toBe('updateCompanyCertificate');
     done();
@@ -1525,7 +1618,7 @@ describe('company', () => {
     debug('/graphql addCompanySpecs=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(body.errors[0].path[0]).toBe('addCompanySpecs');
     done();
@@ -1693,9 +1786,9 @@ describe('company', () => {
       .post('/graphql')
       .send({
         query: `query  {
-          companySpecs(args: {
+          companySpecs(
             companyUuid: "${companyUuidNoSupplier}"
-          }){
+          ){
             specId
             langId
             spec
@@ -1706,7 +1799,7 @@ describe('company', () => {
     debug('/graphql companySpecs=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(body.errors[0].path[0]).toBe('companySpecs');
     done();
@@ -1721,9 +1814,9 @@ describe('company', () => {
       )
       .send({
         query: `query  {
-          companySpecs(args: {
+          companySpecs(
             companyUuid: "${companyUuidNoSupplier}"
-          }){
+          ){
             specId
             langId
             spec
@@ -1758,11 +1851,13 @@ describe('company', () => {
       )
       .send({
         query: `query  {
-          companySpecs(args: {
+          companySpecs(
             companyUuid: "${companyUuidNoSupplier}"
-            limit: 1
-            offset: 3
-          }){
+            paginate: {
+              currentPage: 4
+              perPage: 1
+            }
+          ){
             specId
             langId
             spec
@@ -1776,7 +1871,7 @@ describe('company', () => {
       data: { companySpecs },
     } = body;
     expect(companySpecs.length).toBe(1);
-    expect(companySpecs[0].specId).toBe(22);
+    expect(companySpecs[0].specId).toBe(44);
     expect(companySpecs[0].spec).toBeNonEmptyString();
     done();
   });
@@ -1790,11 +1885,13 @@ describe('company', () => {
       )
       .send({
         query: `query  {
-          companySpecs(args: {
+          companySpecs(
             companyUuid: "${companyUuidNoSupplier}"
-            limit: 50
-            offset: 500
-          }){
+            paginate: {
+              currentPage: 50
+              perPage: 500
+            }
+          ){
             specId
             langId
             spec
@@ -1827,7 +1924,7 @@ describe('company', () => {
     debug('/graphql deleteCompanySpecs=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(body.errors[0].path[0]).toBe('deleteCompanySpecs');
     done();
@@ -2043,7 +2140,7 @@ describe('company', () => {
     done();
   });
 
-  it('/graphql:M registerCompanyRepresent - BadRequest Not supplier', async (done) => {
+  it('/graphql:M registerCompanyRepresent - OK Not supplier', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .set(
@@ -2064,9 +2161,7 @@ describe('company', () => {
       })
       .expect(HttpStatus.OK)
     debug('/graphql - body=%o', body);
-    const { errors, data } = body;
-    expect(data).toBeNull();
-    expect(errors[0].message).toBe("BadRequest: The company is not supplier.");
+    expect(body.data.registerCompanyRepresent).toBe(true);
     done();
   });
 
@@ -2207,7 +2302,7 @@ describe('company', () => {
     debug('/graphql body=%o', response1.body);
     expect(response1.body.data).toBeNull();
     expect(response1.body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(response1.body.errors[0].path[0]).toBe('companyRepresents');
     done();
@@ -2446,7 +2541,7 @@ describe('company', () => {
     debug('/graphql body=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(body.errors[0].path[0]).toBe('deleteCompanyCertificate');
     done();
@@ -2541,7 +2636,7 @@ describe('company', () => {
     debug('/graphql body=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(body.errors[0].path[0]).toBe('registerCompanyRole');
     done();
@@ -2669,7 +2764,7 @@ describe('company', () => {
     debug('/graphql body=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(body.errors[0].path[0]).toBe('changeNameRoleCompany');
     done();
@@ -2800,7 +2895,7 @@ describe('company', () => {
     debug('/graphql body=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(body.errors[0].path[0]).toBe('companyRoles');
     done();
@@ -2877,7 +2972,7 @@ describe('company', () => {
     debug('/graphql body=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(body.errors[0].path[0]).toBe('addAccessRole');
     done();
@@ -2952,7 +3047,7 @@ describe('company', () => {
     debug('/graphql addAccessRole=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Duplicate data found'
+      'BadRequest: Found duplicate data'
     );
     expect(body.errors[0].path[0]).toBe('addAccessRole');
     done();
@@ -3122,7 +3217,7 @@ describe('company', () => {
     debug('/graphql body=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(body.errors[0].path[0]).toBe('deleteSupplierCompany');
     done();
@@ -3218,7 +3313,7 @@ describe('company', () => {
     debug('/graphql body=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(body.errors[0].path[0]).toBe('deleteAccessRole');
     done();
@@ -3315,7 +3410,7 @@ describe('company', () => {
     debug('/graphql body=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(body.errors[0].path[0]).toBe('addCompanyMember');
     done();
@@ -3442,7 +3537,7 @@ describe('company', () => {
     debug('/graphql body=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(body.errors[0].path[0]).toBe('changeRoleMember');
     done();
@@ -3595,7 +3690,7 @@ describe('company', () => {
     debug('/graphql body=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(body.errors[0].path[0]).toBe('companyMembers');
     done();
@@ -3685,7 +3780,7 @@ describe('company', () => {
     debug('/graphql body=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(body.errors[0].path[0]).toBe('deleteCompanyMember');
     done();
@@ -3809,7 +3904,7 @@ describe('company', () => {
     debug('/graphql body=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(body.errors[0].path[0]).toBe('deleteCompanyRole');
     done();
@@ -3932,7 +4027,7 @@ describe('company', () => {
     debug('/graphql body=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found.'
+      'BadRequest: Token not found'
     );
     expect(body.errors[0].path[0]).toBe('deleteCompany');
     done();

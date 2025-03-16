@@ -66,10 +66,6 @@ pub(crate) struct IptSpecPathArg {
     pub(crate) split_char: Option<char>,
     /// Depth of directory formation (default is 3)
     pub(crate) depth_level: Option<i32>,
-    /// Restriction of data sampling (maximum number of records)
-    pub(crate) limit: Option<i32>,
-    /// Number of skipping records at the beginning (offset)
-    pub(crate) offset: Option<i32>,
 }
 
 #[derive(Debug)]
@@ -77,8 +73,6 @@ pub(crate) struct SpecPathArg {
     pub(crate) spec_ids: Vec<i32>,
     pub(crate) split_char: char,
     pub(crate) depth_level: i32,
-    pub(crate) limit: i32,
-    pub(crate) offset: i32,
 }
 
 impl Default for SpecPathArg {
@@ -87,8 +81,6 @@ impl Default for SpecPathArg {
             spec_ids: Vec::new(),
             split_char: '/',
             depth_level: 3,
-            limit: 30,
-            offset: 0,
         }
     }
 }
@@ -99,16 +91,12 @@ impl From<IptSpecPathArg> for SpecPathArg {
             spec_ids,
             split_char,
             depth_level,
-            limit,
-            offset,
         } = data;
 
         Self {
             spec_ids: spec_ids.unwrap_or_default(),
             split_char: split_char.unwrap_or('/'),
             depth_level: depth_level.unwrap_or(3),
-            limit: limit.unwrap_or(30),
-            offset: offset.unwrap_or(0),
         }
     }
 }
@@ -122,10 +110,6 @@ pub(crate) struct IptSearchSpecArg {
     split_char: Option<char>,
     /// Depth of directory formation (default is 3)
     depth_level: Option<i32>,
-    /// Restriction of data sampling (maximum number of records)
-    limit: Option<i32>,
-    /// Number of skipping records at the beginning (offset)
-    offset: Option<i32>,
 }
 
 #[derive(Debug)]
@@ -133,8 +117,6 @@ pub(crate) struct SearchSpecArg {
     pub(crate) text: String,
     pub(crate) split_char: char,
     pub(crate) depth_level: i32,
-    pub(crate) limit: i32,
-    pub(crate) offset: i32,
 }
 
 impl Default for SearchSpecArg {
@@ -143,8 +125,6 @@ impl Default for SearchSpecArg {
             text: String::new(),
             split_char: '/',
             depth_level: 3,
-            limit: 10,
-            offset: 0,
         }
     }
 }
@@ -155,16 +135,12 @@ impl From<IptSearchSpecArg> for SearchSpecArg {
             text,
             split_char,
             depth_level,
-            limit,
-            offset,
         } = data;
 
         Self {
             text,
             split_char: split_char.unwrap_or('/'),
             depth_level: depth_level.unwrap_or(3),
-            limit: limit.unwrap_or(10),
-            offset: offset.unwrap_or(0),
         }
     }
 }
@@ -176,29 +152,12 @@ pub(crate) struct IptSpecArg {
     pub(crate) spec_ids: Option<Vec<i32>>,
     /// Filtering by catalog levels
     pub(crate) specs_levels: Option<Vec<i32>>,
-    /// Restriction of data sampling (maximum number of records)
-    pub(crate) limit: Option<i32>,
-    /// Number of skipping records at the beginning (offset)
-    pub(crate) offset: Option<i32>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub(crate) struct SpecArg {
     pub(crate) spec_ids: Vec<i32>,
     pub(crate) specs_levels: Vec<i32>,
-    pub(crate) limit: i32,
-    pub(crate) offset: i32,
-}
-
-impl Default for SpecArg {
-    fn default() -> Self {
-        Self {
-            spec_ids: Vec::new(),
-            specs_levels: Vec::new(),
-            limit: 100,
-            offset: 0,
-        }
-    }
 }
 
 impl From<IptSpecArg> for SpecArg {
@@ -206,15 +165,11 @@ impl From<IptSpecArg> for SpecArg {
         let IptSpecArg {
             spec_ids,
             specs_levels,
-            limit,
-            offset,
         } = data;
 
         Self {
             spec_ids: spec_ids.unwrap_or_default(),
             specs_levels: specs_levels.unwrap_or_default(),
-            limit: limit.unwrap_or(100),
-            offset: offset.unwrap_or(0),
         }
     }
 }

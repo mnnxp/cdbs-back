@@ -1,5 +1,7 @@
-use crate::errors::{ServiceError, ServiceResult};
+use crate::errors::ServiceResult;
+use crate::errors::err_msg::{ErrorMessage, get_err_msg};
 use crate::models::component::param::model::DelComponentParamData;
+use crate::models::component::service::update::change_updated_at;
 use diesel::prelude::*;
 use uuid::Uuid;
 
@@ -21,9 +23,7 @@ pub(crate) fn del_component_params(
     )?;
 
     if data.param_ids.is_empty() {
-        return Err(ServiceError::BadRequest(
-            "Not found params for deleting".to_string()
-        ))
+        return Err(get_err_msg(ErrorMessage::NotFoundParamsForDeleting))
     }
 
     // select parameters to be delete
@@ -43,8 +43,11 @@ pub(crate) fn del_component_params(
         &del_params,
         conn
     ) {
-        x if x > 0 => Ok(x),
-        _ => Err(ServiceError::BadRequest("Fail delete rows".to_string())),
+        x if x > 0 => {
+            change_updated_at(&data.component_uuid, None, conn)?;
+            Ok(x)
+        },
+        _ => Err(get_err_msg(ErrorMessage::CannotDeleteRows)),
     }
 }
 

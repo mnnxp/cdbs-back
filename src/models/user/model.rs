@@ -234,88 +234,33 @@ pub(crate) struct IptUserData {
     pub(crate) type_access_id: Option<i32>,
 }
 
-impl From<&IptUserData> for InsertableUser {
-    fn from(ipt_data: &IptUserData) -> Self {
-        let IptUserData {
-            email,
-            username,
-            password,
-            firstname,
-            lastname,
-            secondname,
-            phone,
-            description,
-            address,
-            position,
-            time_zone,
-            region_id,
-            program_id,
-            type_access_id,
-            ..
-        } = ipt_data;
-
+impl InsertableUser {
+    pub(crate) fn by_arg(ipt_data: IptUserData) -> Self {
         let psw_salt = make_salt();
         let psw_hash = make_hash_salt(
-            password.as_bytes(),
+            ipt_data.password.as_bytes(),
             &psw_salt,
         );
 
-        // set default data
-        let firstname = match firstname {
-            Some(x) => x.to_string(),
-            None => String::new(),
-        };
-        let lastname = match lastname{
-            Some(x) => x.to_string(),
-            None => String::new(),
-        };
-        let secondname = match secondname{
-            Some(x) => x.to_string(),
-            None => String::new(),
-        };
-        let phone = match phone{
-            Some(x) => x.to_string(),
-            None => String::new(),
-        };
-        let description = match description{
-            Some(x) => x.to_string(),
-            None => String::new(),
-        };
-        let address = match address{
-            Some(x) => x.to_string(),
-            None => String::new(),
-        };
-        let position = match position{
-            Some(x) => x.to_string(),
-            None => String::new(),
-        };
-        let time_zone = match time_zone{
-            Some(x) => x.to_string(),
-            None => String::new(),
-        };
-        let region_id = region_id.unwrap_or(1);
-        let program_id = program_id.unwrap_or(1);
-        let type_access_id = type_access_id.unwrap_or(3);
-
         Self {
             uuid: Uuid::new_v4(),
-            email: email.to_string(),
+            email: ipt_data.email.to_string(),
             psw_hash,
             psw_salt: psw_salt.to_vec(),
-            firstname,
-            lastname,
-            secondname,
-            username: username.to_string(),
-            phone,
-            description,
-            address,
-            position,
-            time_zone,
+            firstname: ipt_data.firstname.unwrap_or_default(),
+            lastname: ipt_data.lastname.unwrap_or_default(),
+            secondname: ipt_data.secondname.unwrap_or_default(),
+            username: ipt_data.username.trim().to_string(),
+            phone: ipt_data.phone.unwrap_or_default(),
+            description: ipt_data.description.unwrap_or_default(),
+            address: ipt_data.address.unwrap_or_default(),
+            position: ipt_data.position.unwrap_or_default(),
+            time_zone: ipt_data.time_zone.unwrap_or_default(),
             // default favicon image
             image_file_uuid: get_default_image(),
-            region_id,
-            program_id,
-            type_access_id,
+            region_id: ipt_data.region_id.unwrap_or(1),
+            program_id: ipt_data.program_id.unwrap_or(1),
+            type_access_id: ipt_data.type_access_id.unwrap_or(3),
             is_email_verified: false,
             is_enabled: true,
             is_delete: false,
@@ -430,31 +375,13 @@ pub(crate) struct IptUsersArg {
     pub(crate) subscribers: Option<bool>,
     /// Filter by the presence of users in favorites of the active user
     pub(crate) favorite: Option<bool>,
-    /// Restriction of data sampling (maximum number of records)
-    pub(crate) limit: Option<i32>,
-    /// Number of skipping records at the beginning (offset)
-    pub(crate) offset: Option<i32>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub(crate) struct UsersArg {
     pub(crate) filter_users_uuids: Vec<Uuid>,
     pub(crate) subscribers: bool,
     pub(crate) favorite: bool,
-    pub(crate) limit: i32,
-    pub(crate) offset: i32,
-}
-
-impl Default for UsersArg {
-    fn default() -> Self {
-        Self {
-            filter_users_uuids: Vec::new(),
-            subscribers: false,
-            favorite: false,
-            limit: 100,
-            offset: 0,
-        }
-    }
 }
 
 impl From<IptUsersArg> for UsersArg {
@@ -463,16 +390,12 @@ impl From<IptUsersArg> for UsersArg {
             users_uuids,
             subscribers,
             favorite,
-            limit,
-            offset,
         } = data;
 
         Self {
             filter_users_uuids: users_uuids.unwrap_or_default(),
             subscribers: subscribers.unwrap_or(false),
             favorite: favorite.unwrap_or(false),
-            limit: limit.unwrap_or(100),
-            offset: offset.unwrap_or(0),
         }
     }
 }

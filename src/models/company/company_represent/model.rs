@@ -123,32 +123,27 @@ impl From<&IptCompanyRepresentData> for InsertableCompanyRepresent {
 pub(crate) struct IptCompanyRepresentsArg {
     pub(crate) company_uuid: Option<Uuid>,
     pub(crate) represents_uuids: Option<Vec<Uuid>>,
-    pub(crate) limit: Option<i32>,
-    pub(crate) offset: Option<i32>,
 }
 
 #[derive(Debug, Clone)]
 pub(crate) struct CompanyRepresentsArg {
     pub(crate) company_uuid: Uuid,
     pub(crate) represents_uuids: Vec<Uuid>,
-    pub(crate) limit: i32,
-    pub(crate) offset: i32,
+    pub(crate) set_lang_id: i32,
 }
 
-impl From<IptCompanyRepresentsArg> for CompanyRepresentsArg {
-    fn from(data: IptCompanyRepresentsArg) -> Self {
+impl CompanyRepresentsArg {
+    /// Returns a CompanyRepresentsArg with the given arguments and language
+    pub(crate) fn by_arg(data: IptCompanyRepresentsArg, set_lang_id: i32) -> Self {
         let IptCompanyRepresentsArg {
             company_uuid,
             represents_uuids,
-            limit,
-            offset,
         } = data;
 
         Self {
             company_uuid: company_uuid.unwrap_or_default(),
             represents_uuids: represents_uuids.unwrap_or_default(),
-            limit: limit.unwrap_or(100),
-            offset: offset.unwrap_or(0),
+            set_lang_id,
         }
     }
 }

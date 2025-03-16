@@ -1,4 +1,5 @@
-use crate::errors::{ServiceError, ServiceResult};
+use crate::errors::{ServiceResult, ServiceError};
+use crate::errors::err_msg::{ErrorMessage, get_err_msg};
 use crate::models::company::member::model::DelCompanyMemberData;
 use crate::models::company::access::util::check_company_access;
 use crate::schema::company_member_list::dsl as company_member_list;
@@ -50,8 +51,6 @@ pub(crate) fn del_company_member(
 
             Ok(result == 1)
         },
-        _ => Err(ServiceError::BadRequest(
-            "The user not found in the company".to_string(),
-        )),
+        _ => Err(get_err_msg(ErrorMessage::UserNotFoundInCompany)),
     }
 }

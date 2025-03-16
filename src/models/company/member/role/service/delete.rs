@@ -1,4 +1,5 @@
-use crate::errors::{ServiceError, ServiceResult};
+use crate::errors::ServiceResult;
+use crate::errors::err_msg::{ErrorMessage, get_err_msg};
 use crate::models::company::member::role::model::DelRoleMemberData;
 use crate::models::company::access::util::check_is_owner_with_err;
 use diesel::prelude::*;
@@ -31,7 +32,7 @@ pub(crate) fn del_role_member(
         },
         Err(err) => {
             debug!("Error delete role: {:#?}", err);
-            Err(ServiceError::BadRequest("Error delete role".to_string()))
+            Err(get_err_msg(ErrorMessage::ErrorDeleteRole))
         },
     }
 }

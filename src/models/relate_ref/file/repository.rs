@@ -1,9 +1,11 @@
-use super::util::get_default_image;
+use super::util::{get_default_image, find_id_ext};
+use super::commit::Commit;
 use crate::errors::{ServiceResult, ServiceError};
+use crate::graphql::file::ShowFileRelatedData;
 use crate::models::user::model::ShowUserShort;
+use crate::models::search::order::{Paginate, Sort, TableName, objects_order};
 use crate::models::relate_ref::file::model::{
-    ListObject, PreliminaryFileData, ShowFile,
-    ShowFileRelatedData, DownloadFile, SlimFile,
+    ListObject, PreliminaryFileData, ShowFile, DownloadFile, SlimFile,
 };
 use crate::models::relate_ref::program::model::Program;
 use crate::storage::model::StorageAccess;
@@ -13,67 +15,64 @@ use crate::schema::presigned_url_ref::dsl as presigned_url_ref;
 use diesel::prelude::*;
 use uuid::Uuid;
 
-impl ShowFile {
-    fn get_by_uuids(
-        target_file_uuids: &[Uuid],
-        limit: i32,
-        offset: i32,
-        conn: &mut PgConnection,
-    ) -> ServiceResult<Vec<ShowFile>> {
-        file_ref::file_ref.select((
-                file_ref::uuid,
-                file_ref::parent_file_uuid,
-                file_ref::revision,
-                file_ref::user_uuid,
-                file_ref::filename,
-                file_ref::content_type,
-                file_ref::id_ext,
-                file_ref::filesize,
-                // file_ref::path_file,
-                file_ref::created_at,
-                file_ref::updated_at,
-            ))
-            .filter(file_ref::uuid.eq_any(target_file_uuids)
-                .and(file_ref::is_hidden.eq(false)
-                .and(file_ref::is_delete.eq(false))))
-            .order(file_ref::filename.asc())
-            .limit(limit as i64)
-            .offset(offset as i64)
-            .load::<ShowFile>(conn)
-            .map_err(|err| {
-                debug!("Failed get files: {:?}", err);
-                ServiceError::InternalServerError
-            })
-    }
+/// Возвращает Uuid найденных по списку из file_uuids файлов, исключая удалённые и скрытые файлы
+fn get_by_uuids(
+    file_uuids: &[Uuid],
+    conn: &mut PgConnection,
+) -> ServiceResult<Vec<Uuid>> {
+    file_ref::file_ref.select(file_ref::uuid)
+        .filter(file_ref::uuid.eq_any(file_uuids)
+            .and(file_ref::is_hidden.eq(false)
+            .and(file_ref::is_delete.eq(false))))
+        .limit(1000)
+        .load::<Uuid>(conn)
+        .map_err(|err| {
+            debug!("Failed get files: {:?}", err);
+            ServiceError::InternalServerError
+        })
+}
 
-    fn get_hide_by_uuids(
-        target_file_uuids: &[Uuid],
-        limit: i32,
-        offset: i32,
-        conn: &mut PgConnection,
-    ) -> ServiceResult<Vec<ShowFile>> {
-        file_ref::file_ref.select((
+/// Возвращает Uuid найденных по списку из file_uuids файлов, исключаются только удалённые файлы
+fn get_hide_by_uuids(
+    file_uuids: &[Uuid],
+    conn: &mut PgConnection
+) -> ServiceResult<Vec<Uuid>> {
+    file_ref::file_ref.select(file_ref::uuid)
+        .filter(file_ref::uuid.eq_any(file_uuids)
+            // .and(file_ref::is_hidden.eq(true)
+            .and(file_ref::is_delete.eq(false)))
+        .order(file_ref::revision.asc())
+        .limit(1000)
+        .load::<Uuid>(conn)
+        .map_err(|err| {
+            debug!("Failed get files: {:?}", err);
+            ServiceError::InternalServerError
+        })
+}
+
+impl ShowFile {
+    fn get_by_uuid(
+        file_uuid: &Uuid,
+        conn: &mut PgConnection
+    ) -> ServiceResult<ShowFile> {
+        file_ref::file_ref
+            .select((
                 file_ref::uuid,
                 file_ref::parent_file_uuid,
+                file_ref::commit_uuid,
                 file_ref::revision,
                 file_ref::user_uuid,
                 file_ref::filename,
                 file_ref::content_type,
                 file_ref::id_ext,
                 file_ref::filesize,
-                // file_ref::path_file,
                 file_ref::created_at,
-                file_ref::updated_at,
+                file_ref::updated_at
             ))
-            .filter(file_ref::uuid.eq_any(target_file_uuids)
-                // .and(file_ref::is_hidden.eq(true)
-                .and(file_ref::is_delete.eq(false)))
-            .order(file_ref::revision.asc())
-            .limit(limit as i64)
-            .offset(offset as i64)
-            .load::<ShowFile>(conn)
+            .filter(file_ref::uuid.eq(&file_uuid))
+            .first::<ShowFile>(conn)
             .map_err(|err| {
-                debug!("Failed get files: {:?}", err);
+                debug!("Failed get file: {:?}", err);
                 ServiceError::InternalServerError
             })
     }
@@ -82,76 +81,57 @@ impl ShowFile {
 impl ShowFileRelatedData {
     pub(crate) fn get_file_by_uuids(
         target_file_uuids: &[Uuid],
-        limit: i32,
-        offset: i32,
+        sort: &Sort,
+        paginate: &Paginate,
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<ShowFileRelatedData>> {
-        let files_data = ShowFile::get_by_uuids(
-            target_file_uuids,
-            limit,
-            offset,
-            conn
-        )?;
-        let mut result: Vec<ShowFileRelatedData> = Vec::new();
-        for fd in files_data {
-            result.push(ShowFileRelatedData::data_enrichment(fd, conn)?)
-        }
-        Ok(result)
+        let file_uuids = get_by_uuids(target_file_uuids, conn)?;
+        ShowFileRelatedData::data_enrichment(&file_uuids, sort, paginate, conn)
     }
 
     /// Adds information from other tables to the data (about the user, relevante program by extension)
     fn data_enrichment(
-        file_data: ShowFile,
+        file_uuids: &[Uuid],
+        sort: &Sort,
+        paginate: &Paginate,
         conn: &mut PgConnection,
-    ) -> ServiceResult<ShowFileRelatedData> {
-        // collect data for user
-        let owner_user: ShowUserShort = ShowUserShort::get_without_check_by_uuid(
-            &file_data.user_uuid,
-            conn
-        ).expect("Error loading user");
-
-        // get program by ext for file
-        let program: Program = Program::get_program_for_ext(
-            &file_data.id_ext,
-            conn
-        ).expect("Error loading user");
-
-        Ok(ShowFileRelatedData {
-            uuid: file_data.uuid,
-            filename: file_data.filename,
-            revision: file_data.revision,
-            parent_file_uuid: file_data.parent_file_uuid,
-            owner_user,
-            content_type: file_data.content_type,
-            filesize: file_data.filesize,
-            program,
-            created_at: file_data.created_at,
-            updated_at: file_data.updated_at,
-        })
+    ) -> ServiceResult<Vec<ShowFileRelatedData>> {
+        let mut res = Vec::new();
+        for file_uuid in &objects_order(file_uuids, sort, paginate, conn)? {
+            let sf = ShowFile::get_by_uuid(file_uuid, conn)?;
+            res.push(ShowFileRelatedData {
+                uuid: sf.uuid,
+                filename: sf.filename.clone(),
+                revision: sf.revision,
+                commit_msg: Commit::get_message(&sf.commit_uuid, conn)?,
+                parent_file_uuid: sf.parent_file_uuid,
+                owner_user: ShowUserShort::get_without_check_by_uuid(&sf.user_uuid, conn)?,
+                content_type: sf.content_type.clone(),
+                filesize: sf.filesize,
+                program: Program::get_program_for_ext(&sf.id_ext,conn)?,
+                created_at: sf.created_at,
+                updated_at: sf.updated_at,
+            })
+        }
+        Ok(res)
     }
 
     pub(crate) fn get_revisions_by_uuid(
         file_uuid: &Uuid,
-        limit: &i32,
-        offset: &i32,
+        paginate: &Paginate,
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<ShowFileRelatedData>> {
         let mut revision_uuids = Vec::new();
         prev_revision_uuids_by_uuid(&mut revision_uuids, file_uuid, conn)?;
         next_revision_uuids_by_uuid(&mut revision_uuids, file_uuid, conn)?;
 
-        let files_data = ShowFile::get_hide_by_uuids(
-            &revision_uuids,
-            *limit,
-            *offset,
+        let file_uuids = get_hide_by_uuids(&revision_uuids, conn)?;
+        ShowFileRelatedData::data_enrichment(
+            &file_uuids,
+            &Sort::parsing(TableName::FileRef, "revision", false),
+            paginate,
             conn
-        )?;
-
-        let mut result: Vec<ShowFileRelatedData> = Vec::new();
-        for fd in files_data {
-            result.push(ShowFileRelatedData::data_enrichment(fd, conn)?)
-        }
-        Ok(result)
+        )
     }
 }
 
@@ -182,8 +162,7 @@ impl SlimFile {
     /// Collects SlimFiles data by target files uuids
     pub(crate) fn get_by_file_uuids(
         target_file_uuids: &[Uuid],
-        limit: i32,
-        offset: i32,
+        paginate: &Paginate,
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<SlimFile>> {
         file_ref::file_ref
@@ -198,8 +177,8 @@ impl SlimFile {
                 .and(file_ref::is_hidden.eq(false)
                 .and(file_ref::is_delete.eq(false))))
             .order(file_ref::filename.asc())
-            .limit(limit as i64)
-            .offset(offset as i64)
+            .limit(paginate.limit)
+            .offset(paginate.offset)
             .load::<SlimFile>(conn)
             .map_err(|err| {
                 debug!("Failed get file: {:?}", err);
@@ -227,12 +206,65 @@ impl SlimFile {
                 .and(file_ref::is_checked.eq(false)
                 .and(file_ref::is_hidden.eq(true)
                 .and(file_ref::is_delete.eq(false))))))
-            // .order(file_ref::filename.asc())
             .load::<SlimFile>(conn)
             .map_err(|err| {
                 debug!("Failed get file: {:?}", err);
                 ServiceError::InternalServerError
             })
+    }
+
+    /// Returns a string in which each byte of data is encoded using two hexadecimal digits
+    pub(crate) fn encode_hash(file_uuid: &Uuid, conn: &mut PgConnection) -> ServiceResult<String> {
+        let hash = file_ref::file_ref
+            .select(file_ref::hash)
+            .filter(file_ref::uuid.eq(file_uuid).and(file_ref::is_delete.eq(false)))
+            .first::<Vec<u8>>(conn)
+            .map_err(|err| {
+                debug!("Failed get file hash: {:?}", err);
+                ServiceError::InternalServerError
+            })?;
+        Ok(hex::encode(hash))
+    }
+
+    /// Returns a pre-signed link to a file in the repository (without check access)
+    pub(crate) fn get_download_string(file_uuid: &Uuid, conn: &mut PgConnection) -> ServiceResult<String> {
+        let slim_file = file_ref::file_ref
+            .select((
+                file_ref::uuid,
+                file_ref::hash,
+                file_ref::filename,
+                file_ref::filesize,
+                file_ref::path_file,
+            ))
+            .filter(file_ref::uuid.eq(file_uuid).and(file_ref::is_delete.eq(false)))
+            .first::<SlimFile>(conn)
+            .map_err(|err| {
+                debug!("Failed get download string for file: {:?}", err);
+                ServiceError::InternalServerError
+            })?;
+        let naive_local_now = chrono::Local::now().naive_local();
+        let get_url_from_db = presigned_url_ref::presigned_url_ref
+            .select(presigned_url_ref::presigned_url)
+            .filter(presigned_url_ref::file_uuid.eq(&slim_file.uuid)
+                .and(presigned_url_ref::expiration_at.gt(naive_local_now)))
+            .limit(1)
+            .load::<String>(conn)
+            .map_err(|err| {
+                debug!("Failed get presigned_url: {:?}", err);
+                ServiceError::InternalServerError
+            })?;
+        if let Some(url) = get_url_from_db.into_iter().next() {
+            return Ok(url)
+        }
+        debug!("Failed get presigned_url");
+        // creates and saves (updates) download presigned url for a file in the database
+        let presigned_url = download_presigned_url(
+            &StorageAccess::from_env(),
+            &slim_file,
+        )?;
+        // save presigned url to database
+        save_presign_url(&slim_file.uuid, &presigned_url, conn)?;
+        Ok(presigned_url)
     }
 }
 
@@ -242,6 +274,7 @@ impl PreliminaryFileData {
         user_uuid: Uuid,
         object: ListObject,
         filename: &str,
+        commit_uuid: Uuid,
         conn: &mut PgConnection,
     ) -> PreliminaryFileData {
         // set default parent
@@ -249,7 +282,7 @@ impl PreliminaryFileData {
         // getting rid of dangerous names
         let filename = sanitize_filename::sanitize(filename);
         // get id for extension
-        let id_ext = super::util::find_id_ext(&filename, conn);
+        let id_ext = find_id_ext(&filename, conn);
 
         Self {
             parent_file_uuid,
@@ -258,6 +291,7 @@ impl PreliminaryFileData {
             user_uuid,
             filename,
             id_ext,
+            commit_uuid,
             content_type: "application/text".to_string(), // <-- todo!(add parse of filename)
         }
     }
@@ -269,40 +303,12 @@ impl DownloadFile {
         slim_file: &SlimFile,
         conn: &mut PgConnection,
     ) -> ServiceResult<DownloadFile> {
-        let naive_local_now = chrono::Local::now().naive_local();
-
-        let get_url_from_db = presigned_url_ref::presigned_url_ref
-            .select(presigned_url_ref::presigned_url)
-            .filter(presigned_url_ref::file_uuid.eq(&slim_file.uuid)
-                .and(presigned_url_ref::expiration_at.gt(naive_local_now)))
-            .limit(1)
-            .load::<String>(conn)
-            .map_err(|err| {
-                debug!("Failed get presigned_url: {:?}", err);
-                ServiceError::InternalServerError
-            })?;
-
-        let download_url = match get_url_from_db.first() {
-            Some(url) => url.clone(),
-            None => {
-                debug!("Failed get presigned_url");
-                // creates and saves (updates) download presigned url for a file in the database
-                let presigned_url = download_presigned_url(
-                    &StorageAccess::from_env(),
-                    slim_file,
-                )?;
-                // save presigned url to database
-                save_presign_url(&slim_file.uuid, &presigned_url, conn)?;
-                presigned_url
-            },
-        };
-
         Ok(DownloadFile{
             uuid: slim_file.uuid,
             hash: hex::encode(&slim_file.hash),
             filename: slim_file.filename.clone(),
             filesize: slim_file.filesize,
-            download_url,
+            download_url: SlimFile::get_download_string(&slim_file.uuid, conn)?,
         })
     }
 
@@ -314,8 +320,7 @@ impl DownloadFile {
     ) -> ServiceResult<DownloadFile> {
         let file = match SlimFile::get_file_by_uuid(target_file_uuid, conn) {
             Ok(slim_file) => slim_file,
-            Err(_) =>
-                SlimFile::get_file_by_uuid(&get_default_image(), conn)?,
+            Err(_) => SlimFile::get_file_by_uuid(&get_default_image(), conn)?,
         };
 
         DownloadFile::get_by_slim_file(&file, conn)
@@ -324,8 +329,7 @@ impl DownloadFile {
     /// Get structures of DownloadFile by files uuidsget_by_file_uuids
     pub(crate) fn get_by_file_uuids (
         target_file_uuids: &[Uuid],
-        limit: i32,
-        offset: i32,
+        paginate: &Paginate,
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<DownloadFile>> {
         let mut collect_res: Vec<DownloadFile> = Vec::new();
@@ -336,8 +340,7 @@ impl DownloadFile {
 
         let slim_files = SlimFile::get_by_file_uuids(
             target_file_uuids,
-            limit,
-            offset,
+            paginate,
             conn
         )?;
 

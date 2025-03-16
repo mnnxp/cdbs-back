@@ -1,9 +1,10 @@
+use crate::graphql::file::ShowFileRelatedData;
 use super::standard_status::model::StandardStatusTranslateList;
 use crate::models::company::model::ShowCompanyShort;
 use crate::models::user::model::ShowUserShort;
 use crate::models::relate_ref::{
     type_access::model::TypeAccessTranslateList,
-    file::model::{ShowFileRelatedData, DownloadFile},
+    file::model::DownloadFile,
     file::util::get_default_image,
     region::model::RegionTranslateList,
     spec::model::SpecTranslateList,
@@ -265,49 +266,25 @@ pub(crate) struct IptStandardsArg {
     pub(crate) company_uuid: Option<Uuid>,
     /// Filter by the presence of the standard in the user's favorites
     pub(crate) favorite: Option<bool>,
-    /// Restriction of data sampling (maximum number of records)
-    pub(crate) limit: Option<i32>,
-    /// Number of skipping records at the beginning (offset)
-    pub(crate) offset: Option<i32>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub(crate) struct StandardsArg {
     pub(crate) filter_standards_uuids: Vec<Uuid>,
     pub(crate) company_uuid: Option<Uuid>,
     pub(crate) favorite: bool,
-    pub(crate) limit: i32,
-    pub(crate) offset: i32,
 }
 
-impl Default for StandardsArg {
-    fn default() -> Self {
-        Self {
-            filter_standards_uuids: Vec::new(),
-            company_uuid: None,
-            favorite: false,
-            limit: 100,
-            offset: 0,
-        }
-    }
-}
-
-impl From<IptStandardsArg> for StandardsArg {
-    fn from(data: IptStandardsArg) -> Self {
-        let IptStandardsArg {
-            standards_uuids,
-            company_uuid,
-            favorite,
-            limit,
-            offset,
-        } = data;
-
-        Self {
-            filter_standards_uuids: standards_uuids.unwrap_or_default(),
-            company_uuid,
-            favorite: favorite.unwrap_or(false),
-            limit: limit.unwrap_or(100),
-            offset: offset.unwrap_or(0),
+impl StandardsArg {
+    /// Returns a StandardsArg with the given arguments
+    pub(crate) fn by_arg(data: Option<IptStandardsArg>) -> Self {
+        match data {
+            Some(data) => Self {
+                filter_standards_uuids: data.standards_uuids.unwrap_or_default(),
+                company_uuid: data.company_uuid,
+                favorite: data.favorite.unwrap_or_default(),
+            },
+            None => StandardsArg::default(),
         }
     }
 }
@@ -319,18 +296,12 @@ pub(crate) struct IptStandardFilesArg {
     pub(crate) standard_uuid: Uuid,
     /// Filter by standard UUID files
     pub(crate) files_uuids: Option<Vec<Uuid>>,
-    /// Restriction of data sampling (maximum number of records)
-    pub(crate) limit: Option<i32>,
-    /// Number of skipping records at the beginning (offset)
-    pub(crate) offset: Option<i32>,
 }
 
 #[derive(Debug)]
 pub(crate) struct StandardFilesArg {
     pub(crate) standard_uuid: Uuid,
     pub(crate) file_uuids: Vec<Uuid>,
-    pub(crate) limit: i32,
-    pub(crate) offset: i32,
 }
 
 impl From<IptStandardFilesArg> for StandardFilesArg {
@@ -338,8 +309,6 @@ impl From<IptStandardFilesArg> for StandardFilesArg {
         Self {
             standard_uuid: data.standard_uuid,
             file_uuids: data.files_uuids.unwrap_or_default(),
-            limit: data.limit.unwrap_or(100),
-            offset: data.offset.unwrap_or(0),
         }
     }
 }

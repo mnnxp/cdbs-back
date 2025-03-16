@@ -1,4 +1,5 @@
-use crate::errors::{ServiceResult, ServiceError};
+use crate::errors::ServiceResult;
+use crate::errors::err_msg::{ErrorMessage, get_err_msg};
 use crate::models::company::member::role::model::RoleMemberAndRelatedData;
 use crate::models::company::access::util::check_company_access;
 use diesel::{PgConnection, prelude::*};
@@ -21,10 +22,7 @@ pub(super) fn get_company_roles_ids(
         Ok(x) => Ok(x),
         Err(err) => {
             debug!("Error get roles for target company: {:?}", err);
-
-            Err(ServiceError::BadRequest(
-                "Not found access for target role".to_string()
-            ))
+            Err(get_err_msg(ErrorMessage::NotFoundAccessForRole))
         }
     }
 }
@@ -47,7 +45,7 @@ pub(crate) fn get_roles_for_company(
         conn,
     )? {
         // return error if user not have access level
-        return Err(ServiceError::BadRequest("Access denied".to_string()))
+        return Err(get_err_msg(ErrorMessage::AccessDenied))
     }
 
     let roles_ids = role_member_list
@@ -65,10 +63,7 @@ pub(crate) fn get_roles_for_company(
         },
         Err(err) => {
             debug!("Not found roles for company: {:?}", err);
-
-            Err(ServiceError::BadRequest(
-                "Not found roles for company".to_string()
-            ))
+            Err(get_err_msg(ErrorMessage::NotFoundRolesForCompany))
         }
     }
 }

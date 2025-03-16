@@ -1,4 +1,5 @@
 use crate::errors::{ServiceResult, ServiceError};
+use crate::errors::err_msg::{ErrorMessage, get_err_msg};
 use diesel::prelude::*;
 use uuid::Uuid;
 
@@ -32,7 +33,7 @@ pub(crate) fn check_is_owner_with_err(
 ) -> ServiceResult<bool> {
     match check_is_owner(target_user_uuid, target_component_uuid, conn)? {
         true => Ok(true),
-        false => Err(ServiceError::BadRequest("Access denied".to_string())),
+        false => Err(get_err_msg(ErrorMessage::AccessDenied)),
     }
 }
 
@@ -87,7 +88,7 @@ pub(crate) fn check_access_component_for_user(
     )? {
         true => Ok(true),
         // not found need access level for target user
-        false => Err(ServiceError::BadRequest("Access denied".to_string()))
+        false => Err(get_err_msg(ErrorMessage::AccessDenied))
     }
 }
 
@@ -169,7 +170,7 @@ pub(crate) fn get_companies_have_access_to_component(
         })?;
 
     match companies_uuids.is_empty() {
-        true => Err(ServiceError::BadRequest("Access denied".to_string())),
+        true => Err(get_err_msg(ErrorMessage::AccessDenied)),
         false => Ok(companies_uuids)
     }
 }

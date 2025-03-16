@@ -1,4 +1,6 @@
+pub mod attributes;
 pub mod extension;
+pub mod file;
 pub mod keyword;
 pub mod language;
 pub mod license;

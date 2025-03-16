@@ -1,20 +1,18 @@
 use crate::errors::ServiceResult;
 use crate::database::{get_conn, PooledConnection};
+use crate::graphql::relate::attributes::IptPaginate;
 use crate::models::company;
 use crate::models::company::{
     model::{CompanyAndRelatedData, ShowCompanyShort, CompaniesArg, IptCompaniesArg},
     member::model::CompanyMemberAndRelatedData,
     member::role::model::RoleMemberAndRelatedData,
     company_type::model::CompanyTypeTranslateList,
-    spec::model::{IptCompanySpecsArg, CompanySpecsArg},
     company_represent::model::{CompanyRepresentAndRelatedData, IptCompanyRepresentsArg, CompanyRepresentsArg},
     company_represent::representation_type::model::RepresentationTypeTranslateList,
 };
 use crate::models::user::access::logged::{get_logged_user_uuid, check_authorized};
-use crate::models::relate_ref::{
-    spec::model::SpecTranslateList,
-    language::get_set_language,
-};
+use crate::models::relate_ref::{spec::model::SpecTranslateList, language::get_set_language};
+use crate::models::search::order::Paginate;
 use async_graphql::{self, Context, Object};
 use uuid::Uuid;
 
@@ -29,25 +27,24 @@ impl CompanyQuery {
         &self,
         cxt: &Context<'_>,
         args: Option<IptCompaniesArg>,
+        // sort: Option<IptSort>,
+        paginate: Option<IptPaginate>,
     ) -> ServiceResult<Vec<ShowCompanyShort>> {
         use company::service::list::get_companies;
 
         // authorization check
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
-
         let arguments: CompaniesArg = match args {
-            Some(x) => CompaniesArg::from(x),
-            None => CompaniesArg::default(),
+            Some(x) => CompaniesArg::by_arg(x, get_set_language(cxt)),
+            None => CompaniesArg::by_lang(get_set_language(cxt)),
         };
-
+        // let s = sort.map(|s| Sort::parsing(TableName::CompanieRef, &s.by_field, s.as_desc))
+        //     .unwrap_or(Sort::set_by_table(TableName::CompanieRef));
+        let p = paginate.map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
+            .unwrap_or_default();
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        get_companies(
-            &logged_user_uuid,
-            &arguments,
-            &get_set_language(cxt),
-            conn,
-        )
+        get_companies(&logged_user_uuid, &arguments, &p, conn)
     }
 
     /// Returns basic and associated company data by UUID.
@@ -71,27 +68,43 @@ impl CompanyQuery {
         )
     }
 
+    /// Returns the supplier company information and associated UUID data.
+    /// Does not require an authorization token, but only works for public companies with supplier status.
+    async fn supplier_company(
+        &self,
+        cxt: &Context<'_>,
+        company_uuid: Uuid,
+    ) -> ServiceResult<CompanyAndRelatedData> {
+        use company::service::list::get_supplier_by_uuid;
+
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+
+        get_supplier_by_uuid(
+            &company_uuid,
+            &get_set_language(cxt),
+            conn,
+        )
+    }
+
     /// Returns information about company representative offices.
     async fn company_represents(
         &self,
         cxt: &Context<'_>,
         args: IptCompanyRepresentsArg,
+        // sort: Option<IptSort>,
+        paginate: Option<IptPaginate>,
     ) -> ServiceResult<Vec<CompanyRepresentAndRelatedData>> {
         use company::company_represent::service::list::get_represents;
 
         // authorization check
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
-
-        let arguments: CompanyRepresentsArg = args.into();
-
+        let arguments = CompanyRepresentsArg::by_arg(args, get_set_language(cxt));
+        // let s = sort.map(|s| Sort::parsing(TableName::CompanyRepresentRef, &s.by_field, s.as_desc))
+        //     .unwrap_or(Sort::set_by_table(TableName::CompanyRepresentRef));
+        let p = paginate.map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
+            .unwrap_or_default();
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
-
-        get_represents(
-            &logged_user_uuid,
-            &arguments,
-            &get_set_language(cxt),
-            conn
-        )
+        get_represents(&logged_user_uuid, &arguments, &p, conn)
     }
 
     /// Returns aggregated data about company (community) members.
@@ -158,23 +171,18 @@ impl CompanyQuery {
     async fn company_specs(
         &self,
         cxt: &Context<'_>,
-        args: IptCompanySpecsArg,
+        company_uuid:  Uuid,
+        paginate: Option<IptPaginate>,
     ) -> ServiceResult<Vec<SpecTranslateList>> {
         use crate::models::company::spec::service::list::get_company_specs;
 
         // authorization check
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
-
-        let arguments: CompanySpecsArg = args.into();
-
+        let p = paginate.map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
+            .unwrap_or_default();
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        get_company_specs(
-            &logged_user_uuid,
-            &arguments,
-            &get_set_language(cxt),
-            conn
-        )
+        get_company_specs(&logged_user_uuid, &company_uuid, &get_set_language(cxt), &p, conn)
     }
 
     /// Returns a list of types of representative offices (divisions) of companies.

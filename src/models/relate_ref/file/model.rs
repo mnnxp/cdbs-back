@@ -1,10 +1,7 @@
-use crate::schema::*;
+use crate::schema::file_ref;
 use async_graphql::*;
-use chrono::*;
+use chrono::NaiveDateTime;
 use uuid::Uuid;
-
-use crate::models::user::model::ShowUserShort;
-use crate::models::relate_ref::program::model::Program;
 
 /// List for insert data in related tables
 #[derive(Deserialize, Clone, Debug)]
@@ -58,6 +55,7 @@ impl ListObject {
 pub(crate) struct ShowFile {
     pub(crate) uuid: Uuid,
     pub(crate) parent_file_uuid: Uuid,
+    pub(crate) commit_uuid: Uuid,
     pub(crate) revision: i32,
     pub(crate) user_uuid: Uuid,
     pub(crate) filename: String,
@@ -75,6 +73,7 @@ pub(crate) struct InsertableFile {
     pub(crate) uuid: Uuid,
     pub(crate) parent_file_uuid: Uuid,
     pub(crate) revision: i32,
+    pub(crate) commit_uuid: Uuid,
     pub(crate) hash: Vec<u8>,
     pub(crate) user_uuid: Uuid,
     pub(crate) filename: String,
@@ -99,6 +98,7 @@ impl From<PreliminaryFileData> for InsertableFile {
             user_uuid,
             filename,
             id_ext,
+            commit_uuid,
             content_type,
             // filesize,
             ..
@@ -118,6 +118,7 @@ impl From<PreliminaryFileData> for InsertableFile {
             uuid: new_file_uuid,
             parent_file_uuid,
             revision,
+            commit_uuid,
             hash: Vec::new(),
             user_uuid,
             filename,
@@ -146,6 +147,8 @@ pub(crate) struct PreliminaryFileData {
     pub(crate) filename: String,
     /// get id for extension with find_id_ext(filename, conn)
     pub(crate) id_ext: i32,
+    /// file comment (a new one is created if the same one is not found)
+    pub(crate) commit_uuid: Uuid,
     pub(crate) content_type: String,
 }
 
@@ -195,31 +198,6 @@ pub(crate) struct UploadFile {
     pub(crate) filename: String,
     /// Pre-signed URL for file upload
     pub(crate) upload_url: String,
-}
-
-/// Full data about the file uploaded to the repository
-#[derive(Debug, SimpleObject, Clone)]
-pub(crate) struct ShowFileRelatedData {
-    /// File UUID
-    pub(crate) uuid: Uuid,
-    /// File name
-    pub(crate) filename: String,
-    /// File revision number
-    pub(crate) revision: i32,
-    /// UUID of parent file
-    pub(crate) parent_file_uuid: Uuid,
-    /// Data about the user who owns the file
-    pub(crate) owner_user: ShowUserShort,
-    /// Estimated data content type
-    pub(crate) content_type: String,
-    /// File size in bytes
-    pub(crate) filesize: i64,
-    /// Software associated with the file (to open the file)
-    pub(crate) program: Program,
-    /// File creation date
-    pub(crate) created_at: NaiveDateTime,
-    /// Date the file description was updated
-    pub(crate) updated_at: NaiveDateTime,
 }
 
 /// Data for retrieving a file from CADBase storage

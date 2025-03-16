@@ -3,6 +3,7 @@ use crate::models::company::access::util::check_is_owner_with_err;
 use crate::models::relate_ref::file::{
     model::{ListObject, UploadFile},
     service::register::preregister_file,
+    commit::Commit,
 };
 use crate::storage::model::StorageAccess;
 use crate::storage::presigned_url::upload_presigned_url;
@@ -27,6 +28,7 @@ pub(crate) fn update_favicon(
         logged_user_uuid,
         ListObject::CompanyFavicon(*target_company_uuid),
         filename,
+        &Commit::create_commit("Update favicon", conn)?,
         conn
     )?;
 

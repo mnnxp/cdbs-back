@@ -6,7 +6,7 @@ use uuid::Uuid;
 
 // Favorites standard models
 #[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, Clone, Debug)]
-#[diesel(primary_key(standard_uuid, standard_uuid))]
+#[diesel(primary_key(standard_uuid, user_uuid))]
 #[diesel(belongs_to(Standard, foreign_key = standard_uuid))]
 #[diesel(belongs_to(User, foreign_key = user_uuid))]
 #[diesel(table_name = standard_fav)]
