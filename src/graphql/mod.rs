@@ -6,11 +6,13 @@ mod company;
 mod component;
 mod relate;
 mod standard;
+mod supplier_service;
 mod user;
 
 pub use company::{CompanyMutation, CompanyQuery};
 pub use component::{ComponentMutation, ComponentQuery, component_model};
 pub use standard::{StandardMutation, StandardQuery};
+pub use supplier_service::{ServiceMutation, ServiceQuery, service_model};
 pub use user::{UserMutation, UserQuery};
 pub use relate::extension::ExtensionMutation;
 pub use relate::file;
@@ -29,6 +31,7 @@ pub struct QueryRoot(
     UserQuery,
     ComponentQuery,
     StandardQuery,
+    ServiceQuery,
     CompanyQuery,
     // ExtensionQuery,
     KeywordQuery,
@@ -47,6 +50,7 @@ pub struct MutationRoot(
     UserMutation,
     ComponentMutation,
     StandardMutation,
+    ServiceMutation,
     CompanyMutation,
     ExtensionMutation,
     KeywordMutation,

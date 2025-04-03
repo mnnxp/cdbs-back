@@ -104,6 +104,7 @@ pub(crate) struct ComponentsArg {
     pub(crate) filter_components_uuids: Vec<Uuid>,
     pub(crate) company_uuid: Option<Uuid>,
     pub(crate) standard_uuid: Option<Uuid>,
+    pub(crate) service_uuid: Option<Uuid>,
     pub(crate) user_uuid: Option<Uuid>,
     pub(crate) favorite: bool,
 }
@@ -116,6 +117,7 @@ impl ComponentsArg {
                 filter_components_uuids: data.components_uuids.unwrap_or_default(),
                 company_uuid: data.company_uuid,
                 standard_uuid: data.standard_uuid,
+                service_uuid: data.service_uuid,
                 user_uuid: data.user_uuid,
                 favorite: data.favorite.unwrap_or_default(),
             },

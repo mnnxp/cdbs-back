@@ -6,7 +6,7 @@ use diesel::prelude::*;
 use uuid::Uuid;
 
 /// Checking company owner, return bool
-pub(crate) fn check_is_owner(
+pub(crate) fn check_is_owner_company(
     target_user_uuid: &Uuid,
     target_company_uuid: &Uuid,
     conn: &mut PgConnection
@@ -51,7 +51,7 @@ pub(crate) fn check_is_owner_with_err(
     target_company_uuid: &Uuid,
     conn: &mut PgConnection
 ) -> ServiceResult<bool> {
-    match check_is_owner(target_user_uuid, target_company_uuid, conn)? {
+    match check_is_owner_company(target_user_uuid, target_company_uuid, conn)? {
         true => Ok(true),
         false => Err(get_err_msg(ErrorMessage::AccessDenied)),
     }
@@ -75,7 +75,7 @@ pub(crate) fn check_company_access(
     }
 
     // check user on owner company
-    if check_is_owner(target_user_uuid, target_company_uuid, conn)? {
+    if check_is_owner_company(target_user_uuid, target_company_uuid, conn)? {
         return Ok(true)
     }
 

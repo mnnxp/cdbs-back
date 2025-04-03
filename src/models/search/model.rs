@@ -1,5 +1,6 @@
 use crate::errors::ServiceResult;
 use crate::models::user::access::logged::{get_logged_user_uuid, default_user_uuid};
+use crate::models::user::model::SlimUser;
 use crate::models::relate_ref::language::get_set_language;
 use diesel::{sql_types, prelude::*};
 use async_graphql::*;
@@ -60,6 +61,14 @@ impl ExtraOptions {
             },
         }
     }
+
+    pub(crate) fn by_slim_user(cxt: &Context<'_>, slim_user: &SlimUser) -> Self {
+        Self {
+            logged_user_uuid: slim_user.uuid,
+            set_lang_id: get_set_language(cxt),
+            no_entry: false,
+        }
+    }
 }
 
 /// Basic search attributes
@@ -74,6 +83,7 @@ pub(crate) struct IptSearchArg {
     pub(crate) by_keywords: bool,
     pub(crate) company_uuid: Option<Uuid>,
     pub(crate) standard_uuid: Option<Uuid>,
+    pub(crate) service_uuid: Option<Uuid>,
     pub(crate) user_uuid: Option<Uuid>,
     #[graphql(default = false)]
     pub(crate) favorite: bool,

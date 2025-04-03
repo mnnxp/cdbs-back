@@ -50,6 +50,8 @@ pub(crate) fn value_in_err_msg_en(err_msg: ErrorMessage) -> String {
             String::from("Failed get companies list have access to component"),
         ErrorMessage::FailedGetCompaniesWithAccessStandard =>
             String::from("Failed get companies list have access to standard"),
+        ErrorMessage::FailedGetCompaniesWithAccessService =>
+            String::from("Failed get companies list have access to service"),
         ErrorMessage::FailedMatchArguments =>
             String::from("Failed match arguments"),
         ErrorMessage::FailedSetAccessCompany =>
@@ -58,6 +60,8 @@ pub(crate) fn value_in_err_msg_en(err_msg: ErrorMessage) -> String {
             String::from("Failed update data"),
         ErrorMessage::FailedUpdateRoleMember =>
             String::from("Failed update role member"),
+        ErrorMessage::FailedUpdateServiceBadStatus =>
+            String::from("Failed update service, inappropriate status"),
         ErrorMessage::FailedWriteMetadata =>
             String::from("Failed write metadata"),
         ErrorMessage::FailedRemoveAccessForRole =>
@@ -94,6 +98,8 @@ pub(crate) fn value_in_err_msg_en(err_msg: ErrorMessage) -> String {
             String::from("Not found specs"),
         ErrorMessage::NotFoundStandard =>
             String::from("Not found standard"),
+        ErrorMessage::NotFoundService =>
+            String::from("Not found service"),
         ErrorMessage::NotFoundTargetFile =>
             String::from("Not found target file"),
         ErrorMessage::NotMorePathInOneQuery =>

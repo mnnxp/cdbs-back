@@ -1,0 +1,41 @@
+use crate::schema::*;
+use crate::models::supplier_service::model::Service;
+use crate::models::relate_ref::language::model::Language;
+use async_graphql::*;
+
+#[derive(Identifiable, Serialize, Deserialize, Queryable, Debug)]
+#[diesel(primary_key(id))]
+#[diesel(table_name = service_status_ref)]
+pub(crate) struct ServiceStatus {
+    pub(crate) id: i32,
+}
+
+#[derive(Debug, Insertable)]
+#[diesel(table_name = service_status_ref)]
+pub(crate) struct InsertableServiceStatus {
+    pub(crate) id: i32,
+}
+
+/// Information about the status of the service with localization
+#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations)]
+#[derive(SimpleObject, Clone, Debug)]
+#[diesel(primary_key(service_status_id, lang_id))]
+#[diesel(belongs_to(Service, foreign_key = service_status_id))]
+#[diesel(belongs_to(Language, foreign_key = lang_id))]
+#[diesel(table_name = service_status_translate_list)]
+pub(crate) struct ServiceStatusTranslateList {
+    /// Status of the service identifier
+    pub(crate) service_status_id: i32,
+    /// Language identifier
+    pub(crate) lang_id: i32,
+    /// Service status name
+    pub(crate) name: String,
+}
+
+#[derive(Debug, Insertable)]
+#[diesel(table_name = service_status_translate_list)]
+pub(crate) struct InsertableServiceStatusTranslateList {
+    pub(crate) service_status_id: i32,
+    pub(crate) lang_id: i32,
+    pub(crate) name: String,
+}

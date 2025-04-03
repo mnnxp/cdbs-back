@@ -31,6 +31,17 @@ table! {
 }
 
 table! {
+    company_access_to_service (service_uuid, company_uuid) {
+        service_uuid -> Uuid,
+        company_uuid -> Uuid,
+        type_access_id -> Int4,
+        is_enabled -> Bool,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
+
+table! {
     company_access_to_standard (standard_uuid, company_uuid) {
         standard_uuid -> Uuid,
         company_uuid -> Uuid,
@@ -156,7 +167,7 @@ table! {
         uuid -> Uuid,
         component_uuid -> Uuid,
         parent_modification_uuid -> Uuid,
-        modification_name -> Varchar,
+        modification_name -> Text,
         description -> Varchar,
         actual_status_id -> Int4,
         is_delete -> Bool,
@@ -180,6 +191,13 @@ table! {
         is_delete -> Bool,
         created_at -> Timestamp,
         updated_at -> Timestamp,
+    }
+}
+
+table! {
+    component_to_service (service_uuid, component_uuid) {
+        service_uuid -> Uuid,
+        component_uuid -> Uuid,
     }
 }
 
@@ -245,6 +263,19 @@ table! {
 }
 
 table! {
+    discussion_service_ref (id) {
+        id -> Int4,
+        parent_discussion_id -> Int4,
+        service_uuid -> Uuid,
+        author_uuid -> Uuid,
+        message_content -> Varchar,
+        is_delete -> Bool,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
+
+table! {
     extension_ref (id) {
         id -> Int4,
         extension -> Varchar,
@@ -257,7 +288,6 @@ table! {
         uuid -> Uuid,
         parent_file_uuid -> Uuid,
         revision -> Int4,
-        commit_uuid -> Uuid,
         hash -> Bytea,
         user_uuid -> Uuid,
         filename -> Varchar,
@@ -270,6 +300,7 @@ table! {
         is_delete -> Bool,
         created_at -> Timestamp,
         updated_at -> Timestamp,
+        commit_uuid -> Uuid,
     }
 }
 
@@ -284,6 +315,13 @@ table! {
     file_to_modification (file_uuid, modification_uuid) {
         file_uuid -> Uuid,
         modification_uuid -> Uuid,
+    }
+}
+
+table! {
+    file_to_service (file_uuid, service_uuid) {
+        file_uuid -> Uuid,
+        service_uuid -> Uuid,
     }
 }
 
@@ -312,6 +350,13 @@ table! {
 table! {
     keyword_to_component (component_uuid, keyword_id) {
         component_uuid -> Uuid,
+        keyword_id -> Int4,
+    }
+}
+
+table! {
+    keyword_to_service (service_uuid, keyword_id) {
+        service_uuid -> Uuid,
         keyword_id -> Int4,
     }
 }
@@ -443,6 +488,14 @@ table! {
 }
 
 table! {
+    param_to_service (service_uuid, param_id) {
+        service_uuid -> Uuid,
+        param_id -> Int4,
+        value -> Varchar,
+    }
+}
+
+table! {
     param_translate_list (param_id, lang_id) {
         param_id -> Int4,
         lang_id -> Int4,
@@ -523,6 +576,46 @@ table! {
 }
 
 table! {
+    service_history_list (id) {
+        id -> Int4,
+        service_uuid -> Uuid,
+        type_of_change_id -> Int4,
+        old_data -> Varchar,
+        changed_at -> Timestamp,
+    }
+}
+
+table! {
+    service_ref (uuid) {
+        uuid -> Uuid,
+        name -> Varchar,
+        description -> Varchar,
+        user_uuid -> Uuid,
+        company_uuid -> Uuid,
+        type_access_id -> Int4,
+        service_status_id -> Int4,
+        region_id -> Int4,
+        is_delete -> Bool,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
+
+table! {
+    service_status_ref (id) {
+        id -> Int4,
+    }
+}
+
+table! {
+    service_status_translate_list (service_status_id, lang_id) {
+        service_status_id -> Int4,
+        lang_id -> Int4,
+        name -> Varchar,
+    }
+}
+
+table! {
     spec_ref (id) {
         id -> Int4,
         parent_spec_id -> Int4,
@@ -540,6 +633,13 @@ table! {
     spec_to_component (spec_id, component_uuid) {
         spec_id -> Int4,
         component_uuid -> Uuid,
+    }
+}
+
+table! {
+    spec_to_service (spec_id, service_uuid) {
+        spec_id -> Int4,
+        service_uuid -> Uuid,
     }
 }
 
@@ -621,18 +721,6 @@ table! {
 }
 
 table! {
-    storage_access_ref (id) {
-        id -> Int4,
-        application_key_id -> Varchar,
-        application_key -> Varchar,
-        expiration_at -> Timestamp,
-        bucket -> Varchar,
-        region -> Varchar,
-        endpoint -> Varchar,
-    }
-}
-
-table! {
     supplier_to_component (component_uuid, company_uuid) {
         component_uuid -> Uuid,
         company_uuid -> Uuid,
@@ -671,6 +759,17 @@ table! {
 table! {
     user_access_to_component (component_uuid, user_uuid) {
         component_uuid -> Uuid,
+        user_uuid -> Uuid,
+        type_access_id -> Int4,
+        is_enabled -> Bool,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
+
+table! {
+    user_access_to_service (service_uuid, user_uuid) {
+        service_uuid -> Uuid,
         user_uuid -> Uuid,
         type_access_id -> Int4,
         is_enabled -> Bool,
@@ -758,6 +857,9 @@ joinable!(actual_status_translate_list -> language_ref (lang_id));
 joinable!(company_access_to_component -> company_ref (company_uuid));
 joinable!(company_access_to_component -> component_ref (component_uuid));
 joinable!(company_access_to_component -> type_access_ref (type_access_id));
+joinable!(company_access_to_service -> company_ref (company_uuid));
+joinable!(company_access_to_service -> service_ref (service_uuid));
+joinable!(company_access_to_service -> type_access_ref (type_access_id));
 joinable!(company_access_to_standard -> company_ref (company_uuid));
 joinable!(company_access_to_standard -> standard_ref (standard_uuid));
 joinable!(company_access_to_standard -> type_access_ref (type_access_id));
@@ -789,6 +891,8 @@ joinable!(component_ref -> actual_status_ref (actual_status_id));
 joinable!(component_ref -> component_type_ref (component_type_id));
 joinable!(component_ref -> type_access_ref (type_access_id));
 joinable!(component_ref -> user_ref (user_uuid));
+joinable!(component_to_service -> component_ref (component_uuid));
+joinable!(component_to_service -> service_ref (service_uuid));
 joinable!(component_type_translate_list -> component_type_ref (component_type_id));
 joinable!(component_type_translate_list -> language_ref (lang_id));
 joinable!(condition_to_license -> license_condition_ref (condition_id));
@@ -799,19 +903,25 @@ joinable!(discussion_company_ref -> company_ref (company_uuid));
 joinable!(discussion_company_ref -> user_ref (author_uuid));
 joinable!(discussion_component_ref -> component_ref (component_uuid));
 joinable!(discussion_component_ref -> user_ref (author_uuid));
+joinable!(discussion_service_ref -> service_ref (service_uuid));
+joinable!(discussion_service_ref -> user_ref (author_uuid));
 joinable!(extension_ref -> program_ref (program_id));
-joinable!(file_ref -> extension_ref (id_ext));
 joinable!(file_ref -> commit_ref (commit_uuid));
+joinable!(file_ref -> extension_ref (id_ext));
 joinable!(file_to_component -> component_ref (component_uuid));
 joinable!(file_to_component -> file_ref (file_uuid));
 joinable!(file_to_modification -> component_modification_list (modification_uuid));
 joinable!(file_to_modification -> file_ref (file_uuid));
+joinable!(file_to_service -> file_ref (file_uuid));
+joinable!(file_to_service -> service_ref (service_uuid));
 joinable!(file_to_standard -> file_ref (file_uuid));
 joinable!(file_to_standard -> standard_ref (standard_uuid));
 joinable!(fileset_for_program -> component_modification_list (modification_uuid));
 joinable!(fileset_for_program -> program_ref (program_id));
 joinable!(keyword_to_component -> component_ref (component_uuid));
 joinable!(keyword_to_component -> keyword_ref (keyword_id));
+joinable!(keyword_to_service -> keyword_ref (keyword_id));
+joinable!(keyword_to_service -> service_ref (service_uuid));
 joinable!(keyword_to_standard -> keyword_ref (keyword_id));
 joinable!(keyword_to_standard -> standard_ref (standard_uuid));
 joinable!(license_condition_translate_list -> language_ref (lang_id));
@@ -833,6 +943,8 @@ joinable!(param_to_component -> component_ref (component_uuid));
 joinable!(param_to_component -> param_ref (param_id));
 joinable!(param_to_modification -> component_modification_list (modification_uuid));
 joinable!(param_to_modification -> param_ref (param_id));
+joinable!(param_to_service -> param_ref (param_id));
+joinable!(param_to_service -> service_ref (service_uuid));
 joinable!(param_translate_list -> language_ref (lang_id));
 joinable!(param_translate_list -> param_ref (param_id));
 joinable!(permission_to_license -> license_permission_ref (permission_id));
@@ -847,10 +959,21 @@ joinable!(role_access -> type_access_ref (type_access_id));
 joinable!(role_member_list -> company_ref (company_uuid));
 joinable!(role_member_translate_list -> language_ref (lang_id));
 joinable!(role_member_translate_list -> role_member_list (role_member_id));
+joinable!(service_history_list -> service_ref (service_uuid));
+joinable!(service_history_list -> type_of_change_ref (type_of_change_id));
+joinable!(service_ref -> company_ref (company_uuid));
+joinable!(service_ref -> region_ref (region_id));
+joinable!(service_ref -> service_status_ref (service_status_id));
+joinable!(service_ref -> type_access_ref (type_access_id));
+joinable!(service_ref -> user_ref (user_uuid));
+joinable!(service_status_translate_list -> language_ref (lang_id));
+joinable!(service_status_translate_list -> service_status_ref (service_status_id));
 joinable!(spec_to_company -> company_ref (company_uuid));
 joinable!(spec_to_company -> spec_ref (spec_id));
 joinable!(spec_to_component -> component_ref (component_uuid));
 joinable!(spec_to_component -> spec_ref (spec_id));
+joinable!(spec_to_service -> service_ref (service_uuid));
+joinable!(spec_to_service -> spec_ref (spec_id));
 joinable!(spec_to_standard -> spec_ref (spec_id));
 joinable!(spec_to_standard -> standard_ref (standard_uuid));
 joinable!(spec_translate_list -> language_ref (lang_id));
@@ -877,6 +1000,9 @@ joinable!(type_of_change_translate_list -> type_of_change_ref (type_of_change_id
 joinable!(user_access_to_component -> component_ref (component_uuid));
 joinable!(user_access_to_component -> type_access_ref (type_access_id));
 joinable!(user_access_to_component -> user_ref (user_uuid));
+joinable!(user_access_to_service -> service_ref (service_uuid));
+joinable!(user_access_to_service -> type_access_ref (type_access_id));
+joinable!(user_access_to_service -> user_ref (user_uuid));
 joinable!(user_access_to_standard -> standard_ref (standard_uuid));
 joinable!(user_access_to_standard -> type_access_ref (type_access_id));
 joinable!(user_access_to_standard -> user_ref (user_uuid));
@@ -894,6 +1020,7 @@ allow_tables_to_appear_in_same_query!(
     actual_status_translate_list,
     commit_ref,
     company_access_to_component,
+    company_access_to_service,
     company_access_to_standard,
     company_certificate_ref,
     company_fav,
@@ -907,6 +1034,7 @@ allow_tables_to_appear_in_same_query!(
     component_history_list,
     component_modification_list,
     component_ref,
+    component_to_service,
     component_type_ref,
     component_type_translate_list,
     condition_to_license,
@@ -914,14 +1042,17 @@ allow_tables_to_appear_in_same_query!(
     degree_importance_translate_list,
     discussion_company_ref,
     discussion_component_ref,
+    discussion_service_ref,
     extension_ref,
     file_ref,
     file_to_component,
     file_to_modification,
+    file_to_service,
     file_to_standard,
     fileset_for_program,
     keyword_ref,
     keyword_to_component,
+    keyword_to_service,
     keyword_to_standard,
     language_ref,
     license_condition_ref,
@@ -939,6 +1070,7 @@ allow_tables_to_appear_in_same_query!(
     param_ref,
     param_to_component,
     param_to_modification,
+    param_to_service,
     param_translate_list,
     permission_to_license,
     presigned_url_ref,
@@ -950,9 +1082,14 @@ allow_tables_to_appear_in_same_query!(
     role_access,
     role_member_list,
     role_member_translate_list,
+    service_history_list,
+    service_ref,
+    service_status_ref,
+    service_status_translate_list,
     spec_ref,
     spec_to_company,
     spec_to_component,
+    spec_to_service,
     spec_to_standard,
     spec_translate_list,
     standard_fav,
@@ -961,13 +1098,13 @@ allow_tables_to_appear_in_same_query!(
     standard_status_ref,
     standard_status_translate_list,
     standard_to_component,
-    storage_access_ref,
     supplier_to_component,
     type_access_ref,
     type_access_translate_list,
     type_of_change_ref,
     type_of_change_translate_list,
     user_access_to_component,
+    user_access_to_service,
     user_access_to_standard,
     user_certificate_ref,
     user_fav,

@@ -51,6 +51,8 @@ pub(crate) enum ErrorMessage {
     FailedGetCompaniesWithAccessComponent,
     /// "Failed get companies list have access to standard"
     FailedGetCompaniesWithAccessStandard,
+    /// "Failed get companies list have access to service"
+    FailedGetCompaniesWithAccessService,
     /// "Failed match arguments"
     FailedMatchArguments,
     /// "Failed set access for target company"
@@ -59,6 +61,8 @@ pub(crate) enum ErrorMessage {
     FailedUpdateData,
     /// "Failed update role member"
     FailedUpdateRoleMember,
+    /// "Failed update service"
+    FailedUpdateServiceBadStatus,
     /// "Failed write metadata"
     FailedWriteMetadata,
     /// "Failed: access not delete"
@@ -95,6 +99,8 @@ pub(crate) enum ErrorMessage {
     NotFoundSpecs,
     /// "Not found standard"
     NotFoundStandard,
+    /// "Not found service"
+    NotFoundService,
     /// "Not found target file"
     NotFoundTargetFile,
     /// "Not more 100 path in one query"

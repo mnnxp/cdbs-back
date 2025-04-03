@@ -42,6 +42,10 @@ pub(crate) fn get_components_by_uuids(
     if let Some(ref sd_uuid) = args.standard_uuid {
         filter_uuids.append(&mut get_components_uuids_by_standard(sd_uuid, conn)?);
     }
+    // gets components relate with service
+    if let Some(ref se_uuid) = args.service_uuid {
+        filter_uuids.append(&mut get_components_uuids_by_service(se_uuid, conn)?);
+    }
     // search for all components matching the text query
     let mut found_component_uuids = search_components(args, filter_uuids.to_vec(), conn)?;
     // duplicate filtering
@@ -92,56 +96,64 @@ pub(crate) fn get_components(
         filter_components_uuids,
         company_uuid,
         standard_uuid,
+        service_uuid,
         user_uuid,
         favorite,
     } = arguments;
     // select target components uuids
-    let target_components_uuids = match (favorite, user_uuid, standard_uuid, company_uuid) {
+    let target_components_uuids = match (favorite, user_uuid, standard_uuid, company_uuid, service_uuid) {
         // gets components of self favorite list for authorized user
-        (true, None, None, None) => {
+        (true, None, None, None, None) => {
             get_components_followed_by_user(
                 &options.logged_user_uuid,
                 conn
             )?
         },
         // gets components by user
-        (false, Some(ur_uuid), None, None) => {
+        (false, Some(ur_uuid), None, None, None) => {
             get_components_uuids_by_user(
                 ur_uuid, // user_uuid
                 conn
             )?
         },
         // gets objects to which the user is subscribed
-        (true, Some(ur_uuid), None, None) => {
+        (true, Some(ur_uuid), None, None, None) => {
             get_components_followed_by_user(
                 ur_uuid, // user_uuid
                 conn
             )?
         },
         // gets components relate with company
-        (false, None, None, Some(cy_uuid)) => {
+        (false, None, None, Some(cy_uuid), None) => {
             get_components_uuids_by_company(
                 cy_uuid, // company_uuid
                 conn
             )?
         },
         // gets components relate with standard
-        (false, None, Some(sd_uuid), None) => {
+        (false, None, Some(sd_uuid), None, None) => {
             get_components_uuids_by_standard(
                 sd_uuid, // standard_uuid
                 conn
             )?
         },
+        // gets components relate with service
+        (false, None, None, None, Some(se_uuid)) => {
+            get_components_uuids_by_service(
+                se_uuid, // service_uuid
+                conn
+            )?
+        },
         // gets components with filter or all public
-        (false, None, None, None) => {
+        (false, None, None, None, None) => {
             filter_components_uuids.to_vec()
         },
         _ => return Err(get_err_msg(ErrorMessage::FailedMatchArguments)),
     };
 
     // return not found if set filters and not select components
-    if (*favorite || user_uuid.is_some() || company_uuid.is_some() || standard_uuid.is_some()) &&
-            target_components_uuids.is_empty() {
+    if (*favorite || user_uuid.is_some() || company_uuid.is_some() || standard_uuid.is_some() ||
+            service_uuid.is_some()) && target_components_uuids.is_empty() {
         return Ok(Vec::new());
     }
 
@@ -200,7 +212,7 @@ pub(crate) fn get_components_uuids_by_company(
         .filter(supplier_to_component::company_uuid.eq(target_company_uuid))
         .select(supplier_to_component::component_uuid)
         .load::<Uuid>(conn).map_err(|err| {
-            debug!("Fail load uuid list target user: {:?}", err);
+            debug!("Fail load uuid list target component: {:?}", err);
             ServiceError::InternalServerError
         })
 }
@@ -216,7 +228,23 @@ pub(crate) fn get_components_uuids_by_standard(
         .filter(standard_to_component::standard_uuid.eq(target_standard_uuid))
         .select(standard_to_component::component_uuid)
         .load::<Uuid>(conn).map_err(|err| {
-            debug!("Fail load uuid list target user: {:?}", err);
+            debug!("Fail load uuid list target standard: {:?}", err);
+            ServiceError::InternalServerError
+        })
+}
+
+/// Gets all components uuids when related with service
+pub(crate) fn get_components_uuids_by_service(
+    target_service_uuid: &Uuid,
+    conn: &mut PgConnection,
+) -> ServiceResult<Vec<Uuid>> {
+    use crate::schema::component_to_service::dsl as component_to_service;
+
+    component_to_service::component_to_service
+        .filter(component_to_service::service_uuid.eq(target_service_uuid))
+        .select(component_to_service::component_uuid)
+        .load::<Uuid>(conn).map_err(|err| {
+            debug!("Fail load uuid list target service: {:?}", err);
             ServiceError::InternalServerError
         })
 }

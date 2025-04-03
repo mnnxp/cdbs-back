@@ -453,6 +453,7 @@ pub(crate) struct IptComponentsArg {
     pub(crate) components_uuids:  Option<Vec<Uuid>>,
     pub(crate) company_uuid: Option<Uuid>,
     pub(crate) standard_uuid: Option<Uuid>,
+    pub(crate) service_uuid: Option<Uuid>,
     pub(crate) user_uuid: Option<Uuid>,
     pub(crate) favorite: Option<bool>,
 }

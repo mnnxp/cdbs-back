@@ -11,6 +11,7 @@ use crate::models::relate_ref::file::{
     model::{ListObject, PreliminaryFileData, InsertableFile, SlimFile},
     util::{get_default_image, parsing_old_file},
 };
+use crate::models::supplier_service::file::model::{ServiceFile, InsertableServiceFile};
 use crate::models::standard::file::model::{StandardFile, InsertableStandardFile};
 use crate::schema::file_ref::dsl as file_ref;
 use diesel::prelude::*;
@@ -197,6 +198,22 @@ fn write_addiction_data(
 
             debug!("Change standard main image: {:?} ", &change_image);
 
+            Ok(true)
+        },
+        ListObject::Service(service_uuid) => {
+            use crate::schema::file_to_service::dsl::file_to_service;
+            let service =  InsertableServiceFile {
+                file_uuid,
+                service_uuid,
+            };
+            let inserted_service: ServiceFile = diesel::insert_into(file_to_service)
+                .values(&service)
+                .get_result(conn)
+                .map_err(|err| {
+                    debug!("Failed insert file to service row: {:?}", err);
+                    ServiceError::InternalServerError
+                })?;
+            debug!("Select service table, data: {:?} ", &inserted_service);
             Ok(true)
         },
         not_match => {

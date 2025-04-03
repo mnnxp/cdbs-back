@@ -10,6 +10,9 @@ use crate::models::component::component_modification::{
 use crate::models::standard::file::repository::{
     get_file_uuids_by_standard_uuid, get_standard_uuid_by_file_uuid
 };
+use crate::models::supplier_service::file::repository::{
+    get_file_uuids_by_service_uuid, get_service_uuid_by_file_uuid
+};
 use regex::Regex;
 use diesel::prelude::*;
 use uuid::Uuid;
@@ -112,6 +115,9 @@ fn collect_file_uuids_of_object(
         ListObject::Standard(standard_uuid) => {
             get_file_uuids_by_standard_uuid(standard_uuid, &[], conn)
         },
+        ListObject::Service(service_uuid) => {
+            get_file_uuids_by_service_uuid(service_uuid, &[], conn)
+        },
         _not_match => {
             debug!("This file does not require versioning");
             Ok(Vec::new())
@@ -196,6 +202,9 @@ pub(crate) fn detect_relation_to_object(
     };
     if let Some(standard_uuid) = get_standard_uuid_by_file_uuid(file_uuid, conn)? {
         return Ok(ListObject::Standard(standard_uuid))
+    };
+    if let Some(service_uuid) = get_service_uuid_by_file_uuid(file_uuid, conn)? {
+        return Ok(ListObject::Service(service_uuid))
     };
 
     debug!("This file does not require versioning");

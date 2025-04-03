@@ -13,6 +13,7 @@ use crate::models::relate_ref::file::{
     util::{detect_relation_to_object, get_active_file_revision, set_hidden_flag},
 };
 use crate::models::standard::access::util::check_is_owner_with_err as standard_check_is_owner_with_err;
+use crate::models::supplier_service::access::util::check_is_owner_with_err as service_check_is_owner_with_err;
 use crate::storage::model::StorageAccess;
 use crate::storage::metadata::object_headers;
 use diesel::prelude::*;
@@ -193,6 +194,9 @@ pub(crate) fn set_active_revision_by_uuid(
         },
         ListObject::Standard(standard_uuid) => {
             standard_check_is_owner_with_err(user_uuid, standard_uuid, conn)?;
+        },
+        ListObject::Service(service_uuid) => {
+            service_check_is_owner_with_err(user_uuid, service_uuid, conn)?;
         },
         _not_match => {
             debug!("This file does not require versioning");

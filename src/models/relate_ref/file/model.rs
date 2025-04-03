@@ -26,6 +26,8 @@ pub(crate) enum ListObject {
     ComponentModificationSet(Uuid),
     /// For bind file to the standard
     Standard(Uuid),
+    /// For bind file to the service
+    Service(Uuid),
     /// For change file for main image (favicon) standard
     StandardFavicon(Uuid),
 }
@@ -44,6 +46,7 @@ impl ListObject {
             ListObject::ComponentModification(uuid_object) => *uuid_object,
             ListObject::ComponentModificationSet(uuid_object) => *uuid_object,
             ListObject::Standard(uuid_object) => *uuid_object,
+            ListObject::Service(uuid_object) => *uuid_object,
             ListObject::StandardFavicon(uuid_object) => *uuid_object,
         }
     }

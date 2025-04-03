@@ -87,9 +87,12 @@ pub(crate) enum TableName {
     ComponentRef,
     ComponentModification,
     FileRef,
+    ServiceRef,
     ParamTranslateList,
     ParamToComponent,
+    ParamToService,
     FileToComponent,
+    FileToService,
     StandardToComponent,
     SupplierToComponent,
     ParamToModification,
@@ -105,10 +108,13 @@ impl TableName {
             Self::ComponentRef => "component_ref",
             Self::ComponentModification => "component_modification_list",
             Self::FileRef => "file_ref",
+            Self::ServiceRef => "service_ref",
             Self::ParamTranslateList => "", // table is specified in fields
             // Returns a name of a table for the relationship between two objects
             Self::ParamToComponent => "param_to_component",
+            Self::ParamToService => "param_to_service",
             Self::FileToComponent => "file_to_component",
+            Self::FileToService => "file_to_service",
             Self::StandardToComponent => "standard_to_component",
             Self::SupplierToComponent => "supplier_to_component",
             Self::ParamToModification => "param_to_modification",
@@ -123,7 +129,9 @@ impl TableName {
         match &self {
             Self::ComponentModification => "component_uuid",
             Self::ParamToComponent => "component_uuid",
+            Self::ParamToService => "service_uuid",
             Self::FileToComponent => "component_uuid",
+            Self::FileToService => "service_uuid",
             Self::StandardToComponent => "component_uuid",
             Self::SupplierToComponent => "component_uuid",
             Self::ParamToModification => "modification_uuid",
@@ -178,6 +186,16 @@ impl TableColumn {
                     "revision" => ("revision".to_string(), DataType::Number),
                     "filename" => ("filename".to_string(), DataType::String),
                     "size" => ("filesize".to_string(), DataType::Number),
+                    "updatedAt" => ("updated_at".to_string(), DataType::Date),
+                    _ => ("created_at".to_string(), DataType::Date),
+                };
+                Self { table, column, data_type }
+            },
+            TableName::ServiceRef => {
+                let (column, data_type) = match field {
+                    "name" => ("name".to_string(), DataType::Number),
+                    "description" => ("description".to_string(), DataType::String),
+                    "serviceStatusId" => ("service_status_id".to_string(), DataType::Number),
                     "updatedAt" => ("updated_at".to_string(), DataType::Date),
                     _ => ("created_at".to_string(), DataType::Date),
                 };
