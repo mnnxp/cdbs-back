@@ -159,12 +159,12 @@ impl CompanyMutation {
         cxt: &Context<'_>,
         args: DelCompanyCertificateData,
     ) -> ServiceResult<bool> {
-        use crate::models::company::certificate::service::delete::del_certificate_description;
+        use crate::models::company::certificate::service::delete::del_certificate;
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        del_certificate_description(
+        del_certificate(
             &logged_user_uuid,
             &args,
             conn

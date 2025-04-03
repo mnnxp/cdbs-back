@@ -9,7 +9,7 @@ use diesel::prelude::*;
 use uuid::Uuid;
 
 /// Удаляет сертификат компании.
-pub(crate) fn del_certificate_description(
+pub(crate) fn del_certificate(
     logged_user_uuid: &Uuid,
     data: &DelCompanyCertificateData,
     conn: &mut PgConnection,
