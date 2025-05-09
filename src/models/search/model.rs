@@ -85,6 +85,7 @@ pub(crate) struct IptSearchArg {
     pub(crate) standard_uuid: Option<Uuid>,
     pub(crate) service_uuid: Option<Uuid>,
     pub(crate) user_uuid: Option<Uuid>,
+    pub(crate) spec_id: Option<i32>,
     #[graphql(default = false)]
     pub(crate) favorite: bool,
 }

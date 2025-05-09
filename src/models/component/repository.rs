@@ -55,12 +55,13 @@ impl ShowComponentShort {
     pub(crate) fn get_components(
         filter_component_uuids: &[Uuid],
         options: &ExtraOptions,
+        spec_id: Option<i32>,
         sort: &Sort,
         paginate: &Paginate,
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<ShowComponentShort>> {
         match filter_component_uuids.is_empty() {
-            true => ShowComponentShort::get_all_public(options, sort, paginate, conn),
+            true => ShowComponentShort::get_all_public(options, spec_id, sort, paginate, conn),
             false => ShowComponentShort::get_list_by_uuids(
                 filter_component_uuids,
                 options,
@@ -191,18 +192,21 @@ impl ShowComponentShort {
     /// Gets all public components short data
     pub(crate) fn get_all_public(
         options: &ExtraOptions,
+        spec_id: Option<i32>,
         sort: &Sort,
         paginate: &Paginate,
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<ShowComponentShort>> {
-        let component_uuids = component_ref::component_ref
+        let mut component_uuids = component_ref::component_ref
             .filter(component_ref::type_access_id.eq(3)
             .and(component_ref::is_delete.eq(false)))
             .select(component_ref::uuid)
             .limit(1000)
             .load::<Uuid>(conn)
             .expect("Failed get public components");
-
+        if let Some(ref sc_id) = spec_id {
+            component_uuids = filter_components_uuids_by_spec(&component_uuids, sc_id, conn)?;
+        }
         // the result for store the result :)
         let mut result: Vec<ShowComponentShort> = Vec::new();
         // collecting data for each component without check
@@ -306,4 +310,22 @@ impl ComponentAndRelatedData {
             licenses,
         })
     }
+}
+
+/// Filter components when related with spec
+pub(crate) fn filter_components_uuids_by_spec(
+    component_uuids: &[Uuid],
+    spec_id: &i32,
+    conn: &mut PgConnection,
+) -> ServiceResult<Vec<Uuid>> {
+    use crate::schema::spec_to_component::dsl as spec_to_component;
+
+    spec_to_component::spec_to_component
+        .filter(spec_to_component::spec_id.eq(spec_id)
+        .and(spec_to_component::component_uuid.eq_any(component_uuids)))
+        .select(spec_to_component::component_uuid)
+        .load::<Uuid>(conn).map_err(|err| {
+            debug!("Fail load uuid list target spec: {:?}", err);
+            ServiceError::InternalServerError
+        })
 }

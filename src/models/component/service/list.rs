@@ -6,6 +6,7 @@ use crate::models::search::model::{ExtraOptions, IptSearchArg};
 use crate::models::component::{
     model::ComponentsArg,
     search::search_components,
+    repository::filter_components_uuids_by_spec,
     access::util::check_access_component_for_user,
 };
 use diesel::prelude::*;
@@ -48,6 +49,10 @@ pub(crate) fn get_components_by_uuids(
     }
     // search for all components matching the text query
     let mut found_component_uuids = search_components(args, filter_uuids.to_vec(), conn)?;
+    // filter components by spec
+    if let Some(ref spec_id) = args.spec_id {
+        found_component_uuids = filter_components_uuids_by_spec(&found_component_uuids, spec_id, conn)?;
+    }
     // duplicate filtering
     found_component_uuids.sort_unstable();
     found_component_uuids.dedup();
@@ -99,9 +104,10 @@ pub(crate) fn get_components(
         service_uuid,
         user_uuid,
         favorite,
+        ..
     } = arguments;
     // select target components uuids
-    let target_components_uuids = match (favorite, user_uuid, standard_uuid, company_uuid, service_uuid) {
+    let mut target_components_uuids = match (favorite, user_uuid, standard_uuid, company_uuid, service_uuid) {
         // gets components of self favorite list for authorized user
         (true, None, None, None, None) => {
             get_components_followed_by_user(
@@ -151,6 +157,13 @@ pub(crate) fn get_components(
         _ => return Err(get_err_msg(ErrorMessage::FailedMatchArguments)),
     };
 
+    // filter components by spec
+    if !target_components_uuids.is_empty() {
+        if let Some(ref spec_id) = arguments.spec_id {
+            target_components_uuids = filter_components_uuids_by_spec(&target_components_uuids, spec_id, conn)?;
+        }
+    }
+
     // return not found if set filters and not select components
     if (*favorite || user_uuid.is_some() || company_uuid.is_some() || standard_uuid.is_some() ||
             service_uuid.is_some()) && target_components_uuids.is_empty() {
@@ -160,6 +173,7 @@ pub(crate) fn get_components(
     ShowComponentShort::get_components(
         &target_components_uuids,
         options,
+        arguments.spec_id,
         sort,
         paginate,
         conn
@@ -249,7 +263,7 @@ pub(crate) fn get_components_uuids_by_service(
         })
 }
 
-/// Возвращает полную информацию о компоненте по UUID.
+/// Returns full info about component by uuid
 pub(crate) fn get_component_by_uuid(
     target_component_uuid: &Uuid,
     options: &ExtraOptions,

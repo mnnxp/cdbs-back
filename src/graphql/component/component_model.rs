@@ -455,6 +455,7 @@ pub(crate) struct IptComponentsArg {
     pub(crate) standard_uuid: Option<Uuid>,
     pub(crate) service_uuid: Option<Uuid>,
     pub(crate) user_uuid: Option<Uuid>,
+    pub(crate) spec_id: Option<i32>,
     pub(crate) favorite: Option<bool>,
 }
 

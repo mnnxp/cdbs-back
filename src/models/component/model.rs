@@ -106,6 +106,7 @@ pub(crate) struct ComponentsArg {
     pub(crate) standard_uuid: Option<Uuid>,
     pub(crate) service_uuid: Option<Uuid>,
     pub(crate) user_uuid: Option<Uuid>,
+    pub(crate) spec_id: Option<i32>,
     pub(crate) favorite: bool,
 }
 
@@ -119,6 +120,7 @@ impl ComponentsArg {
                 standard_uuid: data.standard_uuid,
                 service_uuid: data.service_uuid,
                 user_uuid: data.user_uuid,
+                spec_id: data.spec_id,
                 favorite: data.favorite.unwrap_or_default(),
             },
             None => ComponentsArg::default(),
