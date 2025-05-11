@@ -22,21 +22,6 @@ impl Spec {
                 ServiceError::InternalServerError
             })
     }
-
-    /// Gets spec data by parent id
-    pub(crate) fn get_by_parent_id(
-        target_specs_levels: &[i32],
-        conn: &mut PgConnection,
-    ) -> ServiceResult<Vec<Spec>> {
-        spec_ref::spec_ref
-            .filter(spec_ref::parent_spec_id.eq_any(target_specs_levels))
-            .limit(1000)
-            .load::<Spec>(conn)
-            .map_err(|err| {
-                debug!("Failed get specs by parent ids: {}", err);
-                ServiceError::InternalServerError
-            })
-    }
 }
 
 impl SpecTranslateList {
@@ -76,26 +61,27 @@ impl SpecTranslateList {
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<SpecTranslateList>> {
         // get specs for target levels
-        let specs_for_levels = Spec::get_by_parent_id(
-            target_specs_levels,
-            conn
-        )?;
-
-        debug!("specs_for_levels: {:?}", specs_for_levels);
-
-        let mut target_ids: Vec<i32> = Vec::new();
-        for sfl in specs_for_levels {
-            target_ids.push(sfl.id);
-        }
-
-        debug!("target_ids: {:?}", target_ids);
-
-        if !target_specs_ids.is_empty() {
-            target_ids.retain(|x|
-                target_specs_ids.iter().any(|e| e == x)
-            );
-        }
-
+        let target_ids = match target_specs_ids.is_empty() {
+            true => spec_ref::spec_ref
+                .filter(spec_ref::parent_spec_id.eq_any(target_specs_levels))
+                .select(spec_ref::id)
+                .limit(1000)
+                .load::<i32>(conn)
+                .map_err(|err| {
+                    debug!("Failed get specs by parent ids: {}", err);
+                    ServiceError::InternalServerError
+                })?,
+            false => spec_ref::spec_ref
+                .filter(spec_ref::parent_spec_id.eq_any(target_specs_levels)
+                .and(spec_ref::id.eq_any(target_specs_ids)))
+                .select(spec_ref::id)
+                .limit(1000)
+                .load::<i32>(conn)
+                .map_err(|err| {
+                    debug!("Failed get specs by parent ids: {}", err);
+                    ServiceError::InternalServerError
+                })?,
+        };
         debug!("target_ids: {:?}", target_ids);
 
         spec_translate_list::spec_translate_list
