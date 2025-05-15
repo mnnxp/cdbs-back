@@ -13,7 +13,6 @@ use crate::models::relate_ref::spec::model::{
 };
 use crate::models::relate_ref::language::get_set_language;
 use crate::models::search::order::Paginate;
-use crate::models::user::access::logged::check_authorized;
 
 use super::attributes::IptPaginate;
 
@@ -49,7 +48,7 @@ pub struct SpecQuery;
 
 #[Object]
 impl SpecQuery {
-    /// Returns catalogs.
+    /// Returns catalogs (specs). Token is not required.
     /// It is possible to specify the top level (parent) section from which the list of children will be generated.
     /// Regardless of specifying the top section, specifying a filter by section IDs is available.
     async fn specs(
@@ -58,8 +57,6 @@ impl SpecQuery {
         args: Option<IptSpecArg>,
         paginate: Option<IptPaginate>,
     ) -> ServiceResult<Vec<SpecTranslateList>> {
-        // authorization check
-        check_authorized(cxt)?;
         let arguments: SpecArg = match args {
             Some(x) => SpecArg::from(x),
             None => SpecArg::default(),
@@ -70,7 +67,7 @@ impl SpecQuery {
         get_specs(&arguments, &get_set_language(cxt), &p, conn)
     }
 
-    /// Returns catalogs paths by IDs.
+    /// Returns catalogs paths by IDs. Token is not required.
     /// When creating a catalog path, the specified separator or the default separator "/" is used.
     /// The value "deep_level" sets the depth limit to the parent section.
     async fn specs_paths(
@@ -79,8 +76,6 @@ impl SpecQuery {
         args: Option<IptSpecPathArg>,
         paginate: Option<IptPaginate>,
     ) -> ServiceResult<Vec<SpecPath>> {
-        // authorization check
-        check_authorized(cxt)?;
         let arguments: SpecPathArg = match args {
             Some(x) => SpecPathArg::from(x),
             None => SpecPathArg::default(),
@@ -91,7 +86,7 @@ impl SpecQuery {
         get_paths_specs(&arguments, &get_set_language(cxt), &p, conn)
     }
 
-    /// Returns paths to directory sections searched for by name catalog.
+    /// Returns paths to directory sections searched for by name catalog. Token is not required.
     /// When creating a catalog path, the specified separator or the default separator "/" is used.
     /// The value "deep_level" sets the depth limit to the parent section.
     async fn search_specs(
@@ -100,8 +95,6 @@ impl SpecQuery {
         args: IptSearchSpecArg,
         paginate: Option<IptPaginate>,
     ) -> ServiceResult<Vec<SpecPath>> {
-        // authorization check
-        check_authorized(cxt)?;
         let arguments: SearchSpecArg = SearchSpecArg::from(args);
         let p = paginate.map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
             .unwrap_or_default();

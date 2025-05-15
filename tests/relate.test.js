@@ -459,7 +459,7 @@ describe('param', () => {
   });
 
   // Testing get full path specification
-  it('/graphql:Q Specs paths - BadRequest no token', async (done) => {
+  it('/graphql:Q Specs paths - BadRequest id zero (no token)', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .send({
@@ -477,7 +477,7 @@ describe('param', () => {
     debug('/graphql body=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found'
+      'BadRequest: Spec not found'
     );
     expect(body.errors[0].path[0]).toBe('specsPaths');
     done();
@@ -660,7 +660,7 @@ describe('param', () => {
   });
 
   // Testing get specification
-  it('/graphql:Q Specs - BadRequest no token', async (done) => {
+  it('/graphql:Q Specs - OK (no token)', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .send({
@@ -676,11 +676,10 @@ describe('param', () => {
       })
       .expect(HttpStatus.OK)
     debug('/graphql body=%o', body);
-    expect(body.data).toBeNull();
-    expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found'
-    );
-    expect(body.errors[0].path[0]).toBe('specs');
+    const {
+      data: { specs }
+    } = body;
+    expect(specs).toBeEmptyArray();
     done();
   });
 
@@ -913,7 +912,7 @@ describe('param', () => {
   });
 
   // Testing search specification
-  it('/graphql:Q searchSpecs - BadRequest no token', async (done) => {
+  it('/graphql:Q searchSpecs - BadRequest (no token)', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .send({
@@ -929,11 +928,17 @@ describe('param', () => {
       })
       .expect(HttpStatus.OK)
     debug('/graphql body=%o', body);
-    expect(body.data).toBeNull();
-    expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found'
-    );
-    expect(body.errors[0].path[0]).toBe('searchSpecs');
+    // expect(body).toBe(0);
+    const {
+      data: { searchSpecs }
+    } = body;
+    expect(searchSpecs.length).toBe(5);
+    expect(searchSpecs[0].specId).toBe(5);
+    expect(searchSpecs[1].specId).toBe(6);
+    expect(searchSpecs[1].path).toBe("Fixings/Screws and bolts/Anchor bolts");
+    expect(searchSpecs[2].specId).toBe(7);
+    expect(searchSpecs[3].specId).toBe(8);
+    expect(searchSpecs[4].specId).toBe(9);
     done();
   });
 
