@@ -739,7 +739,7 @@ describe('param', () => {
     done();
   });
 
-  it('/graphql:Q Specs - OK by level', async (done) => {
+  it('/graphql:Q Specs - OK by level and get parent to over ROOT', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .set(
@@ -754,6 +754,26 @@ describe('param', () => {
               specId
               spec
               langId
+              parentSpec {
+                specId
+                spec
+                parentSpec {
+                  specId
+                  spec
+                  parentSpec {
+                    specId
+                    spec
+                    parentSpec {
+                      specId
+                      spec
+                      parentSpec {
+                        specId
+                        spec
+                      }
+                    }
+                  }
+                }
+              }
             }
         }`,
       })
@@ -764,6 +784,9 @@ describe('param', () => {
       data: { specs }
     } = body;
     expect(specs).toBeNonEmptyArray();
+    expect(specs[1].parentSpec.parentSpec.parentSpec.specId).not.toBe(1);
+    expect(specs[1].parentSpec.parentSpec.parentSpec.parentSpec.specId).toBe(1);
+    expect(specs[1].parentSpec.parentSpec.parentSpec.parentSpec.parentSpec.specId).toBe(1);
     done();
   });
 

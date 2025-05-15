@@ -1,5 +1,4 @@
 use crate::schema::*;
-use crate::models::relate_ref::language::model::Language;
 use async_graphql::*;
 
 #[derive(Identifiable, Serialize, Deserialize, Queryable, Debug)]
@@ -17,10 +16,7 @@ pub(crate) struct InsertableSpec {
 }
 
 /// Catalog (catalog element) data with localization
-#[derive(SimpleObject, Identifiable, Serialize, Deserialize, Queryable, Associations, Clone, Debug)]
-#[diesel(primary_key(spec_id, lang_id))]
-#[diesel(belongs_to(Spec, foreign_key = spec_id))]
-#[diesel(belongs_to(Language, foreign_key = lang_id))]
+#[derive(Serialize, Deserialize, Queryable, Clone, Debug)]
 #[diesel(table_name = spec_translate_list)]
 pub(crate) struct SpecTranslateList {
     /// Catalog element identifier

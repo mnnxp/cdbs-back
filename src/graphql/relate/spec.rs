@@ -17,6 +17,33 @@ use crate::models::user::access::logged::check_authorized;
 
 use super::attributes::IptPaginate;
 
+#[Object]
+impl SpecTranslateList {
+    /// Catalog element identifier
+    async fn spec_id(&self) -> &i32 {
+        &self.spec_id
+    }
+
+    /// Name localization language identifier
+    async fn lang_id(&self) -> &i32 {
+        &self.lang_id
+    }
+
+    /// Localized catalog name
+    async fn spec(&self) -> &String {
+        &self.spec
+    }
+
+    /// Localized catalog name
+    async fn parent_spec(&self, cxt: &Context<'_>) -> SpecTranslateList {
+        // return itself if this is the root catalog
+        if self.spec_id == 1 { return self.clone() }
+        let conn: &mut PooledConnection = &mut get_conn(cxt).expect("Error get conn to DB");
+        SpecTranslateList::get_parent_by_id(&self.spec_id, &self.lang_id, conn)
+            .expect("Error loading parent spec")
+    }
+}
+
 #[derive(Default)]
 pub struct SpecQuery;
 

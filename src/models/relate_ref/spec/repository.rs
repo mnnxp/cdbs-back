@@ -25,6 +25,30 @@ impl Spec {
 }
 
 impl SpecTranslateList {
+    /// Returns the structure of the parent catalog element
+    pub(crate) fn get_parent_by_id(
+        spec_id: &i32,
+        set_lang_id: &i32,
+        conn: &mut PgConnection,
+    ) -> ServiceResult<SpecTranslateList> {
+        let parent_spec_id = spec_ref::spec_ref
+            .filter(spec_ref::id.eq(spec_id))
+            .select(spec_ref::parent_spec_id)
+            .first::<i32>(conn)
+            .map_err(|err| {
+                debug!("Failed get specs by parent ids: {}", err);
+                ServiceError::InternalServerError
+            })?;
+        spec_translate_list::spec_translate_list
+            .filter(spec_translate_list::spec_id.eq(&parent_spec_id)
+            .and(spec_translate_list::lang_id.eq(set_lang_id)))
+            .first::<SpecTranslateList>(conn)
+            .map_err(|err| {
+                debug!("Failed get specs: {:?}", err);
+                ServiceError::InternalServerError
+            })
+    }
+
     /// Gets specs list by ids with/witout filter
     pub(crate) fn get_by_ids(
         target_specs_ids: &[i32],
