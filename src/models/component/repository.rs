@@ -163,6 +163,7 @@ impl ShowComponentShort {
             actual_status,
             is_base: component.is_base,
             is_followed,
+            created_at: component.created_at,
             updated_at: component.updated_at,
             licenses,
         })

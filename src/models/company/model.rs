@@ -115,6 +115,8 @@ pub(crate) struct ShowCompanyShort {
     pub(crate) is_supplier: bool,
     /// Flag of company presence in user's bookmarks
     pub(crate) is_followed: bool,
+    /// Date of creation of the company profile
+    pub(crate) created_at: NaiveDateTime,
     /// Date of update of the company's basic data
     pub(crate) updated_at: NaiveDateTime,
 }

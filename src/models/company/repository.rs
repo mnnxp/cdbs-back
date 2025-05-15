@@ -191,6 +191,7 @@ impl ShowCompanyShort {
             company_type: company_type_with_translate,
             is_followed,
             is_supplier: company.is_supplier,
+            created_at: company.created_at,
             updated_at: company.updated_at,
         })
     }

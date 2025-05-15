@@ -75,7 +75,7 @@ pub struct ComponentAndRelatedData {
     pub(crate) subscribers: i32,
     /// Flag of the presence of the component in the user's bookmarks
     pub(crate) is_followed: bool,
-    /// Date when the component profile was created
+    /// Date when the component was created
     pub(crate) created_at: NaiveDateTime,
     /// Date of updating the component's master data
     pub(crate) updated_at: NaiveDateTime,
@@ -146,7 +146,7 @@ impl ComponentAndRelatedData {
         &self.is_followed
     }
 
-    /// Date when the component profile was created
+    /// Date when the component was created
     async fn created_at(&self) -> &NaiveDateTime {
         &self.created_at
     }
@@ -326,6 +326,8 @@ pub struct ShowComponentShort {
     pub(crate) is_base: bool,
     /// Flag whether the component is available in the user's bookmarks
     pub(crate) is_followed: bool,
+    /// Date when the component was created
+    pub(crate) created_at: NaiveDateTime,
     /// Update date of the basic component data
     pub(crate) updated_at: NaiveDateTime,
     /// Component data distribution licenses
@@ -382,6 +384,11 @@ impl ShowComponentShort {
     /// Flag whether the component is available in the user's bookmarks
     async fn is_followed(&self) -> bool {
         self.is_followed
+    }
+
+    /// Date when the component was created
+    async fn created_at(&self) -> &NaiveDateTime {
+        &self.created_at
     }
 
     /// Update date of the basic component data
