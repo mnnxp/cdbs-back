@@ -17,7 +17,6 @@ use crate::schema::{
     component_to_service::dsl as component_to_service,
 };
 use diesel::prelude::*;
-// use diesel::PgConnection;
 use uuid::Uuid;
 
 /// Gets components short data by uuids
@@ -29,55 +28,55 @@ pub(crate) fn get_components_by_uuids(
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<ShowComponentShort>> {
     let need_access_level = 3; // todo!(create enum for manage access level)
-    let mut filter_uuids = Vec::new();
+    let mut found_component_uuids = Vec::new();
     // gets uuids for other search attributes
     if args.favorite {
         if let Some(ref ur_uuid) = args.user_uuid {
-            filter_uuids = get_components_followed_by_user(ur_uuid, &filter_uuids, conn)?;
+            found_component_uuids = get_components_followed_by_user(ur_uuid, &found_component_uuids, conn)?;
         } else {
-            filter_uuids = get_components_followed_by_user(&options.logged_user_uuid, &filter_uuids, conn)?;
+            found_component_uuids = get_components_followed_by_user(&options.logged_user_uuid, &found_component_uuids, conn)?;
         }
-        if filter_uuids.is_empty() {
+        if found_component_uuids.is_empty() {
             return Ok(Vec::new())
         }
     }
     // gets components by user
     if let Some(ref ur_uuid) = args.user_uuid {
-        filter_uuids = get_components_uuids_by_user(ur_uuid, &filter_uuids, conn)?;
-        if filter_uuids.is_empty() {
+        found_component_uuids = get_components_uuids_by_user(ur_uuid, &found_component_uuids, conn)?;
+        if found_component_uuids.is_empty() {
             return Ok(Vec::new())
         }
     }
     // gets components relate with company
     if let Some(ref cy_uuid) = args.company_uuid {
-        filter_uuids = get_components_uuids_by_company(cy_uuid, &filter_uuids, conn)?;
-        if filter_uuids.is_empty() {
+        found_component_uuids = get_components_uuids_by_company(cy_uuid, &found_component_uuids, conn)?;
+        if found_component_uuids.is_empty() {
             return Ok(Vec::new())
         }
     }
     // gets components relate with standard
     if let Some(ref sd_uuid) = args.standard_uuid {
-        filter_uuids = get_components_uuids_by_standard(sd_uuid, &filter_uuids, conn)?;
-        if filter_uuids.is_empty() {
+        found_component_uuids = get_components_uuids_by_standard(sd_uuid, &found_component_uuids, conn)?;
+        if found_component_uuids.is_empty() {
             return Ok(Vec::new())
         }
     }
     // gets components relate with service
     if let Some(ref se_uuid) = args.service_uuid {
-        filter_uuids = get_components_uuids_by_service(se_uuid, &filter_uuids, conn)?;
-        if filter_uuids.is_empty() {
+        found_component_uuids = get_components_uuids_by_service(se_uuid, &found_component_uuids, conn)?;
+        if found_component_uuids.is_empty() {
             return Ok(Vec::new())
         }
     }
     // search for all components matching the text query
-    let mut found_component_uuids = search_components(args, filter_uuids, conn)?;
+    found_component_uuids = search_components(args, found_component_uuids, conn)?;
+    if found_component_uuids.is_empty() {
+        return Ok(Vec::new())
+    }
     // filter components by spec
     if let Some(ref spec_id) = args.spec_id {
         found_component_uuids = filter_components_uuids_by_spec(&found_component_uuids, spec_id, conn)?;
     }
-    // duplicate filtering
-    found_component_uuids.sort_unstable();
-    found_component_uuids.dedup();
 
     let mut ct_uuids_with_check = Vec::new();
     // selection of available components
@@ -185,17 +184,18 @@ pub(crate) fn get_components(
         _ => return Err(get_err_msg(ErrorMessage::FailedMatchArguments)),
     };
 
-    // filter components by spec
-    if !target_component_uuids.is_empty() {
-        if let Some(ref spec_id) = arguments.spec_id {
-            target_component_uuids = filter_components_uuids_by_spec(&target_component_uuids, spec_id, conn)?;
-        }
-    }
-
     // return not found if set filters and not select components
     if (*favorite || user_uuid.is_some() || company_uuid.is_some() || standard_uuid.is_some() ||
             service_uuid.is_some()) && target_component_uuids.is_empty() {
         return Ok(Vec::new());
+    }
+
+    // filter components by spec
+    if let Some(ref spec_id) = arguments.spec_id {
+        target_component_uuids = filter_components_uuids_by_spec(&target_component_uuids, spec_id, conn)?;
+        if target_component_uuids.is_empty() {
+            return Ok(Vec::new());
+        }
     }
 
     ShowComponentShort::get_components(

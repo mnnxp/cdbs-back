@@ -313,20 +313,29 @@ impl ComponentAndRelatedData {
     }
 }
 
-/// Filter components when related with spec
+/// Returns a list of component id's that match the catalog.
+/// If the component filter is empty, no filter is applied.
 pub(crate) fn filter_components_uuids_by_spec(
-    component_uuids: &[Uuid],
+    filter_component_uuids: &[Uuid],
     spec_id: &i32,
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<Uuid>> {
     use crate::schema::spec_to_component::dsl as spec_to_component;
-
-    spec_to_component::spec_to_component
-        .filter(spec_to_component::spec_id.eq(spec_id)
-        .and(spec_to_component::component_uuid.eq_any(component_uuids)))
-        .select(spec_to_component::component_uuid)
-        .load::<Uuid>(conn).map_err(|err| {
-            debug!("Fail load uuid list target spec: {:?}", err);
-            ServiceError::InternalServerError
-        })
+    match filter_component_uuids.is_empty() {
+        true => spec_to_component::spec_to_component
+            .filter(spec_to_component::spec_id.eq(spec_id))
+            .select(spec_to_component::component_uuid)
+            .load::<Uuid>(conn).map_err(|err| {
+                debug!("Fail load uuid list target spec: {:?}", err);
+                ServiceError::InternalServerError
+            }),
+        false => spec_to_component::spec_to_component
+            .filter(spec_to_component::spec_id.eq(spec_id)
+            .and(spec_to_component::component_uuid.eq_any(filter_component_uuids)))
+            .select(spec_to_component::component_uuid)
+            .load::<Uuid>(conn).map_err(|err| {
+                debug!("Fail load uuid list target spec: {:?}", err);
+                ServiceError::InternalServerError
+            }),
+    }
 }
