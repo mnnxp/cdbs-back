@@ -1,5 +1,6 @@
 use crate::schema::*;
 use async_graphql::*;
+use diesel::sql_types;
 
 // Param models
 #[derive(Identifiable, Serialize, Deserialize, Queryable, Debug)]
@@ -27,6 +28,17 @@ pub(crate) struct ParamTranslateList {
     pub(crate) lang_id: i32,
     /// Localized name of the parameter
     pub(crate) paramname: String,
+}
+
+/// Structure for parameter value queries
+#[derive(QueryableByName)]
+pub(crate) struct ParamValue {
+    /// Parameter identifier
+    #[diesel(sql_type = sql_types::Integer)]
+    pub(crate) param_id: i32,
+    /// Value of the service parameter
+    #[diesel(sql_type = sql_types::Text)]
+    pub(crate) value: String,
 }
 
 /// Data for a request to add a new parameter
