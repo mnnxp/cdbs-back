@@ -1,14 +1,9 @@
 use crate::schema::*;
-use crate::models::user::model::User;
-use crate::models::component::model::Component;
 use chrono::*;
 use uuid::Uuid;
 
 // Favorites component models
-#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, Clone, Debug)]
-#[diesel(primary_key(component_uuid, user_uuid))]
-#[diesel(belongs_to(Component, foreign_key = component_uuid))]
-#[diesel(belongs_to(User, foreign_key = user_uuid))]
+#[derive(Serialize, Deserialize, Queryable, Clone, Debug)]
 #[diesel(table_name = component_fav)]
 pub(crate) struct ComponentFav {
     pub(crate) component_uuid: Uuid,

@@ -268,9 +268,10 @@ impl StandardAndRelatedData {
         ).expect("Error loading standard files");
 
         // get specs with translation for standard
-        let standard_specs: Vec<SpecTranslateList> = SpecTranslateList::for_standard(
-            &standard,
+        let standard_specs: Vec<SpecTranslateList> = SpecTranslateList::for_standard_by_uuid(
+            &standard.uuid,
             &options.set_lang_id,
+            paginate,
             conn
         ).expect("Error loading spec standard with translate");
 

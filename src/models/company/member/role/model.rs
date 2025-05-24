@@ -1,5 +1,4 @@
 use crate::schema::*;
-use crate::models::relate_ref::language::model::Language;
 use crate::models::relate_ref::type_access::model::TypeAccessTranslateList;
 use async_graphql::*;
 use uuid::Uuid;
@@ -23,11 +22,7 @@ pub(crate) struct InsertableRoleMember {
 }
 
 /// Role name of company members with localization
-#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations)]
-#[derive(SimpleObject, Default, Clone, Debug)]
-#[diesel(primary_key(role_member_id, lang_id))]
-#[diesel(belongs_to(RoleMember, foreign_key = role_member_id))]
-#[diesel(belongs_to(Language, foreign_key = lang_id))]
+#[derive(Serialize, Deserialize, Queryable, SimpleObject, Default, Clone, Debug)]
 #[diesel(table_name = role_member_translate_list)]
 pub(crate) struct RoleMemberTranslateList {
     /// Role identifier

@@ -1,14 +1,9 @@
 use crate::schema::*;
-use crate::models::component::component_modification::fileset_for_program::model::FilesetProgram;
-use crate::graphql::file::ShowFileRelatedData;
 use async_graphql::*;
 // use chrono::*;
 use uuid::Uuid;
 
-#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, PartialEq, Clone, Debug)]
-#[diesel(primary_key(fileset_uuid, file_uuid))]
-#[diesel(belongs_to(FilesetProgram, foreign_key = fileset_uuid))]
-#[diesel(belongs_to(ShowFileRelatedData, foreign_key = file_uuid))]
+#[derive(Serialize, Deserialize, Queryable, SimpleObject, Clone, Debug)]
 #[diesel(table_name = modification_file_from_fileset)]
 pub(crate) struct ModificationFileFromFileset {
     pub(crate) fileset_uuid: Uuid,

@@ -1,15 +1,10 @@
 use crate::schema::*;
-use crate::models::standard::model::Standard;
-use crate::models::component::model::Component;
 use async_graphql::*;
 // use chrono::*;
 use uuid::Uuid;
 
 // StandardTo component models
-#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, Clone, Debug)]
-#[diesel(primary_key(component_uuid, standard_uuid))]
-#[diesel(belongs_to(Component, foreign_key = component_uuid))]
-#[diesel(belongs_to(Standard, foreign_key = standard_uuid))]
+#[derive(Serialize, Deserialize, Queryable, SimpleObject, Clone, Debug)]
 #[diesel(table_name = standard_to_component)]
 pub(crate) struct StandardToComponent {
     pub(crate) component_uuid: Uuid,

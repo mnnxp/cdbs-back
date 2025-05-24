@@ -147,8 +147,8 @@ impl ShowComponentShort {
         ).expect("Error get is_followed");
 
         // get licenses for component
-        let licenses = License::get_by_component(
-            &component,
+        let licenses = License::get_by_component_uuid(
+            &component.uuid,
             conn
         ).expect("Error loading license");
 
@@ -288,8 +288,8 @@ impl ComponentAndRelatedData {
         ).expect("Error get is_followed");
 
         // get licenses for component
-        let licenses = License::get_by_component(
-            &component,
+        let licenses = License::get_by_component_uuid(
+            &component.uuid,
             conn
         ).expect("Error loading license");
 

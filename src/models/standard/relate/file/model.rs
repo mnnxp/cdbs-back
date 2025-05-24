@@ -1,15 +1,10 @@
 use crate::schema::*;
-use crate::models::standard::model::Standard;
-use crate::graphql::file::ShowFileRelatedData;
 use async_graphql::*;
 // use chrono::*;
 use uuid::Uuid;
 
 // Structures for Standard
-#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, Debug)]
-#[diesel(primary_key(file_uuid, standard_uuid))]
-#[diesel(belongs_to(ShowFileRelatedData, foreign_key = file_uuid))]
-#[diesel(belongs_to(Standard, foreign_key = standard_uuid))]
+#[derive(Serialize, Deserialize, Queryable, SimpleObject, Clone, Debug)]
 #[diesel(table_name = file_to_standard)]
 pub(crate) struct StandardFile {
     pub(crate) file_uuid: Uuid,

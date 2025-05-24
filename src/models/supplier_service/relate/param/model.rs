@@ -1,15 +1,11 @@
 use crate::schema::*;
-use crate::models::supplier_service::model::Service;
 use crate::models::relate_ref::param::model::{ParamTranslateList, IptParamData};
 use async_graphql::*;
 // use chrono::*;
 use uuid::Uuid;
 
 // Param service models
-#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, Clone, Debug)]
-#[diesel(primary_key(service_uuid, param_id))]
-#[diesel(belongs_to(Service, foreign_key = service_uuid))]
-#[diesel(belongs_to(ParamTranslateList, foreign_key = param_id))]
+#[derive(Serialize, Deserialize, Queryable, SimpleObject, Clone, Debug)]
 #[diesel(table_name = param_to_service)]
 pub(crate) struct ServiceParam {
     pub(crate) service_uuid: Uuid,

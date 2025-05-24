@@ -1,14 +1,9 @@
 use crate::schema::*;
-use crate::models::relate_ref::spec::model::Spec;
-use crate::models::component::model::Component;
 use async_graphql::*;
 use uuid::Uuid;
 
 // Spec component models
-#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, Clone, Debug)]
-#[diesel(primary_key(component_uuid, spec_id))]
-#[diesel(belongs_to(Component, foreign_key = component_uuid))]
-#[diesel(belongs_to(Spec, foreign_key = spec_id))]
+#[derive(Serialize, Deserialize, Queryable, SimpleObject, Clone, Debug)]
 #[diesel(table_name = spec_to_component)]
 pub(crate) struct ComponentSpec {
     pub(crate) spec_id: i32,

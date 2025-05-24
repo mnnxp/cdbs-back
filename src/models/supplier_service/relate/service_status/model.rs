@@ -1,6 +1,4 @@
 use crate::schema::*;
-use crate::models::supplier_service::model::Service;
-use crate::models::relate_ref::language::model::Language;
 use async_graphql::*;
 
 #[derive(Identifiable, Serialize, Deserialize, Queryable, Debug)]
@@ -17,11 +15,7 @@ pub(crate) struct InsertableServiceStatus {
 }
 
 /// Information about the status of the service with localization
-#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations)]
-#[derive(SimpleObject, Clone, Debug)]
-#[diesel(primary_key(service_status_id, lang_id))]
-#[diesel(belongs_to(Service, foreign_key = service_status_id))]
-#[diesel(belongs_to(Language, foreign_key = lang_id))]
+#[derive(Serialize, Deserialize, Queryable, SimpleObject, Clone, Debug)]
 #[diesel(table_name = service_status_translate_list)]
 pub(crate) struct ServiceStatusTranslateList {
     /// Status of the service identifier

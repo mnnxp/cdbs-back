@@ -343,8 +343,8 @@ impl CompanyAndRelatedData {
         ).expect("Error loading spec company with translate");
 
         // get specs with translation for company
-        let company_specs_with_translate: Vec<SpecTranslateList> = SpecTranslateList::for_company(
-            &company,
+        let company_specs_with_translate: Vec<SpecTranslateList> = SpecTranslateList::for_company_uuid(
+            &company.uuid,
             set_lang_id,
             conn
         ).expect("Error loading spec company with translate");
@@ -447,8 +447,8 @@ impl CompanyAndRelatedData {
         ).expect("Error loading spec company with translate");
 
         // get specs with translation for company
-        let company_specs_with_translate: Vec<SpecTranslateList> = SpecTranslateList::for_company(
-            &company,
+        let company_specs_with_translate: Vec<SpecTranslateList> = SpecTranslateList::for_company_uuid(
+            &company.uuid,
             set_lang_id,
             conn
         ).expect("Error loading spec company with translate");

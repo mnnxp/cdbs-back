@@ -1,19 +1,10 @@
 use crate::schema::*;
-use crate::models::user::model::UserQuery;
-use crate::models::company::{
-    model::Company,
-    member::role::model::{RoleMember, RoleMemberAndRelatedData},
-};
+use crate::models::company::member::role::model::RoleMemberAndRelatedData;
 use async_graphql::*;
 use chrono::*;
 use uuid::Uuid;
 
-#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations)]
-#[derive(SimpleObject, Clone, Debug)]
-#[diesel(primary_key(company_uuid, user_uuid))]
-#[diesel(belongs_to(Company, foreign_key = company_uuid))]
-#[diesel(belongs_to(UserQuery, foreign_key = user_uuid))]
-#[diesel(belongs_to(RoleMember, foreign_key = role_id))]
+#[derive(Serialize, Deserialize, Queryable, SimpleObject, Clone, Debug)]
 #[diesel(table_name = company_member_list)]
 pub(crate) struct CompanyMember {
     pub(crate) company_uuid: Uuid,

@@ -4,10 +4,7 @@ use chrono::*;
 use uuid::Uuid;
 
 // Favorites user models
-#[derive(Identifiable, Serialize, Deserialize, Queryable, Clone, Debug)]
-#[diesel(primary_key(user_favorite_uuid, user_follower_uuid))]
-#[diesel(belongs_to(UserQuery, foreign_key = user_favorite_uuid))]
-#[diesel(belongs_to(UserQuery, foreign_key = user_follower_uuid))]
+#[derive(Serialize, Deserialize, Queryable, Clone, Debug)]
 #[diesel(table_name = user_fav)]
 pub(crate) struct UserFav {
     pub(crate) user_favorite_uuid: Uuid,

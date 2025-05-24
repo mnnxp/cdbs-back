@@ -1,7 +1,4 @@
 use crate::schema::*;
-use crate::models::component::param::model::ComponentParam;
-use crate::models::component::component_modification::param::model::ModificationParam;
-use crate::models::relate_ref::language::model::Language;
 use async_graphql::*;
 
 // Param models
@@ -21,13 +18,7 @@ pub(crate) struct InsertableParam {
 // Param translations
 /// Localized parameter data. Parameters are used as a characterization element
 /// to add characteristics to components, component modifications, and standards
-#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations)]
-#[derive(SimpleObject, Clone, Default, Debug)]
-#[diesel(primary_key(param_id, lang_id))]
-#[diesel(belongs_to(Param, foreign_key = param_id))]
-#[diesel(belongs_to(ComponentParam, foreign_key = param_id))]
-#[diesel(belongs_to(ModificationParam, foreign_key = param_id))]
-#[diesel(belongs_to(Language, foreign_key = lang_id))]
+#[derive(Serialize, Deserialize, Queryable, SimpleObject, Clone, Debug, Default)]
 #[diesel(table_name = param_translate_list)]
 pub(crate) struct ParamTranslateList {
     /// Parameter identifier

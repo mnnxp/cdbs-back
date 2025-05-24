@@ -1,15 +1,10 @@
 use crate::schema::*;
-use crate::models::relate_ref::keyword::model::Keyword;
-use crate::models::component::model::Component;
 use async_graphql::*;
 // use chrono::*;
 use uuid::Uuid;
 
 // Keyword component models
-#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, Clone, Debug)]
-#[diesel(primary_key(component_uuid, keyword_id))]
-#[diesel(belongs_to(Component, foreign_key = component_uuid))]
-#[diesel(belongs_to(Keyword, foreign_key = keyword_id))]
+#[derive(Serialize, Deserialize, Queryable, SimpleObject, Clone, Debug)]
 #[diesel(table_name = keyword_to_component)]
 pub(crate) struct ComponentKeyword {
     pub(crate) component_uuid: Uuid,

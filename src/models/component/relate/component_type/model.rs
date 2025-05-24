@@ -1,6 +1,4 @@
 use crate::schema::*;
-use crate::models::component::model::Component;
-use crate::models::relate_ref::language::model::Language;
 use async_graphql::*;
 
 #[derive(Identifiable, Serialize, Deserialize, Queryable, Debug)]
@@ -17,11 +15,7 @@ pub(crate) struct InsertableComponentType {
 }
 
 /// Component type data with localization (translation) for the specified language
-#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, SimpleObject, Clone, Debug)]
-#[diesel(primary_key(component_type_id, lang_id))]
-#[diesel(belongs_to(Component, foreign_key = component_type_id))]
-#[diesel(belongs_to(ComponentType, foreign_key = component_type_id))]
-#[diesel(belongs_to(Language, foreign_key = lang_id))]
+#[derive(Serialize, Deserialize, Queryable, SimpleObject, Clone, Debug)]
 #[diesel(table_name = component_type_translate_list)]
 pub(crate) struct ComponentTypeTranslateList {
     /// Component type identifier

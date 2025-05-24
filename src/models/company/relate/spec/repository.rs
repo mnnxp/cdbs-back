@@ -1,6 +1,4 @@
 use crate::errors::{ServiceResult, ServiceError};
-use crate::models::company::model::Company;
-use crate::models::company::spec::model::CompanySpec;
 use crate::models::search::order::Paginate;
 use crate::models::relate_ref::spec::model::SpecTranslateList;
 use crate::schema::spec_to_company::dsl as spec_to_company;
@@ -37,12 +35,13 @@ impl SpecTranslateList {
     }
 
     /// Gets all specs for company
-    pub(crate) fn for_company(
-        company: &Company,
+    pub(crate) fn for_company_uuid(
+        company_uuid: &Uuid,
         set_lang_id: &i32,
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<SpecTranslateList>> {
-        let specs_ids: Vec<i32> = CompanySpec::belonging_to(company)
+        let specs_ids: Vec<i32> = spec_to_company::spec_to_company
+            .filter(spec_to_company::company_uuid.eq(company_uuid))
             .select(spec_to_company::spec_id)
             .load::<i32>(conn)
             .expect("Error loading spec_company");

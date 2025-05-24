@@ -1,15 +1,10 @@
 use crate::schema::*;
-use crate::models::relate_ref::keyword::model::Keyword;
-use crate::models::supplier_service::model::Service;
 use async_graphql::*;
 // use chrono::*;
 use uuid::Uuid;
 
 // Keyword service models
-#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, Clone, Debug)]
-#[diesel(primary_key(service_uuid, keyword_id))]
-#[diesel(belongs_to(Service, foreign_key = service_uuid))]
-#[diesel(belongs_to(Keyword, foreign_key = keyword_id))]
+#[derive(Serialize, Deserialize, Queryable, SimpleObject, Clone, Debug)]
 #[diesel(table_name = keyword_to_service)]
 pub(crate) struct ServiceKeyword {
     pub(crate) service_uuid: Uuid,

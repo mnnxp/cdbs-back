@@ -1,15 +1,10 @@
 use crate::schema::*;
-use crate::models::component::component_modification::model::ComponentModification;
-use crate::graphql::file::ShowFileRelatedData;
 use async_graphql::*;
 // use chrono::*;
 use uuid::Uuid;
 
 /// File linkage and component modification data
-#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, Debug)]
-#[diesel(primary_key(file_uuid, modification_uuid))]
-#[diesel(belongs_to(ShowFileRelatedData, foreign_key = file_uuid))]
-#[diesel(belongs_to(ComponentModification, foreign_key = modification_uuid))]
+#[derive(Serialize, Deserialize, Queryable, SimpleObject, Clone, Debug)]
 #[diesel(table_name = file_to_modification)]
 pub(crate) struct FileModification {
     /// UUID of linked file

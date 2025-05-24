@@ -1,15 +1,10 @@
 use crate::schema::*;
-use crate::models::component::model::Component;
-use crate::graphql::file::ShowFileRelatedData;
 use async_graphql::*;
 // use chrono::*;
 use uuid::Uuid;
 
 // Structures for Component
-#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, Debug)]
-#[diesel(primary_key(file_uuid, component_uuid))]
-#[diesel(belongs_to(ShowFileRelatedData, foreign_key = file_uuid))]
-#[diesel(belongs_to(Component, foreign_key = component_uuid))]
+#[derive(Serialize, Deserialize, Queryable, SimpleObject, Clone, Debug)]
 #[diesel(table_name = file_to_component)]
 pub(crate) struct ComponentFile {
     pub(crate) file_uuid: Uuid,

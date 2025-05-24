@@ -1,15 +1,10 @@
 use crate::schema::*;
-use crate::models::supplier_service::model::Service;
-use crate::graphql::file::ShowFileRelatedData;
 use async_graphql::*;
 // use chrono::*;
 use uuid::Uuid;
 
 // Structures for Service
-#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, Debug)]
-#[diesel(primary_key(file_uuid, service_uuid))]
-#[diesel(belongs_to(ShowFileRelatedData, foreign_key = file_uuid))]
-#[diesel(belongs_to(Service, foreign_key = service_uuid))]
+#[derive(Serialize, Deserialize, Queryable, SimpleObject, Clone, Debug)]
 #[diesel(table_name = file_to_service)]
 pub(crate) struct ServiceFile {
     pub(crate) file_uuid: Uuid,

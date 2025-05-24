@@ -1,13 +1,8 @@
 use crate::schema::*;
-use crate::models::company::member::role::model::RoleMember;
-use crate::models::relate_ref::type_access::model::TypeAccess;
 use async_graphql::*;
 
 // RoleAccess models
-#[derive(Identifiable, Serialize, Deserialize, Associations, Queryable, Debug)]
-#[diesel(primary_key(role_id, type_access_id))]
-#[diesel(belongs_to(RoleMember, foreign_key = role_id))]
-#[diesel(belongs_to(TypeAccess, foreign_key = type_access_id))]
+#[derive(Serialize, Deserialize, Queryable, Debug)]
 #[diesel(table_name = role_access)]
 pub(crate) struct RoleAccess {
     pub(crate) role_id: i32,

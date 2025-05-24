@@ -1,15 +1,11 @@
 use crate::schema::*;
-use crate::models::company::model::Company;
 use crate::models::company::company_represent::representation_type::model::RepresentationTypeTranslateList;
 use crate::models::relate_ref::region::model::RegionTranslateList;
 use async_graphql::*;
 use uuid::Uuid;
 
 /// Data on the company's representative office.
-#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations)]
-#[derive(SimpleObject, Clone, Debug)]
-#[diesel(primary_key(uuid))]
-#[diesel(belongs_to(Company, foreign_key = company_uuid))]
+#[derive(Serialize, Deserialize, Queryable, SimpleObject, Clone, Debug)]
 #[diesel(table_name = company_represent_ref)]
 pub(crate) struct CompanyRepresent {
     /// Company representative office UUID

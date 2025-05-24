@@ -1,14 +1,9 @@
 use crate::schema::*;
-use crate::models::relate_ref::spec::model::Spec;
-use crate::models::supplier_service::model::Service;
 use async_graphql::*;
 use uuid::Uuid;
 
 // Spec service models
-#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, Clone, Debug)]
-#[diesel(primary_key(service_uuid, spec_id))]
-#[diesel(belongs_to(Service, foreign_key = service_uuid))]
-#[diesel(belongs_to(Spec, foreign_key = spec_id))]
+#[derive(Serialize, Deserialize, Queryable, SimpleObject, Clone, Debug)]
 #[diesel(table_name = spec_to_service)]
 pub(crate) struct ServiceSpec {
     pub(crate) spec_id: i32,

@@ -1,9 +1,4 @@
 use crate::schema::*;
-// use crate::models::company::model::Company;
-use crate::models::component::model::Component;
-// use crate::models::standard::model::Standard;
-// use crate::models::user::model::UserQuery;
-use crate::models::relate_ref::language::model::Language;
 use async_graphql::*;
 
 // TypeAccess models
@@ -21,12 +16,7 @@ pub(crate) struct InsertableTypeAccess {
 }
 
 /// Access type information with localization
-#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations)]
-#[derive(SimpleObject, Clone, Default, Debug)]
-#[diesel(primary_key(type_access_id, lang_id))]
-#[diesel(belongs_to(TypeAccess, foreign_key = type_access_id))]
-#[diesel(belongs_to(Component, foreign_key = type_access_id))]
-#[diesel(belongs_to(Language, foreign_key = lang_id))]
+#[derive(Serialize, Deserialize, Queryable, SimpleObject, Clone, Debug)]
 #[diesel(table_name = type_access_translate_list)]
 pub(crate) struct TypeAccessTranslateList {
     /// Access type identifier

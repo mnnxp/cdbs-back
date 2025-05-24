@@ -1,13 +1,8 @@
 use crate::schema::*;
-use crate::models::component::model::Component;
-use crate::models::relate_ref::license::model::License;
 use async_graphql::*;
 use uuid::Uuid;
 
-#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, Debug)]
-#[diesel(primary_key(component_uuid, license_id))]
-#[diesel(belongs_to(Component, foreign_key = component_uuid))]
-#[diesel(belongs_to(License, foreign_key = license_id))]
+#[derive(Serialize, Deserialize, Queryable, SimpleObject, Clone, Debug)]
 #[diesel(table_name = license_to_component)]
 pub(crate) struct ComponentLicense {
     pub(crate) component_uuid: Uuid,

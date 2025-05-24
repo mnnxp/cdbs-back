@@ -1,7 +1,4 @@
-use crate::models::component::{
-    model::Component,
-    component_modification::util::get_root_modification_uuid,
-};
+use crate::models::component::component_modification::util::get_root_modification_uuid;
 use crate::models::relate_ref::param::model::IptParamData;
 use crate::models::search::order::{Paginate, Sort};
 use crate::schema::*;
@@ -9,9 +6,7 @@ use async_graphql::*;
 use chrono::*;
 use uuid::Uuid;
 
-#[derive(Identifiable, Deserialize, Queryable, Associations, PartialEq, Clone, Debug)]
-#[diesel(primary_key(uuid))]
-#[diesel(belongs_to(Component, foreign_key = component_uuid))]
+#[derive(Serialize, Deserialize, Queryable, SimpleObject, Clone, Debug)]
 #[diesel(table_name = component_modification_list)]
 pub(crate) struct ComponentModification {
     pub(crate) uuid: Uuid,

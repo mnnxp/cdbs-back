@@ -1,16 +1,9 @@
-use crate::models::{
-    component::component_modification::model::ComponentModification,
-    relate_ref::param::model::{ParamTranslateList, IptParamData},
-};
+use crate::models::relate_ref::param::model::{ParamTranslateList, IptParamData};
 use crate::schema::*;
 use async_graphql::*;
 use uuid::Uuid;
 
-#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations)]
-#[derive(PartialEq, Clone, Debug, SimpleObject)]
-#[diesel(primary_key(modification_uuid))]
-#[diesel(belongs_to(ComponentModification, foreign_key = modification_uuid))]
-#[diesel(belongs_to(ParamTranslateList, foreign_key = param_id))]
+#[derive(PartialEq, Serialize, Deserialize, Queryable, SimpleObject, Clone, Debug)]
 #[diesel(table_name = param_to_modification)]
 pub(crate) struct ModificationParam {
     pub(crate) modification_uuid: Uuid,
