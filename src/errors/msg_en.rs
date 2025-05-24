@@ -69,7 +69,7 @@ pub(crate) fn value_in_err_msg_en(err_msg: ErrorMessage) -> String {
         ErrorMessage::FileObjectNotFound =>
             String::from("File to object association not found"),
         ErrorMessage::KeywordMustLess =>
-            String::from("Keywords must be less than 10 symbols"),
+            String::from("Keywords must be less than 30 bit (~15 symbols)"),
         ErrorMessage::NeedSetUuidOrUsername =>
             String::from("Need set userUuid or username"),
         ErrorMessage::NoActiveFileRevisionFound =>

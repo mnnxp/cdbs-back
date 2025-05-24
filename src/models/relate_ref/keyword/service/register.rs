@@ -13,7 +13,7 @@ pub(crate) fn create_keyword(
 ) -> ServiceResult<Keyword> {
     use crate::schema::keyword_ref::dsl as keyword_ref;
 
-    if new_keyword.keyword.len() > 10 {
+    if new_keyword.keyword.len() > 30 {
         return Err(get_err_msg(ErrorMessage::KeywordMustLess));
     }
 
