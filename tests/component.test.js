@@ -477,6 +477,7 @@ const baseFilesetUuid = "5de37b5d-75af-4323-b5b4-2cf1e849baa2";
 const modificationName = "testmodificationcomponent";
 const modificationName2 = "test modification component 2";
 const descriptionModification = "commentcomponent";
+const veryLongDescriptionModification = Array(1100).join('я');
 const actualStatusIdModification = 1;
 var componentModificationUuidFirst = "";
 var componentModificationUuidSecond = "";
@@ -3640,7 +3641,7 @@ describe('component', () => {
     done();
   });
 
-  it('/graphql:Q Get full data Component - OK check add standard component', async (done) => {
+  it('/graphql:Q Get full data Component - OK check add standard component (changed parent type access)', async (done) => {
     await global.knex.raw('UPDATE standard_ref SET type_access_id=? WHERE uuid=?', [
       3,
       parentStandardUuid,
@@ -5770,6 +5771,37 @@ describe('component', () => {
       'BadRequest: Access denied'
     );
     expect(body.errors[0].path[0]).toBe('putComponentModificationUpdate');
+    done();
+  });
+
+  it('/graphql:M putComponentModificationUpdate - BadRequest very long description', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation  {
+            putComponentModificationUpdate(
+              componentModificationUuid: "${componentModificationUuidFirst}"
+              args: {
+                modificationName: "${nameModificationForUpdate}"
+                description: "${veryLongDescriptionModification}"
+                actualStatusId: ${actualStatusModificationIdForUpdate}
+              }
+            )
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql putComponentModificationUpdate=%o', body);
+    // expect(body).toBe(0);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Text must be less than 2000 bit (~1000 symbols)'
+    );
+    expect(body.errors[0].path[0]).toBe('putComponentModificationUpdate');
+    done();
     done();
   });
 

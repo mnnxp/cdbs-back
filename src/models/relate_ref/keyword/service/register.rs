@@ -14,7 +14,7 @@ pub(crate) fn create_keyword(
     use crate::schema::keyword_ref::dsl as keyword_ref;
 
     if new_keyword.keyword.len() > 30 {
-        return Err(get_err_msg(ErrorMessage::KeywordMustLess));
+        return Err(get_err_msg(ErrorMessage::TextMustLess(30)));
     }
 
     let check_keyword = KeywordId::get_by_name(&new_keyword.keyword, conn);

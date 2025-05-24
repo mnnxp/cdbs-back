@@ -2867,7 +2867,7 @@ describe('company', () => {
         query: `mutation  {
           addStandardKeywordsByNames(args: {
             standardUuid: "${standardUuidFirst}"
-            keywords: ["asd11","asd12345678","asd12"]
+            keywords: ["asd11","сликомдлинноеключевоеслово","asd12345678","asd12"]
           })
         }`,
       })
@@ -2875,7 +2875,7 @@ describe('company', () => {
     debug('/graphql addStandardKeywordsByNames=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      "BadRequest: Keywords must be less than 10 symbols"
+      "BadRequest: Text must be less than 30 bit (~15 symbols)"
     );
     expect(body.errors[0].path[0]).toBe('addStandardKeywordsByNames');
     done();

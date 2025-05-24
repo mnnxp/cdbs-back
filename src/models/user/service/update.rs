@@ -13,10 +13,14 @@ pub(crate) fn update_user(
     data: &IptUpdateUserData,
     conn: &mut PgConnection,
 ) -> ServiceResult<usize> {
+    // update data validation
     if let Some(username) = &data.username {
         if check_use_username(username, conn)? {
             return Err(get_err_msg(ErrorMessage::UsernameIsAlreadyUsed))
         }
+    }
+    if data.description.as_ref().map(|d| d.len()).unwrap_or_default() > 2000 {
+        return Err(get_err_msg(ErrorMessage::TextMustLess(2000)));
     }
 
     // for returning change count

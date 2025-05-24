@@ -68,8 +68,8 @@ pub(crate) fn value_in_err_msg_en(err_msg: ErrorMessage) -> String {
             String::from("Failed: access not delete"),
         ErrorMessage::FileObjectNotFound =>
             String::from("File to object association not found"),
-        ErrorMessage::KeywordMustLess =>
-            String::from("Keywords must be less than 30 bit (~15 symbols)"),
+        ErrorMessage::TextMustLess(max_bit) =>
+            format!("Text must be less than {} bit (~{} symbols)", max_bit, max_bit/2),
         ErrorMessage::NeedSetUuidOrUsername =>
             String::from("Need set userUuid or username"),
         ErrorMessage::NoActiveFileRevisionFound =>

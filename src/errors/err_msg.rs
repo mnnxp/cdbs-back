@@ -69,8 +69,8 @@ pub(crate) enum ErrorMessage {
     FailedRemoveAccessForRole,
     /// "File to object association not found"
     FileObjectNotFound,
-    /// "Keywords must be less than 30 bit (~15 symbols)"
-    KeywordMustLess,
+    /// format!("Text must be less than {} bit (~{} symbols)", max_bit, max_bit/2)
+    TextMustLess(i32),
     /// "Need set userUuid or username"
     NeedSetUuidOrUsername,
     /// "No active file revision found"

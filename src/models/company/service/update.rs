@@ -13,6 +13,11 @@ pub(crate) fn update_company_by_uuid(
     data: &IptUpdateCompanyData,
     conn: &mut PgConnection
 ) -> ServiceResult<usize> {
+    // update data validation
+    if data.description.as_ref().map(|d| d.len()).unwrap_or_default() > 2000 {
+        return Err(get_err_msg(ErrorMessage::TextMustLess(2000)));
+    }
+
     // check access user for company
     check_is_owner_with_err(
         logged_user_uuid,

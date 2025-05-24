@@ -16,9 +16,12 @@ pub(crate) fn update_service_data(
     options: &ExtraOptions,
     conn: &mut PgConnection
 ) -> ServiceResult<usize> {
-
+    // update data validation
     if get_service_status(target_service_uuid, conn)? > 1 {
         return Err(get_err_msg(ErrorMessage::FailedUpdateServiceBadStatus))
+    }
+    if data.description.as_ref().map(|d| d.len()).unwrap_or_default() > 2000 {
+        return Err(get_err_msg(ErrorMessage::TextMustLess(2000)));
     }
 
     check_is_owner_with_err(

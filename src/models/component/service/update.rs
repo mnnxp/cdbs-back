@@ -16,6 +16,11 @@ pub(crate) fn update_component_by_uuid(
     data: &IptUpdateComponentData,
     conn: &mut PgConnection,
 ) -> ServiceResult<usize> {
+    // update data validation
+    if data.description.as_ref().map(|d| d.len()).unwrap_or_default() > 2000 {
+        return Err(get_err_msg(ErrorMessage::TextMustLess(2000)));
+    }
+
     // need top level access for change component main data
     let need_access_level = 1; // todo!(create enum for manage access level)
 
