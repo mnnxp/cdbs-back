@@ -43,9 +43,9 @@ const langId2 = 2;
 
 const specLevels3 = [247, 286, 437, 465, 480, 379, 400, 4];
 const specId5 = 5;
-const specPath5Level5 = "ROOT/MECHANICS (CONSTRUCTION, MECHANICAL ENGINEERING)/MECHANICAL COMPONENTS/Fixings/Screws and bolts";
-const specPath5 = "MECHANICAL COMPONENTS/Fixings/Screws and bolts";
-const specPathSplit5 = "ROOT#MECHANICS (CONSTRUCTION, MECHANICAL ENGINEERING)#MECHANICAL COMPONENTS#Fixings#Screws and bolts";
+const specPath5Level5 = "ROOT/Mechanics (Construction, Mechanical engineering)/Mechanical components/Fixings/Screws and bolts";
+const specPath5 = "Mechanical components/Fixings/Screws and bolts";
+const specPathSplit5 = "ROOT#Mechanics (Construction, Mechanical engineering)#Mechanical components#Fixings#Screws and bolts";
 var specName4 = "";
 var specName5 = "";
 var specPath10 = "";
