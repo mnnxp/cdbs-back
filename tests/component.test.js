@@ -3693,12 +3693,12 @@ describe('component', () => {
     expect(component.componentStandards[1].uuid).toBe(standardUuidFirst);
     expect(component.componentStandards[1].name).toBe(nameStandard);
     expect(component.componentStandards[1].ownerCompany.uuid).toBe(companyUuidSupplier);
-    done();
     // return private type access
     await global.knex.raw('UPDATE standard_ref SET type_access_id=? WHERE uuid=?', [
       1,
       parentStandardUuid,
     ]);
+    done();
   });
 
   // Testing get components by standard
