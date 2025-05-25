@@ -681,18 +681,14 @@ table! {
     standard_ref (uuid) {
         uuid -> Uuid,
         parent_standard_uuid -> Uuid,
-        classifier -> Varchar,
         name -> Varchar,
         description -> Varchar,
-        specified_tolerance -> Varchar,
-        technical_committee -> Varchar,
         publication_at -> Timestamp,
         image_file_uuid -> Uuid,
         user_uuid -> Uuid,
         company_uuid -> Uuid,
         type_access_id -> Int4,
         standard_status_id -> Int4,
-        region_id -> Int4,
         is_delete -> Bool,
         created_at -> Timestamp,
         updated_at -> Timestamp,
@@ -983,7 +979,6 @@ joinable!(standard_fav -> user_ref (user_uuid));
 joinable!(standard_history_list -> standard_ref (standard_uuid));
 joinable!(standard_ref -> company_ref (company_uuid));
 joinable!(standard_ref -> file_ref (image_file_uuid));
-joinable!(standard_ref -> region_ref (region_id));
 joinable!(standard_ref -> standard_status_ref (standard_status_id));
 joinable!(standard_ref -> type_access_ref (type_access_id));
 joinable!(standard_ref -> user_ref (user_uuid));

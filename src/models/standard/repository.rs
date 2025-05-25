@@ -1,7 +1,8 @@
 use crate::errors::{ServiceResult, ServiceError};
 use crate::graphql::file::ShowFileRelatedData;
+use crate::graphql::standard_model::{ShowStandardShort, StandardAndRelatedData};
 use crate::models::standard::{
-    model::{Standard, ShowStandardShort, StandardAndRelatedData},
+    model::Standard,
     standard_status::model::StandardStatusTranslateList,
     standard_fav::model::StandardFav,
     standard_fav::util::check_subscriber_by_uuid,
@@ -12,7 +13,6 @@ use crate::models::relate_ref::{
     spec::model::SpecTranslateList,
     type_access::model::TypeAccessTranslateList,
     file::model::DownloadFile,
-    region::model::RegionTranslateList,
     keyword::model::Keyword,
 };
 use crate::models::search::{
@@ -35,18 +35,14 @@ impl Standard {
             .select((
                 standard_ref::uuid,
                 standard_ref::parent_standard_uuid,
-                standard_ref::classifier,
                 standard_ref::name,
                 standard_ref::description,
-                standard_ref::specified_tolerance,
-                standard_ref::technical_committee,
                 standard_ref::publication_at,
                 standard_ref::image_file_uuid,
                 standard_ref::user_uuid,
                 standard_ref::company_uuid,
                 standard_ref::type_access_id,
                 standard_ref::standard_status_id,
-                standard_ref::region_id,
                 standard_ref::created_at,
                 standard_ref::updated_at,
             ))
@@ -128,10 +124,8 @@ impl ShowStandardShort {
 
         Ok(ShowStandardShort {
             uuid: standard.uuid,
-            classifier: standard.classifier,
             name: standard.name,
             description: standard.description,
-            specified_tolerance: standard.specified_tolerance,
             publication_at: standard.publication_at,
             image_file,
             owner_company,
@@ -246,13 +240,6 @@ impl StandardAndRelatedData {
             conn
         ).expect("Error loading standard_status");
 
-        // get region for company
-        let region = RegionTranslateList::get_region_by_id(
-            &standard.region_id,
-            &options.set_lang_id,
-            conn
-        ).expect("Error loading company_type");
-
         // count subscribers standard
         let subscribers = StandardFav::get_count_followers_by_uuid(
             &standard.uuid,
@@ -292,18 +279,14 @@ impl StandardAndRelatedData {
         Ok(StandardAndRelatedData {
             uuid: standard.uuid,
             parent_standard_uuid: standard.parent_standard_uuid,
-            classifier: standard.classifier,
             name: standard.name,
             description: standard.description,
-            specified_tolerance: standard.specified_tolerance,
-            technical_committee: standard.technical_committee,
             publication_at: standard.publication_at,
             image_file,
             owner_user,
             owner_company,
             type_access,
             standard_status,
-            region,
             created_at: standard.created_at,
             updated_at: standard.updated_at,
             standard_files,

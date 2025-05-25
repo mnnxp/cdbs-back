@@ -11,7 +11,7 @@ mod user;
 
 pub use company::{CompanyMutation, CompanyQuery};
 pub use component::{ComponentMutation, ComponentQuery, component_model};
-pub use standard::{StandardMutation, StandardQuery};
+pub use standard::{StandardMutation, StandardQuery, standard_model};
 pub use supplier_service::{ServiceMutation, ServiceQuery, service_model};
 pub use user::{UserMutation, UserQuery};
 pub use relate::extension::ExtensionMutation;

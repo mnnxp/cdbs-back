@@ -1,3 +1,4 @@
+pub mod standard_model;
 pub mod standard_mutation;
 pub mod standard_query;
 

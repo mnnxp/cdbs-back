@@ -3686,7 +3686,7 @@ describe('component', () => {
     } = body;
     expect(component.uuid).toBe(componentUuidStandard);
     expect(component.componentStandards[0].uuid).toBe(parentStandardUuid);
-    expect(component.componentStandards[0].classifier).toBeNonEmptyString();
+    expect(component.componentStandards[0].classifier).toBeEmptyString();
     expect(component.componentStandards[0].name).toBeNonEmptyString();
     expect(component.componentStandards[0].ownerCompany.uuid).toBeNonEmptyString();
     expect(component.componentStandards[0].ownerCompany.companyType.shortname).toBeNonEmptyString();

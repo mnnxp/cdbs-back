@@ -1,6 +1,6 @@
 use crate::errors::ServiceResult;
 use crate::errors::err_msg::{ErrorMessage, get_err_msg};
-use crate::models::standard::model::IptUpdateStandardData;
+use crate::graphql::standard_model::IptUpdateStandardData;
 use crate::models::company::access::util::check_company_access;
 use crate::models::standard::access::util::check_access_standard_for_user;
 use crate::schema::standard_ref::dsl as standard_ref;
@@ -54,19 +54,6 @@ pub(crate) fn update_standard_data(
             })?;
     }
 
-    // update column classifier
-    if let Some(value) = &data.classifier {
-        count_update_columns += diesel::update(standard_ref::standard_ref
-            .filter(standard_ref::uuid.eq(target_standard_uuid)
-            .and(standard_ref::classifier.ne(value))))
-            .set(standard_ref::classifier.eq(value))
-            .execute(conn)
-            .map_err(|err| {
-                debug!("Failed update data: {:?}", err);
-                get_err_msg(ErrorMessage::FailedUpdateData)
-            })?;
-    }
-
     // update column name
     if let Some(value) = &data.name {
         count_update_columns += diesel::update(standard_ref::standard_ref
@@ -93,32 +80,6 @@ pub(crate) fn update_standard_data(
             })?;
     }
 
-    // update column specified_tolerance
-    if let Some(value) = &data.specified_tolerance {
-        count_update_columns += diesel::update(standard_ref::standard_ref
-            .filter(standard_ref::uuid.eq(target_standard_uuid)
-            .and(standard_ref::specified_tolerance.ne(value))))
-            .set(standard_ref::specified_tolerance.eq(value))
-            .execute(conn)
-            .map_err(|err| {
-                debug!("Failed update data: {:?}", err);
-                get_err_msg(ErrorMessage::FailedUpdateData)
-            })?;
-    }
-
-    // update column technical_committee
-    if let Some(value) = &data.technical_committee {
-        count_update_columns += diesel::update(standard_ref::standard_ref
-            .filter(standard_ref::uuid.eq(target_standard_uuid)
-            .and(standard_ref::technical_committee.ne(value))))
-            .set(standard_ref::technical_committee.eq(value))
-            .execute(conn)
-            .map_err(|err| {
-                debug!("Failed update data: {:?}", err);
-                get_err_msg(ErrorMessage::FailedUpdateData)
-            })?;
-    }
-
     // update column publication_at
     if let Some(value) = &data.publication_at {
         count_update_columns += diesel::update(standard_ref::standard_ref
@@ -138,19 +99,6 @@ pub(crate) fn update_standard_data(
             .filter(standard_ref::uuid.eq(target_standard_uuid)
             .and(standard_ref::standard_status_id.ne(value))))
             .set(standard_ref::standard_status_id.eq(value))
-            .execute(conn)
-            .map_err(|err| {
-                debug!("Failed update data: {:?}", err);
-                get_err_msg(ErrorMessage::FailedUpdateData)
-            })?;
-    }
-
-    // update column region_id
-    if let Some(value) = &data.region_id {
-        count_update_columns += diesel::update(standard_ref::standard_ref
-            .filter(standard_ref::uuid.eq(target_standard_uuid)
-            .and(standard_ref::region_id.ne(value))))
-            .set(standard_ref::region_id.eq(value))
             .execute(conn)
             .map_err(|err| {
                 debug!("Failed update data: {:?}", err);

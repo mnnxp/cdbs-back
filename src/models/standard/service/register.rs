@@ -1,6 +1,7 @@
 use crate::errors::{ServiceError, ServiceResult};
+use crate::graphql::standard_model::IptStandardData;
 use crate::models::standard::{
-    model::{IptStandardData, InsertableStandard},
+    model::InsertableStandard,
     access::util::check_access_standard_for_user,
 };
 use crate::models::company::access::util::check_company_access;

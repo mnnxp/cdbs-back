@@ -835,7 +835,7 @@ describe('company', () => {
     const {
       data: { putStandardUpdate },
     } = body;
-    expect(putStandardUpdate).toBe(8);
+    expect(putStandardUpdate).toBe(4);
     done();
   });
 
@@ -925,7 +925,7 @@ describe('company', () => {
     const {
       data: { putStandardUpdate },
     } = body;
-    expect(putStandardUpdate).toBe(9);
+    expect(putStandardUpdate).toBe(5);
     done();
   });
 
@@ -3200,7 +3200,8 @@ describe('company', () => {
       data: { standard },
     } = body;
     expect(standard.uuid).toBe(standardUuidFirst);
-    expect(standard.classifier).toBe(classifierStandard);
+    // expect(standard.classifier).toBe(classifierStandard);
+    expect(standard.classifier).toBeEmptyString();
     done();
   });
 
@@ -3226,7 +3227,8 @@ describe('company', () => {
       data: { standards },
     } = body;
     expect(standards[0].uuid).toBe(standardUuidFirst);
-    expect(standards[0].classifier).toBe(classifierStandard);
+    // expect(standards[0].classifier).toBe(classifierStandard);
+    expect(standards[0].classifier).toBeEmptyString();
     done();
   });
 
@@ -3694,7 +3696,7 @@ describe('company', () => {
     const {
       data: { putStandardUpdate },
     } = body;
-    expect(putStandardUpdate).toBe(7);
+    expect(putStandardUpdate).toBe(4);
     done();
   });
 
@@ -3896,7 +3898,8 @@ describe('company', () => {
       data: { standards },
     } = body;
     expect(standards[0].uuid).toBe(standardUuidFirst);
-    expect(standards[0].classifier).toBe(classifierStandard2);
+    // expect(standards[0].classifier).toBe(classifierStandard2);
+    expect(standards[0].classifier).toBeEmptyString();
     done();
   });
 
@@ -4100,7 +4103,7 @@ describe('company', () => {
     const {
       data: { putStandardUpdate },
     } = body;
-    expect(putStandardUpdate).toBe(4);
+    expect(putStandardUpdate).toBe(2);
     done();
   });
 

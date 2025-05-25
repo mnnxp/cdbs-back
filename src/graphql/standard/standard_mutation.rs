@@ -1,8 +1,8 @@
 use crate::errors::ServiceResult;
 use crate::database::{get_conn, PooledConnection};
+use crate::graphql::standard_model::{IptStandardData, IptUpdateStandardData};
 use crate::models::user::access::logged::get_logged_user_uuid;
 use crate::models::standard::{
-    model::{IptStandardData, IptUpdateStandardData},
     access::model::{ChangeOwnerStandard, ChangeTypeAccessStandard},
     access::company::model::{IptCompanyAccessStandardData, DelCompanyAccessStandardData},
     access::user::model::{IptUserAccessStandardData, DelUserAccessStandardData},
