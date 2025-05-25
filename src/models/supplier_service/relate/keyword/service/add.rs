@@ -1,5 +1,6 @@
 use crate::errors::{ServiceResult, ServiceError};
 use crate::errors::err_msg::{ErrorMessage, get_err_msg};
+use crate::models::supplier_service::service::update::change_service_updated_at;
 use crate::models::supplier_service::{
     keyword::model::{IptServiceKeywordsData, IptServiceKeywordsNames, InsertableServiceKeyword},
     access::util::check_access_service_for_user,
@@ -36,6 +37,12 @@ pub(crate) fn add_service_keywords(
         true => Err(get_err_msg(ErrorMessage::NotFoundKeywords)),
         false => {
             keywords.retain(|k| check_keyword_for_service(k, conn));
+            change_service_updated_at(
+                &data.service_uuid,
+                logged_user_uuid,
+                format!("Added new keywords: {:?})", &keywords),
+                conn
+            )?;
             insert_rows_service_keywords(&keywords, conn)
         },
     }

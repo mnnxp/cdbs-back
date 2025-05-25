@@ -74,7 +74,8 @@ table! {
         id -> Int4,
         company_uuid -> Uuid,
         type_of_change_id -> Int4,
-        old_data -> Varchar,
+        user_uuid -> Uuid,
+        old_data -> Text,
         changed_at -> Timestamp,
     }
 }
@@ -157,7 +158,8 @@ table! {
         id -> Int4,
         component_uuid -> Uuid,
         type_of_change_id -> Int4,
-        old_data -> Varchar,
+        user_uuid -> Uuid,
+        old_data -> Text,
         changed_at -> Timestamp,
     }
 }
@@ -167,7 +169,7 @@ table! {
         uuid -> Uuid,
         component_uuid -> Uuid,
         parent_modification_uuid -> Uuid,
-        modification_name -> Text,
+        modification_name -> Varchar,
         description -> Varchar,
         actual_status_id -> Int4,
         is_delete -> Bool,
@@ -580,7 +582,8 @@ table! {
         id -> Int4,
         service_uuid -> Uuid,
         type_of_change_id -> Int4,
-        old_data -> Varchar,
+        user_uuid -> Uuid,
+        old_data -> Text,
         changed_at -> Timestamp,
     }
 }
@@ -672,7 +675,8 @@ table! {
         id -> Int4,
         standard_uuid -> Uuid,
         type_of_change_id -> Int4,
-        old_data -> Varchar,
+        user_uuid -> Uuid,
+        old_data -> Text,
         changed_at -> Timestamp,
     }
 }
@@ -807,7 +811,7 @@ table! {
         id -> Int4,
         user_uuid -> Uuid,
         type_of_change_id -> Int4,
-        old_data -> Varchar,
+        old_data -> Text,
         changed_at -> Timestamp,
     }
 }
@@ -865,6 +869,7 @@ joinable!(company_fav -> company_ref (company_uuid));
 joinable!(company_fav -> user_ref (user_uuid));
 joinable!(company_history_list -> company_ref (company_uuid));
 joinable!(company_history_list -> type_of_change_ref (type_of_change_id));
+joinable!(company_history_list -> user_ref (user_uuid));
 joinable!(company_member_list -> company_ref (company_uuid));
 joinable!(company_member_list -> role_member_list (role_id));
 joinable!(company_member_list -> user_ref (user_uuid));
@@ -881,6 +886,8 @@ joinable!(company_type_translate_list -> language_ref (lang_id));
 joinable!(component_fav -> component_ref (component_uuid));
 joinable!(component_fav -> user_ref (user_uuid));
 joinable!(component_history_list -> component_ref (component_uuid));
+joinable!(component_history_list -> type_of_change_ref (type_of_change_id));
+joinable!(component_history_list -> user_ref (user_uuid));
 joinable!(component_modification_list -> actual_status_ref (actual_status_id));
 joinable!(component_modification_list -> component_ref (component_uuid));
 joinable!(component_ref -> actual_status_ref (actual_status_id));
@@ -957,6 +964,7 @@ joinable!(role_member_translate_list -> language_ref (lang_id));
 joinable!(role_member_translate_list -> role_member_list (role_member_id));
 joinable!(service_history_list -> service_ref (service_uuid));
 joinable!(service_history_list -> type_of_change_ref (type_of_change_id));
+joinable!(service_history_list -> user_ref (user_uuid));
 joinable!(service_ref -> company_ref (company_uuid));
 joinable!(service_ref -> region_ref (region_id));
 joinable!(service_ref -> service_status_ref (service_status_id));
@@ -977,6 +985,8 @@ joinable!(spec_translate_list -> spec_ref (spec_id));
 joinable!(standard_fav -> standard_ref (standard_uuid));
 joinable!(standard_fav -> user_ref (user_uuid));
 joinable!(standard_history_list -> standard_ref (standard_uuid));
+joinable!(standard_history_list -> type_of_change_ref (type_of_change_id));
+joinable!(standard_history_list -> user_ref (user_uuid));
 joinable!(standard_ref -> company_ref (company_uuid));
 joinable!(standard_ref -> file_ref (image_file_uuid));
 joinable!(standard_ref -> standard_status_ref (standard_status_id));

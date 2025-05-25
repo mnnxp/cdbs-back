@@ -1,6 +1,6 @@
 use crate::errors::{ServiceResult, ServiceError};
 use crate::errors::err_msg::{ErrorMessage, get_err_msg};
-use crate::models::supplier_service::service::update::change_updated_at;
+use crate::models::supplier_service::service::update::change_service_updated_at;
 use crate::models::supplier_service::{
     param::model::{IptServiceParamsData, InsertableServiceParam},
     access::util::check_access_service_for_user,
@@ -78,8 +78,15 @@ pub(crate) fn put_service_params(
             &update_params,
             conn
         )?;
+    }
 
-        change_updated_at(&data.service_uuid, conn)?;
+    if count_changed_rows > 0 {
+        change_service_updated_at(
+            &data.service_uuid,
+            &options.logged_user_uuid,
+            format!("Updated parameters (new:{}, changed:{})", new_params.len(), update_params.len()),
+            conn
+        )?;
     }
 
     Ok(count_changed_rows)

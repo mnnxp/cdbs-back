@@ -1,5 +1,6 @@
 use crate::errors::{ServiceResult, ServiceError};
 use crate::errors::err_msg::{ErrorMessage, get_err_msg};
+use crate::models::supplier_service::service::update::change_service_updated_at;
 use crate::models::supplier_service::spec::model::{
     IptServiceSpecsData, DeleteServiceSpecs,
 };
@@ -30,7 +31,12 @@ pub(crate) fn del_service_specs(
         // return error if not found correct specs
         return Err(get_err_msg(ErrorMessage::NotFoundSpecs))
     }
-
+    change_service_updated_at(
+        &data.service_uuid,
+        logged_user_uuid,
+        format!("Deleted the categories (specs): {:?}", del_specs.spec_ids),
+        conn
+    )?;
     diesel::delete(spec_to_service::spec_to_service)
         .filter(spec_to_service::service_uuid.eq(&del_specs.service_uuid)
         .and(spec_to_service::spec_id.eq_any(&del_specs.spec_ids)))

@@ -5,7 +5,7 @@ use async_graphql::*;
 use uuid::Uuid;
 
 // Param service models
-#[derive(Serialize, Deserialize, Queryable, SimpleObject, Clone, Debug)]
+#[derive(Serialize, Deserialize, Queryable, Clone, Debug)]
 #[diesel(table_name = param_to_service)]
 pub(crate) struct ServiceParam {
     pub(crate) service_uuid: Uuid,

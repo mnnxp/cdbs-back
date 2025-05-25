@@ -201,7 +201,7 @@ impl ServiceMutation {
         &self,
         cxt: &Context<'_>,
         args: IptServiceSpecsData,
-    ) -> ServiceResult<i32> {
+    ) -> ServiceResult<usize> {
         // checking authorization and getting user uuid
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;

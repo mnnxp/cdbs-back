@@ -7,6 +7,7 @@ use crate::schema::{
     file_to_service::dsl as file_to_service,
 };
 use diesel::prelude::*;
+use chrono::Local;
 use uuid::Uuid;
 
 /// Deletes the service and its associated files.
@@ -38,12 +39,13 @@ pub(crate) fn del_service_data(
         // check ownership company of the service
         check_is_owner_with_err(logged_user_uuid, &owner_company_uuid, conn)?;
     }
+    delete_service_files(del_service_uuid, conn)?;
     delete_service(del_service_uuid, conn)?;
     Ok(*del_service_uuid)
 }
 
 /// Set the delete flags for all files associated with the service
-fn delete_service(
+fn delete_service_files(
     del_service_uuid: &Uuid,
     conn: &mut PgConnection
 ) -> ServiceResult<bool> {
@@ -57,4 +59,22 @@ fn delete_service(
         })?;
 
     delete_file_by_uuids(&del_file_uuids, conn)
+}
+
+/// Set the delete flags for the service
+fn delete_service(
+    del_service_uuid: &Uuid,
+    conn: &mut PgConnection
+) -> ServiceResult<usize> {
+    diesel::update(service_ref::service_ref)
+        .filter(service_ref::uuid.eq(del_service_uuid))
+        .set((
+            service_ref::is_delete.eq(true),
+            service_ref::updated_at.eq(Local::now().naive_local())
+        ))
+        .execute(conn)
+        .map_err(|err| {
+            debug!("Failure when set is_delete flag for a service: {:?}", err);
+            ServiceError::InternalServerError
+        })
 }

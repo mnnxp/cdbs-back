@@ -2,6 +2,7 @@ use crate::errors::ServiceResult;
 use crate::errors::err_msg::{ErrorMessage, get_err_msg};
 use crate::graphql::service_model::{IptServiceStatusArg, IptUpdateServiceData};
 use crate::models::supplier_service::access::util::{check_is_owner_with_err, check_user_access_provided_by_company};
+use crate::models::supplier_service::history::save_log_service_change;
 use crate::models::supplier_service::util::{get_service_consumer, get_service_status};
 use crate::models::search::model::ExtraOptions;
 use crate::models::user::notification::model::{NotificationData, NotificationType};
@@ -35,9 +36,22 @@ pub(crate) fn update_service_data(
 
     // for returning change count
     let mut count_update_columns = 0_usize;
+    let mut old_name: Option<String> = None;
+    let mut old_description: Option<String> = None;
+    let mut old_region_id: Option<i32> = None;
 
     // update column name
     if let Some(value) = &data.name {
+        old_name = service_ref::service_ref
+            .filter(service_ref::uuid.eq(target_service_uuid)
+            .and(service_ref::name.ne(value)))
+            .select(service_ref::name)
+            .first(conn)
+            .optional()
+            .map_err(|err| {
+                debug!("Failed update data: {:?}", err);
+                get_err_msg(ErrorMessage::FailedCheckData)
+            })?;
         count_update_columns += diesel::update(service_ref::service_ref
             .filter(service_ref::uuid.eq(target_service_uuid)
             .and(service_ref::name.ne(value))))
@@ -51,6 +65,16 @@ pub(crate) fn update_service_data(
 
     // update column description
     if let Some(value) = &data.description {
+        old_description = service_ref::service_ref
+            .filter(service_ref::uuid.eq(target_service_uuid)
+            .and(service_ref::description.ne(value)))
+            .select(service_ref::description)
+            .first(conn)
+            .optional()
+            .map_err(|err| {
+                debug!("Failed update data: {:?}", err);
+                get_err_msg(ErrorMessage::FailedCheckData)
+            })?;
         count_update_columns += diesel::update(service_ref::service_ref
             .filter(service_ref::uuid.eq(target_service_uuid)
             .and(service_ref::description.ne(value))))
@@ -64,6 +88,16 @@ pub(crate) fn update_service_data(
 
     // update column region_id
     if let Some(value) = &data.region_id {
+        old_region_id = service_ref::service_ref
+            .filter(service_ref::uuid.eq(target_service_uuid)
+            .and(service_ref::region_id.ne(value)))
+            .select(service_ref::region_id)
+            .first(conn)
+            .optional()
+            .map_err(|err| {
+                debug!("Failed update data: {:?}", err);
+                get_err_msg(ErrorMessage::FailedCheckData)
+            })?;
         count_update_columns += diesel::update(service_ref::service_ref
             .filter(service_ref::uuid.eq(target_service_uuid)
             .and(service_ref::region_id.ne(value))))
@@ -79,7 +113,12 @@ pub(crate) fn update_service_data(
         return Err(get_err_msg(ErrorMessage::DataHasAlready));
     }
     debug!("Count update columns: {:?}", count_update_columns);
-    change_updated_at(target_service_uuid, conn)?;
+    change_service_updated_at(
+        target_service_uuid,
+        &options.logged_user_uuid,
+        format!("Modified name {:?}, description {:?}, region_id {:?}", old_name, old_description, old_region_id),
+        conn
+    )?;
     // add notification for user
     create_notification(
         &options.logged_user_uuid,
@@ -98,6 +137,10 @@ pub(crate) fn change_service_status(
     options: &ExtraOptions,
     conn: &mut PgConnection
 ) -> ServiceResult<bool> {
+    // update data validation
+    if get_service_status(&args.service_uuid, conn)? > 9 {
+        return Err(get_err_msg(ErrorMessage::FailedUpdateServiceBadStatus))
+    }
     let need_access_level = 2; // todo!(create enum for manage access level)
     // checking the availability of user access provided by the company
     check_user_access_provided_by_company(
@@ -106,6 +149,14 @@ pub(crate) fn change_service_status(
         &need_access_level,
         conn
     )?;
+    let old_service_status_id = service_ref::service_ref
+        .filter(service_ref::uuid.eq(&args.service_uuid))
+        .select(service_ref::service_status_id)
+        .first::<i32>(conn)
+        .map_err(|err| {
+            debug!("Failed get old data: {:?}", err);
+            get_err_msg(ErrorMessage::FailedCheckData)
+        })?;
     // update column service_status_id
     let count_update_columns = diesel::update(service_ref::service_ref
         .filter(service_ref::uuid.eq(&args.service_uuid)
@@ -116,9 +167,15 @@ pub(crate) fn change_service_status(
             debug!("Failed update data: {:?}", err);
             get_err_msg(ErrorMessage::FailedUpdateData)
         })?;
-    if count_update_columns > 0 {
-        change_updated_at(&args.service_uuid, conn)?;
+    if count_update_columns == 0 {
+        return Ok(false)
     }
+    change_service_updated_at(
+        &args.service_uuid,
+        &options.logged_user_uuid,
+        format!("Changed status, old ID:{}", old_service_status_id),
+        conn
+    )?;
     // add notification for user
     create_notification(
         &get_service_consumer(&args.service_uuid, conn)?,
@@ -128,14 +185,17 @@ pub(crate) fn change_service_status(
         },
         conn,
     )?;
-    Ok(count_update_columns == 1)
+    Ok(true)
 }
 
 /// Sets current time as value updated at for target service and modification (optional)
-pub(crate) fn change_updated_at(
+pub(crate) fn change_service_updated_at(
     target_service_uuid: &Uuid,
+    logged_user_uuid: &Uuid,
+    old_data: String,
     conn: &mut PgConnection
 ) -> ServiceResult<usize> {
+    save_log_service_change(target_service_uuid, logged_user_uuid, old_data, conn);
     diesel::update(service_ref::service_ref
         .filter(service_ref::uuid.eq(target_service_uuid)))
         .set(service_ref::updated_at.eq(Local::now().naive_local()))

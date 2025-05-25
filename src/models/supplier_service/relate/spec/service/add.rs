@@ -1,5 +1,6 @@
 use crate::errors::{ServiceResult, ServiceError};
 use crate::errors::err_msg::{ErrorMessage, get_err_msg};
+use crate::models::supplier_service::service::update::change_service_updated_at;
 use crate::models::supplier_service::spec::model::{
     ServiceSpec, IptServiceSpecsData, InsertableServiceSpec
 };
@@ -12,7 +13,7 @@ pub(crate) fn add_service_specs(
     data: &IptServiceSpecsData,
     logged_user_uuid: &Uuid,
     conn: &mut PgConnection
-) -> ServiceResult<i32> {
+) -> ServiceResult<usize> {
     use crate::schema::spec_to_service::dsl::*;
 
     let need_access_level = 1; // todo!(create enum for manage access level)
@@ -24,8 +25,8 @@ pub(crate) fn add_service_specs(
         conn
     )?;
 
-    let mut count_insert_rows = 0; // <-- for accumulated count inserted rows
-    let mut error_keywords_has: Vec<i32> = Vec::new(); // <-- for accumulated spec duplicates
+    let mut ok_specs_insert = Vec::new(); // <-- for accumulated count inserted rows
+    let mut error_specs_has = Vec::new(); // <-- for accumulated spec duplicates
 
     // creating structures for inserting records into a table
     let new_service_specs: Vec<InsertableServiceSpec> = data.into();
@@ -37,11 +38,11 @@ pub(crate) fn add_service_specs(
 
     let mut insert_data: Vec<InsertableServiceSpec> = Vec::new();
 
-    for service_kw in new_service_specs {
+    for service_spec in new_service_specs {
         // check new row on non duplicate
         let flag_found_spec = spec_to_service
-            .filter(service_uuid.eq(&service_kw.service_uuid)
-            .and(spec_id.eq(&service_kw.spec_id)))
+            .filter(service_uuid.eq(&service_spec.service_uuid)
+            .and(spec_id.eq(&service_spec.spec_id)))
             .execute(conn)
             .map_err(|err| {
                 debug!("Failed check spec for service: {:?}", err);
@@ -50,17 +51,16 @@ pub(crate) fn add_service_specs(
 
         match flag_found_spec {
             0 => {
-                debug!("Inserted service spec: {:?}", &service_kw.spec_id);
-                insert_data.push(service_kw);
-                count_insert_rows += 1;
+                ok_specs_insert.push(service_spec.spec_id);
+                insert_data.push(service_spec);
             },
-            _ => error_keywords_has.push(service_kw.spec_id),
+            _ => error_specs_has.push(service_spec.spec_id),
         }
     }
 
     if insert_data.is_empty() {
         // return error if all spec duplicate
-        return Err(get_err_msg(ErrorMessage::IdsAlreadyHas(error_keywords_has)))
+        return Err(get_err_msg(ErrorMessage::IdsAlreadyHas(error_specs_has)))
     }
 
     diesel::insert_into(spec_to_service)
@@ -71,6 +71,13 @@ pub(crate) fn add_service_specs(
             ServiceError::InternalServerError
         })?;
 
-    debug!("Completed, add {:?} specs", count_insert_rows);
-    Ok(count_insert_rows)
+    if !ok_specs_insert.is_empty() {
+        change_service_updated_at(
+            &data.service_uuid,
+            logged_user_uuid,
+            format!("Added specs {:?}, skip with errors {:?}", ok_specs_insert, error_specs_has),
+            conn
+        )?;
+    }
+    Ok(ok_specs_insert.len())
 }

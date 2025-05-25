@@ -50,16 +50,19 @@ fn get_services_with_filter(
         (true, None, Some(user_uuid)) => query.filter(service_ref::user_uuid.eq(user_uuid)),
         (false, Some(company_uuid), None) => {
             query.filter(service_ref::company_uuid.eq(company_uuid)
-                .and(service_ref::uuid.eq_any(&args.filter_services_uuids)))
+                .and(service_ref::uuid.eq_any(&args.filter_services_uuids)
+                .and(service_ref::is_delete.eq(false))))
         },
         (false, None, Some(user_uuid)) => {
             query.filter(service_ref::user_uuid.eq(user_uuid)
-                .and(service_ref::uuid.eq_any(&args.filter_services_uuids)))
+                .and(service_ref::uuid.eq_any(&args.filter_services_uuids))
+                .and(service_ref::is_delete.eq(false)))
         },
         (false, Some(company_uuid), Some(user_uuid)) => {
             query.filter(service_ref::company_uuid.eq(company_uuid)
                 .and(service_ref::user_uuid.eq(user_uuid))
-                .and(service_ref::uuid.eq_any(&args.filter_services_uuids)))
+                .and(service_ref::uuid.eq_any(&args.filter_services_uuids))
+                .and(service_ref::is_delete.eq(false)))
         },
         _ => return Err(get_err_msg(ErrorMessage::FailedMatchArguments)),
     };

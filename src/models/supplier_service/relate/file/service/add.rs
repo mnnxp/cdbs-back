@@ -7,6 +7,7 @@ use crate::models::relate_ref::file::{
     service::register::preregister_file,
     commit::Commit,
 };
+use crate::models::supplier_service::service::update::change_service_updated_at;
 use crate::storage::model::StorageAccess;
 use crate::storage::presigned_url::upload_presigned_url;
 use diesel::PgConnection;
@@ -59,6 +60,13 @@ pub(crate) fn add_service_files(
             upload_url,
         });
     }
-
+    if !up_files.is_empty() {
+        change_service_updated_at(
+            &data.service_uuid,
+            logged_user_uuid,
+            format!("Add the file uuids: {:?}", &data.filenames),
+            conn
+        )?;
+    }
     Ok(up_files)
 }
