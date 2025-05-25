@@ -1,8 +1,11 @@
 use crate::errors::ServiceResult;
 use crate::errors::err_msg::{ErrorMessage, get_err_msg};
 use crate::graphql::service_model::{IptServiceStatusArg, IptUpdateServiceData};
-use crate::models::supplier_service::access::util::{check_is_owner_with_err, check_user_access_provided_by_company, get_service_status};
+use crate::models::supplier_service::access::util::{check_is_owner_with_err, check_user_access_provided_by_company};
+use crate::models::supplier_service::util::{get_service_consumer, get_service_status};
 use crate::models::search::model::ExtraOptions;
+use crate::models::user::notification::model::{NotificationData, NotificationType};
+use crate::models::user::notification::service::register::create_notification;
 use crate::schema::service_ref::dsl as service_ref;
 use diesel::prelude::*;
 use chrono::Local;
@@ -17,7 +20,7 @@ pub(crate) fn update_service_data(
     conn: &mut PgConnection
 ) -> ServiceResult<usize> {
     // update data validation
-    if get_service_status(target_service_uuid, conn)? > 1 {
+    if get_service_status(target_service_uuid, conn)? > 3 {
         return Err(get_err_msg(ErrorMessage::FailedUpdateServiceBadStatus))
     }
     if data.description.as_ref().map(|d| d.len()).unwrap_or_default() > 4000 {
@@ -71,22 +74,21 @@ pub(crate) fn update_service_data(
                 get_err_msg(ErrorMessage::FailedUpdateData)
             })?;
     }
-
     if count_update_columns == 0 {
         // return error if new data not different with old data
         return Err(get_err_msg(ErrorMessage::DataHasAlready));
     }
-
-    diesel::update(service_ref::service_ref
-        .filter(service_ref::uuid.eq(target_service_uuid)))
-        .set(service_ref::updated_at.eq(chrono::Local::now().naive_local()))
-        .execute(conn)
-        .map_err(|err| {
-            debug!("Failed update data: {:?}", err);
-            get_err_msg(ErrorMessage::FailedUpdateData)
-        })?;
     debug!("Count update columns: {:?}", count_update_columns);
     change_updated_at(target_service_uuid, conn)?;
+    // add notification for user
+    create_notification(
+        &options.logged_user_uuid,
+        &NotificationData {
+            notification: format!("Service UUID:{} has been updated by creator", target_service_uuid),
+            degree_importance: NotificationType::Info,
+        },
+        conn,
+    )?;
     Ok(count_update_columns)
 }
 
@@ -117,6 +119,15 @@ pub(crate) fn change_service_status(
     if count_update_columns > 0 {
         change_updated_at(&args.service_uuid, conn)?;
     }
+    // add notification for user
+    create_notification(
+        &get_service_consumer(&args.service_uuid, conn)?,
+        &NotificationData {
+            notification: format!("Status of the UUID:{} service has been changed", &args.service_uuid),
+            degree_importance: NotificationType::Info,
+        },
+        conn,
+    )?;
     Ok(count_update_columns == 1)
 }
 

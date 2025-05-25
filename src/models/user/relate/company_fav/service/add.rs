@@ -1,5 +1,6 @@
 use crate::errors::{ServiceError, ServiceResult};
 use crate::models::company::access::util::check_company_access;
+use crate::models::company::util::get_company_owner;
 use crate::models::user::company_fav::model::{
     InsertableCompanyFav, IptCompanyFavData
 };
@@ -8,7 +9,6 @@ use crate::models::user::notification::{
     service::register::create_notification,
 };
 use crate::schema::company_fav::dsl as company_fav;
-use crate::schema::company_ref::dsl as company_ref;
 use diesel::prelude::*;
 use uuid::Uuid;
 
@@ -72,32 +72,15 @@ pub(crate) fn add_company_fav(
                     debug!("Failed add fav company: {:?}", err);
                     ServiceError::InternalServerError
                 })?;
-
-            new_notification(company_uuid, conn)
+            // add notification for user
+            create_notification(
+                &get_company_owner(company_uuid, conn)?,
+                &NotificationData {
+                    notification: "New follower of your company".to_string(),
+                    degree_importance: NotificationType::Info,
+                },
+                conn,
+            )
         },
     }
-}
-
-fn new_notification(
-    object_uuid: &Uuid,
-    conn: &mut PgConnection,
-) -> ServiceResult<bool> {
-    let user_uuid = company_ref::company_ref
-        .filter(company_ref::uuid.eq(object_uuid))
-        .select(company_ref::user_uuid)
-        .first::<Uuid>(conn)
-        .map_err(|err| {
-            debug!("Failed get owner company: {:?}", err);
-            ServiceError::InternalServerError
-        })?;
-
-    // add notification for user
-    create_notification(
-        &user_uuid,
-        &NotificationData {
-            notification: "New follower you company".to_string(),
-            degree_importance: NotificationType::Info,
-        },
-        conn,
-    )
 }

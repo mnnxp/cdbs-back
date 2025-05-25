@@ -105,7 +105,7 @@ fn new_notification(
     create_notification(
         &user_uuid,
         &NotificationData {
-            notification: "New follower you component".to_string(),
+            notification: "New follower of your component".to_string(),
             degree_importance: NotificationType::Info,
         },
         conn,

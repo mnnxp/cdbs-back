@@ -1,7 +1,11 @@
 use crate::errors::{ServiceResult, ServiceError};
 use crate::errors::err_msg::{ErrorMessage, get_err_msg};
 use crate::models::company::access::util::check_is_owner_company;
+use crate::models::company::access::util::get_roles_ids_for_access;
+use crate::models::company::access::util::check_clerk_with_suitable_role;
 use crate::schema::service_ref::dsl as service_ref;
+use crate::schema::company_access_to_service::dsl as company_access_to_service;
+use crate::schema::user_access_to_service::dsl as user_access_to_service;
 use diesel::prelude::*;
 use uuid::Uuid;
 
@@ -112,19 +116,16 @@ pub(crate) fn check_user_access_to_service(
     need_access_level: &i32,
     conn: &mut PgConnection
 ) -> ServiceResult<bool> {
-    use crate::schema::user_access_to_service::dsl::*;
-
-    let result_check = user_access_to_service
-        .filter(service_uuid.eq(target_service_uuid)
-        .and(user_uuid.eq(target_user_uuid)))
-        .select(type_access_id)
+    let result_check = user_access_to_service::user_access_to_service
+        .filter(user_access_to_service::service_uuid.eq(target_service_uuid)
+        .and(user_access_to_service::user_uuid.eq(target_user_uuid)))
+        .select(user_access_to_service::type_access_id)
         .limit(1)
         .load::<i32>(conn)
         .map_err(|err| {
             debug!("Failed check user access to service: {:?}", err);
             ServiceError::InternalServerError
         })?;
-
     Ok(matches!(result_check.first(), Some(x) if need_access_level >= x))
 }
 
@@ -135,8 +136,6 @@ pub(crate) fn check_user_access_provided_by_company(
     need_access_level: &i32,
     conn: &mut PgConnection
 ) -> ServiceResult<bool> {
-    use crate::models::company::access::util::get_roles_ids_for_access;
-    use crate::models::company::access::util::check_clerk_with_suitable_role;
 
     let target_companis_uuids = get_companies_have_access_to_service(
         target_service_uuid,
@@ -158,12 +157,10 @@ pub(crate) fn get_companies_have_access_to_service(
     need_access_level: &i32,
     conn: &mut PgConnection
 ) -> ServiceResult<Vec<Uuid>> {
-    use crate::schema::company_access_to_service::dsl::*;
-
-    let companies_uuids = company_access_to_service
-        .filter(service_uuid.eq(target_service_uuid)
-        .and(type_access_id.le(need_access_level))) // <-- access < or = need_access_level
-        .select(company_uuid)
+    let companies_uuids = company_access_to_service::company_access_to_service
+        .filter(company_access_to_service::service_uuid.eq(target_service_uuid)
+        .and(company_access_to_service::type_access_id.le(need_access_level))) // <-- access < or = need_access_level
+        .select(company_access_to_service::company_uuid)
         .load::<Uuid>(conn)
         .map_err(|err| {
             debug!("Failed get companies list with access to service: {:?}", err);
@@ -182,28 +179,9 @@ pub(crate) fn get_access_type_service(
     target_service_uuid: &Uuid,
     conn: &mut PgConnection
 ) -> ServiceResult<i32> {
-    use crate::schema::service_ref::dsl::*;
-
-    service_ref
-        .filter(uuid.eq(target_service_uuid))
-        .select(type_access_id)
-        .first::<i32>(conn)
-        .map_err(|err| {
-            debug!("Not found data: {:?}", err);
-            ServiceError::InternalServerError
-        })
-}
-
-/// Gets service status id for target service
-pub(crate) fn get_service_status(
-    target_service_uuid: &Uuid,
-    conn: &mut PgConnection
-) -> ServiceResult<i32> {
-    use crate::schema::service_ref::dsl::*;
-
-    service_ref
-        .filter(uuid.eq(target_service_uuid))
-        .select(service_status_id)
+    service_ref::service_ref
+        .filter(service_ref::uuid.eq(target_service_uuid))
+        .select(service_ref::type_access_id)
         .first::<i32>(conn)
         .map_err(|err| {
             debug!("Not found data: {:?}", err);

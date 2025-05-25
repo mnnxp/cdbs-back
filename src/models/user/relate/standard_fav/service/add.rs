@@ -95,7 +95,7 @@ fn new_notification(
     create_notification(
         &user_uuid,
         &NotificationData {
-            notification: "New follower you standard".to_string(),
+            notification: "New follower of your standard".to_string(),
             degree_importance: NotificationType::Info,
         },
         conn,

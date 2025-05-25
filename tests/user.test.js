@@ -1878,7 +1878,7 @@ describe('users', () => {
     const {
       data: { notifications },
     } = body;
-    expect(notifications[0].notification).toBe("New follower you component");
+    expect(notifications[0].notification).toBe("New follower of your component");
     expect(notifications[0].degreeImportance.degreeImportanceId).toBe(5);
     expect(notifications[0].degreeImportance.degree).toBe("info");
     expect(notifications[0].isRead).toBe(false);
@@ -1963,7 +1963,7 @@ describe('users', () => {
     const {
       data: { notifications },
     } = body;
-    expect(notifications[1].notification).toBe("New follower you company");
+    expect(notifications[1].notification).toBe("New follower of your company");
     expect(notifications[1].degreeImportance.degreeImportanceId).toBe(5);
     expect(notifications[1].degreeImportance.degree).toBe("info");
     expect(notifications[1].isRead).toBe(false);
@@ -2042,7 +2042,7 @@ describe('users', () => {
     const {
       data: { notifications },
     } = body;
-    expect(notifications[2].notification).toBe("New follower you standard");
+    expect(notifications[2].notification).toBe("New follower of your standard");
     expect(notifications[2].degreeImportance.degreeImportanceId).toBe(5);
     expect(notifications[2].degreeImportance.degree).toBe("info");
     expect(notifications[2].isRead).toBe(false);
