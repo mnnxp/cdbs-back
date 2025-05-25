@@ -2,6 +2,7 @@ use crate::errors::ServiceResult;
 use crate::errors::err_msg::{ErrorMessage, get_err_msg};
 use crate::models::company::certificate::model::IptUpdateCompanyCertificateData;
 use crate::models::company::access::util::check_company_access;
+use crate::schema::company_certificate_ref::dsl as company_certificate_ref;
 use diesel::prelude::*;
 use uuid::Uuid;
 
@@ -12,10 +13,12 @@ pub(crate) fn update_certificate_description(
     data: &IptUpdateCompanyCertificateData,
     conn: &mut PgConnection,
 ) -> ServiceResult<bool> {
-    use crate::schema::company_certificate_ref::dsl as company_certificate_ref;
+    // update data validation
+    if data.description.len() > 100 {
+        return Err(get_err_msg(ErrorMessage::TextMustLess(100)));
+    }
 
     let need_access_level = 1; // todo!(create enum for manage access level)
-
     // check access user for company
     check_company_access(
         logged_user_uuid,
