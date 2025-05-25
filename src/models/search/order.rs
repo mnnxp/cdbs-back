@@ -62,7 +62,7 @@ impl Paginate {
         // deleted and hidden files are not included in the calculation
         let query = match number_of_files {
             true => format!(
-                "SELECT count(file_uuid) FROM {} INNER JOIN file_ref AS fr ON fr.uuid = file_uuid
+                "SELECT count(*) FROM {} INNER JOIN file_ref AS fr ON fr.uuid = file_uuid
                 WHERE {} = '{}' AND fr.is_hidden = 'f' AND fr.is_delete = 'f'",
                 table_name.name(), column, object_uuid
             ),
