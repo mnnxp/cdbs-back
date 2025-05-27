@@ -64,7 +64,7 @@ pub(crate) fn add_service_files(
         change_service_updated_at(
             &data.service_uuid,
             logged_user_uuid,
-            format!("Add the file uuids: {:?}", &data.filenames),
+            format!("File(s) prepared for uploading: {:?}", &data.filenames),
             conn
         )?;
     }
