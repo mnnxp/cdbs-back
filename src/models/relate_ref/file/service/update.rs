@@ -14,6 +14,7 @@ use crate::models::relate_ref::file::{
 };
 use crate::models::standard::access::util::check_is_owner_with_err as standard_check_is_owner_with_err;
 use crate::models::supplier_service::access::util::check_is_owner_with_err as service_check_is_owner_with_err;
+use crate::models::supplier_service::service::update::change_service_updated_at;
 use crate::storage::model::StorageAccess;
 use crate::storage::metadata::object_headers;
 use diesel::prelude::*;
@@ -22,19 +23,18 @@ use uuid::Uuid;
 /// Устанавливает файл как успешно загруженный в хранилище.
 /// После подтверждения успешной загрузки файл будет обработан.
 pub(crate) async fn confirm_upload(
-    target_user_uuid: &Uuid,
+    logged_user_uuid: &Uuid,
     file_uuids: &[Uuid],
     pool: &PgPool,
 ) -> ServiceResult<usize> {
     let mut conn = pool.get().unwrap();
 
-    let mut confirm_files: usize = 0;
-    // let mut parent_uuids: Vec<Uuid> = Vec::new();
+    let mut confirm_file_uuids = Vec::new();
 
     // getting SlimFile data for get files paths
     let files = SlimFile::get_not_checked_by_uuids(
         file_uuids,
-        target_user_uuid,
+        logged_user_uuid,
         &mut conn,
     ).unwrap();
 
@@ -56,7 +56,7 @@ pub(crate) async fn confirm_upload(
 
         // update file metadata in file_ref table
         let update_file_rows = update_file_data_by_uuid(
-            target_user_uuid,
+            logged_user_uuid,
             &file_d.uuid,
             &FileData {
                 content_type: file_h.content_type,
@@ -73,12 +73,21 @@ pub(crate) async fn confirm_upload(
             Ok(hidden_files) => debug!("Hidden files (ok): {:?}", hidden_files),
             Err(err) => debug!("Hidden files (err): {:?}", err),
         }
-
         debug!("Update rows: {:?}", update_file_rows);
-
-        confirm_files += 1;
+        confirm_file_uuids.push(file_d.uuid);
     }
 
+    if let Some(cfu) = confirm_file_uuids.first() {
+        related_file_updated_at(
+            logged_user_uuid,
+            cfu,
+            Some(&confirm_file_uuids),
+            false,
+            &mut conn
+        )?;
+    }
+
+    let confirm_files = confirm_file_uuids.len();
     match confirm_files == file_uuids.len() {
         true => Ok(confirm_files),
         false => Err(get_err_msg(ErrorMessage::UnsuccessfulCheckData)),
@@ -225,4 +234,26 @@ pub(crate) fn set_active_revision_by_uuid(
             Err(get_err_msg(ErrorMessage::NoActiveFileRevisionFound))
         },
     }
+}
+
+/// Saves information about actions with files in related objects and logs
+pub(crate) fn related_file_updated_at(
+    logged_user_uuid: &Uuid,
+    file_uuid: &Uuid,
+    additional_info: Option<&[Uuid]>,
+    is_deleted: bool,
+    conn: &mut PgConnection,
+) -> ServiceResult<usize> {
+    // determine a object associated with the file and enable revisions for the object
+    let relate_object = detect_relation_to_object(file_uuid, conn)?;
+    if let ListObject::Service(service_uuid) = relate_object  {
+        let affected = if is_deleted { "deleted" } else { "confirmed"};
+        let first_text = "File(s) related with the service is";
+        let old_data = match additional_info {
+            Some(file_uuids) => format!("{} {}. Files Uuids: {:?}", first_text, affected, file_uuids),
+            None => format!("{} {}. File Uuid: {:?}", first_text, affected, file_uuid),
+        };
+        change_service_updated_at(&service_uuid, logged_user_uuid, old_data, conn)?;
+    }
+    Ok(0)
 }
