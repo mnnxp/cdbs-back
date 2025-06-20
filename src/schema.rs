@@ -74,9 +74,9 @@ table! {
         id -> Int4,
         company_uuid -> Uuid,
         type_of_change_id -> Int4,
-        user_uuid -> Uuid,
-        old_data -> Text,
+        old_data -> Varchar,
         changed_at -> Timestamp,
+        user_uuid -> Uuid,
     }
 }
 
@@ -158,9 +158,9 @@ table! {
         id -> Int4,
         component_uuid -> Uuid,
         type_of_change_id -> Int4,
-        user_uuid -> Uuid,
         old_data -> Text,
         changed_at -> Timestamp,
+        user_uuid -> Uuid,
     }
 }
 
@@ -239,41 +239,47 @@ table! {
 }
 
 table! {
-    discussion_company_ref (id) {
-        id -> Int4,
-        parent_discussion_id -> Int4,
+    discus_to_company (discussion_uuid, company_uuid) {
+        discussion_uuid -> Uuid,
         company_uuid -> Uuid,
-        author_uuid -> Uuid,
-        message_content -> Varchar,
-        is_delete -> Bool,
-        created_at -> Timestamp,
-        updated_at -> Timestamp,
     }
 }
 
 table! {
-    discussion_component_ref (id) {
-        id -> Int4,
-        parent_discussion_id -> Int4,
+    discus_to_component (discussion_uuid, component_uuid) {
+        discussion_uuid -> Uuid,
         component_uuid -> Uuid,
-        author_uuid -> Uuid,
-        message_content -> Varchar,
-        is_delete -> Bool,
-        created_at -> Timestamp,
-        updated_at -> Timestamp,
     }
 }
 
 table! {
-    discussion_service_ref (id) {
-        id -> Int4,
-        parent_discussion_id -> Int4,
+    discus_to_service (discussion_uuid, service_uuid) {
+        discussion_uuid -> Uuid,
         service_uuid -> Uuid,
+    }
+}
+
+table! {
+    discussion_comment_list (uuid) {
+        uuid -> Uuid,
+        discussion_uuid -> Uuid,
+        parent_comment_uuid -> Uuid,
         author_uuid -> Uuid,
         message_content -> Varchar,
-        is_delete -> Bool,
-        created_at -> Timestamp,
-        updated_at -> Timestamp,
+        is_edited -> Bool,
+        is_hidden -> Bool,
+        created_at -> Timestamptz,
+        updated_at -> Timestamptz,
+    }
+}
+
+table! {
+    discussion_ref (uuid) {
+        uuid -> Uuid,
+        title -> Varchar,
+        is_pinned -> Bool,
+        created_at -> Timestamptz,
+        last_activity_at -> Timestamptz,
     }
 }
 
@@ -582,9 +588,9 @@ table! {
         id -> Int4,
         service_uuid -> Uuid,
         type_of_change_id -> Int4,
-        user_uuid -> Uuid,
         old_data -> Text,
         changed_at -> Timestamp,
+        user_uuid -> Uuid,
     }
 }
 
@@ -675,9 +681,9 @@ table! {
         id -> Int4,
         standard_uuid -> Uuid,
         type_of_change_id -> Int4,
-        user_uuid -> Uuid,
         old_data -> Text,
         changed_at -> Timestamp,
+        user_uuid -> Uuid,
     }
 }
 
@@ -811,7 +817,7 @@ table! {
         id -> Int4,
         user_uuid -> Uuid,
         type_of_change_id -> Int4,
-        old_data -> Text,
+        old_data -> Varchar,
         changed_at -> Timestamp,
     }
 }
@@ -902,12 +908,14 @@ joinable!(condition_to_license -> license_condition_ref (condition_id));
 joinable!(condition_to_license -> license_ref (license_id));
 joinable!(degree_importance_translate_list -> degree_importance_ref (degree_importance_id));
 joinable!(degree_importance_translate_list -> language_ref (lang_id));
-joinable!(discussion_company_ref -> company_ref (company_uuid));
-joinable!(discussion_company_ref -> user_ref (author_uuid));
-joinable!(discussion_component_ref -> component_ref (component_uuid));
-joinable!(discussion_component_ref -> user_ref (author_uuid));
-joinable!(discussion_service_ref -> service_ref (service_uuid));
-joinable!(discussion_service_ref -> user_ref (author_uuid));
+joinable!(discus_to_company -> company_ref (company_uuid));
+joinable!(discus_to_company -> discussion_ref (discussion_uuid));
+joinable!(discus_to_component -> component_ref (component_uuid));
+joinable!(discus_to_component -> discussion_ref (discussion_uuid));
+joinable!(discus_to_service -> discussion_ref (discussion_uuid));
+joinable!(discus_to_service -> service_ref (service_uuid));
+joinable!(discussion_comment_list -> discussion_ref (discussion_uuid));
+joinable!(discussion_comment_list -> user_ref (author_uuid));
 joinable!(extension_ref -> program_ref (program_id));
 joinable!(file_ref -> commit_ref (commit_uuid));
 joinable!(file_ref -> extension_ref (id_ext));
@@ -1045,9 +1053,11 @@ allow_tables_to_appear_in_same_query!(
     condition_to_license,
     degree_importance_ref,
     degree_importance_translate_list,
-    discussion_company_ref,
-    discussion_component_ref,
-    discussion_service_ref,
+    discus_to_company,
+    discus_to_component,
+    discus_to_service,
+    discussion_comment_list,
+    discussion_ref,
     extension_ref,
     file_ref,
     file_to_component,
