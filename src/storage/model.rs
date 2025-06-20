@@ -1,7 +1,7 @@
 use crate::cli_args::Opt;
 use crate::schema::*;
-use structopt::StructOpt;
 use chrono::NaiveDateTime;
+use structopt::StructOpt;
 use uuid::Uuid;
 
 /// Saving an active link to the file for uses the cache browser
@@ -51,7 +51,7 @@ impl From<&StorageAccess> for super::s3::Aws {
             application_key_id,
             application_key,
             &data.region,
-            &data.endpoint
+            &data.endpoint,
         )
     }
 }
@@ -65,17 +65,20 @@ pub(crate) struct FileHeaders {
 
 impl From<rusoto_s3::HeadObjectOutput> for FileHeaders {
     fn from(data: rusoto_s3::HeadObjectOutput) -> Self {
-        let rusoto_s3::HeadObjectOutput{
+        let rusoto_s3::HeadObjectOutput {
             content_length,
             content_type,
             last_modified,
             ..
         } = data;
 
-        Self{
+        Self {
             content_length,
             content_type,
-            updated_at: last_modified.map(|date_str| NaiveDateTime::parse_from_str(date_str.as_str(), "%a, %d %b %Y %H:%M:%S GMT").unwrap()),
+            updated_at: last_modified.map(|date_str| {
+                NaiveDateTime::parse_from_str(date_str.as_str(), "%a, %d %b %Y %H:%M:%S GMT")
+                    .unwrap()
+            }),
         }
     }
 }

@@ -1,12 +1,14 @@
-use async_graphql::{self, Context, InputObject, Object, Enum};
+use async_graphql::{self, Context, Enum, InputObject, Object};
 use chrono::NaiveDateTime;
 use uuid::Uuid;
 
 use crate::database::{get_conn, PooledConnection};
 use crate::errors::ServiceResult;
 use crate::graphql::relate::attributes::{IptPaginate, IptSort};
-use crate::models::relate_ref::discussion::model::{CommentQueryOptions, DiscussQueryOptions, DiscussionCommentList, DiscussionTo};
 use crate::models::relate_ref::discussion::model::Discussion;
+use crate::models::relate_ref::discussion::model::{
+    CommentQueryOptions, DiscussQueryOptions, DiscussionCommentList, DiscussionTo,
+};
 use crate::models::relate_ref::discussion::service::list::get_discussion_comment_list;
 use crate::models::search::model::ExtraOptions;
 use crate::models::search::order::{Paginate, Sort, TableName};
@@ -109,7 +111,7 @@ impl DiscussionInfo {
         get_discussion_comment_list(
             &CommentQueryOptions::new(self.uuid, None, filter_by_uuids.unwrap_or_default(), s, p),
             &options,
-            conn
+            conn,
         )
     }
 }
@@ -218,9 +220,8 @@ impl DiscussionCommentData {
         get_discussion_comment_list(
             &CommentQueryOptions::new(self.discussion_uuid, Some(self.uuid), Vec::new(), s, p),
             &options,
-            conn
+            conn,
         )
-
     }
 }
 
@@ -293,13 +294,26 @@ impl IptObjectDiscussionsArg {
     ) -> DiscussQueryOptions {
         let discussion_to = self.get_discuss_to();
         let s = sort
-            .map(|s| Sort::parsing(TableName::DiscussionRef(Some(discussion_to.clone())), &s.by_field, s.as_desc))
-            .unwrap_or(Sort::set_by_table(TableName::DiscussionRef(Some(discussion_to.clone()))));
+            .map(|s| {
+                Sort::parsing(
+                    TableName::DiscussionRef(Some(discussion_to.clone())),
+                    &s.by_field,
+                    s.as_desc,
+                )
+            })
+            .unwrap_or(Sort::set_by_table(TableName::DiscussionRef(Some(
+                discussion_to.clone(),
+            ))));
         let p = paginate
             .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
             .unwrap_or_default();
         // Create a new DiscussQueryOptions instance with the determined settings
-        DiscussQueryOptions::new(discussion_to, self.filter_by_uuids.unwrap_or_default(), s, p)
+        DiscussQueryOptions::new(
+            discussion_to,
+            self.filter_by_uuids.unwrap_or_default(),
+            s,
+            p,
+        )
     }
 }
 

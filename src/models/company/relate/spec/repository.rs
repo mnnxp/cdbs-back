@@ -1,6 +1,6 @@
-use crate::errors::{ServiceResult, ServiceError};
-use crate::models::search::order::Paginate;
+use crate::errors::{ServiceError, ServiceResult};
 use crate::models::relate_ref::spec::model::SpecTranslateList;
+use crate::models::search::order::Paginate;
 use crate::schema::spec_to_company::dsl as spec_to_company;
 use diesel::prelude::*;
 use uuid::Uuid;
@@ -24,14 +24,13 @@ impl SpecTranslateList {
                 ServiceError::InternalServerError
             })?;
         if specs_ids.is_empty() {
-            return Ok(Vec::new()) // not found specs
+            return Ok(Vec::new()); // not found specs
         }
         // get specs with translation for company
-        SpecTranslateList::get_by_ids(&specs_ids, set_lang_id, paginate, conn)
-            .map_err(|err| {
-                debug!("Failed get specs for company: {:?}", err);
-                ServiceError::InternalServerError
-            })
+        SpecTranslateList::get_by_ids(&specs_ids, set_lang_id, paginate, conn).map_err(|err| {
+            debug!("Failed get specs for company: {:?}", err);
+            ServiceError::InternalServerError
+        })
     }
 
     /// Gets all specs for company
@@ -46,17 +45,14 @@ impl SpecTranslateList {
             .load::<i32>(conn)
             .expect("Error loading spec_company");
         if specs_ids.is_empty() {
-            return Ok(Vec::new()) // not found specs
+            return Ok(Vec::new()); // not found specs
         }
         // get specs with translation for company
-        SpecTranslateList::get_by_ids(
-            &specs_ids,
-            set_lang_id,
-            &Paginate::default(),
-            conn
-        ).map_err(|err| {
-            debug!("Failed get specs for company: {:?}", err);
-            ServiceError::InternalServerError
-        })
+        SpecTranslateList::get_by_ids(&specs_ids, set_lang_id, &Paginate::default(), conn).map_err(
+            |err| {
+                debug!("Failed get specs for company: {:?}", err);
+                ServiceError::InternalServerError
+            },
+        )
     }
 }

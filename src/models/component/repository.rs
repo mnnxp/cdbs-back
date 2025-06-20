@@ -1,20 +1,16 @@
-use crate::errors::{ServiceResult, ServiceError};
-use crate::models::search::order::{Paginate, Sort, objects_order};
-use crate::models::search::model::ExtraOptions;
+use crate::errors::{ServiceError, ServiceResult};
 use crate::graphql::component_model::{ComponentAndRelatedData, ShowComponentShort};
 use crate::models::component::{
+    access::util::check_access_component_for_user, actual_status::model::ActualStatusTranslateList,
+    component_fav::model::ComponentFav, component_type::model::ComponentTypeTranslateList,
     model::Component,
-    actual_status::model::ActualStatusTranslateList,
-    component_type::model::ComponentTypeTranslateList,
-    component_fav::model::ComponentFav,
-    access::util::check_access_component_for_user,
 };
-use crate::models::user::model::ShowUserShort;
 use crate::models::relate_ref::{
-    type_access::model::TypeAccessTranslateList,
-    license::model::License,
-    file::model::DownloadFile,
+    file::model::DownloadFile, license::model::License, type_access::model::TypeAccessTranslateList,
 };
+use crate::models::search::model::ExtraOptions;
+use crate::models::search::order::{objects_order, Paginate, Sort};
+use crate::models::user::model::ShowUserShort;
 use crate::schema::component_ref::dsl as component_ref;
 use diesel::prelude::*;
 use uuid::Uuid;
@@ -26,8 +22,11 @@ impl Component {
         conn: &mut PgConnection,
     ) -> ServiceResult<Component> {
         component_ref::component_ref
-            .filter(component_ref::uuid.eq(target_component_uuid)
-            .and(component_ref::is_delete.eq(false)))
+            .filter(
+                component_ref::uuid
+                    .eq(target_component_uuid)
+                    .and(component_ref::is_delete.eq(false)),
+            )
             .select((
                 component_ref::uuid,
                 component_ref::parent_component_uuid,
@@ -67,7 +66,7 @@ impl ShowComponentShort {
                 options,
                 sort,
                 paginate,
-                conn
+                conn,
             ),
         }
     }
@@ -84,14 +83,10 @@ impl ShowComponentShort {
             &options.logged_user_uuid,
             component_uuid,
             &need_access_level,
-            conn
+            conn,
         )?;
 
-        ShowComponentShort::get_without_check_by_uuid(
-            component_uuid,
-            options,
-            conn
-        )
+        ShowComponentShort::get_without_check_by_uuid(component_uuid, options, conn)
     }
 
     /// Gets component short data without checking access
@@ -101,56 +96,52 @@ impl ShowComponentShort {
         conn: &mut PgConnection,
     ) -> ServiceResult<ShowComponentShort> {
         // get target component
-        let component = Component::get_component_by_uuid(
-            target_component_uuid,
-            conn
-        ).expect("Failed get Component data");
+        let component = Component::get_component_by_uuid(target_component_uuid, conn)
+            .expect("Failed get Component data");
 
         // get image file (favicon) for component
-        let image_file = DownloadFile::get_by_file_uuid(
-            &component.image_file_uuid,
-            conn
-        ).expect("Error get presigned url main image");
+        let image_file = DownloadFile::get_by_file_uuid(&component.image_file_uuid, conn)
+            .expect("Error get presigned url main image");
 
         // get component owner
-        let owner_user = ShowUserShort::get_without_check_by_uuid(
-            &component.user_uuid,
-            conn
-        ).expect("Error loading slim_user");
+        let owner_user = ShowUserShort::get_without_check_by_uuid(&component.user_uuid, conn)
+            .expect("Error loading slim_user");
 
         // get component type with translation
         let type_access = TypeAccessTranslateList::get_type_access_by_id(
             &component.type_access_id,
             &options.set_lang_id,
-            conn
-        ).expect("Error loading type_access");
+            conn,
+        )
+        .expect("Error loading type_access");
 
         // get component type with translation for component
         let component_type = ComponentTypeTranslateList::get_by_id(
             &component.component_type_id,
             &options.set_lang_id,
-            conn
-        ).expect("Error loading component_type");
+            conn,
+        )
+        .expect("Error loading component_type");
 
         // get actual status with translation for component
         let actual_status = ActualStatusTranslateList::get_by_id(
             &component.actual_status_id,
             &options.set_lang_id,
-            conn
-        ).expect("Error loading actual_status");
+            conn,
+        )
+        .expect("Error loading actual_status");
 
         // check whether the object is being tracked auth user
         let is_followed = crate::models::component::component_fav::util::check_subscriber_by_uuid(
             target_component_uuid,
             &options.logged_user_uuid,
-            conn
-        ).expect("Error get is_followed");
+            conn,
+        )
+        .expect("Error get is_followed");
 
         // get licenses for component
-        let licenses = License::get_by_component_uuid(
-            &component.uuid,
-            conn
-        ).expect("Error loading license");
+        let licenses =
+            License::get_by_component_uuid(&component.uuid, conn).expect("Error loading license");
 
         Ok(ShowComponentShort {
             uuid: component.uuid,
@@ -184,7 +175,7 @@ impl ShowComponentShort {
                 Ok(value) => result.push(value),
                 Err(err) => {
                     debug!("Failed get component short data: {:?}", err);
-                },
+                }
             };
         }
         Ok(result)
@@ -199,8 +190,11 @@ impl ShowComponentShort {
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<ShowComponentShort>> {
         let mut component_uuids = component_ref::component_ref
-            .filter(component_ref::type_access_id.eq(3)
-            .and(component_ref::is_delete.eq(false)))
+            .filter(
+                component_ref::type_access_id
+                    .eq(3)
+                    .and(component_ref::is_delete.eq(false)),
+            )
             .select(component_ref::uuid)
             .limit(1000)
             .load::<Uuid>(conn)
@@ -213,9 +207,7 @@ impl ShowComponentShort {
         // collecting data for each component without check
         for ct_uuid in objects_order(&component_uuids, sort, paginate, conn)? {
             result.push(ShowComponentShort::get_without_check_by_uuid(
-                &ct_uuid,
-                options,
-                conn
+                &ct_uuid, options, conn,
             )?);
         }
         Ok(result)
@@ -235,47 +227,44 @@ impl ComponentAndRelatedData {
             &options.logged_user_uuid,
             target_component_uuid,
             &need_access_level,
-            conn
+            conn,
         )?;
 
         // collect data for component
-        let component = Component::get_component_by_uuid(
-            target_component_uuid,
-            conn
-        ).expect("Error loading component");
+        let component = Component::get_component_by_uuid(target_component_uuid, conn)
+            .expect("Error loading component");
 
         // get image file (favicon) for component
-        let image_file = DownloadFile::get_by_file_uuid(
-            &component.image_file_uuid,
-            conn
-        ).expect("Error get presigned url main image");
+        let image_file = DownloadFile::get_by_file_uuid(&component.image_file_uuid, conn)
+            .expect("Error get presigned url main image");
 
         // get component owner
-        let owner_user = ShowUserShort::get_without_check_by_uuid(
-            &component.user_uuid,
-            conn
-        ).expect("Error loading slim_user");
+        let owner_user = ShowUserShort::get_without_check_by_uuid(&component.user_uuid, conn)
+            .expect("Error loading slim_user");
 
         // get component type with translation
         let type_access = TypeAccessTranslateList::get_type_access_by_id(
             &component.type_access_id,
             &options.set_lang_id,
-            conn
-        ).expect("Error loading type_access");
+            conn,
+        )
+        .expect("Error loading type_access");
 
         // get component type with translation for component
         let component_type = ComponentTypeTranslateList::get_by_id(
             &component.component_type_id,
             &options.set_lang_id,
-            conn
-        ).expect("Error loading component_type");
+            conn,
+        )
+        .expect("Error loading component_type");
 
         // get actual status with translation for component
         let actual_status = ActualStatusTranslateList::get_by_id(
             &component.actual_status_id,
             &options.set_lang_id,
-            conn
-        ).expect("Error loading actual status");
+            conn,
+        )
+        .expect("Error loading actual status");
 
         // count subscribers component
         let subscribers: i32 = ComponentFav::get_count_followers_by_uuid(&component.uuid, conn)?;
@@ -284,14 +273,13 @@ impl ComponentAndRelatedData {
         let is_followed = crate::models::component::component_fav::util::check_subscriber_by_uuid(
             target_component_uuid,
             &options.logged_user_uuid,
-            conn
-        ).expect("Error get is_followed");
+            conn,
+        )
+        .expect("Error get is_followed");
 
         // get licenses for component
-        let licenses = License::get_by_component_uuid(
-            &component.uuid,
-            conn
-        ).expect("Error loading license");
+        let licenses =
+            License::get_by_component_uuid(&component.uuid, conn).expect("Error loading license");
 
         Ok(ComponentAndRelatedData {
             uuid: component.uuid,
@@ -325,15 +313,20 @@ pub(crate) fn filter_components_uuids_by_spec(
         true => spec_to_component::spec_to_component
             .filter(spec_to_component::spec_id.eq(spec_id))
             .select(spec_to_component::component_uuid)
-            .load::<Uuid>(conn).map_err(|err| {
+            .load::<Uuid>(conn)
+            .map_err(|err| {
                 debug!("Fail load uuid list target spec: {:?}", err);
                 ServiceError::InternalServerError
             }),
         false => spec_to_component::spec_to_component
-            .filter(spec_to_component::spec_id.eq(spec_id)
-            .and(spec_to_component::component_uuid.eq_any(filter_component_uuids)))
+            .filter(
+                spec_to_component::spec_id
+                    .eq(spec_id)
+                    .and(spec_to_component::component_uuid.eq_any(filter_component_uuids)),
+            )
             .select(spec_to_component::component_uuid)
-            .load::<Uuid>(conn).map_err(|err| {
+            .load::<Uuid>(conn)
+            .map_err(|err| {
                 debug!("Fail load uuid list target spec: {:?}", err);
                 ServiceError::InternalServerError
             }),

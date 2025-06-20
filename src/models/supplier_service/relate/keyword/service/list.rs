@@ -1,7 +1,7 @@
-use crate::errors::{ServiceResult, ServiceError};
+use crate::errors::{ServiceError, ServiceResult};
 use crate::models::relate_ref::keyword::model::Keyword;
-use crate::models::supplier_service::access::util::check_access_service_for_user;
 use crate::models::search::order::Paginate;
+use crate::models::supplier_service::access::util::check_access_service_for_user;
 use crate::schema::keyword_to_service::dsl as keyword_to_service;
 use diesel::prelude::*;
 use uuid::Uuid;
@@ -11,17 +11,11 @@ pub(crate) fn get_service_keywords(
     service_uuid: &Uuid,
     logged_user_uuid: &Uuid,
     paginate: &Paginate,
-    conn: &mut PgConnection
+    conn: &mut PgConnection,
 ) -> ServiceResult<Vec<Keyword>> {
-
     let need_access_level = 3; // todo!(create enum for manage access level)
 
-    check_access_service_for_user(
-        logged_user_uuid,
-        service_uuid,
-        &need_access_level,
-        conn
-    )?;
+    check_access_service_for_user(logged_user_uuid, service_uuid, &need_access_level, conn)?;
 
     Keyword::for_service_without_check(service_uuid, paginate, conn)
 }
@@ -31,7 +25,7 @@ impl Keyword {
     pub(crate) fn for_service_without_check(
         service_uuid: &Uuid,
         paginate: &Paginate,
-        conn: &mut PgConnection
+        conn: &mut PgConnection,
     ) -> ServiceResult<Vec<Keyword>> {
         let keyword_ids = keyword_to_service::keyword_to_service
             .filter(keyword_to_service::service_uuid.eq(service_uuid))
@@ -43,7 +37,7 @@ impl Keyword {
                 ServiceError::InternalServerError
             })?;
         if keyword_ids.is_empty() {
-            return Ok(Vec::new()) // not found keywords
+            return Ok(Vec::new()); // not found keywords
         }
         Keyword::get_by_ids(&keyword_ids, paginate, conn)
     }

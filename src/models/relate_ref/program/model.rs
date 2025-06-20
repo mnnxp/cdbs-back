@@ -2,8 +2,7 @@ use crate::schema::*;
 use async_graphql::*;
 
 /// Data about the software or other solution used by users
-#[derive(Identifiable, Serialize, Deserialize, Queryable)]
-#[derive(SimpleObject, Clone, Default, Debug)]
+#[derive(Identifiable, Serialize, Deserialize, Queryable, SimpleObject, Clone, Default, Debug)]
 #[diesel(primary_key(id))]
 #[diesel(table_name = program_ref)]
 pub(crate) struct Program {

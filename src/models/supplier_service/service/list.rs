@@ -1,9 +1,12 @@
-use crate::errors::{ServiceResult, ServiceError};
-use crate::errors::err_msg::{ErrorMessage, get_err_msg};
+use crate::errors::err_msg::{get_err_msg, ErrorMessage};
+use crate::errors::{ServiceError, ServiceResult};
 use crate::graphql::service_model::{ServiceAndRelatedData, ShowServiceShort};
+use crate::models::search::{
+    model::ExtraOptions,
+    order::{Paginate, Sort},
+};
 use crate::models::supplier_service::model::ServicesArg;
-use crate::models::search::{model::ExtraOptions, order::{Paginate, Sort}};
-use diesel::{PgConnection, prelude::*};
+use diesel::{prelude::*, PgConnection};
 use uuid::Uuid;
 
 /// Returns aggregated services data. Gets a summary of services filtered by:
@@ -29,11 +32,15 @@ pub(crate) fn get_services(
         return Ok(Vec::new());
     }
 
-    ShowServiceShort::get_services(&target_services_uuids, options, sort, paginate, conn)
-        .map_err(|err| {
-            debug!("Error loading list services and collect short data: {:?}", err);
+    ShowServiceShort::get_services(&target_services_uuids, options, sort, paginate, conn).map_err(
+        |err| {
+            debug!(
+                "Error loading list services and collect short data: {:?}",
+                err
+            );
             get_err_msg(ErrorMessage::AccessDenied)
-        })
+        },
+    )
 }
 
 /// Gets list with uuids services by owner user and/or company filter
@@ -45,29 +52,40 @@ fn get_services_with_filter(
     use crate::schema::service_ref::dsl as service_ref;
 
     let mut query = service_ref::service_ref.into_boxed();
-    query = match (args.filter_services_uuids.is_empty(), args.company_uuid, args.user_uuid) {
-        (true, Some(company_uuid), None) => query.filter(service_ref::company_uuid.eq(company_uuid)),
+    query = match (
+        args.filter_services_uuids.is_empty(),
+        args.company_uuid,
+        args.user_uuid,
+    ) {
+        (true, Some(company_uuid), None) => {
+            query.filter(service_ref::company_uuid.eq(company_uuid))
+        }
         (true, None, Some(user_uuid)) => query.filter(service_ref::user_uuid.eq(user_uuid)),
-        (false, Some(company_uuid), None) => {
-            query.filter(service_ref::company_uuid.eq(company_uuid)
-                .and(service_ref::uuid.eq_any(&args.filter_services_uuids)
-                .and(service_ref::is_delete.eq(false))))
-        },
-        (false, None, Some(user_uuid)) => {
-            query.filter(service_ref::user_uuid.eq(user_uuid)
+        (false, Some(company_uuid), None) => query.filter(
+            service_ref::company_uuid.eq(company_uuid).and(
+                service_ref::uuid
+                    .eq_any(&args.filter_services_uuids)
+                    .and(service_ref::is_delete.eq(false)),
+            ),
+        ),
+        (false, None, Some(user_uuid)) => query.filter(
+            service_ref::user_uuid
+                .eq(user_uuid)
                 .and(service_ref::uuid.eq_any(&args.filter_services_uuids))
-                .and(service_ref::is_delete.eq(false)))
-        },
-        (false, Some(company_uuid), Some(user_uuid)) => {
-            query.filter(service_ref::company_uuid.eq(company_uuid)
+                .and(service_ref::is_delete.eq(false)),
+        ),
+        (false, Some(company_uuid), Some(user_uuid)) => query.filter(
+            service_ref::company_uuid
+                .eq(company_uuid)
                 .and(service_ref::user_uuid.eq(user_uuid))
                 .and(service_ref::uuid.eq_any(&args.filter_services_uuids))
-                .and(service_ref::is_delete.eq(false)))
-        },
+                .and(service_ref::is_delete.eq(false)),
+        ),
         _ => return Err(get_err_msg(ErrorMessage::FailedMatchArguments)),
     };
 
-    query.select(service_ref::uuid)
+    query
+        .select(service_ref::uuid)
         .limit(paginate.limit)
         .offset(paginate.offset)
         .load::<Uuid>(conn)
@@ -84,11 +102,9 @@ pub(crate) fn find_by_uuid(
     conn: &mut PgConnection,
 ) -> ServiceResult<ServiceAndRelatedData> {
     // collect data for service
-    let result: ServiceAndRelatedData = ServiceAndRelatedData::collect_related_data(
-        target_service_uuid,
-        options,
-        conn
-    ).expect("Error loading service and collect related data");
+    let result: ServiceAndRelatedData =
+        ServiceAndRelatedData::collect_related_data(target_service_uuid, options, conn)
+            .expect("Error loading service and collect related data");
     debug!("Service data: {:#?}", result);
     Ok(result)
 }

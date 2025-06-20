@@ -1,16 +1,13 @@
 use crate::database::{get_conn, PooledConnection};
 use crate::graphql::file::ShowFileRelatedData;
-use	crate::models::user::model::ShowUserShort;
 use crate::models::company::model::ShowCompanyShort;
-use crate::models::standard::standard_status::model::StandardStatusTranslateList;
 use crate::models::relate_ref::{
-    region::model::RegionTranslateList,
-    type_access::model::TypeAccessTranslateList,
-    spec::model::SpecTranslateList,
-    keyword::model::Keyword,
-    file::model::DownloadFile,
+    file::model::DownloadFile, keyword::model::Keyword, region::model::RegionTranslateList,
+    spec::model::SpecTranslateList, type_access::model::TypeAccessTranslateList,
 };
-use async_graphql::{Context, Object, InputObject};
+use crate::models::standard::standard_status::model::StandardStatusTranslateList;
+use crate::models::user::model::ShowUserShort;
+use async_graphql::{Context, InputObject, Object};
 use chrono::NaiveDateTime;
 use uuid::Uuid;
 
@@ -161,7 +158,6 @@ impl StandardAndRelatedData {
     async fn is_followed(&self) -> &bool {
         &self.is_followed
     }
-
 }
 
 /// Abbreviated data about the standard
@@ -186,7 +182,6 @@ pub(crate) struct ShowStandardShort {
     /// Flag of the standard in the user's bookmarks
     pub(crate) is_followed: bool,
 }
-
 
 #[Object]
 impl ShowStandardShort {
@@ -245,7 +240,6 @@ impl ShowStandardShort {
         &self.is_followed
     }
 }
-
 
 /// Data for registering a new standard on the platform
 #[derive(Debug, Deserialize, Clone, InputObject)]

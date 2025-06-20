@@ -1,12 +1,12 @@
+use crate::errors::err_msg::{get_err_msg, ErrorMessage};
 use crate::errors::ServiceResult;
-use crate::errors::err_msg::{ErrorMessage, get_err_msg};
-use crate::models::supplier_service::file::model::IptServiceFilesData;
-use crate::models::supplier_service::access::util::check_access_service_for_user;
 use crate::models::relate_ref::file::{
+    commit::Commit,
     model::{ListObject, UploadFile},
     service::register::preregister_file,
-    commit::Commit,
 };
+use crate::models::supplier_service::access::util::check_access_service_for_user;
+use crate::models::supplier_service::file::model::IptServiceFilesData;
 use crate::models::supplier_service::service::update::change_service_updated_at;
 use crate::storage::model::StorageAccess;
 use crate::storage::presigned_url::upload_presigned_url;
@@ -31,7 +31,7 @@ pub(crate) fn add_service_files(
 
     // return error if not correct file name
     if data.filenames.is_empty() || data.filenames.len() > 100 {
-        return Err(get_err_msg(ErrorMessage::BadFilename))
+        return Err(get_err_msg(ErrorMessage::BadFilename));
     }
 
     // create commit message for the changes
@@ -44,15 +44,12 @@ pub(crate) fn add_service_files(
             ListObject::Service(data.service_uuid),
             filename,
             &commit_uuid,
-            conn
+            conn,
         )?;
 
         debug!("New service file: {:?}", slim_file);
 
-        let upload_url = upload_presigned_url(
-            &StorageAccess::from_env(),
-            &slim_file.path_file,
-        )?;
+        let upload_url = upload_presigned_url(&StorageAccess::from_env(), &slim_file.path_file)?;
 
         up_files.push(UploadFile {
             file_uuid: slim_file.uuid,
@@ -65,7 +62,7 @@ pub(crate) fn add_service_files(
             &data.service_uuid,
             logged_user_uuid,
             format!("File(s) prepared for uploading: {:?}", &data.filenames),
-            conn
+            conn,
         )?;
     }
     Ok(up_files)

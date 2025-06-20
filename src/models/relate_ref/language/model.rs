@@ -1,5 +1,5 @@
-use actix_web::http::header::{HeaderName, HeaderMap, LanguageTag};
 use crate::schema::*;
+use actix_web::http::header::{HeaderMap, HeaderName, LanguageTag};
 use async_graphql::*;
 
 lazy_static::lazy_static! {
@@ -85,7 +85,7 @@ pub(crate) struct EngLangName {
 impl From<&str> for EngLangName {
     fn from(name: &str) -> Self {
         Self {
-            eng_lang_name: name.to_string()
+            eng_lang_name: name.to_string(),
         }
     }
 }

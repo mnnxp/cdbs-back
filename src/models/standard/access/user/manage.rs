@@ -1,8 +1,8 @@
-use crate::errors::{ServiceResult, ServiceError};
-use crate::errors::err_msg::{ErrorMessage, get_err_msg};
+use crate::errors::err_msg::{get_err_msg, ErrorMessage};
+use crate::errors::{ServiceError, ServiceResult};
 use crate::models::standard::access::user::model::{
-    UserAccessStandardAndRelatedData, IptUserAccessStandardData,
-    InsertableUserAccessStandard, DelUserAccessStandardData,
+    DelUserAccessStandardData, InsertableUserAccessStandard, IptUserAccessStandardData,
+    UserAccessStandardAndRelatedData,
 };
 use crate::models::standard::access::util::check_is_owner_with_err;
 use crate::schema::user_access_to_standard::dsl as user_access_to_standard;
@@ -20,11 +20,7 @@ pub(crate) fn get_users_list_access_standard(
     check_is_owner_with_err(logged_user_uuid, target_standard_uuid, conn)?;
 
     // 2. получить список пользователей с доступом к компоненту
-    UserAccessStandardAndRelatedData::from_standard_by_uuid(
-        target_standard_uuid,
-        set_lang_id,
-        conn
-    )
+    UserAccessStandardAndRelatedData::from_standard_by_uuid(target_standard_uuid, set_lang_id, conn)
 }
 
 /// Устанавливает доступ к стандарту для пользователя.
@@ -38,8 +34,11 @@ pub(crate) fn set_user_access_standard(
 
     // 2. изменить или добавить доступ для указанного пользователя
     let get_access = user_access_to_standard::user_access_to_standard
-        .filter(user_access_to_standard::standard_uuid.eq(&data.standard_uuid)
-        .and(user_access_to_standard::user_uuid.eq(&data.user_uuid)))
+        .filter(
+            user_access_to_standard::standard_uuid
+                .eq(&data.standard_uuid)
+                .and(user_access_to_standard::user_uuid.eq(&data.user_uuid)),
+        )
         .select(user_access_to_standard::type_access_id)
         .limit(1)
         .load::<i32>(conn)
@@ -49,22 +48,24 @@ pub(crate) fn set_user_access_standard(
         })?;
 
     match get_access.first() {
-        Some(_) => {
-            diesel::update(user_access_to_standard::user_access_to_standard
-                .filter(user_access_to_standard::standard_uuid.eq(&data.standard_uuid)
-                .and(user_access_to_standard::user_uuid.eq(&data.user_uuid))))
-                .set((
-                    user_access_to_standard::type_access_id.eq(data.type_access_id),
-                    user_access_to_standard::is_enabled.eq(true),
-                    user_access_to_standard::updated_at.eq(chrono::Local::now().naive_local())
-                ))
-                .returning(user_access_to_standard::is_enabled)
-                .get_result(conn)
-                .map_err(|err| {
-                    debug!("Failed change access for user: {:?}", err);
-                    ServiceError::InternalServerError
-                })
-        },
+        Some(_) => diesel::update(
+            user_access_to_standard::user_access_to_standard.filter(
+                user_access_to_standard::standard_uuid
+                    .eq(&data.standard_uuid)
+                    .and(user_access_to_standard::user_uuid.eq(&data.user_uuid)),
+            ),
+        )
+        .set((
+            user_access_to_standard::type_access_id.eq(data.type_access_id),
+            user_access_to_standard::is_enabled.eq(true),
+            user_access_to_standard::updated_at.eq(chrono::Local::now().naive_local()),
+        ))
+        .returning(user_access_to_standard::is_enabled)
+        .get_result(conn)
+        .map_err(|err| {
+            debug!("Failed change access for user: {:?}", err);
+            ServiceError::InternalServerError
+        }),
         None => add_user_access_standard(data, conn),
     }
 }
@@ -98,8 +99,11 @@ pub(crate) fn del_user_access_standard(
 
     // 2. деактивировать доступ для указанного пользователя
     let del_access = diesel::delete(user_access_to_standard::user_access_to_standard)
-        .filter(user_access_to_standard::standard_uuid.eq(&data.standard_uuid)
-        .and(user_access_to_standard::user_uuid.eq(&data.user_uuid)))
+        .filter(
+            user_access_to_standard::standard_uuid
+                .eq(&data.standard_uuid)
+                .and(user_access_to_standard::user_uuid.eq(&data.user_uuid)),
+        )
         .execute(conn)
         .map_err(|err| {
             debug!("Failed delete access for target user: {:?}", err);
@@ -109,6 +113,6 @@ pub(crate) fn del_user_access_standard(
     match del_access {
         1 => Ok(true),
         // доступ не найден
-        _ => Err(get_err_msg(ErrorMessage::AccessNotFoundUser))
+        _ => Err(get_err_msg(ErrorMessage::AccessNotFoundUser)),
     }
 }

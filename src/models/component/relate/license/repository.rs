@@ -1,4 +1,4 @@
-use crate::errors::{ServiceResult, ServiceError};
+use crate::errors::{ServiceError, ServiceResult};
 use crate::models::relate_ref::license::model::License;
 use crate::schema::license_to_component::dsl as license_to_component;
 use diesel::prelude::*;

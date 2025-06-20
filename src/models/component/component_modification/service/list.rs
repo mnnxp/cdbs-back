@@ -1,8 +1,8 @@
 use crate::errors::ServiceResult;
 use crate::graphql::component_model::ComponentModificationAndRelatedData;
 use crate::models::component::{
-    component_modification::model::ComponentModificationArg,
     access::util::check_access_component_for_user,
+    component_modification::model::ComponentModificationArg,
 };
 use crate::models::search::model::ExtraOptions;
 use diesel::prelude::*;
@@ -11,14 +11,14 @@ use diesel::prelude::*;
 pub(crate) fn get_component_modifications(
     args: &ComponentModificationArg,
     options: &ExtraOptions,
-    conn: &mut PgConnection
+    conn: &mut PgConnection,
 ) -> ServiceResult<Vec<ComponentModificationAndRelatedData>> {
     let need_access_level = 3; // todo!(create enum for manage access level)
     check_access_component_for_user(
         &options.logged_user_uuid,
         &args.component_uuid,
         &need_access_level,
-        conn
+        conn,
     )?;
     ComponentModificationAndRelatedData::by_args(args, &options.set_lang_id, conn)
 }

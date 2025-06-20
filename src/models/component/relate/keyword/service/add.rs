@@ -1,8 +1,10 @@
-use crate::errors::{ServiceResult, ServiceError};
-use crate::errors::err_msg::{ErrorMessage, get_err_msg};
+use crate::errors::err_msg::{get_err_msg, ErrorMessage};
+use crate::errors::{ServiceError, ServiceResult};
 use crate::models::component::{
-    keyword::model::{IptComponentKeywordsData, IptComponentKeywordsNames, InsertableComponentKeyword},
     access::util::check_access_component_for_user,
+    keyword::model::{
+        InsertableComponentKeyword, IptComponentKeywordsData, IptComponentKeywordsNames,
+    },
 };
 use crate::models::relate_ref::keyword::{
     model::{IptKeywordData, KeywordId},
@@ -16,7 +18,7 @@ use uuid::Uuid;
 pub(crate) fn add_component_keywords(
     logged_user_uuid: &Uuid,
     data: &IptComponentKeywordsData,
-    conn: &mut PgConnection
+    conn: &mut PgConnection,
 ) -> ServiceResult<usize> {
     let need_access_level = 1; // todo!(create enum for manage access level)
 
@@ -24,7 +26,7 @@ pub(crate) fn add_component_keywords(
         logged_user_uuid,
         &data.component_uuid,
         &need_access_level,
-        conn
+        conn,
     )?;
 
     // creating structures for inserting records into a table
@@ -37,18 +39,21 @@ pub(crate) fn add_component_keywords(
         false => {
             keywords.retain(|k| check_keyword_for_component(k, conn));
             insert_rows_component_keywords(&keywords, conn)
-        },
+        }
     }
 }
 
 /// Check already keyword for component (duplicate)
 fn check_keyword_for_component(
     keyword: &InsertableComponentKeyword,
-    conn: &mut PgConnection
+    conn: &mut PgConnection,
 ) -> bool {
     let check = keyword_to_component::keyword_to_component
-        .filter(keyword_to_component::component_uuid.eq(&keyword.component_uuid)
-        .and(keyword_to_component::keyword_id.eq(&keyword.keyword_id)))
+        .filter(
+            keyword_to_component::component_uuid
+                .eq(&keyword.component_uuid)
+                .and(keyword_to_component::keyword_id.eq(&keyword.keyword_id)),
+        )
         .limit(1)
         .execute(conn);
     debug!("Check: {:?}", check);
@@ -57,7 +62,7 @@ fn check_keyword_for_component(
 
 fn insert_rows_component_keywords(
     insert_data: &[InsertableComponentKeyword],
-    conn: &mut PgConnection
+    conn: &mut PgConnection,
 ) -> ServiceResult<usize> {
     diesel::insert_into(keyword_to_component::keyword_to_component)
         .values(insert_data)
@@ -72,7 +77,7 @@ fn insert_rows_component_keywords(
 pub(crate) fn add_keywords_by_names(
     logged_user_uuid: &Uuid,
     data: &IptComponentKeywordsNames,
-    conn: &mut PgConnection
+    conn: &mut PgConnection,
 ) -> ServiceResult<usize> {
     let mut keyword_ids: Vec<i32> = Vec::new();
 
@@ -81,7 +86,12 @@ pub(crate) fn add_keywords_by_names(
             Ok(x) => keyword_ids.push(x),
             Err(err) => {
                 debug!("Error ({:?}) for keyword: {:?}", err, kw);
-                let keyword = create_keyword(&IptKeywordData{keyword: kw.clone()}, conn)?;
+                let keyword = create_keyword(
+                    &IptKeywordData {
+                        keyword: kw.clone(),
+                    },
+                    conn,
+                )?;
                 keyword_ids.push(keyword.id);
             }
         }
@@ -89,16 +99,16 @@ pub(crate) fn add_keywords_by_names(
 
     add_component_keywords(
         logged_user_uuid,
-        &IptComponentKeywordsData{
+        &IptComponentKeywordsData {
             keyword_ids,
             component_uuid: data.component_uuid,
         },
-        conn
+        conn,
     )
 }
 
 /// Clear duplicates keywords
-fn clear_duplicates(keywords: &mut Vec<InsertableComponentKeyword>)  {
+fn clear_duplicates(keywords: &mut Vec<InsertableComponentKeyword>) {
     let mut already_seen = Vec::new();
     keywords.retain(|item| match already_seen.contains(&item.keyword_id) {
         true => false,

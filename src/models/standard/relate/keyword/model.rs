@@ -47,7 +47,8 @@ impl From<&IptStandardKeywordsData> for Vec<InsertableStandardKeyword> {
         let mut res = Vec::new();
         // create struct for each keyword
         for keyword_id in keyword_ids {
-            if keyword_id > &0 { // <-- additionally we check the correctness of the key
+            if keyword_id > &0 {
+                // <-- additionally we check the correctness of the key
                 res.push(InsertableStandardKeyword {
                     standard_uuid: *standard_uuid,
                     keyword_id: *keyword_id,
@@ -81,7 +82,7 @@ impl From<&IptStandardKeywordsData> for DeleteStandardKeywords {
             }
         }
 
-        Self{
+        Self {
             standard_uuid: *standard_uuid,
             keyword_ids: good_keyword_ids,
         }

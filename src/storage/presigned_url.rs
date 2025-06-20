@@ -1,6 +1,6 @@
-use crate::errors::{ServiceResult, ServiceError};
+use crate::errors::{ServiceError, ServiceResult};
 use crate::models::relate_ref::file::model::SlimFile;
-use crate::storage::model::{StorageAccess, InsertablePresignedUrl};
+use crate::storage::model::{InsertablePresignedUrl, StorageAccess};
 use crate::storage::s3::Aws;
 use chrono::{Duration, Local};
 use diesel::prelude::*;
@@ -16,14 +16,16 @@ pub(crate) fn download_presigned_url(
         crate::cli_args::Opt::from_args()
     };
 
-    let presigned_url = Aws::from(access_storage).download_presigned_url(
-        &access_storage.bucket,
-        slim_file,
-        opt.s3_expiration_presigned_url,
-    ).map_err(|err| {
-        debug!("Failed make presign-url: {:#?}", err);
-        ServiceError::InternalServerError
-    })?;
+    let presigned_url = Aws::from(access_storage)
+        .download_presigned_url(
+            &access_storage.bucket,
+            slim_file,
+            opt.s3_expiration_presigned_url,
+        )
+        .map_err(|err| {
+            debug!("Failed make presign-url: {:#?}", err);
+            ServiceError::InternalServerError
+        })?;
 
     debug!("Presigned url for download: {:#?}", presigned_url);
     Ok(presigned_url)
@@ -39,21 +41,23 @@ pub(crate) fn upload_presigned_url(
         crate::cli_args::Opt::from_args()
     };
 
-    Aws::from(access_storage).get_upload_signed_url(
-        &access_storage.bucket,
-        path_file,
-        opt.s3_expiration_presigned_url,
-    ).map_err(|err| {
-        debug!("Failed make presign-url: {:#?}", err);
-        ServiceError::InternalServerError
-    })
+    Aws::from(access_storage)
+        .get_upload_signed_url(
+            &access_storage.bucket,
+            path_file,
+            opt.s3_expiration_presigned_url,
+        )
+        .map_err(|err| {
+            debug!("Failed make presign-url: {:#?}", err);
+            ServiceError::InternalServerError
+        })
 }
 
 /// Save presign url for download to database
 pub(crate) fn save_presign_url(
     file_uuid: &Uuid,
     presigned_url: &str,
-    conn: &mut PgConnection
+    conn: &mut PgConnection,
 ) -> ServiceResult<usize> {
     use crate::schema::presigned_url_ref::dsl as presigned_url_ref;
     let opt = {
@@ -80,7 +84,7 @@ pub(crate) fn save_presign_url(
 
     match check_old_url {
         0 => {
-            let insert_data = InsertablePresignedUrl{
+            let insert_data = InsertablePresignedUrl {
                 file_uuid: *file_uuid,
                 presigned_url: presigned_url.to_string(),
                 expiration_at: new_expiration_at,
@@ -93,20 +97,20 @@ pub(crate) fn save_presign_url(
                     debug!("Failed insert presigned_url {:?}", err);
                     ServiceError::InternalServerError
                 })
-        },
+        }
         x => {
             debug!("Found old presigned_url: {:?}", x);
             diesel::update(presigned_url_ref::presigned_url_ref)
                 .filter(presigned_url_ref::file_uuid.eq(file_uuid))
                 .set((
                     presigned_url_ref::presigned_url.eq(presigned_url),
-                    presigned_url_ref::expiration_at.eq(new_expiration_at)
+                    presigned_url_ref::expiration_at.eq(new_expiration_at),
                 ))
                 .execute(conn)
                 .map_err(|err| {
                     debug!("Failed update presigned_url {:?}", err);
                     ServiceError::InternalServerError
                 })
-        },
+        }
     }
 }

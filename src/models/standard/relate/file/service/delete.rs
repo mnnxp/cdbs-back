@@ -1,7 +1,7 @@
-use crate::errors::{ServiceResult, ServiceError};
-use crate::models::standard::relate::file::model::DeleteStandardFileData;
-use crate::models::standard::access::util::check_access_standard_for_user;
+use crate::errors::{ServiceError, ServiceResult};
 use crate::models::relate_ref::file::service::delete::delete_file_by_uuid;
+use crate::models::standard::access::util::check_access_standard_for_user;
+use crate::models::standard::relate::file::model::DeleteStandardFileData;
 use crate::schema::file_to_standard::dsl as file_to_standard;
 use diesel::prelude::*;
 use uuid::Uuid;
@@ -22,8 +22,11 @@ pub(crate) fn delete_standard_file(
     )?;
 
     let del_file = diesel::delete(file_to_standard::file_to_standard)
-        .filter(file_to_standard::standard_uuid.eq(&arguments.standard_uuid)
-        .and(file_to_standard::file_uuid.eq(&arguments.file_uuid)))
+        .filter(
+            file_to_standard::standard_uuid
+                .eq(&arguments.standard_uuid)
+                .and(file_to_standard::file_uuid.eq(&arguments.file_uuid)),
+        )
         .execute(conn)
         .map_err(|err| {
             debug!("Fail delete row: {:?}", err);

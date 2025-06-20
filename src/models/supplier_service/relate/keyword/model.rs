@@ -47,7 +47,8 @@ impl From<&IptServiceKeywordsData> for Vec<InsertableServiceKeyword> {
         let mut res = Vec::new();
         // create struct for each keyword
         for kw_id in keyword_ids {
-            if kw_id > &0 { // <-- additionally we check the correctness of the key
+            if kw_id > &0 {
+                // <-- additionally we check the correctness of the key
                 res.push(InsertableServiceKeyword {
                     service_uuid: *service_uuid,
                     keyword_id: *kw_id,
@@ -80,7 +81,7 @@ impl From<&IptServiceKeywordsData> for DeleteServiceKeyword {
             }
         }
 
-        Self{
+        Self {
             service_uuid: *service_uuid,
             keyword_ids: good_kw_ids,
         }

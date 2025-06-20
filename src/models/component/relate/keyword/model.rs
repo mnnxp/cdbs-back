@@ -47,7 +47,8 @@ impl From<&IptComponentKeywordsData> for Vec<InsertableComponentKeyword> {
         let mut res = Vec::new();
         // create struct for each keyword
         for kw_id in keyword_ids {
-            if kw_id > &0 { // <-- additionally we check the correctness of the key
+            if kw_id > &0 {
+                // <-- additionally we check the correctness of the key
                 res.push(InsertableComponentKeyword {
                     component_uuid: *component_uuid,
                     keyword_id: *kw_id,
@@ -80,7 +81,7 @@ impl From<&IptComponentKeywordsData> for DeleteComponentKeyword {
             }
         }
 
-        Self{
+        Self {
             component_uuid: *component_uuid,
             keyword_ids: good_kw_ids,
         }

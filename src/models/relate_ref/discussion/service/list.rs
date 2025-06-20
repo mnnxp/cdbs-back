@@ -1,6 +1,8 @@
 use crate::errors::ServiceResult;
-use crate::graphql::discussion_model::{DiscussionInfo, DiscussionCommentData};
-use crate::models::relate_ref::discussion::model::{CommentQueryOptions, DiscussQueryOptions, Discussion, DiscussionCommentList, DiscussionTo};
+use crate::graphql::discussion_model::{DiscussionCommentData, DiscussionInfo};
+use crate::models::relate_ref::discussion::model::{
+    CommentQueryOptions, DiscussQueryOptions, Discussion, DiscussionCommentList, DiscussionTo,
+};
 use crate::models::search::model::ExtraOptions;
 use crate::models::search::order::objects_order;
 use crate::models::user::model::ShowUserShort;
@@ -13,15 +15,15 @@ pub(crate) fn get_discussions(
     options: &ExtraOptions,
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<DiscussionInfo>> {
-    args.discussion_to.check_access(&options.logged_user_uuid, &3, conn)?;
+    args.discussion_to
+        .check_access(&options.logged_user_uuid, &3, conn)?;
     let mut discussion_uuids = args.discussion_to.get_discuss_uuids(conn)?;
     if discussion_uuids.len() > 1 {
         discussion_uuids = objects_order(&discussion_uuids, &args.sort, &args.paginate, conn)?;
         filter_discussion(&mut discussion_uuids, &args.discussion_uuids);
     }
-    Discussion::get_by_uuids(&discussion_uuids, conn).map(|vec_d|
-        vec_d.into_iter().map(DiscussionInfo::from).collect()
-    )
+    Discussion::get_by_uuids(&discussion_uuids, conn)
+        .map(|vec_d| vec_d.into_iter().map(DiscussionInfo::from).collect())
 }
 
 /// Returns a list of available discussion comment list.
@@ -79,9 +81,11 @@ fn filter_discussion(discussion_uuids: &mut Vec<Uuid>, filter_by: &[Uuid]) -> bo
     if filter_by.is_empty() {
         return false;
     }
-    discussion_uuids.retain_mut(|find_discuss_uuid|
-        filter_by.iter().any(|filter_discuss_uuid| filter_discuss_uuid == find_discuss_uuid)
-    );
+    discussion_uuids.retain_mut(|find_discuss_uuid| {
+        filter_by
+            .iter()
+            .any(|filter_discuss_uuid| filter_discuss_uuid == find_discuss_uuid)
+    });
     true
 }
 
@@ -93,11 +97,7 @@ mod tests {
     #[test]
     fn test_filter_discussion_empty_filter_list() {
         // Arrange
-        let mut discussion_uuids = vec![
-            Uuid::new_v4(),
-            Uuid::new_v4(),
-            Uuid::new_v4(),
-        ];
+        let mut discussion_uuids = vec![Uuid::new_v4(), Uuid::new_v4(), Uuid::new_v4()];
         let filter_discuss_uuids: Vec<Uuid> = vec![];
 
         // Act
@@ -111,11 +111,7 @@ mod tests {
     #[test]
     fn test_filter_discussion_non_empty_filter_list() {
         // Arrange
-        let mut discussion_uuids = vec![
-            Uuid::new_v4(),
-            Uuid::new_v4(),
-            Uuid::new_v4(),
-        ];
+        let mut discussion_uuids = vec![Uuid::new_v4(), Uuid::new_v4(), Uuid::new_v4()];
         let filter_discuss_uuid = discussion_uuids[1];
         let filter_discuss_uuids = vec![filter_discuss_uuid];
 
@@ -131,11 +127,7 @@ mod tests {
     #[test]
     fn test_filter_discussion_filter_list_with_multiple_matches() {
         // Arrange
-        let mut discussion_uuids = vec![
-            Uuid::new_v4(),
-            Uuid::new_v4(),
-            Uuid::new_v4(),
-        ];
+        let mut discussion_uuids = vec![Uuid::new_v4(), Uuid::new_v4(), Uuid::new_v4()];
         let filter_discuss_uuid1 = discussion_uuids[0];
         let filter_discuss_uuid2 = discussion_uuids[2];
         let filter_discuss_uuids = vec![filter_discuss_uuid1, filter_discuss_uuid2];
@@ -153,11 +145,7 @@ mod tests {
     #[test]
     fn test_filter_discussion_filter_list_with_no_matches() {
         // Arrange
-        let mut discussion_uuids = vec![
-            Uuid::new_v4(),
-            Uuid::new_v4(),
-            Uuid::new_v4(),
-        ];
+        let mut discussion_uuids = vec![Uuid::new_v4(), Uuid::new_v4(), Uuid::new_v4()];
         let filter_discuss_uuid = Uuid::new_v4(); // UUID, отсутствующий в discussion_uuids
         let filter_discuss_uuids = vec![filter_discuss_uuid];
 

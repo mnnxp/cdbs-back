@@ -1,13 +1,13 @@
-use crate::errors::{ServiceResult, ServiceError};
-use crate::errors::err_msg::{ErrorMessage, get_err_msg};
-use crate::models::supplier_service::service::update::change_service_updated_at;
-use crate::models::supplier_service::{
-    keyword::model::{IptServiceKeywordsData, IptServiceKeywordsNames, InsertableServiceKeyword},
-    access::util::check_access_service_for_user,
-};
+use crate::errors::err_msg::{get_err_msg, ErrorMessage};
+use crate::errors::{ServiceError, ServiceResult};
 use crate::models::relate_ref::keyword::{
     model::{IptKeywordData, KeywordId},
     service::register::create_keyword,
+};
+use crate::models::supplier_service::service::update::change_service_updated_at;
+use crate::models::supplier_service::{
+    access::util::check_access_service_for_user,
+    keyword::model::{InsertableServiceKeyword, IptServiceKeywordsData, IptServiceKeywordsNames},
 };
 use crate::schema::keyword_to_service::dsl as keyword_to_service;
 use diesel::prelude::*;
@@ -17,7 +17,7 @@ use uuid::Uuid;
 pub(crate) fn add_service_keywords(
     data: &IptServiceKeywordsData,
     logged_user_uuid: &Uuid,
-    conn: &mut PgConnection
+    conn: &mut PgConnection,
 ) -> ServiceResult<usize> {
     let need_access_level = 1; // todo!(create enum for manage access level)
 
@@ -25,7 +25,7 @@ pub(crate) fn add_service_keywords(
         logged_user_uuid,
         &data.service_uuid,
         &need_access_level,
-        conn
+        conn,
     )?;
 
     // creating structures for inserting records into a table
@@ -41,21 +41,21 @@ pub(crate) fn add_service_keywords(
                 &data.service_uuid,
                 logged_user_uuid,
                 format!("Added new keywords: {:?})", &keywords),
-                conn
+                conn,
             )?;
             insert_rows_service_keywords(&keywords, conn)
-        },
+        }
     }
 }
 
 /// Check already keyword for service (duplicate)
-fn check_keyword_for_service(
-    keyword: &InsertableServiceKeyword,
-    conn: &mut PgConnection
-) -> bool {
+fn check_keyword_for_service(keyword: &InsertableServiceKeyword, conn: &mut PgConnection) -> bool {
     let check = keyword_to_service::keyword_to_service
-        .filter(keyword_to_service::service_uuid.eq(&keyword.service_uuid)
-        .and(keyword_to_service::keyword_id.eq(&keyword.keyword_id)))
+        .filter(
+            keyword_to_service::service_uuid
+                .eq(&keyword.service_uuid)
+                .and(keyword_to_service::keyword_id.eq(&keyword.keyword_id)),
+        )
         .limit(1)
         .execute(conn);
     debug!("Check: {:?}", check);
@@ -64,7 +64,7 @@ fn check_keyword_for_service(
 
 fn insert_rows_service_keywords(
     insert_data: &[InsertableServiceKeyword],
-    conn: &mut PgConnection
+    conn: &mut PgConnection,
 ) -> ServiceResult<usize> {
     diesel::insert_into(keyword_to_service::keyword_to_service)
         .values(insert_data)
@@ -79,7 +79,7 @@ fn insert_rows_service_keywords(
 pub(crate) fn add_keywords_by_names(
     data: &IptServiceKeywordsNames,
     logged_user_uuid: &Uuid,
-    conn: &mut PgConnection
+    conn: &mut PgConnection,
 ) -> ServiceResult<usize> {
     let mut keyword_ids: Vec<i32> = Vec::new();
 
@@ -88,24 +88,29 @@ pub(crate) fn add_keywords_by_names(
             Ok(x) => keyword_ids.push(x),
             Err(err) => {
                 debug!("Error ({:?}) for keyword: {:?}", err, kw);
-                let keyword = create_keyword(&IptKeywordData{keyword: kw.clone()}, conn)?;
+                let keyword = create_keyword(
+                    &IptKeywordData {
+                        keyword: kw.clone(),
+                    },
+                    conn,
+                )?;
                 keyword_ids.push(keyword.id);
             }
         }
     }
 
     add_service_keywords(
-        &IptServiceKeywordsData{
+        &IptServiceKeywordsData {
             keyword_ids,
             service_uuid: data.service_uuid,
         },
         logged_user_uuid,
-        conn
+        conn,
     )
 }
 
 /// Clear duplicates keywords
-fn clear_duplicates(keywords: &mut Vec<InsertableServiceKeyword>)  {
+fn clear_duplicates(keywords: &mut Vec<InsertableServiceKeyword>) {
     let mut already_seen = Vec::new();
     keywords.retain(|item| match already_seen.contains(&item.keyword_id) {
         true => false,

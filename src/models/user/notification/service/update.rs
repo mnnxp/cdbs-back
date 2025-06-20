@@ -1,4 +1,4 @@
-use crate::errors::{ServiceResult, ServiceError};
+use crate::errors::{ServiceError, ServiceResult};
 use diesel::prelude::*;
 use uuid::Uuid;
 
@@ -13,8 +13,11 @@ pub(crate) fn set_notifications_as_read(
 
     // check notification for logged user
     let res_change = diesel::update(notification_to_user::notification_to_user)
-        .filter(notification_to_user::notification_id.eq_any(notifications_ids)
-        .and(notification_to_user::user_uuid.eq(logged_user_uuid)))
+        .filter(
+            notification_to_user::notification_id
+                .eq_any(notifications_ids)
+                .and(notification_to_user::user_uuid.eq(logged_user_uuid)),
+        )
         .set(notification_to_user::is_read.eq(true))
         .execute(conn)
         .map_err(|err| {

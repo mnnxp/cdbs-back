@@ -1,5 +1,5 @@
-use crate::schema::*;
 use crate::models::relate_ref::type_access::model::TypeAccessTranslateList;
+use crate::schema::*;
 use async_graphql::*;
 use uuid::Uuid;
 

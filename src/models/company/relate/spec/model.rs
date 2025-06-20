@@ -76,7 +76,7 @@ impl From<&IptCompanySpecsData> for DelCompanySpec {
             }
         }
 
-        Self{
+        Self {
             company_uuid: *company_uuid,
             spec_ids: good_spec_ids,
         }

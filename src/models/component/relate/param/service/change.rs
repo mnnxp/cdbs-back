@@ -1,9 +1,9 @@
-use crate::errors::{ServiceResult, ServiceError};
-use crate::errors::err_msg::{ErrorMessage, get_err_msg};
+use crate::errors::err_msg::{get_err_msg, ErrorMessage};
+use crate::errors::{ServiceError, ServiceResult};
 use crate::models::component::service::update::change_updated_at;
 use crate::models::component::{
-    param::model::{IptComponentParamsData, InsertableComponentParam},
     access::util::check_access_component_for_user,
+    param::model::{InsertableComponentParam, IptComponentParamsData},
 };
 use crate::models::relate_ref::param::model::IptParamData;
 use crate::schema::param_to_component::dsl::*;
@@ -15,7 +15,7 @@ use uuid::Uuid;
 pub(crate) fn put_component_params(
     logged_user_uuid: &Uuid,
     data: &IptComponentParamsData,
-    conn: &mut PgConnection
+    conn: &mut PgConnection,
 ) -> ServiceResult<usize> {
     let need_access_level = 1; // todo!(create enum for manage access level)
 
@@ -23,23 +23,27 @@ pub(crate) fn put_component_params(
         logged_user_uuid,
         &data.component_uuid,
         &need_access_level,
-        conn
+        conn,
     )?;
 
     if data.params.is_empty() {
-        return Err(get_err_msg(ErrorMessage::NotFoundParamsForAddingOrUpdaing))
+        return Err(get_err_msg(ErrorMessage::NotFoundParamsForAddingOrUpdaing));
     }
 
     let mut count_changed_rows: usize = 0;
 
-    let mut new_params: Vec<InsertableComponentParam> = Vec::new();      // <-- new parameters to be added
-    let mut update_params: Vec<IptParamData> = Vec::new();   // <-- found parameters will be updated
+    let mut new_params: Vec<InsertableComponentParam> = Vec::new(); // <-- new parameters to be added
+    let mut update_params: Vec<IptParamData> = Vec::new(); // <-- found parameters will be updated
 
     for param_d in &data.params {
-        if param_d.param_id > 0 { // <-- additionally we check the correctness of the id
+        if param_d.param_id > 0 {
+            // <-- additionally we check the correctness of the id
             let get_param = param_to_component
-                .filter(component_uuid.eq(&data.component_uuid)
-                .and(param_id.eq(&param_d.param_id)))
+                .filter(
+                    component_uuid
+                        .eq(&data.component_uuid)
+                        .and(param_id.eq(&param_d.param_id)),
+                )
                 .execute(conn)
                 .map_err(|err| {
                     debug!("Fail check param data: {:?} ", err);
@@ -53,9 +57,9 @@ pub(crate) fn put_component_params(
                         param_id: param_d.param_id,
                         value: param_d.value.to_string(),
                     };
-                    new_params.push(insertable_data)        // <-- need insert new param
-                },
-                _ => update_params.push(param_d.clone()),     // <-- already has param need update
+                    new_params.push(insertable_data) // <-- need insert new param
+                }
+                _ => update_params.push(param_d.clone()), // <-- already has param need update
             }
         }
     }
@@ -69,14 +73,11 @@ pub(crate) fn put_component_params(
     if !update_params.is_empty() {
         // Return error if found duplication of existing data detected
         if check_duplicated_params(&data.component_uuid, &update_params, conn)? {
-            return Err(get_err_msg(ErrorMessage::DuplicateOfExistingData))
+            return Err(get_err_msg(ErrorMessage::DuplicateOfExistingData));
         }
 
-        count_changed_rows += update_component_params_values(
-            &data.component_uuid,
-            &update_params,
-            conn
-        )?;
+        count_changed_rows +=
+            update_component_params_values(&data.component_uuid, &update_params, conn)?;
 
         change_updated_at(&data.component_uuid, None, conn)?;
     }
@@ -85,9 +86,9 @@ pub(crate) fn put_component_params(
 }
 
 /// Add new params from array InsertableComponentParam's
-fn adding_new_component_params (
+fn adding_new_component_params(
     data: &[InsertableComponentParam],
-    conn: &mut PgConnection
+    conn: &mut PgConnection,
 ) -> ServiceResult<usize> {
     diesel::insert_into(param_to_component)
         .values(data)
@@ -103,20 +104,24 @@ fn adding_new_component_params (
 fn update_component_params_values(
     target_component_uuid: &Uuid,
     data: &[IptParamData],
-    conn: &mut PgConnection
+    conn: &mut PgConnection,
 ) -> ServiceResult<usize> {
     let mut res: usize = 0;
 
     for param_d in data {
-        let insert_params = diesel::update(param_to_component
-            .filter(component_uuid.eq(target_component_uuid)
-            .and(param_id.eq(&param_d.param_id))))
-            .set(value.eq(param_d.value.to_string()))
-            .execute(conn)
-            .map_err(|err| {
-                debug!("Fail updated rows:  {:?}", err);
-                ServiceError::InternalServerError
-            })?;
+        let insert_params = diesel::update(
+            param_to_component.filter(
+                component_uuid
+                    .eq(target_component_uuid)
+                    .and(param_id.eq(&param_d.param_id)),
+            ),
+        )
+        .set(value.eq(param_d.value.to_string()))
+        .execute(conn)
+        .map_err(|err| {
+            debug!("Fail updated rows:  {:?}", err);
+            ServiceError::InternalServerError
+        })?;
 
         debug!("Updated {:?} rows", insert_params);
         res += insert_params;
@@ -130,13 +135,15 @@ fn update_component_params_values(
 fn check_duplicated_params(
     target_component_uuid: &Uuid,
     data: &[IptParamData],
-    conn: &mut PgConnection
+    conn: &mut PgConnection,
 ) -> ServiceResult<bool> {
     for param_d in data {
         let duplicate_params = param_to_component
-            .filter(component_uuid.eq(target_component_uuid)
-            .and(param_id.eq(&param_d.param_id)
-            .and(value.eq(&param_d.value))))
+            .filter(
+                component_uuid
+                    .eq(target_component_uuid)
+                    .and(param_id.eq(&param_d.param_id).and(value.eq(&param_d.value))),
+            )
             .execute(conn)
             .map_err(|err| {
                 debug!("Fail updated rows:  {:?}", err);
@@ -145,7 +152,7 @@ fn check_duplicated_params(
 
         if duplicate_params > 0 {
             debug!("Found {:?} duplicates rows", duplicate_params);
-            return Ok(true)
+            return Ok(true);
         }
     }
 

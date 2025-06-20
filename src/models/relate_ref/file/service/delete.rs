@@ -1,6 +1,6 @@
 use crate::errors::{ServiceError, ServiceResult};
-use crate::models::relate_ref::file::util::check_default_file;
 use crate::models::relate_ref::file::access::check_file_owner_err;
+use crate::models::relate_ref::file::util::check_default_file;
 use crate::schema::file_ref::dsl as file_ref;
 use diesel::prelude::*;
 use uuid::Uuid;

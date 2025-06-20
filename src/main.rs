@@ -11,12 +11,12 @@ mod errors;
 mod graphql;
 mod jwt;
 mod models;
-mod storage;
 mod schema;
+mod storage;
 
 use actix_cors::Cors;
 use actix_web::middleware::Logger;
-use actix_web::{App, HttpServer, web::Data};
+use actix_web::{web::Data, App, HttpServer};
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {

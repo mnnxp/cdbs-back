@@ -1,18 +1,20 @@
-use crate::errors::ServiceResult;
 use crate::database::{get_conn, PooledConnection};
+use crate::errors::ServiceResult;
 use crate::graphql::relate::attributes::IptPaginate;
 use crate::models::company;
 use crate::models::company::{
-    model::{CompanyAndRelatedData, ShowCompanyShort, CompaniesArg, IptCompaniesArg},
+    company_represent::model::{
+        CompanyRepresentAndRelatedData, CompanyRepresentsArg, IptCompanyRepresentsArg,
+    },
+    company_represent::representation_type::model::RepresentationTypeTranslateList,
+    company_type::model::CompanyTypeTranslateList,
     member::model::CompanyMemberAndRelatedData,
     member::role::model::RoleMemberAndRelatedData,
-    company_type::model::CompanyTypeTranslateList,
-    company_represent::model::{CompanyRepresentAndRelatedData, IptCompanyRepresentsArg, CompanyRepresentsArg},
-    company_represent::representation_type::model::RepresentationTypeTranslateList,
+    model::{CompaniesArg, CompanyAndRelatedData, IptCompaniesArg, ShowCompanyShort},
 };
-use crate::models::user::access::logged::{get_logged_user_uuid, check_authorized};
-use crate::models::relate_ref::{spec::model::SpecTranslateList, language::get_set_language};
+use crate::models::relate_ref::{language::get_set_language, spec::model::SpecTranslateList};
 use crate::models::search::order::Paginate;
+use crate::models::user::access::logged::{check_authorized, get_logged_user_uuid};
 use async_graphql::{self, Context, Object};
 use uuid::Uuid;
 
@@ -40,7 +42,8 @@ impl CompanyQuery {
         };
         // let s = sort.map(|s| Sort::parsing(TableName::CompanieRef, &s.by_field, s.as_desc))
         //     .unwrap_or(Sort::set_by_table(TableName::CompanieRef));
-        let p = paginate.map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
+        let p = paginate
+            .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
             .unwrap_or_default();
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
@@ -79,11 +82,7 @@ impl CompanyQuery {
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        get_supplier_by_uuid(
-            &company_uuid,
-            &get_set_language(cxt),
-            conn,
-        )
+        get_supplier_by_uuid(&company_uuid, &get_set_language(cxt), conn)
     }
 
     /// Returns information about company representative offices.
@@ -101,7 +100,8 @@ impl CompanyQuery {
         let arguments = CompanyRepresentsArg::by_arg(args, get_set_language(cxt));
         // let s = sort.map(|s| Sort::parsing(TableName::CompanyRepresentRef, &s.by_field, s.as_desc))
         //     .unwrap_or(Sort::set_by_table(TableName::CompanyRepresentRef));
-        let p = paginate.map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
+        let p = paginate
+            .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
             .unwrap_or_default();
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
         get_represents(&logged_user_uuid, &arguments, &p, conn)
@@ -124,7 +124,7 @@ impl CompanyQuery {
             &logged_user_uuid,
             &company_uuid,
             &get_set_language(cxt),
-            conn
+            conn,
         )
     }
 
@@ -145,7 +145,7 @@ impl CompanyQuery {
             &logged_user_uuid,
             &company_uuid,
             &get_set_language(cxt),
-            conn
+            conn,
         )
     }
 
@@ -161,28 +161,32 @@ impl CompanyQuery {
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        get_types_for_company(
-            &get_set_language(cxt),
-            conn
-        )
+        get_types_for_company(&get_set_language(cxt), conn)
     }
 
     /// Returns a list of directories associated with the company by UUID.
     async fn company_specs(
         &self,
         cxt: &Context<'_>,
-        company_uuid:  Uuid,
+        company_uuid: Uuid,
         paginate: Option<IptPaginate>,
     ) -> ServiceResult<Vec<SpecTranslateList>> {
         use crate::models::company::spec::service::list::get_company_specs;
 
         // authorization check
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
-        let p = paginate.map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
+        let p = paginate
+            .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
             .unwrap_or_default();
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        get_company_specs(&logged_user_uuid, &company_uuid, &get_set_language(cxt), &p, conn)
+        get_company_specs(
+            &logged_user_uuid,
+            &company_uuid,
+            &get_set_language(cxt),
+            &p,
+            conn,
+        )
     }
 
     /// Returns a list of types of representative offices (divisions) of companies.
@@ -197,9 +201,6 @@ impl CompanyQuery {
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        get_types_for_represent(
-            &get_set_language(cxt),
-            conn
-        )
+        get_types_for_represent(&get_set_language(cxt), conn)
     }
 }

@@ -1,4 +1,4 @@
-use crate::graphql::standard_model::{IptStandardData, IptStandardsArg, IptStandardFilesArg};
+use crate::graphql::standard_model::{IptStandardData, IptStandardFilesArg, IptStandardsArg};
 use crate::models::relate_ref::file::util::get_default_image;
 use crate::schema::standard_ref;
 use chrono::{Local, NaiveDateTime};

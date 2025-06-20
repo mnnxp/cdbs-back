@@ -91,7 +91,6 @@ pub(crate) struct InsertableFile {
     pub(crate) updated_at: NaiveDateTime,
 }
 
-
 impl From<PreliminaryFileData> for InsertableFile {
     fn from(data: PreliminaryFileData) -> Self {
         let PreliminaryFileData {
@@ -110,7 +109,8 @@ impl From<PreliminaryFileData> for InsertableFile {
         let new_file_uuid = Uuid::new_v4();
 
         // creating a filename for the storage
-        let path_file = format!("{}/{}",
+        let path_file = format!(
+            "{}/{}",
             // maybe uuid from component, modification, standard, user etc
             Uuid::simple(object.get_uuid()),
             // user_uuid
@@ -156,14 +156,9 @@ pub(crate) struct PreliminaryFileData {
 }
 
 impl PreliminaryFileData {
-    pub(crate) fn set_revision(
-        &mut self,
-        parent_file_uuid: Uuid,
-        revision: i32,
-    ) {
+    pub(crate) fn set_revision(&mut self, parent_file_uuid: Uuid, revision: i32) {
         self.parent_file_uuid = parent_file_uuid;
         self.revision = revision;
-
     }
 }
 
@@ -228,7 +223,7 @@ pub(crate) struct FileByExtArg {
 impl FileByExtArg {
     /// Get struct for get 1th image
     pub(crate) fn image() -> Self {
-        Self{
+        Self {
             ext_id: 2, // (image)
             limit: 1,
             offset: 0,

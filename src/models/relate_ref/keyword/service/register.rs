@@ -1,7 +1,7 @@
-use crate::errors::{ServiceResult, ServiceError};
-use crate::errors::err_msg::{ErrorMessage, get_err_msg};
+use crate::errors::err_msg::{get_err_msg, ErrorMessage};
+use crate::errors::{ServiceError, ServiceResult};
 use crate::models::relate_ref::keyword::model::{
-    Keyword, KeywordId, IptKeywordData, InsertableKeyword
+    InsertableKeyword, IptKeywordData, Keyword, KeywordId,
 };
 use diesel::prelude::*;
 
@@ -9,7 +9,7 @@ use diesel::prelude::*;
 /// Возвращает ошибку с идентификатором ключевого слова, если оно уже существует.
 pub(crate) fn create_keyword(
     new_keyword: &IptKeywordData,
-    conn: &mut PgConnection
+    conn: &mut PgConnection,
 ) -> ServiceResult<Keyword> {
     use crate::schema::keyword_ref::dsl as keyword_ref;
 
@@ -20,7 +20,10 @@ pub(crate) fn create_keyword(
     let check_keyword = KeywordId::get_by_name(&new_keyword.keyword, conn);
 
     match check_keyword {
-        Ok(x) => Err(get_err_msg(ErrorMessage::NameAlreadyThereX("keyword".to_string(), x))),
+        Ok(x) => Err(get_err_msg(ErrorMessage::NameAlreadyThereX(
+            "keyword".to_string(),
+            x,
+        ))),
         Err(err) => {
             debug!("Keyword not found: {:?}", err);
             let new_keyword: InsertableKeyword = new_keyword.into();
@@ -32,6 +35,6 @@ pub(crate) fn create_keyword(
                     debug!("Failed insert keyword: {:?}", err);
                     ServiceError::InternalServerError
                 })
-        },
+        }
     }
 }

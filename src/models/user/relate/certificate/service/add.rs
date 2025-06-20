@@ -1,15 +1,15 @@
-use crate::errors::{ServiceResult, ServiceError};
-use crate::models::user::certificate::model::{
-    UserCertificate, IptUserCertificateData, InsertableUserCertificate
-};
+use crate::errors::{ServiceError, ServiceResult};
 use crate::models::relate_ref::file::{
+    commit::Commit,
     model::{ListObject, UploadFile},
     service::register::preregister_file,
-    commit::Commit,
 };
+use crate::models::user::certificate::model::{
+    InsertableUserCertificate, IptUserCertificateData, UserCertificate,
+};
+use crate::schema::user_certificate_ref::dsl::*;
 use crate::storage::model::StorageAccess;
 use crate::storage::presigned_url::upload_presigned_url;
-use crate::schema::user_certificate_ref::dsl::*;
 use diesel::prelude::*;
 use uuid::Uuid;
 
@@ -25,10 +25,10 @@ pub(crate) fn add_certificate(
         ListObject::UserCertificate(*logged_user_uuid),
         &cert_data.filename,
         &Commit::create_commit("Upload certificate for user", conn)?,
-        conn
+        conn,
     )?;
 
-    let new_user_certificate = InsertableUserCertificate{
+    let new_user_certificate = InsertableUserCertificate {
         file_uuid: slim_file.uuid,
         user_uuid: *logged_user_uuid,
         description: cert_data.description.to_string(),
@@ -44,10 +44,7 @@ pub(crate) fn add_certificate(
 
     debug!("User inserted certificate: {:?}", user_inserted_certificate);
 
-    let upload_url = upload_presigned_url(
-        &StorageAccess::from_env(),
-        &slim_file.path_file,
-    )?;
+    let upload_url = upload_presigned_url(&StorageAccess::from_env(), &slim_file.path_file)?;
 
     Ok(UploadFile {
         file_uuid: slim_file.uuid,

@@ -1,6 +1,6 @@
+use crate::errors::err_msg::{get_err_msg, ErrorMessage};
 use crate::errors::ServiceResult;
-use crate::errors::err_msg::{ErrorMessage, get_err_msg};
-use diesel::{PgConnection, prelude::*};
+use diesel::{prelude::*, PgConnection};
 use uuid::Uuid;
 
 /// Get company uuid by role id
@@ -34,8 +34,11 @@ pub(crate) fn check_role_of_company(
     use crate::schema::role_member_list::dsl::*;
 
     let res = role_member_list
-        .filter(company_uuid.eq(target_company_uuid)
-        .and(id.eq(target_role_id)))
+        .filter(
+            company_uuid
+                .eq(target_company_uuid)
+                .and(id.eq(target_role_id)),
+        )
         .execute(conn);
 
     match res {
@@ -43,10 +46,10 @@ pub(crate) fn check_role_of_company(
         Ok(x) => {
             debug!("Role not found or found: {:?}", x);
             Err(get_err_msg(ErrorMessage::RoleNotFound))
-        },
+        }
         Err(err) => {
             debug!("Failed check role data: {:?}", err);
             Err(get_err_msg(ErrorMessage::FailedCheckRole))
-        },
+        }
     }
 }

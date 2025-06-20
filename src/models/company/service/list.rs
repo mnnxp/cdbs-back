@@ -1,10 +1,8 @@
-use crate::errors::{ServiceResult, ServiceError};
-use crate::errors::err_msg::{ErrorMessage, get_err_msg};
-use crate::models::company::model::{
-    ShowCompanyShort, CompanyAndRelatedData, CompaniesArg,
-};
+use crate::errors::err_msg::{get_err_msg, ErrorMessage};
+use crate::errors::{ServiceError, ServiceResult};
+use crate::models::company::model::{CompaniesArg, CompanyAndRelatedData, ShowCompanyShort};
 use crate::models::search::order::Paginate;
-use diesel::{PgConnection, prelude::*};
+use diesel::{prelude::*, PgConnection};
 use uuid::Uuid;
 
 /// Возвращает агрегированные данные о компаниях с фильтрами по UUID, избранному, поставщикам.
@@ -34,34 +32,31 @@ pub(crate) fn get_companies(
                 filter_companies_uuids,
                 ur_uuid, // user_uuid
                 paginate,
-                conn
+                conn,
             )?
-        },
+        }
         // gets companies of other user favorite list with/without filter
         (Some(ur_uuid), true) => {
             get_companies_followed_by_user(
                 filter_companies_uuids,
                 ur_uuid, // user_uuid
                 paginate,
-                conn
+                conn,
             )?
-        },
+        }
         // gets companies of self favorite list with/without filter
-        (None, true) => {
-            get_companies_followed_by_user(
-                filter_companies_uuids,
-                logged_user_uuid,
-                paginate,
-                conn
-            )?
-        },
+        (None, true) => get_companies_followed_by_user(
+            filter_companies_uuids,
+            logged_user_uuid,
+            paginate,
+            conn,
+        )?,
         // get all public companies
         (None, false) => filter_companies_uuids.to_vec(),
     };
 
     // return not found if set search favorite and no favorite companies
-    if (*favorite || user_uuid.is_some()) &&
-            target_companies_uuids.is_empty() {
+    if (*favorite || user_uuid.is_some()) && target_companies_uuids.is_empty() {
         return Ok(Vec::new());
     }
 
@@ -71,8 +66,9 @@ pub(crate) fn get_companies(
         supplier,
         paginate,
         set_lang_id,
-        conn
-    ).map_err(|err| {
+        conn,
+    )
+    .map_err(|err| {
         debug!("Failed get companies data: {:?}", err);
         get_err_msg(ErrorMessage::AccessDenied)
     })
@@ -91,16 +87,16 @@ fn get_companies_by_user(
     let mut query = company_ref::company_ref.into_boxed();
 
     query = match filter_companies_uuids.is_empty() {
-        true => {
-            query.filter(company_ref::user_uuid.eq(user_uuid))
-        },
-        false => {
-            query.filter(company_ref::user_uuid.eq(user_uuid)
-                .and(company_ref::uuid.eq_any(filter_companies_uuids)))
-        },
+        true => query.filter(company_ref::user_uuid.eq(user_uuid)),
+        false => query.filter(
+            company_ref::user_uuid
+                .eq(user_uuid)
+                .and(company_ref::uuid.eq_any(filter_companies_uuids)),
+        ),
     };
 
-    query.select(company_ref::uuid)
+    query
+        .select(company_ref::uuid)
         .limit(paginate.limit)
         .offset(paginate.offset)
         .load::<Uuid>(conn)
@@ -123,18 +119,21 @@ fn get_companies_followed_by_user(
     let mut query = company_fav::company_fav.into_boxed();
 
     query = match filter_companies_uuids.is_empty() {
-        true => {
-            query.filter(company_fav::user_uuid.eq(user_uuid)
-                .and(company_fav::is_enabled.eq(true)))
-        },
-        false => {
-            query.filter(company_fav::user_uuid.eq(user_uuid)
+        true => query.filter(
+            company_fav::user_uuid
+                .eq(user_uuid)
+                .and(company_fav::is_enabled.eq(true)),
+        ),
+        false => query.filter(
+            company_fav::user_uuid
+                .eq(user_uuid)
                 .and(company_fav::is_enabled.eq(true))
-                .and(company_fav::company_uuid.eq_any(filter_companies_uuids)))
-        },
+                .and(company_fav::company_uuid.eq_any(filter_companies_uuids)),
+        ),
     };
 
-    query.select(company_fav::company_uuid)
+    query
+        .select(company_fav::company_uuid)
         .limit(paginate.limit)
         .offset(paginate.offset)
         .load::<Uuid>(conn)
@@ -152,15 +151,11 @@ pub(crate) fn find_by_uuid(
     conn: &mut PgConnection,
 ) -> ServiceResult<CompanyAndRelatedData> {
     // collect data for company
-    CompanyAndRelatedData::get_by_uuid(
-        target_company_uuid,
-        logged_user_uuid,
-        set_lang_id,
-        conn
-    ).map_err(|err| {
-        debug!("Error loading company and collect related data: {:?}", err);
-        get_err_msg(ErrorMessage::AccessDenied)
-    })
+    CompanyAndRelatedData::get_by_uuid(target_company_uuid, logged_user_uuid, set_lang_id, conn)
+        .map_err(|err| {
+            debug!("Error loading company and collect related data: {:?}", err);
+            get_err_msg(ErrorMessage::AccessDenied)
+        })
 }
 
 /// Возвращает основные и связанные данные компании со статусом поставщика.
@@ -172,12 +167,13 @@ pub(crate) fn get_supplier_by_uuid(
     conn: &mut PgConnection,
 ) -> ServiceResult<CompanyAndRelatedData> {
     // collect data for company
-    CompanyAndRelatedData::get_supplier_by_uuid(
-        target_company_uuid,
-        set_lang_id,
-        conn
-    ).map_err(|err| {
-        debug!("Error loading supplier company and collect related data: {:?}", err);
-        ServiceError::InternalServerError
-    })
+    CompanyAndRelatedData::get_supplier_by_uuid(target_company_uuid, set_lang_id, conn).map_err(
+        |err| {
+            debug!(
+                "Error loading supplier company and collect related data: {:?}",
+                err
+            );
+            ServiceError::InternalServerError
+        },
+    )
 }

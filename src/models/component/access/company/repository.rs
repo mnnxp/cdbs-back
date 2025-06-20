@@ -1,6 +1,6 @@
-use crate::errors::{ServiceResult, ServiceError};
+use crate::errors::{ServiceError, ServiceResult};
 use crate::models::component::access::company::model::{
-    CompanyAccessComponent, CompanyAccessComponentAndRelatedData
+    CompanyAccessComponent, CompanyAccessComponentAndRelatedData,
 };
 use crate::models::relate_ref::type_access::model::TypeAccessTranslateList;
 use crate::schema::company_access_to_component::dsl::*;
@@ -27,9 +27,9 @@ impl CompanyAccessComponentAndRelatedData {
             let type_access = TypeAccessTranslateList::get_type_access_by_id(
                 &x.type_access_id,
                 set_lang_id,
-                conn
+                conn,
             )?;
-            res.push(CompanyAccessComponentAndRelatedData{
+            res.push(CompanyAccessComponentAndRelatedData {
                 component_uuid: x.component_uuid,
                 company_uuid: x.company_uuid,
                 type_access: type_access.clone(),

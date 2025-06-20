@@ -1,13 +1,10 @@
-use crate::errors::{ServiceResult, ServiceError};
+use crate::errors::{ServiceError, ServiceResult};
 // use crate::models::company::model::Company;
-use crate::models::company::member::model::{
-    CompanyMember, CompanyMemberAndRelatedData,
-};
+use crate::models::company::member::model::{CompanyMember, CompanyMemberAndRelatedData};
 use crate::models::company::member::role::model::RoleMemberAndRelatedData;
 use crate::schema::company_member_list::dsl as company_member_list;
 use diesel::prelude::*;
 use uuid::Uuid;
-
 
 impl CompanyMember {
     /// Gets company member without related data by company uuid
@@ -34,15 +31,12 @@ impl CompanyMemberAndRelatedData {
         set_lang_id: &i32,
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<CompanyMemberAndRelatedData>> {
-        let company_members = &CompanyMember::get_by_company_uuid(
-            company_uuid,
-            conn
-        )?;
+        let company_members = &CompanyMember::get_by_company_uuid(company_uuid, conn)?;
 
         CompanyMemberAndRelatedData::get_related_data_for_members(
             company_members,
             set_lang_id,
-            conn
+            conn,
         )
     }
 
@@ -57,13 +51,10 @@ impl CompanyMemberAndRelatedData {
 
         for member in company_members {
             // get member types for company members
-            let member_role = RoleMemberAndRelatedData::get_by_id(
-                &member.role_id,
-                set_lang_id,
-                conn
-            )?;
+            let member_role =
+                RoleMemberAndRelatedData::get_by_id(&member.role_id, set_lang_id, conn)?;
 
-            company_member_with_role.push(CompanyMemberAndRelatedData{
+            company_member_with_role.push(CompanyMemberAndRelatedData {
                 company_uuid: member.company_uuid,
                 user_uuid: member.user_uuid,
                 role: member_role.clone(),

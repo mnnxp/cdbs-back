@@ -11,9 +11,12 @@ pub(crate) fn delete_component_fav(
 ) -> ServiceResult<bool> {
     // if have need row, just update is_enabled to false
     let del_fav = diesel::update(component_fav::component_fav)
-        .filter(component_fav::component_uuid.eq(component_uuid)
-        .and(component_fav::user_uuid.eq(logged_user_uuid))
-        .and(component_fav::is_enabled.eq(true))) // <-- active favorite
+        .filter(
+            component_fav::component_uuid
+                .eq(component_uuid)
+                .and(component_fav::user_uuid.eq(logged_user_uuid))
+                .and(component_fav::is_enabled.eq(true)),
+        ) // <-- active favorite
         .set(component_fav::is_enabled.eq(false)) // <-- off favorite component
         .returning(component_fav::is_enabled)
         .get_result::<bool>(conn)

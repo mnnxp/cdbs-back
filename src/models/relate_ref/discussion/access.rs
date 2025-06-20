@@ -9,12 +9,16 @@ use uuid::Uuid;
 /// Criteria for validating comments.
 /// This structure is used to store the comment identifier.
 /// Use implementations of this structure to define conditions and checks.
-pub(crate) struct CommentCriteria { comment_uuid: Uuid }
+pub(crate) struct CommentCriteria {
+    comment_uuid: Uuid,
+}
 
 impl CommentCriteria {
     /// Create a new instance of `CommentCriteria`
     pub(crate) fn new(comment_uuid: &Uuid) -> Self {
-        CommentCriteria { comment_uuid: *comment_uuid }
+        CommentCriteria {
+            comment_uuid: *comment_uuid,
+        }
     }
 
     /// Generates a SQL filter string to filter discussion comments by their parent UUID.
@@ -34,7 +38,7 @@ impl CommentCriteria {
                     "AND uuid != parent_comment_uuid {}",
                     Filter::parsing("parent_comment_uuid", &[pu]).get_complete()
                 )
-            },
+            }
             // No parent UUID is provided, assume the comment is a top-level comment
             None => String::from("AND uuid = parent_comment_uuid"),
         }
@@ -44,13 +48,14 @@ impl CommentCriteria {
     pub(crate) fn is_comment_message_present(
         &self,
         message_content: &str,
-        conn: &mut PgConnection
+        conn: &mut PgConnection,
     ) -> ServiceResult<bool> {
         let duplicate_check = discussion_comment_list::discussion_comment_list
             .select(discussion_comment_list::uuid)
             .filter(
-                discussion_comment_list::uuid.eq(&self.comment_uuid)
-                    .and(discussion_comment_list::message_content.eq(message_content))
+                discussion_comment_list::uuid
+                    .eq(&self.comment_uuid)
+                    .and(discussion_comment_list::message_content.eq(message_content)),
             )
             .limit(1)
             .get_results::<Uuid>(conn)
@@ -62,7 +67,7 @@ impl CommentCriteria {
             Some(dup) => {
                 debug!("Found duplicate comment: {:?}", dup);
                 Err(get_err_msg(ErrorMessage::FoundDuplicateData))
-            },
+            }
             None => Ok(false),
         }
     }
@@ -74,9 +79,10 @@ impl CommentCriteria {
         parent_comment_uuid_op: Option<Uuid>,
         author_uuid: &Uuid,
         message_content: &str,
-        conn: &mut PgConnection
+        conn: &mut PgConnection,
     ) -> ServiceResult<bool> {
-        let query = format!("
+        let query = format!(
+            "
         SELECT count(*)
         FROM discussion_comment_list
         WHERE discussion_uuid = '{d_uuid}' {check_self_parent} {filter_author_uuid}
@@ -97,9 +103,12 @@ impl CommentCriteria {
         match duplicate_check {
             0 => Ok(false),
             _ => {
-                debug!("Failed, this comment is duplicated: {:?}, message_content: {:?}", duplicate_check, message_content);
+                debug!(
+                    "Failed, this comment is duplicated: {:?}, message_content: {:?}",
+                    duplicate_check, message_content
+                );
                 Err(get_err_msg(ErrorMessage::FoundDuplicateData))
-            },
+            }
         }
     }
 
@@ -109,13 +118,16 @@ impl CommentCriteria {
     pub(crate) fn verify_comment_ownership(
         &self,
         user_uuid: &Uuid,
-        conn: &mut PgConnection
+        conn: &mut PgConnection,
     ) -> ServiceResult<bool> {
         // find comment with target user
         discussion_comment_list::discussion_comment_list
             .select(discussion_comment_list::uuid)
-            .filter(discussion_comment_list::uuid.eq(&self.comment_uuid)
-            .and(discussion_comment_list::author_uuid.eq(user_uuid)))
+            .filter(
+                discussion_comment_list::uuid
+                    .eq(&self.comment_uuid)
+                    .and(discussion_comment_list::author_uuid.eq(user_uuid)),
+            )
             .first::<Uuid>(conn)
             .map_err(|err| {
                 debug!("Not found file: {:?}", err);
@@ -124,4 +136,3 @@ impl CommentCriteria {
         Ok(true)
     }
 }
-

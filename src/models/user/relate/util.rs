@@ -1,7 +1,7 @@
-use crate::errors::{ServiceResult, ServiceError};
+use crate::errors::{ServiceError, ServiceResult};
+use crate::schema::company_ref::dsl as company_ref;
 use crate::schema::component_ref::dsl as component_ref;
 use crate::schema::standard_ref::dsl as standard_ref;
-use crate::schema::company_ref::dsl as company_ref;
 use diesel::prelude::*;
 use uuid::Uuid;
 

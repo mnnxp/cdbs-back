@@ -1,4 +1,4 @@
-use crate::errors::{ServiceResult, ServiceError};
+use crate::errors::{ServiceError, ServiceResult};
 use crate::models::company::company_represent::model::{
     CompanyRepresent, CompanyRepresentAndRelatedData, CompanyRepresentsArg,
 };
@@ -54,17 +54,14 @@ impl CompanyRepresentAndRelatedData {
         conn: &mut PgConnection,
     ) -> ServiceResult<CompanyRepresentAndRelatedData> {
         // get regions for company represent
-        let region = RegionTranslateList::get_region_by_id(
-            &represent.region_id,
-            set_lang_id,
-            conn
-        )?;
+        let region =
+            RegionTranslateList::get_region_by_id(&represent.region_id, set_lang_id, conn)?;
 
         // get represent type for company represent
         let representation_type = RepresentationTypeTranslateList::get_by_id(
             &represent.representation_type_id,
             set_lang_id,
-            conn
+            conn,
         )?;
 
         Ok(CompanyRepresentAndRelatedData {
@@ -85,16 +82,9 @@ impl CompanyRepresentAndRelatedData {
         set_lang_id: &i32,
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<CompanyRepresentAndRelatedData>> {
-        let company_represents = &CompanyRepresent::get_by_company_uuid(
-            company_uuid,
-            conn
-        )?;
+        let company_represents = &CompanyRepresent::get_by_company_uuid(company_uuid, conn)?;
 
-        CompanyRepresentAndRelatedData::get_by_represents(
-            company_represents,
-            set_lang_id,
-            conn
-        )
+        CompanyRepresentAndRelatedData::get_by_represents(company_represents, set_lang_id, conn)
     }
 
     /// Gets company represents by represents uuids
@@ -109,7 +99,7 @@ impl CompanyRepresentAndRelatedData {
         CompanyRepresentAndRelatedData::get_by_represents(
             company_represents,
             &args.set_lang_id,
-            conn
+            conn,
         )
     }
 
@@ -126,10 +116,13 @@ impl CompanyRepresentAndRelatedData {
             company_represent_with_data.push(CompanyRepresentAndRelatedData::get_by_represent(
                 represent,
                 set_lang_id,
-                conn
+                conn,
             )?)
         }
-        debug!("company represent with relate: {:?}", company_represent_with_data);
+        debug!(
+            "company represent with relate: {:?}",
+            company_represent_with_data
+        );
         Ok(company_represent_with_data)
     }
 }

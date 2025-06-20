@@ -1,15 +1,13 @@
+use crate::errors::err_msg::{get_err_msg, ErrorMessage};
 use crate::errors::ServiceResult;
-use crate::errors::err_msg::{ErrorMessage, get_err_msg};
-use crate::models::standard::file::model::{
-    IptStandardFilesData, IptStandardFaviconData
-};
-use crate::models::standard::access::util::check_access_standard_for_user;
 use crate::models::relate_ref::file::{
+    commit::Commit,
     model::{ListObject, UploadFile},
     service::register::preregister_file,
-    commit::Commit,
-    util::check_image_filename
+    util::check_image_filename,
 };
+use crate::models::standard::access::util::check_access_standard_for_user;
+use crate::models::standard::file::model::{IptStandardFaviconData, IptStandardFilesData};
 use crate::storage::model::StorageAccess;
 use crate::storage::presigned_url::upload_presigned_url;
 use diesel::PgConnection;
@@ -33,7 +31,7 @@ pub(crate) fn add_standard_files(
 
     // return error if not correct file name
     if data.filenames.is_empty() || data.filenames.len() > 100 {
-        return Err(get_err_msg(ErrorMessage::BadFilename))
+        return Err(get_err_msg(ErrorMessage::BadFilename));
     }
 
     // create commit message for the changes
@@ -46,15 +44,12 @@ pub(crate) fn add_standard_files(
             ListObject::Standard(data.standard_uuid),
             filename,
             &commit_uuid,
-            conn
+            conn,
         )?;
 
         debug!("New standard file: {:?}", slim_file);
 
-        let upload_url = upload_presigned_url(
-            &StorageAccess::from_env(),
-            &slim_file.path_file,
-        )?;
+        let upload_url = upload_presigned_url(&StorageAccess::from_env(), &slim_file.path_file)?;
 
         up_files.push(UploadFile {
             file_uuid: slim_file.uuid,
@@ -84,12 +79,12 @@ pub(crate) fn add_standard_favicon(
 
     // return error if not correct file name
     if data.filename.is_empty() || data.filename.len() > 100 {
-        return Err(get_err_msg(ErrorMessage::BadFilename))
+        return Err(get_err_msg(ErrorMessage::BadFilename));
     }
 
     // return error if not correct file name
     if !check_image_filename(&data.filename) {
-        return Err(get_err_msg(ErrorMessage::SelectedFileIsNotImage))
+        return Err(get_err_msg(ErrorMessage::SelectedFileIsNotImage));
     }
 
     let slim_file = preregister_file(
@@ -97,15 +92,12 @@ pub(crate) fn add_standard_favicon(
         ListObject::StandardFavicon(data.standard_uuid),
         &data.filename,
         &Commit::create_commit("Upload main image of the standard", conn)?,
-        conn
+        conn,
     )?;
 
     debug!("New standard favicon: {:?}", slim_file);
 
-    let upload_url = upload_presigned_url(
-        &StorageAccess::from_env(),
-        &slim_file.path_file,
-    )?;
+    let upload_url = upload_presigned_url(&StorageAccess::from_env(), &slim_file.path_file)?;
 
     Ok(UploadFile {
         file_uuid: slim_file.uuid,

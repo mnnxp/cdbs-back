@@ -1,9 +1,9 @@
-use diesel::prelude::*;
-use uuid::Uuid;
+use super::get_vec_in_string;
+use super::model::{ObjectI64, ObjectUuid};
 use crate::errors::{ServiceError, ServiceResult};
 use crate::models::relate_ref::discussion::model::DiscussionTo;
-use super::get_vec_in_string;
-use super::model::{ObjectUuid, ObjectI64};
+use diesel::prelude::*;
+use uuid::Uuid;
 
 #[derive(Debug)]
 pub(crate) struct Paginate {
@@ -26,12 +26,15 @@ impl Paginate {
     /// and number of elements per page. Maximum per page: 1000.
     pub(crate) fn parsing_by_page(current_page: i32, per_page: i32) -> Self {
         if current_page <= 0 || per_page <= 0 {
-            debug!("Invalid current page {} or a specified per page {}.", current_page, per_page);
-            return Self::default()
+            debug!(
+                "Invalid current page {} or a specified per page {}.",
+                current_page, per_page
+            );
+            return Self::default();
         }
         if per_page > 1000 {
             debug!("Invalid limit {}. Max: 1000.", per_page);
-            return Self::default()
+            return Self::default();
         }
         Self {
             limit: per_page as i64,
@@ -48,28 +51,34 @@ impl Paginate {
     pub(crate) fn get_count(
         object_uuid: &Uuid,
         table_name: &TableName,
-        conn: &mut PgConnection
+        conn: &mut PgConnection,
     ) -> ServiceResult<i64> {
         let column = table_name.relationship();
         if column.is_empty() {
             debug!("SQL query execution is impossible without a column name");
-            return Err(ServiceError::InternalServerError)
+            return Err(ServiceError::InternalServerError);
         }
         // define the request to count object files
         let number_of_files = matches!(
             table_name,
-            TableName::FileToComponent | TableName::FileToModification | TableName::FileToFilesetForProgram
+            TableName::FileToComponent
+                | TableName::FileToModification
+                | TableName::FileToFilesetForProgram
         );
         // deleted and hidden files are not included in the calculation
         let query = match number_of_files {
             true => format!(
                 "SELECT count(*) FROM {} INNER JOIN file_ref AS fr ON fr.uuid = file_uuid
                 WHERE {} = '{}' AND fr.is_hidden = 'f' AND fr.is_delete = 'f'",
-                table_name.name(), column, object_uuid
+                table_name.name(),
+                column,
+                object_uuid
             ),
             false => format!(
                 "SELECT count(*) FROM {} WHERE {} = '{}'",
-                table_name.name(), column, object_uuid
+                table_name.name(),
+                column,
+                object_uuid
             ),
         };
         debug!("SQL objects count query: {}", query);
@@ -143,8 +152,10 @@ impl TableName {
             Self::FileToModification => "modification_uuid",
             Self::FilesetForProgram => "modification_uuid",
             Self::FileToFilesetForProgram => "fileset_uuid",
-            Self::DiscussionRef(discussion_to) =>
-                discussion_to.as_ref().map(|dt| dt.get_relationship()).unwrap_or(""),
+            Self::DiscussionRef(discussion_to) => discussion_to
+                .as_ref()
+                .map(|dt| dt.get_relationship())
+                .unwrap_or(""),
             Self::DiscussionCommentList => "discussion_uuid",
             _ => "",
         }
@@ -189,8 +200,12 @@ impl TableColumn {
                     "updatedAt" => ("updated_at".to_string(), DataType::Date),
                     _ => ("created_at".to_string(), DataType::Date),
                 };
-                Self { table, column, data_type }
-            },
+                Self {
+                    table,
+                    column,
+                    data_type,
+                }
+            }
             TableName::ComponentModification => {
                 let (column, data_type) = match field {
                     "name" => ("modification_name".to_string(), DataType::String),
@@ -198,8 +213,12 @@ impl TableColumn {
                     "updatedAt" => ("updated_at".to_string(), DataType::Date),
                     _ => ("created_at".to_string(), DataType::Date),
                 };
-                Self { table, column, data_type }
-            },
+                Self {
+                    table,
+                    column,
+                    data_type,
+                }
+            }
             TableName::FileRef => {
                 let (column, data_type) = match field {
                     "revision" => ("revision".to_string(), DataType::Number),
@@ -208,8 +227,12 @@ impl TableColumn {
                     "updatedAt" => ("updated_at".to_string(), DataType::Date),
                     _ => ("created_at".to_string(), DataType::Date),
                 };
-                Self { table, column, data_type }
-            },
+                Self {
+                    table,
+                    column,
+                    data_type,
+                }
+            }
             TableName::ServiceRef => {
                 let (column, data_type) = match field {
                     "name" => ("name".to_string(), DataType::Number),
@@ -218,24 +241,36 @@ impl TableColumn {
                     "updatedAt" => ("updated_at".to_string(), DataType::Date),
                     _ => ("created_at".to_string(), DataType::Date),
                 };
-                Self { table, column, data_type }
-            },
+                Self {
+                    table,
+                    column,
+                    data_type,
+                }
+            }
             TableName::ParamTranslateList => {
                 let (column, data_type) = match field {
                     "value" => ("pt.value".to_string(), DataType::String),
                     "paramname" => ("ptl.paramname".to_string(), DataType::String),
                     _ => ("ptl.param_id".to_string(), DataType::Number),
                 };
-                Self { table, column, data_type }
-            },
+                Self {
+                    table,
+                    column,
+                    data_type,
+                }
+            }
             TableName::DiscussionRef(_) => {
                 let (column, data_type) = match field {
                     "title" => ("title".to_string(), DataType::String),
                     "lastActivityAt" => ("last_activity_at".to_string(), DataType::Date),
                     _ => ("created_at".to_string(), DataType::Date),
                 };
-                Self { table, column, data_type }
-            },
+                Self {
+                    table,
+                    column,
+                    data_type,
+                }
+            }
             TableName::DiscussionCommentList => {
                 let (column, data_type) = match field {
                     "parentComment" => ("parent_comment_uuid".to_string(), DataType::String),
@@ -243,9 +278,17 @@ impl TableColumn {
                     "updatedAt" => ("updated_at".to_string(), DataType::Date),
                     _ => ("created_at".to_string(), DataType::Date),
                 };
-                Self { table, column, data_type }
+                Self {
+                    table,
+                    column,
+                    data_type,
+                }
+            }
+            _ => Self {
+                table,
+                column: String::new(),
+                data_type: DataType::None,
             },
-            _ => Self { table, column: String::new(), data_type: DataType::None },
         }
     }
 
@@ -259,7 +302,7 @@ impl TableColumn {
     fn get_with_point(&self) -> String {
         if self.table.name().is_empty() {
             // if a table is specified in fields (small hack)
-            return self.column.clone()
+            return self.column.clone();
         }
         let point = format!("{}.{}", self.table.name(), self.column);
         match self.data_type {
@@ -316,12 +359,13 @@ pub(crate) fn objects_order(
     object_uuids: &[Uuid],
     sort: &Sort,
     paginate: &Paginate,
-    conn: &mut PgConnection
+    conn: &mut PgConnection,
 ) -> ServiceResult<Vec<Uuid>> {
     if object_uuids.is_empty() {
-        return Ok(Vec::new())
+        return Ok(Vec::new());
     }
-    let query = format!("
+    let query = format!(
+        "
     SELECT uuid
     {from}
     WHERE uuid IN ({object_uuids})
@@ -334,11 +378,9 @@ pub(crate) fn objects_order(
     );
     debug!("SQL objects order query: {}", query);
 
-    let temp: Vec<ObjectUuid> = diesel::sql_query(query)
-        .load(conn)
-        .map_err(|err| {
-            debug!("Failed to sort uuid: {:?}", err);
-            ServiceError::InternalServerError
-        })?;
+    let temp: Vec<ObjectUuid> = diesel::sql_query(query).load(conn).map_err(|err| {
+        debug!("Failed to sort uuid: {:?}", err);
+        ServiceError::InternalServerError
+    })?;
     Ok(ObjectUuid::get_uuids(&temp))
 }

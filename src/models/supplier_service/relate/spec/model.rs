@@ -37,7 +37,8 @@ impl From<&IptServiceSpecsData> for Vec<InsertableServiceSpec> {
         let mut res = Vec::new();
         // create struct for each spec
         for spec_id in spec_ids {
-            if spec_id > &0 { // <-- additionally we check the correctness of the key
+            if spec_id > &0 {
+                // <-- additionally we check the correctness of the key
                 res.push(InsertableServiceSpec {
                     service_uuid: *service_uuid,
                     spec_id: *spec_id,
@@ -71,7 +72,7 @@ impl From<&IptServiceSpecsData> for DeleteServiceSpecs {
             }
         }
 
-        Self{
+        Self {
             service_uuid: *service_uuid,
             spec_ids: good_spec_ids,
         }

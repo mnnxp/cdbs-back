@@ -10,12 +10,9 @@ mod supplier_service;
 mod user;
 
 pub use company::{CompanyMutation, CompanyQuery};
-pub use component::{ComponentMutation, ComponentQuery, component_model};
-pub use standard::{StandardMutation, StandardQuery, standard_model};
-pub use supplier_service::{ServiceMutation, ServiceQuery, service_model};
-pub use user::{UserMutation, UserQuery};
+pub use component::{component_model, ComponentMutation, ComponentQuery};
+pub use relate::discussion::{discussion_model, DiscussionMutation, DiscussionQuery};
 pub use relate::extension::ExtensionMutation;
-pub use relate::discussion::{DiscussionQuery, DiscussionMutation, discussion_model};
 pub use relate::file;
 pub use relate::keyword::{KeywordMutation, KeywordQuery};
 pub use relate::language::LanguageQuery;
@@ -26,6 +23,9 @@ pub use relate::region::{RegionMutation, RegionQuery};
 pub use relate::spec::SpecQuery;
 pub use relate::storage::{StorageMutation, StorageQuery};
 pub use relate::type_access::TypeAccessQuery;
+pub use standard::{standard_model, StandardMutation, StandardQuery};
+pub use supplier_service::{service_model, ServiceMutation, ServiceQuery};
+pub use user::{UserMutation, UserQuery};
 
 #[derive(MergedObject, Default)]
 pub struct QueryRoot(

@@ -1,6 +1,6 @@
-use crate::errors::{ServiceResult, ServiceError};
+use crate::errors::{ServiceError, ServiceResult};
 use rusoto_core::request::HttpClient;
-use rusoto_s3::{HeadObjectOutput, S3, S3Client};
+use rusoto_s3::{HeadObjectOutput, S3Client, S3};
 use rusoto_signature::credential::StaticProvider;
 
 impl From<&super::s3::Aws> for S3Client {
@@ -20,7 +20,7 @@ pub(crate) async fn get_object_headers_by_path(
     bucket: &str,
     path_file: &str,
 ) -> ServiceResult<HeadObjectOutput> {
-    let req = rusoto_s3::HeadObjectRequest{
+    let req = rusoto_s3::HeadObjectRequest {
         bucket: bucket.to_string(),
         key: path_file.to_string(),
         ..Default::default()
@@ -34,10 +34,10 @@ pub(crate) async fn get_object_headers_by_path(
         Ok(x) => {
             debug!("HeadObjectOutput: {:#?}", x);
             Ok(x)
-        },
+        }
         Err(err) => {
             debug!("Err HeadObjectOutput: {:#?}", err);
             Err(ServiceError::InternalServerError)
-        },
+        }
     }
 }

@@ -1,8 +1,8 @@
-use crate::errors::{ServiceResult, ServiceError};
-use crate::models::supplier_service::access::company::model::{
-    CompanyAccessService, CompanyAccessServiceAndRelatedData
-};
+use crate::errors::{ServiceError, ServiceResult};
 use crate::models::relate_ref::type_access::model::TypeAccessTranslateList;
+use crate::models::supplier_service::access::company::model::{
+    CompanyAccessService, CompanyAccessServiceAndRelatedData,
+};
 use crate::schema::company_access_to_service::dsl::*;
 use diesel::prelude::*;
 use uuid::Uuid;
@@ -27,10 +27,10 @@ impl CompanyAccessServiceAndRelatedData {
             let type_access = TypeAccessTranslateList::get_type_access_by_id(
                 &x.type_access_id,
                 set_lang_id,
-                conn
+                conn,
             )?;
 
-            res.push(CompanyAccessServiceAndRelatedData{
+            res.push(CompanyAccessServiceAndRelatedData {
                 service_uuid: x.service_uuid,
                 company_uuid: x.company_uuid,
                 type_access: type_access.clone(),

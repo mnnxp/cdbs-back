@@ -1,11 +1,8 @@
 use super::access::hash::{make_hash_salt, make_salt};
 use super::certificate::model::UserCertificateAndFile;
 use crate::models::relate_ref::{
-    file::model::DownloadFile,
-    file::util::get_default_image,
-    region::model::RegionTranslateList,
-    program::model::Program,
-    type_access::model::TypeAccessTranslateList,
+    file::model::DownloadFile, file::util::get_default_image, program::model::Program,
+    region::model::RegionTranslateList, type_access::model::TypeAccessTranslateList,
 };
 use crate::schema::*;
 use async_graphql::*;
@@ -237,10 +234,7 @@ pub(crate) struct IptUserData {
 impl InsertableUser {
     pub(crate) fn by_arg(ipt_data: IptUserData) -> Self {
         let psw_salt = make_salt();
-        let psw_hash = make_hash_salt(
-            ipt_data.password.as_bytes(),
-            &psw_salt,
-        );
+        let psw_hash = make_hash_salt(ipt_data.password.as_bytes(), &psw_salt);
 
         Self {
             uuid: Uuid::new_v4(),
@@ -321,7 +315,7 @@ pub(crate) struct ShowUserShort {
 impl ShowUserShort {
     /// Create struct with UserShort data, DownloadFile data set default
     pub(crate) fn new(data: &UserShort) -> Self {
-        Self{
+        Self {
             uuid: data.uuid,
             firstname: data.firstname.clone(),
             lastname: data.lastname.clone(),

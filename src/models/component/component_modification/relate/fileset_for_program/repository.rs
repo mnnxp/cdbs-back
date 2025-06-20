@@ -1,6 +1,6 @@
-use crate::errors::{ServiceResult, ServiceError};
+use crate::errors::{ServiceError, ServiceResult};
 use crate::models::component::component_modification::fileset_for_program::model::{
-    FilesetProgram, FilesetProgramRelatedData
+    FilesetProgram, FilesetProgramRelatedData,
 };
 use crate::models::relate_ref::program::model::Program;
 use crate::schema::fileset_for_program::dsl as fileset_for_program;
@@ -31,7 +31,7 @@ impl FilesetProgramRelatedData {
         let mut result: Vec<FilesetProgramRelatedData> = Vec::new();
         for fset in filesets {
             // get program translate data for fileset
-            result.push(FilesetProgramRelatedData{
+            result.push(FilesetProgramRelatedData {
                 uuid: fset.uuid,
                 modification_uuid: fset.modification_uuid,
                 program: Program::get_program_by_id(&fset.program_id, conn)?,

@@ -1,4 +1,4 @@
-use crate::errors::{ServiceResult, ServiceError};
+use crate::errors::{ServiceError, ServiceResult};
 use crate::models::company::company_fav::model::CompanyFav;
 // use crate::models::user::model::ShowUserShort;
 use crate::schema::company_fav::dsl as company_fav;

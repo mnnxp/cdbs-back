@@ -1,4 +1,4 @@
-use crate::errors::{ServiceResult, ServiceError};
+use crate::errors::{ServiceError, ServiceResult};
 use crate::models::standard::standard_fav::model::StandardFav;
 use crate::schema::standard_fav::dsl as standard_fav;
 use diesel::prelude::*;

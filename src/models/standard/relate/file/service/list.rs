@@ -1,10 +1,9 @@
 use crate::errors::ServiceResult;
-use crate::models::search::order::Paginate;
 use crate::models::relate_ref::file::model::DownloadFile;
+use crate::models::search::order::Paginate;
 use crate::models::standard::{
-    model::StandardFilesArg,
-    file::repository::get_file_uuids_by_standard_uuid,
-    access::util::check_access_standard_for_user
+    access::util::check_access_standard_for_user,
+    file::repository::get_file_uuids_by_standard_uuid, model::StandardFilesArg,
 };
 use diesel::prelude::*;
 use uuid::Uuid;
@@ -25,11 +24,8 @@ pub(crate) fn get_standard_files(
         conn,
     )?;
 
-    let target_file_uuids = get_file_uuids_by_standard_uuid(
-        &args.standard_uuid,
-        &args.file_uuids,
-        conn,
-    )?;
+    let target_file_uuids =
+        get_file_uuids_by_standard_uuid(&args.standard_uuid, &args.file_uuids, conn)?;
 
     DownloadFile::get_by_file_uuids(&target_file_uuids, paginate, conn)
 }

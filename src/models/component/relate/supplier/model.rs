@@ -1,5 +1,5 @@
-use crate::schema::*;
 use crate::models::company::model::SlimCompany;
+use crate::schema::*;
 use async_graphql::*;
 // use chrono::*;
 use uuid::Uuid;
@@ -27,7 +27,7 @@ pub(crate) struct ComponentSupplierRelatedData {
 impl ComponentSupplierRelatedData {
     /// Create struct with SupplierComponent data, SlimCompany data set default
     pub(crate) fn new(data: &SupplierComponent) -> Self {
-        Self{
+        Self {
             supplier: Default::default(),
             component_uuid: data.component_uuid,
             description: data.description.clone(),

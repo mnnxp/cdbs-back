@@ -1,4 +1,4 @@
-use crate::errors::{ServiceResult, ServiceError};
+use crate::errors::{ServiceError, ServiceResult};
 use crate::graphql::file::ShowFileRelatedData;
 use crate::models::component::util::get_files_by_ext;
 use crate::models::relate_ref::file::model::{DownloadFile, FileByExtArg};
@@ -30,8 +30,11 @@ pub(crate) fn get_file_uuids_by_service_uuid(
 
     query = match file_uuids.is_empty() {
         true => query.filter(file_to_service::service_uuid.eq(service_uuid)),
-        false => query.filter(file_to_service::service_uuid.eq(service_uuid)
-            .and(file_to_service::file_uuid.eq_any(file_uuids)))
+        false => query.filter(
+            file_to_service::service_uuid
+                .eq(service_uuid)
+                .and(file_to_service::file_uuid.eq_any(file_uuids)),
+        ),
     };
 
     query
@@ -66,12 +69,11 @@ impl DownloadFile {
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<DownloadFile>> {
         match get_files_by_ext(service_uuid, &FileByExtArg::image(), conn) {
-            Ok(image_uuids) =>
-                DownloadFile::get_by_file_uuids(&image_uuids, paginate, conn),
+            Ok(image_uuids) => DownloadFile::get_by_file_uuids(&image_uuids, paginate, conn),
             Err(err) => {
                 debug!("Error get files by ext: {}", err);
                 Ok(Vec::new())
-            },
+            }
         }
     }
 
@@ -83,7 +85,7 @@ impl DownloadFile {
     ) -> ServiceResult<Vec<DownloadFile>> {
         let target_file_uuids: Vec<Uuid> = get_file_uuids_by_service_uuid(service_uuid, &[], conn)?;
         if target_file_uuids.is_empty() {
-            return Ok(Vec::new())
+            return Ok(Vec::new());
         }
         DownloadFile::get_by_file_uuids(&target_file_uuids, paginate, conn)
     }

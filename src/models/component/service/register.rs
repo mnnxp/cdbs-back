@@ -1,12 +1,11 @@
-use crate::errors::{ServiceResult, ServiceError};
+use crate::errors::{ServiceError, ServiceResult};
 use crate::graphql::component_model::IptComponentData;
 use crate::models::component::{
-    model::InsertableComponent,
     access::util::check_access_component_for_user,
     component_modification::{
-        model::InsertableComponentModification,
-        service::register::single_modification,
+        model::InsertableComponentModification, service::register::single_modification,
     },
+    model::InsertableComponent,
 };
 use crate::models::user::component_fav::service::add::component_to_fav_ft;
 use crate::schema::component_ref::dsl as component_ref;
@@ -17,14 +16,14 @@ use uuid::Uuid;
 pub(crate) fn create_component(
     logged_user_uuid: &Uuid,
     data: &IptComponentData,
-    conn: &mut PgConnection
+    conn: &mut PgConnection,
 ) -> ServiceResult<Uuid> {
     if let Some(ref parent_component_uuid) = data.parent_component_uuid {
         check_access_component_for_user(
             logged_user_uuid,
             parent_component_uuid,
             &3, // need_access_level
-            conn
+            conn,
         )?;
     }
 
@@ -61,7 +60,7 @@ pub(crate) fn create_component(
                     debug!("Error change parent component uuid: {:?}", err);
                     ServiceError::InternalServerError
                 })
-        },
+        }
         false => diesel::insert_into(component_ref::component_ref)
             .values(&insert_data)
             .returning(component_ref::uuid)
@@ -69,14 +68,11 @@ pub(crate) fn create_component(
             .map_err(|err| {
                 debug!("Failed created component: {:?}", err);
                 ServiceError::InternalServerError
-        }),
+            }),
     }
 }
 
-fn insert_new_modifiacation(
-    component_uuid: &Uuid,
-    conn: &mut PgConnection,
-) -> ServiceResult<Uuid> {
+fn insert_new_modifiacation(component_uuid: &Uuid, conn: &mut PgConnection) -> ServiceResult<Uuid> {
     let mut insert_data =
         InsertableComponentModification::get_default_for_component(component_uuid);
     single_modification(&mut insert_data, conn)

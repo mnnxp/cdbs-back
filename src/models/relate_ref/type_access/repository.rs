@@ -1,4 +1,4 @@
-use crate::errors::{ServiceResult, ServiceError};
+use crate::errors::{ServiceError, ServiceResult};
 use crate::models::relate_ref::type_access::model::TypeAccessTranslateList;
 use crate::schema::type_access_translate_list::dsl::*;
 use diesel::prelude::*;
@@ -11,8 +11,11 @@ impl TypeAccessTranslateList {
         conn: &mut PgConnection,
     ) -> ServiceResult<TypeAccessTranslateList> {
         let type_access = type_access_translate_list
-            .filter(type_access_id.eq(target_type_access_id)
-            .and(lang_id.eq(set_lang_id)))
+            .filter(
+                type_access_id
+                    .eq(target_type_access_id)
+                    .and(lang_id.eq(set_lang_id)),
+            )
             .limit(1)
             .load::<TypeAccessTranslateList>(conn)
             .map_err(|err| {
@@ -32,7 +35,7 @@ impl TypeAccessTranslateList {
                         debug!("Failed get type access: {:?}", err);
                         ServiceError::InternalServerError
                     })
-            },
+            }
         }
     }
 
@@ -43,8 +46,11 @@ impl TypeAccessTranslateList {
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<TypeAccessTranslateList>> {
         let type_access = type_access_translate_list
-            .filter(type_access_id.eq_any(target_types_access_ids)
-            .and(lang_id.eq(set_lang_id)))
+            .filter(
+                type_access_id
+                    .eq_any(target_types_access_ids)
+                    .and(lang_id.eq(set_lang_id)),
+            )
             .load::<TypeAccessTranslateList>(conn)
             .map_err(|err| {
                 debug!("Failed get type access: {:?}", err);
@@ -62,7 +68,7 @@ impl TypeAccessTranslateList {
                         debug!("Failed get type access: {:?}", err);
                         ServiceError::InternalServerError
                     })
-            },
+            }
             false => Ok(type_access),
         }
     }

@@ -1,21 +1,23 @@
 use crate::errors::ServiceResult;
-use crate::models::user::access::logged::{get_logged_user_uuid, default_user_uuid};
-use crate::models::user::model::SlimUser;
 use crate::models::relate_ref::language::get_set_language;
-use diesel::{sql_types, prelude::*};
+use crate::models::user::access::logged::{default_user_uuid, get_logged_user_uuid};
+use crate::models::user::model::SlimUser;
 use async_graphql::*;
+use diesel::{prelude::*, sql_types};
 use uuid::Uuid;
 
 #[derive(QueryableByName)]
 pub(crate) struct ObjectUuid {
     #[diesel(sql_type = sql_types::Uuid)]
-    uuid: Uuid
+    uuid: Uuid,
 }
 
 impl ObjectUuid {
     pub(crate) fn get_uuids(objects: &[ObjectUuid]) -> Vec<Uuid> {
         let mut res = Vec::<Uuid>::new();
-        for item in objects { res.push(item.uuid); }
+        for item in objects {
+            res.push(item.uuid);
+        }
         res
     }
 }
@@ -23,7 +25,7 @@ impl ObjectUuid {
 #[derive(Debug, QueryableByName)]
 pub(crate) struct ObjectI64 {
     #[diesel(sql_type = sql_types::BigInt)]
-    pub(crate) count: i64
+    pub(crate) count: i64,
 }
 
 #[derive(Debug)]
@@ -48,17 +50,15 @@ impl ExtraOptions {
             Err(err) => {
                 if let (Ok(logged_user_uuid), true) = (default_user_uuid(cxt), no_entry) {
                     // default user uuid and set language
-                    return Ok(
-                        Self {
-                            logged_user_uuid,
-                            set_lang_id,
-                            no_entry: true,
-                        }
-                    )
+                    return Ok(Self {
+                        logged_user_uuid,
+                        set_lang_id,
+                        no_entry: true,
+                    });
                 }
                 // error message
                 Err(err)
-            },
+            }
         }
     }
 

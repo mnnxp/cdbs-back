@@ -1,8 +1,8 @@
-use crate::errors::{ServiceResult, ServiceError};
+use crate::errors::{ServiceError, ServiceResult};
 use crate::models::relate_ref::program::model::Program;
 use crate::models::search::order::Paginate;
 use crate::schema::program_ref::dsl as program_ref;
-use diesel::{PgConnection, prelude::*};
+use diesel::{prelude::*, PgConnection};
 
 /// Returns a list of programs, filtered by IDs.
 /// If no program filter is specified, all existing programs are aggregated.
@@ -17,10 +17,7 @@ pub(crate) fn get_programs(
     }
 }
 
-fn find_all_program(
-    paginate: &Paginate,
-    conn: &mut PgConnection,
-) -> ServiceResult<Vec<Program>> {
+fn find_all_program(paginate: &Paginate, conn: &mut PgConnection) -> ServiceResult<Vec<Program>> {
     program_ref::program_ref
         .limit(paginate.limit)
         .offset(paginate.offset)

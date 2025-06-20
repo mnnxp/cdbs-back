@@ -1,5 +1,5 @@
-use crate::schema::*;
 use crate::models::company::member::role::model::RoleMemberAndRelatedData;
+use crate::schema::*;
 use async_graphql::*;
 use chrono::*;
 use uuid::Uuid;

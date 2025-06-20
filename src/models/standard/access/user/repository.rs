@@ -1,8 +1,8 @@
-use crate::errors::{ServiceResult, ServiceError};
-use crate::models::standard::access::user::model::{
-    UserAccessStandard, UserAccessStandardAndRelatedData
-};
+use crate::errors::{ServiceError, ServiceResult};
 use crate::models::relate_ref::type_access::model::TypeAccessTranslateList;
+use crate::models::standard::access::user::model::{
+    UserAccessStandard, UserAccessStandardAndRelatedData,
+};
 use crate::schema::user_access_to_standard::dsl::*;
 use diesel::prelude::*;
 use uuid::Uuid;
@@ -27,10 +27,10 @@ impl UserAccessStandardAndRelatedData {
             let type_access = TypeAccessTranslateList::get_type_access_by_id(
                 &x.type_access_id,
                 set_lang_id,
-                conn
+                conn,
             )?;
 
-            res.push(UserAccessStandardAndRelatedData{
+            res.push(UserAccessStandardAndRelatedData {
                 standard_uuid: x.standard_uuid,
                 user_uuid: x.user_uuid,
                 type_access: type_access.clone(),

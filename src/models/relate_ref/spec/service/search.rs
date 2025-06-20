@@ -1,9 +1,7 @@
-use crate::errors::ServiceResult;
-use crate::models::relate_ref::spec::model::{
-    SpecPath, SpecId, SearchSpecArg, SpecPathArg
-};
-use crate::models::search::order::Paginate;
 use super::path::get_paths_specs;
+use crate::errors::ServiceResult;
+use crate::models::relate_ref::spec::model::{SearchSpecArg, SpecId, SpecPath, SpecPathArg};
+use crate::models::search::order::Paginate;
 use diesel::PgConnection;
 
 /// Возвращает пути к разделам каталога, найденным по наименованию.
@@ -18,11 +16,7 @@ pub(crate) fn search_specs_by_name(
     if args.text.is_empty() {
         return Ok(Vec::new());
     }
-    let res_query = SpecId::get_list_by_name(
-        &args.text,
-        set_lang_id,
-        conn
-    )?;
+    let res_query = SpecId::get_list_by_name(&args.text, set_lang_id, conn)?;
 
     let mut target_specs_ids: Vec<i32> = Vec::new();
     for value in res_query {
@@ -41,6 +35,6 @@ pub(crate) fn search_specs_by_name(
         },
         set_lang_id,
         paginate,
-        conn
+        conn,
     )
 }

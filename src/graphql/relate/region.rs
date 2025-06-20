@@ -1,14 +1,14 @@
-use async_graphql::{self, Context, Object};
 use crate::database::{get_conn, PooledConnection};
 use crate::errors::ServiceResult;
-use crate::models::search::order::Paginate;
-use crate::models::user::access::logged::check_authorized;
+use crate::models::relate_ref::language::get_set_language;
 use crate::models::relate_ref::region::{
     model::{IptRegionTranslateListData, RegionTranslateList},
     service::list::get_regions,
     service::register::create_region,
 };
-use crate::models::relate_ref::language::get_set_language;
+use crate::models::search::order::Paginate;
+use crate::models::user::access::logged::check_authorized;
+use async_graphql::{self, Context, Object};
 
 use super::attributes::IptPaginate;
 
@@ -27,10 +27,16 @@ impl RegionQuery {
         region_ids: Option<Vec<i32>>,
         paginate: Option<IptPaginate>,
     ) -> ServiceResult<Vec<RegionTranslateList>> {
-        let p = paginate.map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
+        let p = paginate
+            .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
             .unwrap_or_default();
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
-        get_regions(&region_ids.unwrap_or_default(), &get_set_language(cxt), &p, conn)
+        get_regions(
+            &region_ids.unwrap_or_default(),
+            &get_set_language(cxt),
+            &p,
+            conn,
+        )
     }
 }
 

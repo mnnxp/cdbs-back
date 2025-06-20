@@ -1,40 +1,41 @@
 use crate::database::{get_conn, PooledConnection};
 use crate::errors::ServiceResult;
 use crate::graphql::component_model::{IptComponentData, IptUpdateComponentData};
-use crate::models::user::access::logged::get_logged_user_uuid;
 use crate::models::component::{
+    access::company::model::{DelCompanyAccessComponentData, IptCompanyAccessComponentData},
     // model::{IptComponentData, IptUpdateComponentData},
     access::model::{ChangeOwnerComponent, ChangeTypeAccessComponent},
-    access::company::model::{
-        IptCompanyAccessComponentData, DelCompanyAccessComponentData
+    access::user::model::{DelUserAccessComponentData, IptUserAccessComponentData},
+    component_modification,
+    component_modification::{
+        file::model::{DelModificationFileData, IptModificationFilesData},
+        fileset_for_program as fileset_program,
+        fileset_for_program::file::model::{
+            DelModificationFileFromFilesetData, IptModificationFileFromFilesetData,
+        },
+        fileset_for_program::model::{DelFilesetProgramData, IptFilesetProgramData},
+        model::{
+            DelComponentModificationData, IptComponentModificationData,
+            IptMultipleModificationsData, IptUpdateComponentModificationData,
+        },
+        param::model::{DelModificationParamData, IptModificationParamData},
     },
-    access::user::model::{IptUserAccessComponentData, DelUserAccessComponentData},
+    file as component_file,
+    file::model::{DelComponentFileData, IptComponentFaviconData, IptComponentFilesData},
     keyword as component_keyword,
     keyword::model::{IptComponentKeywordsData, IptComponentKeywordsNames},
     license::model::IptComponentLicenseData,
     param as component_param,
-    param::model::{IptComponentParamsData, DelComponentParamData},
+    param::model::{DelComponentParamData, IptComponentParamsData},
     spec as component_spec,
     spec::model::IptComponentSpecsData,
-    file as component_file,
-    file::model::{IptComponentFilesData, IptComponentFaviconData, DelComponentFileData},
+    standard as component_standard,
+    standard::model::{DelStandardToComponentData, IptStandardToComponentData},
     supplier as component_supplier,
     supplier::model::DelSuppliersComponentData,
-    standard as component_standard,
-    standard::model::{IptStandardToComponentData, DelStandardToComponentData},
-    component_modification,
-    component_modification::{
-        model::{IptComponentModificationData, IptMultipleModificationsData, IptUpdateComponentModificationData, DelComponentModificationData},
-        fileset_for_program::file::model::{
-            IptModificationFileFromFilesetData, DelModificationFileFromFilesetData
-        },
-        param::model::{IptModificationParamData, DelModificationParamData},
-        file::model::{IptModificationFilesData, DelModificationFileData},
-        fileset_for_program as fileset_program,
-        fileset_for_program::model::{IptFilesetProgramData, DelFilesetProgramData},
-    },
 };
 use crate::models::relate_ref::file::model::UploadFile;
+use crate::models::user::access::logged::get_logged_user_uuid;
 
 use async_graphql::{self, Context, Object};
 use uuid::Uuid;
@@ -57,11 +58,7 @@ impl ComponentMutation {
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        create_component(
-            &logged_user_uuid,
-            &args,
-            conn
-        )
+        create_component(&logged_user_uuid, &args, conn)
     }
 
     /// Transfers ownership of a component to another user.
@@ -77,11 +74,7 @@ impl ComponentMutation {
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        change_component_owner_user(
-            &logged_user_uuid,
-            &args,
-            conn
-        )
+        change_component_owner_user(&logged_user_uuid, &args, conn)
     }
 
     /// Changes the default access to a component.
@@ -97,11 +90,7 @@ impl ComponentMutation {
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        change_component_type_access(
-            &logged_user_uuid,
-            &args,
-            conn
-        )
+        change_component_type_access(&logged_user_uuid, &args, conn)
     }
 
     /// Updates the component's underlying data by UUID.
@@ -119,12 +108,7 @@ impl ComponentMutation {
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        update_component_by_uuid(
-            &logged_user_uuid,
-            &component_uuid,
-            &args,
-            conn
-        )
+        update_component_by_uuid(&logged_user_uuid, &component_uuid, &args, conn)
     }
 
     /// Deletes a component and its associated data.
@@ -141,11 +125,7 @@ impl ComponentMutation {
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        del_component(
-            &logged_user_uuid,
-            &component_uuid,
-            conn
-        )
+        del_component(&logged_user_uuid, &component_uuid, conn)
     }
 
     /// Sets access to a component for a company.
@@ -162,11 +142,7 @@ impl ComponentMutation {
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        set_company_access_component(
-            &logged_user_uuid,
-            &args,
-            conn
-        )
+        set_company_access_component(&logged_user_uuid, &args, conn)
     }
 
     /// Removes access to a component for a company.
@@ -182,11 +158,7 @@ impl ComponentMutation {
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        del_company_access_component(
-            &logged_user_uuid,
-            &args,
-            conn
-        )
+        del_company_access_component(&logged_user_uuid, &args, conn)
     }
 
     /// Sets access to a component for a user.
@@ -202,11 +174,7 @@ impl ComponentMutation {
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        set_user_access_component(
-            &logged_user_uuid,
-            &args,
-            conn
-        )
+        set_user_access_component(&logged_user_uuid, &args, conn)
     }
 
     /// Removes access to a component for a user.
@@ -222,11 +190,7 @@ impl ComponentMutation {
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        del_user_access_component(
-            &logged_user_uuid,
-            &args,
-            conn
-        )
+        del_user_access_component(&logged_user_uuid, &args, conn)
     }
 
     /// Adds new parameters with values ​​for a component.
@@ -242,11 +206,7 @@ impl ComponentMutation {
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        put_component_params(
-            &logged_user_uuid,
-            &args,
-            conn
-        )
+        put_component_params(&logged_user_uuid, &args, conn)
     }
 
     /// Removes component parameters.
@@ -262,11 +222,7 @@ impl ComponentMutation {
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        del_component_params(
-            &logged_user_uuid,
-            &args,
-            conn
-        )
+        del_component_params(&logged_user_uuid, &args, conn)
     }
 
     /// Adds a license to a component.
@@ -281,11 +237,7 @@ impl ComponentMutation {
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        add_component_license(
-            &logged_user_uuid,
-            &args,
-            conn
-        )
+        add_component_license(&logged_user_uuid, &args, conn)
     }
 
     /// Removes a license for a component.
@@ -300,11 +252,7 @@ impl ComponentMutation {
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        del_component_license(
-            &logged_user_uuid,
-            &args,
-            conn
-        )
+        del_component_license(&logged_user_uuid, &args, conn)
     }
 
     /// Adds a component connection to directory sections.
@@ -319,11 +267,7 @@ impl ComponentMutation {
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        add_component_specs(
-            &logged_user_uuid,
-            &args,
-            conn
-        )
+        add_component_specs(&logged_user_uuid, &args, conn)
     }
 
     /// Removes a component's association with catalogs
@@ -338,11 +282,7 @@ impl ComponentMutation {
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        del_component_specs(
-            &logged_user_uuid,
-            &args,
-            conn
-        )
+        del_component_specs(&logged_user_uuid, &args, conn)
     }
 
     /// Adds keywords to a component by IDs.
@@ -357,11 +297,7 @@ impl ComponentMutation {
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        add_component_keywords(
-            &logged_user_uuid,
-            &args,
-            conn
-        )
+        add_component_keywords(&logged_user_uuid, &args, conn)
     }
 
     /// Adds keywords to a component by words.
@@ -376,11 +312,7 @@ impl ComponentMutation {
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        add_keywords_by_names(
-            &logged_user_uuid,
-            &args,
-            conn
-        )
+        add_keywords_by_names(&logged_user_uuid, &args, conn)
     }
 
     /// Removes keywords from a component.
@@ -395,11 +327,7 @@ impl ComponentMutation {
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        del_component_keywords(
-            &logged_user_uuid,
-            &args,
-            conn
-        )
+        del_component_keywords(&logged_user_uuid, &args, conn)
     }
 
     /// Creates preliminary files information for a component.
@@ -415,11 +343,7 @@ impl ComponentMutation {
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        add_component_files(
-            &logged_user_uuid,
-            &args,
-            conn
-        )
+        add_component_files(&logged_user_uuid, &args, conn)
     }
 
     /// Updates the main image of the component.
@@ -435,11 +359,7 @@ impl ComponentMutation {
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        add_component_favicon(
-            &logged_user_uuid,
-            &args,
-            conn
-        )
+        add_component_favicon(&logged_user_uuid, &args, conn)
     }
 
     /// Deletes a file of a component.
@@ -454,11 +374,7 @@ impl ComponentMutation {
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        delete_component_file(
-            &logged_user_uuid,
-            &args,
-            conn
-        )
+        delete_component_file(&logged_user_uuid, &args, conn)
     }
 
     /// Removes suppliers a component by UUIDs.
@@ -473,11 +389,7 @@ impl ComponentMutation {
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        del_suppliers_component(
-            &logged_user_uuid,
-            &args,
-            conn
-        )
+        del_suppliers_component(&logged_user_uuid, &args, conn)
     }
 
     /// Attaches a standard to a component.
@@ -492,11 +404,7 @@ impl ComponentMutation {
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        add_standard_to_component(
-            &logged_user_uuid,
-            &args,
-            conn
-        )
+        add_standard_to_component(&logged_user_uuid, &args, conn)
     }
 
     /// Unpins a standard from a component.
@@ -511,11 +419,7 @@ impl ComponentMutation {
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        del_standards_component(
-            &logged_user_uuid,
-            &args,
-            conn
-        )
+        del_standards_component(&logged_user_uuid, &args, conn)
     }
 
     /// Creates a new modification for a component.
@@ -530,11 +434,7 @@ impl ComponentMutation {
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        create_component_modification(
-            &logged_user_uuid,
-            &args,
-            conn
-        )
+        create_component_modification(&logged_user_uuid, &args, conn)
     }
 
     /// Creates modifications and their parameters for a component
@@ -563,12 +463,7 @@ impl ComponentMutation {
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        update_modification_data(
-            &logged_user_uuid,
-            &component_modification_uuid,
-            &args,
-            conn
-        )
+        update_modification_data(&logged_user_uuid, &component_modification_uuid, &args, conn)
     }
 
     /// Removes a component modification.
@@ -584,11 +479,7 @@ impl ComponentMutation {
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        del_component_modification(
-            &logged_user_uuid,
-            &args,
-            conn
-        )
+        del_component_modification(&logged_user_uuid, &args, conn)
     }
 
     /// Adds new parameters with values ​​for a component modification.
@@ -604,11 +495,7 @@ impl ComponentMutation {
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        put_modification_params(
-            &logged_user_uuid,
-            &args,
-            conn
-        )
+        put_modification_params(&logged_user_uuid, &args, conn)
     }
 
     /// Deletes parameters of a component modification.
@@ -623,11 +510,7 @@ impl ComponentMutation {
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        del_modification_params(
-            &logged_user_uuid,
-            &args,
-            conn
-        )
+        del_modification_params(&logged_user_uuid, &args, conn)
     }
 
     /// Creates preliminary files information for a component modification.
@@ -643,11 +526,7 @@ impl ComponentMutation {
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        add_modification_files(
-            &logged_user_uuid,
-            &args,
-            conn
-        )
+        add_modification_files(&logged_user_uuid, &args, conn)
     }
 
     /// Deletes a file of a component modification.
@@ -662,11 +541,7 @@ impl ComponentMutation {
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        delete_modification_file(
-            &logged_user_uuid,
-            &args,
-            conn
-        )
+        delete_modification_file(&logged_user_uuid, &args, conn)
     }
 
     /// Creates a set of files for component modification.
@@ -683,11 +558,7 @@ impl ComponentMutation {
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        create_modification_fileset(
-            &logged_user_uuid,
-            &args,
-            conn
-        )
+        create_modification_fileset(&logged_user_uuid, &args, conn)
     }
 
     /// Removes a set of files from a component modification.
@@ -702,11 +573,7 @@ impl ComponentMutation {
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        del_modification_fileset(
-            &logged_user_uuid,
-            &args,
-            conn
-        )
+        del_modification_fileset(&logged_user_uuid, &args, conn)
     }
 
     /// Creates preliminary files information for a set of files from a component modification.
@@ -722,11 +589,7 @@ impl ComponentMutation {
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        add_files_of_modification_set(
-            &logged_user_uuid,
-            &args,
-            conn
-        )
+        add_files_of_modification_set(&logged_user_uuid, &args, conn)
     }
 
     /// Removes files from the component modification fileset.
@@ -741,10 +604,6 @@ impl ComponentMutation {
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        del_file_from_fileset(
-            &logged_user_uuid,
-            &args,
-            conn
-        )
+        del_file_from_fileset(&logged_user_uuid, &args, conn)
     }
 }

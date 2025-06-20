@@ -29,7 +29,7 @@ pub(super) struct InsertableUserToken {
 impl InsertableUserToken {
     /// Create based on data without token
     pub(super) fn new(user_uuid: &Uuid, jwt: &Claims) -> Self {
-        Self{
+        Self {
             user_uuid: *user_uuid,
             token: String::new(),
             created_at: NaiveDateTime::from_timestamp_opt(jwt.iat, 0).unwrap(),

@@ -1,5 +1,5 @@
+use crate::models::relate_ref::param::model::{IptParamData, ParamTranslateList};
 use crate::schema::*;
-use crate::models::relate_ref::param::model::{ParamTranslateList, IptParamData};
 use async_graphql::*;
 // use chrono::*;
 use uuid::Uuid;

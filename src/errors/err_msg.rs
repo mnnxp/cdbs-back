@@ -1,5 +1,5 @@
-use super::ServiceError;
 use super::msg_en::value_in_err_msg_en;
+use super::ServiceError;
 
 /// Contains a list of all errors
 pub(crate) enum ErrorMessage {
@@ -154,7 +154,5 @@ pub(crate) enum ErrorMessage {
 }
 
 pub(crate) fn get_err_msg(err_msg: ErrorMessage) -> ServiceError {
-    ServiceError::BadRequest(
-        format!("BadRequest: {0}", value_in_err_msg_en(err_msg))
-    )
+    ServiceError::BadRequest(format!("BadRequest: {0}", value_in_err_msg_en(err_msg)))
 }

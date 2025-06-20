@@ -1,12 +1,11 @@
-use crate::errors::{ServiceResult, ServiceError};
+use crate::errors::{ServiceError, ServiceResult};
 use crate::models::search::order::Paginate;
 use crate::models::user::notification::model::{
-    Notification, NotificationToUser, ShowNotification,
-    DegreeImportanceTranslateList,
+    DegreeImportanceTranslateList, Notification, NotificationToUser, ShowNotification,
 };
+use crate::schema::degree_importance_translate_list::dsl as degree_importance_translate_list;
 use crate::schema::notification_ref::dsl as notification_ref;
 use crate::schema::notification_to_user::dsl as notification_to_user;
-use crate::schema::degree_importance_translate_list::dsl as degree_importance_translate_list;
 use diesel::prelude::*;
 use uuid::Uuid;
 
@@ -35,7 +34,7 @@ fn get_all(
         .offset(paginate.offset)
         .select((
             notification_to_user::notification_id,
-            notification_to_user::is_read
+            notification_to_user::is_read,
         ))
         .load::<NotificationToUser>(conn)
         .map_err(|err| {
@@ -56,11 +55,7 @@ fn get_all(
             ServiceError::InternalServerError
         })?;
 
-    agregate_notifications(
-        &get_list,
-        &get_data_list,
-        conn
-    )
+    agregate_notifications(&get_list, &get_data_list, conn)
 }
 
 /// Gets notification for target user by ids list
@@ -71,13 +66,16 @@ fn get_by_ids(
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<ShowNotification>> {
     let get_list = notification_to_user::notification_to_user
-        .filter(notification_to_user::user_uuid.eq(logged_user_uuid)
-        .and(notification_to_user::notification_id.eq_any(notification_ids)))
+        .filter(
+            notification_to_user::user_uuid
+                .eq(logged_user_uuid)
+                .and(notification_to_user::notification_id.eq_any(notification_ids)),
+        )
         .limit(paginate.limit)
         .offset(paginate.offset)
         .select((
             notification_to_user::notification_id,
-            notification_to_user::is_read
+            notification_to_user::is_read,
         ))
         .load::<NotificationToUser>(conn)
         .map_err(|err| {
@@ -98,11 +96,7 @@ fn get_by_ids(
             ServiceError::InternalServerError
         })?;
 
-    agregate_notifications(
-        &get_list,
-        &get_data_list,
-        conn
-    )
+    agregate_notifications(&get_list, &get_data_list, conn)
 }
 
 /// For collect data for ShowNotification from:

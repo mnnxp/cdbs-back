@@ -1,11 +1,11 @@
-use crate::errors::{ServiceResult, ServiceError};
-use crate::errors::err_msg::{ErrorMessage, get_err_msg};
+use crate::errors::err_msg::{get_err_msg, ErrorMessage};
+use crate::errors::{ServiceError, ServiceResult};
+use crate::models::search::model::ExtraOptions;
 use crate::models::supplier_service::access::user::model::{
-    UserAccessServiceAndRelatedData, IptUserAccessServiceData,
-    InsertableUserAccessService, DelUserAccessServiceData,
+    DelUserAccessServiceData, InsertableUserAccessService, IptUserAccessServiceData,
+    UserAccessServiceAndRelatedData,
 };
 use crate::models::supplier_service::access::util::check_is_owner_with_err;
-use crate::models::search::model::ExtraOptions;
 use crate::schema::user_access_to_service::dsl as user_access_to_service;
 use diesel::prelude::*;
 use uuid::Uuid;
@@ -23,7 +23,7 @@ pub(crate) fn get_users_list_access_service(
     UserAccessServiceAndRelatedData::from_service_by_uuid(
         target_service_uuid,
         &options.set_lang_id,
-        conn
+        conn,
     )
 }
 
@@ -38,8 +38,11 @@ pub(crate) fn set_user_access_service(
 
     // 2. change or add access for a specified user
     let get_access = user_access_to_service::user_access_to_service
-        .filter(user_access_to_service::service_uuid.eq(&data.service_uuid)
-        .and(user_access_to_service::user_uuid.eq(&data.user_uuid)))
+        .filter(
+            user_access_to_service::service_uuid
+                .eq(&data.service_uuid)
+                .and(user_access_to_service::user_uuid.eq(&data.user_uuid)),
+        )
         .select(user_access_to_service::type_access_id)
         .limit(1)
         .load::<i32>(conn)
@@ -49,22 +52,24 @@ pub(crate) fn set_user_access_service(
         })?;
 
     match get_access.first() {
-        Some(_) => {
-            diesel::update(user_access_to_service::user_access_to_service
-                .filter(user_access_to_service::service_uuid.eq(&data.service_uuid)
-                .and(user_access_to_service::user_uuid.eq(&data.user_uuid))))
-                .set((
-                    user_access_to_service::type_access_id.eq(data.type_access_id),
-                    user_access_to_service::is_enabled.eq(true),
-                    user_access_to_service::updated_at.eq(chrono::Local::now().naive_local())
-                ))
-                .returning(user_access_to_service::is_enabled)
-                .get_result(conn)
-                .map_err(|err| {
-                    debug!("Failed change access for user: {:?}", err);
-                    ServiceError::InternalServerError
-                })
-        },
+        Some(_) => diesel::update(
+            user_access_to_service::user_access_to_service.filter(
+                user_access_to_service::service_uuid
+                    .eq(&data.service_uuid)
+                    .and(user_access_to_service::user_uuid.eq(&data.user_uuid)),
+            ),
+        )
+        .set((
+            user_access_to_service::type_access_id.eq(data.type_access_id),
+            user_access_to_service::is_enabled.eq(true),
+            user_access_to_service::updated_at.eq(chrono::Local::now().naive_local()),
+        ))
+        .returning(user_access_to_service::is_enabled)
+        .get_result(conn)
+        .map_err(|err| {
+            debug!("Failed change access for user: {:?}", err);
+            ServiceError::InternalServerError
+        }),
         None => add_user_access_service(data, conn),
     }
 }
@@ -98,8 +103,11 @@ pub(crate) fn del_user_access_service(
 
     // 2. deactivate access for the specified user
     let del_access = diesel::delete(user_access_to_service::user_access_to_service)
-        .filter(user_access_to_service::service_uuid.eq(&data.service_uuid)
-        .and(user_access_to_service::user_uuid.eq(&data.user_uuid)))
+        .filter(
+            user_access_to_service::service_uuid
+                .eq(&data.service_uuid)
+                .and(user_access_to_service::user_uuid.eq(&data.user_uuid)),
+        )
         .execute(conn)
         .map_err(|err| {
             debug!("Failed delete access for target user: {:?}", err);
@@ -108,6 +116,6 @@ pub(crate) fn del_user_access_service(
 
     match del_access {
         1 => Ok(true),
-        _ => Err(get_err_msg(ErrorMessage::AccessNotFoundUser))
+        _ => Err(get_err_msg(ErrorMessage::AccessNotFoundUser)),
     }
 }

@@ -2,21 +2,21 @@ pub mod discussion_model;
 use async_graphql::{self, Context, Object};
 use uuid::Uuid;
 
-use crate::database::{get_conn, PooledConnection};
-use crate::errors::ServiceResult;
-use crate::models::relate_ref::discussion::service::update::edit_discussion_comment;
-use crate::models::search::model::ExtraOptions;
-use crate::models::relate_ref::discussion::{
-    service::list::{get_discussions, get_discussion_comment_list},
-    service::register::create_discussion_comment,
-};
-use crate::models::user::access::logged::get_logged_user_uuid;
-use crate::graphql::relate::attributes::IptPaginate;
 use super::attributes::IptSort;
 use super::discussion::discussion_model::{
-    DiscussionInfo, DiscussionCommentData, IptEditCommentData,
-    IptDiscussionCommentData, IptObjectDiscussionsArg, IptDiscussionCommentsArg
+    DiscussionCommentData, DiscussionInfo, IptDiscussionCommentData, IptDiscussionCommentsArg,
+    IptEditCommentData, IptObjectDiscussionsArg,
 };
+use crate::database::{get_conn, PooledConnection};
+use crate::errors::ServiceResult;
+use crate::graphql::relate::attributes::IptPaginate;
+use crate::models::relate_ref::discussion::service::update::edit_discussion_comment;
+use crate::models::relate_ref::discussion::{
+    service::list::{get_discussion_comment_list, get_discussions},
+    service::register::create_discussion_comment,
+};
+use crate::models::search::model::ExtraOptions;
+use crate::models::user::access::logged::get_logged_user_uuid;
 
 #[derive(Default)]
 pub struct DiscussionQuery;
@@ -136,7 +136,10 @@ impl DiscussionMutation {
         // authorization check
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
-        debug!("Register discussion comment IptDiscussionCommentData: {:?}", args);
+        debug!(
+            "Register discussion comment IptDiscussionCommentData: {:?}",
+            args
+        );
         create_discussion_comment(&logged_user_uuid, &args, conn)
     }
 

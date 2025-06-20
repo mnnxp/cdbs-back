@@ -1,15 +1,14 @@
-use crate::errors::{ServiceResult, ServiceError};
-use crate::graphql::service_model::{ShowServiceShort, ServiceAndRelatedData};
-use crate::models::supplier_service::{
-    model::Service,
-    service_status::model::ServiceStatusTranslateList,
-    access::util::check_access_service_for_user,
-};
-use crate::models::user::model::ShowUserShort;
+use crate::errors::{ServiceError, ServiceResult};
+use crate::graphql::service_model::{ServiceAndRelatedData, ShowServiceShort};
 use crate::models::company::model::ShowCompanyShort;
 use crate::models::relate_ref::region::model::RegionTranslateList;
 use crate::models::search::model::ExtraOptions;
-use crate::models::search::order::{Paginate, Sort, objects_order};
+use crate::models::search::order::{objects_order, Paginate, Sort};
+use crate::models::supplier_service::{
+    access::util::check_access_service_for_user, model::Service,
+    service_status::model::ServiceStatusTranslateList,
+};
+use crate::models::user::model::ShowUserShort;
 use crate::schema::service_ref::dsl as service_ref;
 use diesel::prelude::*;
 use uuid::Uuid;
@@ -21,8 +20,11 @@ impl Service {
         conn: &mut PgConnection,
     ) -> ServiceResult<Service> {
         service_ref::service_ref
-            .filter(service_ref::uuid.eq(target_service_uuid)
-            .and(service_ref::is_delete.eq(false)))
+            .filter(
+                service_ref::uuid
+                    .eq(target_service_uuid)
+                    .and(service_ref::is_delete.eq(false)),
+            )
             .select((
                 service_ref::uuid,
                 service_ref::name,
@@ -59,8 +61,8 @@ impl ShowServiceShort {
                 options,
                 sort,
                 paginate,
-                conn
-            )
+                conn,
+            ),
         }
     }
 
@@ -76,35 +78,33 @@ impl ShowServiceShort {
             &options.logged_user_uuid,
             target_service_uuid,
             &need_access_level,
-            conn
+            conn,
         )?;
 
         // get target service
-        let service: Service = Service::get_service_by_uuid(
-            target_service_uuid,
-            conn
-        ).expect("Error loading service");
+        let service: Service =
+            Service::get_service_by_uuid(target_service_uuid, conn).expect("Error loading service");
 
         // get data a owner user for a service
-        let owner_user = ShowUserShort::get_without_check_by_uuid(
-            &service.user_uuid,
-            conn
-        ).expect("Error loading slim_user");
+        let owner_user = ShowUserShort::get_without_check_by_uuid(&service.user_uuid, conn)
+            .expect("Error loading slim_user");
 
         // get service owner company
         let owner_company = ShowCompanyShort::get_without_check_by_uuid(
             &service.company_uuid,
             &options.logged_user_uuid,
             &options.set_lang_id,
-            conn
-        ).expect("Error loading company short data");
+            conn,
+        )
+        .expect("Error loading company short data");
 
         // get service type with translation for service
         let service_status = ServiceStatusTranslateList::get_by_id(
             &service.service_status_id,
             &options.set_lang_id,
-            conn
-        ).expect("Error loading service_status");
+            conn,
+        )
+        .expect("Error loading service_status");
 
         Ok(ShowServiceShort {
             uuid: service.uuid,
@@ -115,7 +115,6 @@ impl ShowServiceShort {
             service_status,
             updated_at: service.updated_at,
         })
-
     }
 
     pub(crate) fn get_list_by_uuids(
@@ -132,7 +131,7 @@ impl ShowServiceShort {
                 Ok(value) => result.push(value),
                 Err(err) => {
                     debug!("Failed get service short data: {:?}", err);
-                },
+                }
             };
         }
         Ok(result)
@@ -146,8 +145,11 @@ impl ShowServiceShort {
     ) -> ServiceResult<Vec<ShowServiceShort>> {
         // gets all public services uuids
         let service_uuids = service_ref::service_ref
-            .filter(service_ref::type_access_id.eq(3)
-                .and(service_ref::is_delete.eq(false)))
+            .filter(
+                service_ref::type_access_id
+                    .eq(3)
+                    .and(service_ref::is_delete.eq(false)),
+            )
             .select(service_ref::uuid)
             .limit(paginate.limit)
             .offset(paginate.offset)
@@ -182,42 +184,38 @@ impl ServiceAndRelatedData {
             &options.logged_user_uuid,
             target_service_uuid,
             &need_access_level,
-            conn
+            conn,
         )?;
 
         // collect data for service
-        let service: Service = Service::get_service_by_uuid(
-            target_service_uuid,
-            conn
-        ).expect("Error loading service");
+        let service: Service =
+            Service::get_service_by_uuid(target_service_uuid, conn).expect("Error loading service");
 
         // get data a owner user for a service
-        let owner_user = ShowUserShort::get_without_check_by_uuid(
-            &service.user_uuid,
-            conn
-        ).expect("Error loading slim_user");
+        let owner_user = ShowUserShort::get_without_check_by_uuid(&service.user_uuid, conn)
+            .expect("Error loading slim_user");
 
         // get data a owner company for a service
         let owner_company = ShowCompanyShort::get_without_check_by_uuid(
             &service.company_uuid,
             &options.logged_user_uuid,
             &options.set_lang_id,
-            conn
-        ).expect("Error loading company short data");
+            conn,
+        )
+        .expect("Error loading company short data");
 
         // get service type with translation for service
         let service_status = ServiceStatusTranslateList::get_by_id(
             &service.service_status_id,
             &options.set_lang_id,
-            conn
-        ).expect("Error loading service_status");
+            conn,
+        )
+        .expect("Error loading service_status");
 
         // get region for company
-        let region = RegionTranslateList::get_region_by_id(
-            &service.region_id,
-            &options.set_lang_id,
-            conn
-        ).expect("Error loading company_type");
+        let region =
+            RegionTranslateList::get_region_by_id(&service.region_id, &options.set_lang_id, conn)
+                .expect("Error loading company_type");
 
         Ok(ServiceAndRelatedData {
             uuid: service.uuid,

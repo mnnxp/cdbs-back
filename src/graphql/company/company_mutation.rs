@@ -1,19 +1,21 @@
 use crate::database::{get_conn, PooledConnection};
 use crate::errors::ServiceResult;
-use crate::models::user::access::logged::get_logged_user_uuid;
 use crate::models::company::{
-    model::{IptCompanyData, IptUpdateCompanyData},
     access::model::ChangeTypeAccessCompany,
-    access::role_access::model::{IptRoleAccessData, DelRoleAccessData},
-    certificate::model::{IptCompanyCertificateData, IptUpdateCompanyCertificateData, DelCompanyCertificateData},
-    spec::model::IptCompanySpecsData,
+    access::role_access::model::{DelRoleAccessData, IptRoleAccessData},
+    certificate::model::{
+        DelCompanyCertificateData, IptCompanyCertificateData, IptUpdateCompanyCertificateData,
+    },
     company_represent::model::{IptCompanyRepresentData, IptUpdateCompanyRepresentData},
-    member::model::{IptCompanyMemberData, DelCompanyMemberData},
-    member::role::model::{IptRoleMemberData, IptUpdateNameRoleData, DelRoleMemberData},
+    member::model::{DelCompanyMemberData, IptCompanyMemberData},
+    member::role::model::{DelRoleMemberData, IptRoleMemberData, IptUpdateNameRoleData},
+    model::{IptCompanyData, IptUpdateCompanyData},
+    spec::model::IptCompanySpecsData,
     supplier_component::model::DelCompanyOfSuppliersData,
 };
 use crate::models::component::supplier::model::IptSupplierComponentData;
 use crate::models::relate_ref::file::model::UploadFile;
+use crate::models::user::access::logged::get_logged_user_uuid;
 
 use async_graphql::{self, Context, Object};
 use uuid::Uuid;
@@ -49,12 +51,7 @@ impl CompanyMutation {
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        update_company_by_uuid(
-            &logged_user_uuid,
-            &company_uuid,
-            &args,
-            conn
-        )
+        update_company_by_uuid(&logged_user_uuid, &company_uuid, &args, conn)
     }
 
     /// Changes the type of access to the company.
@@ -70,30 +67,18 @@ impl CompanyMutation {
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        change_company_type_access(
-            &logged_user_uuid,
-            &args,
-            conn
-        )
+        change_company_type_access(&logged_user_uuid, &args, conn)
     }
 
     /// Deletes the company and its associated data. Returns the UUID of the remote company.
-    async fn delete_company(
-        &self,
-        cxt: &Context<'_>,
-        company_uuid: Uuid,
-    ) -> ServiceResult<Uuid> {
+    async fn delete_company(&self, cxt: &Context<'_>, company_uuid: Uuid) -> ServiceResult<Uuid> {
         use crate::models::company::service::delete::del_company;
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
-        del_company(
-            &logged_user_uuid,
-            &company_uuid,
-            conn
-        )
+        del_company(&logged_user_uuid, &company_uuid, conn)
     }
 
     /// Updates the company avatar. Returns a structure with a pre-signed URL for uploading an image file.
@@ -108,12 +93,7 @@ impl CompanyMutation {
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        update_favicon(
-            &logged_user_uuid,
-            &company_uuid,
-            &filename,
-            conn
-        )
+        update_favicon(&logged_user_uuid, &company_uuid, &filename, conn)
     }
 
     /// Uploading a new company certificate. Returns a structure with a pre-signed URL for uploading a certificate file.
@@ -127,11 +107,7 @@ impl CompanyMutation {
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        add_certificate(
-            &logged_user_uuid,
-            &cert_data,
-            conn
-        )
+        add_certificate(&logged_user_uuid, &cert_data, conn)
     }
 
     /// Updates a company certificate description.
@@ -146,11 +122,7 @@ impl CompanyMutation {
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        update_certificate_description(
-            &logged_user_uuid,
-            &args,
-            conn
-        )
+        update_certificate_description(&logged_user_uuid, &args, conn)
     }
 
     /// Removes a company certificate.
@@ -164,11 +136,7 @@ impl CompanyMutation {
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        del_certificate(
-            &logged_user_uuid,
-            &args,
-            conn
-        )
+        del_certificate(&logged_user_uuid, &args, conn)
     }
 
     /// Adds company connections to specified directory sections.
@@ -184,11 +152,7 @@ impl CompanyMutation {
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        add_company_specs(
-            &logged_user_uuid,
-            &args,
-            conn
-        )
+        add_company_specs(&logged_user_uuid, &args, conn)
     }
 
     /// Removes a company's association with catalogs
@@ -202,11 +166,7 @@ impl CompanyMutation {
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        del_company_specs(
-            &logged_user_uuid,
-            &args,
-            conn
-        )
+        del_company_specs(&logged_user_uuid, &args, conn)
     }
 
     /// Adding information about the company's representative office.
@@ -220,11 +180,7 @@ impl CompanyMutation {
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        create_company_represent(
-            &logged_user_uuid,
-            &args,
-            conn
-        )
+        create_company_represent(&logged_user_uuid, &args, conn)
     }
 
     /// Updating information about the company's representative office.
@@ -247,7 +203,7 @@ impl CompanyMutation {
             &company_uuid,
             &company_represent_uuid,
             &args,
-            conn
+            conn,
         )
     }
 
@@ -284,11 +240,7 @@ impl CompanyMutation {
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        add_company_member(
-            &logged_user_uuid,
-            &args,
-            conn
-        )
+        add_company_member(&logged_user_uuid, &args, conn)
     }
 
     /// Changes the role type of a company member.
@@ -302,11 +254,7 @@ impl CompanyMutation {
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        change_role_member(
-            &logged_user_uuid,
-            &args,
-            conn
-        )
+        change_role_member(&logged_user_uuid, &args, conn)
     }
 
     /// Removes a company member.
@@ -321,11 +269,7 @@ impl CompanyMutation {
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        del_company_member(
-            &logged_user_uuid,
-            &args,
-            conn
-        )
+        del_company_member(&logged_user_uuid, &args, conn)
     }
 
     /// Creates a new role in the specified company.
@@ -339,11 +283,7 @@ impl CompanyMutation {
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        create_role_member(
-            &logged_user_uuid,
-            &args,
-            conn
-        )
+        create_role_member(&logged_user_uuid, &args, conn)
     }
 
     /// Updates the name of the specified role for company members.
@@ -357,11 +297,7 @@ impl CompanyMutation {
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        change_name_role_company(
-            &logged_user_uuid,
-            &args,
-            conn
-        )
+        change_name_role_company(&logged_user_uuid, &args, conn)
     }
 
     /// Removes the role of company members.
@@ -375,11 +311,7 @@ impl CompanyMutation {
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        del_role_member(
-            &logged_user_uuid,
-            &args,
-            conn
-        )
+        del_role_member(&logged_user_uuid, &args, conn)
     }
 
     /// Adds access rights to the company member role.
@@ -393,11 +325,7 @@ impl CompanyMutation {
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        create_role_access(
-            &logged_user_uuid,
-            &args,
-            conn
-        )
+        create_role_access(&logged_user_uuid, &args, conn)
     }
 
     /// Removes access rights of the company member role.
@@ -411,11 +339,7 @@ impl CompanyMutation {
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        del_role_access(
-            &logged_user_uuid,
-            &args,
-            conn
-        )
+        del_role_access(&logged_user_uuid, &args, conn)
     }
 
     /// Adds company to suppliers list a component.
@@ -429,11 +353,7 @@ impl CompanyMutation {
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        add_company_to_suppliers(
-            &logged_user_uuid,
-            &args,
-            conn
-        )
+        add_company_to_suppliers(&logged_user_uuid, &args, conn)
     }
 
     /// Sets the company as the primary supplier of the component.
@@ -447,11 +367,7 @@ impl CompanyMutation {
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        set_company_owner_supplier(
-            &logged_user_uuid,
-            &args,
-            conn
-        )
+        set_company_owner_supplier(&logged_user_uuid, &args, conn)
     }
 
     /// Removes a company from the list of suppliers.
@@ -465,10 +381,6 @@ impl CompanyMutation {
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        del_company_of_suppliers(
-            &logged_user_uuid,
-            &args,
-            conn
-        )
+        del_company_of_suppliers(&logged_user_uuid, &args, conn)
     }
 }

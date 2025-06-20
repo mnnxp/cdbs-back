@@ -1,8 +1,8 @@
-use crate::graphql::component_model::{IptComponentData, IptComponentsArg, IptComponentFilesArg};
+use crate::graphql::component_model::{IptComponentData, IptComponentFilesArg, IptComponentsArg};
 use crate::models::component::util::get_root_component_uuid;
 use crate::models::relate_ref::file::util::get_default_image;
 use crate::schema::component_ref;
-use chrono::{NaiveDateTime, Local};
+use chrono::{Local, NaiveDateTime};
 use uuid::Uuid;
 
 #[derive(Identifiable, Deserialize, Queryable, Debug)]
@@ -130,7 +130,7 @@ impl ComponentsArg {
 
 #[derive(Debug)]
 pub(crate) struct ComponentFilesArg {
-    pub(crate) component_uuid:  Uuid,
+    pub(crate) component_uuid: Uuid,
     pub(crate) file_uuids: Vec<Uuid>,
 }
 

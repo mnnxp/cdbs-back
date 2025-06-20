@@ -19,4 +19,3 @@ lazy_static::lazy_static! {
 pub(crate) fn get_root_discussion_comment_uuid() -> Uuid {
     *ROOT_DISCUSSION_COMMENT_UUID
 }
-

@@ -1,4 +1,4 @@
-use crate::errors::{ServiceResult, ServiceError};
+use crate::errors::{ServiceError, ServiceResult};
 use crate::models::component::component_type::model::ComponentTypeTranslateList;
 use crate::schema::component_type_translate_list::dsl as component_type_translate_list;
 use diesel::prelude::*;
@@ -11,8 +11,11 @@ impl ComponentTypeTranslateList {
         conn: &mut PgConnection,
     ) -> ServiceResult<ComponentTypeTranslateList> {
         let component_type = component_type_translate_list::component_type_translate_list
-            .filter(component_type_translate_list::component_type_id.eq(component_type_id)
-            .and(component_type_translate_list::lang_id.eq(set_lang_id)))
+            .filter(
+                component_type_translate_list::component_type_id
+                    .eq(component_type_id)
+                    .and(component_type_translate_list::lang_id.eq(set_lang_id)),
+            )
             .limit(1)
             .load::<ComponentTypeTranslateList>(conn)
             .map_err(|err| {
@@ -31,7 +34,7 @@ impl ComponentTypeTranslateList {
                         debug!("Failed get component type: {:?}", err);
                         ServiceError::InternalServerError
                     })
-            },
+            }
         }
     }
 
@@ -47,8 +50,11 @@ impl ComponentTypeTranslateList {
                 .filter(component_type_translate_list::lang_id.eq(set_lang_id))
                 .load::<ComponentTypeTranslateList>(conn),
             false => component_type_translate_list::component_type_translate_list
-                .filter(component_type_translate_list::component_type_id.eq_any(filter)
-                .and(component_type_translate_list::lang_id.eq(set_lang_id)))
+                .filter(
+                    component_type_translate_list::component_type_id
+                        .eq_any(filter)
+                        .and(component_type_translate_list::lang_id.eq(set_lang_id)),
+                )
                 .load::<ComponentTypeTranslateList>(conn),
         };
 

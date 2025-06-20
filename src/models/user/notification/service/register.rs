@@ -1,8 +1,6 @@
-use crate::errors::{ServiceResult, ServiceError};
+use crate::errors::{ServiceError, ServiceResult};
 use crate::models::user::notification::model::{
-    NotificationData,
-    InsertableNotification,
-    InsertableNotificationToUser,
+    InsertableNotification, InsertableNotificationToUser, NotificationData,
 };
 use diesel::prelude::*;
 use uuid::Uuid;
@@ -29,7 +27,7 @@ pub(crate) fn create_notification(
 
     // debug!("fn input_user_uuid = {}", &input_user_uuid);
 
-    let row_notification_to_user: InsertableNotificationToUser = InsertableNotificationToUser{
+    let row_notification_to_user: InsertableNotificationToUser = InsertableNotificationToUser {
         notification_id,
         user_uuid: *target_user_uuid,
         is_read: false,
@@ -41,7 +39,10 @@ pub(crate) fn create_notification(
         .returning(notification_to_user::notification_id)
         .get_result::<i32>(conn)
         .map_err(|err| {
-            debug!("Failed insert notification data related with user: {:?}", err);
+            debug!(
+                "Failed insert notification data related with user: {:?}",
+                err
+            );
             ServiceError::InternalServerError
         })?;
 

@@ -1,8 +1,8 @@
+use crate::errors::err_msg::{get_err_msg, ErrorMessage};
 use crate::errors::ServiceResult;
-use crate::errors::err_msg::{ErrorMessage, get_err_msg};
-use crate::models::company::member::role::model::RoleMemberAndRelatedData;
 use crate::models::company::access::util::check_company_access;
-use diesel::{PgConnection, prelude::*};
+use crate::models::company::member::role::model::RoleMemberAndRelatedData;
+use diesel::{prelude::*, PgConnection};
 use uuid::Uuid;
 
 /// Gets IDs roles for company by uuid
@@ -45,7 +45,7 @@ pub(crate) fn get_roles_for_company(
         conn,
     )? {
         // return error if user not have access level
-        return Err(get_err_msg(ErrorMessage::AccessDenied))
+        return Err(get_err_msg(ErrorMessage::AccessDenied));
     }
 
     let roles_ids = role_member_list
@@ -54,13 +54,7 @@ pub(crate) fn get_roles_for_company(
         .load::<i32>(conn);
 
     match roles_ids {
-        Ok(ref rids) => {
-            RoleMemberAndRelatedData::get_roles_by_ids(
-                rids,
-                set_lang_id,
-                conn
-            )
-        },
+        Ok(ref rids) => RoleMemberAndRelatedData::get_roles_by_ids(rids, set_lang_id, conn),
         Err(err) => {
             debug!("Not found roles for company: {:?}", err);
             Err(get_err_msg(ErrorMessage::NotFoundRolesForCompany))

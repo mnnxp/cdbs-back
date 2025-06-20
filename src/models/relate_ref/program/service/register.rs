@@ -1,8 +1,6 @@
-use crate::errors::{ServiceResult, ServiceError};
-use crate::errors::err_msg::{ErrorMessage, get_err_msg};
-use crate::models::relate_ref::program::model::{
-    InsertableProgram, Program, IptProgramData
-};
+use crate::errors::err_msg::{get_err_msg, ErrorMessage};
+use crate::errors::{ServiceError, ServiceResult};
+use crate::models::relate_ref::program::model::{InsertableProgram, IptProgramData, Program};
 use crate::schema::program_ref::dsl as program_ref;
 use diesel::prelude::*;
 // use uuid::Uuid;
@@ -11,7 +9,7 @@ use diesel::prelude::*;
 /// Возвращает идентификатор и наименование программы.
 pub(crate) fn create_program(
     new_program_data: &IptProgramData,
-    conn: &mut PgConnection
+    conn: &mut PgConnection,
 ) -> ServiceResult<Program> {
     let flag_found = program_ref::program_ref
         .filter(program_ref::name.eq(&new_program_data.name))
@@ -24,8 +22,10 @@ pub(crate) fn create_program(
         })?;
 
     match flag_found.first() {
-        Some(x) =>
-            Err(get_err_msg(ErrorMessage::NameAlreadyThereX("program".to_string(), *x))),
+        Some(x) => Err(get_err_msg(ErrorMessage::NameAlreadyThereX(
+            "program".to_string(),
+            *x,
+        ))),
         None => {
             let new_program_data: InsertableProgram = new_program_data.into();
             diesel::insert_into(program_ref::program_ref)
@@ -35,6 +35,6 @@ pub(crate) fn create_program(
                     debug!("Failed insert program: {:?}", err);
                     ServiceError::InternalServerError
                 })
-        },
+        }
     }
 }

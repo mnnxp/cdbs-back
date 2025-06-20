@@ -1,25 +1,23 @@
-use crate::errors::ServiceResult;
 use crate::database::{get_conn, PooledConnection};
+use crate::errors::ServiceResult;
 use crate::graphql::relate::attributes::{IptPaginate, IptSort};
 use crate::graphql::service_model::{
-    ShowServiceShort, ServiceAndRelatedData, IptServicesArg, IptServiceFilesArg
+    IptServiceFilesArg, IptServicesArg, ServiceAndRelatedData, ShowServiceShort,
+};
+use crate::models::relate_ref::{
+    file::model::DownloadFile, keyword::model::Keyword, language::get_set_language,
+    spec::model::SpecTranslateList,
 };
 use crate::models::search::model::ExtraOptions;
 use crate::models::search::order::{Paginate, Sort, TableName};
-use crate::models::user::access::logged::{get_logged_user_uuid, check_authorized};
 use crate::models::supplier_service::{
-    model::{ServicesArg, ServiceFilesArg},
-    relate::service_status::model::ServiceStatusTranslateList,
     access::company::model::CompanyAccessServiceAndRelatedData,
     access::user::model::UserAccessServiceAndRelatedData,
     keyword::service::list::get_service_keywords,
+    model::{ServiceFilesArg, ServicesArg},
+    relate::service_status::model::ServiceStatusTranslateList,
 };
-use crate::models::relate_ref::{
-    spec::model::SpecTranslateList,
-    keyword::model::Keyword,
-    file::model::DownloadFile,
-    language::get_set_language,
-};
+use crate::models::user::access::logged::{check_authorized, get_logged_user_uuid};
 use async_graphql::{self, Context, Object};
 use uuid::Uuid;
 
@@ -41,9 +39,11 @@ impl ServiceQuery {
         // authorization check
         let options = ExtraOptions::from_cxt(cxt, false)?;
         let arguments = ServicesArg::by_arg(args);
-        let s = sort.map(|s| Sort::parsing(TableName::ServiceRef, &s.by_field, s.as_desc))
+        let s = sort
+            .map(|s| Sort::parsing(TableName::ServiceRef, &s.by_field, s.as_desc))
             .unwrap_or(Sort::set_by_table(TableName::ServiceRef));
-        let p = paginate.map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
+        let p = paginate
+            .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
             .unwrap_or_default();
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
         get_services(&arguments, &options, &s, &p, conn)
@@ -72,7 +72,8 @@ impl ServiceQuery {
         // authorization check
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
         let arguments: ServiceFilesArg = args.into();
-        let p = paginate.map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
+        let p = paginate
+            .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
             .unwrap_or_default();
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
         get_service_files(&logged_user_uuid, &arguments, &p, conn)
@@ -89,7 +90,8 @@ impl ServiceQuery {
         // checking authorization
         let options = ExtraOptions::from_cxt(cxt, false)?;
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
-        let p = paginate.map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
+        let p = paginate
+            .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
             .unwrap_or_default();
         get_service_specs(&service_uuid, &options, &p, conn)
     }
@@ -103,7 +105,8 @@ impl ServiceQuery {
     ) -> ServiceResult<Vec<Keyword>> {
         // authorization check
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
-        let p = paginate.map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
+        let p = paginate
+            .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
             .unwrap_or_default();
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
         get_service_keywords(&service_uuid, &logged_user_uuid, &p, conn)

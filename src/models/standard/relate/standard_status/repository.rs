@@ -1,4 +1,4 @@
-use crate::errors::{ServiceResult, ServiceError};
+use crate::errors::{ServiceError, ServiceResult};
 use crate::models::standard::standard_status::model::StandardStatusTranslateList;
 use crate::schema::standard_status_translate_list::dsl as standard_status_translate_list;
 use diesel::prelude::*;
@@ -11,8 +11,11 @@ impl StandardStatusTranslateList {
         conn: &mut PgConnection,
     ) -> ServiceResult<StandardStatusTranslateList> {
         let standard_status = standard_status_translate_list::standard_status_translate_list
-            .filter(standard_status_translate_list::standard_status_id.eq(target_standard_status_id)
-            .and(standard_status_translate_list::lang_id.eq(set_lang_id)))
+            .filter(
+                standard_status_translate_list::standard_status_id
+                    .eq(target_standard_status_id)
+                    .and(standard_status_translate_list::lang_id.eq(set_lang_id)),
+            )
             .first::<StandardStatusTranslateList>(conn);
 
         // if not found data for set lang
@@ -21,13 +24,16 @@ impl StandardStatusTranslateList {
             Err(err) => {
                 debug!("Not found set lang for standard status: {:?}", err);
                 standard_status_translate_list::standard_status_translate_list
-                    .filter(standard_status_translate_list::standard_status_id.eq(target_standard_status_id))
+                    .filter(
+                        standard_status_translate_list::standard_status_id
+                            .eq(target_standard_status_id),
+                    )
                     .first::<StandardStatusTranslateList>(conn)
                     .map_err(|err| {
                         debug!("Failed get standard status: {:?}", err);
                         ServiceError::InternalServerError
                     })
-            },
+            }
         }
     }
 
@@ -43,8 +49,11 @@ impl StandardStatusTranslateList {
                 .filter(standard_status_translate_list::lang_id.eq(set_lang_id))
                 .load::<StandardStatusTranslateList>(conn),
             false => standard_status_translate_list::standard_status_translate_list
-                .filter(standard_status_translate_list::standard_status_id.eq_any(filter)
-                .and(standard_status_translate_list::lang_id.eq(set_lang_id)))
+                .filter(
+                    standard_status_translate_list::standard_status_id
+                        .eq_any(filter)
+                        .and(standard_status_translate_list::lang_id.eq(set_lang_id)),
+                )
                 .load::<StandardStatusTranslateList>(conn),
         };
 

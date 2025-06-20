@@ -1,5 +1,5 @@
+use crate::errors::err_msg::{get_err_msg, ErrorMessage};
 use crate::errors::ServiceResult;
-use crate::errors::err_msg::{ErrorMessage, get_err_msg};
 use crate::models::component::component_modification::util::get_component_by_modification;
 use diesel::prelude::*;
 use uuid::Uuid;
@@ -7,20 +7,20 @@ use uuid::Uuid;
 /// Get component uuid from fileset by uuid
 pub(crate) fn get_component_by_fileset(
     target_fileset_uuid: &Uuid,
-    conn: &mut PgConnection
+    conn: &mut PgConnection,
 ) -> ServiceResult<Uuid> {
     // get component uuid
     get_component_by_modification(
         // get component modification uuid from fileset data
         &get_modification_by_fileset(target_fileset_uuid, conn)?,
-        conn
+        conn,
     )
 }
 
 /// Get modification uuid from fileset by uuid
 pub(crate) fn get_modification_by_fileset(
     target_fileset_uuid: &Uuid,
-    conn: &mut PgConnection
+    conn: &mut PgConnection,
 ) -> ServiceResult<Uuid> {
     use crate::schema::fileset_for_program::dsl::*;
     fileset_for_program

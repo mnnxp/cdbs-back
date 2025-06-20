@@ -1,12 +1,14 @@
-use crate::errors::{ServiceResult, ServiceError};
-use crate::errors::err_msg::{ErrorMessage, get_err_msg};
-use crate::models::standard::{
-    keyword::model::{IptStandardKeywordsData, IptStandardKeywordsNames, InsertableStandardKeyword},
-    access::util::check_access_standard_for_user,
-};
+use crate::errors::err_msg::{get_err_msg, ErrorMessage};
+use crate::errors::{ServiceError, ServiceResult};
 use crate::models::relate_ref::keyword::{
     model::{IptKeywordData, KeywordId},
     service::register::create_keyword,
+};
+use crate::models::standard::{
+    access::util::check_access_standard_for_user,
+    keyword::model::{
+        InsertableStandardKeyword, IptStandardKeywordsData, IptStandardKeywordsNames,
+    },
 };
 use crate::schema::keyword_to_standard::dsl as keyword_to_standard;
 use diesel::prelude::*;
@@ -16,7 +18,7 @@ use uuid::Uuid;
 pub(crate) fn add_standard_keywords(
     logged_user_uuid: &Uuid,
     data: &IptStandardKeywordsData,
-    conn: &mut PgConnection
+    conn: &mut PgConnection,
 ) -> ServiceResult<usize> {
     let need_access_level = 1; // todo!(create enum for manage access level)
 
@@ -24,7 +26,7 @@ pub(crate) fn add_standard_keywords(
         logged_user_uuid,
         &data.standard_uuid,
         &need_access_level,
-        conn
+        conn,
     )?;
 
     // creating structures for inserting records into a table
@@ -37,18 +39,21 @@ pub(crate) fn add_standard_keywords(
         false => {
             keywords.retain(|k| check_keyword_for_standard(k, conn));
             insert_rows_standard_keywords(&keywords, conn)
-        },
+        }
     }
 }
 
 /// Check already keyword for standard (duplicate)
 fn check_keyword_for_standard(
     keyword: &InsertableStandardKeyword,
-    conn: &mut PgConnection
+    conn: &mut PgConnection,
 ) -> bool {
     let check = keyword_to_standard::keyword_to_standard
-        .filter(keyword_to_standard::standard_uuid.eq(&keyword.standard_uuid)
-        .and(keyword_to_standard::keyword_id.eq(&keyword.keyword_id)))
+        .filter(
+            keyword_to_standard::standard_uuid
+                .eq(&keyword.standard_uuid)
+                .and(keyword_to_standard::keyword_id.eq(&keyword.keyword_id)),
+        )
         .limit(1)
         .execute(conn);
     debug!("Check: {:?}", check);
@@ -57,7 +62,7 @@ fn check_keyword_for_standard(
 
 fn insert_rows_standard_keywords(
     insert_data: &[InsertableStandardKeyword],
-    conn: &mut PgConnection
+    conn: &mut PgConnection,
 ) -> ServiceResult<usize> {
     diesel::insert_into(keyword_to_standard::keyword_to_standard)
         .values(insert_data)
@@ -72,7 +77,7 @@ fn insert_rows_standard_keywords(
 pub(crate) fn add_keywords_by_names(
     logged_user_uuid: &Uuid,
     data: &IptStandardKeywordsNames,
-    conn: &mut PgConnection
+    conn: &mut PgConnection,
 ) -> ServiceResult<usize> {
     let mut keyword_ids: Vec<i32> = Vec::new();
 
@@ -81,7 +86,12 @@ pub(crate) fn add_keywords_by_names(
             Ok(x) => keyword_ids.push(x),
             Err(err) => {
                 debug!("Error ({:?}) for keyword: {:?}", err, kw);
-                let keyword = create_keyword(&IptKeywordData{keyword: kw.clone()}, conn)?;
+                let keyword = create_keyword(
+                    &IptKeywordData {
+                        keyword: kw.clone(),
+                    },
+                    conn,
+                )?;
                 keyword_ids.push(keyword.id);
             }
         }
@@ -89,16 +99,16 @@ pub(crate) fn add_keywords_by_names(
 
     add_standard_keywords(
         logged_user_uuid,
-        &IptStandardKeywordsData{
+        &IptStandardKeywordsData {
             keyword_ids,
             standard_uuid: data.standard_uuid,
         },
-        conn
+        conn,
     )
 }
 
 /// Clear duplicates keywords
-fn clear_duplicates(keywords: &mut Vec<InsertableStandardKeyword>)  {
+fn clear_duplicates(keywords: &mut Vec<InsertableStandardKeyword>) {
     let mut already_seen = Vec::new();
     keywords.retain(|item| match already_seen.contains(&item.keyword_id) {
         true => false,

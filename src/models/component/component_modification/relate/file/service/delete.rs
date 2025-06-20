@@ -1,4 +1,4 @@
-use crate::errors::{ServiceResult, ServiceError};
+use crate::errors::{ServiceError, ServiceResult};
 use crate::models::component::service::update::change_updated_at;
 use crate::models::component::{
     access::util::check_access_component_for_user,
@@ -22,12 +22,15 @@ pub(crate) fn delete_modification_file(
         logged_user_uuid,
         &target_component_uuid,
         &need_access_level,
-        conn
+        conn,
     )?;
 
     let del_file = diesel::delete(file_to_modification)
-        .filter(modification_uuid.eq(&data.modification_uuid)
-        .and(file_uuid.eq(&data.file_uuid)))
+        .filter(
+            modification_uuid
+                .eq(&data.modification_uuid)
+                .and(file_uuid.eq(&data.file_uuid)),
+        )
         .execute(conn)
         .map_err(|err| {
             debug!("Fail delete row: {:?}", err);
@@ -41,6 +44,6 @@ pub(crate) fn delete_modification_file(
         _ => {
             change_updated_at(&target_component_uuid, Some(&data.modification_uuid), conn)?;
             delete_file_by_uuid(&data.file_uuid, conn)
-        },
+        }
     }
 }

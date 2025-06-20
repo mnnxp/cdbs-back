@@ -1,9 +1,9 @@
-use crate::errors::ServiceResult;
 use crate::database::{get_conn, PooledConnection};
+use crate::errors::ServiceResult;
 use crate::models::relate_ref::{
-    type_access::service::{list::get_type_access, register::create_type_access},
-    type_access::model::{IptTypeAccessTranslateListData, TypeAccessTranslateList},
     language::get_set_language,
+    type_access::model::{IptTypeAccessTranslateListData, TypeAccessTranslateList},
+    type_access::service::{list::get_type_access, register::create_type_access},
 };
 use crate::models::search::order::Paginate;
 use crate::models::user::access::logged::check_authorized;
@@ -26,10 +26,16 @@ impl TypeAccessQuery {
         type_access_ids: Option<Vec<i32>>,
         paginate: Option<IptPaginate>,
     ) -> ServiceResult<Vec<TypeAccessTranslateList>> {
-        let p = paginate.map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
+        let p = paginate
+            .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
             .unwrap_or_default();
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
-        get_type_access(&type_access_ids.unwrap_or_default(), &get_set_language(cxt), &p, conn)
+        get_type_access(
+            &type_access_ids.unwrap_or_default(),
+            &get_set_language(cxt),
+            &p,
+            conn,
+        )
     }
 }
 

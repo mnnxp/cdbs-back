@@ -1,7 +1,7 @@
 use crate::database::{get_conn, PooledConnection};
-use	crate::models::user::model::ShowUserShort;
 use crate::models::relate_ref::file::model::SlimFile;
 use crate::models::relate_ref::program::model::Program;
+use crate::models::user::model::ShowUserShort;
 use async_graphql::{Context, Object};
 use chrono::NaiveDateTime;
 use uuid::Uuid;
@@ -84,8 +84,7 @@ impl ShowFileRelatedData {
     /// Hash of the file calculated with BLAKE3 (cryptographic hash function)
     async fn hash(&self, cxt: &Context<'_>) -> String {
         let conn: &mut PooledConnection = &mut get_conn(cxt).expect("Error get conn to DB");
-        SlimFile::encode_hash(&self.uuid, conn)
-            .expect("Error get encode hash (slim file)")
+        SlimFile::encode_hash(&self.uuid, conn).expect("Error get encode hash (slim file)")
     }
 
     /// Pre-signed URL to download the file

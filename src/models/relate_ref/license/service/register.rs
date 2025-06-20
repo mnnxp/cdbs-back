@@ -1,5 +1,5 @@
-use crate::errors::{ServiceResult, ServiceError};
-use crate::errors::err_msg::{ErrorMessage, get_err_msg};
+use crate::errors::err_msg::{get_err_msg, ErrorMessage};
+use crate::errors::{ServiceError, ServiceResult};
 use crate::models::relate_ref::license::model::{InsertableLicense, License, LicenseData};
 use crate::schema::license_ref::dsl as license_ref;
 use diesel::prelude::*;
@@ -9,7 +9,7 @@ use diesel::prelude::*;
 /// Возвращает ошибку с идентификатором лицензии, если она уже существует.
 pub(crate) fn create_license(
     new_license_data: &LicenseData,
-    conn: &mut PgConnection
+    conn: &mut PgConnection,
 ) -> ServiceResult<License> {
     let flag_found = license_ref::license_ref
         .filter(license_ref::keyword.eq(&new_license_data.keyword))
@@ -22,8 +22,10 @@ pub(crate) fn create_license(
         })?;
 
     match flag_found.first() {
-        Some(x) =>
-            Err(get_err_msg(ErrorMessage::NameAlreadyThereX("license".to_string(), *x))),
+        Some(x) => Err(get_err_msg(ErrorMessage::NameAlreadyThereX(
+            "license".to_string(),
+            *x,
+        ))),
         None => {
             let new_license_data: InsertableLicense = new_license_data.into();
             diesel::insert_into(license_ref::license_ref)
@@ -33,6 +35,6 @@ pub(crate) fn create_license(
                     debug!("Failed insert license: {:?}", err);
                     ServiceError::InternalServerError
                 })
-        },
+        }
     }
 }

@@ -13,11 +13,7 @@ pub(crate) struct InsertableServiceHistoryList {
 }
 
 impl InsertableServiceHistoryList {
-    pub(crate) fn new_history_row(
-        service_uuid: &Uuid,
-        user_uuid: &Uuid,
-        old_data: String
-    ) -> Self {
+    pub(crate) fn new_history_row(service_uuid: &Uuid, user_uuid: &Uuid, old_data: String) -> Self {
         Self {
             service_uuid: *service_uuid,
             type_of_change_id: 1,

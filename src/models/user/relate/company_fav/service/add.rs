@@ -1,11 +1,9 @@
 use crate::errors::{ServiceError, ServiceResult};
 use crate::models::company::access::util::check_company_access;
 use crate::models::company::util::get_company_owner;
-use crate::models::user::company_fav::model::{
-    InsertableCompanyFav, IptCompanyFavData
-};
+use crate::models::user::company_fav::model::{InsertableCompanyFav, IptCompanyFavData};
 use crate::models::user::notification::{
-    model::{NotificationType, NotificationData},
+    model::{NotificationData, NotificationType},
     service::register::create_notification,
 };
 use crate::schema::company_fav::dsl as company_fav;
@@ -21,17 +19,15 @@ pub(crate) fn add_company_fav(
     let need_access_level = 3; // todo!(create enum for manage access level)
 
     // check access user for company
-    check_company_access(
-        logged_user_uuid,
-        company_uuid,
-        &need_access_level,
-        conn
-    )?;
+    check_company_access(logged_user_uuid, company_uuid, &need_access_level, conn)?;
 
     // if have need row, just update is_enabled to true
     let check_fav = company_fav::company_fav
-        .filter(company_fav::company_uuid.eq(company_uuid)
-        .and(company_fav::user_uuid.eq(logged_user_uuid)))
+        .filter(
+            company_fav::company_uuid
+                .eq(company_uuid)
+                .and(company_fav::user_uuid.eq(logged_user_uuid)),
+        )
         .select(company_fav::is_enabled)
         .limit(1)
         .load(conn)
@@ -45,8 +41,11 @@ pub(crate) fn add_company_fav(
         Some(false) => {
             // if have need row, just update is_enabled to true
             diesel::update(company_fav::company_fav)
-                .filter(company_fav::company_uuid.eq(company_uuid)
-                .and(company_fav::user_uuid.eq(logged_user_uuid)))
+                .filter(
+                    company_fav::company_uuid
+                        .eq(company_uuid)
+                        .and(company_fav::user_uuid.eq(logged_user_uuid)),
+                )
                 .set(company_fav::is_enabled.eq(true))
                 .returning(company_fav::is_enabled)
                 .get_result::<bool>(conn)
@@ -54,9 +53,9 @@ pub(crate) fn add_company_fav(
                     debug!("Failed add fav company: {:?}", err);
                     ServiceError::InternalServerError
                 })
-        },
+        }
         None => {
-            let data = IptCompanyFavData{
+            let data = IptCompanyFavData {
                 user_uuid: *logged_user_uuid,
                 company_uuid: *company_uuid,
             };
@@ -81,6 +80,6 @@ pub(crate) fn add_company_fav(
                 },
                 conn,
             )
-        },
+        }
     }
 }

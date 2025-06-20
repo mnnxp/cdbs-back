@@ -1,8 +1,8 @@
-use crate::errors::{ServiceResult, ServiceError};
+use crate::errors::{ServiceError, ServiceResult};
 use crate::models::relate_ref::license::model::License;
 use crate::models::search::order::Paginate;
 use crate::schema::license_ref::dsl as license_ref;
-use diesel::{PgConnection, prelude::*};
+use diesel::{prelude::*, PgConnection};
 
 /// Returns a list of available licenses.
 /// If no license filter is specified, all existing licenses are aggregated.
@@ -11,16 +11,13 @@ pub(crate) fn get_licenses(
     paginate: &Paginate,
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<License>> {
-    match license_ids.is_empty()  {
+    match license_ids.is_empty() {
         true => find_all_license(paginate, conn),
-        false => find_license_id(license_ids, paginate, conn)
+        false => find_license_id(license_ids, paginate, conn),
     }
 }
 
-fn find_all_license(
-    paginate: &Paginate,
-    conn: &mut PgConnection,
-) -> ServiceResult<Vec<License>> {
+fn find_all_license(paginate: &Paginate, conn: &mut PgConnection) -> ServiceResult<Vec<License>> {
     license_ref::license_ref
         .limit(paginate.limit)
         .offset(paginate.offset)

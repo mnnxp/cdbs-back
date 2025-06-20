@@ -1,6 +1,6 @@
-use crate::schema::*;
 use crate::models::company::company_represent::representation_type::model::RepresentationTypeTranslateList;
 use crate::models::relate_ref::region::model::RegionTranslateList;
+use crate::schema::*;
 use async_graphql::*;
 use uuid::Uuid;
 

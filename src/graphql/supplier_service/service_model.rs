@@ -1,22 +1,19 @@
 use crate::database::{get_conn, PooledConnection};
-use crate::graphql::relate::attributes::{IptPaginate, IptSort};
 use crate::graphql::file::ShowFileRelatedData;
-use	crate::models::user::model::ShowUserShort;
-use	crate::models::relate_ref::{
-    spec::model::SpecTranslateList,
-    keyword::model::Keyword,
-    file::model::DownloadFile,
-    language::get_set_language,
-    region::model::RegionTranslateList,
+use crate::graphql::relate::attributes::{IptPaginate, IptSort};
+use crate::models::company::model::ShowCompanyShort;
+use crate::models::relate_ref::{
+    file::model::DownloadFile, keyword::model::Keyword, language::get_set_language,
+    region::model::RegionTranslateList, spec::model::SpecTranslateList,
 };
+use crate::models::search::order::{Paginate, Sort, TableName};
 use crate::models::supplier_service::{
     model::{ServiceFilesArg, ServicesArg},
-    service_status::model::ServiceStatusTranslateList,
     param::model::ServiceParamWithTranslation,
+    service_status::model::ServiceStatusTranslateList,
 };
-use crate::models::company::model::ShowCompanyShort;
-use crate::models::search::order::{Paginate, Sort, TableName};
-use async_graphql::{Context, Object, InputObject};
+use crate::models::user::model::ShowUserShort;
+use async_graphql::{Context, InputObject, Object};
 use chrono::NaiveDateTime;
 use uuid::Uuid;
 
@@ -108,14 +105,21 @@ impl ServiceAndRelatedData {
         let p = paginate
             .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
             .unwrap_or_default();
-        ServiceParamWithTranslation::by_service_uuid(&self.uuid, &get_set_language(cxt), &s, &p, conn)
-           .expect("Error loading service parameters")
+        ServiceParamWithTranslation::by_service_uuid(
+            &self.uuid,
+            &get_set_language(cxt),
+            &s,
+            &p,
+            conn,
+        )
+        .expect("Error loading service parameters")
     }
 
     /// Returns the total number of params in the service (without filters)
     async fn params_count(&self, cxt: &Context<'_>) -> i64 {
         let conn: &mut PooledConnection = &mut get_conn(cxt).expect("Error get conn to DB");
-        Paginate::get_count(&self.uuid, &TableName::ParamToService, conn).expect("Error count items")
+        Paginate::get_count(&self.uuid, &TableName::ParamToService, conn)
+            .expect("Error count items")
     }
 
     /// Files associated with the service. Default sorting: `createdAt`.
@@ -144,12 +148,14 @@ impl ServiceAndRelatedData {
     }
 
     /// Catalogs to which the service is added
-    async fn service_specs(&self,
+    async fn service_specs(
+        &self,
         cxt: &Context<'_>,
         paginate: Option<IptPaginate>,
     ) -> Vec<SpecTranslateList> {
         let conn: &mut PooledConnection = &mut get_conn(cxt).expect("Error get conn to DB");
-        let p = paginate.map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
+        let p = paginate
+            .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
             .unwrap_or_default();
         SpecTranslateList::for_service_by_uuid(&self.uuid, &get_set_language(cxt), &p, conn)
             .expect("Error loading service keywords")
@@ -162,7 +168,8 @@ impl ServiceAndRelatedData {
         paginate: Option<IptPaginate>,
     ) -> Vec<Keyword> {
         let conn: &mut PooledConnection = &mut get_conn(cxt).expect("Error get conn to DB");
-        let p = paginate.map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
+        let p = paginate
+            .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
             .unwrap_or_default();
         Keyword::for_service_without_check(&self.uuid, &p, conn)
             .expect("Error loading service keywords")

@@ -1,12 +1,12 @@
-use crate::errors::{ServiceResult, ServiceError};
-use crate::errors::err_msg::{ErrorMessage, get_err_msg};
-use crate::models::supplier_service::service::update::change_service_updated_at;
-use crate::models::supplier_service::{
-    param::model::{IptServiceParamsData, InsertableServiceParam},
-    access::util::check_access_service_for_user,
-};
+use crate::errors::err_msg::{get_err_msg, ErrorMessage};
+use crate::errors::{ServiceError, ServiceResult};
 use crate::models::relate_ref::param::model::IptParamData;
 use crate::models::search::model::ExtraOptions;
+use crate::models::supplier_service::service::update::change_service_updated_at;
+use crate::models::supplier_service::{
+    access::util::check_access_service_for_user,
+    param::model::{InsertableServiceParam, IptServiceParamsData},
+};
 use crate::schema::param_to_service::dsl::*;
 use diesel::prelude::*;
 use uuid::Uuid;
@@ -16,7 +16,7 @@ use uuid::Uuid;
 pub(crate) fn put_service_params(
     data: &IptServiceParamsData,
     options: &ExtraOptions,
-    conn: &mut PgConnection
+    conn: &mut PgConnection,
 ) -> ServiceResult<usize> {
     let need_access_level = 1; // todo!(create enum for manage access level)
 
@@ -24,23 +24,27 @@ pub(crate) fn put_service_params(
         &options.logged_user_uuid,
         &data.service_uuid,
         &need_access_level,
-        conn
+        conn,
     )?;
 
     if data.params.is_empty() {
-        return Err(get_err_msg(ErrorMessage::NotFoundParamsForAddingOrUpdaing))
+        return Err(get_err_msg(ErrorMessage::NotFoundParamsForAddingOrUpdaing));
     }
 
     let mut count_changed_rows: usize = 0;
 
-    let mut new_params: Vec<InsertableServiceParam> = Vec::new();      // <-- new parameters to be added
-    let mut update_params: Vec<IptParamData> = Vec::new();   // <-- found parameters will be updated
+    let mut new_params: Vec<InsertableServiceParam> = Vec::new(); // <-- new parameters to be added
+    let mut update_params: Vec<IptParamData> = Vec::new(); // <-- found parameters will be updated
 
     for param_d in &data.params {
-        if param_d.param_id > 0 { // <-- additionally we check the correctness of the id
+        if param_d.param_id > 0 {
+            // <-- additionally we check the correctness of the id
             let get_param = param_to_service
-                .filter(service_uuid.eq(&data.service_uuid)
-                .and(param_id.eq(&param_d.param_id)))
+                .filter(
+                    service_uuid
+                        .eq(&data.service_uuid)
+                        .and(param_id.eq(&param_d.param_id)),
+                )
                 .execute(conn)
                 .map_err(|err| {
                     debug!("Fail check param data: {:?} ", err);
@@ -54,9 +58,9 @@ pub(crate) fn put_service_params(
                         param_id: param_d.param_id,
                         value: param_d.value.to_string(),
                     };
-                    new_params.push(insertable_data)        // <-- need insert new param
-                },
-                _ => update_params.push(param_d.clone()),     // <-- already has param need update
+                    new_params.push(insertable_data) // <-- need insert new param
+                }
+                _ => update_params.push(param_d.clone()), // <-- already has param need update
             }
         }
     }
@@ -70,22 +74,23 @@ pub(crate) fn put_service_params(
     if !update_params.is_empty() {
         // Return error if found duplication of existing data detected
         if check_duplicated_params(&data.service_uuid, &update_params, conn)? {
-            return Err(get_err_msg(ErrorMessage::DuplicateOfExistingData))
+            return Err(get_err_msg(ErrorMessage::DuplicateOfExistingData));
         }
 
-        count_changed_rows += update_service_params_values(
-            &data.service_uuid,
-            &update_params,
-            conn
-        )?;
+        count_changed_rows +=
+            update_service_params_values(&data.service_uuid, &update_params, conn)?;
     }
 
     if count_changed_rows > 0 {
         change_service_updated_at(
             &data.service_uuid,
             &options.logged_user_uuid,
-            format!("Updated parameters (new:{}, changed:{})", new_params.len(), update_params.len()),
-            conn
+            format!(
+                "Updated parameters (new:{}, changed:{})",
+                new_params.len(),
+                update_params.len()
+            ),
+            conn,
         )?;
     }
 
@@ -93,9 +98,9 @@ pub(crate) fn put_service_params(
 }
 
 /// Add new params from array InsertableServiceParam's
-fn adding_new_service_params (
+fn adding_new_service_params(
     data: &[InsertableServiceParam],
-    conn: &mut PgConnection
+    conn: &mut PgConnection,
 ) -> ServiceResult<usize> {
     diesel::insert_into(param_to_service)
         .values(data)
@@ -111,20 +116,24 @@ fn adding_new_service_params (
 fn update_service_params_values(
     target_service_uuid: &Uuid,
     data: &[IptParamData],
-    conn: &mut PgConnection
+    conn: &mut PgConnection,
 ) -> ServiceResult<usize> {
     let mut res: usize = 0;
 
     for param_d in data {
-        let insert_params = diesel::update(param_to_service
-            .filter(service_uuid.eq(target_service_uuid)
-            .and(param_id.eq(&param_d.param_id))))
-            .set(value.eq(param_d.value.to_string()))
-            .execute(conn)
-            .map_err(|err| {
-                debug!("Fail updated rows:  {:?}", err);
-                ServiceError::InternalServerError
-            })?;
+        let insert_params = diesel::update(
+            param_to_service.filter(
+                service_uuid
+                    .eq(target_service_uuid)
+                    .and(param_id.eq(&param_d.param_id)),
+            ),
+        )
+        .set(value.eq(param_d.value.to_string()))
+        .execute(conn)
+        .map_err(|err| {
+            debug!("Fail updated rows:  {:?}", err);
+            ServiceError::InternalServerError
+        })?;
 
         debug!("Updated {:?} rows", insert_params);
         res += insert_params;
@@ -138,13 +147,15 @@ fn update_service_params_values(
 fn check_duplicated_params(
     target_service_uuid: &Uuid,
     data: &[IptParamData],
-    conn: &mut PgConnection
+    conn: &mut PgConnection,
 ) -> ServiceResult<bool> {
     for param_d in data {
         let duplicate_params = param_to_service
-            .filter(service_uuid.eq(target_service_uuid)
-            .and(param_id.eq(&param_d.param_id)
-            .and(value.eq(&param_d.value))))
+            .filter(
+                service_uuid
+                    .eq(target_service_uuid)
+                    .and(param_id.eq(&param_d.param_id).and(value.eq(&param_d.value))),
+            )
             .execute(conn)
             .map_err(|err| {
                 debug!("Fail updated rows:  {:?}", err);
@@ -153,7 +164,7 @@ fn check_duplicated_params(
 
         if duplicate_params > 0 {
             debug!("Found {:?} duplicates rows", duplicate_params);
-            return Ok(true)
+            return Ok(true);
         }
     }
 

@@ -1,8 +1,8 @@
-use crate::errors::{ServiceResult, ServiceError};
+use crate::errors::{ServiceError, ServiceResult};
 use crate::models::relate_ref::keyword::model::Keyword;
 use crate::models::search::order::Paginate;
 use crate::schema::keyword_ref::dsl::*;
-use diesel::{PgConnection, prelude::*};
+use diesel::{prelude::*, PgConnection};
 
 /// Returns keywords by IDs. If no keyword filter is specified, all existing ones are aggregated.
 /// Keywords can be used for components and standards as well as companies.
@@ -13,14 +13,11 @@ pub(crate) fn get_keywords(
 ) -> ServiceResult<Vec<Keyword>> {
     match keyword_ids.is_empty() {
         true => find_all_keywords(paginate, conn),
-        false => find_keyword_ids(keyword_ids, paginate, conn)
+        false => find_keyword_ids(keyword_ids, paginate, conn),
     }
 }
 
-fn find_all_keywords(
-    paginate: &Paginate,
-    conn: &mut PgConnection,
-) -> ServiceResult<Vec<Keyword>> {
+fn find_all_keywords(paginate: &Paginate, conn: &mut PgConnection) -> ServiceResult<Vec<Keyword>> {
     keyword_ref
         .limit(paginate.limit)
         .offset(paginate.offset)

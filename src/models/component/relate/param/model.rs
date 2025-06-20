@@ -1,7 +1,5 @@
+use crate::models::relate_ref::param::model::{IptParamData, ParamTranslateList};
 use crate::schema::*;
-use crate::models::relate_ref::param::model::{
-    ParamTranslateList, IptParamData
-};
 use async_graphql::*;
 // use chrono::*;
 use uuid::Uuid;
@@ -55,11 +53,11 @@ impl From<IptComponentParamsData> for Vec<InsertableComponentParam> {
         for param_d in params {
             // now off checking, check the before
             // if param_d.param_id > 0 { // <-- additionally we check the correctness of the id
-                res.push(InsertableComponentParam {
-                    component_uuid,
-                    param_id: param_d.param_id,
-                    value: param_d.value,
-                })
+            res.push(InsertableComponentParam {
+                component_uuid,
+                param_id: param_d.param_id,
+                value: param_d.value,
+            })
             // }
         }
         res

@@ -2,11 +2,10 @@ use crate::errors::ServiceResult;
 use crate::graphql::file::ShowFileRelatedData;
 use crate::models::component::file::repository::get_file_uuids_by_component_uuid;
 use crate::models::component::{
-    model::ComponentFilesArg,
-    access::util::check_access_component_for_user,
+    access::util::check_access_component_for_user, model::ComponentFilesArg,
 };
-use crate::models::search::order::{Paginate, Sort};
 use crate::models::relate_ref::file::model::DownloadFile;
+use crate::models::search::order::{Paginate, Sort};
 use diesel::prelude::*;
 use uuid::Uuid;
 
@@ -23,7 +22,7 @@ pub(crate) fn get_component_files(
         logged_user_uuid,
         &args.component_uuid,
         &need_access_level,
-        conn
+        conn,
     )?;
 
     let target_file_uuids =
@@ -45,14 +44,10 @@ pub(crate) fn get_component_files_list(
         logged_user_uuid,
         &args.component_uuid,
         &need_access_level,
-        conn
+        conn,
     )?;
 
-    let object_uuids = get_file_uuids_by_component_uuid(&args.component_uuid, &args.file_uuids, conn)?;
-    ShowFileRelatedData::get_file_by_uuids(
-        &object_uuids,
-        sort,
-        paginate,
-        conn
-    )
+    let object_uuids =
+        get_file_uuids_by_component_uuid(&args.component_uuid, &args.file_uuids, conn)?;
+    ShowFileRelatedData::get_file_by_uuids(&object_uuids, sort, paginate, conn)
 }

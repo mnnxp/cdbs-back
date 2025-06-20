@@ -1,12 +1,12 @@
 use crate::errors::ServiceResult;
 use crate::models::relate_ref::file::model::SlimFile;
-use rusoto_signature::{Region, credential::AwsCredentials};
 use rusoto_s3::util::{PreSignedRequest, PreSignedRequestOption};
+use rusoto_signature::{credential::AwsCredentials, Region};
 
 #[derive(Clone)]
 pub(crate) struct Aws {
     credentials: AwsCredentials,
-    region: Region
+    region: Region,
 }
 
 impl Aws {
@@ -17,12 +17,7 @@ impl Aws {
         region: &str,
         endpoint: &str,
     ) -> Aws {
-        let credentials = AwsCredentials::new(
-            access_key_id,
-            secret_access_key,
-            None,
-            None
-        );
+        let credentials = AwsCredentials::new(access_key_id, secret_access_key, None, None);
 
         // debug!("Credentials: {:#?}", credentials);
 
@@ -33,7 +28,10 @@ impl Aws {
 
         // debug!("Region: {:#?}", region);
 
-        Aws{credentials, region}
+        Aws {
+            credentials,
+            region,
+        }
     }
 
     /// Return cloned a AwsCredentials (used for create S3Client)
@@ -57,9 +55,9 @@ impl Aws {
             bucket: bucket.to_string(),
             key: slim_file.path_file.clone(),
             response_content_disposition: Some(format!(
-                    "inline;filename={:?}",
-                    slim_file.filename.clone()
-                )),
+                "inline;filename={:?}",
+                slim_file.filename.clone()
+            )),
             ..Default::default()
         };
 
@@ -68,9 +66,9 @@ impl Aws {
         Ok(req.get_presigned_url(
             &self.region,
             &self.credentials,
-            &PreSignedRequestOption{
-                expires_in: std::time::Duration::from_secs(expires)
-            }
+            &PreSignedRequestOption {
+                expires_in: std::time::Duration::from_secs(expires),
+            },
         ))
     }
 
@@ -82,7 +80,7 @@ impl Aws {
         // content_sha1: &str,
         expires: u64,
     ) -> ServiceResult<String> {
-        let req = rusoto_s3::PutObjectRequest{
+        let req = rusoto_s3::PutObjectRequest {
             bucket: bucket.to_string(),
             key: path_file.to_string(),
             // content_length: Some(79_i64),
@@ -94,9 +92,9 @@ impl Aws {
         Ok(req.get_presigned_url(
             &self.region,
             &self.credentials,
-            &PreSignedRequestOption{
-                expires_in: std::time::Duration::from_secs(expires)
-            }
+            &PreSignedRequestOption {
+                expires_in: std::time::Duration::from_secs(expires),
+            },
         ))
     }
 }

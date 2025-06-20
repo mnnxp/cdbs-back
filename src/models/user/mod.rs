@@ -1,10 +1,10 @@
-mod handler;
 pub(crate) mod access;
+mod handler;
 pub(crate) mod model;
 pub(crate) mod notification;
-pub(crate) mod service;
 pub(crate) mod relate;
 pub(crate) mod repository;
+pub(crate) mod service;
 pub(crate) mod util;
 
 pub(crate) use relate::*;
@@ -14,5 +14,5 @@ use actix_web::web;
 
 /// One route for returns the authorization token (JWS) for the CADBase user.
 pub(crate) fn route(cfg: &mut web::ServiceConfig) {
-        cfg.service(web::resource("/login").route(web::post().to(login)));
+    cfg.service(web::resource("/login").route(web::post().to(login)));
 }

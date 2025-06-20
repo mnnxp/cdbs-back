@@ -1,4 +1,4 @@
-use crate::errors::{ServiceResult, ServiceError};
+use crate::errors::{ServiceError, ServiceResult};
 use crate::models::relate_ref::param::model::ParamTranslateList;
 use crate::schema::param_translate_list::dsl as param_translate_list;
 use diesel::prelude::*;
@@ -11,8 +11,11 @@ impl ParamTranslateList {
         conn: &mut PgConnection,
     ) -> ServiceResult<ParamTranslateList> {
         let param = param_translate_list::param_translate_list
-            .filter(param_translate_list::param_id.eq(param_id)
-            .and(param_translate_list::lang_id.eq(set_lang_id)))
+            .filter(
+                param_translate_list::param_id
+                    .eq(param_id)
+                    .and(param_translate_list::lang_id.eq(set_lang_id)),
+            )
             .limit(1)
             .load::<ParamTranslateList>(conn)
             .map_err(|err| {
@@ -31,7 +34,7 @@ impl ParamTranslateList {
                         debug!("Failed get params: {:?}", err);
                         ServiceError::InternalServerError
                     })
-            },
+            }
         }
     }
 }

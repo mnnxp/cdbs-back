@@ -2,12 +2,11 @@ use crate::errors::ServiceResult;
 use crate::graphql::file::ShowFileRelatedData;
 use crate::models::component::access::util::check_access_component_for_user;
 use crate::models::component::component_modification::{
-    model::ModificationFilesArg,
-    file::repository::get_file_uuids_by_modification_uuid,
+    file::repository::get_file_uuids_by_modification_uuid, model::ModificationFilesArg,
     util::get_component_by_modification,
 };
-use crate::models::search::order::{Paginate, Sort};
 use crate::models::relate_ref::file::model::DownloadFile;
+use crate::models::search::order::{Paginate, Sort};
 use diesel::prelude::*;
 use uuid::Uuid;
 
@@ -24,14 +23,11 @@ pub(crate) fn get_component_modification_files(
         logged_user_uuid,
         &get_component_by_modification(&args.modification_uuid, conn)?,
         &need_access_level,
-        conn
+        conn,
     )?;
 
-    let target_file_uuids = get_file_uuids_by_modification_uuid(
-        &args.modification_uuid,
-        &args.file_uuids,
-        conn
-    )?;
+    let target_file_uuids =
+        get_file_uuids_by_modification_uuid(&args.modification_uuid, &args.file_uuids, conn)?;
     DownloadFile::get_by_file_uuids(&target_file_uuids, paginate, conn)
 }
 
@@ -49,7 +45,7 @@ pub(crate) fn get_component_modification_files_list(
         logged_user_uuid,
         &get_component_by_modification(&args.modification_uuid, conn)?,
         &need_access_level,
-        conn
+        conn,
     )?;
 
     ShowFileRelatedData::get_component_modification_files_offsec(
@@ -57,7 +53,7 @@ pub(crate) fn get_component_modification_files_list(
         &args.file_uuids,
         sort,
         paginate,
-        conn
+        conn,
     )
 }
 
@@ -70,16 +66,8 @@ impl ShowFileRelatedData {
         paginate: &Paginate,
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<ShowFileRelatedData>> {
-        let object_uuids = get_file_uuids_by_modification_uuid(
-            modification_uuid,
-            file_uuids,
-            conn
-        )?;
-        ShowFileRelatedData::get_file_by_uuids(
-            &object_uuids,
-            sort,
-            paginate,
-            conn
-        )
+        let object_uuids =
+            get_file_uuids_by_modification_uuid(modification_uuid, file_uuids, conn)?;
+        ShowFileRelatedData::get_file_by_uuids(&object_uuids, sort, paginate, conn)
     }
 }

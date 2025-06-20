@@ -54,7 +54,7 @@ impl InsertableComponentModification {
     /// Returns structures with the specified component UUID and modifications data
     pub(crate) fn get_multiple_data(
         component_uuid: Uuid,
-        modifications_data: &IptModificationsData
+        modifications_data: &IptModificationsData,
     ) -> Self {
         let local_time = chrono::Local::now().naive_local();
         Self {
@@ -166,7 +166,6 @@ pub(crate) struct DelComponentModificationData {
     /// UUID of the component modification to be deleted
     pub(crate) modification_uuid: Uuid,
 }
-
 
 #[derive(Debug)]
 pub(crate) struct ComponentModificationArg {

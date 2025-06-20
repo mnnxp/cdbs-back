@@ -1,4 +1,4 @@
-use crate::errors::{ServiceResult, ServiceError};
+use crate::errors::{ServiceError, ServiceResult};
 use crate::schema::service_ref::dsl as service_ref;
 use diesel::prelude::*;
 use uuid::Uuid;
@@ -6,7 +6,7 @@ use uuid::Uuid;
 /// Gets service status id for target service
 pub(crate) fn get_service_status(
     target_service_uuid: &Uuid,
-    conn: &mut PgConnection
+    conn: &mut PgConnection,
 ) -> ServiceResult<i32> {
     service_ref::service_ref
         .filter(service_ref::uuid.eq(target_service_uuid))
@@ -21,7 +21,7 @@ pub(crate) fn get_service_status(
 /// Returns the consumer (user) Uuid for the service
 pub(crate) fn get_service_consumer(
     service_uuid: &Uuid,
-    conn: &mut PgConnection
+    conn: &mut PgConnection,
 ) -> ServiceResult<Uuid> {
     service_ref::service_ref
         .filter(service_ref::uuid.eq(service_uuid))

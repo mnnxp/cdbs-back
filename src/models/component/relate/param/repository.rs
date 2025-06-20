@@ -1,7 +1,7 @@
-use crate::errors::{ServiceResult, ServiceError};
+use crate::errors::{ServiceError, ServiceResult};
 use crate::models::{
     component::param::model::ComponentParamWithTranslation,
-    relate_ref::param::model::{ParamValue, ParamTranslateList},
+    relate_ref::param::model::{ParamTranslateList, ParamValue},
     search::order::{Paginate, Sort},
 };
 use diesel::prelude::*;
@@ -16,7 +16,8 @@ impl ComponentParamWithTranslation {
         paginate: &Paginate,
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<ComponentParamWithTranslation>> {
-        let query = format!("
+        let query = format!(
+            "
         SELECT pt.param_id, pt.value
         FROM param_to_component AS pt
         INNER JOIN param_translate_list AS ptl ON pt.param_id = ptl.param_id

@@ -1,6 +1,6 @@
-use crate::errors::{ServiceResult, ServiceError};
+use crate::errors::{ServiceError, ServiceResult};
 use crate::models::relate_ref::param::model::{
-    InsertableParamTranslateList, IptParamTranslateListData, ParamTranslateList
+    InsertableParamTranslateList, IptParamTranslateListData, ParamTranslateList,
 };
 use crate::schema::param_ref::dsl as param_ref;
 use crate::schema::param_translate_list::dsl as param_translate_list;
@@ -10,11 +10,14 @@ use diesel::prelude::*;
 /// если запрашиваемый прараметр существует, то новый не создаётся
 pub(crate) fn create_param(
     new_param_data: &IptParamTranslateListData,
-    conn: &mut PgConnection
+    conn: &mut PgConnection,
 ) -> ServiceResult<ParamTranslateList> {
     let flag_found = param_translate_list::param_translate_list
-        .filter(param_translate_list::lang_id.eq(&new_param_data.lang_id)
-        .and(param_translate_list::paramname.eq(&new_param_data.paramname)))
+        .filter(
+            param_translate_list::lang_id
+                .eq(&new_param_data.lang_id)
+                .and(param_translate_list::paramname.eq(&new_param_data.paramname)),
+        )
         .limit(1)
         .load::<ParamTranslateList>(conn)
         .map_err(|err| {
@@ -45,14 +48,14 @@ pub(crate) fn create_param(
                 .returning((
                     param_translate_list::param_id,
                     param_translate_list::lang_id,
-                    param_translate_list::paramname
+                    param_translate_list::paramname,
                 ))
                 .get_result::<ParamTranslateList>(conn)
                 .map_err(|err| {
                     debug!("Failed insert param: {:?}", err);
                     ServiceError::InternalServerError
                 })
-        },
+        }
     }
 }
 
@@ -60,7 +63,7 @@ pub(crate) fn create_param(
 /// если запрашиваемый прараметр существует, то новый не создаётся
 pub(crate) fn create_parameters(
     new_params: &[IptParamTranslateListData],
-    conn: &mut PgConnection
+    conn: &mut PgConnection,
 ) -> ServiceResult<Vec<ParamTranslateList>> {
     let mut res = Vec::new();
     for np_data in new_params {

@@ -1,4 +1,4 @@
-use crate::errors::{ServiceResult, ServiceError};
+use crate::errors::{ServiceError, ServiceResult};
 use crate::models::relate_ref::extension::model::Extension;
 use crate::schema::extension_ref::dsl as extension_ref;
 use diesel::prelude::*;

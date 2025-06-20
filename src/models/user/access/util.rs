@@ -1,18 +1,19 @@
-use crate::errors::{ServiceResult, ServiceError};
-use crate::errors::err_msg::{ErrorMessage, get_err_msg};
+use crate::errors::err_msg::{get_err_msg, ErrorMessage};
+use crate::errors::{ServiceError, ServiceResult};
 use crate::schema::user_ref::dsl as user_ref;
 use diesel::prelude::*;
 use uuid::Uuid;
 
 /// Get access type for user
-fn get_access_type_user(
-    target_user_uuid: &Uuid,
-    conn: &mut PgConnection
-) -> ServiceResult<i32> {
+fn get_access_type_user(target_user_uuid: &Uuid, conn: &mut PgConnection) -> ServiceResult<i32> {
     user_ref::user_ref
-        .filter(user_ref::uuid.eq(target_user_uuid)
-        .and(user_ref::is_enabled.eq(true)
-        .and(user_ref::is_delete.eq(false))))
+        .filter(
+            user_ref::uuid.eq(target_user_uuid).and(
+                user_ref::is_enabled
+                    .eq(true)
+                    .and(user_ref::is_delete.eq(false)),
+            ),
+        )
         .select(user_ref::type_access_id)
         .first::<i32>(conn)
         .map_err(|err| {
@@ -26,7 +27,7 @@ pub(crate) fn check_access_user_for_user(
     logged_user_uuid: &Uuid,
     target_user_uuid: &Uuid,
     need_access_level: &i32,
-    conn: &mut PgConnection
+    conn: &mut PgConnection,
 ) -> ServiceResult<bool> {
     // return true if user request myself user
     if logged_user_uuid == target_user_uuid {
@@ -34,86 +35,55 @@ pub(crate) fn check_access_user_for_user(
     }
 
     // get set type access for target user
-    let access_type_user = get_access_type_user(
-        target_user_uuid,
-        conn
-    )?;
+    let access_type_user = get_access_type_user(target_user_uuid, conn)?;
 
     // if request to view a public user
     if need_access_level == &3 {
         // if target user public
         if access_type_user == 3 {
-            return Ok(true)
+            return Ok(true);
         }
     }
 
     // checking if user have access
     // to component of target user
-    if user_have_access_component_user(
-        logged_user_uuid,
-        target_user_uuid,
-        conn
-    )? {
-        return Ok(true)
+    if user_have_access_component_user(logged_user_uuid, target_user_uuid, conn)? {
+        return Ok(true);
     };
 
     // checking if target user have access
     // to component of user
-    if user_have_access_component_user(
-        logged_user_uuid,
-        target_user_uuid,
-        conn
-    )? {
-        return Ok(true)
+    if user_have_access_component_user(logged_user_uuid, target_user_uuid, conn)? {
+        return Ok(true);
     };
 
     // checking if user have access
     // to standard of target user
-    if user_have_access_standard_user(
-        logged_user_uuid,
-        target_user_uuid,
-        conn
-    )? {
-        return Ok(true)
+    if user_have_access_standard_user(logged_user_uuid, target_user_uuid, conn)? {
+        return Ok(true);
     };
 
     // checking if target user have access
     // to standard of user
-    if user_have_access_standard_user(
-        target_user_uuid,
-        logged_user_uuid,
-        conn
-    )? {
-        return Ok(true)
+    if user_have_access_standard_user(target_user_uuid, logged_user_uuid, conn)? {
+        return Ok(true);
     };
 
     // checking if users are members of the same company
-    if users_has_one_company(
-        logged_user_uuid,
-        target_user_uuid,
-        conn
-    )? {
-        return Ok(true)
+    if users_has_one_company(logged_user_uuid, target_user_uuid, conn)? {
+        return Ok(true);
     };
 
     // checking if the user
     // is a member of the target user's company
-    if member_in_company_user(
-        logged_user_uuid,
-        target_user_uuid,
-        conn
-    )? {
-        return Ok(true)
+    if member_in_company_user(logged_user_uuid, target_user_uuid, conn)? {
+        return Ok(true);
     };
 
     // second checking if target user
     // is a member company with owner logged user
-    if member_in_company_user(
-        target_user_uuid,
-        logged_user_uuid,
-        conn
-    )? {
-        return Ok(true)
+    if member_in_company_user(target_user_uuid, logged_user_uuid, conn)? {
+        return Ok(true);
     };
     // not found need access level for target user
     Err(get_err_msg(ErrorMessage::AccessDenied))
@@ -136,8 +106,11 @@ fn users_has_one_company(
 
     // check second user in companies of list for first user
     let res_check = company_member_list::company_member_list
-        .filter(company_member_list::user_uuid.eq(logged_user_uuid)
-        .and(company_member_list::company_uuid.eq_any(&target_companies)))
+        .filter(
+            company_member_list::user_uuid
+                .eq(logged_user_uuid)
+                .and(company_member_list::company_uuid.eq_any(&target_companies)),
+        )
         .limit(1)
         .execute(conn)
         .map_err(|err| {
@@ -154,8 +127,8 @@ fn member_in_company_user(
     target_user_uuid: &Uuid,
     conn: &mut PgConnection,
 ) -> ServiceResult<bool> {
-    use crate::schema::company_ref::dsl as company_ref;
     use crate::schema::company_member_list::dsl as company_member_list;
+    use crate::schema::company_ref::dsl as company_ref;
 
     // get companies with target user owner
     let target_companies = company_ref::company_ref
@@ -166,8 +139,11 @@ fn member_in_company_user(
 
     // check logged user in members target companies
     let res_check = company_member_list::company_member_list
-        .filter(company_member_list::user_uuid.eq(logged_user_uuid)
-        .and(company_member_list::company_uuid.eq_any(&target_companies)))
+        .filter(
+            company_member_list::user_uuid
+                .eq(logged_user_uuid)
+                .and(company_member_list::company_uuid.eq_any(&target_companies)),
+        )
         .limit(1)
         .execute(conn)
         .map_err(|err| {
@@ -196,8 +172,11 @@ fn user_have_access_component_user(
 
     // check logged user have access to one of ownership target user components
     let res_check = user_access_to_component::user_access_to_component
-        .filter(user_access_to_component::user_uuid.eq(logged_user_uuid)
-        .and(user_access_to_component::component_uuid.eq_any(&target_components)))
+        .filter(
+            user_access_to_component::user_uuid
+                .eq(logged_user_uuid)
+                .and(user_access_to_component::component_uuid.eq_any(&target_components)),
+        )
         .limit(1)
         .execute(conn)
         .map_err(|err| {
@@ -226,8 +205,11 @@ fn user_have_access_standard_user(
 
     // check logged user have access to one of ownership target user standards
     let res_check = user_access_to_standard::user_access_to_standard
-        .filter(user_access_to_standard::user_uuid.eq(logged_user_uuid)
-        .and(user_access_to_standard::standard_uuid.eq_any(&target_standards)))
+        .filter(
+            user_access_to_standard::user_uuid
+                .eq(logged_user_uuid)
+                .and(user_access_to_standard::standard_uuid.eq_any(&target_standards)),
+        )
         .limit(1)
         .execute(conn)
         .map_err(|err| {

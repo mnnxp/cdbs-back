@@ -1,6 +1,6 @@
-use crate::errors::{ServiceResult, ServiceError};
-use crate::models::component::supplier::model::{SupplierComponent, ComponentSupplierRelatedData};
+use crate::errors::{ServiceError, ServiceResult};
 use crate::models::company::model::SlimCompany;
+use crate::models::component::supplier::model::{ComponentSupplierRelatedData, SupplierComponent};
 use crate::models::search::order::Paginate;
 use crate::schema::supplier_to_component::dsl as supplier_to_component;
 use diesel::prelude::*;

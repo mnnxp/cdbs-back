@@ -1,10 +1,9 @@
 use crate::errors::{ServiceError, ServiceResult};
 use crate::graphql::standard_model::IptStandardData;
-use crate::models::standard::{
-    model::InsertableStandard,
-    access::util::check_access_standard_for_user,
-};
 use crate::models::company::access::util::check_company_access;
+use crate::models::standard::{
+    access::util::check_access_standard_for_user, model::InsertableStandard,
+};
 use crate::schema::standard_ref::dsl as standard_ref;
 use diesel::prelude::*;
 use uuid::Uuid;
@@ -13,7 +12,7 @@ use uuid::Uuid;
 pub(crate) fn create_standard(
     logged_user_uuid: &Uuid,
     data: &IptStandardData,
-    conn: &mut PgConnection
+    conn: &mut PgConnection,
 ) -> ServiceResult<Uuid> {
     let need_access_level = 2; // todo!(create enum for manage access level)
 
@@ -31,7 +30,7 @@ pub(crate) fn create_standard(
             logged_user_uuid,
             parent_standard_uuid,
             &3, // need_access_level
-            conn
+            conn,
         )?;
     }
 
@@ -65,7 +64,7 @@ pub(crate) fn create_standard(
                     debug!("Error change parent standard uuid: {:?}", err);
                     ServiceError::InternalServerError
                 })
-        },
+        }
         false => diesel::insert_into(standard_ref::standard_ref)
             .values(&insert_data)
             .returning(standard_ref::uuid)
