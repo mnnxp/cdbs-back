@@ -104,6 +104,8 @@ pub(crate) fn value_in_err_msg_en(err_msg: ErrorMessage) -> String {
             String::from("Not found target file"),
         ErrorMessage::NotMorePathInOneQuery =>
             String::from("Not more 100 path in one query"),
+        ErrorMessage::NotFoundDiscussion =>
+            String::from("Not found discussion"),
         ErrorMessage::PasswordIsNotCorrect =>
             String::from("Password is not correct"),
         ErrorMessage::PleaseTryAgainLater =>

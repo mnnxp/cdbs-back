@@ -1,6 +1,7 @@
 use diesel::prelude::*;
 use uuid::Uuid;
 use crate::errors::{ServiceError, ServiceResult};
+use crate::models::relate_ref::discussion::model::DiscussionTo;
 use super::get_vec_in_string;
 use super::model::{ObjectUuid, ObjectI64};
 
@@ -99,6 +100,8 @@ pub(crate) enum TableName {
     FileToModification,
     FilesetForProgram,
     FileToFilesetForProgram,
+    DiscussionRef(Option<DiscussionTo>),
+    DiscussionCommentList,
 }
 
 impl TableName {
@@ -121,6 +124,8 @@ impl TableName {
             Self::FileToModification => "file_to_modification",
             Self::FilesetForProgram => "fileset_for_program",
             Self::FileToFilesetForProgram => "modification_file_from_fileset",
+            Self::DiscussionRef(_) => "discussion_ref",
+            Self::DiscussionCommentList => "discussion_comment_list",
         }
     }
 
@@ -138,7 +143,21 @@ impl TableName {
             Self::FileToModification => "modification_uuid",
             Self::FilesetForProgram => "modification_uuid",
             Self::FileToFilesetForProgram => "fileset_uuid",
+            Self::DiscussionRef(discussion_to) =>
+                discussion_to.as_ref().map(|dt| dt.get_relationship()).unwrap_or(""),
+            Self::DiscussionCommentList => "discussion_uuid",
             _ => "",
+        }
+    }
+}
+
+impl DiscussionTo {
+    /// Returns a table column with an identifier for the object associated with the discussion
+    fn get_relationship(&self) -> &str {
+        match self {
+            Self::Company(_) => "company_uuid",
+            Self::Component(_) => "component_uuid",
+            Self::Service(_) => "service_uuid",
         }
     }
 }
@@ -206,6 +225,23 @@ impl TableColumn {
                     "value" => ("pt.value".to_string(), DataType::String),
                     "paramname" => ("ptl.paramname".to_string(), DataType::String),
                     _ => ("ptl.param_id".to_string(), DataType::Number),
+                };
+                Self { table, column, data_type }
+            },
+            TableName::DiscussionRef(_) => {
+                let (column, data_type) = match field {
+                    "title" => ("title".to_string(), DataType::String),
+                    "lastActivityAt" => ("last_activity_at".to_string(), DataType::Date),
+                    _ => ("created_at".to_string(), DataType::Date),
+                };
+                Self { table, column, data_type }
+            },
+            TableName::DiscussionCommentList => {
+                let (column, data_type) = match field {
+                    "parentComment" => ("parent_comment_uuid".to_string(), DataType::String),
+                    "author" => ("author_uuid".to_string(), DataType::String),
+                    "updatedAt" => ("updated_at".to_string(), DataType::Date),
+                    _ => ("created_at".to_string(), DataType::Date),
                 };
                 Self { table, column, data_type }
             },
@@ -290,7 +326,7 @@ pub(crate) fn objects_order(
     {from}
     WHERE uuid IN ({object_uuids})
     {sort}
-    {paginate}",
+    {paginate};",
         from = sort.get_from(),
         object_uuids = get_vec_in_string(object_uuids),
         sort = sort.get_complete(),

@@ -105,6 +105,8 @@ pub(crate) enum ErrorMessage {
     NotFoundTargetFile,
     /// "Not more 100 path in one query"
     NotMorePathInOneQuery,
+    /// "Not found discussion"
+    NotFoundDiscussion,
     /// "Password is not correct"
     PasswordIsNotCorrect,
     /// "Please, try again later"

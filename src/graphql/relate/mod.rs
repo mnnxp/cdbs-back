@@ -1,4 +1,5 @@
 pub mod attributes;
+pub mod discussion;
 pub mod extension;
 pub mod file;
 pub mod keyword;

@@ -15,6 +15,7 @@ pub use standard::{StandardMutation, StandardQuery, standard_model};
 pub use supplier_service::{ServiceMutation, ServiceQuery, service_model};
 pub use user::{UserMutation, UserQuery};
 pub use relate::extension::ExtensionMutation;
+pub use relate::discussion::{DiscussionQuery, DiscussionMutation, discussion_model};
 pub use relate::file;
 pub use relate::keyword::{KeywordMutation, KeywordQuery};
 pub use relate::language::LanguageQuery;
@@ -34,6 +35,7 @@ pub struct QueryRoot(
     ServiceQuery,
     CompanyQuery,
     // ExtensionQuery,
+    DiscussionQuery,
     KeywordQuery,
     LanguageQuery,
     LicenseQuery,
@@ -53,6 +55,7 @@ pub struct MutationRoot(
     ServiceMutation,
     CompanyMutation,
     ExtensionMutation,
+    DiscussionMutation,
     KeywordMutation,
     // LanguageMutation,
     LicenseMutation,
