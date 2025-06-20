@@ -22,7 +22,7 @@ impl ModificationParamWithTranslation {
         INNER JOIN param_translate_list AS ptl ON pt.param_id = ptl.param_id
         WHERE pt.modification_uuid = '{object_uuid}' AND ptl.lang_id = 1
         {sort}
-        {paginate}",
+        {paginate};",
             object_uuid = modification_uuid,
             sort = sort.get_complete(),
             paginate = paginate.get_complete(),

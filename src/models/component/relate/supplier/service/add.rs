@@ -61,7 +61,6 @@ pub(crate) fn add_component_supplier_company(
                     debug!("Failed add supplier component: {:?}", err);
                     ServiceError::InternalServerError
                 })?;
-
             Ok(true)
         },
         _ => {
@@ -74,7 +73,6 @@ pub(crate) fn add_component_supplier_company(
                     debug!("Failed add supplier component: {:?}", err);
                     ServiceError::InternalServerError
                 })?;
-                
             Ok(true)
         },
     }

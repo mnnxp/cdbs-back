@@ -57,8 +57,8 @@ pub(crate) fn check_is_owner_with_err(
     }
 }
 
-/// Checking the availability of the required access level
-/// with ownership check
+/// Checks if the required access level is available, also includes ownership verification,
+/// returns access denied error if the required access is not found
 pub(crate) fn check_company_access(
     target_user_uuid: &Uuid,
     target_company_uuid: &Uuid,
