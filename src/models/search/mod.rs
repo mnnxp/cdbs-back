@@ -17,7 +17,7 @@ pub(crate) fn get_vec_in_string(object_uuids: &[Uuid]) -> String {
     if object_uuids.is_empty() {
         return String::from("'00000000-0000-0000-0000-000000000000'")
     }
-    format!("{:?}", object_uuids).replace("[", "\'").replace("]", "\'").replace(", ", "\', \'")
+    format!("{:?}", object_uuids).replace('[', "\'").replace(']', "\'").replace(", ", "\', \'")
 }
 
 #[cfg(test)]
