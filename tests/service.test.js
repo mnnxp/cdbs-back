@@ -661,7 +661,7 @@ describe('company', () => {
     done();
   });
 
-  it('/graphql:M serviceRequest - OK not supplier', async (done) => {
+  it('/graphql:M serviceRequest - BadRequest not supplier', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .set(
