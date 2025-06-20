@@ -7,13 +7,13 @@ use async_graphql::*;
 use uuid::Uuid;
 
 #[derive(QueryableByName)]
-pub(super) struct ObjectUuid {
+pub(crate) struct ObjectUuid {
     #[diesel(sql_type = sql_types::Uuid)]
     uuid: Uuid
 }
 
 impl ObjectUuid {
-    pub(super) fn get_uuids(objects: &[ObjectUuid]) -> Vec<Uuid> {
+    pub(crate) fn get_uuids(objects: &[ObjectUuid]) -> Vec<Uuid> {
         let mut res = Vec::<Uuid>::new();
         for item in objects { res.push(item.uuid); }
         res
@@ -21,9 +21,9 @@ impl ObjectUuid {
 }
 
 #[derive(Debug, QueryableByName)]
-pub(super) struct ObjectI64 {
+pub(crate) struct ObjectI64 {
     #[diesel(sql_type = sql_types::BigInt)]
-    pub(super) count: i64
+    pub(crate) count: i64
 }
 
 #[derive(Debug)]
