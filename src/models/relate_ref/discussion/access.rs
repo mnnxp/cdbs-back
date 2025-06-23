@@ -1,7 +1,7 @@
 use crate::errors::err_msg::{get_err_msg, ErrorMessage};
 use crate::errors::{ServiceError, ServiceResult};
 use crate::models::search::filter::Filter;
-use crate::models::search::model::ObjectI64;
+use crate::models::search::model::ObjectUuid;
 use crate::schema::discussion_comment_list::dsl as discussion_comment_list;
 use diesel::prelude::*;
 use uuid::Uuid;
@@ -81,35 +81,50 @@ impl CommentCriteria {
         message_content: &str,
         conn: &mut PgConnection,
     ) -> ServiceResult<bool> {
+        // First, we collect suitable UUID comments for verification
         let query = format!(
             "
-        SELECT count(*)
+        SELECT uuid
         FROM discussion_comment_list
-        WHERE discussion_uuid = '{d_uuid}' {check_self_parent} {filter_author_uuid}
-        AND message_content = '{message_content}'
-        LIMIT 1;",
+        WHERE discussion_uuid = '{d_uuid}' {check_self_parent} {filter_author_uuid};",
             d_uuid = discussion_uuid,
             check_self_parent = CommentCriteria::filter_by_parent(parent_comment_uuid_op),
-            filter_author_uuid = Filter::parsing("author_uuid", &[*author_uuid]).get_complete()
+            filter_author_uuid = Filter::parsing("author_uuid", &[*author_uuid]).get_complete(),
         );
         debug!("SQL comment query for is_comment_duplicate: {}", query);
-        let duplicate_check = diesel::sql_query(query)
-            .get_result::<ObjectI64>(conn)
+        let duplicate_check_uuids = diesel::sql_query(query)
+            .get_results::<ObjectUuid>(conn)
             .map_err(|err| {
                 debug!("Failed count number: {:?}", err);
                 ServiceError::InternalServerError
             })
-            .map(|res| res.count)?;
-        match duplicate_check {
-            0 => Ok(false),
-            _ => {
-                debug!(
-                    "Failed, this comment is duplicated: {:?}, message_content: {:?}",
-                    duplicate_check, message_content
-                );
-                Err(get_err_msg(ErrorMessage::FoundDuplicateData))
-            }
+            .map(|objects| ObjectUuid::get_uuids(&objects))?;
+        if duplicate_check_uuids.is_empty() {
+            return Ok(false);
         }
+
+        // If there are suitable comments, then we check their content for duplication
+        let found_duplicate_uuids = discussion_comment_list::discussion_comment_list
+            .select(discussion_comment_list::uuid)
+            .filter(
+                discussion_comment_list::uuid
+                    .eq_any(&duplicate_check_uuids)
+                    .and(discussion_comment_list::message_content.eq(message_content)),
+            )
+            .limit(1)
+            .get_results::<Uuid>(conn)
+            .map_err(|err| {
+                debug!("Not found file: {:?}", err);
+                get_err_msg(ErrorMessage::FailedCheckData)
+            })?;
+        if found_duplicate_uuids.is_empty() {
+            return Ok(false);
+        }
+        debug!(
+            "Failed, this comment is duplicated with {:?}, message_content: {:?}",
+            found_duplicate_uuids, message_content
+        );
+        Err(get_err_msg(ErrorMessage::FoundDuplicateData))
     }
 
     /// Checks if the specified user is the owner of the comment.

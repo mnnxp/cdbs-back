@@ -53,6 +53,17 @@ var authorizationTokenFirst = '';
 var authorizationTokenSecond = '';
 var invalidAuthorizationToken = 'oO9mu7KdINx2D5ZY';
 
+const sqlInjections = [
+  `Robert' /* */; DROP TABLE user_token_ref; --`,
+  `Robert' UNION SELECT * FROM user_ref LIMIT 1; --`,
+  `Robert' OR 1 = 1; --`,
+  `Robert' AND 1 = 1; --`,
+  `Robert' /* */; DROP TABLE Students; --`,
+  `Robert' (SELECT * FROM Users WHERE id = 1); --`,
+  `Robert' (SELECT concat('Hello, ', 'World')); --`,
+  `Robert' %_with\nnewline\rreturn\ttab\0null; --`,
+];
+
 // data for service
 const nameService = "GOST 2012 Test service";
 const descriptionService = "Test GOST service";
@@ -1253,7 +1264,7 @@ describe('discussion', () => {
     const { data: { discussionComments } } = await response.json();
     expect(discussionComments).toBeDefined();
     expect(discussionComments).toBeInstanceOf(Array);
-    expect(discussionComments.length).toBe(1);  //Make sure the brought back the only discussion are an array
+    expect(discussionComments.length).toBe(1);  // Make sure the brought back the only discussion are an array
     expect(discussionComments[0].discussionUuid).toBe(discussionCompanyUuidFirt); // Make sure to return the right discussion
     expect(discussionComments[0].parentCommentUuid).toBe(rootDiscussCommentCompanyUuid); // Make sure to return the right comment message
     expect(discussionComments[0].messageContent).toBe(testDiscussionCommentData.messageContent); // Make sure to return the right message content
@@ -1660,7 +1671,7 @@ describe('discussion', () => {
       COMPONENT: componentUuidNoStandard, // objectUuid for 'COMPONENT'
     };
     var authorizationToken = authorizationTokenFirst;
-    var top_index = 1;
+    var topIndex = 1;
 
     // Create comments for each object type
     for (const [toObjectType, toObjectUuid] of Object.entries(toObjectTypes)) {
@@ -1701,7 +1712,7 @@ describe('discussion', () => {
               // expect(jsonData).toBe(0);
               var bugLog = commentData;
               expect(jsonData).toBe(`
-                top_index: ${top_index},
+                topIndex: ${topIndex},
                 toObjectUuid: ${toObjectUuid},
                 toObjectType: ${toObjectType},
                 bugLog.discussionUuid: ${bugLog.discussionUuid},
@@ -1723,7 +1734,7 @@ describe('discussion', () => {
           Array(4)
           .fill(0)
           .map(async (_, index) => {
-              top_index += 1;
+              topIndex += 1;
               const replyData = {
                 objectDiscussion: {
                   objectUuid: toObjectUuid,
@@ -1731,7 +1742,7 @@ describe('discussion', () => {
                 },
                 discussionUuid: null,
                 parentCommentUuid: commentUuid,
-                messageContent: `Reply ${index + 1}/${top_index} to Comment for ${toObjectType}, parentCommentUuid ${commentUuid}`,
+                messageContent: `Reply ${index + 1}/${topIndex} to Comment for ${toObjectType}, parentCommentUuid ${commentUuid}`,
               };
               const response = await fetch(api, {
                 method: 'POST',
@@ -1753,7 +1764,7 @@ describe('discussion', () => {
                 // expect(jsonData).toBe(0);
                 var bugLog = replyData;
                 expect(jsonData).toBe(`
-                  top_index: ${top_index},
+                  topIndex: ${topIndex},
                   toObjectUuid: ${toObjectUuid},
                   toObjectType: ${toObjectType},
                   bugLog.discussionUuid: ${bugLog.discussionUuid},
@@ -1772,7 +1783,7 @@ describe('discussion', () => {
           Array(4)
           .fill(0)
           .map(async (_, index) => {
-              top_index += 1;
+              topIndex += 1;
               const replyUuid = commentsWithReplies[index];
               const replyData = {
                 objectDiscussion: {
@@ -1781,7 +1792,7 @@ describe('discussion', () => {
                 },
                 discussionUuid: null,
                 parentCommentUuid: replyUuid,
-                messageContent: `Reply to Reply ${index + 1}/${top_index} for ${toObjectType}, parentCommentUuid ${replyUuid}`,
+                messageContent: `Reply to Reply ${index + 1}/${topIndex} for ${toObjectType}, parentCommentUuid ${replyUuid}`,
               };
               const response = await fetch(api, {
                 method: 'POST',
@@ -1803,7 +1814,7 @@ describe('discussion', () => {
                 // expect(jsonData).toBe(0);
                 var bugLog = replyData;
                 expect(jsonData).toBe(`
-                  top_index: ${top_index},
+                  topIndex: ${topIndex},
                   commentsWithReplies: ${commentsWithReplies},
                   toObjectUuid: ${toObjectUuid},
                   toObjectType: ${toObjectType},
@@ -1816,7 +1827,7 @@ describe('discussion', () => {
               }
               return jsonData.data.registerDiscussionComment;
             })
-          .slice(0, 2) // Половина ответов (2 ответа)
+          .slice(0, 2) // Half-answer responses (2 responses)
         );
 
         // Create replies to 1 reply from previous threads
@@ -1829,7 +1840,7 @@ describe('discussion', () => {
           },
           discussionUuid: null,
           parentCommentUuid: lastReplyUuid,
-          messageContent: `Last Reply to Reply for ${toObjectType}, top_index ${top_index}`,
+          messageContent: `Last Reply to Reply for ${toObjectType}, topIndex ${topIndex}`,
         };
         const lastResponse = await fetch(api, {
           method: 'POST',
@@ -1865,7 +1876,7 @@ describe('discussion', () => {
       }
     }
 
-    // Всё прошло успешно, если мы дошли до этого момента
+    // Everything will go well if we have reached this point.
     expect(true).toBe(true);
   });
 
@@ -2661,5 +2672,211 @@ describe('discussion', () => {
     // Checking the quality of comment editing
     const editCommentJsonData = await editCommentResponse.json();
     expect(editCommentJsonData.data.editComment).toBe(true);
+  });
+
+  // Test 46: Editing a comment with special characters
+  it('should edit a comment with special characters in message', async () => {
+    // UUID of the comment to edit (take the last created one)
+    const commentUuid = testRepliesForEachCommentUuid[testRepliesForEachCommentUuid.length - 1];
+    // New comment content with SQL injection prevention testing
+    const updatedMessage = sqlInjections[1];
+    // Data for editing comments
+    const editCommentData = {
+      commentUuid,
+      updatedMessage,
+    };
+
+    // Submitting a request to edit comment
+    const editCommentResponse = await fetch(api, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${authorizationTokenFirst}`,
+      },
+      body: JSON.stringify({
+        query: `
+          mutation EditComment($data: IptEditCommentData!) {
+            editComment(data: $data)
+          }
+        `,
+        variables: { data: editCommentData },
+      }),
+    });
+
+    // Checking the quality of comment editing
+    const editCommentJsonData = await editCommentResponse.json();
+    expect(editCommentJsonData.data.editComment).toBe(true);
+  });
+
+  // Test 47: Error requesting discussions with invalid message content invalid - byte 0x00
+  it('should return an error for invalid byte sequence for encoding "UTF8": 0x00 (edit message)', async () => {
+    // UUID of the comment to edit (take the last created one)
+    const commentUuid = testRepliesForEachCommentUuid[testRepliesForEachCommentUuid.length - 1];
+    // New comment content with SQL injection prevention testing
+    const updatedMessage = sqlInjections[sqlInjections.length - 1];
+    // Data for editing comments
+    const editCommentData = {
+      commentUuid,
+      updatedMessage,
+    };
+
+    // Submitting a request to edit comment
+    const editCommentResponse = await fetch(api, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${authorizationTokenFirst}`,
+      },
+      body: JSON.stringify({
+        query: `
+          mutation EditComment($data: IptEditCommentData!) {
+            editComment(data: $data)
+          }
+        `,
+        variables: { data: editCommentData },
+      }),
+    });
+
+    // Checking the error of comment editing with bad content
+    const jsonData = await editCommentResponse.json();
+    expect(jsonData.errors[0].message).toBe('Internal Server Error');
+  });
+
+  // Test 47: Error requesting discussions with invalid message content invalid - byte 0x00
+  it('should return an error for invalid byte sequence for encoding "UTF8": 0x00 (new message)', async () => {
+    var commentData = {...testDiscussionCommentData };
+    commentData.objectDiscussion.objectUuid = componentUuidNoStandard;
+    commentData.objectDiscussion.toObject = ToObject.COMPONENT;
+    // New comment content with SQL injection prevention testing
+    commentData.messageContent = sqlInjections[sqlInjections.length - 1];
+
+    // Submitting a request to edit comment
+    const response = await fetch(api, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${authorizationTokenSecond}`,
+      },
+      body: JSON.stringify({
+        query: `
+          mutation CreateDiscussionComment($args: IptDiscussionCommentData!) {
+            registerDiscussionComment(args: $args)
+          }
+        `,
+        variables: { args: commentData },
+      }),
+    });
+    const jsonData = await response.json();
+    // Checking the error of new comment with bad content
+    expect(jsonData.errors[0].message).toBe('BadRequest: Failed check data');
+  });
+
+  // Test 48: Creating comments with replies for each object type (toObject)
+  it('should create comments with replies for each toObject type', async () => {
+    var commentData = {...testDiscussionCommentData };
+    commentData.objectDiscussion.objectUuid = componentUuidNoStandard;
+    commentData.objectDiscussion.toObject = ToObject.COMPONENT;
+    var authorizationToken = authorizationTokenSecond;
+    var topIndex = 0;
+    var commentUuids = [];
+
+    // Create comments for each sql injection
+    for (const sqlInjectionItem of sqlInjections) {
+      topIndex += 1;
+      commentData.messageContent = `${sqlInjectionItem}`;
+      const response = await fetch(api, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${authorizationToken}`,
+        },
+        body: JSON.stringify({
+          query: `
+            mutation CreateDiscussionComment($args: IptDiscussionCommentData!) {
+              registerDiscussionComment(args: $args)
+            }
+          `,
+          variables: { args: commentData },
+        }),
+      });
+      const jsonData = await response.json();
+      if (jsonData.data == null) {
+        // The last sql injection is processed separately
+        if (topIndex == sqlInjections.length) {
+          expect(jsonData.errors[0].message).toBe('BadRequest: Failed check data');
+        } else {
+          // expect(jsonData).toBe(0);
+          var bugLog = commentData;
+          expect(jsonData).toBe(`
+            topIndex: ${topIndex},
+            toObjectUuid: ${commentData.objectDiscussion.objectUuid},
+            toObjectType: ${commentData.objectDiscussion.toObject},
+            bugLog.discussionUuid: ${bugLog.discussionUuid},
+            bugLog.messageContent: ${bugLog.messageContent},
+            bugLog.objectDiscussion.objectUuid: ${bugLog.objectDiscussion.objectUuid},
+            bugLog.objectDiscussion.toObject: ${bugLog.objectDiscussion.toObject},
+            bugLog.parentCommentUuid: ${bugLog.parentCommentUuid},
+          `);
+        }
+      } else {
+        commentUuids.push(jsonData.data.registerDiscussionComment)
+      }
+    }
+
+    const validArgs = {
+      objectUuid: commentData.objectDiscussion.objectUuid,
+      toObject: commentData.objectDiscussion.toObject,
+      filterByUuids: commentUuids,
+    };
+    // Check replies to sqlInjections comments
+    const response = await fetch(api, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${authorizationToken}`,
+      },
+      body: JSON.stringify({
+        query: `
+          query Discussions($args: IptObjectDiscussionsArg!, $sort: IptSort, $paginate: IptPaginate) {
+            discussions(args: $args, sort: $sort, paginate: $paginate) {
+              uuid \
+              title \
+              isPinned \
+              lastActivityAt \
+              createdAt \
+              repliesCount \
+              comments { \
+                ${discussionCommentFieldResponse} \
+              } \
+            }
+          }
+        `,
+        variables: {
+          args: validArgs,
+          sort: null,
+          paginate: null,
+        },
+      }),
+    });
+    const jsonData = await response.json();
+    // expect(jsonData).toBe(0);
+    const { data: { discussions } } = jsonData;
+    expect(discussions).toBeDefined();
+    expect(discussions).toBeInstanceOf(Array);
+    expect(discussions.length).toBe(1);  // Make sure the brought back the only discussion are an array
+    expect(discussions[0].comments.length).toBe(17);  // Make sure the returned comments have the correct array length
+    expect(commentUuids.length).toBe(7);
+    expect(discussions[0].comments[10].uuid).toBe(validArgs.filterByUuids[0]);
+    expect(discussions[0].comments[10].messageContent).toBe(sqlInjections[0]);
+    expect(discussions[0].comments[11].uuid).toBe(validArgs.filterByUuids[1]);
+    expect(discussions[0].comments[11].messageContent).toBe(sqlInjections[1]);
+    expect(discussions[0].comments[12].uuid).toBe(validArgs.filterByUuids[2]);
+    expect(discussions[0].comments[12].messageContent).toBe(sqlInjections[2]);
+    expect(discussions[0].comments[13].uuid).toBe(validArgs.filterByUuids[3]);
+    expect(discussions[0].comments[13].messageContent).toBe(sqlInjections[3]);
+    expect(discussions[0].comments[14].uuid).toBe(validArgs.filterByUuids[4]);
+    expect(discussions[0].comments[14].messageContent).toBe(sqlInjections[4]);
+    expect(discussions[0].comments[15].uuid).toBe(validArgs.filterByUuids[5]);
+    expect(discussions[0].comments[15].messageContent).toBe(sqlInjections[5]);
   });
 });
