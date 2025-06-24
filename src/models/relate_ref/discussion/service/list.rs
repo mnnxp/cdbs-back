@@ -34,7 +34,7 @@ pub(crate) fn get_discussion_comment_list(
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<DiscussionCommentData>> {
     let discussion_to = DiscussionTo::by_discuss_uuid(&args.discussion_uuid, conn)?;
-    discussion_to.check_access(&options.logged_user_uuid, &1, conn)?;
+    discussion_to.check_access(&options.logged_user_uuid, &3, conn)?;
     let mut res = Vec::new();
     for comment_uuid in &DiscussionCommentList::get_uuids(args, conn)? {
         res.push(get_discuss_comment(comment_uuid, conn)?)
