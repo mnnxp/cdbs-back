@@ -351,7 +351,7 @@ async function setFlagDeleteAsOldRevDb(fileUuid) {
   ]);
 }
 
-describe('company', () => {
+describe('standard', () => {
   beforeAll(() => {
     cleanupCompanyRepresentDb();
     cleanupStandardDb();

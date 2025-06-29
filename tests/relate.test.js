@@ -82,7 +82,7 @@ async function cleanupUserDb() {
   ]);
 }
 
-describe('param', () => {
+describe('relate', () => {
   beforeAll(() => {
     cleanupParamDb();
     cleanupParamTranslateDb();
