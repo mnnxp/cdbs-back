@@ -129,19 +129,13 @@ const userUuidBase = "31ecc6f8-0c09-4a59-a2d5-34b5b833e59b";
 
 // data for standard
 const parentStandardUuid = "303ec2aa-2066-42e3-93fb-de4fb9344bcb";
-const classifierStandard = "GOST-2012-Test";
 const nameStandard = "GOST 2012 Test standard";
 const descriptionStandard = "Test GOST standard";
-const specifiedTolerance = "C";
-const technicalCommittee = "GOST";
 const publicationAt = "2021-07-31T00:00:00";
 const standardStatusId = 1;
 const regionId = 5;
-const classifierStandard2 = "GOST-2012-Test 2222";
 const nameStandard2 = "GOST 2012 Test standard 2222";
 const descriptionStandard2 = "Test GOST standard 2222";
-const specifiedTolerance2 = "C 2222";
-const technicalCommittee2 = "GOST 2222";
 const publicationAt2 = "2011-08-31T00:00:00";
 const standardStatusId2 =  3;
 const regionId2 = 5;
@@ -1980,16 +1974,12 @@ describe('users', () => {
       .send({
         query: `mutation standardQuery {
           registerStandard(args: {
-            classifier: "${classifierStandard}",
             name: "${nameStandard}",
             description: "${descriptionStandard}",
-            specifiedTolerance: "${specifiedTolerance}",
-            technicalCommittee: "${technicalCommittee}",
             publicationAt: "${publicationAt}",
             companyUuid: "${companyUuidSupplier}",
             typeAccessId: ${typeAccessId3},
             standardStatusId: ${standardStatusId},
-            regionId: ${regionId}
           })
         }`,
       })
@@ -2901,16 +2891,12 @@ describe('users', () => {
       .send({
         query: `mutation standardQuery {
           registerStandard(args: {
-            classifier: "${classifierStandard}",
             name: "${nameStandard}",
             description: "${descriptionStandard}",
-            specifiedTolerance: "${specifiedTolerance}",
-            technicalCommittee: "${technicalCommittee}",
             publicationAt: "${publicationAt}",
             companyUuid: "${companyUuidSupplier}",
             typeAccessId: ${typeAccessId2},
             standardStatusId: ${standardStatusId},
-            regionId: ${regionId}
           })
         }`,
       })

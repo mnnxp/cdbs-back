@@ -1,13 +1,12 @@
-use crate::database::{get_conn, PooledConnection};
 use crate::graphql::file::ShowFileRelatedData;
 use crate::models::company::model::ShowCompanyShort;
 use crate::models::relate_ref::{
-    file::model::DownloadFile, keyword::model::Keyword, region::model::RegionTranslateList,
+    file::model::DownloadFile, keyword::model::Keyword,
     spec::model::SpecTranslateList, type_access::model::TypeAccessTranslateList,
 };
 use crate::models::standard::standard_status::model::StandardStatusTranslateList;
 use crate::models::user::model::ShowUserShort;
-use async_graphql::{Context, InputObject, Object};
+use async_graphql::{InputObject, Object};
 use chrono::NaiveDateTime;
 use uuid::Uuid;
 
@@ -63,11 +62,6 @@ impl StandardAndRelatedData {
         &self.parent_standard_uuid
     }
 
-    /// Standard classification (removed)
-    async fn classifier(&self) -> String {
-        String::new()
-    }
-
     /// Standard name
     async fn name(&self) -> &String {
         &self.name
@@ -76,16 +70,6 @@ impl StandardAndRelatedData {
     /// Standard description
     async fn description(&self) -> &String {
         &self.description
-    }
-
-    /// Tolerance of the standard (removed)
-    async fn specified_tolerance(&self) -> String {
-        String::new()
-    }
-
-    /// Technical Committee (standardization body) (removed)
-    async fn technical_committee(&self) -> String {
-        String::new()
     }
 
     /// Date of publication of the document (standard)
@@ -116,12 +100,6 @@ impl StandardAndRelatedData {
     /// Current status of the standard (e.g., "in development")
     async fn standard_status(&self) -> &StandardStatusTranslateList {
         &self.standard_status
-    }
-
-    /// Main region of application of the standard
-    async fn region(&self, cxt: &Context<'_>) -> RegionTranslateList {
-        let conn: &mut PooledConnection = &mut get_conn(cxt).expect("Error get conn to DB");
-        RegionTranslateList::get_region_by_id(&8, &1, conn).expect("Error get fake reging")
     }
 
     /// Date the standard card was created
@@ -190,11 +168,6 @@ impl ShowStandardShort {
         &self.uuid
     }
 
-    /// Standard classification (removed)
-    async fn classifier(&self) -> String {
-        String::new()
-    }
-
     /// Standard name
     async fn name(&self) -> &String {
         &self.name
@@ -203,11 +176,6 @@ impl ShowStandardShort {
     /// Standard description
     async fn description(&self) -> &String {
         &self.description
-    }
-
-    /// Tolerance of the standard (removed)
-    async fn specified_tolerance(&self) -> String {
-        String::new()
     }
 
     /// Date of publication of the document (standard)
@@ -246,16 +214,10 @@ impl ShowStandardShort {
 pub(crate) struct IptStandardData {
     /// Parent standard UUID (optional)
     pub(crate) parent_standard_uuid: Option<Uuid>,
-    /// Standard classification
-    pub(crate) classifier: String,
     /// Standard name
     pub(crate) name: String,
     /// Standard description
     pub(crate) description: String,
-    /// Tolerance of the standard
-    pub(crate) specified_tolerance: String,
-    /// Technical Committee (standardization body)
-    pub(crate) technical_committee: String,
     /// Date of publication of the document (standard)
     pub(crate) publication_at: NaiveDateTime,
     /// Identifier of the company owning the standard
@@ -264,32 +226,22 @@ pub(crate) struct IptStandardData {
     pub(crate) type_access_id: i32,
     /// Identifier of the status of the state (readiness) of the standard
     pub(crate) standard_status_id: i32,
-    /// Identifier of the region of application (development) of the standard
-    pub(crate) region_id: i32,
 }
 
 /// Data for updating the standard card.
 /// The data is only updated for the specified values.
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub(crate) struct IptUpdateStandardData {
-    /// Standard classification
-    pub(crate) classifier: Option<String>,
     /// Standard name
     pub(crate) name: Option<String>,
     /// Standard description
     pub(crate) description: Option<String>,
-    /// Tolerance of the standard
-    pub(crate) specified_tolerance: Option<String>,
-    /// Technical Committee (standardization body)
-    pub(crate) technical_committee: Option<String>,
     /// Date of publication of the document (standard)
     pub(crate) publication_at: Option<NaiveDateTime>,
     /// Identifier of the company owning the standard
     pub(crate) company_uuid: Option<Uuid>,
     /// Identifier of the status of the state (readiness) of the standard
     pub(crate) standard_status_id: Option<i32>,
-    /// Identifier of the region of application (development) of the standard
-    pub(crate) region_id: Option<i32>,
 }
 
 /// Arguments for filtering and searching by standards

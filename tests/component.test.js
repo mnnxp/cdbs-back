@@ -20,17 +20,13 @@ const userUuid2 = "68b8281a-d19c-4d4b-88eb-6fd4a2afde1b";
 
 // data for standard
 const parentStandardUuid = "303ec2aa-2066-42e3-93fb-de4fb9344bcb";
-const classifierStandard = "GOST-2012-Test";
 const nameStandard = "GOST 2012 Test standard";
 const descriptionStandard = "Test GOST standard";
-const specifiedTolerance = "C";
-const technicalCommittee = "GOST";
 const publicationAt = "2021-07-31T00:00:00";
 const typeAccessId3 = 3;
 const typeAccessId2 = 2;
 const typeAccessId1 = 1;
 const standardStatusId = 1;
-const regionId = 5;
 var standardUuidFirst = "";
 var standardUuidSecond = "";
 
@@ -231,10 +227,8 @@ componentSuppliers { \
 } \
 componentStandards { \
  	uuid \
-  classifier \
   name \
   description \
-  specifiedTolerance \
   publicationAt \
   ownerCompany { \
     uuid \
@@ -3421,16 +3415,12 @@ describe('component', () => {
       .send({
         query: `mutation standardQuery {
           registerStandard(args: {
-            classifier: "${classifierStandard}",
             name: "${nameStandard}",
             description: "${descriptionStandard}",
-            specifiedTolerance: "${specifiedTolerance}",
-            technicalCommittee: "${technicalCommittee}",
             publicationAt: "${publicationAt}",
             companyUuid: "${companyUuidSupplier}",
             typeAccessId: ${typeAccessId3},
             standardStatusId: ${standardStatusId},
-            regionId: ${regionId}
           })
         }`,
       })
@@ -3607,7 +3597,6 @@ describe('component', () => {
                 }
               ) {
                 uuid
-                classifier
                 name
                 ownerCompany {
                   uuid
@@ -3658,14 +3647,10 @@ describe('component', () => {
               uuid
               componentStandards {
                 uuid
-                classifier
                 name
                 ownerCompany {
                   uuid
                   shortname
-                  region {
-                    region
-                  }
                   companyType {
                     shortname
                   }
@@ -3686,7 +3671,6 @@ describe('component', () => {
     } = body;
     expect(component.uuid).toBe(componentUuidStandard);
     expect(component.componentStandards[0].uuid).toBe(parentStandardUuid);
-    expect(component.componentStandards[0].classifier).toBeEmptyString();
     expect(component.componentStandards[0].name).toBeNonEmptyString();
     expect(component.componentStandards[0].ownerCompany.uuid).toBeNonEmptyString();
     expect(component.componentStandards[0].ownerCompany.companyType.shortname).toBeNonEmptyString();
