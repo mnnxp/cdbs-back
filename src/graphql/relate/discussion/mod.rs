@@ -10,7 +10,9 @@ use super::discussion::discussion_model::{
 use crate::database::{get_conn, PooledConnection};
 use crate::errors::ServiceResult;
 use crate::graphql::relate::attributes::IptPaginate;
-use crate::models::relate_ref::discussion::service::update::edit_discussion_comment;
+use crate::models::relate_ref::discussion::service::update::{
+    edit_discussion_comment, del_discussion_comment
+};
 use crate::models::relate_ref::discussion::{
     service::list::{get_discussion_comment_list, get_discussions},
     service::register::create_discussion_comment,
@@ -171,5 +173,36 @@ impl DiscussionMutation {
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
         edit_discussion_comment(&logged_user_uuid, &data, conn)
+    }
+
+    /// Removes discussion comment by comment UUID.
+    ///
+    /// **Functionality:**
+    /// * Removes user's comment from discussion. Requires authentication of the user who authored the comment.
+    ///
+    /// # Arguments
+    ///
+    /// * `commentUuid` - UUID of the comment that needs to be deleted.
+    ///
+    /// # Returns
+    ///
+    /// * `true` - comment was successfully deleted.
+    /// * `false` - comment not found or user is not the author of this comment.
+    ///
+    /// # Errors
+    ///
+    /// Returns a `ServiceError` if any of the following occur:
+    /// * Authorization check fails.
+    /// * Database connection or query execution fails.
+    /// * Failed to delete the comment from the database.
+    async fn delete_discussion_comment(
+        &self,
+        cxt: &Context<'_>,
+        comment_uuid: Uuid,
+    ) -> ServiceResult<bool> {
+        // authorization check
+        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+        del_discussion_comment(&logged_user_uuid, &comment_uuid, conn)
     }
 }

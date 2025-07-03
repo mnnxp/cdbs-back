@@ -58,3 +58,20 @@ pub(crate) fn change_discussion_updated_at(
             get_err_msg(ErrorMessage::FailedUpdateData)
         })
 }
+
+/// Removes comment from discussion if logged-in user is the author of the comment
+pub(crate) fn del_discussion_comment(
+    logged_user_uuid: &Uuid,
+    comment_uuid: &Uuid,
+    conn: &mut PgConnection,
+) -> ServiceResult<bool> {
+    let res = diesel::delete(discussion_comment_list::discussion_comment_list
+        .filter(discussion_comment_list::uuid.eq(comment_uuid)
+        .and(discussion_comment_list::author_uuid.eq(logged_user_uuid))))
+        .execute(conn)
+        .map_err(|err| {
+            debug!("Failed delete comment: {:?}", err);
+            ServiceError::InternalServerError
+        })?;
+    Ok(res > 0)
+}

@@ -237,7 +237,6 @@ const actualStatusIdM4 = 4;
 const badFilenameComponentFaviconTest = "no image file.pdf";
 const goodFilenameComponentFaviconTest = "image file.png";
 
-
 async function cleanupCompanyDb() {
   return global.knex.raw('DELETE FROM company_ref WHERE orgname IN (?,?)', [
     orgname,
@@ -245,10 +244,8 @@ async function cleanupCompanyDb() {
   ]);
 }
 
-async function cleanupStandardDb() {
-  return global.knex.raw('DELETE FROM standard_ref WHERE name in (?)', [
-    nameStandard,
-  ]);
+async function cleanupDiscussiondDb() {
+  return global.knex.raw('DELETE FROM discussion_ref WHERE discussion_ref.uuid IN (SELECT dr.uuid FROM discussion_ref AS dr LEFT JOIN discus_to_company AS dtc ON dr.uuid  = dtc.discussion_uuid LEFT JOIN discus_to_component AS dtc2 ON dr.uuid = dtc2.discussion_uuid LEFT JOIN discus_to_service AS dts ON dr.uuid  = dts.discussion_uuid WHERE dtc.discussion_uuid IS NULL AND dtc2.discussion_uuid IS NULL AND dts.discussion_uuid IS NULL)');
 }
 
 async function cleanupComponentDb() {
@@ -278,7 +275,6 @@ async function cleanupUserDb() {
   ]);
 }
 
-
 describe('discussion', () => {
   beforeAll(() => {
     cleanupComponentDb();
@@ -286,6 +282,7 @@ describe('discussion', () => {
     cleanupServiceDb();
     cleanupCompanyDb();
     cleanupUserDb();
+    cleanupDiscussiondDb();
     return;
   });
   afterAll(() => {
@@ -294,6 +291,7 @@ describe('discussion', () => {
     cleanupServiceDb();
     cleanupCompanyDb();
     cleanupUserDb();
+    cleanupDiscussiondDb();
     return;
   });
 
@@ -2525,5 +2523,91 @@ describe('discussion', () => {
     expect(discussions[0].comments[14].messageContent).toBe(sqlInjections[4]);
     expect(discussions[0].comments[15].uuid).toBe(validArgs.filterByUuids[5]);
     expect(discussions[0].comments[15].messageContent).toBe(sqlInjections[5]);
+  });
+
+  it('should reject unauthorized deletion attempts', async () => {
+    const response = await fetch(api, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        query: `
+          mutation deleteDiscussionComment($commentUuid: UUID!) {
+            deleteDiscussionComment(commentUuid: $commentUuid)
+          }
+        `,
+        variables: { commentUuid: test7RepliesCommentThreeUuid },
+      }),
+    });
+    const jsonData = await response.json();
+    expect(jsonData.errors[0].message).toBe('BadRequest: Token not found');
+  });
+
+  it('should return false for comment created by another user owner', async () => {
+    const response = await fetch(api, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${authorizationTokenSecond}`,
+      },
+      body: JSON.stringify({
+        query: `
+          mutation deleteDiscussionComment($commentUuid: UUID!) {
+            deleteDiscussionComment(commentUuid: $commentUuid)
+          }
+        `,
+        variables: { commentUuid: test7RepliesCommentThreeUuid },
+      }),
+    });
+    // const jsonData = await response.json();
+    const {
+      data: { deleteDiscussionComment },
+    } = await response.json();
+    expect(deleteDiscussionComment).toBe(false);
+  });
+
+  it('should successfully delete a comment with valid UUID', async () => {
+        const response = await fetch(api, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${authorizationTokenFirst}`,
+      },
+      body: JSON.stringify({
+        query: `
+          mutation deleteDiscussionComment($commentUuid: UUID!) {
+            deleteDiscussionComment(commentUuid: $commentUuid)
+          }
+        `,
+        variables: { commentUuid: test7RepliesCommentThreeUuid },
+      }),
+    });
+    // const jsonData = await response.json();
+    const {
+      data: { deleteDiscussionComment },
+    } = await response.json();
+    expect(deleteDiscussionComment).toBe(true);
+  });
+
+  it('should return false for non-existent comment', async () => {
+    const response = await fetch(api, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${authorizationTokenFirst}`,
+      },
+      body: JSON.stringify({
+        query: `
+          mutation deleteDiscussionComment($commentUuid: UUID!) {
+            deleteDiscussionComment(commentUuid: $commentUuid)
+          }
+        `,
+        variables: { commentUuid: test7RepliesCommentThreeUuid },
+      }),
+    });
+    // const jsonData = await response.json();
+    const {
+      data: { deleteDiscussionComment },
+    } = await response.json();
+    expect(deleteDiscussionComment).toBe(false);
   });
 });
