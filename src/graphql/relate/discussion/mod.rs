@@ -195,7 +195,7 @@ impl DiscussionMutation {
     /// * Authorization check fails.
     /// * Database connection or query execution fails.
     /// * Failed to delete the comment from the database.
-    async fn delete_discussion_comment(
+    async fn delete_comment(
         &self,
         cxt: &Context<'_>,
         comment_uuid: Uuid,

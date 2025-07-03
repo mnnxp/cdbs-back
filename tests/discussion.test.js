@@ -2531,8 +2531,8 @@ describe('discussion', () => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         query: `
-          mutation deleteDiscussionComment($commentUuid: UUID!) {
-            deleteDiscussionComment(commentUuid: $commentUuid)
+          mutation deleteComment($commentUuid: UUID!) {
+            deleteComment(commentUuid: $commentUuid)
           }
         `,
         variables: { commentUuid: test7RepliesCommentThreeUuid },
@@ -2551,8 +2551,8 @@ describe('discussion', () => {
       },
       body: JSON.stringify({
         query: `
-          mutation deleteDiscussionComment($commentUuid: UUID!) {
-            deleteDiscussionComment(commentUuid: $commentUuid)
+          mutation deleteComment($commentUuid: UUID!) {
+            deleteComment(commentUuid: $commentUuid)
           }
         `,
         variables: { commentUuid: test7RepliesCommentThreeUuid },
@@ -2560,9 +2560,9 @@ describe('discussion', () => {
     });
     // const jsonData = await response.json();
     const {
-      data: { deleteDiscussionComment },
+      data: { deleteComment },
     } = await response.json();
-    expect(deleteDiscussionComment).toBe(false);
+    expect(deleteComment).toBe(false);
   });
 
   it('should successfully delete a comment with valid UUID', async () => {
@@ -2574,8 +2574,8 @@ describe('discussion', () => {
       },
       body: JSON.stringify({
         query: `
-          mutation deleteDiscussionComment($commentUuid: UUID!) {
-            deleteDiscussionComment(commentUuid: $commentUuid)
+          mutation deleteComment($commentUuid: UUID!) {
+            deleteComment(commentUuid: $commentUuid)
           }
         `,
         variables: { commentUuid: test7RepliesCommentThreeUuid },
@@ -2583,9 +2583,9 @@ describe('discussion', () => {
     });
     // const jsonData = await response.json();
     const {
-      data: { deleteDiscussionComment },
+      data: { deleteComment },
     } = await response.json();
-    expect(deleteDiscussionComment).toBe(true);
+    expect(deleteComment).toBe(true);
   });
 
   it('should return false for non-existent comment', async () => {
@@ -2597,8 +2597,8 @@ describe('discussion', () => {
       },
       body: JSON.stringify({
         query: `
-          mutation deleteDiscussionComment($commentUuid: UUID!) {
-            deleteDiscussionComment(commentUuid: $commentUuid)
+          mutation deleteComment($commentUuid: UUID!) {
+            deleteComment(commentUuid: $commentUuid)
           }
         `,
         variables: { commentUuid: test7RepliesCommentThreeUuid },
@@ -2606,8 +2606,8 @@ describe('discussion', () => {
     });
     // const jsonData = await response.json();
     const {
-      data: { deleteDiscussionComment },
+      data: { deleteComment },
     } = await response.json();
-    expect(deleteDiscussionComment).toBe(false);
+    expect(deleteComment).toBe(false);
   });
 });
