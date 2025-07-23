@@ -67,7 +67,7 @@ async fn main() -> std::io::Result<()> {
     // Starts server
     .run();
 
-    eprintln!("Listening on 0.0.0.0:{}", port);
+    eprintln!("Listening on 0.0.0.0:{port}");
 
     // Awaiting server to exit
     server.await

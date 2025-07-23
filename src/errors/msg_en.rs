@@ -119,8 +119,8 @@ pub(crate) fn value_in_err_msg_en(err_msg: ErrorMessage) -> String {
         }
         ErrorMessage::TokenIsInvalid => String::from("Your token is invalid"),
         ErrorMessage::NameAlreadyThereX(name, x) => {
-            format!("This {} name is already there. Id: {}", name, x)
+            format!("This {name} name is already there. Id: {x}")
         }
-        ErrorMessage::IdsAlreadyHas(error_ids) => format!("This ids {:?} already has", error_ids),
+        ErrorMessage::IdsAlreadyHas(error_ids) => format!("This ids {error_ids:?} already has"),
     }
 }

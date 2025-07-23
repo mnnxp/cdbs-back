@@ -306,7 +306,7 @@ impl TableColumn {
         }
         let point = format!("{}.{}", self.table.name(), self.column);
         match self.data_type {
-            DataType::String => format!("(length({}), {})", point, point),
+            DataType::String => format!("(length({point}), {point})"),
             _ => point,
         }
     }

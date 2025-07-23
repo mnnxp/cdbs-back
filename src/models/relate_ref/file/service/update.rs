@@ -256,9 +256,9 @@ pub(crate) fn related_file_updated_at(
         let first_text = "File(s) related with the service is";
         let old_data = match additional_info {
             Some(file_uuids) => {
-                format!("{} {}. Files Uuids: {:?}", first_text, affected, file_uuids)
+                format!("{first_text} {affected}. Files Uuids: {file_uuids:?}")
             }
-            None => format!("{} {}. File Uuid: {:?}", first_text, affected, file_uuid),
+            None => format!("{first_text} {affected}. File Uuid: {file_uuid:?}"),
         };
         change_service_updated_at(&service_uuid, logged_user_uuid, old_data, conn)?;
     }

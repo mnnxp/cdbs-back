@@ -78,10 +78,7 @@ pub(crate) fn add_service_specs(
         change_service_updated_at(
             &data.service_uuid,
             logged_user_uuid,
-            format!(
-                "Added specs {:?}, skip with errors {:?}",
-                ok_specs_insert, error_specs_has
-            ),
+            format!("Added specs {ok_specs_insert:?}, skip with errors {error_specs_has:?}"),
             conn,
         )?;
     }

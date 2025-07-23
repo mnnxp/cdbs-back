@@ -53,7 +53,7 @@ pub(crate) fn del_service_params(
     change_service_updated_at(
         &data.service_uuid,
         logged_user_uuid,
-        format!("Deleted the parameters: {:?}", old_data),
+        format!("Deleted the parameters: {old_data:?}"),
         conn,
     )?;
     Ok(res_del)

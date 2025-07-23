@@ -141,20 +141,14 @@ pub(crate) fn update_service_data(
     change_service_updated_at(
         target_service_uuid,
         &options.logged_user_uuid,
-        format!(
-            "Modified name {:?}, description {:?}, region_id {:?}",
-            old_name, old_description, old_region_id
-        ),
+        format!("Modified name {old_name:?}, description {old_description:?}, region_id {old_region_id:?}"),
         conn,
     )?;
     // add notification for user
     create_notification(
         &options.logged_user_uuid,
         &NotificationData {
-            notification: format!(
-                "Service UUID:{} has been updated by creator",
-                target_service_uuid
-            ),
+            notification: format!("Service UUID:{target_service_uuid} has been updated by creator"),
             degree_importance: NotificationType::Info,
         },
         conn,
@@ -208,7 +202,7 @@ pub(crate) fn change_service_status(
     change_service_updated_at(
         &args.service_uuid,
         &options.logged_user_uuid,
-        format!("Changed status, old ID:{}", old_service_status_id),
+        format!("Changed status, old ID:{old_service_status_id}"),
         conn,
     )?;
     // add notification for user
