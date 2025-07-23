@@ -392,7 +392,7 @@ describe('company', () => {
     } = body;
     expect(supplierCompany.uuid).toBe(supplierCompany3t);
     expect(supplierCompany.shortname).toBe(supplierCompany3tShortName);
-    expect(supplierCompany.typeAccess.name).toBe("public");
+    expect(supplierCompany.typeAccess.name).toBe("Public");
     expect(supplierCompany.isSupplier).toBe(true);
     done();
   });
@@ -415,7 +415,7 @@ describe('company', () => {
     } = body;
     expect(supplierCompany.uuid).toBe(supplierCompany3t);
     expect(supplierCompany.shortname).toBe(supplierCompany3tShortName);
-    expect(supplierCompany.typeAccess.name).toBe("публичный");
+    expect(supplierCompany.typeAccess.name).toBe("Публичный");
     expect(supplierCompany.isSupplier).toBe(true);
     done();
   });

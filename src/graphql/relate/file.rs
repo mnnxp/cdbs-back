@@ -81,10 +81,16 @@ impl ShowFileRelatedData {
         &self.program
     }
 
-    /// Hash of the file calculated with BLAKE3 (cryptographic hash function)
+    /// Hash of the file calculated with BLAKE3 (there are plans to abandon this field)
     async fn hash(&self, cxt: &Context<'_>) -> String {
         let conn: &mut PooledConnection = &mut get_conn(cxt).expect("Error get conn to DB");
         SlimFile::encode_hash(&self.uuid, conn).expect("Error get encode hash (slim file)")
+    }
+
+    /// Hash of the file calculated with Sha256 (cryptographic hash function)
+    async fn sha256_hash(&self, cxt: &Context<'_>) -> String {
+        let conn: &mut PooledConnection = &mut get_conn(cxt).expect("Error get conn to DB");
+        SlimFile::encode_sha256_hash(&self.uuid, conn).expect("Error get encode hash (slim file)")
     }
 
     /// Pre-signed URL to download the file

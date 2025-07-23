@@ -56,6 +56,7 @@ fn write_metadata(
         .returning((
             file_ref::uuid,
             file_ref::hash,
+            file_ref::sha256_hash,
             file_ref::filename,
             file_ref::filesize,
             file_ref::path_file,

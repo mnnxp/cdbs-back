@@ -322,7 +322,7 @@ async function setFlagDeleteAsOldRevDb(fileUuid) {
 describe('service', () => {
   beforeAll(() => {
     cleanupCompanyRepresentDb();
-    cleanupServiceDb();
+    // cleanupServiceDb();
     cleanupCompanyDb();
     // cleanupTokenDb();
     cleanupUserDb();
@@ -331,7 +331,7 @@ describe('service', () => {
   });
   afterAll(() => {
     cleanupCompanyRepresentDb();
-    cleanupServiceDb();
+    // cleanupServiceDb();
     cleanupCompanyDb();
     // cleanupTokenDb();
     cleanupUserDb();

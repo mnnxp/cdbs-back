@@ -145,6 +145,7 @@ impl SlimFile {
             .select((
                 file_ref::uuid,
                 file_ref::hash,
+                file_ref::sha256_hash,
                 file_ref::filename,
                 file_ref::filesize,
                 file_ref::path_file,
@@ -173,6 +174,7 @@ impl SlimFile {
             .select((
                 file_ref::uuid,
                 file_ref::hash,
+                file_ref::sha256_hash,
                 file_ref::filename,
                 file_ref::filesize,
                 file_ref::path_file,
@@ -205,6 +207,7 @@ impl SlimFile {
             .select((
                 file_ref::uuid,
                 file_ref::hash,
+                file_ref::sha256_hash,
                 file_ref::filename,
                 file_ref::filesize,
                 file_ref::path_file,
@@ -244,6 +247,23 @@ impl SlimFile {
         Ok(hex::encode(hash))
     }
 
+    /// Returns a string in which each byte of data is encoded using two hexadecimal digits
+    pub(crate) fn encode_sha256_hash(file_uuid: &Uuid, conn: &mut PgConnection) -> ServiceResult<String> {
+        let sha256_hash = file_ref::file_ref
+            .select(file_ref::sha256_hash)
+            .filter(
+                file_ref::uuid
+                    .eq(file_uuid)
+                    .and(file_ref::is_delete.eq(false)),
+            )
+            .first::<Vec<u8>>(conn)
+            .map_err(|err| {
+                debug!("Failed get file hash: {:?}", err);
+                ServiceError::InternalServerError
+            })?;
+        Ok(hex::encode(sha256_hash))
+    }
+
     /// Returns a pre-signed link to a file in the repository (without check access)
     pub(crate) fn get_download_string(
         file_uuid: &Uuid,
@@ -253,6 +273,7 @@ impl SlimFile {
             .select((
                 file_ref::uuid,
                 file_ref::hash,
+                file_ref::sha256_hash,
                 file_ref::filename,
                 file_ref::filesize,
                 file_ref::path_file,
@@ -331,6 +352,7 @@ impl DownloadFile {
         Ok(DownloadFile {
             uuid: slim_file.uuid,
             hash: hex::encode(&slim_file.hash),
+            sha256_hash: hex::encode(&slim_file.sha256_hash),
             filename: slim_file.filename.clone(),
             filesize: slim_file.filesize,
             download_url: SlimFile::get_download_string(&slim_file.uuid, conn)?,

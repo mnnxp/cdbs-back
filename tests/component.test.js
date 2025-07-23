@@ -108,6 +108,7 @@ description \
 imageFile {
   uuid \
   hash \
+sha256Hash \
   filename \
   filesize \
   downloadUrl \
@@ -346,6 +347,7 @@ updatedAt \
 const downloadFileFields = ` \
 uuid \
 hash \
+sha256Hash \
 filename \
 filesize \
 downloadUrl \
@@ -465,6 +467,7 @@ var actualStatusIdForUpdate = 2;
 
 const defaultImageUuid = "bc1c2151-86d0-4656-9c9d-d016dd584297";
 const defaultImageHash = "60767c27d985cafa603b4a44ddc5fa8557e5c00d38d27f85b14ed460533e219c";
+const defaultImageSha256Hash = "80227309427c1c6a1bea25a4cf3f5ebfc4a66a4d66a9460af214a78487c59abc";
 // data for component modification
 const parentModificationUuid = "aba22d59-4f6c-44a4-9a37-2d38f0e577a8";
 const baseFilesetUuid = "5de37b5d-75af-4323-b5b4-2cf1e849baa2";
@@ -1518,6 +1521,7 @@ describe('component', () => {
     expect(body.data.component.uuid).toBe(componentUuidNoStandard);
     expect(body.data.component.imageFile.uuid).toBe(defaultImageUuid);
     expect(body.data.component.imageFile.hash).toBe(defaultImageHash);
+    expect(body.data.component.imageFile.sha256Hash).toBe(defaultImageSha256Hash);
     expect(body.data.component.componentKeywords[0].id).toBe(1);
     expect(body.data.component.componentKeywords[0].keyword).toBeNonEmptyString();
     expect(body.data.component.componentKeywords[1].id).toBe(2);
@@ -5108,6 +5112,7 @@ describe('component', () => {
             ){
               ${showFileRelatedDataFields}
               hash
+            sha256Hash
               downloadUrl
             }
           }`,
@@ -5122,10 +5127,12 @@ describe('component', () => {
     expect(componentFilesList[0].uuid).toBe(fileUuid3);
     expect(componentFilesList[0].filename).toBe(filename3);
     expect(componentFilesList[0].hash).toBe("");
+    expect(componentFilesList[0].sha256Hash).toBe("");
     expect(componentFilesList[0].downloadUrl).toBeNonEmptyString();
     expect(componentFilesList[1].uuid).toBe(fileUuid4);
     expect(componentFilesList[1].filename).toBe(filename4);
     expect(componentFilesList[1].hash).toBe("");
+    expect(componentFilesList[1].sha256Hash).toBe("");
     expect(componentFilesList[1].downloadUrl).toBeNonEmptyString();
     expect(componentFilesList.length).toBe(2);
     done();
@@ -6905,6 +6912,7 @@ describe('component', () => {
             }){
               ${showFileRelatedDataFields}
               hash
+            sha256Hash
               downloadUrl
             }
           }`,
@@ -6920,27 +6928,32 @@ describe('component', () => {
     expect(componentModificationFilesList[0].filename).toBe(filename1);
     expect(componentModificationFilesList[0].filesize).toBe(0);
     expect(componentModificationFilesList[0].hash).toBe("");
+    expect(componentModificationFilesList[0].sha256Hash).toBe("");
     expect(componentModificationFilesList[0].downloadUrl).toBeNonEmptyString();
     expect(componentModificationFilesList[1].uuid).toBe(fileUuid2);
     expect(componentModificationFilesList[1].parentFileUuid).toBe(fileUuid2);
     expect(componentModificationFilesList[1].filename).toBe(filename2);
     expect(componentModificationFilesList[1].hash).toBe("");
+    expect(componentModificationFilesList[1].sha256Hash).toBe("");
     expect(componentModificationFilesList[1].downloadUrl).toBeNonEmptyString();
     expect(componentModificationFilesList[2].uuid).toBe(fileUuid3);
     expect(componentModificationFilesList[2].parentFileUuid).toBe(fileUuid3);
     expect(componentModificationFilesList[2].filename).toBe(filename3);
     expect(componentModificationFilesList[2].hash).toBe("");
+    expect(componentModificationFilesList[2].sha256Hash).toBe("");
     expect(componentModificationFilesList[2].downloadUrl).toBeNonEmptyString();
     expect(componentModificationFilesList[3].uuid).toBe(fileUuid4);
     expect(componentModificationFilesList[3].parentFileUuid).toBe(fileUuid4);
     expect(componentModificationFilesList[3].filename).toBe(filename4);
     expect(componentModificationFilesList[3].hash).toBe("");
+    expect(componentModificationFilesList[3].sha256Hash).toBe("");
     expect(componentModificationFilesList[3].downloadUrl).toBeNonEmptyString();
     expect(componentModificationFilesList[4].uuid).toBe(fileUuid5);
     expect(componentModificationFilesList[4].parentFileUuid).toBe(fileUuid5);
     expect(componentModificationFilesList[4].filename).toBe(filename5);
     expect(componentModificationFilesList[4].filesize).toBe(0);
     expect(componentModificationFilesList[4].hash).toBe("");
+    expect(componentModificationFilesList[4].sha256Hash).toBe("");
     expect(componentModificationFilesList[4].downloadUrl).toBeNonEmptyString();
     done();
   });
@@ -7101,6 +7114,7 @@ describe('component', () => {
           showFileRevisions(fileUuid: "${threeRevFileFileTestUuid2}") {
             ${showFileRevisionsQuery}
             hash
+            sha256Hash
             downloadUrl
           }
         }`,
@@ -7114,6 +7128,7 @@ describe('component', () => {
     expect(showFileRevisions[0].uuid).toBe(fileUuid2);
     expect(showFileRevisions[0].revision).toBe(1);
     expect(showFileRevisions[0].hash).toBe("");
+    expect(showFileRevisions[0].sha256Hash).toBe("");
     expect(showFileRevisions[0].downloadUrl).toBeNonEmptyString();
     expect(showFileRevisions[0].commitMsg).toBe("");
     expect(showFileRevisions[1].uuid).toBe(seconRevFileFileTestUuid2);
@@ -7121,6 +7136,7 @@ describe('component', () => {
     expect(showFileRevisions[2].uuid).toBe(threeRevFileFileTestUuid2);
     expect(showFileRevisions[2].revision).toBe(3);
     expect(showFileRevisions[2].hash).toBe("");
+    expect(showFileRevisions[2].sha256Hash).toBe("");
     expect(showFileRevisions[2].downloadUrl).toBeNonEmptyString();
     expect(showFileRevisions[2].commitMsg).toBe("Secon revision (rev.2)");
     expect(showFileRevisions.length).toBe(3);

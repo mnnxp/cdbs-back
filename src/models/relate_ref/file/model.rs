@@ -78,6 +78,7 @@ pub(crate) struct InsertableFile {
     pub(crate) revision: i32,
     pub(crate) commit_uuid: Uuid,
     pub(crate) hash: Vec<u8>,
+    pub(crate) sha256_hash: Vec<u8>,
     pub(crate) user_uuid: Uuid,
     pub(crate) filename: String,
     pub(crate) content_type: String,
@@ -123,6 +124,7 @@ impl From<PreliminaryFileData> for InsertableFile {
             revision,
             commit_uuid,
             hash: Vec::new(),
+            sha256_hash: Vec::new(),
             user_uuid,
             filename,
             content_type,
@@ -182,6 +184,7 @@ pub(crate) struct FileData {
 pub(crate) struct SlimFile {
     pub(crate) uuid: Uuid,
     pub(crate) hash: Vec<u8>,
+    pub(crate) sha256_hash: Vec<u8>,
     pub(crate) filename: String,
     pub(crate) filesize: i64,
     pub(crate) path_file: String,
@@ -205,6 +208,8 @@ pub(crate) struct DownloadFile {
     pub(crate) uuid: Uuid,
     /// Hash of the file calculated with BLAKE3 (cryptographic hash function)
     pub(crate) hash: String,
+    /// Hash of the file calculated with Sha256 (cryptographic hash function)
+    pub(crate) sha256_hash: String,
     /// File name
     pub(crate) filename: String,
     /// File size in bytes

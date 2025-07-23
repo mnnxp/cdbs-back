@@ -297,6 +297,7 @@ table! {
         parent_file_uuid -> Uuid,
         revision -> Int4,
         hash -> Bytea,
+        sha256_hash -> Bytea,
         user_uuid -> Uuid,
         filename -> Varchar,
         content_type -> Varchar,
