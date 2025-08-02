@@ -250,8 +250,8 @@ pub(crate) fn related_file_updated_at(
     conn: &mut PgConnection,
 ) -> ServiceResult<usize> {
     // determine a object associated with the file and enable revisions for the object
-    let relate_object = detect_relation_to_object(file_uuid, conn)?;
-    if let ListObject::Service(service_uuid) = relate_object {
+    let relate_object = detect_relation_to_object(file_uuid, conn);
+    if let Ok(ListObject::Service(service_uuid)) = relate_object {
         let affected = if is_deleted { "deleted" } else { "confirmed" };
         let first_text = "File(s) related with the service is";
         let old_data = match additional_info {
