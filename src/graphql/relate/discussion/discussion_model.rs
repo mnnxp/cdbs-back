@@ -14,11 +14,6 @@ use crate::models::search::model::ExtraOptions;
 use crate::models::search::order::{Paginate, Sort, TableName};
 use crate::models::user::model::ShowUserShort;
 
-#[derive(Default)]
-pub struct DiscussionQuery;
-#[derive(Default)]
-pub struct DiscussionMutation;
-
 /// Default sorting: `createdAt`. Sorting by `title`, `isPinned`, `updatedAt` (last activity) is available.
 #[derive(Debug)]
 pub(crate) struct DiscussionInfo {

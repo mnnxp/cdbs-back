@@ -2,19 +2,18 @@ use crate::database::{get_conn, PooledConnection};
 use crate::errors::ServiceResult;
 use crate::models::relate_ref::{
     language::get_set_language,
-    type_access::model::{IptTypeAccessTranslateListData, TypeAccessTranslateList},
-    type_access::service::{list::get_type_access, register::create_type_access},
+    type_access::model::TypeAccessTranslateList,
+    type_access::service::list::get_type_access,
 };
 use crate::models::search::order::Paginate;
-use crate::models::user::access::logged::check_authorized;
 use async_graphql::{self, Context, Object};
 
 use super::attributes::IptPaginate;
 
 #[derive(Default)]
 pub struct TypeAccessQuery;
-#[derive(Default)]
-pub struct TypeAccessMutation;
+// #[derive(Default)]
+// pub struct TypeAccessMutation;
 
 #[Object]
 impl TypeAccessQuery {
@@ -39,17 +38,17 @@ impl TypeAccessQuery {
     }
 }
 
-#[Object]
-impl TypeAccessMutation {
-    /// Adds a new type access.
-    /// Returns an error with the type access ID if it already exists.
-    async fn register_type_access(
-        &self,
-        cxt: &Context<'_>,
-        args: IptTypeAccessTranslateListData,
-    ) -> ServiceResult<TypeAccessTranslateList> {
-        check_authorized(cxt)?;
-        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
-        create_type_access(&args, conn)
-    }
-}
+// #[Object]
+// impl TypeAccessMutation {
+//     /// Adds a new type access.
+//     /// Returns an error with the type access ID if it already exists.
+//     async fn register_type_access(
+//         &self,
+//         cxt: &Context<'_>,
+//         args: IptTypeAccessTranslateListData,
+//     ) -> ServiceResult<TypeAccessTranslateList> {
+//         check_authorized(cxt)?;
+//         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+//         create_type_access(&args, conn)
+//     }
+// }

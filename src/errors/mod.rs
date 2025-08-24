@@ -7,12 +7,6 @@ use thiserror::Error;
 pub(crate) mod err_msg;
 pub(crate) mod msg_en;
 
-#[derive(Error, Debug)]
-pub enum HostingError {
-    #[error("Error whith access to S3")]
-    BadRequest(#[from] reqwest::Error),
-}
-
 #[derive(Debug, Error, Serialize, Clone)]
 pub enum ServiceError {
     #[error("Internal Server Error")]
