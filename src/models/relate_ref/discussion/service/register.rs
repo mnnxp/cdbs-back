@@ -19,8 +19,8 @@ pub(crate) fn create_discussion_comment(
     if data.message_content.is_empty() {
         return Err(get_err_msg(ErrorMessage::DataNotFound));
     }
-    if data.message_content.len() > 4000 {
-        return Err(get_err_msg(ErrorMessage::TextMustLess(4000)));
+    if data.message_content.len() > 5000 {
+        return Err(get_err_msg(ErrorMessage::TextMustLess(5000)));
     }
     let discussion_to = data.object_discussion.get_discuss_to();
     discussion_to.check_access(logged_user_uuid, &3, conn)?;

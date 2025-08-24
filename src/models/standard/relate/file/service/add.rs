@@ -78,7 +78,7 @@ pub(crate) fn add_standard_favicon(
     )?;
 
     // return error if not correct file name
-    if data.filename.is_empty() || data.filename.len() > 100 {
+    if data.filename.is_empty() || data.filename.len() > 500 {
         return Err(get_err_msg(ErrorMessage::BadFilename));
     }
 

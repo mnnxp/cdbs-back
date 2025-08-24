@@ -19,9 +19,9 @@ pub(crate) fn update_company_by_uuid(
         .as_ref()
         .map(|d| d.len())
         .unwrap_or_default()
-        > 4000
+        > 10000
     {
-        return Err(get_err_msg(ErrorMessage::TextMustLess(4000)));
+        return Err(get_err_msg(ErrorMessage::TextMustLess(10000)));
     }
 
     // check access user for company

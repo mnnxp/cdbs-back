@@ -20,8 +20,8 @@ pub(crate) fn edit_discussion_comment(
     if data.updated_message.is_empty() {
         return Err(get_err_msg(ErrorMessage::DataNotFound));
     }
-    if data.updated_message.len() > 4000 {
-        return Err(get_err_msg(ErrorMessage::TextMustLess(4000)));
+    if data.updated_message.len() > 5000 {
+        return Err(get_err_msg(ErrorMessage::TextMustLess(5000)));
     }
     comment_criteria.is_comment_message_present(&data.updated_message, conn)?;
     // update data

@@ -21,9 +21,9 @@ pub(crate) fn update_standard_data(
         .as_ref()
         .map(|d| d.len())
         .unwrap_or_default()
-        > 4000
+        > 10000
     {
-        return Err(get_err_msg(ErrorMessage::TextMustLess(4000)));
+        return Err(get_err_msg(ErrorMessage::TextMustLess(10000)));
     }
 
     let need_access_level = 1; // todo!(create enum for manage access level)

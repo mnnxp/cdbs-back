@@ -2553,7 +2553,7 @@ describe('service', () => {
         query: `mutation  {
           addServiceKeywordsByNames(args: {
             serviceUuid: "${serviceUuidFirst}"
-            keywords: ["asd11","сликомдлинныйключ","asd12345678","asd12"]
+            keywords: ["asd11","слишкомслишкомслишкомслишкомслишкомдлинноеключевоеслово","asd12345678","asd12"]
           })
         }`,
       })
@@ -2561,7 +2561,7 @@ describe('service', () => {
     debug('/graphql addServiceKeywordsByNames=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      "BadRequest: Text must be less than 30 bit (~15 symbols)"
+      "BadRequest: Text must be less than 100 bit (~50 symbols)"
     );
     expect(body.errors[0].path[0]).toBe('addServiceKeywordsByNames');
     done();

@@ -31,9 +31,9 @@ pub(crate) fn update_service_data(
         .as_ref()
         .map(|d| d.len())
         .unwrap_or_default()
-        > 4000
+        > 10000
     {
-        return Err(get_err_msg(ErrorMessage::TextMustLess(4000)));
+        return Err(get_err_msg(ErrorMessage::TextMustLess(10000)));
     }
 
     check_is_owner_with_err(&options.logged_user_uuid, target_service_uuid, conn)?;

@@ -22,9 +22,9 @@ pub(crate) fn update_component_by_uuid(
         .as_ref()
         .map(|d| d.len())
         .unwrap_or_default()
-        > 2000
+        > 10000
     {
-        return Err(get_err_msg(ErrorMessage::TextMustLess(2000)));
+        return Err(get_err_msg(ErrorMessage::TextMustLess(10000)));
     }
 
     // need top level access for change component main data
