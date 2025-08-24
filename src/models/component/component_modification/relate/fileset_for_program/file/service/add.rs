@@ -32,8 +32,8 @@ pub(crate) fn add_files_of_modification_set(
         conn,
     )?;
 
-    // return error if not found correct filename
-    if data.filenames.is_empty() || data.filenames.len() > 100 {
+    // return error if files not found or more than 500 files in one request
+    if data.filenames.is_empty() || data.filenames.len() > 500 {
         return Err(get_err_msg(ErrorMessage::NotFoundFilename));
     }
 

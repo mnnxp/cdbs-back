@@ -29,8 +29,8 @@ pub(crate) fn add_standard_files(
         conn,
     )?;
 
-    // return error if not correct file name
-    if data.filenames.is_empty() || data.filenames.len() > 100 {
+    // return error if files not found or more than 500 files in one request
+    if data.filenames.is_empty() || data.filenames.len() > 500 {
         return Err(get_err_msg(ErrorMessage::BadFilename));
     }
 
