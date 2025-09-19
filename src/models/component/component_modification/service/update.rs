@@ -21,9 +21,9 @@ pub(crate) fn update_modification_data(
         .as_ref()
         .map(|d| d.len())
         .unwrap_or_default()
-        > 10000
+        > 50000
     {
-        return Err(get_err_msg(ErrorMessage::TextMustLess(10000)));
+        return Err(get_err_msg(ErrorMessage::TextMustLess(50000)));
     }
 
     let need_access_level = 1; // todo!(create enum for manage access level)

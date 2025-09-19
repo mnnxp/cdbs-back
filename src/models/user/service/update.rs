@@ -24,9 +24,9 @@ pub(crate) fn update_user(
         .as_ref()
         .map(|d| d.len())
         .unwrap_or_default()
-        > 10000
+        > 50000
     {
-        return Err(get_err_msg(ErrorMessage::TextMustLess(10000)));
+        return Err(get_err_msg(ErrorMessage::TextMustLess(50000)));
     }
 
     // for returning change count

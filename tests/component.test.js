@@ -474,7 +474,7 @@ const baseFilesetUuid = "5de37b5d-75af-4323-b5b4-2cf1e849baa2";
 const modificationName = "testmodificationcomponent";
 const modificationName2 = "test modification component 2";
 const descriptionModification = "commentcomponent";
-const veryLongDescriptionModification = Array(6100).join('я');
+const veryLongDescriptionModification = Array(25100).join('я');
 const actualStatusIdModification = 1;
 var componentModificationUuidFirst = "";
 var componentModificationUuidSecond = "";
@@ -5789,7 +5789,7 @@ describe('component', () => {
     // expect(body).toBe(0);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Text must be less than 10000 bit (~5000 symbols)'
+      'BadRequest: Text must be less than 50000 bit (~25000 symbols)'
     );
     expect(body.errors[0].path[0]).toBe('putComponentModificationUpdate');
     done();
