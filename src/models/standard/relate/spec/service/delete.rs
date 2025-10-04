@@ -1,9 +1,7 @@
-use crate::errors::{ServiceResult, ServiceError};
-use crate::errors::err_msg::{ErrorMessage, get_err_msg};
-use crate::models::standard::spec::model::{
-    IptStandardSpecsData, DeleteStandardSpecs,
-};
+use crate::errors::err_msg::{get_err_msg, ErrorMessage};
+use crate::errors::{ServiceError, ServiceResult};
 use crate::models::standard::access::util::check_access_standard_for_user;
+use crate::models::standard::spec::model::{DeleteStandardSpecs, IptStandardSpecsData};
 use crate::schema::spec_to_standard::dsl as spec_to_standard;
 use diesel::prelude::*;
 use uuid::Uuid;
@@ -12,7 +10,7 @@ use uuid::Uuid;
 pub(crate) fn del_standard_specs(
     logged_user_uuid: &Uuid,
     data: &IptStandardSpecsData,
-    conn: &mut PgConnection
+    conn: &mut PgConnection,
 ) -> ServiceResult<usize> {
     let need_access_level = 1; // todo!(create enum for manage access level)
 
@@ -28,12 +26,15 @@ pub(crate) fn del_standard_specs(
 
     if del_specs.spec_ids.is_empty() {
         // return error if not found correct specs
-        return Err(get_err_msg(ErrorMessage::NotFoundSpecs))
+        return Err(get_err_msg(ErrorMessage::NotFoundSpecs));
     }
 
     diesel::delete(spec_to_standard::spec_to_standard)
-        .filter(spec_to_standard::standard_uuid.eq(&del_specs.standard_uuid)
-        .and(spec_to_standard::spec_id.eq_any(&del_specs.spec_ids)))
+        .filter(
+            spec_to_standard::standard_uuid
+                .eq(&del_specs.standard_uuid)
+                .and(spec_to_standard::spec_id.eq_any(&del_specs.spec_ids)),
+        )
         .execute(conn)
         .map_err(|err| {
             debug!("Fail inserted spec: {:?}", err);

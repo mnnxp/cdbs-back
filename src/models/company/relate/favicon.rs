@@ -1,9 +1,9 @@
 use crate::errors::ServiceResult;
 use crate::models::company::access::util::check_is_owner_with_err;
 use crate::models::relate_ref::file::{
+    commit::Commit,
     model::{ListObject, UploadFile},
     service::register::preregister_file,
-    commit::Commit,
 };
 use crate::storage::model::StorageAccess;
 use crate::storage::presigned_url::upload_presigned_url;
@@ -18,31 +18,20 @@ pub(crate) fn update_favicon(
     conn: &mut PgConnection,
 ) -> ServiceResult<UploadFile> {
     // check access user for company
-    check_is_owner_with_err(
-        logged_user_uuid,
-        target_company_uuid,
-        conn
-    )?;
+    check_is_owner_with_err(logged_user_uuid, target_company_uuid, conn)?;
 
     let slim_file = preregister_file(
         logged_user_uuid,
         ListObject::CompanyFavicon(*target_company_uuid),
         filename,
         &Commit::create_commit("Update favicon", conn)?,
-        conn
+        conn,
     )?;
 
     // change image uuid for company
-    change_image_uuid(
-        target_company_uuid,
-        &slim_file.uuid,
-        conn,
-    );
+    change_image_uuid(target_company_uuid, &slim_file.uuid, conn);
 
-    let upload_url = upload_presigned_url(
-        &StorageAccess::from_env(),
-        &slim_file.path_file,
-    )?;
+    let upload_url = upload_presigned_url(&StorageAccess::from_env(), &slim_file.path_file)?;
 
     Ok(UploadFile {
         file_uuid: slim_file.uuid,
@@ -52,11 +41,7 @@ pub(crate) fn update_favicon(
 }
 
 /// Change image file uuid for company
-fn change_image_uuid (
-    company_uuid: &Uuid,
-    set_image_uuid: &Uuid,
-    conn: &mut PgConnection,
-) -> bool {
+fn change_image_uuid(company_uuid: &Uuid, set_image_uuid: &Uuid, conn: &mut PgConnection) -> bool {
     use crate::schema::company_ref::dsl as company_ref;
 
     let res = diesel::update(company_ref::company_ref)

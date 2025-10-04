@@ -1,4 +1,4 @@
-use crate::errors::{ServiceResult, ServiceError};
+use crate::errors::{ServiceError, ServiceResult};
 use crate::models::relate_ref::keyword::model::Keyword;
 use crate::models::search::order::Paginate;
 use crate::schema::keyword_to_standard::dsl as keyword_to_standard;
@@ -22,7 +22,7 @@ impl Keyword {
                 ServiceError::InternalServerError
             })?;
         if keyword_ids.is_empty() {
-            return Ok(Vec::new()) // not found keywords
+            return Ok(Vec::new()); // not found keywords
         }
         Keyword::get_by_ids(&keyword_ids, paginate, conn)
     }

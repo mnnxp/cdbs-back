@@ -1,9 +1,9 @@
-use crate::errors::{ServiceResult, ServiceError};
 use crate::database::{get_conn, PooledConnection};
-use crate::models::user::access::token::{token_from_cxt, whose_token, check_token};
+use crate::errors::{ServiceError, ServiceResult};
+use crate::models::user::access::token::{check_token, token_from_cxt, whose_token};
 use crate::schema::user_ref::dsl as user_ref;
-use diesel::prelude::*;
 use async_graphql::Context;
+use diesel::prelude::*;
 use uuid::Uuid;
 
 /// Checking user authorization
@@ -19,10 +19,7 @@ pub(crate) fn check_authorized(cxt: &Context<'_>) -> ServiceResult<bool> {
 
 /// get user_uuid of the authorized user
 /// with and without checking valid token
-pub(crate) fn get_logged_user_uuid(
-    cxt: &Context<'_>,
-    need_check: bool
-) -> ServiceResult<Uuid> {
+pub(crate) fn get_logged_user_uuid(cxt: &Context<'_>, need_check: bool) -> ServiceResult<Uuid> {
     let target_token = token_from_cxt(cxt)?;
     let conn: &mut PooledConnection = &mut get_conn(cxt)?;
     match need_check {

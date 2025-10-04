@@ -1,14 +1,14 @@
-use async_graphql::{self, Context, Object};
-use crate::graphql::relate::attributes::IptPaginate;
 use crate::database::{get_conn, PooledConnection};
 use crate::errors::ServiceResult;
-use crate::models::search::order::Paginate;
-use crate::models::user::access::logged::check_authorized;
+use crate::graphql::relate::attributes::IptPaginate;
 use crate::models::relate_ref::keyword::{
     model::{IptKeywordData, Keyword},
     service::list::get_keywords,
     service::register::create_keyword,
 };
+use crate::models::search::order::Paginate;
+use crate::models::user::access::logged::check_authorized;
+use async_graphql::{self, Context, Object};
 
 #[derive(Default)]
 pub struct KeywordQuery;
@@ -28,7 +28,8 @@ impl KeywordQuery {
     ) -> ServiceResult<Vec<Keyword>> {
         // authorization check
         check_authorized(cxt)?;
-        let p = paginate.map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
+        let p = paginate
+            .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
             .unwrap_or_default();
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
         get_keywords(&keyword_ids, &p, conn)

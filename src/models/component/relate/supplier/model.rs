@@ -1,15 +1,11 @@
+use crate::models::company::model::SlimCompany;
 use crate::schema::*;
-use crate::models::company::model::{Company, SlimCompany};
-use crate::models::component::model::Component;
 use async_graphql::*;
 // use chrono::*;
 use uuid::Uuid;
 
 // Supplier component models
-#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, Clone, Debug)]
-#[diesel(primary_key(component_uuid, company_uuid))]
-#[diesel(belongs_to(Component, foreign_key = component_uuid))]
-#[diesel(belongs_to(Company, foreign_key = company_uuid))]
+#[derive(Serialize, Deserialize, Queryable, SimpleObject, Clone, Debug)]
 #[diesel(table_name = supplier_to_component)]
 pub(crate) struct SupplierComponent {
     pub(crate) component_uuid: Uuid,
@@ -31,7 +27,7 @@ pub(crate) struct ComponentSupplierRelatedData {
 impl ComponentSupplierRelatedData {
     /// Create struct with SupplierComponent data, SlimCompany data set default
     pub(crate) fn new(data: &SupplierComponent) -> Self {
-        Self{
+        Self {
             supplier: Default::default(),
             component_uuid: data.component_uuid,
             description: data.description.clone(),

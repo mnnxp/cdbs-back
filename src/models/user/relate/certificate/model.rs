@@ -1,15 +1,11 @@
-use crate::schema::*;
-use crate::models::user::model::User;
 use crate::models::relate_ref::file::model::DownloadFile;
+use crate::schema::*;
 use async_graphql::*;
 // use chrono::*;
 use uuid::Uuid;
 
 // Certificate for User
-#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, Debug)]
-#[diesel(primary_key(file_uuid, user_uuid))]
-#[diesel(belongs_to(DownloadFile, foreign_key = file_uuid))]
-#[diesel(belongs_to(User, foreign_key = user_uuid))]
+#[derive(Serialize, Deserialize, Queryable, SimpleObject, Clone, Debug)]
 #[diesel(table_name = user_certificate_ref)]
 pub(crate) struct UserCertificate {
     pub(crate) file_uuid: Uuid,

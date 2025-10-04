@@ -26,6 +26,8 @@ pub(crate) enum ListObject {
     ComponentModificationSet(Uuid),
     /// For bind file to the standard
     Standard(Uuid),
+    /// For bind file to the service
+    Service(Uuid),
     /// For change file for main image (favicon) standard
     StandardFavicon(Uuid),
 }
@@ -44,6 +46,7 @@ impl ListObject {
             ListObject::ComponentModification(uuid_object) => *uuid_object,
             ListObject::ComponentModificationSet(uuid_object) => *uuid_object,
             ListObject::Standard(uuid_object) => *uuid_object,
+            ListObject::Service(uuid_object) => *uuid_object,
             ListObject::StandardFavicon(uuid_object) => *uuid_object,
         }
     }
@@ -75,6 +78,7 @@ pub(crate) struct InsertableFile {
     pub(crate) revision: i32,
     pub(crate) commit_uuid: Uuid,
     pub(crate) hash: Vec<u8>,
+    pub(crate) sha256_hash: Vec<u8>,
     pub(crate) user_uuid: Uuid,
     pub(crate) filename: String,
     pub(crate) content_type: String,
@@ -87,7 +91,6 @@ pub(crate) struct InsertableFile {
     pub(crate) created_at: NaiveDateTime,
     pub(crate) updated_at: NaiveDateTime,
 }
-
 
 impl From<PreliminaryFileData> for InsertableFile {
     fn from(data: PreliminaryFileData) -> Self {
@@ -107,7 +110,8 @@ impl From<PreliminaryFileData> for InsertableFile {
         let new_file_uuid = Uuid::new_v4();
 
         // creating a filename for the storage
-        let path_file = format!("{}/{}",
+        let path_file = format!(
+            "{}/{}",
             // maybe uuid from component, modification, standard, user etc
             Uuid::simple(object.get_uuid()),
             // user_uuid
@@ -120,6 +124,7 @@ impl From<PreliminaryFileData> for InsertableFile {
             revision,
             commit_uuid,
             hash: Vec::new(),
+            sha256_hash: Vec::new(),
             user_uuid,
             filename,
             content_type,
@@ -153,14 +158,9 @@ pub(crate) struct PreliminaryFileData {
 }
 
 impl PreliminaryFileData {
-    pub(crate) fn set_revision(
-        &mut self,
-        parent_file_uuid: Uuid,
-        revision: i32,
-    ) {
+    pub(crate) fn set_revision(&mut self, parent_file_uuid: Uuid, revision: i32) {
         self.parent_file_uuid = parent_file_uuid;
         self.revision = revision;
-
     }
 }
 
@@ -184,6 +184,7 @@ pub(crate) struct FileData {
 pub(crate) struct SlimFile {
     pub(crate) uuid: Uuid,
     pub(crate) hash: Vec<u8>,
+    pub(crate) sha256_hash: Vec<u8>,
     pub(crate) filename: String,
     pub(crate) filesize: i64,
     pub(crate) path_file: String,
@@ -207,6 +208,8 @@ pub(crate) struct DownloadFile {
     pub(crate) uuid: Uuid,
     /// Hash of the file calculated with BLAKE3 (cryptographic hash function)
     pub(crate) hash: String,
+    /// Hash of the file calculated with Sha256 (cryptographic hash function)
+    pub(crate) sha256_hash: String,
     /// File name
     pub(crate) filename: String,
     /// File size in bytes
@@ -225,7 +228,7 @@ pub(crate) struct FileByExtArg {
 impl FileByExtArg {
     /// Get struct for get 1th image
     pub(crate) fn image() -> Self {
-        Self{
+        Self {
             ext_id: 2, // (image)
             limit: 1,
             offset: 0,

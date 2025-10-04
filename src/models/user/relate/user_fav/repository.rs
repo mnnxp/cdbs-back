@@ -1,7 +1,7 @@
-use crate::errors::{ServiceResult, ServiceError};
+use crate::errors::{ServiceError, ServiceResult};
 use crate::models::search::order::Paginate;
-use crate::models::user::user_fav::model::UserFav;
 use crate::models::user::model::ShowUserShort;
+use crate::models::user::user_fav::model::UserFav;
 use crate::schema::user_fav::dsl as user_fav;
 use diesel::prelude::*;
 use uuid::Uuid;
@@ -16,16 +16,19 @@ impl ShowUserShort {
     ) -> ServiceResult<Vec<ShowUserShort>> {
         let mut query = user_fav::user_fav.into_boxed();
         query = match filter_users_uuids.is_empty() {
-            true => {
-                query.filter(user_fav::user_favorite_uuid.eq(logged_user_uuid)
-                    .and(user_fav::is_enabled.eq(true)))
-            },
+            true => query.filter(
+                user_fav::user_favorite_uuid
+                    .eq(logged_user_uuid)
+                    .and(user_fav::is_enabled.eq(true)),
+            ),
             // add filter user_uuid if it set
-            false => {
-                query.filter(user_fav::user_favorite_uuid.eq(logged_user_uuid)
-                    .and(user_fav::is_enabled.eq(true)
-                    .and(user_fav::user_follower_uuid.eq_any(filter_users_uuids))))
-            },
+            false => query.filter(
+                user_fav::user_favorite_uuid.eq(logged_user_uuid).and(
+                    user_fav::is_enabled
+                        .eq(true)
+                        .and(user_fav::user_follower_uuid.eq_any(filter_users_uuids)),
+                ),
+            ),
         };
 
         let target_list_user_uuid = query
@@ -38,11 +41,7 @@ impl ShowUserShort {
                 ServiceError::InternalServerError
             })?;
 
-        ShowUserShort::get_users_by_uuids(
-            logged_user_uuid,
-            &target_list_user_uuid,
-            conn
-        )
+        ShowUserShort::get_users_by_uuids(logged_user_uuid, &target_list_user_uuid, conn)
     }
 
     /// get favorite list for user
@@ -54,16 +53,19 @@ impl ShowUserShort {
     ) -> ServiceResult<Vec<ShowUserShort>> {
         let mut query = user_fav::user_fav.into_boxed();
         query = match filter_users_uuids.is_empty() {
-            true => {
-                query.filter(user_fav::user_follower_uuid.eq(logged_user_uuid)
-                    .and(user_fav::is_enabled.eq(true)))
-            },
+            true => query.filter(
+                user_fav::user_follower_uuid
+                    .eq(logged_user_uuid)
+                    .and(user_fav::is_enabled.eq(true)),
+            ),
             // add filter user_uuid if it set
-            false => {
-                query.filter(user_fav::user_follower_uuid.eq(logged_user_uuid)
-                    .and(user_fav::is_enabled.eq(true)
-                    .and(user_fav::user_favorite_uuid.eq_any(filter_users_uuids))))
-            },
+            false => query.filter(
+                user_fav::user_follower_uuid.eq(logged_user_uuid).and(
+                    user_fav::is_enabled
+                        .eq(true)
+                        .and(user_fav::user_favorite_uuid.eq_any(filter_users_uuids)),
+                ),
+            ),
         };
 
         let target_list_user_uuid = query
@@ -76,11 +78,7 @@ impl ShowUserShort {
                 ServiceError::InternalServerError
             })?;
 
-        ShowUserShort::get_users_by_uuids(
-            logged_user_uuid,
-            &target_list_user_uuid,
-            conn
-        )
+        ShowUserShort::get_users_by_uuids(logged_user_uuid, &target_list_user_uuid, conn)
     }
 }
 
@@ -91,8 +89,11 @@ impl UserFav {
         conn: &mut PgConnection,
     ) -> ServiceResult<i32> {
         let count = user_fav::user_fav
-            .filter(user_fav::user_favorite_uuid.eq(logged_user_uuid)
-            .and(user_fav::is_enabled.eq(true)))
+            .filter(
+                user_fav::user_favorite_uuid
+                    .eq(logged_user_uuid)
+                    .and(user_fav::is_enabled.eq(true)),
+            )
             .execute(conn)
             .map_err(|err| {
                 debug!("Failed get actual status: {:?}", err);
@@ -107,8 +108,11 @@ impl UserFav {
         conn: &mut PgConnection,
     ) -> ServiceResult<i32> {
         let count = user_fav::user_fav
-            .filter(user_fav::user_follower_uuid.eq(target_user_uuid)
-            .and(user_fav::is_enabled.eq(true)))
+            .filter(
+                user_fav::user_follower_uuid
+                    .eq(target_user_uuid)
+                    .and(user_fav::is_enabled.eq(true)),
+            )
             .execute(conn)
             .map_err(|err| {
                 debug!("Failed get actual status: {:?}", err);

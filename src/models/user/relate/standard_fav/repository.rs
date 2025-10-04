@@ -1,4 +1,4 @@
-use crate::errors::{ServiceResult, ServiceError};
+use crate::errors::{ServiceError, ServiceResult};
 use crate::models::standard::standard_fav::model::StandardFav;
 use crate::schema::standard_fav::dsl as standard_fav;
 use diesel::prelude::*;
@@ -11,8 +11,11 @@ impl StandardFav {
         conn: &mut PgConnection,
     ) -> ServiceResult<i32> {
         let count = standard_fav::standard_fav
-            .filter(standard_fav::user_uuid.eq(target_user_uuid)
-            .and(standard_fav::is_enabled.eq(true)))
+            .filter(
+                standard_fav::user_uuid
+                    .eq(target_user_uuid)
+                    .and(standard_fav::is_enabled.eq(true)),
+            )
             .execute(conn)
             .map_err(|err| {
                 debug!("Fail count company_fav: {:?} ", err);

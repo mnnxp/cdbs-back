@@ -1,9 +1,9 @@
-use crate::errors::{ServiceResult, ServiceError};
-use crate::errors::err_msg::{ErrorMessage, get_err_msg};
+use crate::errors::err_msg::{get_err_msg, ErrorMessage};
+use crate::errors::{ServiceError, ServiceResult};
 use crate::models::user::{
     access::hash::{make_hash_salt, make_salt, verify},
     notification::{
-        model::{NotificationType, NotificationData},
+        model::{NotificationData, NotificationType},
         service::register::create_notification,
     },
 };
@@ -55,21 +55,13 @@ pub(crate) fn change_password(
     conn: &mut PgConnection,
 ) -> ServiceResult<bool> {
     if data.old_password == data.new_password {
-        return Ok(false)
+        return Ok(false);
     }
 
     // check if the old password is correct
-    check_password(
-        logged_user_uuid,
-        data.old_password.as_bytes(),
-        conn
-    )?;
+    check_password(logged_user_uuid, data.old_password.as_bytes(), conn)?;
 
-    update_password(
-        logged_user_uuid,
-        data.new_password.as_bytes(),
-        conn,
-    )
+    update_password(logged_user_uuid, data.new_password.as_bytes(), conn)
 }
 
 /// Generate new hash and salt for password
@@ -83,14 +75,10 @@ fn update_password(
     let psw_salt = make_salt();
 
     // make hash with salt for save password in database
-    let psw_hash = make_hash_salt(
-        new_password,
-        &psw_salt,
-    );
+    let psw_hash = make_hash_salt(new_password, &psw_salt);
 
     // update hash and salt in database
-    diesel::update(user_ref::user_ref
-        .filter(user_ref::uuid.eq(logged_user_uuid)))
+    diesel::update(user_ref::user_ref.filter(user_ref::uuid.eq(logged_user_uuid)))
         .set((
             user_ref::psw_hash.eq(psw_hash),
             user_ref::psw_salt.eq(psw_salt.to_vec()),
@@ -123,20 +111,13 @@ pub(crate) fn check_password(
 ) -> ServiceResult<bool> {
     let hash_pass = user_ref::user_ref
         .filter(user_ref::uuid.eq(logged_user_uuid))
-        .select((
-            user_ref::psw_hash,
-            user_ref::psw_salt,
-        ))
+        .select((user_ref::psw_hash, user_ref::psw_salt))
         .first::<HashPassword>(conn)
         .map_err(|_| ServiceError::InternalServerError)?;
 
     // debug!("HashPassword: {:?}", hash_pass);
 
-    match verify(
-        hash_pass.get_psw_hash(),
-        hash_pass.get_psw_salt(),
-        password,
-    ) {
+    match verify(hash_pass.get_psw_hash(), hash_pass.get_psw_salt(), password) {
         true => Ok(true),
         false => Err(get_err_msg(ErrorMessage::PasswordIsNotCorrect)),
     }

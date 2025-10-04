@@ -1,4 +1,4 @@
-use crate::errors::{ServiceResult, ServiceError};
+use crate::errors::{ServiceError, ServiceResult};
 use crate::models::company::company_type::model::CompanyTypeTranslateList;
 use crate::schema::company_type_translate_list::dsl as company_type_translate_list;
 use diesel::prelude::*;
@@ -11,15 +11,21 @@ impl CompanyTypeTranslateList {
         conn: &mut PgConnection,
     ) -> ServiceResult<CompanyTypeTranslateList> {
         company_type_translate_list::company_type_translate_list
-            .filter(company_type_translate_list::company_type_id.eq(target_company_type_id)
-            .and(company_type_translate_list::lang_id.eq(set_lang_id)))
+            .filter(
+                company_type_translate_list::company_type_id
+                    .eq(target_company_type_id)
+                    .and(company_type_translate_list::lang_id.eq(set_lang_id)),
+            )
             .first::<CompanyTypeTranslateList>(conn)
             .map_err(|err| {
                 // if not found data for set lang
                 debug!("Not found set lang for company type: {:?}", err);
                 company_type_translate_list::company_type_translate_list
-                    .filter(company_type_translate_list::company_type_id.eq(target_company_type_id)
-                    .and(company_type_translate_list::lang_id.eq(1)))
+                    .filter(
+                        company_type_translate_list::company_type_id
+                            .eq(target_company_type_id)
+                            .and(company_type_translate_list::lang_id.eq(1)),
+                    )
                     .first::<CompanyTypeTranslateList>(conn)
             })
             .map_err(|err| {

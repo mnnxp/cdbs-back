@@ -1,8 +1,8 @@
-use crate::errors::{ServiceResult, ServiceError};
+use crate::errors::{ServiceError, ServiceResult};
 use crate::models::relate_ref::region::model::RegionTranslateList;
 use crate::models::search::order::Paginate;
 use crate::schema::region_translate_list::dsl as region_translate_list;
-use diesel::{PgConnection, prelude::*};
+use diesel::{prelude::*, PgConnection};
 
 /// Returns a list of available regions with a filter by IDs.
 /// If a filter is not specified, then all existing ones are aggregated.
@@ -42,8 +42,11 @@ fn find_region_id(
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<RegionTranslateList>> {
     region_translate_list::region_translate_list
-        .filter(region_translate_list::region_id.eq_any(region_ids)
-        .and(region_translate_list::lang_id.eq(set_lang_id)))
+        .filter(
+            region_translate_list::region_id
+                .eq_any(region_ids)
+                .and(region_translate_list::lang_id.eq(set_lang_id)),
+        )
         .limit(paginate.limit)
         .offset(paginate.offset)
         .load::<RegionTranslateList>(conn)

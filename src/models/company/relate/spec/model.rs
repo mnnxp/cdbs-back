@@ -1,14 +1,9 @@
 use crate::schema::*;
-use crate::models::relate_ref::spec::model::Spec;
-use crate::models::company::model::Company;
 use async_graphql::*;
 use uuid::Uuid;
 
 /// Related catalog and company identifiers
-#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, Clone, Debug, SimpleObject)]
-#[diesel(primary_key(company_uuid, spec_id))]
-#[diesel(belongs_to(Company, foreign_key = company_uuid))]
-#[diesel(belongs_to(Spec, foreign_key = spec_id))]
+#[derive(Serialize, Deserialize, Queryable, SimpleObject, Clone, Debug)]
 #[diesel(table_name = spec_to_company)]
 pub(crate) struct CompanySpec {
     /// Catalog Identifier
@@ -81,7 +76,7 @@ impl From<&IptCompanySpecsData> for DelCompanySpec {
             }
         }
 
-        Self{
+        Self {
             company_uuid: *company_uuid,
             spec_ids: good_spec_ids,
         }

@@ -1,6 +1,4 @@
 use crate::schema::*;
-use crate::models::company::company_represent::model::CompanyRepresent;
-use crate::models::relate_ref::language::model::Language;
 use async_graphql::*;
 
 #[derive(Identifiable, Serialize, Deserialize, Queryable, Debug)]
@@ -22,10 +20,7 @@ pub(crate) struct InsertableRepresentationType {
 // }
 
 /// Localized name of the company's representation type
-#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, Clone, Default, SimpleObject, Debug)]
-#[diesel(primary_key(representation_type_id, lang_id))]
-#[diesel(belongs_to(CompanyRepresent, foreign_key = representation_type_id))]
-#[diesel(belongs_to(Language, foreign_key = lang_id))]
+#[derive(Serialize, Deserialize, Queryable, Clone, Default, SimpleObject, Debug)]
 #[diesel(table_name = representation_type_translate_list)]
 pub(crate) struct RepresentationTypeTranslateList {
     /// Representation type identifier

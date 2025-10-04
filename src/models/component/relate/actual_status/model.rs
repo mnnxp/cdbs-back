@@ -1,7 +1,4 @@
 use crate::schema::*;
-use crate::models::component::model::Component;
-use crate::models::component::component_modification::model::ComponentModification;
-use crate::models::relate_ref::language::model::Language;
 use async_graphql::*;
 
 #[derive(Identifiable, Serialize, Deserialize, Queryable, Debug)]
@@ -19,13 +16,7 @@ pub(crate) struct InsertableActualStatus {
 
 /// Actual status is information about the stage of the component's (product's) life cycle
 /// with localization (translation) for the specified language
-#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations)]
-#[derive(SimpleObject, Clone, Default, Debug)]
-#[diesel(primary_key(actual_status_id, lang_id))]
-#[diesel(belongs_to(Component, foreign_key = actual_status_id))]
-#[diesel(belongs_to(ComponentModification, foreign_key = actual_status_id))]
-#[diesel(belongs_to(ActualStatus, foreign_key = actual_status_id))]
-#[diesel(belongs_to(Language, foreign_key = lang_id))]
+#[derive(Serialize, Deserialize, Queryable, SimpleObject, Clone, Debug)]
 #[diesel(table_name = actual_status_translate_list)]
 pub(crate) struct ActualStatusTranslateList {
     /// Actual status identifier

@@ -1,9 +1,7 @@
-use crate::errors::{ServiceResult, ServiceError};
+use crate::errors::{ServiceError, ServiceResult};
 use crate::models::company::access::util::check_is_owner_with_err;
 use crate::models::company::company_represent::model::{
-    CompanyRepresent,
-    IptCompanyRepresentData,
-    InsertableCompanyRepresent,
+    CompanyRepresent, InsertableCompanyRepresent, IptCompanyRepresentData,
 };
 use diesel::prelude::*;
 use uuid::Uuid;
@@ -16,11 +14,7 @@ pub(crate) fn create_company_represent(
 ) -> ServiceResult<bool> {
     use crate::schema::company_represent_ref::dsl::company_represent_ref;
 
-    check_is_owner_with_err(
-        logged_user_uuid,
-        &data.company_uuid,
-        conn
-    )?;
+    check_is_owner_with_err(logged_user_uuid, &data.company_uuid, conn)?;
 
     // check_is_supplier(&data.company_uuid, conn)?;
 

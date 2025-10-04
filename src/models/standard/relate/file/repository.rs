@@ -1,6 +1,6 @@
-use crate::errors::{ServiceResult, ServiceError};
-use crate::models::search::order::{Paginate, Sort};
+use crate::errors::{ServiceError, ServiceResult};
 use crate::graphql::file::ShowFileRelatedData;
+use crate::models::search::order::{Paginate, Sort};
 use crate::schema::file_to_standard::dsl as file_to_standard;
 use diesel::prelude::*;
 use uuid::Uuid;
@@ -17,7 +17,7 @@ impl ShowFileRelatedData {
             &get_file_uuids_by_standard_uuid(standard_uuid, &[], conn)?,
             sort,
             paginate,
-            conn
+            conn,
         )
     }
 }
@@ -32,8 +32,11 @@ pub(crate) fn get_file_uuids_by_standard_uuid(
 
     query = match file_uuids.is_empty() {
         true => query.filter(file_to_standard::standard_uuid.eq(standard_uuid)),
-        false => query.filter(file_to_standard::standard_uuid.eq(standard_uuid)
-            .and(file_to_standard::file_uuid.eq_any(file_uuids))),
+        false => query.filter(
+            file_to_standard::standard_uuid
+                .eq(standard_uuid)
+                .and(file_to_standard::file_uuid.eq_any(file_uuids)),
+        ),
     };
 
     query

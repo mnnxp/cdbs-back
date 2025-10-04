@@ -1,15 +1,10 @@
 use crate::schema::*;
-use crate::models::relate_ref::keyword::model::Keyword;
-use crate::models::standard::model::Standard;
 use async_graphql::*;
 // use chrono::*;
 use uuid::Uuid;
 
 // Keyword standard models
-#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, Clone, Debug)]
-#[diesel(primary_key(standard_uuid, keyword_id))]
-#[diesel(belongs_to(Standard, foreign_key = standard_uuid))]
-#[diesel(belongs_to(Keyword, foreign_key = keyword_id))]
+#[derive(Serialize, Deserialize, Queryable, SimpleObject, Clone, Debug)]
 #[diesel(table_name = keyword_to_standard)]
 pub(crate) struct StandardKeyword {
     pub(crate) standard_uuid: Uuid,
@@ -52,7 +47,8 @@ impl From<&IptStandardKeywordsData> for Vec<InsertableStandardKeyword> {
         let mut res = Vec::new();
         // create struct for each keyword
         for keyword_id in keyword_ids {
-            if keyword_id > &0 { // <-- additionally we check the correctness of the key
+            if keyword_id > &0 {
+                // <-- additionally we check the correctness of the key
                 res.push(InsertableStandardKeyword {
                     standard_uuid: *standard_uuid,
                     keyword_id: *keyword_id,
@@ -86,7 +82,7 @@ impl From<&IptStandardKeywordsData> for DeleteStandardKeywords {
             }
         }
 
-        Self{
+        Self {
             standard_uuid: *standard_uuid,
             keyword_ids: good_keyword_ids,
         }

@@ -1,7 +1,7 @@
+use crate::errors::err_msg::{get_err_msg, ErrorMessage};
 use crate::errors::ServiceResult;
-use crate::errors::err_msg::{ErrorMessage, get_err_msg};
-use crate::models::company::member::model::IptCompanyMemberData;
 use crate::models::company::access::util::check_company_access;
+use crate::models::company::member::model::IptCompanyMemberData;
 use crate::models::company::member::role::util::check_role_of_company;
 use diesel::prelude::*;
 use uuid::Uuid;
@@ -24,23 +24,21 @@ pub(crate) fn change_role_member(
         conn,
     )? {
         // return error if user not have access level
-        return Err(get_err_msg(ErrorMessage::AccessDenied))
+        return Err(get_err_msg(ErrorMessage::AccessDenied));
     }
 
     // return error if not found role
-    check_role_of_company(
-        &data.company_uuid,
-        &data.role_id,
-        conn
-    )?;
+    check_role_of_company(&data.company_uuid, &data.role_id, conn)?;
 
     let res_update = diesel::update(company_member_list)
-        .filter(company_uuid.eq(&data.company_uuid)
-        .and(user_uuid.eq(&data.user_uuid)
-        .and(role_id.ne(&data.role_id))))
+        .filter(
+            company_uuid
+                .eq(&data.company_uuid)
+                .and(user_uuid.eq(&data.user_uuid).and(role_id.ne(&data.role_id))),
+        )
         .set((
             role_id.eq(data.role_id),
-            updated_at.eq(chrono::Local::now().naive_local())
+            updated_at.eq(chrono::Local::now().naive_local()),
         ))
         .execute(conn);
 
@@ -48,14 +46,14 @@ pub(crate) fn change_role_member(
         Ok(1_usize) => {
             debug!("Update role member: {:?}", res_update);
             Ok(true)
-        },
+        }
         Ok(x) => {
             debug!("Role member duplicate data: {:?}", x);
             Ok(false)
-        },
+        }
         Err(err) => {
             debug!("Failed update role member: {:?}", err);
             Err(get_err_msg(ErrorMessage::FailedUpdateRoleMember))
-        },
+        }
     }
 }

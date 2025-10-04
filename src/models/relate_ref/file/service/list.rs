@@ -15,11 +15,7 @@ pub(crate) fn get_url_by_file_uuid(
     conn: &mut PgConnection,
 ) -> ServiceResult<DownloadFile> {
     // check ownership file
-    check_file_owner_err(
-        logged_user_uuid,
-        target_file_uuid,
-        conn
-    )?;
+    check_file_owner_err(logged_user_uuid, target_file_uuid, conn)?;
 
     DownloadFile::get_by_file_uuid(target_file_uuid, conn)
 }
@@ -32,15 +28,7 @@ pub(crate) fn get_revisions_by_file_uuid(
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<ShowFileRelatedData>> {
     // check ownership file
-    check_file_owner_err(
-        logged_user_uuid,
-        file_uuid,
-        conn
-    )?;
+    check_file_owner_err(logged_user_uuid, file_uuid, conn)?;
 
-    ShowFileRelatedData::get_revisions_by_uuid(
-        file_uuid,
-        paginate,
-        conn
-    )
+    ShowFileRelatedData::get_revisions_by_uuid(file_uuid, paginate, conn)
 }

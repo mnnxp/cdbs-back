@@ -1,7 +1,8 @@
+use crate::errors::err_msg::{get_err_msg, ErrorMessage};
 use crate::errors::ServiceResult;
-use crate::errors::err_msg::{ErrorMessage, get_err_msg};
-use crate::models::company::certificate::model::IptUpdateCompanyCertificateData;
 use crate::models::company::access::util::check_company_access;
+use crate::models::company::certificate::model::IptUpdateCompanyCertificateData;
+use crate::schema::company_certificate_ref::dsl as company_certificate_ref;
 use diesel::prelude::*;
 use uuid::Uuid;
 
@@ -12,31 +13,40 @@ pub(crate) fn update_certificate_description(
     data: &IptUpdateCompanyCertificateData,
     conn: &mut PgConnection,
 ) -> ServiceResult<bool> {
-    use crate::schema::company_certificate_ref::dsl as company_certificate_ref;
+    // update data validation
+    if data.description.len() > 250 {
+        return Err(get_err_msg(ErrorMessage::TextMustLess(250)));
+    }
 
     let need_access_level = 1; // todo!(create enum for manage access level)
-
-    // check access user for company
+                               // check access user for company
     check_company_access(
         logged_user_uuid,
         &data.company_uuid,
         &need_access_level,
-        conn
+        conn,
     )?;
 
     // update column description
-    let res = diesel::update(company_certificate_ref::company_certificate_ref
-        .filter(company_certificate_ref::company_uuid.eq(&data.company_uuid)
-        .and(company_certificate_ref::file_uuid.eq(&data.file_uuid)
-        .and(company_certificate_ref::description.ne(&data.description)))))
-        .set(company_certificate_ref::description.eq(data.description.to_string()))
-        .execute(conn);
+    let res = diesel::update(
+        company_certificate_ref::company_certificate_ref.filter(
+            company_certificate_ref::company_uuid
+                .eq(&data.company_uuid)
+                .and(
+                    company_certificate_ref::file_uuid
+                        .eq(&data.file_uuid)
+                        .and(company_certificate_ref::description.ne(&data.description)),
+                ),
+        ),
+    )
+    .set(company_certificate_ref::description.eq(data.description.to_string()))
+    .execute(conn);
 
     match res {
         Ok(x) => Ok(x > 0),
         Err(err) => {
             debug!("Failed update data: {:?}", err);
             Err(get_err_msg(ErrorMessage::FailedUpdateData))
-        },
+        }
     }
 }

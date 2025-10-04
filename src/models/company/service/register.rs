@@ -1,7 +1,5 @@
-use crate::errors::{ServiceResult, ServiceError};
-use crate::models::company::model::{
-    IptCompanyData, InsertableCompany,
-};
+use crate::errors::{ServiceError, ServiceResult};
+use crate::models::company::model::{InsertableCompany, IptCompanyData};
 use crate::schema::company_ref::dsl as company_ref;
 use diesel::prelude::*;
 use uuid::Uuid;
@@ -10,7 +8,7 @@ use uuid::Uuid;
 pub(crate) fn create_company(
     logged_user_uuid: &Uuid,
     data: &IptCompanyData,
-    conn: &mut PgConnection
+    conn: &mut PgConnection,
 ) -> ServiceResult<Uuid> {
     let mut insert_data: InsertableCompany = data.into();
 

@@ -1,9 +1,9 @@
-use crate::errors::{ServiceResult, ServiceError};
-use crate::errors::err_msg::{ErrorMessage, get_err_msg};
-use crate::models::component::standard::model::{
-    IptStandardToComponentData, InsertableStandardToComponent
-};
+use crate::errors::err_msg::{get_err_msg, ErrorMessage};
+use crate::errors::{ServiceError, ServiceResult};
 use crate::models::component::access::util::check_access_component_for_user;
+use crate::models::component::standard::model::{
+    InsertableStandardToComponent, IptStandardToComponentData,
+};
 use crate::schema::standard_to_component::dsl as standard_to_component;
 use diesel::prelude::*;
 use uuid::Uuid;
@@ -12,7 +12,7 @@ use uuid::Uuid;
 pub(crate) fn add_standard_to_component(
     logged_user_uuid: &Uuid,
     data: &IptStandardToComponentData,
-    conn: &mut PgConnection
+    conn: &mut PgConnection,
 ) -> ServiceResult<bool> {
     let need_access_level = 1; // todo!(create enum for manage access level)
 
@@ -20,12 +20,15 @@ pub(crate) fn add_standard_to_component(
         logged_user_uuid,
         &data.component_uuid,
         &need_access_level,
-        conn
+        conn,
     )?;
 
     let found_standard = standard_to_component::standard_to_component
-        .filter(standard_to_component::component_uuid.eq(data.component_uuid)
-        .and(standard_to_component::standard_uuid.eq(data.standard_uuid)))
+        .filter(
+            standard_to_component::component_uuid
+                .eq(data.component_uuid)
+                .and(standard_to_component::standard_uuid.eq(data.standard_uuid)),
+        )
         .execute(conn)
         .map_err(|err| {
             debug!("Failed check standards component: {:?}", err);
@@ -33,7 +36,9 @@ pub(crate) fn add_standard_to_component(
         })?;
 
     if found_standard > 0 {
-        return Err(get_err_msg(ErrorMessage::StanardIsAlreadyAssociatedWithComponent))
+        return Err(get_err_msg(
+            ErrorMessage::StanardIsAlreadyAssociatedWithComponent,
+        ));
     }
 
     let new_component_standard: InsertableStandardToComponent = data.into();

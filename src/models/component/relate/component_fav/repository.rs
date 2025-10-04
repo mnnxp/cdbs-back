@@ -1,4 +1,4 @@
-use crate::errors::{ServiceResult, ServiceError};
+use crate::errors::{ServiceError, ServiceResult};
 use crate::models::component::component_fav::model::ComponentFav;
 use crate::schema::component_fav::dsl as component_fav;
 use diesel::prelude::*;
@@ -21,7 +21,6 @@ impl ComponentFav {
         target_component_uuid: &Uuid,
         conn: &mut PgConnection,
     ) -> ServiceResult<i32> {
-
         // this component is added to the bookmarks of each new user
         if target_component_uuid == &get_cheat() {
             return Ok(10);

@@ -43,9 +43,9 @@ const langId2 = 2;
 
 const specLevels3 = [247, 286, 437, 465, 480, 379, 400, 4];
 const specId5 = 5;
-const specPath5Level5 = "ROOT/MECHANICS (CONSTRUCTION, MECHANICAL ENGINEERING)/MECHANICAL COMPONENTS/Fixings/Screws and bolts";
-const specPath5 = "MECHANICAL COMPONENTS/Fixings/Screws and bolts";
-const specPathSplit5 = "ROOT#MECHANICS (CONSTRUCTION, MECHANICAL ENGINEERING)#MECHANICAL COMPONENTS#Fixings#Screws and bolts";
+const specPath5Level5 = "ROOT/Mechanics (Construction, Mechanical engineering)/Mechanical components/Fixings/Screws and bolts";
+const specPath5 = "Mechanical components/Fixings/Screws and bolts";
+const specPathSplit5 = "ROOT#Mechanics (Construction, Mechanical engineering)#Mechanical components#Fixings#Screws and bolts";
 var specName4 = "";
 var specName5 = "";
 var specPath10 = "";
@@ -82,7 +82,7 @@ async function cleanupUserDb() {
   ]);
 }
 
-describe('param', () => {
+describe('relate', () => {
   beforeAll(() => {
     cleanupParamDb();
     cleanupParamTranslateDb();
@@ -459,7 +459,7 @@ describe('param', () => {
   });
 
   // Testing get full path specification
-  it('/graphql:Q Specs paths - BadRequest no token', async (done) => {
+  it('/graphql:Q Specs paths - BadRequest id zero (no token)', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .send({
@@ -477,7 +477,7 @@ describe('param', () => {
     debug('/graphql body=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found'
+      'BadRequest: Spec not found'
     );
     expect(body.errors[0].path[0]).toBe('specsPaths');
     done();
@@ -660,7 +660,7 @@ describe('param', () => {
   });
 
   // Testing get specification
-  it('/graphql:Q Specs - BadRequest no token', async (done) => {
+  it('/graphql:Q Specs - OK (no token)', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .send({
@@ -676,11 +676,10 @@ describe('param', () => {
       })
       .expect(HttpStatus.OK)
     debug('/graphql body=%o', body);
-    expect(body.data).toBeNull();
-    expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found'
-    );
-    expect(body.errors[0].path[0]).toBe('specs');
+    const {
+      data: { specs }
+    } = body;
+    expect(specs).toBeEmptyArray();
     done();
   });
 
@@ -739,7 +738,7 @@ describe('param', () => {
     done();
   });
 
-  it('/graphql:Q Specs - OK by level', async (done) => {
+  it('/graphql:Q Specs - OK by level and get parent to over ROOT', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .set(
@@ -754,6 +753,26 @@ describe('param', () => {
               specId
               spec
               langId
+              parentSpec {
+                specId
+                spec
+                parentSpec {
+                  specId
+                  spec
+                  parentSpec {
+                    specId
+                    spec
+                    parentSpec {
+                      specId
+                      spec
+                      parentSpec {
+                        specId
+                        spec
+                      }
+                    }
+                  }
+                }
+              }
             }
         }`,
       })
@@ -764,6 +783,9 @@ describe('param', () => {
       data: { specs }
     } = body;
     expect(specs).toBeNonEmptyArray();
+    expect(specs[1].parentSpec.parentSpec.parentSpec.specId).not.toBe(1);
+    expect(specs[1].parentSpec.parentSpec.parentSpec.parentSpec.specId).toBe(1);
+    expect(specs[1].parentSpec.parentSpec.parentSpec.parentSpec.parentSpec.specId).toBe(1);
     done();
   });
 
@@ -890,7 +912,7 @@ describe('param', () => {
   });
 
   // Testing search specification
-  it('/graphql:Q searchSpecs - BadRequest no token', async (done) => {
+  it('/graphql:Q searchSpecs - BadRequest (no token)', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .send({
@@ -906,11 +928,17 @@ describe('param', () => {
       })
       .expect(HttpStatus.OK)
     debug('/graphql body=%o', body);
-    expect(body.data).toBeNull();
-    expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found'
-    );
-    expect(body.errors[0].path[0]).toBe('searchSpecs');
+    // expect(body).toBe(0);
+    const {
+      data: { searchSpecs }
+    } = body;
+    expect(searchSpecs.length).toBe(5);
+    expect(searchSpecs[0].specId).toBe(5);
+    expect(searchSpecs[1].specId).toBe(6);
+    expect(searchSpecs[1].path).toBe("Fixings/Screws and bolts/Anchor bolts");
+    expect(searchSpecs[2].specId).toBe(7);
+    expect(searchSpecs[3].specId).toBe(8);
+    expect(searchSpecs[4].specId).toBe(9);
     done();
   });
 

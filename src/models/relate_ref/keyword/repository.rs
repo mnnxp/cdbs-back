@@ -1,4 +1,4 @@
-use crate::errors::{ServiceResult, ServiceError};
+use crate::errors::{ServiceError, ServiceResult};
 use crate::models::relate_ref::keyword::model::{Keyword, KeywordId};
 use crate::models::search::order::Paginate;
 use crate::schema::keyword_ref::dsl as keyword_ref;
@@ -24,10 +24,7 @@ impl Keyword {
 }
 
 impl KeywordId {
-    pub(crate) fn get_by_name(
-        keyword: &str,
-        conn: &mut PgConnection,
-    ) -> ServiceResult<i32> {
+    pub(crate) fn get_by_name(keyword: &str, conn: &mut PgConnection) -> ServiceResult<i32> {
         keyword_ref::keyword_ref
             .filter(keyword_ref::keyword.eq(keyword))
             .select(keyword_ref::id)

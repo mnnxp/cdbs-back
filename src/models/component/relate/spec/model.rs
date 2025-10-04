@@ -1,14 +1,9 @@
 use crate::schema::*;
-use crate::models::relate_ref::spec::model::Spec;
-use crate::models::component::model::Component;
 use async_graphql::*;
 use uuid::Uuid;
 
 // Spec component models
-#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, Clone, Debug)]
-#[diesel(primary_key(component_uuid, spec_id))]
-#[diesel(belongs_to(Component, foreign_key = component_uuid))]
-#[diesel(belongs_to(Spec, foreign_key = spec_id))]
+#[derive(Serialize, Deserialize, Queryable, SimpleObject, Clone, Debug)]
 #[diesel(table_name = spec_to_component)]
 pub(crate) struct ComponentSpec {
     pub(crate) spec_id: i32,
@@ -42,7 +37,8 @@ impl From<&IptComponentSpecsData> for Vec<InsertableComponentSpec> {
         let mut res = Vec::new();
         // create struct for each keyword
         for spec_id in spec_ids {
-            if spec_id > &0 { // <-- additionally we check the correctness of the key
+            if spec_id > &0 {
+                // <-- additionally we check the correctness of the key
                 res.push(InsertableComponentSpec {
                     component_uuid: *component_uuid,
                     spec_id: *spec_id,
@@ -75,7 +71,7 @@ impl From<&IptComponentSpecsData> for DeleteComponentSpecs {
             }
         }
 
-        Self{
+        Self {
             component_uuid: *component_uuid,
             spec_ids: good_spec_ids,
         }

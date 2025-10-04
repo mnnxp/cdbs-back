@@ -1,5 +1,5 @@
-use super::ServiceError;
 use super::msg_en::value_in_err_msg_en;
+use super::ServiceError;
 
 /// Contains a list of all errors
 pub(crate) enum ErrorMessage {
@@ -51,6 +51,8 @@ pub(crate) enum ErrorMessage {
     FailedGetCompaniesWithAccessComponent,
     /// "Failed get companies list have access to standard"
     FailedGetCompaniesWithAccessStandard,
+    /// "Failed get companies list have access to service"
+    FailedGetCompaniesWithAccessService,
     /// "Failed match arguments"
     FailedMatchArguments,
     /// "Failed set access for target company"
@@ -59,14 +61,16 @@ pub(crate) enum ErrorMessage {
     FailedUpdateData,
     /// "Failed update role member"
     FailedUpdateRoleMember,
+    /// "Failed update service"
+    FailedUpdateServiceBadStatus,
     /// "Failed write metadata"
     FailedWriteMetadata,
     /// "Failed: access not delete"
     FailedRemoveAccessForRole,
     /// "File to object association not found"
     FileObjectNotFound,
-    /// "Keywords must be less than 10 symbols"
-    KeywordMustLess,
+    /// format!("Text must be less than {} bit (~{} symbols)", max_bit, max_bit/2)
+    TextMustLess(i32),
     /// "Need set userUuid or username"
     NeedSetUuidOrUsername,
     /// "No active file revision found"
@@ -95,10 +99,14 @@ pub(crate) enum ErrorMessage {
     NotFoundSpecs,
     /// "Not found standard"
     NotFoundStandard,
+    /// "Not found service"
+    NotFoundService,
     /// "Not found target file"
     NotFoundTargetFile,
     /// "Not more 100 path in one query"
     NotMorePathInOneQuery,
+    /// "Not found discussion"
+    NotFoundDiscussion,
     /// "Password is not correct"
     PasswordIsNotCorrect,
     /// "Please, try again later"
@@ -146,7 +154,5 @@ pub(crate) enum ErrorMessage {
 }
 
 pub(crate) fn get_err_msg(err_msg: ErrorMessage) -> ServiceError {
-    ServiceError::BadRequest(
-        format!("BadRequest: {0}", value_in_err_msg_en(err_msg))
-    )
+    ServiceError::BadRequest(format!("BadRequest: {0}", value_in_err_msg_en(err_msg)))
 }

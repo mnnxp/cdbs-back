@@ -1,8 +1,8 @@
-use crate::errors::{ServiceResult, ServiceError};
+use crate::errors::{ServiceError, ServiceResult};
 use crate::models::relate_ref::language::model::Language;
 use crate::models::search::order::Paginate;
 use crate::schema::language_ref::dsl::*;
-use diesel::{PgConnection, prelude::*};
+use diesel::{prelude::*, PgConnection};
 
 /// Returns a list of available languages
 pub(crate) fn get_languages(
@@ -12,7 +12,7 @@ pub(crate) fn get_languages(
 ) -> ServiceResult<Vec<Language>> {
     match lang_ids.is_empty() {
         true => find_all_languages(paginate, conn),
-        false => find_lang_iduage(lang_ids, paginate, conn)
+        false => find_lang_iduage(lang_ids, paginate, conn),
     }
 }
 

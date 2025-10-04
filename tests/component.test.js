@@ -20,17 +20,13 @@ const userUuid2 = "68b8281a-d19c-4d4b-88eb-6fd4a2afde1b";
 
 // data for standard
 const parentStandardUuid = "303ec2aa-2066-42e3-93fb-de4fb9344bcb";
-const classifierStandard = "GOST-2012-Test";
 const nameStandard = "GOST 2012 Test standard";
 const descriptionStandard = "Test GOST standard";
-const specifiedTolerance = "C";
-const technicalCommittee = "GOST";
 const publicationAt = "2021-07-31T00:00:00";
 const typeAccessId3 = 3;
 const typeAccessId2 = 2;
 const typeAccessId1 = 1;
 const standardStatusId = 1;
-const regionId = 5;
 var standardUuidFirst = "";
 var standardUuidSecond = "";
 
@@ -112,6 +108,7 @@ description \
 imageFile {
   uuid \
   hash \
+sha256Hash \
   filename \
   filesize \
   downloadUrl \
@@ -231,10 +228,8 @@ componentSuppliers { \
 } \
 componentStandards { \
  	uuid \
-  classifier \
   name \
   description \
-  specifiedTolerance \
   publicationAt \
   ownerCompany { \
     uuid \
@@ -352,6 +347,7 @@ updatedAt \
 const downloadFileFields = ` \
 uuid \
 hash \
+sha256Hash \
 filename \
 filesize \
 downloadUrl \
@@ -471,12 +467,14 @@ var actualStatusIdForUpdate = 2;
 
 const defaultImageUuid = "bc1c2151-86d0-4656-9c9d-d016dd584297";
 const defaultImageHash = "60767c27d985cafa603b4a44ddc5fa8557e5c00d38d27f85b14ed460533e219c";
+const defaultImageSha256Hash = "80227309427c1c6a1bea25a4cf3f5ebfc4a66a4d66a9460af214a78487c59abc";
 // data for component modification
 const parentModificationUuid = "aba22d59-4f6c-44a4-9a37-2d38f0e577a8";
 const baseFilesetUuid = "5de37b5d-75af-4323-b5b4-2cf1e849baa2";
 const modificationName = "testmodificationcomponent";
 const modificationName2 = "test modification component 2";
 const descriptionModification = "commentcomponent";
+const veryLongDescriptionModification = Array(25100).join('я');
 const actualStatusIdModification = 1;
 var componentModificationUuidFirst = "";
 var componentModificationUuidSecond = "";
@@ -1523,6 +1521,7 @@ describe('component', () => {
     expect(body.data.component.uuid).toBe(componentUuidNoStandard);
     expect(body.data.component.imageFile.uuid).toBe(defaultImageUuid);
     expect(body.data.component.imageFile.hash).toBe(defaultImageHash);
+    expect(body.data.component.imageFile.sha256Hash).toBe(defaultImageSha256Hash);
     expect(body.data.component.componentKeywords[0].id).toBe(1);
     expect(body.data.component.componentKeywords[0].keyword).toBeNonEmptyString();
     expect(body.data.component.componentKeywords[1].id).toBe(2);
@@ -3420,16 +3419,12 @@ describe('component', () => {
       .send({
         query: `mutation standardQuery {
           registerStandard(args: {
-            classifier: "${classifierStandard}",
             name: "${nameStandard}",
             description: "${descriptionStandard}",
-            specifiedTolerance: "${specifiedTolerance}",
-            technicalCommittee: "${technicalCommittee}",
             publicationAt: "${publicationAt}",
             companyUuid: "${companyUuidSupplier}",
             typeAccessId: ${typeAccessId3},
             standardStatusId: ${standardStatusId},
-            regionId: ${regionId}
           })
         }`,
       })
@@ -3606,7 +3601,6 @@ describe('component', () => {
                 }
               ) {
                 uuid
-                classifier
                 name
                 ownerCompany {
                   uuid
@@ -3640,7 +3634,7 @@ describe('component', () => {
     done();
   });
 
-  it('/graphql:Q Get full data Component - OK check add standard component', async (done) => {
+  it('/graphql:Q Get full data Component - OK check add standard component (changed parent type access)', async (done) => {
     await global.knex.raw('UPDATE standard_ref SET type_access_id=? WHERE uuid=?', [
       3,
       parentStandardUuid,
@@ -3657,14 +3651,10 @@ describe('component', () => {
               uuid
               componentStandards {
                 uuid
-                classifier
                 name
                 ownerCompany {
                   uuid
                   shortname
-                  region {
-                    region
-                  }
                   companyType {
                     shortname
                   }
@@ -3685,7 +3675,6 @@ describe('component', () => {
     } = body;
     expect(component.uuid).toBe(componentUuidStandard);
     expect(component.componentStandards[0].uuid).toBe(parentStandardUuid);
-    expect(component.componentStandards[0].classifier).toBeNonEmptyString();
     expect(component.componentStandards[0].name).toBeNonEmptyString();
     expect(component.componentStandards[0].ownerCompany.uuid).toBeNonEmptyString();
     expect(component.componentStandards[0].ownerCompany.companyType.shortname).toBeNonEmptyString();
@@ -3693,12 +3682,12 @@ describe('component', () => {
     expect(component.componentStandards[1].uuid).toBe(standardUuidFirst);
     expect(component.componentStandards[1].name).toBe(nameStandard);
     expect(component.componentStandards[1].ownerCompany.uuid).toBe(companyUuidSupplier);
-    done();
     // return private type access
     await global.knex.raw('UPDATE standard_ref SET type_access_id=? WHERE uuid=?', [
       1,
       parentStandardUuid,
     ]);
+    done();
   });
 
   // Testing get components by standard
@@ -5123,6 +5112,7 @@ describe('component', () => {
             ){
               ${showFileRelatedDataFields}
               hash
+            sha256Hash
               downloadUrl
             }
           }`,
@@ -5137,10 +5127,12 @@ describe('component', () => {
     expect(componentFilesList[0].uuid).toBe(fileUuid3);
     expect(componentFilesList[0].filename).toBe(filename3);
     expect(componentFilesList[0].hash).toBe("");
+    expect(componentFilesList[0].sha256Hash).toBe("");
     expect(componentFilesList[0].downloadUrl).toBeNonEmptyString();
     expect(componentFilesList[1].uuid).toBe(fileUuid4);
     expect(componentFilesList[1].filename).toBe(filename4);
     expect(componentFilesList[1].hash).toBe("");
+    expect(componentFilesList[1].sha256Hash).toBe("");
     expect(componentFilesList[1].downloadUrl).toBeNonEmptyString();
     expect(componentFilesList.length).toBe(2);
     done();
@@ -5770,6 +5762,37 @@ describe('component', () => {
       'BadRequest: Access denied'
     );
     expect(body.errors[0].path[0]).toBe('putComponentModificationUpdate');
+    done();
+  });
+
+  it('/graphql:M putComponentModificationUpdate - BadRequest very long description', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation  {
+            putComponentModificationUpdate(
+              componentModificationUuid: "${componentModificationUuidFirst}"
+              args: {
+                modificationName: "${nameModificationForUpdate}"
+                description: "${veryLongDescriptionModification}"
+                actualStatusId: ${actualStatusModificationIdForUpdate}
+              }
+            )
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql putComponentModificationUpdate=%o', body);
+    // expect(body).toBe(0);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Text must be less than 50000 bit (~25000 symbols)'
+    );
+    expect(body.errors[0].path[0]).toBe('putComponentModificationUpdate');
+    done();
     done();
   });
 
@@ -6889,6 +6912,7 @@ describe('component', () => {
             }){
               ${showFileRelatedDataFields}
               hash
+            sha256Hash
               downloadUrl
             }
           }`,
@@ -6904,27 +6928,32 @@ describe('component', () => {
     expect(componentModificationFilesList[0].filename).toBe(filename1);
     expect(componentModificationFilesList[0].filesize).toBe(0);
     expect(componentModificationFilesList[0].hash).toBe("");
+    expect(componentModificationFilesList[0].sha256Hash).toBe("");
     expect(componentModificationFilesList[0].downloadUrl).toBeNonEmptyString();
     expect(componentModificationFilesList[1].uuid).toBe(fileUuid2);
     expect(componentModificationFilesList[1].parentFileUuid).toBe(fileUuid2);
     expect(componentModificationFilesList[1].filename).toBe(filename2);
     expect(componentModificationFilesList[1].hash).toBe("");
+    expect(componentModificationFilesList[1].sha256Hash).toBe("");
     expect(componentModificationFilesList[1].downloadUrl).toBeNonEmptyString();
     expect(componentModificationFilesList[2].uuid).toBe(fileUuid3);
     expect(componentModificationFilesList[2].parentFileUuid).toBe(fileUuid3);
     expect(componentModificationFilesList[2].filename).toBe(filename3);
     expect(componentModificationFilesList[2].hash).toBe("");
+    expect(componentModificationFilesList[2].sha256Hash).toBe("");
     expect(componentModificationFilesList[2].downloadUrl).toBeNonEmptyString();
     expect(componentModificationFilesList[3].uuid).toBe(fileUuid4);
     expect(componentModificationFilesList[3].parentFileUuid).toBe(fileUuid4);
     expect(componentModificationFilesList[3].filename).toBe(filename4);
     expect(componentModificationFilesList[3].hash).toBe("");
+    expect(componentModificationFilesList[3].sha256Hash).toBe("");
     expect(componentModificationFilesList[3].downloadUrl).toBeNonEmptyString();
     expect(componentModificationFilesList[4].uuid).toBe(fileUuid5);
     expect(componentModificationFilesList[4].parentFileUuid).toBe(fileUuid5);
     expect(componentModificationFilesList[4].filename).toBe(filename5);
     expect(componentModificationFilesList[4].filesize).toBe(0);
     expect(componentModificationFilesList[4].hash).toBe("");
+    expect(componentModificationFilesList[4].sha256Hash).toBe("");
     expect(componentModificationFilesList[4].downloadUrl).toBeNonEmptyString();
     done();
   });
@@ -7085,6 +7114,7 @@ describe('component', () => {
           showFileRevisions(fileUuid: "${threeRevFileFileTestUuid2}") {
             ${showFileRevisionsQuery}
             hash
+            sha256Hash
             downloadUrl
           }
         }`,
@@ -7098,6 +7128,7 @@ describe('component', () => {
     expect(showFileRevisions[0].uuid).toBe(fileUuid2);
     expect(showFileRevisions[0].revision).toBe(1);
     expect(showFileRevisions[0].hash).toBe("");
+    expect(showFileRevisions[0].sha256Hash).toBe("");
     expect(showFileRevisions[0].downloadUrl).toBeNonEmptyString();
     expect(showFileRevisions[0].commitMsg).toBe("");
     expect(showFileRevisions[1].uuid).toBe(seconRevFileFileTestUuid2);
@@ -7105,6 +7136,7 @@ describe('component', () => {
     expect(showFileRevisions[2].uuid).toBe(threeRevFileFileTestUuid2);
     expect(showFileRevisions[2].revision).toBe(3);
     expect(showFileRevisions[2].hash).toBe("");
+    expect(showFileRevisions[2].sha256Hash).toBe("");
     expect(showFileRevisions[2].downloadUrl).toBeNonEmptyString();
     expect(showFileRevisions[2].commitMsg).toBe("Secon revision (rev.2)");
     expect(showFileRevisions.length).toBe(3);

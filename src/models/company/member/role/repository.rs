@@ -1,6 +1,6 @@
-use crate::errors::{ServiceResult, ServiceError};
+use crate::errors::{ServiceError, ServiceResult};
 use crate::models::company::member::role::model::{
-    RoleMemberTranslateList, RoleMemberAndRelatedData,
+    RoleMemberAndRelatedData, RoleMemberTranslateList,
 };
 use crate::models::relate_ref::type_access::model::TypeAccessTranslateList;
 use crate::schema::role_member_translate_list::dsl::*;
@@ -14,8 +14,11 @@ impl RoleMemberTranslateList {
         conn: &mut PgConnection,
     ) -> ServiceResult<RoleMemberTranslateList> {
         let role = role_member_translate_list
-            .filter(role_member_id.eq(target_role_id)
-            .and(lang_id.eq(set_lang_id)))
+            .filter(
+                role_member_id
+                    .eq(target_role_id)
+                    .and(lang_id.eq(set_lang_id)),
+            )
             .limit(1)
             .load::<RoleMemberTranslateList>(conn)
             .map_err(|err| {
@@ -34,7 +37,7 @@ impl RoleMemberTranslateList {
                         debug!("Failed get role: {:?}", err);
                         ServiceError::InternalServerError
                     })
-            },
+            }
         }
     }
 
@@ -45,8 +48,11 @@ impl RoleMemberTranslateList {
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<RoleMemberTranslateList>> {
         let roles = role_member_translate_list
-            .filter(role_member_id.eq_any(target_roles_ids)
-            .and(lang_id.eq(set_lang_id)))
+            .filter(
+                role_member_id
+                    .eq_any(target_roles_ids)
+                    .and(lang_id.eq(set_lang_id)),
+            )
             .load::<RoleMemberTranslateList>(conn)
             .map_err(|err| {
                 debug!("Failed get role access: {:?}", err);
@@ -64,7 +70,7 @@ impl RoleMemberTranslateList {
                         debug!("Failed get role: {:?}", err);
                         ServiceError::InternalServerError
                     })
-            },
+            }
             false => Ok(roles),
         }
     }
@@ -77,23 +83,12 @@ impl RoleMemberAndRelatedData {
         set_lang_id: &i32,
         conn: &mut PgConnection,
     ) -> ServiceResult<RoleMemberAndRelatedData> {
-        let role = RoleMemberTranslateList::get_by_id(
-            target_role_id,
-            set_lang_id,
-            conn
-        )?;
+        let role = RoleMemberTranslateList::get_by_id(target_role_id, set_lang_id, conn)?;
 
-        let access = TypeAccessTranslateList::get_by_role_id(
-            target_role_id,
-            set_lang_id,
-            conn
-        )?;
+        let access = TypeAccessTranslateList::get_by_role_id(target_role_id, set_lang_id, conn)?;
 
         // if found data return RoleMemberAndRelatedData
-        Ok(RoleMemberAndRelatedData {
-            role,
-            access,
-        })
+        Ok(RoleMemberAndRelatedData { role, access })
     }
 
     /// Get roles by IDs for set lang
@@ -102,25 +97,15 @@ impl RoleMemberAndRelatedData {
         set_lang_id: &i32,
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<RoleMemberAndRelatedData>> {
-        let roles = RoleMemberTranslateList::get_roles_by_ids(
-            target_roles_ids,
-            set_lang_id,
-            conn
-        )?;
+        let roles = RoleMemberTranslateList::get_roles_by_ids(target_roles_ids, set_lang_id, conn)?;
 
         let mut res: Vec<RoleMemberAndRelatedData> = Vec::new();
         for role in roles {
             // get access types for the role
-            let access = TypeAccessTranslateList::get_by_role_id(
-                &role.role_member_id,
-                set_lang_id,
-                conn
-            )?;
+            let access =
+                TypeAccessTranslateList::get_by_role_id(&role.role_member_id, set_lang_id, conn)?;
 
-            res.push(RoleMemberAndRelatedData {
-                role,
-                access,
-            })
+            res.push(RoleMemberAndRelatedData { role, access })
         }
 
         Ok(res)
@@ -148,7 +133,7 @@ impl TypeAccessTranslateList {
         TypeAccessTranslateList::get_types_access_by_ids(
             &target_types_access_ids,
             set_lang_id,
-            conn
+            conn,
         )
     }
 }

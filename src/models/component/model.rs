@@ -1,8 +1,8 @@
-use crate::graphql::component_model::{IptComponentData, IptComponentsArg, IptComponentFilesArg};
+use crate::graphql::component_model::{IptComponentData, IptComponentFilesArg, IptComponentsArg};
 use crate::models::component::util::get_root_component_uuid;
 use crate::models::relate_ref::file::util::get_default_image;
 use crate::schema::component_ref;
-use chrono::{NaiveDateTime, Local};
+use chrono::{Local, NaiveDateTime};
 use uuid::Uuid;
 
 #[derive(Identifiable, Deserialize, Queryable, Debug)]
@@ -104,7 +104,9 @@ pub(crate) struct ComponentsArg {
     pub(crate) filter_components_uuids: Vec<Uuid>,
     pub(crate) company_uuid: Option<Uuid>,
     pub(crate) standard_uuid: Option<Uuid>,
+    pub(crate) service_uuid: Option<Uuid>,
     pub(crate) user_uuid: Option<Uuid>,
+    pub(crate) spec_id: Option<i32>,
     pub(crate) favorite: bool,
 }
 
@@ -116,7 +118,9 @@ impl ComponentsArg {
                 filter_components_uuids: data.components_uuids.unwrap_or_default(),
                 company_uuid: data.company_uuid,
                 standard_uuid: data.standard_uuid,
+                service_uuid: data.service_uuid,
                 user_uuid: data.user_uuid,
+                spec_id: data.spec_id,
                 favorite: data.favorite.unwrap_or_default(),
             },
             None => ComponentsArg::default(),
@@ -126,7 +130,7 @@ impl ComponentsArg {
 
 #[derive(Debug)]
 pub(crate) struct ComponentFilesArg {
-    pub(crate) component_uuid:  Uuid,
+    pub(crate) component_uuid: Uuid,
     pub(crate) file_uuids: Vec<Uuid>,
 }
 

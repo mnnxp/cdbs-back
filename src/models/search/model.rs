@@ -1,28 +1,31 @@
 use crate::errors::ServiceResult;
-use crate::models::user::access::logged::{get_logged_user_uuid, default_user_uuid};
 use crate::models::relate_ref::language::get_set_language;
-use diesel::{sql_types, prelude::*};
+use crate::models::user::access::logged::{default_user_uuid, get_logged_user_uuid};
+use crate::models::user::model::SlimUser;
 use async_graphql::*;
+use diesel::{prelude::*, sql_types};
 use uuid::Uuid;
 
 #[derive(QueryableByName)]
-pub(super) struct ObjectUuid {
+pub(crate) struct ObjectUuid {
     #[diesel(sql_type = sql_types::Uuid)]
-    uuid: Uuid
+    uuid: Uuid,
 }
 
 impl ObjectUuid {
-    pub(super) fn get_uuids(objects: &[ObjectUuid]) -> Vec<Uuid> {
+    pub(crate) fn get_uuids(objects: &[ObjectUuid]) -> Vec<Uuid> {
         let mut res = Vec::<Uuid>::new();
-        for item in objects { res.push(item.uuid); }
+        for item in objects {
+            res.push(item.uuid);
+        }
         res
     }
 }
 
 #[derive(Debug, QueryableByName)]
-pub(super) struct ObjectI64 {
+pub(crate) struct ObjectI64 {
     #[diesel(sql_type = sql_types::BigInt)]
-    pub(super) count: i64
+    pub(crate) count: i64,
 }
 
 #[derive(Debug)]
@@ -47,17 +50,23 @@ impl ExtraOptions {
             Err(err) => {
                 if let (Ok(logged_user_uuid), true) = (default_user_uuid(cxt), no_entry) {
                     // default user uuid and set language
-                    return Ok(
-                        Self {
-                            logged_user_uuid,
-                            set_lang_id,
-                            no_entry: true,
-                        }
-                    )
+                    return Ok(Self {
+                        logged_user_uuid,
+                        set_lang_id,
+                        no_entry: true,
+                    });
                 }
                 // error message
                 Err(err)
-            },
+            }
+        }
+    }
+
+    pub(crate) fn by_slim_user(cxt: &Context<'_>, slim_user: &SlimUser) -> Self {
+        Self {
+            logged_user_uuid: slim_user.uuid,
+            set_lang_id: get_set_language(cxt),
+            no_entry: false,
         }
     }
 }
@@ -74,7 +83,9 @@ pub(crate) struct IptSearchArg {
     pub(crate) by_keywords: bool,
     pub(crate) company_uuid: Option<Uuid>,
     pub(crate) standard_uuid: Option<Uuid>,
+    pub(crate) service_uuid: Option<Uuid>,
     pub(crate) user_uuid: Option<Uuid>,
+    pub(crate) spec_id: Option<i32>,
     #[graphql(default = false)]
     pub(crate) favorite: bool,
 }

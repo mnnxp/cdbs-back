@@ -1,12 +1,10 @@
-use crate::errors::{ServiceResult, ServiceError};
+use crate::errors::{ServiceError, ServiceResult};
 use crate::models::user::access::util::check_access_user_for_user;
-use crate::models::user::user_fav::model::{
-    IptUserFavData, InsertableUserFav
-};
 use crate::models::user::notification::{
-    model::{NotificationType, NotificationData},
+    model::{NotificationData, NotificationType},
     service::register::create_notification,
 };
+use crate::models::user::user_fav::model::{InsertableUserFav, IptUserFavData};
 use crate::schema::user_fav::dsl as user_fav;
 use diesel::prelude::*;
 use uuid::Uuid;
@@ -21,16 +19,19 @@ pub(crate) fn add_user_fav(
 
     // check access user for user
     check_access_user_for_user(
-        logged_user_uuid, // <-- logged user_uuid
+        logged_user_uuid,   // <-- logged user_uuid
         user_favorite_uuid, // <-- target user_uuid
         &need_access_level,
-        conn
+        conn,
     )?;
 
     // check active following
     let check_fav = user_fav::user_fav
-        .filter(user_fav::user_favorite_uuid.eq(&user_favorite_uuid)
-        .and(user_fav::user_follower_uuid.eq(&logged_user_uuid)))
+        .filter(
+            user_fav::user_favorite_uuid
+                .eq(&user_favorite_uuid)
+                .and(user_fav::user_follower_uuid.eq(&logged_user_uuid)),
+        )
         .select(user_fav::is_enabled)
         .limit(1)
         .load(conn)
@@ -44,8 +45,11 @@ pub(crate) fn add_user_fav(
         Some(false) => {
             // if have need row, just update is_enabled to true
             diesel::update(user_fav::user_fav)
-                .filter(user_fav::user_favorite_uuid.eq(&user_favorite_uuid)
-                .and(user_fav::user_follower_uuid.eq(&logged_user_uuid)))
+                .filter(
+                    user_fav::user_favorite_uuid
+                        .eq(&user_favorite_uuid)
+                        .and(user_fav::user_follower_uuid.eq(&logged_user_uuid)),
+                )
                 .set(user_fav::is_enabled.eq(true))
                 .returning(user_fav::is_enabled)
                 .get_result::<bool>(conn)
@@ -81,6 +85,6 @@ pub(crate) fn add_user_fav(
                 },
                 conn,
             )
-        },
+        }
     }
 }

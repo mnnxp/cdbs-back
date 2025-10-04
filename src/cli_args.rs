@@ -1,5 +1,5 @@
-use structopt::StructOpt;
 use chrono::NaiveDateTime;
+use structopt::StructOpt;
 
 /// GraphQl API, Diesel PostgreSQL, session authentication and JWT boilerplate server
 #[derive(StructOpt, Debug, Clone)]

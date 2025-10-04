@@ -1,15 +1,11 @@
-use crate::schema::*;
-use crate::models::company::model::Company;
 use crate::models::relate_ref::file::model::DownloadFile;
+use crate::schema::*;
 use async_graphql::*;
 // use chrono::*;
 use uuid::Uuid;
 
 // Certificate for Company
-#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, Debug)]
-#[diesel(primary_key(file_uuid, company_uuid))]
-#[diesel(belongs_to(DownloadFile, foreign_key = file_uuid))]
-#[diesel(belongs_to(Company, foreign_key = company_uuid))]
+#[derive(Serialize, Deserialize, Queryable, Debug)]
 #[diesel(table_name = company_certificate_ref)]
 pub(crate) struct CompanyCertificate {
     pub(crate) file_uuid: Uuid,

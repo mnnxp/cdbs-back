@@ -1,7 +1,9 @@
-use crate::errors::{ServiceResult, ServiceError};
+use crate::errors::{ServiceError, ServiceResult};
 use crate::graphql::component_model::ComponentModificationAndRelatedData;
 use crate::models::component::actual_status::model::ActualStatusTranslateList;
-use crate::models::component::component_modification::model::{ComponentModification, ComponentModificationArg};
+use crate::models::component::component_modification::model::{
+    ComponentModification, ComponentModificationArg,
+};
 use crate::models::search::order::objects_order;
 use crate::schema::component_modification_list::dsl as component_modification_list;
 use diesel::prelude::*;
@@ -30,7 +32,8 @@ impl ComponentModificationAndRelatedData {
         set_lang_id: &i32,
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<ComponentModificationAndRelatedData>> {
-        let object_uuids = get_modification_uuids_by_component_uuid(&args.component_uuid, &args.filter, conn)?;
+        let object_uuids =
+            get_modification_uuids_by_component_uuid(&args.component_uuid, &args.filter, conn)?;
         // collect data for modifications the component
         let mut res = Vec::new();
         for modification_uuid in &objects_order(&object_uuids, &args.sort, &args.paginate, conn)? {
@@ -44,14 +47,11 @@ impl ComponentModificationAndRelatedData {
     pub(crate) fn for_modification(
         cm: &ComponentModification,
         set_lang_id: &i32,
-        conn: &mut PgConnection
+        conn: &mut PgConnection,
     ) -> ServiceResult<ComponentModificationAndRelatedData> {
-        let actual_status = ActualStatusTranslateList::get_by_id(
-            &cm.actual_status_id,
-            set_lang_id,
-            conn
-        )?;
-        Ok(Self{
+        let actual_status =
+            ActualStatusTranslateList::get_by_id(&cm.actual_status_id, set_lang_id, conn)?;
+        Ok(Self {
             uuid: cm.uuid,
             component_uuid: cm.component_uuid,
             parent_modification_uuid: cm.parent_modification_uuid,
@@ -73,8 +73,11 @@ pub(crate) fn get_modification_uuids_by_component_uuid(
     let mut query = component_modification_list::component_modification_list.into_boxed();
     query = match filter.is_empty() {
         true => query.filter(component_modification_list::component_uuid.eq(component_uuid)),
-        false => query.filter(component_modification_list::component_uuid.eq(component_uuid)
-            .and(component_modification_list::uuid.eq_any(filter))),
+        false => query.filter(
+            component_modification_list::component_uuid
+                .eq(component_uuid)
+                .and(component_modification_list::uuid.eq_any(filter)),
+        ),
     };
     query
         .select(component_modification_list::uuid)

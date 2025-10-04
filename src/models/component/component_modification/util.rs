@@ -1,5 +1,5 @@
+use crate::errors::err_msg::{get_err_msg, ErrorMessage};
 use crate::errors::ServiceResult;
-use crate::errors::err_msg::{ErrorMessage, get_err_msg};
 use diesel::prelude::*;
 use uuid::Uuid;
 
@@ -17,7 +17,7 @@ pub(crate) fn get_root_modification_uuid() -> Uuid {
 /// Get component uuid from modification by uuid
 pub(crate) fn get_component_by_modification(
     target_modification_uuid: &Uuid,
-    conn: &mut PgConnection
+    conn: &mut PgConnection,
 ) -> ServiceResult<Uuid> {
     use crate::schema::component_modification_list::dsl::*;
 

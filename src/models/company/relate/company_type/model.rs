@@ -1,6 +1,4 @@
 use crate::schema::*;
-use crate::models::company::model::Company;
-use crate::models::relate_ref::language::model::Language;
 use async_graphql::*;
 
 #[derive(Identifiable, Serialize, Deserialize, Queryable, Debug)]
@@ -17,11 +15,7 @@ pub(crate) struct InsertableCompanyType {
 }
 
 /// Company type names with localization for the specified language
-#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations)]
-#[derive(SimpleObject, Clone, Debug)]
-#[diesel(primary_key(company_type_id, lang_id))]
-#[diesel(belongs_to(Company, foreign_key = company_type_id))]
-#[diesel(belongs_to(Language, foreign_key = lang_id))]
+#[derive(Serialize, Deserialize, Queryable, SimpleObject, Clone, Debug)]
 #[diesel(table_name = company_type_translate_list)]
 pub(crate) struct CompanyTypeTranslateList {
     /// Company type identifier

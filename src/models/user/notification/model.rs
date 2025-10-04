@@ -58,7 +58,7 @@ pub(crate) struct ShowNotification {
 impl ShowNotification {
     /// Create struct with Notification data, related data set default
     pub(crate) fn new(data: &Notification) -> Self {
-        Self{
+        Self {
             id: data.id,
             notification: data.notification.clone(),
             degree_importance: Default::default(),
@@ -73,7 +73,10 @@ impl ShowNotification {
     }
 
     /// Change degree_importance data
-    pub(crate) fn put_degree_importance(&mut self, degree_importance: &DegreeImportanceTranslateList) {
+    pub(crate) fn put_degree_importance(
+        &mut self,
+        degree_importance: &DegreeImportanceTranslateList,
+    ) {
         self.degree_importance = degree_importance.clone();
     }
 }
@@ -118,8 +121,7 @@ impl From<&NotificationData> for InsertableNotification {
 }
 
 /// Data on the degree (level) of importance of the notification
-#[derive(Identifiable, Serialize, Queryable)]
-#[derive(Default, Clone, Debug, SimpleObject)]
+#[derive(Identifiable, Serialize, Queryable, Default, Clone, Debug, SimpleObject)]
 #[diesel(primary_key(degree_importance_id, lang_id))]
 #[diesel(table_name = degree_importance_translate_list)]
 pub(crate) struct DegreeImportanceTranslateList {

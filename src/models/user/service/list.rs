@@ -1,33 +1,24 @@
+use crate::errors::err_msg::{get_err_msg, ErrorMessage};
 use crate::errors::ServiceResult;
-use crate::errors::err_msg::{ErrorMessage, get_err_msg};
 use crate::models::search::order::Paginate;
 use crate::models::user::model::{
-    SlimUser, ShowUserShort, UserAndRelatedData,
-    ShowUserAndRelatedData, UsersArg, IptGetUserArg
+    IptGetUserArg, ShowUserAndRelatedData, ShowUserShort, SlimUser, UserAndRelatedData, UsersArg,
 };
 use diesel::PgConnection;
 use uuid::Uuid;
 
 /// Возвращает основные и связанные с пользователем данные, по UUID пользователя.
-pub(crate) fn get_user_data (
+pub(crate) fn get_user_data(
     logged_user_uuid: &Uuid,
     args: &IptGetUserArg,
     set_lang_id: &i32,
     conn: &mut PgConnection,
 ) -> ServiceResult<ShowUserAndRelatedData> {
     match (&args.user_uuid, &args.username) {
-        (Some(user_uuid), _) => ShowUserAndRelatedData::get_user_by_uuid(
-            logged_user_uuid,
-            user_uuid,
-            set_lang_id,
-            conn,
-        ),
-        (_, Some(username)) => find_user_by_username(
-            logged_user_uuid,
-            username,
-            set_lang_id,
-            conn,
-        ),
+        (Some(user_uuid), _) => {
+            ShowUserAndRelatedData::get_user_by_uuid(logged_user_uuid, user_uuid, set_lang_id, conn)
+        }
+        (_, Some(username)) => find_user_by_username(logged_user_uuid, username, set_lang_id, conn),
         _ => Err(get_err_msg(ErrorMessage::NeedSetUuidOrUsername)),
     }
 }
@@ -41,17 +32,9 @@ pub(crate) fn find_user_by_username(
 ) -> ServiceResult<ShowUserAndRelatedData> {
     use crate::models::user::util::get_uuid_by_username;
 
-    let user_uuid: &Uuid = &get_uuid_by_username(
-        target_username,
-        conn
-    )?;
+    let user_uuid: &Uuid = &get_uuid_by_username(target_username, conn)?;
 
-    ShowUserAndRelatedData::get_user_by_uuid(
-        logged_user_uuid,
-        user_uuid,
-        set_lang_id,
-        conn
-    )
+    ShowUserAndRelatedData::get_user_by_uuid(logged_user_uuid, user_uuid, set_lang_id, conn)
 }
 
 /// Возвращает структуру с основной информацией о пользователе (SlimUser)
@@ -69,11 +52,9 @@ pub(crate) fn get_self_user_data(
     conn: &mut PgConnection,
 ) -> ServiceResult<UserAndRelatedData> {
     // collect data for user
-    let result: UserAndRelatedData = UserAndRelatedData::collect_related_data(
-        logged_user_uuid,
-        set_lang_id,
-        conn
-    ).expect("Error loading user and collect related data");
+    let result: UserAndRelatedData =
+        UserAndRelatedData::collect_related_data(logged_user_uuid, set_lang_id, conn)
+            .expect("Error loading user and collect related data");
     debug!("Self user data: {:#?}", result);
     Ok(result)
 }
@@ -101,7 +82,7 @@ pub(crate) fn get_users(
             logged_user_uuid,
             filter_users_uuids,
             paginate,
-            conn
+            conn,
         ),
         // gets users of self favorite list
         // for authorized user with/without filter
@@ -109,19 +90,12 @@ pub(crate) fn get_users(
             logged_user_uuid,
             filter_users_uuids,
             paginate,
-            conn
+            conn,
         ),
         // get all public users
-        (false, false) => {
-            match filter_users_uuids.is_empty() {
-                true => ShowUserShort::get_all_public_users(paginate, conn),
-                false => ShowUserShort::get_users_by_uuids(
-                    logged_user_uuid,
-                    filter_users_uuids,
-                    conn
-                ),
-            }
-
+        (false, false) => match filter_users_uuids.is_empty() {
+            true => ShowUserShort::get_all_public_users(paginate, conn),
+            false => ShowUserShort::get_users_by_uuids(logged_user_uuid, filter_users_uuids, conn),
         },
         (true, true) => Err(get_err_msg(ErrorMessage::FailedMatchArguments)),
     }

@@ -1,14 +1,11 @@
-use super::company_represent::model::CompanyRepresentAndRelatedData;
 use super::certificate::model::CompanyCertificateAndFile;
+use super::company_represent::model::CompanyRepresentAndRelatedData;
 use super::company_type::model::CompanyTypeTranslateList;
-use crate::models::user::model::ShowUserShort;
 use crate::models::relate_ref::{
-    file::model::DownloadFile,
-    file::util::get_default_image,
-    spec::model::SpecTranslateList,
-    region::model::RegionTranslateList,
-    type_access::model::TypeAccessTranslateList,
+    file::model::DownloadFile, file::util::get_default_image, region::model::RegionTranslateList,
+    spec::model::SpecTranslateList, type_access::model::TypeAccessTranslateList,
 };
+use crate::models::user::model::ShowUserShort;
 use crate::schema::*;
 use async_graphql::*;
 use chrono::*;
@@ -115,6 +112,8 @@ pub(crate) struct ShowCompanyShort {
     pub(crate) is_supplier: bool,
     /// Flag of company presence in user's bookmarks
     pub(crate) is_followed: bool,
+    /// Date of creation of the company profile
+    pub(crate) created_at: NaiveDateTime,
     /// Date of update of the company's basic data
     pub(crate) updated_at: NaiveDateTime,
 }

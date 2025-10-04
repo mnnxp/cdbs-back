@@ -1,6 +1,6 @@
-use crate::errors::{ServiceResult, ServiceError};
+use crate::errors::{ServiceError, ServiceResult};
+use crate::graphql::standard_model::ShowStandardShort;
 use crate::models::search::{model::ExtraOptions, order::Paginate};
-use crate::models::standard::model::ShowStandardShort;
 use diesel::prelude::*;
 use uuid::Uuid;
 
@@ -29,14 +29,10 @@ impl ShowStandardShort {
         // return empty vec if not found standard for component_type
         if select_standards_uuids.is_empty() {
             debug!("Not found standards for component");
-            return Ok(Vec::new())
+            return Ok(Vec::new());
         }
 
         // collecting standards for component
-        ShowStandardShort::get_list_by_uuids(
-            &select_standards_uuids,
-            options,
-            conn,
-        )
+        ShowStandardShort::get_list_by_uuids(&select_standards_uuids, options, conn)
     }
 }

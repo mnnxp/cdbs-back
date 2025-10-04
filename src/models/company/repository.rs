@@ -1,18 +1,16 @@
-use crate::errors::{ServiceResult, ServiceError};
-use crate::errors::err_msg::{ErrorMessage, get_err_msg};
+use crate::errors::err_msg::{get_err_msg, ErrorMessage};
+use crate::errors::{ServiceError, ServiceResult};
 use crate::models::company::{
-    model::{Company, SlimCompany, ShowCompanyShort, CompanyAndRelatedData},
-    company_represent::model::CompanyRepresentAndRelatedData,
+    access::util::check_company_access,
     certificate::model::CompanyCertificateAndFile,
-    company_type::model::CompanyTypeTranslateList,
     company_fav::model::CompanyFav,
     company_fav::util::check_subscriber_by_uuid,
-    access::util::check_company_access,
+    company_represent::model::CompanyRepresentAndRelatedData,
+    company_type::model::CompanyTypeTranslateList,
+    model::{Company, CompanyAndRelatedData, ShowCompanyShort, SlimCompany},
 };
 use crate::models::relate_ref::{
-    region::model::RegionTranslateList,
-    file::model::DownloadFile,
-    spec::model::SpecTranslateList,
+    file::model::DownloadFile, region::model::RegionTranslateList, spec::model::SpecTranslateList,
     type_access::model::TypeAccessTranslateList,
 };
 use crate::models::search::order::Paginate;
@@ -27,9 +25,12 @@ impl SlimCompany {
         conn: &mut PgConnection,
     ) -> ServiceResult<SlimCompany> {
         company_ref::company_ref
-            .filter(company_ref::uuid.eq(company_uuid)
-            .and(company_ref::is_enabled.eq(true))
-            .and(company_ref::is_delete.eq(false)))
+            .filter(
+                company_ref::uuid
+                    .eq(company_uuid)
+                    .and(company_ref::is_enabled.eq(true))
+                    .and(company_ref::is_delete.eq(false)),
+            )
             .select((
                 company_ref::uuid,
                 company_ref::shortname,
@@ -50,9 +51,12 @@ impl Company {
         conn: &mut PgConnection,
     ) -> ServiceResult<Company> {
         company_ref::company_ref
-            .filter(company_ref::uuid.eq(target_company_uuid)
-            .and(company_ref::is_enabled.eq(true))
-            .and(company_ref::is_delete.eq(false)))
+            .filter(
+                company_ref::uuid
+                    .eq(target_company_uuid)
+                    .and(company_ref::is_enabled.eq(true))
+                    .and(company_ref::is_delete.eq(false)),
+            )
             .select((
                 company_ref::uuid,
                 company_ref::orgname,
@@ -94,24 +98,20 @@ impl ShowCompanyShort {
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<ShowCompanyShort>> {
         match filter_companies_uuids.is_empty() {
-            true => {
-                ShowCompanyShort::get_all_public(
-                    logged_user_uuid,
-                    supplier,
-                    paginate,
-                    set_lang_id,
-                    conn
-                )
-            },
-            false => {
-                ShowCompanyShort::get_list_by_uuids(
-                    filter_companies_uuids,
-                    supplier,
-                    logged_user_uuid,
-                    set_lang_id,
-                    conn
-                )
-            }
+            true => ShowCompanyShort::get_all_public(
+                logged_user_uuid,
+                supplier,
+                paginate,
+                set_lang_id,
+                conn,
+            ),
+            false => ShowCompanyShort::get_list_by_uuids(
+                filter_companies_uuids,
+                supplier,
+                logged_user_uuid,
+                set_lang_id,
+                conn,
+            ),
         }
     }
 
@@ -129,14 +129,14 @@ impl ShowCompanyShort {
             logged_user_uuid,
             target_company_uuid,
             &need_access_level,
-            conn
+            conn,
         )?;
 
         ShowCompanyShort::get_without_check_by_uuid(
             target_company_uuid,
             logged_user_uuid,
             set_lang_id,
-            conn
+            conn,
         )
     }
 
@@ -148,38 +148,30 @@ impl ShowCompanyShort {
         conn: &mut PgConnection,
     ) -> ServiceResult<ShowCompanyShort> {
         // get target company
-        let company: Company = Company::get_company_by_uuid(
-            target_company_uuid,
-            conn
-        )
-        .expect("Error loading company");
+        let company: Company =
+            Company::get_company_by_uuid(target_company_uuid, conn).expect("Error loading company");
 
         // get image file (favicon) for company
-        let image_file = DownloadFile::get_by_file_uuid(
-            &company.image_file_uuid,
-            conn
-        ).expect("Error loading company file");
+        let image_file = DownloadFile::get_by_file_uuid(&company.image_file_uuid, conn)
+            .expect("Error loading company file");
 
         // get region for company
-        let region_with_translate: RegionTranslateList = RegionTranslateList::get_region_by_id(
-            &company.region_id,
-            set_lang_id,
-            conn
-        ).expect("Error loading region with translate");
+        let region_with_translate: RegionTranslateList =
+            RegionTranslateList::get_region_by_id(&company.region_id, set_lang_id, conn)
+                .expect("Error loading region with translate");
 
         // get company type with translation for company
-        let company_type_with_translate: CompanyTypeTranslateList = CompanyTypeTranslateList::get_company_type_by_id(
-            &company.company_type_id,
-            set_lang_id,
-            conn
-        ).expect("Error loading company type with translate");
+        let company_type_with_translate: CompanyTypeTranslateList =
+            CompanyTypeTranslateList::get_company_type_by_id(
+                &company.company_type_id,
+                set_lang_id,
+                conn,
+            )
+            .expect("Error loading company type with translate");
 
         // check whether the object is being tracked auth user
-        let is_followed = check_subscriber_by_uuid(
-            target_company_uuid,
-            logged_user_uuid,
-            conn
-        ).expect("Error get value is_followed");
+        let is_followed = check_subscriber_by_uuid(target_company_uuid, logged_user_uuid, conn)
+            .expect("Error get value is_followed");
 
         Ok(ShowCompanyShort {
             uuid: company.uuid,
@@ -191,6 +183,7 @@ impl ShowCompanyShort {
             company_type: company_type_with_translate,
             is_followed,
             is_supplier: company.is_supplier,
+            created_at: company.created_at,
             updated_at: company.updated_at,
         })
     }
@@ -212,7 +205,7 @@ impl ShowCompanyShort {
                 target_company_uuid,
                 logged_user_uuid,
                 set_lang_id,
-                conn
+                conn,
             );
 
             match company {
@@ -236,13 +229,19 @@ impl ShowCompanyShort {
     ) -> ServiceResult<Vec<ShowCompanyShort>> {
         let mut query = company_ref::company_ref.into_boxed();
         query = match supplier {
-            true => query.filter(company_ref::type_access_id.eq(3)
-                .and(company_ref::is_supplier.eq(true))
-                .and(company_ref::is_enabled.eq(true))
-                .and(company_ref::is_delete.eq(false))),
-            false => query.filter(company_ref::type_access_id.eq(3)
-                .and(company_ref::is_enabled.eq(true))
-                .and(company_ref::is_delete.eq(false))),
+            true => query.filter(
+                company_ref::type_access_id
+                    .eq(3)
+                    .and(company_ref::is_supplier.eq(true))
+                    .and(company_ref::is_enabled.eq(true))
+                    .and(company_ref::is_delete.eq(false)),
+            ),
+            false => query.filter(
+                company_ref::type_access_id
+                    .eq(3)
+                    .and(company_ref::is_enabled.eq(true))
+                    .and(company_ref::is_delete.eq(false)),
+            ),
         };
 
         let target_companies_uuids = query
@@ -261,7 +260,7 @@ impl ShowCompanyShort {
                 target_company_uuid,
                 logged_user_uuid,
                 set_lang_id,
-                conn
+                conn,
             )?);
         }
         Ok(result)
@@ -283,77 +282,68 @@ impl CompanyAndRelatedData {
             logged_user_uuid,
             target_company_uuid,
             &need_access_level,
-            conn
+            conn,
         )?;
 
         // collect data for company
-        let company: Company = Company::get_company_by_uuid(
-            target_company_uuid,
-            conn
-        ).expect("Error loading company");
+        let company: Company =
+            Company::get_company_by_uuid(target_company_uuid, conn).expect("Error loading company");
 
         // get company owner
         let owner_user = crate::models::user::model::ShowUserShort::get_without_check_by_uuid(
             &company.user_uuid,
-            conn
-        ).expect("Error loading slim_user");
+            conn,
+        )
+        .expect("Error loading slim_user");
 
         // get image file (favicon) for company
-        let image_file = DownloadFile::get_by_file_uuid(
-            &company.image_file_uuid,
-            conn
-        ).expect("Error loading company file");
+        let image_file = DownloadFile::get_by_file_uuid(&company.image_file_uuid, conn)
+            .expect("Error loading company file");
 
         // get company represents for company
-        let company_represents_with_related_data = CompanyRepresentAndRelatedData::get_by_company_uuid(
-            &company.uuid,
-            set_lang_id,
-            conn
-        ).expect("Error loading company represents");
+        let company_represents_with_related_data =
+            CompanyRepresentAndRelatedData::get_by_company_uuid(&company.uuid, set_lang_id, conn)
+                .expect("Error loading company represents");
 
         // get region for company
-        let region_with_translate: RegionTranslateList = RegionTranslateList::get_region_by_id(
-            &company.region_id,
-            set_lang_id,
-            conn
-        ).expect("Error loading region with translate");
+        let region_with_translate: RegionTranslateList =
+            RegionTranslateList::get_region_by_id(&company.region_id, set_lang_id, conn)
+                .expect("Error loading region with translate");
 
         // get company type with translation for company
-        let company_type_with_translate: CompanyTypeTranslateList = CompanyTypeTranslateList::get_company_type_by_id(
-            &company.company_type_id,
-            set_lang_id,
-            conn
-        ).expect("Error loading company type with translate");
+        let company_type_with_translate: CompanyTypeTranslateList =
+            CompanyTypeTranslateList::get_company_type_by_id(
+                &company.company_type_id,
+                set_lang_id,
+                conn,
+            )
+            .expect("Error loading company type with translate");
 
         // check whether the object is being tracked auth user
-        let is_followed = check_subscriber_by_uuid(
-            target_company_uuid,
-            logged_user_uuid,
-            conn
-        ).expect("Error get value is_followed");
+        let is_followed = check_subscriber_by_uuid(target_company_uuid, logged_user_uuid, conn)
+            .expect("Error get value is_followed");
 
         // count subscribers company
-        let company_subscribers_count: i32 = CompanyFav::get_count_followers_by_uuid(&company.uuid, conn)?;
+        let company_subscribers_count: i32 =
+            CompanyFav::get_count_followers_by_uuid(&company.uuid, conn)?;
 
         // get certificates with slimfile for company
-        let certificates_with_slimfile: Vec<CompanyCertificateAndFile> = CompanyCertificateAndFile::from_company(
-            &company.uuid,
-            conn
-        ).expect("Error loading spec company with translate");
+        let certificates_with_slimfile: Vec<CompanyCertificateAndFile> =
+            CompanyCertificateAndFile::from_company(&company.uuid, conn)
+                .expect("Error loading spec company with translate");
 
         // get specs with translation for company
-        let company_specs_with_translate: Vec<SpecTranslateList> = SpecTranslateList::for_company(
-            &company,
-            set_lang_id,
-            conn
-        ).expect("Error loading spec company with translate");
+        let company_specs_with_translate: Vec<SpecTranslateList> =
+            SpecTranslateList::for_company_uuid(&company.uuid, set_lang_id, conn)
+                .expect("Error loading spec company with translate");
 
         // get type access set for company
         let type_access: TypeAccessTranslateList = TypeAccessTranslateList::get_type_access_by_id(
             &company.type_access_id,
             set_lang_id,
-            conn
-        ).expect("Error get set type access");
+            conn,
+        )
+        .expect("Error get set type access");
 
         Ok(CompanyAndRelatedData {
             uuid: company.uuid,
@@ -391,73 +381,70 @@ impl CompanyAndRelatedData {
         conn: &mut PgConnection,
     ) -> ServiceResult<CompanyAndRelatedData> {
         // collect data for company
-        let company: Company = Company::get_company_by_uuid(
-            target_company_uuid,
-            conn
-        ).expect("Error loading company");
+        let company: Company =
+            Company::get_company_by_uuid(target_company_uuid, conn).expect("Error loading company");
 
         // todo!(create enum for manage access level)
         // checking access type and supplier status of the company
         if company.type_access_id != 3 || !company.is_supplier {
-            debug!("No suitable supplier: {:?}, {:?}", company.type_access_id, company.is_supplier);
-            return Err(get_err_msg(ErrorMessage::NoSuitableSupplierHasBeenFound))
+            debug!(
+                "No suitable supplier: {:?}, {:?}",
+                company.type_access_id, company.is_supplier
+            );
+            return Err(get_err_msg(ErrorMessage::NoSuitableSupplierHasBeenFound));
         }
 
         // get company owner
         let owner_user = crate::models::user::model::ShowUserShort::get_without_check_by_uuid(
             &company.user_uuid,
-            conn
-        ).expect("Error loading slim_user");
+            conn,
+        )
+        .expect("Error loading slim_user");
 
         // get image file (favicon) for company
-        let image_file = DownloadFile::get_by_file_uuid(
-            &company.image_file_uuid,
-            conn
-        ).expect("Error loading company file");
+        let image_file = DownloadFile::get_by_file_uuid(&company.image_file_uuid, conn)
+            .expect("Error loading company file");
 
         // get company represents for company
-        let company_represents_with_related_data = CompanyRepresentAndRelatedData::get_by_company_uuid(
-            &company.uuid,
-            set_lang_id,
-            conn
-        ).expect("Error loading company represents");
+        let company_represents_with_related_data =
+            CompanyRepresentAndRelatedData::get_by_company_uuid(&company.uuid, set_lang_id, conn)
+                .expect("Error loading company represents");
 
         // get region for company
-        let region_with_translate: RegionTranslateList = RegionTranslateList::get_region_by_id(
-            &company.region_id,
-            set_lang_id,
-            conn
-        ).expect("Error loading region with translate");
+        let region_with_translate: RegionTranslateList =
+            RegionTranslateList::get_region_by_id(&company.region_id, set_lang_id, conn)
+                .expect("Error loading region with translate");
 
         // get company type with translation for company
-        let company_type_with_translate: CompanyTypeTranslateList = CompanyTypeTranslateList::get_company_type_by_id(
-            &company.company_type_id,
-            set_lang_id,
-            conn
-        ).expect("Error loading company type with translate");
+        let company_type_with_translate: CompanyTypeTranslateList =
+            CompanyTypeTranslateList::get_company_type_by_id(
+                &company.company_type_id,
+                set_lang_id,
+                conn,
+            )
+            .expect("Error loading company type with translate");
 
         // count subscribers company
-        let company_subscribers_count: i32 = CompanyFav::get_count_followers_by_uuid(&company.uuid, conn)?;
+        let company_subscribers_count: i32 =
+            CompanyFav::get_count_followers_by_uuid(&company.uuid, conn)?;
 
         // get certificates with slimfile for company
-        let certificates_with_slimfile: Vec<CompanyCertificateAndFile> = CompanyCertificateAndFile::from_company(
-            &company.uuid,
-            conn
-        ).expect("Error loading spec company with translate");
+        let certificates_with_slimfile: Vec<CompanyCertificateAndFile> =
+            CompanyCertificateAndFile::from_company(&company.uuid, conn)
+                .expect("Error loading spec company with translate");
 
         // get specs with translation for company
-        let company_specs_with_translate: Vec<SpecTranslateList> = SpecTranslateList::for_company(
-            &company,
-            set_lang_id,
-            conn
-        ).expect("Error loading spec company with translate");
+        let company_specs_with_translate: Vec<SpecTranslateList> =
+            SpecTranslateList::for_company_uuid(&company.uuid, set_lang_id, conn)
+                .expect("Error loading spec company with translate");
 
         // get type access set for company
         let type_access: TypeAccessTranslateList = TypeAccessTranslateList::get_type_access_by_id(
             &company.type_access_id,
             set_lang_id,
-            conn
-        ).expect("Error get set type access");
+            conn,
+        )
+        .expect("Error get set type access");
 
         Ok(CompanyAndRelatedData {
             uuid: company.uuid,

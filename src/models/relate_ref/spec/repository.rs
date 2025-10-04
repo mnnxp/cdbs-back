@@ -1,19 +1,16 @@
-use crate::errors::{ServiceResult, ServiceError};
+use crate::errors::{ServiceError, ServiceResult};
 use crate::models::relate_ref::{
     language::model::EngLangName,
-    spec::model::{Spec, SpecTranslateList, SpecId}
+    spec::model::{Spec, SpecId, SpecTranslateList},
 };
 use crate::models::search::order::Paginate;
-use crate::schema::spec_translate_list::dsl as spec_translate_list;
 use crate::schema::spec_ref::dsl as spec_ref;
+use crate::schema::spec_translate_list::dsl as spec_translate_list;
 use diesel::prelude::*;
 
 impl Spec {
     /// Gets spec data by id
-    pub(crate) fn get_by_id(
-        target_spec_id: &i32,
-        conn: &mut PgConnection,
-    ) -> ServiceResult<Spec> {
+    pub(crate) fn get_by_id(target_spec_id: &i32, conn: &mut PgConnection) -> ServiceResult<Spec> {
         spec_ref::spec_ref
             .filter(spec_ref::id.eq(target_spec_id))
             .first::<Spec>(conn)
@@ -22,24 +19,36 @@ impl Spec {
                 ServiceError::InternalServerError
             })
     }
-
-    /// Gets spec data by parent id
-    pub(crate) fn get_by_parent_id(
-        target_specs_levels: &[i32],
-        conn: &mut PgConnection,
-    ) -> ServiceResult<Vec<Spec>> {
-        spec_ref::spec_ref
-            .filter(spec_ref::parent_spec_id.eq_any(target_specs_levels))
-            .limit(1000)
-            .load::<Spec>(conn)
-            .map_err(|err| {
-                debug!("Failed get specs by parent ids: {}", err);
-                ServiceError::InternalServerError
-            })
-    }
 }
 
 impl SpecTranslateList {
+    /// Returns the structure of the parent catalog element
+    pub(crate) fn get_parent_by_id(
+        spec_id: &i32,
+        set_lang_id: &i32,
+        conn: &mut PgConnection,
+    ) -> ServiceResult<SpecTranslateList> {
+        let parent_spec_id = spec_ref::spec_ref
+            .filter(spec_ref::id.eq(spec_id))
+            .select(spec_ref::parent_spec_id)
+            .first::<i32>(conn)
+            .map_err(|err| {
+                debug!("Failed get specs by parent ids: {}", err);
+                ServiceError::InternalServerError
+            })?;
+        spec_translate_list::spec_translate_list
+            .filter(
+                spec_translate_list::spec_id
+                    .eq(&parent_spec_id)
+                    .and(spec_translate_list::lang_id.eq(set_lang_id)),
+            )
+            .first::<SpecTranslateList>(conn)
+            .map_err(|err| {
+                debug!("Failed get specs: {:?}", err);
+                ServiceError::InternalServerError
+            })
+    }
+
     /// Gets specs list by ids with/witout filter
     pub(crate) fn get_by_ids(
         target_specs_ids: &[i32],
@@ -49,13 +58,12 @@ impl SpecTranslateList {
     ) -> ServiceResult<Vec<SpecTranslateList>> {
         let mut query = spec_translate_list::spec_translate_list.into_boxed();
         query = match target_specs_ids.is_empty() {
-            true => {
-                query.filter(spec_translate_list::lang_id.eq(set_lang_id))
-            },
-            false => {
-                query.filter(spec_translate_list::spec_id.eq_any(target_specs_ids)
-                    .and(spec_translate_list::lang_id.eq(set_lang_id)))
-            },
+            true => query.filter(spec_translate_list::lang_id.eq(set_lang_id)),
+            false => query.filter(
+                spec_translate_list::spec_id
+                    .eq_any(target_specs_ids)
+                    .and(spec_translate_list::lang_id.eq(set_lang_id)),
+            ),
         };
         query
             .limit(paginate.limit)
@@ -76,31 +84,38 @@ impl SpecTranslateList {
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<SpecTranslateList>> {
         // get specs for target levels
-        let specs_for_levels = Spec::get_by_parent_id(
-            target_specs_levels,
-            conn
-        )?;
-
-        debug!("specs_for_levels: {:?}", specs_for_levels);
-
-        let mut target_ids: Vec<i32> = Vec::new();
-        for sfl in specs_for_levels {
-            target_ids.push(sfl.id);
-        }
-
-        debug!("target_ids: {:?}", target_ids);
-
-        if !target_specs_ids.is_empty() {
-            target_ids.retain(|x|
-                target_specs_ids.iter().any(|e| e == x)
-            );
-        }
-
+        let target_ids = match target_specs_ids.is_empty() {
+            true => spec_ref::spec_ref
+                .filter(spec_ref::parent_spec_id.eq_any(target_specs_levels))
+                .select(spec_ref::id)
+                .limit(1000)
+                .load::<i32>(conn)
+                .map_err(|err| {
+                    debug!("Failed get specs by parent ids: {}", err);
+                    ServiceError::InternalServerError
+                })?,
+            false => spec_ref::spec_ref
+                .filter(
+                    spec_ref::parent_spec_id
+                        .eq_any(target_specs_levels)
+                        .and(spec_ref::id.eq_any(target_specs_ids)),
+                )
+                .select(spec_ref::id)
+                .limit(1000)
+                .load::<i32>(conn)
+                .map_err(|err| {
+                    debug!("Failed get specs by parent ids: {}", err);
+                    ServiceError::InternalServerError
+                })?,
+        };
         debug!("target_ids: {:?}", target_ids);
 
         spec_translate_list::spec_translate_list
-            .filter(spec_translate_list::spec_id.eq_any(target_ids)
-            .and(spec_translate_list::lang_id.eq(set_lang_id)))
+            .filter(
+                spec_translate_list::spec_id
+                    .eq_any(target_ids)
+                    .and(spec_translate_list::lang_id.eq(set_lang_id)),
+            )
             .limit(paginate.limit)
             .offset(paginate.offset)
             .load::<SpecTranslateList>(conn)
@@ -118,15 +133,16 @@ impl SpecId {
         set_lang_id: &i32,
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<SpecId>> {
-        let EngLangName {eng_lang_name} = EngLangName::get_by_id(set_lang_id);
+        let EngLangName { eng_lang_name } = EngLangName::get_by_id(set_lang_id);
 
-        let query = format!("SELECT spec_id FROM spec_translate_list WHERE to_tsvector('{eng}', spec) @@ websearch_to_tsquery('{eng}', '{query}') LIMIT {limit}",
+        let query = format!("SELECT spec_id FROM spec_translate_list WHERE to_tsvector('{eng}', spec) @@ websearch_to_tsquery('{eng}', '{query}') LIMIT {limit};",
             eng=eng_lang_name,
             query=query_text,
             limit=1000);
         debug!("SQL query: {}", query);
 
-        diesel::sql_query(query).load::<SpecId>(conn)
+        diesel::sql_query(query)
+            .load::<SpecId>(conn)
             .map_err(|err| {
                 debug!("Failed search specs: {:?}", err);
                 ServiceError::InternalServerError

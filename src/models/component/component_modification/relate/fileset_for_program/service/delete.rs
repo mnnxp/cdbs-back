@@ -2,13 +2,13 @@ use crate::errors::{ServiceError, ServiceResult};
 use crate::models::component::component_modification::fileset_for_program::file::repository::get_file_uuids_by_fileset_uuid;
 use crate::models::component::service::update::change_updated_at;
 use crate::models::component::{
+    access::util::check_access_component_for_user,
     component_modification::fileset_for_program::model::DelFilesetProgramData,
     component_modification::relate::fileset_for_program::util::get_component_by_fileset,
-    access::util::check_access_component_for_user,
 };
 use crate::models::relate_ref::file::service::delete::delete_file_by_uuids;
-use crate::schema::modification_file_from_fileset::dsl as modification_file_from_fileset;
 use crate::schema::fileset_for_program::dsl as fileset_for_program;
+use crate::schema::modification_file_from_fileset::dsl as modification_file_from_fileset;
 use diesel::prelude::*;
 use uuid::Uuid;
 
@@ -24,7 +24,7 @@ pub(crate) fn del_modification_fileset(
         logged_user_uuid,
         &target_component_uuid,
         &need_access_level,
-        conn
+        conn,
     )?;
 
     let files_of_set = get_file_uuids_by_fileset_uuid(&data.fileset_uuid, &[], conn)?;
@@ -45,8 +45,11 @@ fn delete_fileset_row(
     conn: &mut PgConnection,
 ) -> ServiceResult<bool> {
     let count = diesel::delete(fileset_for_program::fileset_for_program)
-        .filter(fileset_for_program::uuid.eq(&data.fileset_uuid)
-        .and(fileset_for_program::modification_uuid.eq(&data.modification_uuid)))
+        .filter(
+            fileset_for_program::uuid
+                .eq(&data.fileset_uuid)
+                .and(fileset_for_program::modification_uuid.eq(&data.modification_uuid)),
+        )
         .execute(conn)
         .map_err(|err| {
             debug!("Error delete fileset: {:?}", err);

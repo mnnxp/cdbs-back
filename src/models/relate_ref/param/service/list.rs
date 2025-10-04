@@ -1,4 +1,4 @@
-use crate::errors::{ServiceResult, ServiceError};
+use crate::errors::{ServiceError, ServiceResult};
 use crate::models::relate_ref::param::model::ParamTranslateList;
 use crate::models::search::order::Paginate;
 use crate::schema::param_translate_list::dsl::*;
@@ -41,8 +41,7 @@ fn get_by_ids(
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<ParamTranslateList>> {
     param_translate_list
-        .filter(param_id.eq_any(param_ids)
-        .and(lang_id.eq(set_lang_id)))
+        .filter(param_id.eq_any(param_ids).and(lang_id.eq(set_lang_id)))
         .limit(paginate.limit)
         .offset(paginate.offset)
         .load::<ParamTranslateList>(conn)

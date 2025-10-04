@@ -1,8 +1,7 @@
 use crate::schema::*;
 use async_graphql::*;
 
-#[derive(Identifiable, Serialize, Deserialize, Queryable)]
-#[derive(SimpleObject, Clone, Default, Debug)]
+#[derive(Identifiable, Serialize, Deserialize, Queryable, SimpleObject, Clone, Default, Debug)]
 #[diesel(primary_key(id))]
 #[diesel(table_name = keyword_ref)]
 pub(crate) struct Keyword {
@@ -32,7 +31,7 @@ pub(crate) struct IptKeywordData {
 impl From<&IptKeywordData> for InsertableKeyword {
     fn from(data: &IptKeywordData) -> Self {
         Self {
-            keyword: data.keyword.clone()
+            keyword: data.keyword.clone(),
         }
     }
 }

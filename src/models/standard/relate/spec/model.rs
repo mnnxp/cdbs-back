@@ -1,14 +1,9 @@
 use crate::schema::*;
-use crate::models::relate_ref::spec::model::Spec;
-use crate::models::standard::model::Standard;
 use async_graphql::*;
 use uuid::Uuid;
 
 // Spec standard models
-#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, Clone, Debug)]
-#[diesel(primary_key(standard_uuid, spec_id))]
-#[diesel(belongs_to(Standard, foreign_key = standard_uuid))]
-#[diesel(belongs_to(Spec, foreign_key = spec_id))]
+#[derive(Serialize, Deserialize, Queryable, SimpleObject, Clone, Debug)]
 #[diesel(table_name = spec_to_standard)]
 pub(crate) struct StandardSpec {
     pub(crate) spec_id: i32,
@@ -42,7 +37,8 @@ impl From<&IptStandardSpecsData> for Vec<InsertableStandardSpec> {
         let mut res = Vec::new();
         // create struct for each spec
         for spec_id in spec_ids {
-            if spec_id > &0 { // <-- additionally we check the correctness of the key
+            if spec_id > &0 {
+                // <-- additionally we check the correctness of the key
                 res.push(InsertableStandardSpec {
                     standard_uuid: *standard_uuid,
                     spec_id: *spec_id,
@@ -76,7 +72,7 @@ impl From<&IptStandardSpecsData> for DeleteStandardSpecs {
             }
         }
 
-        Self{
+        Self {
             standard_uuid: *standard_uuid,
             spec_ids: good_spec_ids,
         }

@@ -1,7 +1,7 @@
-use crate::errors::{ServiceResult, ServiceError};
-use crate::errors::err_msg::{ErrorMessage, get_err_msg};
+use crate::errors::err_msg::{get_err_msg, ErrorMessage};
+use crate::errors::{ServiceError, ServiceResult};
 use crate::models::relate_ref::extension::model::{
-    InsertableExtension, Extension, IptExtensionData
+    Extension, InsertableExtension, IptExtensionData,
 };
 use crate::schema::extension_ref::dsl as extension_ref;
 use diesel::prelude::*;
@@ -10,7 +10,7 @@ use diesel::prelude::*;
 /// Создаёт связь расширения с программным решением.
 pub(crate) fn create_extension(
     new_extension_data: &IptExtensionData,
-    conn: &mut PgConnection
+    conn: &mut PgConnection,
 ) -> ServiceResult<Extension> {
     let flag_found = extension_ref::extension_ref
         .filter(extension_ref::extension.eq(&new_extension_data.extension))
@@ -23,7 +23,10 @@ pub(crate) fn create_extension(
         })?;
 
     match flag_found.first() {
-        Some(x) => Err(get_err_msg(ErrorMessage::NameAlreadyThereX("extension".to_string(), *x))),
+        Some(x) => Err(get_err_msg(ErrorMessage::NameAlreadyThereX(
+            "extension".to_string(),
+            *x,
+        ))),
         None => {
             let new_extension_data: InsertableExtension = new_extension_data.into();
             diesel::insert_into(extension_ref::extension_ref)
@@ -33,6 +36,6 @@ pub(crate) fn create_extension(
                     debug!("Failed insert extension: {:?}", err);
                     ServiceError::InternalServerError
                 })
-        },
+        }
     }
 }

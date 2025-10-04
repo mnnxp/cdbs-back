@@ -1,14 +1,9 @@
 use crate::schema::*;
-use crate::models::user::model::User;
-use crate::models::standard::model::Standard;
 use chrono::*;
 use uuid::Uuid;
 
 // Favorites standard models
-#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, Clone, Debug)]
-#[diesel(primary_key(standard_uuid, user_uuid))]
-#[diesel(belongs_to(Standard, foreign_key = standard_uuid))]
-#[diesel(belongs_to(User, foreign_key = user_uuid))]
+#[derive(Serialize, Deserialize, Queryable, Clone, Debug)]
 #[diesel(table_name = standard_fav)]
 pub(crate) struct StandardFav {
     pub(crate) standard_uuid: Uuid,

@@ -1,4 +1,4 @@
-use crate::errors::{ServiceResult, ServiceError};
+use crate::errors::{ServiceError, ServiceResult};
 use crate::schema::file_to_modification::dsl as file_to_modification;
 use diesel::prelude::*;
 use uuid::Uuid;
@@ -14,8 +14,11 @@ pub(crate) fn get_file_uuids_by_modification_uuid(
 
     query = match file_uuids.is_empty() {
         true => query.filter(file_to_modification::modification_uuid.eq(modification_uuid)),
-        false => query.filter(file_to_modification::modification_uuid.eq(modification_uuid)
-            .and(file_to_modification::file_uuid.eq_any(file_uuids))),
+        false => query.filter(
+            file_to_modification::modification_uuid
+                .eq(modification_uuid)
+                .and(file_to_modification::file_uuid.eq_any(file_uuids)),
+        ),
     };
 
     query
@@ -38,7 +41,10 @@ pub(crate) fn get_modification_uuid_by_file_uuid(
         .first::<Uuid>(conn)
         .optional()
         .map_err(|err| {
-            debug!("Failed get component modification uuid by file uuid: {:?}", err);
+            debug!(
+                "Failed get component modification uuid by file uuid: {:?}",
+                err
+            );
             ServiceError::InternalServerError
         })
 }

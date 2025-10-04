@@ -1,11 +1,8 @@
+use crate::errors::err_msg::{get_err_msg, ErrorMessage};
 use crate::errors::ServiceResult;
-use crate::errors::err_msg::{ErrorMessage, get_err_msg};
 use crate::models::standard::access::company::model::{
-    CompanyAccessStandard,
-    CompanyAccessStandardAndRelatedData,
-    IptCompanyAccessStandardData,
-    InsertableCompanyAccessStandard,
-    DelCompanyAccessStandardData,
+    CompanyAccessStandard, CompanyAccessStandardAndRelatedData, DelCompanyAccessStandardData,
+    InsertableCompanyAccessStandard, IptCompanyAccessStandardData,
 };
 use crate::models::standard::access::util::check_is_owner_with_err;
 use crate::schema::company_access_to_standard::dsl::*;
@@ -26,18 +23,23 @@ pub(crate) fn get_companies_list_access_standard(
     let list_companies_with_access = CompanyAccessStandardAndRelatedData::from_standard_by_uuid(
         target_standard_uuid,
         set_lang_id,
-        conn
+        conn,
     );
 
     match list_companies_with_access {
         Ok(res) => {
             debug!("Get companies have access: {:?}", res);
             Ok(res)
-        },
+        }
         Err(err) => {
-            debug!("Failed get companies list have access to standard: {:?}", err);
-            Err(get_err_msg(ErrorMessage::FailedGetCompaniesWithAccessStandard))
-        },
+            debug!(
+                "Failed get companies list have access to standard: {:?}",
+                err
+            );
+            Err(get_err_msg(
+                ErrorMessage::FailedGetCompaniesWithAccessStandard,
+            ))
+        }
     }
 }
 
@@ -52,32 +54,36 @@ pub(crate) fn set_company_access_standard(
     check_is_owner_with_err(logged_user_uuid, &data.standard_uuid, conn)?;
 
     // 2. изменить или добавить доступ для указанной компании
-    let set_access = diesel::update(company_access_to_standard
-        .filter(standard_uuid.eq(&data.standard_uuid)
-        .and(company_uuid.eq(&data.company_uuid))))
-        .set((
-            type_access_id.eq(data.type_access_id),
-            is_enabled.eq(true),
-            updated_at.eq(chrono::Local::now().naive_local())
-        )).execute(conn);
+    let set_access = diesel::update(
+        company_access_to_standard.filter(
+            standard_uuid
+                .eq(&data.standard_uuid)
+                .and(company_uuid.eq(&data.company_uuid)),
+        ),
+    )
+    .set((
+        type_access_id.eq(data.type_access_id),
+        is_enabled.eq(true),
+        updated_at.eq(chrono::Local::now().naive_local()),
+    ))
+    .execute(conn);
 
     match set_access {
         Ok(0) => {
             // доступ не найден, добавить новую запись
-            if add_company_access_standard(
-                data,
-                conn
-            )? { return Ok(true) }
+            if add_company_access_standard(data, conn)? {
+                return Ok(true);
+            }
             Err(get_err_msg(ErrorMessage::FailedSetAccessCompany))
-        },
+        }
         Ok(x) => {
             debug!("Set access for target company: {:?}", x);
             Ok(true)
-        },
+        }
         Err(err) => {
             debug!("Failed set access for target company: {:?}", err);
             Err(get_err_msg(ErrorMessage::FailedSetAccessCompany))
-        },
+        }
     }
 }
 
@@ -98,11 +104,11 @@ fn add_company_access_standard(
         Ok(x) => {
             debug!("Completed add new access for target company: {:?}", x);
             Ok(true)
-        },
+        }
         Err(err) => {
             debug!("Failed add access for target company: {:?}", err);
             Err(get_err_msg(ErrorMessage::FailedAddAccess))
-        },
+        }
     }
 }
 
@@ -117,8 +123,11 @@ pub(crate) fn del_company_access_standard(
 
     // 2. деактивировать доступ для указанной компании
     let del_access = diesel::delete(company_access_to_standard)
-        .filter(standard_uuid.eq(&data.standard_uuid)
-        .and(company_uuid.eq(&data.company_uuid)))
+        .filter(
+            standard_uuid
+                .eq(&data.standard_uuid)
+                .and(company_uuid.eq(&data.company_uuid)),
+        )
         .execute(conn);
 
     match del_access {
@@ -126,10 +135,10 @@ pub(crate) fn del_company_access_standard(
         Ok(x) => {
             debug!("Delete access for target company: {:?}", x);
             Ok(true)
-        },
+        }
         Err(err) => {
             debug!("Failed delete access for target company: {:?}", err);
             Err(get_err_msg(ErrorMessage::FailedDeleteAccessForCompany))
-        },
+        }
     }
 }

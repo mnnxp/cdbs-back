@@ -10,7 +10,7 @@ pub(crate) fn get_component_specs(
     component_uuid: &Uuid,
     options: &ExtraOptions,
     paginate: &Paginate,
-    conn: &mut PgConnection
+    conn: &mut PgConnection,
 ) -> ServiceResult<Vec<SpecTranslateList>> {
     let need_access_level = 3; // todo!(create enum for manage access level)
 
@@ -18,13 +18,8 @@ pub(crate) fn get_component_specs(
         &options.logged_user_uuid,
         component_uuid,
         &need_access_level,
-        conn
+        conn,
     )?;
 
-    SpecTranslateList::for_component_by_uuid(
-        component_uuid,
-        &options.set_lang_id,
-        paginate,
-        conn
-    )
+    SpecTranslateList::for_component_by_uuid(component_uuid, &options.set_lang_id, paginate, conn)
 }

@@ -1,14 +1,9 @@
 use crate::schema::*;
-use crate::models::company::model::Company;
-use crate::models::user::model::UserQuery;
 use chrono::*;
 use uuid::Uuid;
 
 // Favorites user models
-#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, Clone, Debug)]
-#[diesel(primary_key(company_uuid, user_uuid))]
-#[diesel(belongs_to(Company, foreign_key = company_uuid))]
-#[diesel(belongs_to(UserQuery, foreign_key = user_uuid))]
+#[derive(Serialize, Deserialize, Queryable, Clone, Debug)]
 #[diesel(table_name = company_fav)]
 pub(crate) struct CompanyFav {
     pub(crate) company_uuid: Uuid,

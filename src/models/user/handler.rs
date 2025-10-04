@@ -27,16 +27,10 @@ pub(super) async fn login(
 
     let conn: &mut PooledConnection = &mut db_connection(&pool)?;
 
-    let new_token = login_with_pass(
-        &auth_data.user.username,
-        &auth_data.user.password,
-        conn
-    )?;
+    let new_token = login_with_pass(&auth_data.user.username, &auth_data.user.password, conn)?;
 
     // send a token on succeed authorized
-    Ok(HttpResponse::Ok().json(
-        ReturnToken{
-            bearer: new_token.token
-        }
-    ))
+    Ok(HttpResponse::Ok().json(ReturnToken {
+        bearer: new_token.token,
+    }))
 }

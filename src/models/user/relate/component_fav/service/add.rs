@@ -1,10 +1,8 @@
 use crate::errors::{ServiceError, ServiceResult};
 use crate::models::component::access::util::check_access_component_for_user;
-use crate::models::user::component_fav::model::{
-    IptComponentFavData, InsertableComponentFav
-};
+use crate::models::user::component_fav::model::{InsertableComponentFav, IptComponentFavData};
 use crate::models::user::notification::{
-    model::{NotificationType, NotificationData},
+    model::{NotificationData, NotificationType},
     service::register::create_notification,
 };
 use crate::schema::component_fav::dsl as component_fav;
@@ -21,17 +19,15 @@ pub(crate) fn add_component_fav(
     let need_access_level = 3; // todo!(create enum for manage access level)
 
     // check access user for component
-    check_access_component_for_user(
-        logged_user_uuid,
-        component_uuid,
-        &need_access_level,
-        conn
-    )?;
+    check_access_component_for_user(logged_user_uuid, component_uuid, &need_access_level, conn)?;
 
     // if have need row, just update is_enabled to true
     let check_fav = component_fav::component_fav
-        .filter(component_fav::component_uuid.eq(component_uuid)
-        .and(component_fav::user_uuid.eq(logged_user_uuid)))
+        .filter(
+            component_fav::component_uuid
+                .eq(component_uuid)
+                .and(component_fav::user_uuid.eq(logged_user_uuid)),
+        )
         .select(component_fav::is_enabled)
         .limit(1)
         .load(conn)
@@ -45,8 +41,11 @@ pub(crate) fn add_component_fav(
         Some(false) => {
             // if have need row, just update is_enabled to true
             diesel::update(component_fav::component_fav)
-                .filter(component_fav::component_uuid.eq(component_uuid)
-                .and(component_fav::user_uuid.eq(logged_user_uuid)))
+                .filter(
+                    component_fav::component_uuid
+                        .eq(component_uuid)
+                        .and(component_fav::user_uuid.eq(logged_user_uuid)),
+                )
                 .set(component_fav::is_enabled.eq(true))
                 .returning(component_fav::is_enabled)
                 .get_result::<bool>(conn)
@@ -54,12 +53,12 @@ pub(crate) fn add_component_fav(
                     debug!("Failed add fav component: {:?}", err);
                     ServiceError::InternalServerError
                 })
-        },
+        }
         None => {
             // creating a new record for tracking the component by the user
             component_to_fav_ft(logged_user_uuid, component_uuid, conn)?;
             new_notification(component_uuid, conn)
-        },
+        }
     }
 }
 
@@ -70,7 +69,7 @@ pub(crate) fn component_to_fav_ft(
     component_uuid: &Uuid,
     conn: &mut PgConnection,
 ) -> ServiceResult<bool> {
-    let data = IptComponentFavData{
+    let data = IptComponentFavData {
         user_uuid: *user_uuid,
         component_uuid: *component_uuid,
     };
@@ -88,10 +87,7 @@ pub(crate) fn component_to_fav_ft(
         })
 }
 
-fn new_notification(
-    object_uuid: &Uuid,
-    conn: &mut PgConnection,
-) -> ServiceResult<bool> {
+fn new_notification(object_uuid: &Uuid, conn: &mut PgConnection) -> ServiceResult<bool> {
     let user_uuid = component_ref::component_ref
         .filter(component_ref::uuid.eq(object_uuid))
         .select(component_ref::user_uuid)
@@ -105,7 +101,7 @@ fn new_notification(
     create_notification(
         &user_uuid,
         &NotificationData {
-            notification: "New follower you component".to_string(),
+            notification: "New follower of your component".to_string(),
             degree_importance: NotificationType::Info,
         },
         conn,

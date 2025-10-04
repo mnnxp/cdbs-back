@@ -2,13 +2,13 @@ use async_graphql::{self, Context, Object};
 
 use crate::database::{get_conn, PooledConnection};
 use crate::errors::ServiceResult;
-use crate::models::search::order::Paginate;
-use crate::models::user::access::logged::check_authorized;
 use crate::models::relate_ref::program::{
     model::{IptProgramData, Program},
     service::list::get_programs,
     service::register::create_program,
 };
+use crate::models::search::order::Paginate;
+use crate::models::user::access::logged::check_authorized;
 
 use super::attributes::IptPaginate;
 
@@ -27,7 +27,8 @@ impl ProgramQuery {
         program_ids: Option<Vec<i32>>,
         paginate: Option<IptPaginate>,
     ) -> ServiceResult<Vec<Program>> {
-        let p = paginate.map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
+        let p = paginate
+            .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
             .unwrap_or_default();
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
         get_programs(&program_ids.unwrap_or_default(), &p, conn)

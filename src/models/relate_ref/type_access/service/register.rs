@@ -1,8 +1,7 @@
-use crate::errors::{ServiceResult, ServiceError};
-use crate::errors::err_msg::{ErrorMessage, get_err_msg};
+use crate::errors::err_msg::{get_err_msg, ErrorMessage};
+use crate::errors::{ServiceError, ServiceResult};
 use crate::models::relate_ref::type_access::model::{
-    InsertableTypeAccessTranslateList, IptTypeAccessTranslateListData,
-    TypeAccessTranslateList
+    InsertableTypeAccessTranslateList, IptTypeAccessTranslateListData, TypeAccessTranslateList,
 };
 use crate::schema::type_access_ref::dsl as type_access_ref;
 use crate::schema::type_access_translate_list::dsl as type_access_translate_list;
@@ -12,11 +11,14 @@ use diesel::prelude::*;
 /// Возвращает ошибку с идентификатором типа доступа, если он уже существует.
 pub(crate) fn create_type_access(
     data: &IptTypeAccessTranslateListData,
-    conn: &mut PgConnection
+    conn: &mut PgConnection,
 ) -> ServiceResult<TypeAccessTranslateList> {
     let flag_found = type_access_translate_list::type_access_translate_list
-        .filter(type_access_translate_list::lang_id.eq(&data.lang_id)
-        .and(type_access_translate_list::name.eq(&data.name)))
+        .filter(
+            type_access_translate_list::lang_id
+                .eq(&data.lang_id)
+                .and(type_access_translate_list::name.eq(&data.name)),
+        )
         .select(type_access_translate_list::type_access_id)
         .limit(1)
         .load::<i32>(conn)
@@ -28,8 +30,10 @@ pub(crate) fn create_type_access(
     // debug!("fn create_type_access START SEARCH ={:?}", flag_found);
 
     match flag_found.first() {
-        Some(x) =>
-            Err(get_err_msg(ErrorMessage::NameAlreadyThereX("type_access".to_string(), *x))),
+        Some(x) => Err(get_err_msg(ErrorMessage::NameAlreadyThereX(
+            "type_access".to_string(),
+            *x,
+        ))),
         None => {
             let new_type_access_id = diesel::insert_into(type_access_ref::type_access_ref)
                 .default_values()
@@ -53,6 +57,6 @@ pub(crate) fn create_type_access(
                     debug!("Failed insert type_access_translate_list data: {:?}", err);
                     ServiceError::InternalServerError
                 })
-        },
+        }
     }
 }

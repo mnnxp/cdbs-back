@@ -1,38 +1,38 @@
-use crate::errors::ServiceResult;
 use crate::database::{get_conn, PooledConnection};
+use crate::errors::ServiceResult;
 use crate::graphql::{
     component_model::{
-        ComponentAndRelatedData, ShowComponentShort, IptComponentsArg, IptComponentFilesArg,
-        ComponentModificationAndRelatedData
+        ComponentAndRelatedData, ComponentModificationAndRelatedData, IptComponentFilesArg,
+        IptComponentsArg, ShowComponentShort,
     },
     file::ShowFileRelatedData,
     relate::attributes::{IptPaginate, IptSort},
 };
-use crate::models::search::model::{ExtraOptions, IptSearchArg};
-use crate::models::user::access::logged::{get_logged_user_uuid, check_authorized};
 use crate::models::component::{
-    model::{ComponentsArg, ComponentFilesArg},
-    relate::{
-        supplier::model::ComponentSupplierRelatedData,
-        component_type::model::ComponentTypeTranslateList,
-        actual_status::model::ActualStatusTranslateList,
-    },
-    component_modification,
-    component_modification::{
-        model::{ComponentModificationArg, IptModificationFilesArg, ModificationFilesArg},
-        fileset_for_program::model::{FilesetProgramRelatedData, IptFilesetProgramArg, FilesetProgramArg},
-        fileset_for_program::file::model::{IptFileOfFilesetArg, FileOfFilesetArg},
-    },
     access::company::model::CompanyAccessComponentAndRelatedData,
     access::user::model::UserAccessComponentAndRelatedData,
+    component_modification,
+    component_modification::{
+        fileset_for_program::file::model::{FileOfFilesetArg, IptFileOfFilesetArg},
+        fileset_for_program::model::{
+            FilesetProgramArg, FilesetProgramRelatedData, IptFilesetProgramArg,
+        },
+        model::{ComponentModificationArg, IptModificationFilesArg, ModificationFilesArg},
+    },
+    model::{ComponentFilesArg, ComponentsArg},
+    relate::{
+        actual_status::model::ActualStatusTranslateList,
+        component_type::model::ComponentTypeTranslateList,
+        supplier::model::ComponentSupplierRelatedData,
+    },
 };
 use crate::models::relate_ref::{
-    file::model::DownloadFile,
-    keyword::model::Keyword,
+    file::model::DownloadFile, keyword::model::Keyword, language::get_set_language,
     spec::model::SpecTranslateList,
-    language::get_set_language,
 };
+use crate::models::search::model::{ExtraOptions, IptSearchArg};
 use crate::models::search::order::{Paginate, Sort, TableName};
+use crate::models::user::access::logged::{check_authorized, get_logged_user_uuid};
 use async_graphql::{self, Context, Object};
 use uuid::Uuid;
 
@@ -54,9 +54,11 @@ impl ComponentQuery {
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
         // authorization check, search maybe without login (no_entry)
         let options = ExtraOptions::from_cxt(cxt, true)?;
-        let s = sort.map(|s| Sort::parsing(TableName::ComponentRef, &s.by_field, s.as_desc))
+        let s = sort
+            .map(|s| Sort::parsing(TableName::ComponentRef, &s.by_field, s.as_desc))
             .unwrap_or(Sort::set_by_table(TableName::ComponentRef));
-        let p = paginate.map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
+        let p = paginate
+            .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
             .unwrap_or_default();
         get_components_by_uuids(&args, &options, &s, &p, conn)
     }
@@ -75,9 +77,11 @@ impl ComponentQuery {
         let arguments = ComponentsArg::by_arg(args);
         // authorization check, if token verification fails, try to get the default user UUID
         let options = ExtraOptions::from_cxt(cxt, !arguments.favorite)?;
-        let s = sort.map(|s| Sort::parsing(TableName::ComponentRef, &s.by_field, s.as_desc))
+        let s = sort
+            .map(|s| Sort::parsing(TableName::ComponentRef, &s.by_field, s.as_desc))
             .unwrap_or(Sort::set_by_table(TableName::ComponentRef));
-        let p = paginate.map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
+        let p = paginate
+            .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
             .unwrap_or_default();
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
@@ -95,13 +99,12 @@ impl ComponentQuery {
         // authorization check, if token verification fails, try to get the default user UUID
         let options = ExtraOptions::from_cxt(cxt, true)?;
         if options.no_entry {
-            debug!("Get component without login (no_entry): {:?}", component_uuid);
+            debug!(
+                "Get component without login (no_entry): {:?}",
+                component_uuid
+            );
         }
-        get_component_by_uuid(
-            &component_uuid,
-            &options,
-            conn,
-        )
+        get_component_by_uuid(&component_uuid, &options, conn)
     }
 
     /// Returns a list of component modifications by component UUID.
@@ -120,7 +123,7 @@ impl ComponentQuery {
         get_component_modifications(
             &ComponentModificationArg::parsing(component_uuid, filter, sort, paginate),
             &options,
-            conn
+            conn,
         )
     }
 
@@ -136,14 +139,9 @@ impl ComponentQuery {
         let logged_user_uuid = ExtraOptions::from_cxt(cxt, true).map(|eo| eo.logged_user_uuid)?;
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
         let p = paginate
-                .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
-                .unwrap_or_default();
-        get_component_suppliers(
-            &logged_user_uuid,
-            &component_uuid,
-            &p,
-            conn
-        )
+            .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
+            .unwrap_or_default();
+        get_component_suppliers(&logged_user_uuid, &component_uuid, &p, conn)
     }
 
     /// Returns array of keywords associated with the component.
@@ -162,12 +160,7 @@ impl ComponentQuery {
             .unwrap_or_default();
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        get_component_keywords(
-            &logged_user_uuid,
-            &component_uuid,
-            &p,
-            conn
-        )
+        get_component_keywords(&logged_user_uuid, &component_uuid, &p, conn)
     }
 
     /// Returns a list of companies that have access to a component.
@@ -181,11 +174,7 @@ impl ComponentQuery {
         // authorization check
         let options = ExtraOptions::from_cxt(cxt, false)?;
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
-        get_companies_list_access_component(
-            &component_uuid,
-            &options,
-            conn
-        )
+        get_companies_list_access_component(&component_uuid, &options, conn)
     }
 
     /// Returns a list of users who have access to a component.
@@ -200,11 +189,7 @@ impl ComponentQuery {
         let options = ExtraOptions::from_cxt(cxt, false)?;
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        get_users_list_access_component(
-            &component_uuid,
-            &options,
-            conn
-        )
+        get_users_list_access_component(&component_uuid, &options, conn)
     }
 
     /// Returns pre-signed URLs and other information for downloading component files.
@@ -266,12 +251,7 @@ impl ComponentQuery {
             .unwrap_or_default();
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        get_component_specs(
-            &component_uuid,
-            &options,
-            &p,
-            conn
-        )
+        get_component_specs(&component_uuid, &options, &p, conn)
     }
 
     /// Returns pre-signed URLs and other information for downloading component modification files.
@@ -329,11 +309,7 @@ impl ComponentQuery {
         let arguments = FilesetProgramArg::from(args);
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        get_modification_filesets(
-            &logged_user_uuid,
-            &arguments,
-            conn
-        )
+        get_modification_filesets(&logged_user_uuid, &arguments, conn)
     }
 
     /// Returns information about files from a component modification fileset.
@@ -391,11 +367,7 @@ impl ComponentQuery {
         let filter: Vec<i32> = filter.unwrap_or_default();
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        get_component_types(
-            &filter,
-            &get_set_language(cxt),
-            conn
-        )
+        get_component_types(&filter, &get_set_language(cxt), conn)
     }
 
     /// Returns a list of available states (statuses) for components.
@@ -412,10 +384,6 @@ impl ComponentQuery {
         let filter: Vec<i32> = filter.unwrap_or_default();
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        get_actual_statuses(
-            &filter,
-            &get_set_language(cxt),
-            conn
-        )
+        get_actual_statuses(&filter, &get_set_language(cxt), conn)
     }
 }

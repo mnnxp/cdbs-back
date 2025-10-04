@@ -20,7 +20,7 @@ impl EngLangName {
 
         match *target_language_id {
             2 => "russian".into(),
-            _ => "english".into()
+            _ => "english".into(),
         }
     }
 }

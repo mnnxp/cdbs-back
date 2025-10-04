@@ -1,4 +1,4 @@
-use crate::errors::{ServiceResult, ServiceError};
+use crate::errors::{ServiceError, ServiceResult};
 use crate::models::component::actual_status::model::ActualStatusTranslateList;
 use crate::schema::actual_status_translate_list::dsl as actual_status_translate_list;
 use diesel::prelude::*;
@@ -11,8 +11,11 @@ impl ActualStatusTranslateList {
         conn: &mut PgConnection,
     ) -> ServiceResult<ActualStatusTranslateList> {
         let actual_status = actual_status_translate_list::actual_status_translate_list
-            .filter(actual_status_translate_list::actual_status_id.eq(target_actual_status_id)
-            .and(actual_status_translate_list::lang_id.eq(set_lang_id)))
+            .filter(
+                actual_status_translate_list::actual_status_id
+                    .eq(target_actual_status_id)
+                    .and(actual_status_translate_list::lang_id.eq(set_lang_id)),
+            )
             .limit(1)
             .load::<ActualStatusTranslateList>(conn)
             .map_err(|err| {
@@ -26,13 +29,15 @@ impl ActualStatusTranslateList {
             None => {
                 debug!("Not found set lang for actual status");
                 actual_status_translate_list::actual_status_translate_list
-                    .filter(actual_status_translate_list::actual_status_id.eq(target_actual_status_id))
+                    .filter(
+                        actual_status_translate_list::actual_status_id.eq(target_actual_status_id),
+                    )
                     .first::<ActualStatusTranslateList>(conn)
                     .map_err(|err| {
                         debug!("Failed get actual status: {:?}", err);
                         ServiceError::InternalServerError
                     })
-            },
+            }
         }
     }
 
@@ -48,8 +53,11 @@ impl ActualStatusTranslateList {
                 .filter(actual_status_translate_list::lang_id.eq(set_lang_id))
                 .load::<ActualStatusTranslateList>(conn),
             false => actual_status_translate_list::actual_status_translate_list
-                .filter(actual_status_translate_list::actual_status_id.eq_any(filter)
-                .and(actual_status_translate_list::lang_id.eq(set_lang_id)))
+                .filter(
+                    actual_status_translate_list::actual_status_id
+                        .eq_any(filter)
+                        .and(actual_status_translate_list::lang_id.eq(set_lang_id)),
+                )
                 .load::<ActualStatusTranslateList>(conn),
         };
 

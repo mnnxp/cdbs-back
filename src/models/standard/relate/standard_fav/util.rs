@@ -1,4 +1,4 @@
-use crate::errors::{ServiceResult, ServiceError};
+use crate::errors::{ServiceError, ServiceResult};
 use crate::schema::standard_fav::dsl as standard_fav;
 use diesel::prelude::*;
 use uuid::Uuid;
@@ -10,9 +10,12 @@ pub(crate) fn check_subscriber_by_uuid(
     conn: &mut PgConnection,
 ) -> ServiceResult<bool> {
     let check_subscriber = standard_fav::standard_fav
-        .filter(standard_fav::standard_uuid.eq(target_standard_uuid)
-        .and(standard_fav::user_uuid.eq(target_user_uuid))
-        .and(standard_fav::is_enabled.eq(true)))
+        .filter(
+            standard_fav::standard_uuid
+                .eq(target_standard_uuid)
+                .and(standard_fav::user_uuid.eq(target_user_uuid))
+                .and(standard_fav::is_enabled.eq(true)),
+        )
         .execute(conn)
         .map_err(|err| {
             debug!("Fail load uuid list target user: {:?}", err);

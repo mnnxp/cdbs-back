@@ -11,9 +11,12 @@ pub(crate) fn delete_user_fav(
 ) -> ServiceResult<bool> {
     // if have need row, just update is_enabled to false
     let del_fav = diesel::update(user_fav::user_fav)
-        .filter(user_fav::user_favorite_uuid.eq(user_favorite_uuid)
-        .and(user_fav::user_follower_uuid.eq(logged_user_uuid))
-        .and(user_fav::is_enabled.eq(true))) // <-- active favorite
+        .filter(
+            user_fav::user_favorite_uuid
+                .eq(user_favorite_uuid)
+                .and(user_fav::user_follower_uuid.eq(logged_user_uuid))
+                .and(user_fav::is_enabled.eq(true)),
+        ) // <-- active favorite
         .set(user_fav::is_enabled.eq(false)) // <-- off favorite user
         .returning(user_fav::is_enabled)
         .get_result::<bool>(conn)

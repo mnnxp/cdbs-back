@@ -1,26 +1,26 @@
-use crate::{errors::{ServiceError, ServiceResult}, models::search::order::Paginate};
 use super::{
-    model::{
-        SlimUser, UserQuery, UserShort, ShowUserShort,
-        UserAndRelatedData, ShowUserAndRelatedData,
-    },
-    certificate::model::UserCertificateAndFile,
-    user_fav::model::UserFav,
     access::util::check_access_user_for_user,
-    relate::util::{count_components_for_user,count_standards_for_user, count_companies_for_user},
+    certificate::model::UserCertificateAndFile,
+    model::{
+        ShowUserAndRelatedData, ShowUserShort, SlimUser, UserAndRelatedData, UserQuery, UserShort,
+    },
+    relate::util::{count_companies_for_user, count_components_for_user, count_standards_for_user},
+    user_fav::model::UserFav,
 };
 use crate::models::{
     company::company_fav::model::CompanyFav,
     component::component_fav::model::ComponentFav,
-    standard::standard_fav::model::StandardFav,
     relate_ref::{
-        file::model::DownloadFile,
-        program::model::Program,
-        region::model::RegionTranslateList,
+        file::model::DownloadFile, program::model::Program, region::model::RegionTranslateList,
         type_access::model::TypeAccessTranslateList,
     },
+    standard::standard_fav::model::StandardFav,
 };
 use crate::schema::user_ref::dsl as user_ref;
+use crate::{
+    errors::{ServiceError, ServiceResult},
+    models::search::order::Paginate,
+};
 use diesel::prelude::*;
 use uuid::Uuid;
 
@@ -31,14 +31,13 @@ impl SlimUser {
         conn: &mut PgConnection,
     ) -> ServiceResult<SlimUser> {
         user_ref::user_ref
-            .filter(user_ref::uuid.eq(target_user_uuid)
-            .and(user_ref::is_enabled.eq(true))
-            .and(user_ref::is_delete.eq(false)))
-            .select((
-                user_ref::uuid,
-                user_ref::username,
-                user_ref::program_id,
-            ))
+            .filter(
+                user_ref::uuid
+                    .eq(target_user_uuid)
+                    .and(user_ref::is_enabled.eq(true))
+                    .and(user_ref::is_delete.eq(false)),
+            )
+            .select((user_ref::uuid, user_ref::username, user_ref::program_id))
             .first::<SlimUser>(conn)
             .map_err(|err| {
                 debug!("Failed get user: {:?}", err);
@@ -54,9 +53,12 @@ impl UserQuery {
         conn: &mut PgConnection,
     ) -> ServiceResult<UserQuery> {
         user_ref::user_ref
-            .filter(user_ref::uuid.eq(target_user_uuid)
-            .and(user_ref::is_enabled.eq(true))
-            .and(user_ref::is_delete.eq(false)))
+            .filter(
+                user_ref::uuid
+                    .eq(target_user_uuid)
+                    .and(user_ref::is_enabled.eq(true))
+                    .and(user_ref::is_delete.eq(false)),
+            )
             .select((
                 user_ref::uuid,
                 user_ref::email,
@@ -91,22 +93,25 @@ impl UserShort {
         target_user_uuid: &Uuid,
         conn: &mut PgConnection,
     ) -> ServiceResult<UserShort> {
-    user_ref::user_ref
-        .select((
-            user_ref::uuid,
-            user_ref::firstname,
-            user_ref::lastname,
-            user_ref::username,
-            user_ref::image_file_uuid,
-        ))
-        .filter(user_ref::uuid.eq(target_user_uuid)
-            .and(user_ref::is_enabled.eq(true))
-            .and(user_ref::is_delete.eq(false)))
-        .first::<UserShort>(conn)
-        .map_err(|err| {
-            debug!("Failed get user: {:?}", err);
-            ServiceError::InternalServerError
-        })
+        user_ref::user_ref
+            .select((
+                user_ref::uuid,
+                user_ref::firstname,
+                user_ref::lastname,
+                user_ref::username,
+                user_ref::image_file_uuid,
+            ))
+            .filter(
+                user_ref::uuid
+                    .eq(target_user_uuid)
+                    .and(user_ref::is_enabled.eq(true))
+                    .and(user_ref::is_delete.eq(false)),
+            )
+            .first::<UserShort>(conn)
+            .map_err(|err| {
+                debug!("Failed get user: {:?}", err);
+                ServiceError::InternalServerError
+            })
     }
 }
 
@@ -120,12 +125,7 @@ impl ShowUserShort {
         let need_access_level = 3; // todo!(create enum for manage access level)
 
         // check access user for target user
-        check_access_user_for_user(
-            logged_user_uuid,
-            target_user_uuid,
-            &need_access_level,
-            conn
-        )?;
+        check_access_user_for_user(logged_user_uuid, target_user_uuid, &need_access_level, conn)?;
 
         ShowUserShort::get_without_check_by_uuid(target_user_uuid, conn)
     }
@@ -140,7 +140,7 @@ impl ShowUserShort {
         let mut data = ShowUserShort::new(&user_data);
         data.put_image_file(DownloadFile::get_by_file_uuid(
             &user_data.image_file_uuid,
-            conn
+            conn,
         )?);
 
         Ok(data)
@@ -159,9 +159,12 @@ impl ShowUserShort {
                 user_ref::username,
                 user_ref::image_file_uuid,
             ))
-            .filter(user_ref::type_access_id.eq(3)
-                .and(user_ref::is_enabled.eq(true))
-                .and(user_ref::is_delete.eq(false)))
+            .filter(
+                user_ref::type_access_id
+                    .eq(3)
+                    .and(user_ref::is_enabled.eq(true))
+                    .and(user_ref::is_delete.eq(false)),
+            )
             .limit(paginate.limit)
             .offset(paginate.offset)
             .load::<UserShort>(conn)
@@ -173,10 +176,7 @@ impl ShowUserShort {
         let mut users_with_image: Vec<ShowUserShort> = Vec::new();
         for user in users.iter() {
             let mut data = ShowUserShort::new(user);
-            data.put_image_file(DownloadFile::get_by_file_uuid(
-                &user.image_file_uuid,
-                conn
-            )?);
+            data.put_image_file(DownloadFile::get_by_file_uuid(&user.image_file_uuid, conn)?);
 
             users_with_image.push(data);
         }
@@ -192,15 +192,11 @@ impl ShowUserShort {
     ) -> ServiceResult<Vec<ShowUserShort>> {
         let mut result: Vec<ShowUserShort> = Vec::new();
         for target_user_uuid in target_users_uuids.iter() {
-            match ShowUserShort::get_by_uuid(
-                logged_user_uuid,
-                target_user_uuid,
-                conn
-            ) {
+            match ShowUserShort::get_by_uuid(logged_user_uuid, target_user_uuid, conn) {
                 Ok(value) => result.push(value),
                 Err(err) => {
                     debug!("Failed get user short data: {:?}", err);
-                },
+                }
             }
         }
 
@@ -216,87 +212,63 @@ impl UserAndRelatedData {
         conn: &mut PgConnection,
     ) -> ServiceResult<UserAndRelatedData> {
         // collect data for user
-        let user: UserQuery = UserQuery::get_user_by_uuid(
-            target_user_uuid,
-            conn
-        ).expect("Error loading user");
+        let user: UserQuery =
+            UserQuery::get_user_by_uuid(target_user_uuid, conn).expect("Error loading user");
 
         // get image file (favicon) for user
-        let image_file = DownloadFile::get_by_file_uuid(
-            &user.image_file_uuid,
-            conn
-        ).expect("Error loading user file");
+        let image_file = DownloadFile::get_by_file_uuid(&user.image_file_uuid, conn)
+            .expect("Error loading user file");
 
         // get region for user
-        let region: RegionTranslateList = RegionTranslateList::get_region_by_id(
-            &user.region_id,
-            set_lang_id,
-            conn
-        ).expect("Error loading user_type");
+        let region: RegionTranslateList =
+            RegionTranslateList::get_region_by_id(&user.region_id, set_lang_id, conn)
+                .expect("Error loading user_type");
 
         // get program set default for user
-        let program: Program = Program::get_program_by_id(
-            &user.program_id,
-            conn
-        ).expect("Error get set program");
+        let program: Program =
+            Program::get_program_by_id(&user.program_id, conn).expect("Error get set program");
 
         // get type access set for user profile
-        let type_access: TypeAccessTranslateList = TypeAccessTranslateList::get_type_access_by_id(
-            &user.type_access_id,
-            set_lang_id,
-            conn
-        ).expect("Error get set type access");
+        let type_access: TypeAccessTranslateList =
+            TypeAccessTranslateList::get_type_access_by_id(&user.type_access_id, set_lang_id, conn)
+                .expect("Error get set type access");
 
         // count subscribers user
         let subscribers: i32 = UserFav::get_count_followers_by_uuid(&user.uuid, conn)?;
 
         // get certificates with slimfile for user
-        let certificates: Vec<UserCertificateAndFile> = UserCertificateAndFile::from_user(
-            &user.uuid,
-            conn
-        ).expect("Error loading spec user with translate");
+        let certificates: Vec<UserCertificateAndFile> =
+            UserCertificateAndFile::from_user(&user.uuid, conn)
+                .expect("Error loading spec user with translate");
 
         // counting companies owned by the user
-        let companies_count = count_companies_for_user(
-            target_user_uuid,
-            conn
-        ).expect("Error get count companies_count");
+        let companies_count = count_companies_for_user(target_user_uuid, conn)
+            .expect("Error get count companies_count");
 
         // counting components owned by the user
-        let components_count = count_components_for_user(
-            target_user_uuid,
-            conn
-        ).expect("Error get count components_count");
+        let components_count = count_components_for_user(target_user_uuid, conn)
+            .expect("Error get count components_count");
 
         // counting standards owned by the user
-        let standards_count = count_standards_for_user(
-            target_user_uuid,
-            conn
-        ).expect("Error get count standards_count");
+        let standards_count = count_standards_for_user(target_user_uuid, conn)
+            .expect("Error get count standards_count");
 
         // counting companies in a user's favorite
-        let fav_companies_count: i32 = CompanyFav::get_count_by_user_uuid(
-            target_user_uuid,
-            conn
-        ).expect("Error get count fav_companies_count");
+        let fav_companies_count: i32 = CompanyFav::get_count_by_user_uuid(target_user_uuid, conn)
+            .expect("Error get count fav_companies_count");
 
         // counting components in a user's favorite
-        let fav_components_count: i32 = ComponentFav::get_count_by_user_uuid(
-            target_user_uuid,
-            conn
-        ).expect("Error get count fav_components_count");
+        let fav_components_count: i32 =
+            ComponentFav::get_count_by_user_uuid(target_user_uuid, conn)
+                .expect("Error get count fav_components_count");
 
         // counting standards in a user's favorite
-        let fav_standards_count: i32 = StandardFav::get_count_by_user_uuid(
-            target_user_uuid,
-            conn
-        ).expect("Error get count fav_standards_count");
+        let fav_standards_count: i32 = StandardFav::get_count_by_user_uuid(target_user_uuid, conn)
+            .expect("Error get count fav_standards_count");
 
         // counting users in a user's favorite
-        let fav_users_count: i32 = UserFav::get_count_favorites_by_uuid(
-            target_user_uuid,
-            conn
-        ).expect("Error get count fav_users_count");
+        let fav_users_count: i32 = UserFav::get_count_favorites_by_uuid(target_user_uuid, conn)
+            .expect("Error get count fav_users_count");
 
         Ok(UserAndRelatedData {
             uuid: user.uuid,
@@ -339,45 +311,37 @@ impl ShowUserAndRelatedData {
         conn: &mut PgConnection,
     ) -> ServiceResult<ShowUserAndRelatedData> {
         // collect data for user
-        let user: UserQuery = UserQuery::get_user_by_uuid(
-            target_user_uuid,
-            conn
-        ).expect("Error loading user");
+        let user: UserQuery =
+            UserQuery::get_user_by_uuid(target_user_uuid, conn).expect("Error loading user");
 
         // get image file (favicon) for user
-        let image_file = DownloadFile::get_by_file_uuid(
-            &user.image_file_uuid,
-            conn
-        ).expect("Error loading user file");
+        let image_file = DownloadFile::get_by_file_uuid(&user.image_file_uuid, conn)
+            .expect("Error loading user file");
 
         // get region for user
-        let region: RegionTranslateList = RegionTranslateList::get_region_by_id(
-            &user.region_id,
-            set_lang_id,
-            conn
-        ).expect("Error loading user_type");
+        let region: RegionTranslateList =
+            RegionTranslateList::get_region_by_id(&user.region_id, set_lang_id, conn)
+                .expect("Error loading user_type");
 
         // get program set default for user
-        let program: Program = Program::get_program_by_id(
-            &user.program_id,
-            conn
-        ).expect("Error get set program");
+        let program: Program =
+            Program::get_program_by_id(&user.program_id, conn).expect("Error get set program");
 
         // check whether the object is being tracked auth user
         let is_followed = crate::models::user::user_fav::util::check_subscriber_by_uuid(
             target_user_uuid,
             logged_user_uuid,
-            conn
-        ).expect("Error get value is_followed");
+            conn,
+        )
+        .expect("Error get value is_followed");
 
         // count subscribers user
         let subscribers: i32 = UserFav::get_count_followers_by_uuid(&user.uuid, conn)?;
 
         // get certificates with slimfile for user
-        let certificates: Vec<UserCertificateAndFile> = UserCertificateAndFile::from_user(
-            &user.uuid,
-            conn
-        ).expect("Error loading spec user with translate");
+        let certificates: Vec<UserCertificateAndFile> =
+            UserCertificateAndFile::from_user(&user.uuid, conn)
+                .expect("Error loading spec user with translate");
 
         Ok(ShowUserAndRelatedData {
             uuid: user.uuid,
@@ -408,19 +372,14 @@ impl ShowUserAndRelatedData {
         let need_access_level = 3; // todo!(create enum for manage access level)
 
         // check access user for user
-        check_access_user_for_user(
-            logged_user_uuid,
-            target_user_uuid,
-            &need_access_level,
-            conn
-        )?;
+        check_access_user_for_user(logged_user_uuid, target_user_uuid, &need_access_level, conn)?;
 
         // collect data for user
         ShowUserAndRelatedData::collect_related_data(
             target_user_uuid,
             logged_user_uuid,
             set_lang_id,
-            conn
+            conn,
         )
     }
 }

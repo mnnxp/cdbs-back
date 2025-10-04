@@ -1,7 +1,5 @@
-use crate::errors::{ServiceResult, ServiceError};
-use crate::models::company::certificate::model::{
-    CompanyCertificate, CompanyCertificateAndFile,
-};
+use crate::errors::{ServiceError, ServiceResult};
+use crate::models::company::certificate::model::{CompanyCertificate, CompanyCertificateAndFile};
 use crate::models::relate_ref::file::model::DownloadFile;
 use crate::schema::company_certificate_ref::dsl as company_certificate_ref;
 use diesel::prelude::*;
@@ -24,7 +22,7 @@ impl CompanyCertificateAndFile {
         let mut company_certificates = Vec::new();
         for cert in &certificates_company {
             let file = DownloadFile::get_by_file_uuid(&cert.file_uuid, conn)?;
-            company_certificates.push(CompanyCertificateAndFile{
+            company_certificates.push(CompanyCertificateAndFile {
                 file: file.clone(),
                 company_uuid: cert.company_uuid,
                 description: cert.description.clone(),

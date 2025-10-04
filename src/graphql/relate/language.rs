@@ -1,13 +1,10 @@
-use async_graphql::{self, Context, Object};
-use crate::graphql::relate::attributes::IptPaginate;
 use crate::database::{get_conn, PooledConnection};
 use crate::errors::ServiceResult;
+use crate::graphql::relate::attributes::IptPaginate;
+use crate::models::relate_ref::language::{model::Language, service::list::get_languages};
 use crate::models::search::order::Paginate;
 use crate::models::user::access::logged::check_authorized;
-use crate::models::relate_ref::language::{
-    model::Language,
-    service::list::get_languages,
-};
+use async_graphql::{self, Context, Object};
 
 #[derive(Default)]
 pub struct LanguageQuery;
@@ -23,7 +20,8 @@ impl LanguageQuery {
     ) -> ServiceResult<Vec<Language>> {
         // authorization check
         check_authorized(cxt)?;
-        let p = paginate.map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
+        let p = paginate
+            .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
             .unwrap_or_default();
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
         get_languages(&lang_ids.unwrap_or_default(), &p, conn)

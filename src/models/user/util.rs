@@ -1,18 +1,19 @@
-use crate::errors::{ServiceResult, ServiceError};
-use crate::errors::err_msg::{ErrorMessage, get_err_msg};
+use crate::errors::err_msg::{get_err_msg, ErrorMessage};
+use crate::errors::{ServiceError, ServiceResult};
 use crate::schema::user_ref::dsl as user_ref;
 use diesel::prelude::*;
 use uuid::Uuid;
 
 /// Get user_uuid by username
-pub(crate) fn get_uuid_by_username(
-    username: &str,
-    conn: &mut PgConnection,
-) -> ServiceResult<Uuid> {
+pub(crate) fn get_uuid_by_username(username: &str, conn: &mut PgConnection) -> ServiceResult<Uuid> {
     user_ref::user_ref
-        .filter(user_ref::username.eq(username)
-        .and(user_ref::is_enabled.eq(true)
-        .and(user_ref::is_delete.eq(false))))
+        .filter(
+            user_ref::username.eq(username).and(
+                user_ref::is_enabled
+                    .eq(true)
+                    .and(user_ref::is_delete.eq(false)),
+            ),
+        )
         .select(user_ref::uuid)
         .first::<Uuid>(conn)
         .map_err(|err| {
@@ -23,10 +24,7 @@ pub(crate) fn get_uuid_by_username(
 
 /// Checking if a username already used
 /// (trim is applied to the passed username)
-pub(crate) fn check_use_username(
-    username: &str,
-    conn: &mut PgConnection,
-) -> ServiceResult<bool> {
+pub(crate) fn check_use_username(username: &str, conn: &mut PgConnection) -> ServiceResult<bool> {
     let found = user_ref::user_ref
         .filter(user_ref::username.eq(username.trim()))
         .limit(1)

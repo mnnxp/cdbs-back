@@ -1,11 +1,11 @@
-use crate::errors::{ServiceResult, ServiceError};
-use crate::errors::err_msg::{ErrorMessage, get_err_msg};
 use crate::database::{get_conn, PooledConnection};
+use crate::errors::err_msg::{get_err_msg, ErrorMessage};
+use crate::errors::{ServiceError, ServiceResult};
+use crate::jwt::model::{Claims, Token};
 use crate::models::user::{
+    access::model::{InsertableUserToken, UserToken},
     model::SlimUser,
-    access::model::{UserToken, InsertableUserToken},
 };
-use crate::jwt::model::{Token, Claims};
 use crate::schema::user_token_ref::dsl as user_token_ref;
 use async_graphql::Context;
 // use chrono::NaiveDateTime;
@@ -13,9 +13,7 @@ use diesel::prelude::*;
 use uuid::Uuid;
 
 /// get token from request
-pub(crate) fn token_from_cxt(
-    cxt: &Context<'_>
-) -> ServiceResult<String> {
+pub(crate) fn token_from_cxt(cxt: &Context<'_>) -> ServiceResult<String> {
     let token = match cxt.data_opt::<Token>() {
         Some(token) => token.clone(),
         None => Token { bearer: None },
@@ -41,26 +39,20 @@ pub(crate) fn show_tokens(
 }
 
 /// get SlimUser from Claims
-pub(crate) fn get_slim_user(
-    jwt: Claims
-) -> ServiceResult<SlimUser> {
-    SlimUser::try_from(jwt)
-        .map_err(|_| get_err_msg(ErrorMessage::FailGetUserData))
+pub(crate) fn get_slim_user(jwt: Claims) -> ServiceResult<SlimUser> {
+    SlimUser::try_from(jwt).map_err(|_| get_err_msg(ErrorMessage::FailGetUserData))
 }
 
 /// updating a token with or without removing the old one
-pub(crate) fn update(
-    cxt: &Context<'_>,
-    flag_delete_token: bool,
-) -> ServiceResult<Token> {
-    use crate::models::user::access::token::{generate, decode};
+pub(crate) fn update(cxt: &Context<'_>, flag_delete_token: bool) -> ServiceResult<Token> {
+    use crate::models::user::access::token::{decode, generate};
 
     let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
     // get old token
     let old_token = token_from_cxt(cxt)?;
     if !check_token(old_token.as_str(), conn)? {
-        return Err(get_err_msg(ErrorMessage::TokenIsInvalid))
+        return Err(get_err_msg(ErrorMessage::TokenIsInvalid));
     }
 
     // decrypt old token
@@ -88,7 +80,7 @@ pub(crate) fn update(
 /// delete token to table user_token_ref of database
 pub(crate) fn delete_token(
     target_token: &str,
-    conn: &mut PgConnection
+    conn: &mut PgConnection,
 ) -> ServiceResult<UserToken> {
     diesel::delete(user_token_ref::user_token_ref)
         .filter(user_token_ref::token.eq(&target_token))
@@ -106,8 +98,11 @@ pub(crate) fn delete_user_token(
     conn: &mut PgConnection,
 ) -> ServiceResult<bool> {
     let delete_token = diesel::delete(user_token_ref::user_token_ref)
-        .filter(user_token_ref::user_uuid.eq(&logged_user_uuid)
-        .and(user_token_ref::token.eq(&target_token)))
+        .filter(
+            user_token_ref::user_uuid
+                .eq(&logged_user_uuid)
+                .and(user_token_ref::token.eq(&target_token)),
+        )
         .execute(conn)
         .map_err(|err| {
             debug!("Failed delete token: {:?}", err);
@@ -162,22 +157,22 @@ pub(crate) fn write_token(
                     debug!("Failed check token: {:?}", err);
                     ServiceError::InternalServerError
                 })
-        },
+        }
         1 => Err(get_err_msg(ErrorMessage::PleaseTryAgainLater)),
         _ => Err(ServiceError::InternalServerError), // found duplicates token
     }
 }
 
 /// check token for validity
-pub(crate) fn check_token(
-    target_token: &str,
-    conn: &mut PgConnection,
-) -> ServiceResult<bool> {
+pub(crate) fn check_token(target_token: &str, conn: &mut PgConnection) -> ServiceResult<bool> {
     let naive_local_now = chrono::Local::now().naive_local();
 
     let get_token = user_token_ref::user_token_ref
-        .filter(user_token_ref::token.eq(target_token)
-        .and(user_token_ref::expiration_at.gt(naive_local_now)))
+        .filter(
+            user_token_ref::token
+                .eq(target_token)
+                .and(user_token_ref::expiration_at.gt(naive_local_now)),
+        )
         .execute(conn)
         .map_err(|err| {
             debug!("Failed check token: {:?}", err);
@@ -192,10 +187,7 @@ pub(crate) fn check_token(
 }
 
 /// get the user_uuid who owns the token
-pub(crate) fn whose_token(
-    target_token: &str,
-    conn: &mut PgConnection,
-) -> ServiceResult<Uuid> {
+pub(crate) fn whose_token(target_token: &str, conn: &mut PgConnection) -> ServiceResult<Uuid> {
     user_token_ref::user_token_ref
         .filter(user_token_ref::token.eq(target_token))
         .select(user_token_ref::user_uuid)

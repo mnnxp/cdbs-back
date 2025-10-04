@@ -1,9 +1,7 @@
-use crate::errors::{ServiceResult, ServiceError};
-use crate::errors::err_msg::{ErrorMessage, get_err_msg};
-use crate::models::company::spec::model::{
-    IptCompanySpecsData, DelCompanySpec
-};
+use crate::errors::err_msg::{get_err_msg, ErrorMessage};
+use crate::errors::{ServiceError, ServiceResult};
 use crate::models::company::access::util::check_company_access;
+use crate::models::company::spec::model::{DelCompanySpec, IptCompanySpecsData};
 use diesel::prelude::*;
 use uuid::Uuid;
 
@@ -11,7 +9,7 @@ use uuid::Uuid;
 pub(crate) fn del_company_specs(
     logged_user_uuid: &Uuid,
     data: &IptCompanySpecsData,
-    conn: &mut PgConnection
+    conn: &mut PgConnection,
 ) -> ServiceResult<usize> {
     use crate::schema::spec_to_company::dsl::*;
 
@@ -21,7 +19,7 @@ pub(crate) fn del_company_specs(
         logged_user_uuid,
         &data.company_uuid,
         &need_access_level,
-        conn
+        conn,
     )?;
 
     // creating structures for delete records
@@ -29,12 +27,15 @@ pub(crate) fn del_company_specs(
 
     if del_specs.spec_ids.is_empty() {
         // return error if not found correct specs
-        return Err(get_err_msg(ErrorMessage::NotFoundSpecs))
+        return Err(get_err_msg(ErrorMessage::NotFoundSpecs));
     }
 
     diesel::delete(spec_to_company)
-        .filter(company_uuid.eq(&del_specs.company_uuid)
-        .and(spec_id.eq_any(&del_specs.spec_ids)))
+        .filter(
+            company_uuid
+                .eq(&del_specs.company_uuid)
+                .and(spec_id.eq_any(&del_specs.spec_ids)),
+        )
         .execute(conn)
         .map_err(|err| {
             debug!("Fail inserted spec: {:?}", err);

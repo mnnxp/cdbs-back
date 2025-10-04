@@ -1,6 +1,4 @@
 use crate::schema::*;
-use crate::models::standard::model::Standard;
-use crate::models::relate_ref::language::model::Language;
 use async_graphql::*;
 
 #[derive(Identifiable, Serialize, Deserialize, Queryable, Debug)]
@@ -17,11 +15,7 @@ pub(crate) struct InsertableStandardStatus {
 }
 
 /// Information about the status of the standard with localization
-#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations)]
-#[derive(SimpleObject, Clone, Debug)]
-#[diesel(primary_key(standard_status_id, lang_id))]
-#[diesel(belongs_to(Standard, foreign_key = standard_status_id))]
-#[diesel(belongs_to(Language, foreign_key = lang_id))]
+#[derive(Serialize, Deserialize, Queryable, SimpleObject, Clone, Debug)]
 #[diesel(table_name = standard_status_translate_list)]
 pub(crate) struct StandardStatusTranslateList {
     /// Status of the standard identifier

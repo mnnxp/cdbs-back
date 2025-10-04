@@ -1,15 +1,10 @@
-use crate::schema::*;
-use crate::models::component::component_modification::model::ComponentModification;
 use crate::models::relate_ref::program::model::Program;
+use crate::schema::*;
 use async_graphql::*;
 // use chrono::*;
 use uuid::Uuid;
 
-#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations)]
-#[derive(PartialEq, Clone, Debug)]
-#[diesel(primary_key(uuid))]
-#[diesel(belongs_to(ComponentModification, foreign_key = modification_uuid))]
-#[diesel(belongs_to(Program, foreign_key = program_id))]
+#[derive(PartialEq, Serialize, Deserialize, Queryable, SimpleObject, Clone, Debug)]
 #[diesel(table_name = fileset_for_program)]
 pub(crate) struct FilesetProgram {
     pub(crate) uuid: Uuid,

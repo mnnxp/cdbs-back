@@ -1,11 +1,11 @@
+use crate::errors::err_msg::{get_err_msg, ErrorMessage};
 use crate::errors::ServiceResult;
-use crate::errors::err_msg::{ErrorMessage, get_err_msg};
 use crate::graphql::component_model::IptUpdateComponentData;
 use crate::models::component::access::util::check_access_component_for_user;
-use crate::schema::component_ref::dsl as component_ref;
 use crate::schema::component_modification_list::dsl as component_modification_list;
-use diesel::prelude::*;
+use crate::schema::component_ref::dsl as component_ref;
 use chrono::Local;
+use diesel::prelude::*;
 use uuid::Uuid;
 
 /// Обновляет основные данные компонента по UUID.
@@ -16,6 +16,17 @@ pub(crate) fn update_component_by_uuid(
     data: &IptUpdateComponentData,
     conn: &mut PgConnection,
 ) -> ServiceResult<usize> {
+    // update data validation
+    if data
+        .description
+        .as_ref()
+        .map(|d| d.len())
+        .unwrap_or_default()
+        > 50000
+    {
+        return Err(get_err_msg(ErrorMessage::TextMustLess(50000)));
+    }
+
     // need top level access for change component main data
     let need_access_level = 1; // todo!(create enum for manage access level)
 
@@ -31,67 +42,87 @@ pub(crate) fn update_component_by_uuid(
 
     // update column parent_component_uuid
     if let Some(value) = &data.parent_component_uuid {
-        count_update_columns += diesel::update(component_ref::component_ref
-            .filter(component_ref::uuid.eq(target_component_uuid)
-            .and(component_ref::parent_component_uuid.ne(value))))
-            .set(component_ref::parent_component_uuid.eq(value))
-            .execute(conn)
-            .map_err(|err| {
-                debug!("Failed update data: {:?}", err);
-                get_err_msg(ErrorMessage::FailedUpdateData)
-            })?;
+        count_update_columns += diesel::update(
+            component_ref::component_ref.filter(
+                component_ref::uuid
+                    .eq(target_component_uuid)
+                    .and(component_ref::parent_component_uuid.ne(value)),
+            ),
+        )
+        .set(component_ref::parent_component_uuid.eq(value))
+        .execute(conn)
+        .map_err(|err| {
+            debug!("Failed update data: {:?}", err);
+            get_err_msg(ErrorMessage::FailedUpdateData)
+        })?;
     }
 
     // update column name
     if let Some(value) = &data.name {
-        count_update_columns += diesel::update(component_ref::component_ref
-            .filter(component_ref::uuid.eq(target_component_uuid)
-            .and(component_ref::name.ne(value))))
-            .set(component_ref::name.eq(value))
-            .execute(conn)
-            .map_err(|err| {
-                debug!("Failed update data: {:?}", err);
-                get_err_msg(ErrorMessage::FailedUpdateData)
-            })?;
+        count_update_columns += diesel::update(
+            component_ref::component_ref.filter(
+                component_ref::uuid
+                    .eq(target_component_uuid)
+                    .and(component_ref::name.ne(value)),
+            ),
+        )
+        .set(component_ref::name.eq(value))
+        .execute(conn)
+        .map_err(|err| {
+            debug!("Failed update data: {:?}", err);
+            get_err_msg(ErrorMessage::FailedUpdateData)
+        })?;
     }
 
     // update column description
     if let Some(value) = &data.description {
-        count_update_columns += diesel::update(component_ref::component_ref
-            .filter(component_ref::uuid.eq(target_component_uuid)
-            .and(component_ref::description.ne(value))))
-            .set(component_ref::description.eq(value))
-            .execute(conn)
-            .map_err(|err| {
-                debug!("Failed update data: {:?}", err);
-                get_err_msg(ErrorMessage::FailedUpdateData)
-            })?;
+        count_update_columns += diesel::update(
+            component_ref::component_ref.filter(
+                component_ref::uuid
+                    .eq(target_component_uuid)
+                    .and(component_ref::description.ne(value)),
+            ),
+        )
+        .set(component_ref::description.eq(value))
+        .execute(conn)
+        .map_err(|err| {
+            debug!("Failed update data: {:?}", err);
+            get_err_msg(ErrorMessage::FailedUpdateData)
+        })?;
     }
 
     // update column component_type_id
     if let Some(value) = &data.component_type_id {
-        count_update_columns += diesel::update(component_ref::component_ref
-            .filter(component_ref::uuid.eq(target_component_uuid)
-            .and(component_ref::component_type_id.ne(value))))
-            .set(component_ref::component_type_id.eq(value))
-            .execute(conn)
-            .map_err(|err| {
-                debug!("Failed update data: {:?}", err);
-                get_err_msg(ErrorMessage::FailedUpdateData)
-            })?;
+        count_update_columns += diesel::update(
+            component_ref::component_ref.filter(
+                component_ref::uuid
+                    .eq(target_component_uuid)
+                    .and(component_ref::component_type_id.ne(value)),
+            ),
+        )
+        .set(component_ref::component_type_id.eq(value))
+        .execute(conn)
+        .map_err(|err| {
+            debug!("Failed update data: {:?}", err);
+            get_err_msg(ErrorMessage::FailedUpdateData)
+        })?;
     }
 
     // update column actual_status_id
     if let Some(value) = &data.actual_status_id {
-        count_update_columns += diesel::update(component_ref::component_ref
-            .filter(component_ref::uuid.eq(target_component_uuid)
-            .and(component_ref::actual_status_id.ne(value))))
-            .set(component_ref::actual_status_id.eq(value))
-            .execute(conn)
-            .map_err(|err| {
-                debug!("Failed update data: {:?}", err);
-                get_err_msg(ErrorMessage::FailedUpdateData)
-            })?;
+        count_update_columns += diesel::update(
+            component_ref::component_ref.filter(
+                component_ref::uuid
+                    .eq(target_component_uuid)
+                    .and(component_ref::actual_status_id.ne(value)),
+            ),
+        )
+        .set(component_ref::actual_status_id.eq(value))
+        .execute(conn)
+        .map_err(|err| {
+            debug!("Failed update data: {:?}", err);
+            get_err_msg(ErrorMessage::FailedUpdateData)
+        })?;
     }
 
     if count_update_columns == 0 {
@@ -110,26 +141,29 @@ pub(crate) fn update_component_by_uuid(
 pub(crate) fn change_updated_at(
     target_component_uuid: &Uuid,
     target_modification_uuid: Option<&Uuid>,
-    conn: &mut PgConnection
+    conn: &mut PgConnection,
 ) -> ServiceResult<usize> {
     let new_updated_at = Local::now().naive_local();
-    let res = diesel::update(component_ref::component_ref
-        .filter(component_ref::uuid.eq(target_component_uuid)))
-        .set(component_ref::updated_at.eq(new_updated_at))
+    let res = diesel::update(
+        component_ref::component_ref.filter(component_ref::uuid.eq(target_component_uuid)),
+    )
+    .set(component_ref::updated_at.eq(new_updated_at))
+    .execute(conn)
+    .map_err(|err| {
+        debug!("Failed update data: {:?}", err);
+        get_err_msg(ErrorMessage::FailedUpdateData)
+    })?;
+    if let Some(tmu) = target_modification_uuid {
+        diesel::update(
+            component_modification_list::component_modification_list
+                .filter(component_modification_list::uuid.eq(tmu)),
+        )
+        .set(component_modification_list::updated_at.eq(new_updated_at))
         .execute(conn)
         .map_err(|err| {
             debug!("Failed update data: {:?}", err);
             get_err_msg(ErrorMessage::FailedUpdateData)
         })?;
-    if let Some(tmu) = target_modification_uuid {
-        diesel::update(component_modification_list::component_modification_list
-            .filter(component_modification_list::uuid.eq(tmu)))
-            .set(component_modification_list::updated_at.eq(new_updated_at))
-            .execute(conn)
-            .map_err(|err| {
-                debug!("Failed update data: {:?}", err);
-                get_err_msg(ErrorMessage::FailedUpdateData)
-            })?;
     }
     Ok(res)
 }

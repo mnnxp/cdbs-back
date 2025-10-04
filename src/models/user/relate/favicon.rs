@@ -1,8 +1,8 @@
 use crate::errors::ServiceResult;
 use crate::models::relate_ref::file::{
+    commit::Commit,
     model::{ListObject, UploadFile},
     service::register::preregister_file,
-    commit::Commit,
 };
 use crate::storage::model::StorageAccess;
 use crate::storage::presigned_url::upload_presigned_url;
@@ -20,20 +20,13 @@ pub(crate) fn update_favicon(
         ListObject::User(*target_user_uuid),
         filename,
         &Commit::create_commit("Upload favicon", conn)?,
-        conn
+        conn,
     )?;
 
     // change image uuid for user
-    change_image_uuid(
-        target_user_uuid,
-        &slim_file.uuid,
-        conn,
-    );
+    change_image_uuid(target_user_uuid, &slim_file.uuid, conn);
 
-    let upload_url = upload_presigned_url(
-        &StorageAccess::from_env(),
-        &slim_file.path_file,
-    )?;
+    let upload_url = upload_presigned_url(&StorageAccess::from_env(), &slim_file.path_file)?;
 
     Ok(UploadFile {
         file_uuid: slim_file.uuid,
@@ -43,11 +36,7 @@ pub(crate) fn update_favicon(
 }
 
 /// Change image file uuid for user
-fn change_image_uuid (
-    user_uuid: &Uuid,
-    set_image_uuid: &Uuid,
-    conn: &mut PgConnection,
-) -> bool {
+fn change_image_uuid(user_uuid: &Uuid, set_image_uuid: &Uuid, conn: &mut PgConnection) -> bool {
     use crate::schema::user_ref::dsl as user_ref;
 
     let res = diesel::update(user_ref::user_ref)

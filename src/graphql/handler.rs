@@ -5,9 +5,8 @@ use crate::jwt::model::Token;
 use crate::models::relate_ref::language::model::SetLang;
 use actix_web::{web, HttpRequest, HttpResponse, Result};
 use async_graphql::{
-    EmptySubscription,
-    Schema,
     http::{playground_source, GraphQLPlaygroundConfig},
+    EmptySubscription, Schema,
 };
 use async_graphql_actix_web::{GraphQLRequest, GraphQLResponse};
 

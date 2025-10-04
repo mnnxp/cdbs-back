@@ -1,9 +1,9 @@
-use crate::errors::{ServiceResult, ServiceError};
-use crate::errors::err_msg::{ErrorMessage, get_err_msg};
-use crate::models::company::company_represent::model::{
-    CompanyRepresentAndRelatedData, CompanyRepresentsArg
-};
+use crate::errors::err_msg::{get_err_msg, ErrorMessage};
+use crate::errors::{ServiceError, ServiceResult};
 use crate::models::company::access::util::check_company_access;
+use crate::models::company::company_represent::model::{
+    CompanyRepresentAndRelatedData, CompanyRepresentsArg,
+};
 use crate::models::search::order::Paginate;
 use crate::schema::company_represent_ref::dsl as company_represent_ref;
 use diesel::{prelude::*, PgConnection};
@@ -23,8 +23,12 @@ pub(crate) fn get_represents(
             Some(represent_uuid) => {
                 let company_uuid = get_company_of_represent(represent_uuid, conn)?;
                 args.set_company_uuid(&company_uuid);
-            },
-            None => return Err(get_err_msg(ErrorMessage::NeedToChooseCompanyOrRepresentative))
+            }
+            None => {
+                return Err(get_err_msg(
+                    ErrorMessage::NeedToChooseCompanyOrRepresentative,
+                ))
+            }
         }
     }
 
@@ -33,7 +37,7 @@ pub(crate) fn get_represents(
         logged_user_uuid,
         &args.company_uuid,
         &need_access_level,
-        conn
+        conn,
     )?;
 
     if args.represents_uuids.is_empty() {

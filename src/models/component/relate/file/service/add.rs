@@ -1,15 +1,15 @@
+use crate::errors::err_msg::{get_err_msg, ErrorMessage};
 use crate::errors::ServiceResult;
-use crate::errors::err_msg::{ErrorMessage, get_err_msg};
 use crate::models::component::access::util::check_access_component_for_user;
 use crate::models::component::relate::file::model::{
-    IptComponentFilesData, IptComponentFaviconData
+    IptComponentFaviconData, IptComponentFilesData,
 };
 use crate::models::component::service::update::change_updated_at;
 use crate::models::relate_ref::file::{
+    commit::Commit,
     model::{ListObject, UploadFile},
     service::register::preregister_file,
-    commit::Commit,
-    util::check_image_filename
+    util::check_image_filename,
 };
 use crate::storage::model::StorageAccess;
 use crate::storage::presigned_url::upload_presigned_url;
@@ -23,19 +23,18 @@ pub(crate) fn add_component_files(
     data: &IptComponentFilesData,
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<UploadFile>> {
-
     let need_access_level = 1; // todo!(create enum for manage access level)
 
     check_access_component_for_user(
         logged_user_uuid,
         &data.component_uuid,
         &need_access_level,
-        conn
+        conn,
     )?;
 
-    // return error if not correct file name
-    if data.filenames.is_empty() || data.filenames.len() > 100 {
-        return Err(get_err_msg(ErrorMessage::BadFilename))
+    // return error if files not found or more than 500 files in one request
+    if data.filenames.is_empty() || data.filenames.len() > 500 {
+        return Err(get_err_msg(ErrorMessage::BadFilename));
     }
 
     // create commit message for the changes
@@ -48,15 +47,12 @@ pub(crate) fn add_component_files(
             ListObject::Component(data.component_uuid),
             filename,
             &commit_uuid,
-            conn
+            conn,
         )?;
 
         debug!("New component file: {:?}", slim_file);
 
-        let upload_url = upload_presigned_url(
-            &StorageAccess::from_env(),
-            &slim_file.path_file,
-        )?;
+        let upload_url = upload_presigned_url(&StorageAccess::from_env(), &slim_file.path_file)?;
 
         up_files.push(UploadFile {
             file_uuid: slim_file.uuid,
@@ -79,24 +75,23 @@ pub(crate) fn add_component_favicon(
     data: &IptComponentFaviconData,
     conn: &mut PgConnection,
 ) -> ServiceResult<UploadFile> {
-
     let need_access_level = 1; // todo!(create enum for manage access level)
 
     check_access_component_for_user(
         logged_user_uuid,
         &data.component_uuid,
         &need_access_level,
-        conn
+        conn,
     )?;
 
     // return error if not correct file name
-    if data.filename.is_empty() || data.filename.len() > 100 {
-        return Err(get_err_msg(ErrorMessage::BadFilename))
+    if data.filename.is_empty() || data.filename.len() > 500 {
+        return Err(get_err_msg(ErrorMessage::BadFilename));
     }
 
     // return error if not correct file name
     if !check_image_filename(&data.filename) {
-        return Err(get_err_msg(ErrorMessage::SelectedFileIsNotImage))
+        return Err(get_err_msg(ErrorMessage::SelectedFileIsNotImage));
     }
 
     let slim_file = preregister_file(
@@ -104,15 +99,12 @@ pub(crate) fn add_component_favicon(
         ListObject::ComponentFavicon(data.component_uuid),
         &data.filename,
         &Commit::create_commit("Upload main image of the component", conn)?,
-        conn
+        conn,
     )?;
 
     debug!("New component file: {:?}", slim_file);
 
-    let upload_url = upload_presigned_url(
-        &StorageAccess::from_env(),
-        &slim_file.path_file,
-    )?;
+    let upload_url = upload_presigned_url(&StorageAccess::from_env(), &slim_file.path_file)?;
 
     change_updated_at(&data.component_uuid, None, conn)?;
 

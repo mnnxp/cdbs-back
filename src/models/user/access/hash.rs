@@ -17,27 +17,17 @@ pub(crate) fn make_salt() -> [u8; SALT_LEN] {
         let x = rng.gen_range(0..CHARSET.len());
         psw_salt[count] = x as u8;
         count += 1;
-    };
+    }
 
     psw_salt
 }
 
-pub(crate) fn make_hash_salt(
-    password: &[u8],
-    psw_salt: &[u8],
-) -> Vec<u8> {
-    argon2::hash_encoded(
-        password,
-        psw_salt,
-        &Config::default()
-    ).unwrap()
-    .into_bytes()
+pub(crate) fn make_hash_salt(password: &[u8], psw_salt: &[u8]) -> Vec<u8> {
+    argon2::hash_encoded(password, psw_salt, &Config::default())
+        .unwrap()
+        .into_bytes()
 }
 
-pub(crate) fn verify(
-    psw_hash: &[u8],
-    psw_salt: &[u8],
-    password: &[u8],
-) -> bool {
+pub(crate) fn verify(psw_hash: &[u8], psw_salt: &[u8], password: &[u8]) -> bool {
     make_hash_salt(password, psw_salt) == psw_hash
 }

@@ -1,29 +1,31 @@
-use super::util::{get_default_image, find_id_ext};
 use super::commit::Commit;
-use crate::errors::{ServiceResult, ServiceError};
+use super::util::{find_id_ext, get_default_image};
+use crate::errors::{ServiceError, ServiceResult};
 use crate::graphql::file::ShowFileRelatedData;
-use crate::models::user::model::ShowUserShort;
-use crate::models::search::order::{Paginate, Sort, TableName, objects_order};
 use crate::models::relate_ref::file::model::{
-    ListObject, PreliminaryFileData, ShowFile, DownloadFile, SlimFile,
+    DownloadFile, ListObject, PreliminaryFileData, ShowFile, SlimFile,
 };
 use crate::models::relate_ref::program::model::Program;
-use crate::storage::model::StorageAccess;
-use crate::storage::presigned_url::{download_presigned_url, save_presign_url};
+use crate::models::search::order::{objects_order, Paginate, Sort, TableName};
+use crate::models::user::model::ShowUserShort;
 use crate::schema::file_ref::dsl as file_ref;
 use crate::schema::presigned_url_ref::dsl as presigned_url_ref;
+use crate::storage::model::StorageAccess;
+use crate::storage::presigned_url::{download_presigned_url, save_presign_url};
 use diesel::prelude::*;
 use uuid::Uuid;
 
 /// Возвращает Uuid найденных по списку из file_uuids файлов, исключая удалённые и скрытые файлы
-fn get_by_uuids(
-    file_uuids: &[Uuid],
-    conn: &mut PgConnection,
-) -> ServiceResult<Vec<Uuid>> {
-    file_ref::file_ref.select(file_ref::uuid)
-        .filter(file_ref::uuid.eq_any(file_uuids)
-            .and(file_ref::is_hidden.eq(false)
-            .and(file_ref::is_delete.eq(false))))
+fn get_by_uuids(file_uuids: &[Uuid], conn: &mut PgConnection) -> ServiceResult<Vec<Uuid>> {
+    file_ref::file_ref
+        .select(file_ref::uuid)
+        .filter(
+            file_ref::uuid.eq_any(file_uuids).and(
+                file_ref::is_hidden
+                    .eq(false)
+                    .and(file_ref::is_delete.eq(false)),
+            ),
+        )
         .limit(1000)
         .load::<Uuid>(conn)
         .map_err(|err| {
@@ -33,14 +35,15 @@ fn get_by_uuids(
 }
 
 /// Возвращает Uuid найденных по списку из file_uuids файлов, исключаются только удалённые файлы
-fn get_hide_by_uuids(
-    file_uuids: &[Uuid],
-    conn: &mut PgConnection
-) -> ServiceResult<Vec<Uuid>> {
-    file_ref::file_ref.select(file_ref::uuid)
-        .filter(file_ref::uuid.eq_any(file_uuids)
-            // .and(file_ref::is_hidden.eq(true)
-            .and(file_ref::is_delete.eq(false)))
+fn get_hide_by_uuids(file_uuids: &[Uuid], conn: &mut PgConnection) -> ServiceResult<Vec<Uuid>> {
+    file_ref::file_ref
+        .select(file_ref::uuid)
+        .filter(
+            file_ref::uuid
+                .eq_any(file_uuids)
+                // .and(file_ref::is_hidden.eq(true)
+                .and(file_ref::is_delete.eq(false)),
+        )
         .order(file_ref::revision.asc())
         .limit(1000)
         .load::<Uuid>(conn)
@@ -51,10 +54,7 @@ fn get_hide_by_uuids(
 }
 
 impl ShowFile {
-    fn get_by_uuid(
-        file_uuid: &Uuid,
-        conn: &mut PgConnection
-    ) -> ServiceResult<ShowFile> {
+    fn get_by_uuid(file_uuid: &Uuid, conn: &mut PgConnection) -> ServiceResult<ShowFile> {
         file_ref::file_ref
             .select((
                 file_ref::uuid,
@@ -67,7 +67,7 @@ impl ShowFile {
                 file_ref::id_ext,
                 file_ref::filesize,
                 file_ref::created_at,
-                file_ref::updated_at
+                file_ref::updated_at,
             ))
             .filter(file_ref::uuid.eq(&file_uuid))
             .first::<ShowFile>(conn)
@@ -108,7 +108,7 @@ impl ShowFileRelatedData {
                 owner_user: ShowUserShort::get_without_check_by_uuid(&sf.user_uuid, conn)?,
                 content_type: sf.content_type.clone(),
                 filesize: sf.filesize,
-                program: Program::get_program_for_ext(&sf.id_ext,conn)?,
+                program: Program::get_program_for_ext(&sf.id_ext, conn)?,
                 created_at: sf.created_at,
                 updated_at: sf.updated_at,
             })
@@ -130,7 +130,7 @@ impl ShowFileRelatedData {
             &file_uuids,
             &Sort::parsing(TableName::FileRef, "revision", false),
             paginate,
-            conn
+            conn,
         )
     }
 }
@@ -145,13 +145,18 @@ impl SlimFile {
             .select((
                 file_ref::uuid,
                 file_ref::hash,
+                file_ref::sha256_hash,
                 file_ref::filename,
                 file_ref::filesize,
                 file_ref::path_file,
             ))
-            .filter(file_ref::uuid.eq(target_file_uuid)
-                .and(file_ref::is_hidden.eq(false)
-                .and(file_ref::is_delete.eq(false))))
+            .filter(
+                file_ref::uuid.eq(target_file_uuid).and(
+                    file_ref::is_hidden
+                        .eq(false)
+                        .and(file_ref::is_delete.eq(false)),
+                ),
+            )
             .first::<SlimFile>(conn)
             .map_err(|err| {
                 debug!("Failed get file: {:?}", err);
@@ -169,13 +174,18 @@ impl SlimFile {
             .select((
                 file_ref::uuid,
                 file_ref::hash,
+                file_ref::sha256_hash,
                 file_ref::filename,
                 file_ref::filesize,
                 file_ref::path_file,
             ))
-            .filter(file_ref::uuid.eq_any(target_file_uuids)
-                .and(file_ref::is_hidden.eq(false)
-                .and(file_ref::is_delete.eq(false))))
+            .filter(
+                file_ref::uuid.eq_any(target_file_uuids).and(
+                    file_ref::is_hidden
+                        .eq(false)
+                        .and(file_ref::is_delete.eq(false)),
+                ),
+            )
             .order(file_ref::filename.asc())
             .limit(paginate.limit)
             .offset(paginate.offset)
@@ -197,15 +207,22 @@ impl SlimFile {
             .select((
                 file_ref::uuid,
                 file_ref::hash,
+                file_ref::sha256_hash,
                 file_ref::filename,
                 file_ref::filesize,
                 file_ref::path_file,
             ))
-            .filter(file_ref::uuid.eq_any(target_file_uuids)
-                .and(file_ref::user_uuid.eq(user_uuid)
-                .and(file_ref::is_checked.eq(false)
-                .and(file_ref::is_hidden.eq(true)
-                .and(file_ref::is_delete.eq(false))))))
+            .filter(
+                file_ref::uuid.eq_any(target_file_uuids).and(
+                    file_ref::user_uuid.eq(user_uuid).and(
+                        file_ref::is_checked.eq(false).and(
+                            file_ref::is_hidden
+                                .eq(true)
+                                .and(file_ref::is_delete.eq(false)),
+                        ),
+                    ),
+                ),
+            )
             .load::<SlimFile>(conn)
             .map_err(|err| {
                 debug!("Failed get file: {:?}", err);
@@ -217,7 +234,11 @@ impl SlimFile {
     pub(crate) fn encode_hash(file_uuid: &Uuid, conn: &mut PgConnection) -> ServiceResult<String> {
         let hash = file_ref::file_ref
             .select(file_ref::hash)
-            .filter(file_ref::uuid.eq(file_uuid).and(file_ref::is_delete.eq(false)))
+            .filter(
+                file_ref::uuid
+                    .eq(file_uuid)
+                    .and(file_ref::is_delete.eq(false)),
+            )
             .first::<Vec<u8>>(conn)
             .map_err(|err| {
                 debug!("Failed get file hash: {:?}", err);
@@ -226,17 +247,42 @@ impl SlimFile {
         Ok(hex::encode(hash))
     }
 
+    /// Returns a string in which each byte of data is encoded using two hexadecimal digits
+    pub(crate) fn encode_sha256_hash(file_uuid: &Uuid, conn: &mut PgConnection) -> ServiceResult<String> {
+        let sha256_hash = file_ref::file_ref
+            .select(file_ref::sha256_hash)
+            .filter(
+                file_ref::uuid
+                    .eq(file_uuid)
+                    .and(file_ref::is_delete.eq(false)),
+            )
+            .first::<Vec<u8>>(conn)
+            .map_err(|err| {
+                debug!("Failed get file hash: {:?}", err);
+                ServiceError::InternalServerError
+            })?;
+        Ok(hex::encode(sha256_hash))
+    }
+
     /// Returns a pre-signed link to a file in the repository (without check access)
-    pub(crate) fn get_download_string(file_uuid: &Uuid, conn: &mut PgConnection) -> ServiceResult<String> {
+    pub(crate) fn get_download_string(
+        file_uuid: &Uuid,
+        conn: &mut PgConnection,
+    ) -> ServiceResult<String> {
         let slim_file = file_ref::file_ref
             .select((
                 file_ref::uuid,
                 file_ref::hash,
+                file_ref::sha256_hash,
                 file_ref::filename,
                 file_ref::filesize,
                 file_ref::path_file,
             ))
-            .filter(file_ref::uuid.eq(file_uuid).and(file_ref::is_delete.eq(false)))
+            .filter(
+                file_ref::uuid
+                    .eq(file_uuid)
+                    .and(file_ref::is_delete.eq(false)),
+            )
             .first::<SlimFile>(conn)
             .map_err(|err| {
                 debug!("Failed get download string for file: {:?}", err);
@@ -245,8 +291,11 @@ impl SlimFile {
         let naive_local_now = chrono::Local::now().naive_local();
         let get_url_from_db = presigned_url_ref::presigned_url_ref
             .select(presigned_url_ref::presigned_url)
-            .filter(presigned_url_ref::file_uuid.eq(&slim_file.uuid)
-                .and(presigned_url_ref::expiration_at.gt(naive_local_now)))
+            .filter(
+                presigned_url_ref::file_uuid
+                    .eq(&slim_file.uuid)
+                    .and(presigned_url_ref::expiration_at.gt(naive_local_now)),
+            )
             .limit(1)
             .load::<String>(conn)
             .map_err(|err| {
@@ -254,14 +303,11 @@ impl SlimFile {
                 ServiceError::InternalServerError
             })?;
         if let Some(url) = get_url_from_db.into_iter().next() {
-            return Ok(url)
+            return Ok(url);
         }
         debug!("Failed get presigned_url");
         // creates and saves (updates) download presigned url for a file in the database
-        let presigned_url = download_presigned_url(
-            &StorageAccess::from_env(),
-            &slim_file,
-        )?;
+        let presigned_url = download_presigned_url(&StorageAccess::from_env(), &slim_file)?;
         // save presigned url to database
         save_presign_url(&slim_file.uuid, &presigned_url, conn)?;
         Ok(presigned_url)
@@ -303,9 +349,10 @@ impl DownloadFile {
         slim_file: &SlimFile,
         conn: &mut PgConnection,
     ) -> ServiceResult<DownloadFile> {
-        Ok(DownloadFile{
+        Ok(DownloadFile {
             uuid: slim_file.uuid,
             hash: hex::encode(&slim_file.hash),
+            sha256_hash: hex::encode(&slim_file.sha256_hash),
             filename: slim_file.filename.clone(),
             filesize: slim_file.filesize,
             download_url: SlimFile::get_download_string(&slim_file.uuid, conn)?,
@@ -327,7 +374,7 @@ impl DownloadFile {
     }
 
     /// Get structures of DownloadFile by files uuidsget_by_file_uuids
-    pub(crate) fn get_by_file_uuids (
+    pub(crate) fn get_by_file_uuids(
         target_file_uuids: &[Uuid],
         paginate: &Paginate,
         conn: &mut PgConnection,
@@ -338,11 +385,7 @@ impl DownloadFile {
             return Ok(collect_res);
         }
 
-        let slim_files = SlimFile::get_by_file_uuids(
-            target_file_uuids,
-            paginate,
-            conn
-        )?;
+        let slim_files = SlimFile::get_by_file_uuids(target_file_uuids, paginate, conn)?;
 
         for sf in &slim_files {
             collect_res.push(DownloadFile::get_by_slim_file(sf, conn)?);
@@ -365,8 +408,11 @@ fn next_revision_uuids_by_uuid(
         revision_uuids.push(parent_uuid);
         get_parent = file_ref::file_ref
             .select(file_ref::uuid)
-            .filter(file_ref::uuid.ne(parent_uuid)
-                .and(file_ref::parent_file_uuid.eq(parent_uuid)))
+            .filter(
+                file_ref::uuid
+                    .ne(parent_uuid)
+                    .and(file_ref::parent_file_uuid.eq(parent_uuid)),
+            )
             .order(file_ref::created_at.desc())
             .first::<Uuid>(conn)
             .optional()
@@ -393,8 +439,11 @@ fn prev_revision_uuids_by_uuid(
         revision_uuids.push(parent_uuid);
         get_parent = file_ref::file_ref
             .select(file_ref::parent_file_uuid)
-            .filter(file_ref::uuid.eq(parent_uuid)
-                .and(file_ref::parent_file_uuid.ne(parent_uuid)))
+            .filter(
+                file_ref::uuid
+                    .eq(parent_uuid)
+                    .and(file_ref::parent_file_uuid.ne(parent_uuid)),
+            )
             .order(file_ref::created_at.desc())
             .first::<Uuid>(conn)
             .optional()
@@ -415,9 +464,13 @@ pub(crate) fn get_filename_hidden_rev_by_uuid(
 ) -> ServiceResult<String> {
     file_ref::file_ref
         .select(file_ref::filename)
-        .filter(file_ref::uuid.eq(target_file_uuid)
-            .and(file_ref::is_hidden.eq(true)
-            .and(file_ref::is_delete.eq(false))))
+        .filter(
+            file_ref::uuid.eq(target_file_uuid).and(
+                file_ref::is_hidden
+                    .eq(true)
+                    .and(file_ref::is_delete.eq(false)),
+            ),
+        )
         // .order(file_ref::filename.asc())
         .first::<String>(conn)
         .map_err(|err| {

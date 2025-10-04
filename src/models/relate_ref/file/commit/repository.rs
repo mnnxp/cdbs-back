@@ -1,5 +1,5 @@
 use super::Commit;
-use crate::errors::{ServiceResult, ServiceError};
+use crate::errors::{ServiceError, ServiceResult};
 use crate::schema::commit_ref::dsl as commit_ref;
 use diesel::prelude::*;
 use uuid::Uuid;

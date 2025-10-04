@@ -1,7 +1,4 @@
-use crate::models::component::{
-    model::Component,
-    component_modification::util::get_root_modification_uuid,
-};
+use crate::models::component::component_modification::util::get_root_modification_uuid;
 use crate::models::relate_ref::param::model::IptParamData;
 use crate::models::search::order::{Paginate, Sort};
 use crate::schema::*;
@@ -9,9 +6,7 @@ use async_graphql::*;
 use chrono::*;
 use uuid::Uuid;
 
-#[derive(Identifiable, Deserialize, Queryable, Associations, PartialEq, Clone, Debug)]
-#[diesel(primary_key(uuid))]
-#[diesel(belongs_to(Component, foreign_key = component_uuid))]
+#[derive(Serialize, Deserialize, Queryable, SimpleObject, Clone, Debug)]
 #[diesel(table_name = component_modification_list)]
 pub(crate) struct ComponentModification {
     pub(crate) uuid: Uuid,
@@ -59,7 +54,7 @@ impl InsertableComponentModification {
     /// Returns structures with the specified component UUID and modifications data
     pub(crate) fn get_multiple_data(
         component_uuid: Uuid,
-        modifications_data: &IptModificationsData
+        modifications_data: &IptModificationsData,
     ) -> Self {
         let local_time = chrono::Local::now().naive_local();
         Self {
@@ -171,7 +166,6 @@ pub(crate) struct DelComponentModificationData {
     /// UUID of the component modification to be deleted
     pub(crate) modification_uuid: Uuid,
 }
-
 
 #[derive(Debug)]
 pub(crate) struct ComponentModificationArg {

@@ -1,16 +1,16 @@
-use crate::errors::ServiceResult;
 use crate::database::{get_conn, PooledConnection};
-use crate::models::user::access::logged::get_logged_user_uuid;
-use crate::models::standard::{
-    model::{IptStandardData, IptUpdateStandardData},
-    access::model::{ChangeOwnerStandard, ChangeTypeAccessStandard},
-    access::company::model::{IptCompanyAccessStandardData, DelCompanyAccessStandardData},
-    access::user::model::{IptUserAccessStandardData, DelUserAccessStandardData},
-    spec::model::IptStandardSpecsData,
-    keyword::model::{IptStandardKeywordsData, IptStandardKeywordsNames},
-    file::model::{IptStandardFilesData, IptStandardFaviconData, DeleteStandardFileData},
-};
+use crate::errors::ServiceResult;
+use crate::graphql::standard_model::{IptStandardData, IptUpdateStandardData};
 use crate::models::relate_ref::file::model::UploadFile;
+use crate::models::standard::{
+    access::company::model::{DelCompanyAccessStandardData, IptCompanyAccessStandardData},
+    access::model::{ChangeOwnerStandard, ChangeTypeAccessStandard},
+    access::user::model::{DelUserAccessStandardData, IptUserAccessStandardData},
+    file::model::{DeleteStandardFileData, IptStandardFaviconData, IptStandardFilesData},
+    keyword::model::{IptStandardKeywordsData, IptStandardKeywordsNames},
+    spec::model::IptStandardSpecsData,
+};
+use crate::models::user::access::logged::get_logged_user_uuid;
 use async_graphql::{self, Context, Object};
 use uuid::Uuid;
 
@@ -31,11 +31,7 @@ impl StandardMutation {
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        create_standard(
-            &logged_user_uuid,
-            &args,
-            conn
-        )
+        create_standard(&logged_user_uuid, &args, conn)
     }
 
     /// Transfers ownership of a standard to another user.
@@ -51,11 +47,7 @@ impl StandardMutation {
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        change_standard_owner_user(
-            &logged_user_uuid,
-            &args,
-            conn
-        )
+        change_standard_owner_user(&logged_user_uuid, &args, conn)
     }
 
     /// Changes the default access to a standard.
@@ -71,11 +63,7 @@ impl StandardMutation {
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        change_standard_type_access(
-            &logged_user_uuid,
-            &args,
-            conn
-        )
+        change_standard_type_access(&logged_user_uuid, &args, conn)
     }
 
     /// Updates the standard's underlying data by UUID.
@@ -92,32 +80,19 @@ impl StandardMutation {
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        update_standard_data(
-            &logged_user_uuid,
-            &standard_uuid,
-            &args,
-            conn
-        )
+        update_standard_data(&logged_user_uuid, &standard_uuid, &args, conn)
     }
 
     /// Deletes a standard and its associated data.
     /// Returns the UUID of the removed standard.
-    async fn delete_standard(
-        &self,
-        cxt: &Context<'_>,
-        standard_uuid: Uuid,
-    ) -> ServiceResult<Uuid> {
+    async fn delete_standard(&self, cxt: &Context<'_>, standard_uuid: Uuid) -> ServiceResult<Uuid> {
         use crate::models::standard::service::delete::del_standard_data;
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        del_standard_data(
-            &logged_user_uuid,
-            &standard_uuid,
-            conn
-        )
+        del_standard_data(&logged_user_uuid, &standard_uuid, conn)
     }
 
     /// Sets access to a standard for a company.
@@ -134,11 +109,7 @@ impl StandardMutation {
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        set_company_access_standard(
-            &logged_user_uuid,
-            &args,
-            conn
-        )
+        set_company_access_standard(&logged_user_uuid, &args, conn)
     }
 
     /// Removes access to a standard for a company.
@@ -154,11 +125,7 @@ impl StandardMutation {
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        del_company_access_standard(
-            &logged_user_uuid,
-            &args,
-            conn
-        )
+        del_company_access_standard(&logged_user_uuid, &args, conn)
     }
 
     /// Sets access to a standard for a user.
@@ -174,11 +141,7 @@ impl StandardMutation {
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        set_user_access_standard(
-            &logged_user_uuid,
-            &args,
-            conn
-        )
+        set_user_access_standard(&logged_user_uuid, &args, conn)
     }
 
     /// Removes access to a standard for a user.
@@ -194,11 +157,7 @@ impl StandardMutation {
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        del_user_access_standard(
-            &logged_user_uuid,
-            &args,
-            conn
-        )
+        del_user_access_standard(&logged_user_uuid, &args, conn)
     }
 
     /// Adds a standard connection to directory sections.
@@ -213,11 +172,7 @@ impl StandardMutation {
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        add_standard_specs(
-            &logged_user_uuid,
-            &args,
-            conn
-        )
+        add_standard_specs(&logged_user_uuid, &args, conn)
     }
 
     /// Removes a standard's association with catalogs
@@ -232,11 +187,7 @@ impl StandardMutation {
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        del_standard_specs(
-            &logged_user_uuid,
-            &args,
-            conn
-        )
+        del_standard_specs(&logged_user_uuid, &args, conn)
     }
 
     /// Adds keywords to a standard by IDs.
@@ -251,11 +202,7 @@ impl StandardMutation {
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        add_standard_keywords(
-            &logged_user_uuid,
-            &args,
-            conn
-        )
+        add_standard_keywords(&logged_user_uuid, &args, conn)
     }
 
     /// Adds keywords to a standard by words.
@@ -270,11 +217,7 @@ impl StandardMutation {
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        add_keywords_by_names(
-            &logged_user_uuid,
-            &args,
-            conn
-        )
+        add_keywords_by_names(&logged_user_uuid, &args, conn)
     }
 
     /// Removes keywords from a standard.
@@ -289,11 +232,7 @@ impl StandardMutation {
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        del_standard_keywords(
-            &logged_user_uuid,
-            &args,
-            conn
-        )
+        del_standard_keywords(&logged_user_uuid, &args, conn)
     }
 
     /// Creates preliminary files information for a standard.
@@ -309,11 +248,7 @@ impl StandardMutation {
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        add_standard_files(
-            &logged_user_uuid,
-            &args,
-            conn
-        )
+        add_standard_files(&logged_user_uuid, &args, conn)
     }
 
     /// Updates the main image of the standard.
@@ -329,11 +264,7 @@ impl StandardMutation {
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        add_standard_favicon(
-            &logged_user_uuid,
-            &args,
-            conn
-        )
+        add_standard_favicon(&logged_user_uuid, &args, conn)
     }
 
     /// Deletes a file of a standard.
@@ -348,10 +279,6 @@ impl StandardMutation {
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        delete_standard_file(
-            &logged_user_uuid,
-            &args,
-            conn
-        )
+        delete_standard_file(&logged_user_uuid, &args, conn)
     }
 }

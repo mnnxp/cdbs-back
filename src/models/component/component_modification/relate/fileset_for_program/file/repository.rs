@@ -1,4 +1,4 @@
-use crate::errors::{ServiceResult, ServiceError};
+use crate::errors::{ServiceError, ServiceResult};
 use crate::schema::modification_file_from_fileset::dsl as modification_file_from_fileset;
 use diesel::prelude::*;
 use uuid::Uuid;
@@ -13,8 +13,11 @@ pub(crate) fn get_file_uuids_by_fileset_uuid(
 
     query = match file_uuids.is_empty() {
         true => query.filter(modification_file_from_fileset::fileset_uuid.eq(fileset_uuid)),
-        false => query.filter(modification_file_from_fileset::fileset_uuid.eq(fileset_uuid)
-            .and(modification_file_from_fileset::file_uuid.eq_any(file_uuids))),
+        false => query.filter(
+            modification_file_from_fileset::fileset_uuid
+                .eq(fileset_uuid)
+                .and(modification_file_from_fileset::file_uuid.eq_any(file_uuids)),
+        ),
     };
 
     query
@@ -37,7 +40,10 @@ pub(crate) fn get_fileset_uuid_by_file_uuid(
         .first::<Uuid>(conn)
         .optional()
         .map_err(|err| {
-            debug!("Failed get modification fileset uuid by file uuid: {:?}", err);
+            debug!(
+                "Failed get modification fileset uuid by file uuid: {:?}",
+                err
+            );
             ServiceError::InternalServerError
         })
 }

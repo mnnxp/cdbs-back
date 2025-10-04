@@ -1,7 +1,7 @@
 use crate::errors::{ServiceError, ServiceResult};
 // use crate::graphql::model::Context;
-use crate::jwt::model::Claims;
 use crate::jwt::manager::decode_token;
+use crate::jwt::model::Claims;
 
 use async_graphql::*;
 
@@ -35,7 +35,7 @@ impl Claims {
     }
 }
 
-pub(crate) fn decode(token: &str) -> ServiceResult<Claims>  {
+pub(crate) fn decode(token: &str) -> ServiceResult<Claims> {
     decode_token(token).map_err(|e| {
         debug!("Err decode: {:?}", e);
         ServiceError::InternalServerError

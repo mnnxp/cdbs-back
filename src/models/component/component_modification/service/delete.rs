@@ -1,8 +1,8 @@
-use crate::errors::{ServiceResult, ServiceError};
+use crate::errors::{ServiceError, ServiceResult};
 use crate::models::component::service::update::change_updated_at;
 use crate::models::component::{
-    component_modification::model::DelComponentModificationData,
     access::util::check_is_owner_with_err,
+    component_modification::model::DelComponentModificationData,
     component_modification::relate::fileset_for_program::service::delete::delete_filesets_files_by_modifications,
 };
 use crate::models::relate_ref::file::service::delete::delete_file_by_uuids;
@@ -15,24 +15,24 @@ use uuid::Uuid;
 pub(crate) fn del_component_modification(
     logged_user_uuid: &Uuid,
     data: &DelComponentModificationData,
-    conn: &mut PgConnection
+    conn: &mut PgConnection,
 ) -> ServiceResult<Uuid> {
-    check_is_owner_with_err(
-        logged_user_uuid,
-        &data.component_uuid,
-        conn
-    )?;
+    check_is_owner_with_err(logged_user_uuid, &data.component_uuid, conn)?;
     // update the updated_at component if modification has been removed
     change_updated_at(&data.component_uuid, None, conn)?;
-    diesel::delete(component_modification_list::component_modification_list
-        .filter(component_modification_list::component_uuid.eq(data.component_uuid)
-        .and(component_modification_list::uuid.eq(data.modification_uuid))))
-        .returning(component_modification_list::uuid)
-        .get_result::<Uuid>(conn)
-        .map_err(|err| {
-            debug!("Failed delete component modification: {:?}", err);
-            ServiceError::InternalServerError
-        })
+    diesel::delete(
+        component_modification_list::component_modification_list.filter(
+            component_modification_list::component_uuid
+                .eq(data.component_uuid)
+                .and(component_modification_list::uuid.eq(data.modification_uuid)),
+        ),
+    )
+    .returning(component_modification_list::uuid)
+    .get_result::<Uuid>(conn)
+    .map_err(|err| {
+        debug!("Failed delete component modification: {:?}", err);
+        ServiceError::InternalServerError
+    })
 }
 
 /// Set the delete flags for all modifications and filesets files associated with the component

@@ -1,4 +1,4 @@
-use crate::errors::{ServiceResult, ServiceError};
+use crate::errors::{ServiceError, ServiceResult};
 use crate::models::component::relate::file::model::DelComponentFileData;
 use crate::models::component::service::update::change_updated_at;
 use crate::models::relate_ref::file::service::delete::delete_file_by_uuid;
@@ -18,12 +18,15 @@ pub(crate) fn delete_component_file(
         logged_user_uuid,
         &data.component_uuid,
         &need_access_level,
-        conn
+        conn,
     )?;
 
     let del_file = diesel::delete(file_to_component)
-        .filter(component_uuid.eq(&data.component_uuid)
-        .and(file_uuid.eq(&data.file_uuid)))
+        .filter(
+            component_uuid
+                .eq(&data.component_uuid)
+                .and(file_uuid.eq(&data.file_uuid)),
+        )
         .execute(conn)
         .map_err(|err| {
             debug!("Fail delete row: {:?}", err);
@@ -37,6 +40,6 @@ pub(crate) fn delete_component_file(
         _ => {
             change_updated_at(&data.component_uuid, None, conn)?;
             delete_file_by_uuid(&data.file_uuid, conn)
-        },
+        }
     }
 }

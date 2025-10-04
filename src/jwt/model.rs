@@ -2,9 +2,9 @@ use crate::models::user::model::SlimUser;
 use anyhow::Result;
 use chrono::{Duration, Local};
 // use std::convert::TryFrom;
-use uuid::Uuid;
-use actix_web::http::header::{AUTHORIZATION, HeaderMap};
+use actix_web::http::header::{HeaderMap, AUTHORIZATION};
 use regex::Regex;
+use uuid::Uuid;
 
 lazy_static::lazy_static! {
     static ref BEARER_REGEXP : Regex = Regex::new(r"^Bearer\s(.*)$").expect("Bearer regexp failed!");
@@ -60,7 +60,10 @@ impl TryFrom<Claims> for SlimUser {
 
     fn try_from(claims: Claims) -> Result<Self> {
         let Claims {
-            program_id, username, sub, ..
+            program_id,
+            username,
+            sub,
+            ..
         }: Claims = claims;
 
         Ok(SlimUser {
@@ -85,7 +88,7 @@ impl From<&HeaderMap> for Token {
             .map(|v| v.as_str());
 
         Self {
-            bearer: token.map(|t| t.to_string())
+            bearer: token.map(|t| t.to_string()),
         }
     }
 }

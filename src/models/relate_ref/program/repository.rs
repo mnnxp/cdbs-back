@@ -1,4 +1,4 @@
-use crate::errors::{ServiceResult, ServiceError};
+use crate::errors::{ServiceError, ServiceResult};
 use crate::models::relate_ref::extension::model::Extension;
 use crate::models::relate_ref::program::model::Program;
 use crate::schema::program_ref::dsl as program_ref;
@@ -23,10 +23,8 @@ impl Program {
         target_ext_id: &i32,
         conn: &mut PgConnection,
     ) -> ServiceResult<Program> {
-        let target_program_id = Extension::get_program_id(
-            target_ext_id,
-            conn
-        ).expect("Error get ext data");
+        let target_program_id =
+            Extension::get_program_id(target_ext_id, conn).expect("Error get ext data");
 
         program_ref::program_ref
             .filter(program_ref::id.eq(target_program_id))

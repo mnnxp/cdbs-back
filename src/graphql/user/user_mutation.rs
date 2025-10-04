@@ -1,13 +1,13 @@
 use crate::database::{get_conn, PooledConnection};
 use crate::errors::ServiceResult;
+use crate::models::relate_ref::file::model::UploadFile;
 use crate::models::user::access::logged::get_logged_user_uuid;
 use crate::models::user::access::password::IptUpdatePassword;
-use crate::models::user::model::IptUpdateUserData;
 use crate::models::user::certificate::model::{
-    IptUserCertificateData, IptUpdateUserCertificateData, DelUserCertificateData
+    DelUserCertificateData, IptUpdateUserCertificateData, IptUserCertificateData,
 };
+use crate::models::user::model::IptUpdateUserData;
 use crate::models::user::model::{IptUserData, SlimUser};
-use crate::models::relate_ref::file::model::UploadFile;
 
 use async_graphql::{self, Context, Object};
 use uuid::Uuid;
@@ -18,33 +18,21 @@ pub struct UserMutation;
 #[Object]
 impl UserMutation {
     /// Adds a new user. Required values: email address, username and password.
-    async fn register_user(
-        &self,
-        cxt: &Context<'_>,
-        args: IptUserData,
-    ) -> ServiceResult<SlimUser> {
+    async fn register_user(&self, cxt: &Context<'_>, args: IptUserData) -> ServiceResult<SlimUser> {
         use crate::models::user::service::register::create_user;
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
         create_user(args, conn)
     }
 
     /// Deletes a user and associated data.
-    async fn delete_user_data(
-        &self,
-        cxt: &Context<'_>,
-        password: String,
-    ) -> ServiceResult<bool> {
+    async fn delete_user_data(&self, cxt: &Context<'_>, password: String) -> ServiceResult<bool> {
         use crate::models::user::service::delete::delete_user;
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        delete_user(
-            &logged_user_uuid,
-            password.as_bytes(),
-            conn,
-        )
+        delete_user(&logged_user_uuid, password.as_bytes(), conn)
     }
 
     /// Sets a new password for an authorized user.
@@ -59,11 +47,7 @@ impl UserMutation {
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        change_password(
-            &logged_user_uuid,
-            &args,
-            conn
-        )
+        change_password(&logged_user_uuid, &args, conn)
     }
 
     /// Sets a user's access type to user data for other users.
@@ -78,11 +62,7 @@ impl UserMutation {
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        change_access_type_user(
-            &logged_user_uuid,
-            &new_type_access,
-            conn
-        )
+        change_access_type_user(&logged_user_uuid, &new_type_access, conn)
     }
 
     /// Updates the user's underlying data by UUID.
@@ -98,11 +78,7 @@ impl UserMutation {
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        update_user(
-            &logged_user_uuid,
-            &args,
-            conn
-        )
+        update_user(&logged_user_uuid, &args, conn)
     }
 
     /// Updates the user avatar. Returns a structure with a pre-signed URL for uploading an image file.
@@ -117,11 +93,7 @@ impl UserMutation {
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        update_favicon(
-            &logged_user_uuid,
-            &filename,
-            conn
-        )
+        update_favicon(&logged_user_uuid, &filename, conn)
     }
 
     /// Uploading a new user certificate. Returns a structure with a pre-signed URL for uploading a certificate file.
@@ -136,11 +108,7 @@ impl UserMutation {
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        add_certificate(
-            &logged_user_uuid,
-            &cert_data,
-            conn
-        )
+        add_certificate(&logged_user_uuid, &cert_data, conn)
     }
 
     /// Updates a user certificate description.
@@ -156,11 +124,7 @@ impl UserMutation {
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        update_certificate_description(
-            &logged_user_uuid,
-            &args,
-            conn
-        )
+        update_certificate_description(&logged_user_uuid, &args, conn)
     }
 
     /// Removes a user certificate.
@@ -169,36 +133,24 @@ impl UserMutation {
         cxt: &Context<'_>,
         args: DelUserCertificateData,
     ) -> ServiceResult<bool> {
-        use crate::models::user::certificate::service::delete::del_certificate_description;
+        use crate::models::user::certificate::service::delete::del_certificate;
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        del_certificate_description(
-            &logged_user_uuid,
-            &args,
-            conn
-        )
+        del_certificate(&logged_user_uuid, &args, conn)
     }
 
     /// Adds a company to a authorized user's favorite list.
-    async fn add_company_fav(
-        &self,
-        cxt: &Context<'_>,
-        company_uuid: Uuid,
-    ) -> ServiceResult<bool> {
+    async fn add_company_fav(&self, cxt: &Context<'_>, company_uuid: Uuid) -> ServiceResult<bool> {
         use crate::models::user::company_fav::service::add::add_company_fav;
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        add_company_fav(
-            &logged_user_uuid,
-            &company_uuid,
-            conn,
-        )
+        add_company_fav(&logged_user_uuid, &company_uuid, conn)
     }
 
     /// Removes a company from the authorized user's favorites list.
@@ -213,11 +165,7 @@ impl UserMutation {
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        delete_company_fav(
-            &logged_user_uuid,
-            &company_uuid,
-            conn,
-        )
+        delete_company_fav(&logged_user_uuid, &company_uuid, conn)
     }
 
     /// Adds a component to a authorized user's favorite list.
@@ -232,11 +180,7 @@ impl UserMutation {
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        add_component_fav(
-            &logged_user_uuid,
-            &component_uuid,
-            conn,
-        )
+        add_component_fav(&logged_user_uuid, &component_uuid, conn)
     }
 
     /// Removes a component from the authorized user's favorites list.
@@ -251,11 +195,7 @@ impl UserMutation {
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        delete_component_fav(
-            &logged_user_uuid,
-            &component_uuid,
-            conn,
-        )
+        delete_component_fav(&logged_user_uuid, &component_uuid, conn)
     }
 
     /// Adds a standard to a authorized user's favorite list.
@@ -270,11 +210,7 @@ impl UserMutation {
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        add_standard_fav(
-            &logged_user_uuid,
-            &standard_uuid,
-            conn,
-        )
+        add_standard_fav(&logged_user_uuid, &standard_uuid, conn)
     }
 
     /// Removes a standard from the authorized user's favorites list.
@@ -289,49 +225,29 @@ impl UserMutation {
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        delete_standard_fav(
-            &logged_user_uuid,
-            &standard_uuid,
-            conn,
-        )
+        delete_standard_fav(&logged_user_uuid, &standard_uuid, conn)
     }
 
     /// Adds a user to a authorized user's favorite list.
-    async fn add_user_fav(
-        &self,
-        cxt: &Context<'_>,
-        user_uuid: Uuid,
-    ) -> ServiceResult<bool> {
+    async fn add_user_fav(&self, cxt: &Context<'_>, user_uuid: Uuid) -> ServiceResult<bool> {
         use crate::models::user::user_fav::service::add::add_user_fav;
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        add_user_fav(
-            &logged_user_uuid,
-            &user_uuid,
-            conn,
-        )
+        add_user_fav(&logged_user_uuid, &user_uuid, conn)
     }
 
     /// Removes a user from the authorized user's favorites list.
-    async fn delete_user_fav(
-        &self,
-        cxt: &Context<'_>,
-        user_uuid: Uuid,
-    ) -> ServiceResult<bool> {
+    async fn delete_user_fav(&self, cxt: &Context<'_>, user_uuid: Uuid) -> ServiceResult<bool> {
         use crate::models::user::user_fav::service::delete::delete_user_fav;
 
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        delete_user_fav(
-            &logged_user_uuid,
-            &user_uuid,
-            conn,
-        )
+        delete_user_fav(&logged_user_uuid, &user_uuid, conn)
     }
 
     /// Sets a notification as read.
@@ -346,11 +262,7 @@ impl UserMutation {
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        set_notifications_as_read(
-            &logged_user_uuid,
-            &notifications_ids,
-            conn,
-        )
+        set_notifications_as_read(&logged_user_uuid, &notifications_ids, conn)
     }
 
     /// Removes a notification for a user.
@@ -365,11 +277,7 @@ impl UserMutation {
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        delete_notifications(
-            &logged_user_uuid,
-            &notifications_ids,
-            conn,
-        )
+        delete_notifications(&logged_user_uuid, &notifications_ids, conn)
     }
 
     async fn logout(&self, cxt: &Context<'_>) -> ServiceResult<String> {

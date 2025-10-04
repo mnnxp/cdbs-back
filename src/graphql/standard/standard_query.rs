@@ -1,24 +1,22 @@
-use crate::errors::ServiceResult;
 use crate::database::{get_conn, PooledConnection};
+use crate::errors::ServiceResult;
 use crate::graphql::relate::attributes::IptPaginate;
-use crate::models::search::model::ExtraOptions;
-use crate::models::search::order::Paginate;
-use crate::models::user::access::logged::{get_logged_user_uuid, check_authorized};
-use crate::models::standard::{
-    model::{
-        ShowStandardShort, StandardAndRelatedData, StandardsArg, IptStandardsArg,
-        StandardFilesArg, IptStandardFilesArg
-    },
-    relate::standard_status::model::StandardStatusTranslateList,
-    access::company::model::CompanyAccessStandardAndRelatedData,
-    access::user::model::UserAccessStandardAndRelatedData,
+use crate::graphql::standard_model::{
+    IptStandardFilesArg, IptStandardsArg, ShowStandardShort, StandardAndRelatedData,
 };
 use crate::models::relate_ref::{
+    file::model::DownloadFile, keyword::model::Keyword, language::get_set_language,
     spec::model::SpecTranslateList,
-    keyword::model::Keyword,
-    file::model::DownloadFile,
-    language::get_set_language,
 };
+use crate::models::search::model::ExtraOptions;
+use crate::models::search::order::Paginate;
+use crate::models::standard::{
+    access::company::model::CompanyAccessStandardAndRelatedData,
+    access::user::model::UserAccessStandardAndRelatedData,
+    model::{StandardFilesArg, StandardsArg},
+    relate::standard_status::model::StandardStatusTranslateList,
+};
+use crate::models::user::access::logged::{check_authorized, get_logged_user_uuid};
 use async_graphql::{self, Context, Object};
 use uuid::Uuid;
 
@@ -40,15 +38,11 @@ impl StandardQuery {
         // authorization check
         let options = ExtraOptions::from_cxt(cxt, false)?;
         let arguments = StandardsArg::by_arg(args);
-        let p = paginate.map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
+        let p = paginate
+            .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
             .unwrap_or_default();
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
-        get_standard(
-            &arguments,
-            &options,
-            &p,
-            conn,
-        )
+        get_standard(&arguments, &options, &p, conn)
     }
 
     /// Returns complete information about the standard by UUID.
@@ -63,7 +57,8 @@ impl StandardQuery {
         let options = ExtraOptions::from_cxt(cxt, false)?;
         // let s = sort.map(|s| Sort::parsing(TableName::StandardRef, &s.by_field, s.as_desc))
         //     .unwrap_or(Sort::set_by_table(TableName::StandardRef));
-        let p = paginate.map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
+        let p = paginate
+            .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
             .unwrap_or_default();
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
         find_by_uuid(&standard_uuid, &options, &p, conn)
@@ -80,7 +75,8 @@ impl StandardQuery {
         // authorization check
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
         let arguments: StandardFilesArg = args.into();
-        let p = paginate.map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
+        let p = paginate
+            .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
             .unwrap_or_default();
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
         get_standard_files(&logged_user_uuid, &arguments, &p, conn)
@@ -97,7 +93,8 @@ impl StandardQuery {
 
         // authorization check
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
-        let p = paginate.map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
+        let p = paginate
+            .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
             .unwrap_or_default();
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
         get_standard_specs(
@@ -105,7 +102,7 @@ impl StandardQuery {
             &standard_uuid,
             &get_set_language(cxt),
             &p,
-            conn
+            conn,
         )
     }
 
@@ -120,15 +117,11 @@ impl StandardQuery {
 
         // authorization check
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
-        let p = paginate.map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
+        let p = paginate
+            .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
             .unwrap_or_default();
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
-        get_standard_keywords(
-            &logged_user_uuid,
-            &standard_uuid,
-            &p,
-            conn
-        )
+        get_standard_keywords(&logged_user_uuid, &standard_uuid, &p, conn)
     }
 
     /// Returns a list of companies that have access to a standard.
@@ -147,7 +140,7 @@ impl StandardQuery {
             &logged_user_uuid,
             &standard_uuid,
             &get_set_language(cxt),
-            conn
+            conn,
         )
     }
 
@@ -168,7 +161,7 @@ impl StandardQuery {
             &logged_user_uuid,
             &standard_uuid,
             &get_set_language(cxt),
-            conn
+            conn,
         )
     }
 

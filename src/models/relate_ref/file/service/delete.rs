@@ -1,8 +1,11 @@
 use crate::errors::{ServiceError, ServiceResult};
-use crate::models::relate_ref::file::util::check_default_file;
 use crate::models::relate_ref::file::access::check_file_owner_err;
+use crate::models::relate_ref::file::util::check_default_file;
+use crate::schema::file_ref::dsl as file_ref;
 use diesel::prelude::*;
 use uuid::Uuid;
+
+use super::update::related_file_updated_at;
 
 /// Deletes a file in storage and row in database
 /// with check ownership by uuid
@@ -13,9 +16,13 @@ pub(crate) fn delete_file_with_check_by_uuid(
 ) -> ServiceResult<bool> {
     // ownership check and data update
     check_file_owner_err(logged_user_uuid, file_uuid, conn)?;
-
     // set flag is_delete for target file
-    delete_file_by_uuid(file_uuid, conn)
+    let res = delete_file_by_uuid(file_uuid, conn)?;
+    if res {
+        // save info about the action in related object and logs
+        related_file_updated_at(logged_user_uuid, file_uuid, None, true, conn)?;
+    }
+    Ok(res)
 }
 
 /// Set flag is_delete for delete data in future
@@ -24,8 +31,6 @@ pub(crate) fn delete_file_by_uuid(
     file_uuid: &Uuid,
     conn: &mut PgConnection,
 ) -> ServiceResult<bool> {
-    use crate::schema::file_ref::dsl as file_ref;
-
     if check_default_file(file_uuid) {
         // this default file
         return Ok(false);
@@ -52,8 +57,6 @@ pub(crate) fn delete_file_by_uuids(
     file_uuids: &[Uuid],
     conn: &mut PgConnection,
 ) -> ServiceResult<bool> {
-    use crate::schema::file_ref::dsl as file_ref;
-
     let count = diesel::update(file_ref::file_ref)
         .filter(file_ref::uuid.eq_any(file_uuids))
         .set((

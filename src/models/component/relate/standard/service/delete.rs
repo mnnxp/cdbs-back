@@ -1,5 +1,5 @@
+use crate::errors::err_msg::{get_err_msg, ErrorMessage};
 use crate::errors::ServiceResult;
-use crate::errors::err_msg::{ErrorMessage, get_err_msg};
 use crate::models::component::standard::model::DelStandardToComponentData;
 use diesel::prelude::*;
 use uuid::Uuid;
@@ -8,7 +8,7 @@ use uuid::Uuid;
 pub(crate) fn del_standards_component(
     logged_user_uuid: &Uuid,
     data: &DelStandardToComponentData,
-    conn: &mut PgConnection
+    conn: &mut PgConnection,
 ) -> ServiceResult<usize> {
     use crate::schema::standard_to_component::dsl::*;
 
@@ -18,19 +18,25 @@ pub(crate) fn del_standards_component(
         logged_user_uuid,
         &data.component_uuid,
         &need_access_level,
-        conn
+        conn,
     )?;
 
-    let del_count = diesel::delete(standard_to_component
-        .filter(component_uuid.eq(&data.component_uuid)
-        .and(standard_uuid.eq_any(&data.standards_uuids))))
-        .execute(conn);
+    let del_count = diesel::delete(
+        standard_to_component.filter(
+            component_uuid
+                .eq(&data.component_uuid)
+                .and(standard_uuid.eq_any(&data.standards_uuids)),
+        ),
+    )
+    .execute(conn);
 
     match del_count {
         Ok(count) => Ok(count),
         Err(err) => {
             debug!("Failed delete related standards to component: {:?}", err);
-            Err(get_err_msg(ErrorMessage::FailedDeleteRelatedStandardsComponent))
-        },
+            Err(get_err_msg(
+                ErrorMessage::FailedDeleteRelatedStandardsComponent,
+            ))
+        }
     }
 }

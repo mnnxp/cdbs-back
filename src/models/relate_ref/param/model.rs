@@ -1,8 +1,6 @@
 use crate::schema::*;
-use crate::models::component::param::model::ComponentParam;
-use crate::models::component::component_modification::param::model::ModificationParam;
-use crate::models::relate_ref::language::model::Language;
 use async_graphql::*;
+use diesel::sql_types;
 
 // Param models
 #[derive(Identifiable, Serialize, Deserialize, Queryable, Debug)]
@@ -21,13 +19,7 @@ pub(crate) struct InsertableParam {
 // Param translations
 /// Localized parameter data. Parameters are used as a characterization element
 /// to add characteristics to components, component modifications, and standards
-#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations)]
-#[derive(SimpleObject, Clone, Default, Debug)]
-#[diesel(primary_key(param_id, lang_id))]
-#[diesel(belongs_to(Param, foreign_key = param_id))]
-#[diesel(belongs_to(ComponentParam, foreign_key = param_id))]
-#[diesel(belongs_to(ModificationParam, foreign_key = param_id))]
-#[diesel(belongs_to(Language, foreign_key = lang_id))]
+#[derive(Serialize, Deserialize, Queryable, SimpleObject, Clone, Debug, Default)]
 #[diesel(table_name = param_translate_list)]
 pub(crate) struct ParamTranslateList {
     /// Parameter identifier
@@ -36,6 +28,17 @@ pub(crate) struct ParamTranslateList {
     pub(crate) lang_id: i32,
     /// Localized name of the parameter
     pub(crate) paramname: String,
+}
+
+/// Structure for parameter value queries
+#[derive(QueryableByName)]
+pub(crate) struct ParamValue {
+    /// Parameter identifier
+    #[diesel(sql_type = sql_types::Integer)]
+    pub(crate) param_id: i32,
+    /// Value of the service parameter
+    #[diesel(sql_type = sql_types::Text)]
+    pub(crate) value: String,
 }
 
 /// Data for a request to add a new parameter

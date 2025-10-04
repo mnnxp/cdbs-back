@@ -1,17 +1,11 @@
+use crate::models::relate_ref::param::model::{IptParamData, ParamTranslateList};
 use crate::schema::*;
-use crate::models::component::model::Component;
-use crate::models::relate_ref::param::model::{
-    ParamTranslateList, IptParamData
-};
 use async_graphql::*;
 // use chrono::*;
 use uuid::Uuid;
 
 // Param component models
-#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations, Clone, Debug)]
-#[diesel(primary_key(component_uuid, param_id))]
-#[diesel(belongs_to(Component, foreign_key = component_uuid))]
-#[diesel(belongs_to(ParamTranslateList, foreign_key = param_id))]
+#[derive(Serialize, Deserialize, Queryable, SimpleObject, Clone, Debug)]
 #[diesel(table_name = param_to_component)]
 pub(crate) struct ComponentParam {
     pub(crate) component_uuid: Uuid,
@@ -59,11 +53,11 @@ impl From<IptComponentParamsData> for Vec<InsertableComponentParam> {
         for param_d in params {
             // now off checking, check the before
             // if param_d.param_id > 0 { // <-- additionally we check the correctness of the id
-                res.push(InsertableComponentParam {
-                    component_uuid,
-                    param_id: param_d.param_id,
-                    value: param_d.value,
-                })
+            res.push(InsertableComponentParam {
+                component_uuid,
+                param_id: param_d.param_id,
+                value: param_d.value,
+            })
             // }
         }
         res

@@ -24,19 +24,13 @@ var authorizationTokenSecond = "";
 
 // data for standard
 const parentStandardUuid = "303ec2aa-2066-42e3-93fb-de4fb9344bcb";
-const classifierStandard = "GOST-2012-Test";
 const nameStandard = "GOST 2012 Test standard";
 const descriptionStandard = "Test GOST standard";
-const specifiedTolerance = "C";
-const technicalCommittee = "GOST";
 const publicationAt = "2021-07-31T00:00:00";
 const standardStatusId = 1;
 const regionId = 5;
-const classifierStandard2 = "GOST-2012-Test 2222";
 const nameStandard2 = "GOST 2012 Test standard 2222";
 const descriptionStandard2 = "Test GOST standard 2222";
-const specifiedTolerance2 = "C 2222";
-const technicalCommittee2 = "GOST 2222";
 const publicationAt2 = "2011-08-31T00:00:00";
 const standardStatusId2 =  3;
 const regionId2 = 5;
@@ -47,11 +41,8 @@ var standardUuidNoSupplier = "";
 const standardFullDataQuery = ` \
 uuid \
 parentStandardUuid \
-classifier \
 name \
 description \
-specifiedTolerance \
-technicalCommittee \
 publicationAt \
 imageFile { \
   uuid \
@@ -105,11 +96,6 @@ standardStatus { \
   langId \
   name \
 } \
-region { \
-  regionId \
-  langId \
-  region \
-} \
 standardFiles { \
   uuid \
   filename \
@@ -150,10 +136,8 @@ updatedAt \
 
 const standardsListQuery = ` \
 uuid \
-classifier \
 name \
 description \
-specifiedTolerance \
 publicationAt \
 ownerCompany { \
   uuid \
@@ -351,7 +335,7 @@ async function setFlagDeleteAsOldRevDb(fileUuid) {
   ]);
 }
 
-describe('company', () => {
+describe('standard', () => {
   beforeAll(() => {
     cleanupCompanyRepresentDb();
     cleanupStandardDb();
@@ -568,16 +552,12 @@ describe('company', () => {
       .send({
         query: `mutation standardQuery {
           registerStandard(args: {
-            classifier: "${classifierStandard}",
             name: "${nameStandard}",
             description: "${descriptionStandard}",
-            specifiedTolerance: "${specifiedTolerance}",
-            technicalCommittee: "${technicalCommittee}",
             publicationAt: "${publicationAt}",
             companyUuid: "${companyUuidSupplier}",
             typeAccessId: ${typeAccessId3},
             standardStatusId: ${standardStatusId},
-            regionId: ${regionId}
           })
         }`,
       })
@@ -600,16 +580,12 @@ describe('company', () => {
         query: `mutation standardQuery {
           registerStandard(args: {
             parentStandardUuid: "${parentStandardUuid}",
-            classifier: "${classifierStandard}",
             name: "${nameStandard}",
             description: "${descriptionStandard}",
-            specifiedTolerance: "${specifiedTolerance}",
-            technicalCommittee: "${technicalCommittee}",
             publicationAt: "${publicationAt}",
             companyUuid: "${companyUuidSupplier}",
             typeAccessId: ${typeAccessId3},
             standardStatusId: ${standardStatusId},
-            regionId: ${regionId}
           })
         }`,
       })
@@ -631,16 +607,12 @@ describe('company', () => {
       .send({
         query: `mutation standardQuery {
           registerStandard(args: {
-            classifier: "${classifierStandard}",
             name: "${nameStandard}",
             description: "${descriptionStandard}",
-            specifiedTolerance: "${specifiedTolerance}",
-            technicalCommittee: "${technicalCommittee}",
             publicationAt: "${publicationAt}",
             companyUuid: "${companyUuidSupplier}",
             typeAccessId: ${typeAccessId3},
             standardStatusId: ${standardStatusId},
-            regionId: ${regionId}
           })
         }`,
       })
@@ -665,16 +637,12 @@ describe('company', () => {
       .send({
         query: `mutation standardQuery {
           registerStandard(args: {
-            classifier: "${classifierStandard}",
             name: "${nameStandard}",
             description: "${descriptionStandard}",
-            specifiedTolerance: "${specifiedTolerance}",
-            technicalCommittee: "${technicalCommittee}",
             publicationAt: "${publicationAt}",
             companyUuid: "${companyUuidSupplier}",
             typeAccessId: ${typeAccessId1},
             standardStatusId: ${standardStatusId},
-            regionId: ${regionId}
           })
         }`,
       })
@@ -698,16 +666,12 @@ describe('company', () => {
         query: `mutation standardQuery {
           registerStandard(args: {
             parentStandardUuid: "${standardUuidFirst}",
-            classifier: "${classifierStandard}",
             name: "${nameStandard}",
             description: "${descriptionStandard}",
-            specifiedTolerance: "${specifiedTolerance}",
-            technicalCommittee: "${technicalCommittee}",
             publicationAt: "${publicationAt}",
             companyUuid: "${companyUuidSupplier}",
             typeAccessId: ${typeAccessId1},
             standardStatusId: ${standardStatusId},
-            regionId: ${regionId}
           })
         }`,
       })
@@ -732,16 +696,12 @@ describe('company', () => {
         query: `mutation standardQuery {
           registerStandard(args: {
             parentStandardUuid: "${standardUuidFirst}",
-            classifier: "${classifierStandard}",
             name: "${nameStandard}",
             description: "${descriptionStandard}",
-            specifiedTolerance: "${specifiedTolerance}",
-            technicalCommittee: "${technicalCommittee}",
             publicationAt: "${publicationAt}",
             companyUuid: "${companyUuidSupplier}",
             typeAccessId: ${typeAccessId3},
             standardStatusId: ${standardStatusId},
-            regionId: ${regionId}
           })
         }`,
       })
@@ -763,16 +723,12 @@ describe('company', () => {
       .send({
         query: `mutation standardQuery {
           registerStandard(args: {
-            classifier: "${classifierStandard}",
             name: "${nameStandard}",
             description: "${descriptionStandard}",
-            specifiedTolerance: "${specifiedTolerance}",
-            technicalCommittee: "${technicalCommittee}",
             publicationAt: "${publicationAt}",
             companyUuid: "${companyUuidNoSupplier}",
             typeAccessId: ${typeAccessId3},
             standardStatusId: ${standardStatusId},
-            regionId: ${regionId}
           })
         }`,
       })
@@ -818,14 +774,10 @@ describe('company', () => {
           putStandardUpdate(
             standardUuid: "${standardUuidSecond}"
             args: {
-              classifier: "BES-test-2021",
               name: "name test for upda",
               description: "description test for upda",
-              specifiedTolerance: "A",
-              technicalCommittee: "GMONSTER",
               publicationAt: "1994-01-01T00:00:00",
               standardStatusId: 2,
-              regionId: 3
           })
         }`,
       })
@@ -835,7 +787,7 @@ describe('company', () => {
     const {
       data: { putStandardUpdate },
     } = body;
-    expect(putStandardUpdate).toBe(8);
+    expect(putStandardUpdate).toBe(4);
     done();
   });
 
@@ -851,15 +803,11 @@ describe('company', () => {
           putStandardUpdate(
             standardUuid: "${standardUuidSecond}"
             args: {
-              classifier: "${classifierStandard}",
               name: "${nameStandard}",
               description: "${descriptionStandard}",
-              specifiedTolerance: "${specifiedTolerance}",
-              technicalCommittee: "${technicalCommittee}",
               publicationAt: "${publicationAt}",
               companyUuid: "${companyUuidSupplier}",
               standardStatusId: ${standardStatusId},
-              regionId: ${regionId}
           })
         }`,
       })
@@ -908,15 +856,11 @@ describe('company', () => {
           putStandardUpdate(
             standardUuid: "${standardUuidSecond}"
             args: {
-              classifier: "${classifierStandard}",
               name: "${nameStandard}",
               description: "${descriptionStandard}",
-              specifiedTolerance: "${specifiedTolerance}",
-              technicalCommittee: "${technicalCommittee}",
               publicationAt: "${publicationAt}",
               companyUuid: "${companyUuidSupplier}",
               standardStatusId: ${standardStatusId},
-              regionId: ${regionId}
           })
         }`,
       })
@@ -925,7 +869,7 @@ describe('company', () => {
     const {
       data: { putStandardUpdate },
     } = body;
-    expect(putStandardUpdate).toBe(9);
+    expect(putStandardUpdate).toBe(5);
     done();
   });
 
@@ -941,14 +885,10 @@ describe('company', () => {
           putStandardUpdate(
             standardUuid: "${standardUuidSecond}"
             args: {
-              classifier: "${classifierStandard}",
               name: "${nameStandard}",
               description: "${descriptionStandard}",
-              specifiedTolerance: "${specifiedTolerance}",
-              technicalCommittee: "${technicalCommittee}",
               publicationAt: "${publicationAt}",
               standardStatusId: ${standardStatusId},
-              regionId: ${regionId}
           })
         }`,
       })
@@ -2867,7 +2807,7 @@ describe('company', () => {
         query: `mutation  {
           addStandardKeywordsByNames(args: {
             standardUuid: "${standardUuidFirst}"
-            keywords: ["asd11","asd12345678","asd12"]
+            keywords: ["asd11","слишкомслишкомслишкомслишкомслишкомдлинноеключевоеслово","asd12345678","asd12"]
           })
         }`,
       })
@@ -2875,7 +2815,7 @@ describe('company', () => {
     debug('/graphql addStandardKeywordsByNames=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      "BadRequest: Keywords must be less than 10 symbols"
+      "BadRequest: Text must be less than 100 bit (~50 symbols)"
     );
     expect(body.errors[0].path[0]).toBe('addStandardKeywordsByNames');
     done();
@@ -3200,7 +3140,6 @@ describe('company', () => {
       data: { standard },
     } = body;
     expect(standard.uuid).toBe(standardUuidFirst);
-    expect(standard.classifier).toBe(classifierStandard);
     done();
   });
 
@@ -3226,7 +3165,6 @@ describe('company', () => {
       data: { standards },
     } = body;
     expect(standards[0].uuid).toBe(standardUuidFirst);
-    expect(standards[0].classifier).toBe(classifierStandard);
     done();
   });
 
@@ -3405,14 +3343,10 @@ describe('company', () => {
             putStandardUpdate(
               standardUuid: "${standardUuidFirst}"
               args: {
-                classifier: "${classifierStandard}",
                 name: "${nameStandard}",
                 description: "${descriptionStandard}",
-                specifiedTolerance: "${specifiedTolerance}",
-                technicalCommittee: "${technicalCommittee}",
                 publicationAt: "${publicationAt}",
                 standardStatusId: ${standardStatusId},
-                regionId: ${regionId}
               }
             )
         }`,
@@ -3641,15 +3575,11 @@ describe('company', () => {
             putStandardUpdate(
               standardUuid: "${standardUuidFirst}"
               args: {
-                classifier: "${classifierStandard}",
                 name: "${nameStandard}",
                 description: "${descriptionStandard}",
-                specifiedTolerance: "${specifiedTolerance}",
-                technicalCommittee: "${technicalCommittee}",
                 publicationAt: "${publicationAt}",
                 companyUuid: "${companyUuidNoSupplier}",
                 standardStatusId: ${standardStatusId},
-                regionId: ${regionId}
               }
             )
         }`,
@@ -3676,14 +3606,10 @@ describe('company', () => {
             putStandardUpdate(
               standardUuid: "${standardUuidFirst}"
               args: {
-                classifier: "${classifierStandard2}",
                 name: "${nameStandard2}",
                 description: "${descriptionStandard2}",
-                specifiedTolerance: "${specifiedTolerance2}",
-                technicalCommittee: "${technicalCommittee2}",
                 publicationAt: "${publicationAt2}",
                 standardStatusId: ${standardStatusId2},
-                regionId: ${regionId2}
               }
             )
         }`,
@@ -3694,7 +3620,7 @@ describe('company', () => {
     const {
       data: { putStandardUpdate },
     } = body;
-    expect(putStandardUpdate).toBe(7);
+    expect(putStandardUpdate).toBe(4);
     done();
   });
 
@@ -3766,7 +3692,6 @@ describe('company', () => {
             putStandardUpdate(
               standardUuid: "${standardUuidFirst}"
               args: {
-                classifier: "${classifierStandard}",
                 name: "${nameStandard}",
               }
             )
@@ -3794,15 +3719,11 @@ describe('company', () => {
             putStandardUpdate(
               standardUuid: "${standardUuidFirst}"
               args: {
-                classifier: "${classifierStandard}",
                 name: "${nameStandard}",
                 description: "${descriptionStandard}",
-                specifiedTolerance: "${specifiedTolerance}",
-                technicalCommittee: "${technicalCommittee}",
                 publicationAt: "${publicationAt}",
                 companyUuid: "${companyUuidNoSupplier}",
                 standardStatusId: ${standardStatusId},
-                regionId: ${regionId}
               }
             )
         }`,
@@ -3896,7 +3817,6 @@ describe('company', () => {
       data: { standards },
     } = body;
     expect(standards[0].uuid).toBe(standardUuidFirst);
-    expect(standards[0].classifier).toBe(classifierStandard2);
     done();
   });
 
@@ -3912,15 +3832,11 @@ describe('company', () => {
             putStandardUpdate(
               standardUuid: "${standardUuidFirst}"
               args: {
-                classifier: "${classifierStandard}",
                 name: "${nameStandard}",
                 description: "${descriptionStandard}",
-                specifiedTolerance: "${specifiedTolerance}",
-                technicalCommittee: "${technicalCommittee}",
                 publicationAt: "${publicationAt}",
                 companyUuid: "${companyUuidNoSupplier}",
                 standardStatusId: ${standardStatusId},
-                regionId: ${regionId}
               }
             )
         }`,
@@ -4047,15 +3963,11 @@ describe('company', () => {
             putStandardUpdate(
               standardUuid: "${standardUuidFirst}"
               args: {
-                classifier: "${classifierStandard2}",
                 name: "${nameStandard2}",
                 description: "${descriptionStandard2}",
-                specifiedTolerance: "${specifiedTolerance2}",
-                technicalCommittee: "${technicalCommittee2}",
                 publicationAt: "${publicationAt2}",
                 companyUuid: "${companyUuidNoSupplier}",
                 standardStatusId: ${standardStatusId2},
-                regionId: ${regionId2}
               }
             )
         }`,
@@ -4082,14 +3994,10 @@ describe('company', () => {
             putStandardUpdate(
               standardUuid: "${standardUuidFirst}"
               args: {
-                classifier: "${classifierStandard}",
                 name: "${nameStandard2}",
                 description: "${descriptionStandard}",
-                specifiedTolerance: "${specifiedTolerance2}",
-                technicalCommittee: "${technicalCommittee}",
                 publicationAt: "${publicationAt2}",
                 standardStatusId: ${standardStatusId},
-                regionId: ${regionId2}
               }
             )
         }`,
@@ -4100,7 +4008,7 @@ describe('company', () => {
     const {
       data: { putStandardUpdate },
     } = body;
-    expect(putStandardUpdate).toBe(4);
+    expect(putStandardUpdate).toBe(2);
     done();
   });
 
@@ -4263,15 +4171,11 @@ describe('company', () => {
             putStandardUpdate(
               standardUuid: "${standardUuidFirst}"
               args: {
-                classifier: "${classifierStandard}",
                 name: "${nameStandard}",
                 description: "${descriptionStandard}",
-                specifiedTolerance: "${specifiedTolerance}",
-                technicalCommittee: "${technicalCommittee}",
                 publicationAt: "${publicationAt}",
                 companyUuid: "${companyUuidNoSupplier}",
                 standardStatusId: ${standardStatusId},
-                regionId: ${regionId}
               }
             )
         }`,

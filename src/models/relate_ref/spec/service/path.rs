@@ -1,10 +1,8 @@
-use crate::errors::{ServiceResult, ServiceError};
-use crate::errors::err_msg::{ErrorMessage, get_err_msg};
-use crate::models::relate_ref::spec::model::{
-    Spec, SpecTranslateList, SpecPath, SpecPathArg
-};
+use crate::errors::err_msg::{get_err_msg, ErrorMessage};
+use crate::errors::{ServiceError, ServiceResult};
+use crate::models::relate_ref::spec::model::{Spec, SpecPath, SpecPathArg, SpecTranslateList};
 use crate::models::search::order::Paginate;
-use diesel::{PgConnection, prelude::*};
+use diesel::{prelude::*, PgConnection};
 
 /// Returns paths to catalogs by ID.
 /// When creating a catalog path, the specified separator or default separator "/" is used.
@@ -15,26 +13,16 @@ pub(crate) fn get_paths_specs(
     paginate: &Paginate,
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<SpecPath>> {
-    let select_ids = get_spec_ids(
-        &args.spec_ids,
-        paginate,
-        conn
-    )?;
+    let select_ids = get_spec_ids(&args.spec_ids, paginate, conn)?;
     if select_ids.len() > 100 {
-        return Err(get_err_msg(ErrorMessage::NotMorePathInOneQuery))
+        return Err(get_err_msg(ErrorMessage::NotMorePathInOneQuery));
     }
     let mut result: Vec<SpecPath> = Vec::new();
     for sid in &select_ids {
-        result.push(SpecPath{
+        result.push(SpecPath {
             spec_id: *sid,
             lang_id: *set_lang_id,
-            path: collect_path_spec(
-                sid,
-                &args.split_char,
-                &args.depth_level,
-                set_lang_id,
-                conn
-            )?
+            path: collect_path_spec(sid, &args.split_char, &args.depth_level, set_lang_id, conn)?,
         });
     }
     Ok(result)
@@ -51,7 +39,8 @@ fn get_spec_ids(
     if !spec_ids.is_empty() {
         query = query.filter(spec_ref::id.eq_any(spec_ids));
     }
-    let res_ids = query.select(spec_ref::id)
+    let res_ids = query
+        .select(spec_ref::id)
         .offset(paginate.offset)
         .limit(paginate.limit)
         .load::<i32>(conn)
@@ -60,7 +49,7 @@ fn get_spec_ids(
             ServiceError::InternalServerError
         })?;
     if !spec_ids.is_empty() && res_ids.is_empty() {
-        return Err(get_err_msg(ErrorMessage::SpecNotFound))
+        return Err(get_err_msg(ErrorMessage::SpecNotFound));
     }
     Ok(res_ids)
 }
@@ -73,29 +62,19 @@ fn collect_path_spec(
     set_lang_id: &i32,
     conn: &mut PgConnection,
 ) -> ServiceResult<String> {
-    let target_specs_ids = get_parents_ids(
-        spec_id,
-        depth_level,
-        conn
-    ).map_err(|err| {
+    let target_specs_ids = get_parents_ids(spec_id, depth_level, conn).map_err(|err| {
         debug!("Failed get parents ids: {}", err);
         ServiceError::InternalServerError
     })?;
 
-    let target_specs_data = SpecTranslateList::get_by_ids(
-        &target_specs_ids,
-        set_lang_id,
-        &Paginate::default(),
-        conn
-    ).map_err(|err| {
-        debug!("Failed get spec data by ids: {}", err);
-        ServiceError::InternalServerError
-    })?;
+    let target_specs_data =
+        SpecTranslateList::get_by_ids(&target_specs_ids, set_lang_id, &Paginate::default(), conn)
+            .map_err(|err| {
+            debug!("Failed get spec data by ids: {}", err);
+            ServiceError::InternalServerError
+        })?;
 
-    Ok(get_path_from_specs(
-        &target_specs_data,
-        split_char
-    ))
+    Ok(get_path_from_specs(&target_specs_data, split_char))
 }
 
 /// Get all parents specs up to setting depth level
@@ -113,13 +92,9 @@ fn get_parents_ids(
     };
 
     loop {
-        let spec: Spec = Spec::get_by_id(
-            &spec_id,
-            conn
-        )?;
+        let spec: Spec = Spec::get_by_id(&spec_id, conn)?;
 
-        if spec.id == spec.parent_spec_id ||
-            specs_levels.len() >= depth_level {
+        if spec.id == spec.parent_spec_id || specs_levels.len() >= depth_level {
             break;
         }
 
@@ -131,10 +106,7 @@ fn get_parents_ids(
 }
 
 /// Parsing specs data and collect patch for target lang
-fn get_path_from_specs(
-    specs_data: &[SpecTranslateList],
-    split_char: &char,
-) -> String {
+fn get_path_from_specs(specs_data: &[SpecTranslateList], split_char: &char) -> String {
     let mut path_spec = String::new();
     // let split = format!(" {} ", split_char);
     let split = split_char.to_string();

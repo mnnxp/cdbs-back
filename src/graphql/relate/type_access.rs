@@ -1,20 +1,19 @@
-use crate::errors::ServiceResult;
 use crate::database::{get_conn, PooledConnection};
+use crate::errors::ServiceResult;
 use crate::models::relate_ref::{
-    type_access::service::{list::get_type_access, register::create_type_access},
-    type_access::model::{IptTypeAccessTranslateListData, TypeAccessTranslateList},
     language::get_set_language,
+    type_access::model::TypeAccessTranslateList,
+    type_access::service::list::get_type_access,
 };
 use crate::models::search::order::Paginate;
-use crate::models::user::access::logged::check_authorized;
 use async_graphql::{self, Context, Object};
 
 use super::attributes::IptPaginate;
 
 #[derive(Default)]
 pub struct TypeAccessQuery;
-#[derive(Default)]
-pub struct TypeAccessMutation;
+// #[derive(Default)]
+// pub struct TypeAccessMutation;
 
 #[Object]
 impl TypeAccessQuery {
@@ -26,24 +25,30 @@ impl TypeAccessQuery {
         type_access_ids: Option<Vec<i32>>,
         paginate: Option<IptPaginate>,
     ) -> ServiceResult<Vec<TypeAccessTranslateList>> {
-        let p = paginate.map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
+        let p = paginate
+            .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
             .unwrap_or_default();
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
-        get_type_access(&type_access_ids.unwrap_or_default(), &get_set_language(cxt), &p, conn)
+        get_type_access(
+            &type_access_ids.unwrap_or_default(),
+            &get_set_language(cxt),
+            &p,
+            conn,
+        )
     }
 }
 
-#[Object]
-impl TypeAccessMutation {
-    /// Adds a new type access.
-    /// Returns an error with the type access ID if it already exists.
-    async fn register_type_access(
-        &self,
-        cxt: &Context<'_>,
-        args: IptTypeAccessTranslateListData,
-    ) -> ServiceResult<TypeAccessTranslateList> {
-        check_authorized(cxt)?;
-        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
-        create_type_access(&args, conn)
-    }
-}
+// #[Object]
+// impl TypeAccessMutation {
+//     /// Adds a new type access.
+//     /// Returns an error with the type access ID if it already exists.
+//     async fn register_type_access(
+//         &self,
+//         cxt: &Context<'_>,
+//         args: IptTypeAccessTranslateListData,
+//     ) -> ServiceResult<TypeAccessTranslateList> {
+//         check_authorized(cxt)?;
+//         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+//         create_type_access(&args, conn)
+//     }
+// }

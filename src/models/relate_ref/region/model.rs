@@ -1,8 +1,4 @@
 use crate::schema::*;
-use crate::models::company::model::Company;
-use crate::models::company::company_represent::model::CompanyRepresent;
-use crate::models::user::model::User;
-use crate::models::relate_ref::language::model::Language;
 use async_graphql::*;
 
 // Region models
@@ -21,14 +17,7 @@ pub(crate) struct InsertableRegion {
 
 // Region translations
 /// Global (conditional) region data with localization
-#[derive(Identifiable, Serialize, Deserialize, Queryable, Associations)]
-#[derive(SimpleObject, Clone, Default, Debug)]
-#[diesel(primary_key(region_id, lang_id))]
-#[diesel(belongs_to(Region, foreign_key = region_id))]
-#[diesel(belongs_to(Company, foreign_key = region_id))]
-#[diesel(belongs_to(CompanyRepresent, foreign_key = region_id))]
-#[diesel(belongs_to(User, foreign_key = region_id))]
-#[diesel(belongs_to(Language, foreign_key = lang_id))]
+#[derive(Serialize, Deserialize, Queryable, SimpleObject, Clone, Debug)]
 #[diesel(table_name = region_translate_list)]
 pub(crate) struct RegionTranslateList {
     /// Region identifier
