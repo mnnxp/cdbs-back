@@ -5,6 +5,10 @@ use structopt::StructOpt;
 #[derive(StructOpt, Debug, Clone)]
 #[structopt(name = "cdbs-back")]
 pub struct Opt {
+    /// Entry point of the GraphQL API (for display)
+    #[structopt(long, env = "API_POINT", default_value = "http://127.0.0.1:3000/graphql")]
+    pub api_point: String,
+
     /// Port to listen to
     #[structopt(short, long, env = "PORT", default_value = "3000")]
     pub port: u16,

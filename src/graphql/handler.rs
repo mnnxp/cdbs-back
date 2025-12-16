@@ -51,11 +51,10 @@ pub async fn graphql(
 }
 
 pub async fn graphiql(opt: web::Data<Opt>) -> Result<HttpResponse> {
-    let gql_ver = &format!("http://{}:{}/graphql", opt.domain, opt.port);
     Ok(HttpResponse::Ok()
         .content_type("text/html; charset=utf-8")
         .body(playground_source(
-            GraphQLPlaygroundConfig::new(gql_ver).subscription_endpoint(gql_ver),
+            GraphQLPlaygroundConfig::new(&opt.api_point).subscription_endpoint(&opt.api_point),
         )))
 }
 
