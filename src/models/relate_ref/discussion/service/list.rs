@@ -37,7 +37,7 @@ pub(crate) fn get_discussion_comment_list(
     discussion_to.check_access(&options.logged_user_uuid, &3, conn)?;
     let mut res = Vec::new();
     for comment_uuid in &DiscussionCommentList::get_uuids(args, conn)? {
-        res.push(get_discuss_comment(comment_uuid, conn)?)
+        res.push(get_discuss_comment(comment_uuid, &options.domain, conn)?)
     }
     Ok(res)
 }
@@ -45,6 +45,7 @@ pub(crate) fn get_discussion_comment_list(
 /// Adds information from other tables to the data
 fn get_discuss_comment(
     comment_uuid: &Uuid,
+    domain: &str,
     conn: &mut PgConnection,
 ) -> ServiceResult<DiscussionCommentData> {
     let dcl = DiscussionCommentList::get_by_uuid(comment_uuid, conn)?;
@@ -52,7 +53,7 @@ fn get_discuss_comment(
         uuid: dcl.uuid,
         discussion_uuid: dcl.discussion_uuid,
         parent_comment_uuid: dcl.parent_comment_uuid,
-        author: ShowUserShort::get_without_check_by_uuid(&dcl.author_uuid, conn)?,
+        author: ShowUserShort::get_without_check_by_uuid(&dcl.author_uuid, domain, conn)?,
         message_content: dcl.message_content,
         is_edited: dcl.is_edited,
         is_hidden: dcl.is_hidden,

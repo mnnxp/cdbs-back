@@ -10,7 +10,7 @@ use crate::models::search::order::{objects_order, Paginate, Sort, TableName};
 use crate::models::user::model::ShowUserShort;
 use crate::schema::file_ref::dsl as file_ref;
 use crate::schema::presigned_url_ref::dsl as presigned_url_ref;
-use crate::storage::model::StorageAccess;
+use crate::storage::model::{S3Proxer, StorageAccess};
 use crate::storage::presigned_url::{download_presigned_url, save_presign_url};
 use diesel::prelude::*;
 use uuid::Uuid;
@@ -83,10 +83,11 @@ impl ShowFileRelatedData {
         target_file_uuids: &[Uuid],
         sort: &Sort,
         paginate: &Paginate,
+        domain: &str,
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<ShowFileRelatedData>> {
         let file_uuids = get_by_uuids(target_file_uuids, conn)?;
-        ShowFileRelatedData::data_enrichment(&file_uuids, sort, paginate, conn)
+        ShowFileRelatedData::data_enrichment(&file_uuids, sort, paginate, domain, conn)
     }
 
     /// Adds information from other tables to the data (about the user, relevante program by extension)
@@ -94,6 +95,7 @@ impl ShowFileRelatedData {
         file_uuids: &[Uuid],
         sort: &Sort,
         paginate: &Paginate,
+        domain: &str,
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<ShowFileRelatedData>> {
         let mut res = Vec::new();
@@ -105,7 +107,7 @@ impl ShowFileRelatedData {
                 revision: sf.revision,
                 commit_msg: Commit::get_message(&sf.commit_uuid, conn)?,
                 parent_file_uuid: sf.parent_file_uuid,
-                owner_user: ShowUserShort::get_without_check_by_uuid(&sf.user_uuid, conn)?,
+                owner_user: ShowUserShort::get_without_check_by_uuid(&sf.user_uuid, domain, conn)?,
                 content_type: sf.content_type.clone(),
                 filesize: sf.filesize,
                 program: Program::get_program_for_ext(&sf.id_ext, conn)?,
@@ -119,6 +121,7 @@ impl ShowFileRelatedData {
     pub(crate) fn get_revisions_by_uuid(
         file_uuid: &Uuid,
         paginate: &Paginate,
+        domain: &str,
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<ShowFileRelatedData>> {
         let mut revision_uuids = Vec::new();
@@ -130,6 +133,7 @@ impl ShowFileRelatedData {
             &file_uuids,
             &Sort::parsing(TableName::FileRef, "revision", false),
             paginate,
+            domain,
             conn,
         )
     }
@@ -267,6 +271,7 @@ impl SlimFile {
     /// Returns a pre-signed link to a file in the repository (without check access)
     pub(crate) fn get_download_string(
         file_uuid: &Uuid,
+        domain: &str,
         conn: &mut PgConnection,
     ) -> ServiceResult<String> {
         let slim_file = file_ref::file_ref
@@ -302,15 +307,19 @@ impl SlimFile {
                 debug!("Failed get presigned_url: {:?}", err);
                 ServiceError::InternalServerError
             })?;
-        if let Some(url) = get_url_from_db.into_iter().next() {
-            return Ok(url);
-        }
-        debug!("Failed get presigned_url");
-        // creates and saves (updates) download presigned url for a file in the database
-        let presigned_url = download_presigned_url(&StorageAccess::from_env(), &slim_file)?;
-        // save presigned url to database
-        save_presign_url(&slim_file.uuid, &presigned_url, conn)?;
-        Ok(presigned_url)
+        let presigned_url = match get_url_from_db.into_iter().next() {
+            Some(url) => url,
+            None => {
+                debug!("Failed get presigned_url");
+                // creates and saves (updates) download presigned url for a file in the database
+                let presigned_url = download_presigned_url(&StorageAccess::from_env(), &slim_file)?;
+                // save presigned url to database
+                save_presign_url(&slim_file.uuid, &presigned_url, conn)?;
+                presigned_url
+            },
+        };
+        // replace domain with proxy server (if necessary)
+        Ok(presigned_url.proxied(domain))
     }
 }
 
@@ -347,6 +356,7 @@ impl DownloadFile {
     /// Get DownloadFile with generated presigned_url from SlimFile data
     pub(crate) fn get_by_slim_file(
         slim_file: &SlimFile,
+        domain: &str,
         conn: &mut PgConnection,
     ) -> ServiceResult<DownloadFile> {
         Ok(DownloadFile {
@@ -355,7 +365,7 @@ impl DownloadFile {
             sha256_hash: hex::encode(&slim_file.sha256_hash),
             filename: slim_file.filename.clone(),
             filesize: slim_file.filesize,
-            download_url: SlimFile::get_download_string(&slim_file.uuid, conn)?,
+            download_url: SlimFile::get_download_string(&slim_file.uuid, domain, conn)?,
         })
     }
 
@@ -363,6 +373,7 @@ impl DownloadFile {
     /// If the file is not found, returns the DownloadFile for the default image.
     pub(crate) fn get_by_file_uuid(
         target_file_uuid: &Uuid,
+        domain: &str,
         conn: &mut PgConnection,
     ) -> ServiceResult<DownloadFile> {
         let file = match SlimFile::get_file_by_uuid(target_file_uuid, conn) {
@@ -370,13 +381,14 @@ impl DownloadFile {
             Err(_) => SlimFile::get_file_by_uuid(&get_default_image(), conn)?,
         };
 
-        DownloadFile::get_by_slim_file(&file, conn)
+        DownloadFile::get_by_slim_file(&file, domain, conn)
     }
 
     /// Get structures of DownloadFile by files uuidsget_by_file_uuids
     pub(crate) fn get_by_file_uuids(
         target_file_uuids: &[Uuid],
         paginate: &Paginate,
+        domain: &str,
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<DownloadFile>> {
         let mut collect_res: Vec<DownloadFile> = Vec::new();
@@ -388,7 +400,7 @@ impl DownloadFile {
         let slim_files = SlimFile::get_by_file_uuids(target_file_uuids, paginate, conn)?;
 
         for sf in &slim_files {
-            collect_res.push(DownloadFile::get_by_slim_file(sf, conn)?);
+            collect_res.push(DownloadFile::get_by_slim_file(sf, domain, conn)?);
         }
 
         Ok(collect_res)

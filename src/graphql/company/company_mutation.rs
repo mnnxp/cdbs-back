@@ -1,5 +1,6 @@
 use crate::database::{get_conn, PooledConnection};
 use crate::errors::ServiceResult;
+use crate::graphql::handler::extract_client_domain;
 use crate::models::company::{
     access::model::ChangeTypeAccessCompany,
     access::role_access::model::{DelRoleAccessData, IptRoleAccessData},
@@ -93,7 +94,7 @@ impl CompanyMutation {
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        update_favicon(&logged_user_uuid, &company_uuid, &filename, conn)
+        update_favicon(&logged_user_uuid, &company_uuid, &filename, &extract_client_domain(cxt), conn)
     }
 
     /// Uploading a new company certificate. Returns a structure with a pre-signed URL for uploading a certificate file.
@@ -107,7 +108,7 @@ impl CompanyMutation {
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        add_certificate(&logged_user_uuid, &cert_data, conn)
+        add_certificate(&logged_user_uuid, &cert_data, &extract_client_domain(cxt), conn)
     }
 
     /// Updates a company certificate description.

@@ -1,5 +1,6 @@
 use crate::database::{get_conn, PooledConnection};
 use crate::errors::ServiceResult;
+use crate::graphql::handler::extract_client_domain;
 use crate::graphql::relate::attributes::IptPaginate;
 use crate::models::company;
 use crate::models::company::{
@@ -13,6 +14,7 @@ use crate::models::company::{
     model::{CompaniesArg, CompanyAndRelatedData, IptCompaniesArg, ShowCompanyShort},
 };
 use crate::models::relate_ref::{language::get_set_language, spec::model::SpecTranslateList};
+use crate::models::search::model::ExtraOptions;
 use crate::models::search::order::Paginate;
 use crate::models::user::access::logged::{check_authorized, get_logged_user_uuid};
 use async_graphql::{self, Context, Object};
@@ -35,10 +37,10 @@ impl CompanyQuery {
         use company::service::list::get_companies;
 
         // authorization check
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let options = ExtraOptions::from_cxt(cxt, false)?;
         let arguments: CompaniesArg = match args {
-            Some(x) => CompaniesArg::by_arg(x, get_set_language(cxt)),
-            None => CompaniesArg::by_lang(get_set_language(cxt)),
+            Some(x) => CompaniesArg::by_arg(x),
+            None => CompaniesArg::by_lang(),
         };
         // let s = sort.map(|s| Sort::parsing(TableName::CompanieRef, &s.by_field, s.as_desc))
         //     .unwrap_or(Sort::set_by_table(TableName::CompanieRef));
@@ -47,7 +49,7 @@ impl CompanyQuery {
             .unwrap_or_default();
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        get_companies(&logged_user_uuid, &arguments, &p, conn)
+        get_companies(&arguments, &p, &options, conn)
     }
 
     /// Returns basic and associated company data by UUID.
@@ -57,18 +59,13 @@ impl CompanyQuery {
         company_uuid: Uuid,
     ) -> ServiceResult<CompanyAndRelatedData> {
         use company::service::list::find_by_uuid;
-
+        debug!("Query company: {}", company_uuid);
         // authorization check
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let options = ExtraOptions::from_cxt(cxt, false)?;
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        find_by_uuid(
-            &logged_user_uuid,
-            &company_uuid,
-            &get_set_language(cxt),
-            conn,
-        )
+        find_by_uuid(&company_uuid, &options, conn)
     }
 
     /// Returns the supplier company information and associated UUID data.
@@ -82,7 +79,7 @@ impl CompanyQuery {
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        get_supplier_by_uuid(&company_uuid, &get_set_language(cxt), conn)
+        get_supplier_by_uuid(&company_uuid, &get_set_language(cxt), &extract_client_domain(cxt), conn)
     }
 
     /// Returns information about company representative offices.

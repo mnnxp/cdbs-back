@@ -12,6 +12,7 @@ impl ShowUserShort {
         logged_user_uuid: &Uuid,
         filter_users_uuids: &[Uuid],
         paginate: &Paginate,
+        domain: &str,
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<ShowUserShort>> {
         let mut query = user_fav::user_fav.into_boxed();
@@ -41,7 +42,7 @@ impl ShowUserShort {
                 ServiceError::InternalServerError
             })?;
 
-        ShowUserShort::get_users_by_uuids(logged_user_uuid, &target_list_user_uuid, conn)
+        ShowUserShort::get_users_by_uuids(logged_user_uuid, &target_list_user_uuid, domain, conn)
     }
 
     /// get favorite list for user
@@ -49,6 +50,7 @@ impl ShowUserShort {
         logged_user_uuid: &Uuid,
         filter_users_uuids: &[Uuid],
         paginate: &Paginate,
+        domain: &str,
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<ShowUserShort>> {
         let mut query = user_fav::user_fav.into_boxed();
@@ -78,7 +80,7 @@ impl ShowUserShort {
                 ServiceError::InternalServerError
             })?;
 
-        ShowUserShort::get_users_by_uuids(logged_user_uuid, &target_list_user_uuid, conn)
+        ShowUserShort::get_users_by_uuids(logged_user_uuid, &target_list_user_uuid, domain, conn)
     }
 }
 

@@ -9,6 +9,7 @@ impl UserCertificateAndFile {
     /// Gets certificates user with slimfile data by uuid
     pub(crate) fn from_user(
         target_user_uuid: &Uuid,
+        domain: &str,
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<UserCertificateAndFile>> {
         let certificates_user = user_certificate_ref::user_certificate_ref
@@ -21,7 +22,7 @@ impl UserCertificateAndFile {
 
         let mut user_certificates = Vec::new();
         for cert in &certificates_user {
-            let file = DownloadFile::get_by_file_uuid(&cert.file_uuid, conn)?;
+            let file = DownloadFile::get_by_file_uuid(&cert.file_uuid, domain, conn)?;
             user_certificates.push(UserCertificateAndFile {
                 file: file.clone(),
                 user_uuid: cert.user_uuid,

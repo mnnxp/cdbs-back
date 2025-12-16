@@ -88,14 +88,13 @@ impl ShowStandardShort {
             .expect("Error loading standard");
 
         // get image file (favicon) for standard
-        let image_file = DownloadFile::get_by_file_uuid(&standard.image_file_uuid, conn)
+        let image_file = DownloadFile::get_by_file_uuid(&standard.image_file_uuid, &options.domain, conn)
             .expect("Error get presigned url main image");
 
         // get standard owner company
         let owner_company = ShowCompanyShort::get_without_check_by_uuid(
             &standard.company_uuid,
-            &options.logged_user_uuid,
-            &options.set_lang_id,
+            options,
             conn,
         )
         .expect("Error loading company short data");
@@ -198,12 +197,13 @@ impl StandardAndRelatedData {
             .expect("Error loading standard");
 
         // get image file (favicon) for standard
-        let image_file = DownloadFile::get_by_file_uuid(&standard.image_file_uuid, conn)
+        let image_file = DownloadFile::get_by_file_uuid(&standard.image_file_uuid, &options.domain, conn)
             .expect("Error get presigned url main image");
 
         // get data a owner user for a standard
         let owner_user = crate::models::user::model::ShowUserShort::get_without_check_by_uuid(
             &standard.user_uuid,
+            &options.domain,
             conn,
         )
         .expect("Error loading slim_user");
@@ -211,8 +211,7 @@ impl StandardAndRelatedData {
         // get data a owner company for a standard
         let owner_company = ShowCompanyShort::get_without_check_by_uuid(
             &standard.company_uuid,
-            &options.logged_user_uuid,
-            &options.set_lang_id,
+            options,
             conn,
         )
         .expect("Error loading company short data");
@@ -242,6 +241,7 @@ impl StandardAndRelatedData {
             &standard.uuid,
             &Sort::parsing(TableName::FileRef, "", false),
             paginate,
+            &options.domain,
             conn,
         )
         .expect("Error loading standard files");

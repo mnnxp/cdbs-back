@@ -1,4 +1,5 @@
 use crate::database::{get_conn, PooledConnection};
+use crate::graphql::handler::extract_client_domain;
 use crate::models::relate_ref::file::model::SlimFile;
 use crate::models::relate_ref::program::model::Program;
 use crate::models::user::model::ShowUserShort;
@@ -96,7 +97,7 @@ impl ShowFileRelatedData {
     /// Pre-signed URL to download the file
     async fn download_url(&self, cxt: &Context<'_>) -> String {
         let conn: &mut PooledConnection = &mut get_conn(cxt).expect("Error get conn to DB");
-        SlimFile::get_download_string(&self.uuid, conn)
+        SlimFile::get_download_string(&self.uuid, &extract_client_domain(cxt), conn)
             .expect("Error get download string (slim file)")
     }
 

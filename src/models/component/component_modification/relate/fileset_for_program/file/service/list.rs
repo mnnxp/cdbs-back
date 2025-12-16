@@ -17,6 +17,7 @@ pub(crate) fn get_files_of_fileset(
     args: &FileOfFilesetArg,
     sort: &Sort,
     paginate: &Paginate,
+    domain: &str,
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<ShowFileRelatedData>> {
     // todo!(временное решение: убрать ограничение доступа файлам из набора модификации компонента)
@@ -34,6 +35,7 @@ pub(crate) fn get_files_of_fileset(
         &args.file_uuids,
         sort,
         paginate,
+        domain,
         conn,
     )
 }
@@ -45,11 +47,12 @@ impl ShowFileRelatedData {
         file_uuids: &[Uuid],
         sort: &Sort,
         paginate: &Paginate,
+        domain: &str,
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<ShowFileRelatedData>> {
         // Gets uuids from target files for get files data or dowload urls
         let object_uuids = get_file_uuids_by_fileset_uuid(fileset_uuid, file_uuids, conn)?;
-        ShowFileRelatedData::get_file_by_uuids(&object_uuids, sort, paginate, conn)
+        ShowFileRelatedData::get_file_by_uuids(&object_uuids, sort, paginate, domain, conn)
     }
 }
 
@@ -58,6 +61,7 @@ pub(crate) fn get_fileset_files(
     logged_user_uuid: &Uuid,
     args: &FileOfFilesetArg,
     paginate: &Paginate,
+    domain: &str,
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<DownloadFile>> {
     // todo!(временное решение: убрать ограничение доступа файлам из набора модификации компонента)
@@ -72,7 +76,7 @@ pub(crate) fn get_fileset_files(
 
     let target_file_uuids =
         get_file_uuids_by_fileset_uuid(&args.fileset_uuid, &args.file_uuids, conn)?;
-    DownloadFile::get_by_file_uuids(&target_file_uuids, paginate, conn).map_err(|err| {
+    DownloadFile::get_by_file_uuids(&target_file_uuids, paginate, domain, conn).map_err(|err| {
         debug!("Error get files of fileset: {:?}", err);
         ServiceError::InternalServerError
     })

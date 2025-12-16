@@ -14,6 +14,7 @@ pub(crate) fn get_component_files(
     logged_user_uuid: &Uuid,
     args: &ComponentFilesArg,
     paginate: &Paginate,
+    domain: &str,
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<DownloadFile>> {
     let need_access_level = 3; // todo!(create enum for manage access level)
@@ -27,7 +28,7 @@ pub(crate) fn get_component_files(
 
     let target_file_uuids =
         get_file_uuids_by_component_uuid(&args.component_uuid, &args.file_uuids, conn)?;
-    DownloadFile::get_by_file_uuids(&target_file_uuids, paginate, conn)
+    DownloadFile::get_by_file_uuids(&target_file_uuids, paginate, domain, conn)
 }
 
 /// Возвращает информацию о файлах компонента.
@@ -36,6 +37,7 @@ pub(crate) fn get_component_files_list(
     args: &ComponentFilesArg,
     sort: &Sort,
     paginate: &Paginate,
+    domain: &str,
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<ShowFileRelatedData>> {
     let need_access_level = 3; // todo!(create enum for manage access level)
@@ -49,5 +51,5 @@ pub(crate) fn get_component_files_list(
 
     let object_uuids =
         get_file_uuids_by_component_uuid(&args.component_uuid, &args.file_uuids, conn)?;
-    ShowFileRelatedData::get_file_by_uuids(&object_uuids, sort, paginate, conn)
+    ShowFileRelatedData::get_file_by_uuids(&object_uuids, sort, paginate, domain, conn)
 }

@@ -1,5 +1,6 @@
 use crate::database::{get_conn, PooledConnection};
 use crate::errors::ServiceResult;
+use crate::graphql::handler::extract_client_domain;
 use crate::models::relate_ref::file::model::UploadFile;
 use crate::models::user::access::logged::get_logged_user_uuid;
 use crate::models::user::access::password::IptUpdatePassword;
@@ -93,7 +94,7 @@ impl UserMutation {
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        update_favicon(&logged_user_uuid, &filename, conn)
+        update_favicon(&logged_user_uuid, &filename, &extract_client_domain(cxt), conn)
     }
 
     /// Uploading a new user certificate. Returns a structure with a pre-signed URL for uploading a certificate file.
@@ -108,7 +109,7 @@ impl UserMutation {
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        add_certificate(&logged_user_uuid, &cert_data, conn)
+        add_certificate(&logged_user_uuid, &cert_data, &extract_client_domain(cxt), conn)
     }
 
     /// Updates a user certificate description.

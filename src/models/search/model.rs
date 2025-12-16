@@ -1,4 +1,5 @@
 use crate::errors::ServiceResult;
+use crate::graphql::handler::extract_client_domain;
 use crate::models::relate_ref::language::get_set_language;
 use crate::models::user::access::logged::{default_user_uuid, get_logged_user_uuid};
 use crate::models::user::model::SlimUser;
@@ -32,6 +33,7 @@ pub(crate) struct ObjectI64 {
 pub(crate) struct ExtraOptions {
     pub(crate) logged_user_uuid: Uuid,
     pub(crate) set_lang_id: i32,
+    pub(crate) domain: String,
     pub(crate) no_entry: bool,
 }
 
@@ -41,10 +43,12 @@ impl ExtraOptions {
     /// If the default user UUID could not be obtained, the first error received during token validation will be returned.
     pub(crate) fn from_cxt(cxt: &Context<'_>, no_entry: bool) -> ServiceResult<Self> {
         let set_lang_id = get_set_language(cxt);
+        let domain = extract_client_domain(cxt);
         match get_logged_user_uuid(cxt, true) {
             Ok(logged_user_uuid) => Ok(Self {
                 logged_user_uuid,
                 set_lang_id,
+                domain,
                 no_entry: false,
             }),
             Err(err) => {
@@ -53,6 +57,7 @@ impl ExtraOptions {
                     return Ok(Self {
                         logged_user_uuid,
                         set_lang_id,
+                        domain,
                         no_entry: true,
                     });
                 }
@@ -66,6 +71,7 @@ impl ExtraOptions {
         Self {
             logged_user_uuid: slim_user.uuid,
             set_lang_id: get_set_language(cxt),
+            domain: extract_client_domain(cxt),
             no_entry: false,
         }
     }

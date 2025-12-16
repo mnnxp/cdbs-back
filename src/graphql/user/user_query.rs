@@ -1,8 +1,9 @@
 use crate::database::{get_conn, PooledConnection};
 use crate::errors::ServiceResult;
+use crate::graphql::handler::extract_client_domain;
 use crate::graphql::relate::attributes::IptPaginate;
 use crate::jwt::model::{Claims, Token};
-use crate::models::relate_ref::language::get_set_language;
+use crate::models::search::model::ExtraOptions;
 use crate::models::search::order::Paginate;
 use crate::models::user::access::logged::{check_authorized, get_logged_user_uuid};
 use crate::models::user::access::model::UserToken;
@@ -40,7 +41,7 @@ impl UserQuery {
             .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
             .unwrap_or_default();
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
-        get_users(&logged_user_uuid, &arguments, &p, conn)
+        get_users(&logged_user_uuid, &arguments, &p, &extract_client_domain(cxt), conn)
     }
 
     /// Returns basic and associated user data by UUID.
@@ -52,11 +53,9 @@ impl UserQuery {
         use crate::models::user::service::list::get_user_data;
 
         // authorization check
-        let logged_user_uuid: Uuid = get_logged_user_uuid(cxt, true)?;
-
+        let options = ExtraOptions::from_cxt(cxt, false)?;
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
-
-        get_user_data(&logged_user_uuid, &args, &get_set_language(cxt), conn)
+        get_user_data(&args, &options, conn)
     }
 
     /// Returns a structure with basic information about the user (SlimUser).
@@ -76,11 +75,9 @@ impl UserQuery {
         use crate::models::user::service::list::get_self_user_data;
 
         // authorization check
-        let logged_user_uuid: Uuid = get_logged_user_uuid(cxt, true)?;
-
+        let options = ExtraOptions::from_cxt(cxt, false)?;
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
-
-        get_self_user_data(&logged_user_uuid, &get_set_language(cxt), conn)
+        get_self_user_data(&options, conn)
     }
 
     /// Returns the active tokens of the authorized user.

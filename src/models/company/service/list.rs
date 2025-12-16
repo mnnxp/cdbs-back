@@ -1,6 +1,7 @@
 use crate::errors::err_msg::{get_err_msg, ErrorMessage};
 use crate::errors::{ServiceError, ServiceResult};
 use crate::models::company::model::{CompaniesArg, CompanyAndRelatedData, ShowCompanyShort};
+use crate::models::search::model::ExtraOptions;
 use crate::models::search::order::Paginate;
 use diesel::{prelude::*, PgConnection};
 use uuid::Uuid;
@@ -9,10 +10,10 @@ use uuid::Uuid;
 /// Получает краткие данные о компаниях с фильтрацией по:
 /// UUID, UUID пользователя, избранному (для себя или другого пользователя).
 pub(crate) fn get_companies(
-    logged_user_uuid: &Uuid,
     arguments: &CompaniesArg,
     // sort: &Sort,
     paginate: &Paginate,
+    options: &ExtraOptions,
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<ShowCompanyShort>> {
     // structure for reduce the number of function arguments
@@ -21,7 +22,6 @@ pub(crate) fn get_companies(
         user_uuid,
         favorite,
         supplier,
-        set_lang_id,
     } = arguments;
 
     // collect companies uuids for check access
@@ -47,7 +47,7 @@ pub(crate) fn get_companies(
         // gets companies of self favorite list with/without filter
         (None, true) => get_companies_followed_by_user(
             filter_companies_uuids,
-            logged_user_uuid,
+            &options.logged_user_uuid,
             paginate,
             conn,
         )?,
@@ -61,11 +61,10 @@ pub(crate) fn get_companies(
     }
 
     ShowCompanyShort::get_companies(
-        logged_user_uuid,
         &target_companies_uuids,
         supplier,
         paginate,
-        set_lang_id,
+        options,
         conn,
     )
     .map_err(|err| {
@@ -145,13 +144,12 @@ fn get_companies_followed_by_user(
 
 /// Возвращает основные и связанные данные компании по UUID.
 pub(crate) fn find_by_uuid(
-    logged_user_uuid: &Uuid,
     target_company_uuid: &Uuid,
-    set_lang_id: &i32,
+    options: &ExtraOptions,
     conn: &mut PgConnection,
 ) -> ServiceResult<CompanyAndRelatedData> {
     // collect data for company
-    CompanyAndRelatedData::get_by_uuid(target_company_uuid, logged_user_uuid, set_lang_id, conn)
+    CompanyAndRelatedData::get_by_uuid(target_company_uuid, options, conn)
         .map_err(|err| {
             debug!("Error loading company and collect related data: {:?}", err);
             get_err_msg(ErrorMessage::AccessDenied)
@@ -164,10 +162,11 @@ pub(crate) fn find_by_uuid(
 pub(crate) fn get_supplier_by_uuid(
     target_company_uuid: &Uuid,
     set_lang_id: &i32,
+    domain: &str,
     conn: &mut PgConnection,
 ) -> ServiceResult<CompanyAndRelatedData> {
     // collect data for company
-    CompanyAndRelatedData::get_supplier_by_uuid(target_company_uuid, set_lang_id, conn).map_err(
+    CompanyAndRelatedData::get_supplier_by_uuid(target_company_uuid, set_lang_id, domain, conn).map_err(
         |err| {
             debug!(
                 "Error loading supplier company and collect related data: {:?}",

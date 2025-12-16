@@ -15,6 +15,7 @@ pub(crate) fn get_component_modification_files(
     logged_user_uuid: &Uuid,
     args: &ModificationFilesArg,
     paginate: &Paginate,
+    domain: &str,
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<DownloadFile>> {
     let need_access_level = 2; // todo!(create enum for manage access level)
@@ -28,7 +29,7 @@ pub(crate) fn get_component_modification_files(
 
     let target_file_uuids =
         get_file_uuids_by_modification_uuid(&args.modification_uuid, &args.file_uuids, conn)?;
-    DownloadFile::get_by_file_uuids(&target_file_uuids, paginate, conn)
+    DownloadFile::get_by_file_uuids(&target_file_uuids, paginate, domain, conn)
 }
 
 /// Возвращает информацию о файлах модификации компонента.
@@ -37,6 +38,7 @@ pub(crate) fn get_component_modification_files_list(
     args: &ModificationFilesArg,
     sort: &Sort,
     paginate: &Paginate,
+    domain: &str,
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<ShowFileRelatedData>> {
     let need_access_level = 3; // todo!(create enum for manage access level)
@@ -53,6 +55,7 @@ pub(crate) fn get_component_modification_files_list(
         &args.file_uuids,
         sort,
         paginate,
+        domain,
         conn,
     )
 }
@@ -64,10 +67,11 @@ impl ShowFileRelatedData {
         file_uuids: &[Uuid],
         sort: &Sort,
         paginate: &Paginate,
+        domain: &str,
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<ShowFileRelatedData>> {
         let object_uuids =
             get_file_uuids_by_modification_uuid(modification_uuid, file_uuids, conn)?;
-        ShowFileRelatedData::get_file_by_uuids(&object_uuids, sort, paginate, conn)
+        ShowFileRelatedData::get_file_by_uuids(&object_uuids, sort, paginate, domain, conn)
     }
 }

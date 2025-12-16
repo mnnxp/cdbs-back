@@ -18,6 +18,7 @@ use uuid::Uuid;
 pub(crate) fn add_certificate(
     logged_user_uuid: &Uuid,
     cert_data: &IptUserCertificateData,
+    domain: &str,
     conn: &mut PgConnection,
 ) -> ServiceResult<UploadFile> {
     let slim_file = preregister_file(
@@ -44,7 +45,7 @@ pub(crate) fn add_certificate(
 
     debug!("User inserted certificate: {:?}", user_inserted_certificate);
 
-    let upload_url = upload_presigned_url(&StorageAccess::from_env(), &slim_file.path_file)?;
+    let upload_url = upload_presigned_url(&StorageAccess::from_env(), &slim_file.path_file, domain)?;
 
     Ok(UploadFile {
         file_uuid: slim_file.uuid,

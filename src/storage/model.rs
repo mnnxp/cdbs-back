@@ -4,6 +4,49 @@ use chrono::NaiveDateTime;
 use structopt::StructOpt;
 use uuid::Uuid;
 
+/// Proxying S3 storage URLs based on the client's domain.
+///
+/// Replaces the base S3 endpoint with a domain-specific proxy to optimize
+/// access in a multi-regional architecture.
+///
+/// # Replacement Rules
+///
+/// - `app.cadbase.ru` → `https://s3.cadbase.ru` (Russian proxy)
+/// - `app.cadbase.org` → `https://s3.cadbase.org` (international proxy)
+/// - Other domains → original URL unchanged
+///
+/// # Example
+///
+/// ```
+/// // When s3_endpoint = "https://s3.fr-par.scw.cloud"
+/// let url = "https://s3.fr-par.scw.cloud/....jpg";
+/// assert_eq!(url.proxied("app.cadbase.org"), "https://s3.cadbase.org/....jpg");
+/// assert_eq!(url.proxied("unknown.com"), url); // Unchanged
+/// ```
+pub(crate) trait S3Proxer {
+    /// Returns a URL with the S3 endpoint replaced for the specified domain.
+    ///
+    /// Replaces the `Opt::s3_endpoint` value in the URL string with the
+    /// corresponding proxy based on the client's domain. If the domain is not
+    /// found in the rules, returns the original string.
+    fn proxied(&self, domain: &str) -> String;
+}
+
+impl<T: AsRef<str>> S3Proxer for T {
+    fn proxied(&self, domain: &str) -> String {
+        let s3_proxy = match domain {
+            d if d.ends_with(".cadbase.ru") => "https://s3.cadbase.ru",
+            d if d.ends_with(".cadbase.org") => "https://s3.cadbase.org",
+            // d if d.ends_with("cadbase.rs") => "https://s3.fr-par.scw.cloud",
+            // "localhost" => "https://s3.pl-waw.scw.cloud",
+            // "127.0.0.1" => "https://s3.localhost.cloud",
+            _ => return self.as_ref().to_string(),
+        };
+        let opt = Opt::from_args();
+        self.as_ref().replace(&opt.s3_endpoint, s3_proxy)
+    }
+}
+
 /// Saving an active link to the file for uses the cache browser
 #[derive(Insertable, Debug)]
 #[diesel(table_name = presigned_url_ref)]

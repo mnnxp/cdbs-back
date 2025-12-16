@@ -13,10 +13,11 @@ impl ShowFileRelatedData {
         service_uuid: &Uuid,
         sort: &Sort,
         paginate: &Paginate,
+        domain: &str,
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<ShowFileRelatedData>> {
         let object_uuids = get_file_uuids_by_service_uuid(service_uuid, &[], conn)?;
-        ShowFileRelatedData::get_file_by_uuids(&object_uuids, sort, paginate, conn)
+        ShowFileRelatedData::get_file_by_uuids(&object_uuids, sort, paginate, domain, conn)
     }
 }
 
@@ -66,10 +67,11 @@ impl DownloadFile {
     pub(crate) fn service_image_files(
         service_uuid: &Uuid,
         paginate: &Paginate,
+        domain: &str,
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<DownloadFile>> {
         match get_files_by_ext(service_uuid, &FileByExtArg::image(), conn) {
-            Ok(image_uuids) => DownloadFile::get_by_file_uuids(&image_uuids, paginate, conn),
+            Ok(image_uuids) => DownloadFile::get_by_file_uuids(&image_uuids, paginate, domain, conn),
             Err(err) => {
                 debug!("Error get files by ext: {}", err);
                 Ok(Vec::new())
@@ -81,12 +83,13 @@ impl DownloadFile {
     pub(crate) fn by_service_uuid(
         service_uuid: &Uuid,
         paginate: &Paginate,
+        domain: &str,
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<DownloadFile>> {
         let target_file_uuids: Vec<Uuid> = get_file_uuids_by_service_uuid(service_uuid, &[], conn)?;
         if target_file_uuids.is_empty() {
             return Ok(Vec::new());
         }
-        DownloadFile::get_by_file_uuids(&target_file_uuids, paginate, conn)
+        DownloadFile::get_by_file_uuids(&target_file_uuids, paginate, domain, conn)
     }
 }

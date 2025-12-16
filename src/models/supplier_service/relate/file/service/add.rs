@@ -18,6 +18,7 @@ use uuid::Uuid;
 pub(crate) fn add_service_files(
     data: &IptServiceFilesData,
     logged_user_uuid: &Uuid,
+    domain: &str,
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<UploadFile>> {
     let need_access_level = 1; // todo!(create enum for manage access level)
@@ -49,7 +50,7 @@ pub(crate) fn add_service_files(
 
         debug!("New service file: {:?}", slim_file);
 
-        let upload_url = upload_presigned_url(&StorageAccess::from_env(), &slim_file.path_file)?;
+        let upload_url = upload_presigned_url(&StorageAccess::from_env(), &slim_file.path_file, domain)?;
 
         up_files.push(UploadFile {
             file_uuid: slim_file.uuid,

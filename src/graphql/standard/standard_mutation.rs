@@ -1,5 +1,6 @@
 use crate::database::{get_conn, PooledConnection};
 use crate::errors::ServiceResult;
+use crate::graphql::handler::extract_client_domain;
 use crate::graphql::standard_model::{IptStandardData, IptUpdateStandardData};
 use crate::models::relate_ref::file::model::UploadFile;
 use crate::models::standard::{
@@ -248,7 +249,7 @@ impl StandardMutation {
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        add_standard_files(&logged_user_uuid, &args, conn)
+        add_standard_files(&logged_user_uuid, &args, &extract_client_domain(cxt), conn)
     }
 
     /// Updates the main image of the standard.
@@ -264,7 +265,7 @@ impl StandardMutation {
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        add_standard_favicon(&logged_user_uuid, &args, conn)
+        add_standard_favicon(&logged_user_uuid, &args, &extract_client_domain(cxt), conn)
     }
 
     /// Deletes a file of a standard.

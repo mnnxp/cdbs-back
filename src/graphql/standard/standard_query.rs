@@ -1,5 +1,6 @@
 use crate::database::{get_conn, PooledConnection};
 use crate::errors::ServiceResult;
+use crate::graphql::handler::extract_client_domain;
 use crate::graphql::relate::attributes::IptPaginate;
 use crate::graphql::standard_model::{
     IptStandardFilesArg, IptStandardsArg, ShowStandardShort, StandardAndRelatedData,
@@ -79,7 +80,7 @@ impl StandardQuery {
             .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
             .unwrap_or_default();
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
-        get_standard_files(&logged_user_uuid, &arguments, &p, conn)
+        get_standard_files(&logged_user_uuid, &arguments, &p, &extract_client_domain(cxt),  conn)
     }
 
     /// Returns an array of catalogs associated with standard

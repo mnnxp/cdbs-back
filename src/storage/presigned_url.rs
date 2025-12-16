@@ -6,6 +6,8 @@ use chrono::{Duration, Local};
 use diesel::prelude::*;
 use uuid::Uuid;
 
+use super::model::S3Proxer;
+
 /// Gets presigned url for target file by path
 pub(crate) fn download_presigned_url(
     access_storage: &StorageAccess,
@@ -35,6 +37,7 @@ pub(crate) fn download_presigned_url(
 pub(crate) fn upload_presigned_url(
     access_storage: &StorageAccess,
     path_file: &str,
+    domain: &str,
 ) -> ServiceResult<String> {
     let opt = {
         use structopt::StructOpt;
@@ -47,6 +50,7 @@ pub(crate) fn upload_presigned_url(
             path_file,
             opt.s3_expiration_presigned_url,
         )
+        .map(|url| url.proxied(domain))
         .map_err(|err| {
             debug!("Failed make presign-url: {:#?}", err);
             ServiceError::InternalServerError

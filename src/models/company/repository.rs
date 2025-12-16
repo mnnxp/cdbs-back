@@ -13,6 +13,7 @@ use crate::models::relate_ref::{
     file::model::DownloadFile, region::model::RegionTranslateList, spec::model::SpecTranslateList,
     type_access::model::TypeAccessTranslateList,
 };
+use crate::models::search::model::ExtraOptions;
 use crate::models::search::order::Paginate;
 use crate::schema::company_ref::dsl as company_ref;
 use diesel::prelude::*;
@@ -90,26 +91,23 @@ impl ShowCompanyShort {
     /// Gets companies by filter or all public.
     /// Paginate works only without filter.
     pub(crate) fn get_companies(
-        logged_user_uuid: &Uuid,
         filter_companies_uuids: &[Uuid],
         supplier: &bool,
         paginate: &Paginate,
-        set_lang_id: &i32,
+        options: &ExtraOptions,
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<ShowCompanyShort>> {
         match filter_companies_uuids.is_empty() {
             true => ShowCompanyShort::get_all_public(
-                logged_user_uuid,
                 supplier,
                 paginate,
-                set_lang_id,
+                options,
                 conn,
             ),
             false => ShowCompanyShort::get_list_by_uuids(
                 filter_companies_uuids,
                 supplier,
-                logged_user_uuid,
-                set_lang_id,
+                options,
                 conn,
             ),
         }
@@ -118,15 +116,14 @@ impl ShowCompanyShort {
     /// Gets company short data by company uuid
     pub(crate) fn get_by_uuid(
         target_company_uuid: &Uuid,
-        logged_user_uuid: &Uuid,
-        set_lang_id: &i32,
+        options: &ExtraOptions,
         conn: &mut PgConnection,
     ) -> ServiceResult<ShowCompanyShort> {
         let need_access_level = 3; // todo!(create enum for manage access level)
 
         // check access user for select company
         check_company_access(
-            logged_user_uuid,
+            &options.logged_user_uuid,
             target_company_uuid,
             &need_access_level,
             conn,
@@ -134,8 +131,7 @@ impl ShowCompanyShort {
 
         ShowCompanyShort::get_without_check_by_uuid(
             target_company_uuid,
-            logged_user_uuid,
-            set_lang_id,
+            options,
             conn,
         )
     }
@@ -143,8 +139,7 @@ impl ShowCompanyShort {
     /// Gets company short data by company_uuid wtihout check access
     pub(crate) fn get_without_check_by_uuid(
         target_company_uuid: &Uuid,
-        logged_user_uuid: &Uuid,
-        set_lang_id: &i32,
+        options: &ExtraOptions,
         conn: &mut PgConnection,
     ) -> ServiceResult<ShowCompanyShort> {
         // get target company
@@ -152,25 +147,25 @@ impl ShowCompanyShort {
             Company::get_company_by_uuid(target_company_uuid, conn).expect("Error loading company");
 
         // get image file (favicon) for company
-        let image_file = DownloadFile::get_by_file_uuid(&company.image_file_uuid, conn)
+        let image_file = DownloadFile::get_by_file_uuid(&company.image_file_uuid, &options.domain, conn)
             .expect("Error loading company file");
 
         // get region for company
         let region_with_translate: RegionTranslateList =
-            RegionTranslateList::get_region_by_id(&company.region_id, set_lang_id, conn)
+            RegionTranslateList::get_region_by_id(&company.region_id, &options.set_lang_id, conn)
                 .expect("Error loading region with translate");
 
         // get company type with translation for company
         let company_type_with_translate: CompanyTypeTranslateList =
             CompanyTypeTranslateList::get_company_type_by_id(
                 &company.company_type_id,
-                set_lang_id,
+                &options.set_lang_id,
                 conn,
             )
             .expect("Error loading company type with translate");
 
         // check whether the object is being tracked auth user
-        let is_followed = check_subscriber_by_uuid(target_company_uuid, logged_user_uuid, conn)
+        let is_followed = check_subscriber_by_uuid(target_company_uuid, &options.logged_user_uuid, conn)
             .expect("Error get value is_followed");
 
         Ok(ShowCompanyShort {
@@ -192,8 +187,7 @@ impl ShowCompanyShort {
     pub(crate) fn get_list_by_uuids(
         companies_uuids: &[Uuid],
         supplier: &bool,
-        logged_user_uuid: &Uuid,
-        set_lang_id: &i32,
+        options: &ExtraOptions,
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<ShowCompanyShort>> {
         // the result for store the result :)
@@ -203,8 +197,7 @@ impl ShowCompanyShort {
         for target_company_uuid in companies_uuids.iter() {
             let company = ShowCompanyShort::get_by_uuid(
                 target_company_uuid,
-                logged_user_uuid,
-                set_lang_id,
+                options,
                 conn,
             );
 
@@ -221,10 +214,9 @@ impl ShowCompanyShort {
 
     /// Gets all public companies short data
     pub(crate) fn get_all_public(
-        logged_user_uuid: &Uuid,
         supplier: &bool,
         paginate: &Paginate,
-        set_lang_id: &i32,
+        options: &ExtraOptions,
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<ShowCompanyShort>> {
         let mut query = company_ref::company_ref.into_boxed();
@@ -258,8 +250,7 @@ impl ShowCompanyShort {
         for target_company_uuid in target_companies_uuids.iter() {
             result.push(ShowCompanyShort::get_without_check_by_uuid(
                 target_company_uuid,
-                logged_user_uuid,
-                set_lang_id,
+                options,
                 conn,
             )?);
         }
@@ -271,15 +262,14 @@ impl CompanyAndRelatedData {
     /// Collecting company data and related data using uuid
     pub(crate) fn get_by_uuid(
         target_company_uuid: &Uuid,
-        logged_user_uuid: &Uuid,
-        set_lang_id: &i32,
+        options: &ExtraOptions,
         conn: &mut PgConnection,
     ) -> ServiceResult<CompanyAndRelatedData> {
         let need_access_level = 3; // todo!(create enum for manage access level)
 
         // check access user for company
         check_company_access(
-            logged_user_uuid,
+            &options.logged_user_uuid,
             target_company_uuid,
             &need_access_level,
             conn,
@@ -292,35 +282,36 @@ impl CompanyAndRelatedData {
         // get company owner
         let owner_user = crate::models::user::model::ShowUserShort::get_without_check_by_uuid(
             &company.user_uuid,
+            &options.domain,
             conn,
         )
         .expect("Error loading slim_user");
 
         // get image file (favicon) for company
-        let image_file = DownloadFile::get_by_file_uuid(&company.image_file_uuid, conn)
+        let image_file = DownloadFile::get_by_file_uuid(&company.image_file_uuid, &options.domain, conn)
             .expect("Error loading company file");
 
         // get company represents for company
         let company_represents_with_related_data =
-            CompanyRepresentAndRelatedData::get_by_company_uuid(&company.uuid, set_lang_id, conn)
+            CompanyRepresentAndRelatedData::get_by_company_uuid(&company.uuid, &options.set_lang_id, conn)
                 .expect("Error loading company represents");
 
         // get region for company
         let region_with_translate: RegionTranslateList =
-            RegionTranslateList::get_region_by_id(&company.region_id, set_lang_id, conn)
+            RegionTranslateList::get_region_by_id(&company.region_id, &options.set_lang_id, conn)
                 .expect("Error loading region with translate");
 
         // get company type with translation for company
         let company_type_with_translate: CompanyTypeTranslateList =
             CompanyTypeTranslateList::get_company_type_by_id(
                 &company.company_type_id,
-                set_lang_id,
+                &options.set_lang_id,
                 conn,
             )
             .expect("Error loading company type with translate");
 
         // check whether the object is being tracked auth user
-        let is_followed = check_subscriber_by_uuid(target_company_uuid, logged_user_uuid, conn)
+        let is_followed = check_subscriber_by_uuid(target_company_uuid, &options.logged_user_uuid, conn)
             .expect("Error get value is_followed");
 
         // count subscribers company
@@ -329,18 +320,18 @@ impl CompanyAndRelatedData {
 
         // get certificates with slimfile for company
         let certificates_with_slimfile: Vec<CompanyCertificateAndFile> =
-            CompanyCertificateAndFile::from_company(&company.uuid, conn)
+            CompanyCertificateAndFile::from_company(&company.uuid, &options.domain, conn)
                 .expect("Error loading spec company with translate");
 
         // get specs with translation for company
         let company_specs_with_translate: Vec<SpecTranslateList> =
-            SpecTranslateList::for_company_uuid(&company.uuid, set_lang_id, conn)
+            SpecTranslateList::for_company_uuid(&company.uuid, &options.set_lang_id, conn)
                 .expect("Error loading spec company with translate");
 
         // get type access set for company
         let type_access: TypeAccessTranslateList = TypeAccessTranslateList::get_type_access_by_id(
             &company.type_access_id,
-            set_lang_id,
+            &options.set_lang_id,
             conn,
         )
         .expect("Error get set type access");
@@ -378,6 +369,7 @@ impl CompanyAndRelatedData {
     pub(crate) fn get_supplier_by_uuid(
         target_company_uuid: &Uuid,
         set_lang_id: &i32,
+        domain: &str,
         conn: &mut PgConnection,
     ) -> ServiceResult<CompanyAndRelatedData> {
         // collect data for company
@@ -397,12 +389,13 @@ impl CompanyAndRelatedData {
         // get company owner
         let owner_user = crate::models::user::model::ShowUserShort::get_without_check_by_uuid(
             &company.user_uuid,
+            domain,
             conn,
         )
         .expect("Error loading slim_user");
 
         // get image file (favicon) for company
-        let image_file = DownloadFile::get_by_file_uuid(&company.image_file_uuid, conn)
+        let image_file = DownloadFile::get_by_file_uuid(&company.image_file_uuid, domain, conn)
             .expect("Error loading company file");
 
         // get company represents for company
@@ -430,7 +423,7 @@ impl CompanyAndRelatedData {
 
         // get certificates with slimfile for company
         let certificates_with_slimfile: Vec<CompanyCertificateAndFile> =
-            CompanyCertificateAndFile::from_company(&company.uuid, conn)
+            CompanyCertificateAndFile::from_company(&company.uuid, domain, conn)
                 .expect("Error loading spec company with translate");
 
         // get specs with translation for company

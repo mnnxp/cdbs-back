@@ -86,14 +86,13 @@ impl ShowServiceShort {
             Service::get_service_by_uuid(target_service_uuid, conn).expect("Error loading service");
 
         // get data a owner user for a service
-        let owner_user = ShowUserShort::get_without_check_by_uuid(&service.user_uuid, conn)
+        let owner_user = ShowUserShort::get_without_check_by_uuid(&service.user_uuid, &options.domain, conn)
             .expect("Error loading slim_user");
 
         // get service owner company
         let owner_company = ShowCompanyShort::get_without_check_by_uuid(
             &service.company_uuid,
-            &options.logged_user_uuid,
-            &options.set_lang_id,
+            options,
             conn,
         )
         .expect("Error loading company short data");
@@ -192,14 +191,13 @@ impl ServiceAndRelatedData {
             Service::get_service_by_uuid(target_service_uuid, conn).expect("Error loading service");
 
         // get data a owner user for a service
-        let owner_user = ShowUserShort::get_without_check_by_uuid(&service.user_uuid, conn)
+        let owner_user = ShowUserShort::get_without_check_by_uuid(&service.user_uuid, &options.domain, conn)
             .expect("Error loading slim_user");
 
         // get data a owner company for a service
         let owner_company = ShowCompanyShort::get_without_check_by_uuid(
             &service.company_uuid,
-            &options.logged_user_uuid,
-            &options.set_lang_id,
+            options,
             conn,
         )
         .expect("Error loading company short data");

@@ -1,5 +1,6 @@
 use crate::database::{get_conn, PooledConnection};
 use crate::graphql::file::ShowFileRelatedData;
+use crate::graphql::handler::extract_client_domain;
 use crate::graphql::relate::attributes::{IptPaginate, IptSort};
 use crate::graphql::standard_model::ShowStandardShort;
 use crate::models::component::{
@@ -206,7 +207,7 @@ impl ComponentAndRelatedData {
         let p = paginate
             .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
             .unwrap_or_default();
-        ShowFileRelatedData::by_component_uuid(&self.uuid, &s, &p, conn)
+        ShowFileRelatedData::by_component_uuid(&self.uuid, &s, &p, &extract_client_domain(cxt), conn)
             .expect("Error loading component files")
     }
 
@@ -423,10 +424,11 @@ impl ShowComponentShort {
         let p = paginate
             .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
             .unwrap_or_default();
+        let domain = extract_client_domain(cxt);
         match images {
-            Some(false) => DownloadFile::by_component_uuid(&self.uuid, &p, conn)
+            Some(false) => DownloadFile::by_component_uuid(&self.uuid, &p, &domain, conn)
                 .expect("Error loading component files"),
-            _ => DownloadFile::component_image_files(&self.uuid, &p, conn)
+            _ => DownloadFile::component_image_files(&self.uuid, &p, &domain, conn)
                 .expect("Error loading component image files"),
         }
     }
@@ -607,7 +609,7 @@ impl ComponentModificationAndRelatedData {
             .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
             .unwrap_or_default();
         let conn: &mut PooledConnection = &mut get_conn(cxt).expect("Error get conn to DB");
-        ShowFileRelatedData::get_component_modification_files_offsec(&self.uuid, &[], &s, &p, conn)
+        ShowFileRelatedData::get_component_modification_files_offsec(&self.uuid, &[], &s, &p, &extract_client_domain(cxt), conn)
             .expect("Error loading files of component modification")
     }
 
@@ -651,7 +653,7 @@ impl FilesetProgramRelatedData {
             .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
             .unwrap_or_default();
         let conn: &mut PooledConnection = &mut get_conn(cxt).expect("Error get conn to DB");
-        ShowFileRelatedData::get_files_of_fileset_offsec(&self.uuid, &[], &s, &p, conn)
+        ShowFileRelatedData::get_files_of_fileset_offsec(&self.uuid, &[], &s, &p, &extract_client_domain(cxt), conn)
             .expect("Error loading files of fileset")
     }
 

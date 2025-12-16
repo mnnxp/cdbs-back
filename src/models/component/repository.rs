@@ -100,11 +100,11 @@ impl ShowComponentShort {
             .expect("Failed get Component data");
 
         // get image file (favicon) for component
-        let image_file = DownloadFile::get_by_file_uuid(&component.image_file_uuid, conn)
+        let image_file = DownloadFile::get_by_file_uuid(&component.image_file_uuid, &options.domain, conn)
             .expect("Error get presigned url main image");
 
         // get component owner
-        let owner_user = ShowUserShort::get_without_check_by_uuid(&component.user_uuid, conn)
+        let owner_user = ShowUserShort::get_without_check_by_uuid(&component.user_uuid, &options.domain, conn)
             .expect("Error loading slim_user");
 
         // get component type with translation
@@ -235,11 +235,11 @@ impl ComponentAndRelatedData {
             .expect("Error loading component");
 
         // get image file (favicon) for component
-        let image_file = DownloadFile::get_by_file_uuid(&component.image_file_uuid, conn)
+        let image_file = DownloadFile::get_by_file_uuid(&component.image_file_uuid, &options.domain, conn)
             .expect("Error get presigned url main image");
 
         // get component owner
-        let owner_user = ShowUserShort::get_without_check_by_uuid(&component.user_uuid, conn)
+        let owner_user = ShowUserShort::get_without_check_by_uuid(&component.user_uuid, &options.domain, conn)
             .expect("Error loading slim_user");
 
         // get component type with translation
