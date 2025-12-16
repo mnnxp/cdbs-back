@@ -3,14 +3,6 @@ use async_graphql::*;
 // use chrono::*;
 use uuid::Uuid;
 
-// Keyword standard models
-#[derive(Serialize, Deserialize, Queryable, SimpleObject, Clone, Debug)]
-#[diesel(table_name = keyword_to_standard)]
-pub(crate) struct StandardKeyword {
-    pub(crate) standard_uuid: Uuid,
-    pub(crate) keyword_id: i32,
-}
-
 #[derive(Debug, Insertable)]
 #[diesel(table_name = keyword_to_standard)]
 pub(crate) struct InsertableStandardKeyword {

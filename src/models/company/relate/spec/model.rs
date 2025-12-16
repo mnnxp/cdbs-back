@@ -2,16 +2,6 @@ use crate::schema::*;
 use async_graphql::*;
 use uuid::Uuid;
 
-/// Related catalog and company identifiers
-#[derive(Serialize, Deserialize, Queryable, SimpleObject, Clone, Debug)]
-#[diesel(table_name = spec_to_company)]
-pub(crate) struct CompanySpec {
-    /// Catalog Identifier
-    pub(crate) spec_id: i32,
-    /// Company UUID
-    pub(crate) company_uuid: Uuid,
-}
-
 #[derive(Debug, Insertable)]
 #[diesel(table_name = spec_to_company)]
 pub(crate) struct InsertableCompanySpec {

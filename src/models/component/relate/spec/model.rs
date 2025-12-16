@@ -2,14 +2,6 @@ use crate::schema::*;
 use async_graphql::*;
 use uuid::Uuid;
 
-// Spec component models
-#[derive(Serialize, Deserialize, Queryable, SimpleObject, Clone, Debug)]
-#[diesel(table_name = spec_to_component)]
-pub(crate) struct ComponentSpec {
-    pub(crate) spec_id: i32,
-    pub(crate) component_uuid: Uuid,
-}
-
 /// Data for requests to add and remove directory links to the component
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub(crate) struct IptComponentSpecsData {

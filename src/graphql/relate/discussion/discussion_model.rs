@@ -111,15 +111,6 @@ impl DiscussionInfo {
     }
 }
 
-#[derive(InputObject, Deserialize, Debug)]
-pub(crate) struct IptDiscussionData {
-    /// Discussion title
-    pub(crate) title: String,
-    /// Flag to pinned the discussion
-    #[graphql(default = false)]
-    pub(crate) is_pinned: bool,
-}
-
 /// Default sorting: `createdAt`. Sorting by `updatedAt` is available.
 #[derive(Debug)]
 pub(crate) struct DiscussionCommentData {

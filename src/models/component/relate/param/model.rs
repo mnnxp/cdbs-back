@@ -4,15 +4,6 @@ use async_graphql::*;
 // use chrono::*;
 use uuid::Uuid;
 
-// Param component models
-#[derive(Serialize, Deserialize, Queryable, SimpleObject, Clone, Debug)]
-#[diesel(table_name = param_to_component)]
-pub(crate) struct ComponentParam {
-    pub(crate) component_uuid: Uuid,
-    pub(crate) param_id: i32,
-    pub(crate) value: String,
-}
-
 /// Component parameter data with localization
 #[derive(Debug, Deserialize, SimpleObject, Clone)]
 pub(crate) struct ComponentParamWithTranslation {

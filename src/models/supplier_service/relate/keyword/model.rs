@@ -3,14 +3,6 @@ use async_graphql::*;
 // use chrono::*;
 use uuid::Uuid;
 
-// Keyword service models
-#[derive(Serialize, Deserialize, Queryable, SimpleObject, Clone, Debug)]
-#[diesel(table_name = keyword_to_service)]
-pub(crate) struct ServiceKeyword {
-    pub(crate) service_uuid: Uuid,
-    pub(crate) keyword_id: i32,
-}
-
 /// Data for requests to add and remove keyword relationships to the service
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub(crate) struct IptServiceKeywordsData {

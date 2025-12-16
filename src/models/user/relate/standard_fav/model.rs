@@ -2,16 +2,6 @@ use crate::schema::*;
 use chrono::*;
 use uuid::Uuid;
 
-// Favorites user models
-#[derive(Serialize, Deserialize, Queryable, Clone, Debug)]
-#[diesel(table_name = standard_fav)]
-pub(crate) struct StandardFav {
-    pub(crate) standard_uuid: Uuid,
-    pub(crate) user_uuid: Uuid,
-    pub(crate) is_enabled: bool,
-    pub(crate) created_at: NaiveDateTime,
-}
-
 #[derive(Debug, Deserialize, Clone)]
 pub(crate) struct IptStandardFavData {
     pub(crate) standard_uuid: Uuid,

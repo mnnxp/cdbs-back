@@ -4,15 +4,6 @@ use async_graphql::*;
 // use chrono::*;
 use uuid::Uuid;
 
-// Param service models
-#[derive(Serialize, Deserialize, Queryable, Clone, Debug)]
-#[diesel(table_name = param_to_service)]
-pub(crate) struct ServiceParam {
-    pub(crate) service_uuid: Uuid,
-    pub(crate) param_id: i32,
-    pub(crate) value: String,
-}
-
 /// Service parameter data with localization
 #[derive(Debug, Deserialize, SimpleObject, Clone)]
 pub(crate) struct ServiceParamWithTranslation {

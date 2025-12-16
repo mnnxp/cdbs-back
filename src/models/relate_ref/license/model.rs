@@ -36,15 +36,6 @@ pub(crate) struct LicenseData {
     pub(crate) publication_at: NaiveDateTime,
 }
 
-/// Abbreviated data about the distribution license
-#[derive(Debug, Serialize, Deserialize, SimpleObject, Clone)]
-pub(crate) struct SlimLicense {
-    /// License Identifier
-    pub(crate) id: i32,
-    /// License abbreviation or acronym
-    pub(crate) keyword: String,
-}
-
 impl From<&LicenseData> for InsertableLicense {
     fn from(data: &LicenseData) -> Self {
         Self {

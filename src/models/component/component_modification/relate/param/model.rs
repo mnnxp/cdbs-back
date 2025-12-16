@@ -3,14 +3,6 @@ use crate::schema::*;
 use async_graphql::*;
 use uuid::Uuid;
 
-#[derive(PartialEq, Serialize, Deserialize, Queryable, SimpleObject, Clone, Debug)]
-#[diesel(table_name = param_to_modification)]
-pub(crate) struct ModificationParam {
-    pub(crate) modification_uuid: Uuid,
-    pub(crate) param_id: i32,
-    pub(crate) value: String,
-}
-
 /// Data about the modification parameter of the component with localization
 #[derive(Debug, Deserialize, SimpleObject, Clone, Default)]
 pub(crate) struct ModificationParamWithTranslation {

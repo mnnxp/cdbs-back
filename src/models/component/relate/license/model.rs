@@ -2,13 +2,6 @@ use crate::schema::*;
 use async_graphql::*;
 use uuid::Uuid;
 
-#[derive(Serialize, Deserialize, Queryable, SimpleObject, Clone, Debug)]
-#[diesel(table_name = license_to_component)]
-pub(crate) struct ComponentLicense {
-    pub(crate) component_uuid: Uuid,
-    pub(crate) license_id: i32,
-}
-
 /// Data for requests to add and remove a component's connection to a license
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub(crate) struct IptComponentLicenseData {

@@ -3,14 +3,6 @@ use async_graphql::*;
 // use chrono::*;
 use uuid::Uuid;
 
-// Keyword component models
-#[derive(Serialize, Deserialize, Queryable, SimpleObject, Clone, Debug)]
-#[diesel(table_name = keyword_to_component)]
-pub(crate) struct ComponentKeyword {
-    pub(crate) component_uuid: Uuid,
-    pub(crate) keyword_id: i32,
-}
-
 /// Data for requests to add and remove keyword relationships to the component
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub(crate) struct IptComponentKeywordsData {
