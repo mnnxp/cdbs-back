@@ -13,6 +13,7 @@ mod jwt;
 mod models;
 mod schema;
 mod storage;
+mod macros;
 
 use actix_cors::Cors;
 use actix_web::middleware::Logger;
