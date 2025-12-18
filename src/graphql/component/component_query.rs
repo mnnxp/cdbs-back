@@ -33,7 +33,7 @@ use crate::models::relate_ref::{
 };
 use crate::models::search::model::{ExtraOptions, IptSearchArg};
 use crate::models::search::order::{Paginate, Sort, TableName};
-use crate::models::user::access::logged::{check_authorized, get_logged_user_uuid};
+use crate::models::user::access::logged::check_authorized;
 use async_graphql::{self, Context, Object};
 use uuid::Uuid;
 
@@ -346,7 +346,8 @@ impl ComponentQuery {
     ) -> ServiceResult<Vec<DownloadFile>> {
         use component_modification::fileset_for_program::file::service::list::get_fileset_files;
 
-        let logged_user_uuid: Uuid = get_logged_user_uuid(cxt, true)?;
+        // authorization check, if token verification fails, try to get the default user UUID
+        let logged_user_uuid = ExtraOptions::from_cxt(cxt, true).map(|eo| eo.logged_user_uuid)?;
         let arguments: FileOfFilesetArg = FileOfFilesetArg::from(args);
         let p = paginate
             .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
