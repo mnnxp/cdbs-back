@@ -13,24 +13,17 @@ impl From<&HeaderMap> for SetLang {
         let lang = req
             .get(ACCEPT_LANGUAGE.clone())
             .and_then(|v| v.to_str().ok());
-
         let lang_id = match lang {
             None => 1,
             Some(str_lang) => {
-                // let str_lang = str_lang.parse::<LanguageTag>().unwrap_or_default();
-
                 debug!("ACCEPT_LANGUAGE: {:?}", str_lang);
-
-                // match str_lang.language {
                 match str_lang.parse::<LanguageTag>() {
-                    // Some(x) if x == *"en" => 1,
                     Ok(x) if x.primary_language() == "ru" => 2,
-                    // Some(_) => 1,
+                    Ok(x) if x.primary_language() == "zh" => 3,
                     _ => 1,
                 }
             }
         };
-
         Self { lang_id }
     }
 }
