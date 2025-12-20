@@ -1,6 +1,6 @@
 [package]
 name = "cdbs-back"
-version = "0.3.0"
+version = "0.3.1"
 authors = ["mnnxp <mananaxep@gmail.com>"]
 edition = "2021"
 resolver = "1"
