@@ -308,27 +308,29 @@ pub(crate) fn filter_components_uuids_by_spec(
     spec_id: &i32,
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<Uuid>> {
+    use crate::schema::spec_ref::dsl as spec_ref;
     use crate::schema::spec_to_component::dsl as spec_to_component;
-    match filter_component_uuids.is_empty() {
-        true => spec_to_component::spec_to_component
-            .filter(spec_to_component::spec_id.eq(spec_id))
-            .select(spec_to_component::component_uuid)
-            .load::<Uuid>(conn)
-            .map_err(|err| {
-                debug!("Fail load uuid list target spec: {:?}", err);
-                ServiceError::InternalServerError
-            }),
-        false => spec_to_component::spec_to_component
-            .filter(
-                spec_to_component::spec_id
-                    .eq(spec_id)
-                    .and(spec_to_component::component_uuid.eq_any(filter_component_uuids)),
-            )
-            .select(spec_to_component::component_uuid)
-            .load::<Uuid>(conn)
-            .map_err(|err| {
-                debug!("Fail load uuid list target spec: {:?}", err);
-                ServiceError::InternalServerError
-            }),
+
+    let descendant_ids =  spec_ref::spec_ref
+        .filter(spec_ref::path.like(format!("%{}%", spec_id)))
+        .select(spec_ref::id)
+        .load::<i32>(conn)
+        .expect("Failed to load descendant ids");
+
+    let mut query = spec_to_component::spec_to_component.into_boxed();
+
+    if filter_component_uuids.is_empty() {
+        query = query.filter(spec_to_component::spec_id.eq_any(&descendant_ids))
+    } else {
+        query = query.filter(spec_to_component::spec_id.eq_any(&descendant_ids)
+            .and(spec_to_component::component_uuid.eq_any(filter_component_uuids)));
     }
+
+    query
+        .select(spec_to_component::component_uuid)
+        .load::<Uuid>(conn)
+        .map_err(|err| {
+            debug!("Failed to load components for spec hierarchy {}: {:?}", spec_id, err);
+            ServiceError::InternalServerError
+        })
 }
