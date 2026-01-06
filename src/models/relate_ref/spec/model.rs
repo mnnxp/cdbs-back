@@ -7,6 +7,7 @@ use async_graphql::*;
 pub(crate) struct Spec {
     pub(crate) id: i32,
     pub(crate) parent_spec_id: i32,
+    pub(crate) path: String,
 }
 
 #[derive(Debug, Insertable)]

@@ -54,7 +54,7 @@ fn get_spec_ids(
     Ok(res_ids)
 }
 
-/// Collecting full path for specification
+/// Collecting full path
 fn collect_path_spec(
     spec_id: &i32,
     split_char: &char,
@@ -62,7 +62,7 @@ fn collect_path_spec(
     set_lang_id: &i32,
     conn: &mut PgConnection,
 ) -> ServiceResult<String> {
-    let target_specs_ids = get_parents_ids(spec_id, depth_level, conn).map_err(|err| {
+    let target_specs_ids = get_parents_ids(*spec_id, *depth_level, conn).map_err(|err| {
         debug!("Failed get parents ids: {}", err);
         ServiceError::InternalServerError
     })?;
@@ -79,29 +79,22 @@ fn collect_path_spec(
 
 /// Get all parents specs up to setting depth level
 fn get_parents_ids(
-    spec_id: &i32,
-    depth_level: &i32,
+    spec_id: i32,
+    depth_level: i32,
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<i32>> {
-    let mut specs_levels: Vec<i32> = vec![*spec_id];
-    let mut spec_id: i32 = *spec_id;
-
-    let depth_level = match depth_level {
-        50.. => 50_usize,
-        _ => *depth_level as usize,
-    };
-
-    loop {
-        let spec: Spec = Spec::get_by_id(&spec_id, conn)?;
-
-        if spec.id == spec.parent_spec_id || specs_levels.len() >= depth_level {
-            break;
+    let spec = Spec::get_by_id(&spec_id, conn)?;
+    let mut specs_levels = Vec::new();
+    let mut count = 0;
+    for part in spec.path.split('.').rev() {
+        if let Ok(num) = part.parse::<i32>() {
+            specs_levels.push(num);
+            count += 1;
+            if depth_level > 0 && count >= depth_level {
+                break;
+            }
         }
-
-        specs_levels.push(spec.parent_spec_id);
-        spec_id = spec.parent_spec_id;
     }
-
     Ok(specs_levels)
 }
 

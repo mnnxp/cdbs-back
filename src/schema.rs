@@ -629,6 +629,7 @@ table! {
     spec_ref (id) {
         id -> Int4,
         parent_spec_id -> Int4,
+        path -> Varchar,
     }
 }
 
