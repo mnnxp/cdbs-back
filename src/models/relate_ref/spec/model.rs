@@ -8,6 +8,7 @@ pub(crate) struct Spec {
     pub(crate) id: i32,
     pub(crate) parent_spec_id: i32,
     pub(crate) path: String,
+    // pub(crate) depth: i32,
 }
 
 #[derive(Debug, Insertable)]

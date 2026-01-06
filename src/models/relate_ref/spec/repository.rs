@@ -13,6 +13,11 @@ impl Spec {
     pub(crate) fn get_by_id(target_spec_id: &i32, conn: &mut PgConnection) -> ServiceResult<Spec> {
         spec_ref::spec_ref
             .filter(spec_ref::id.eq(target_spec_id))
+            .select((
+                spec_ref::id,
+                spec_ref::parent_spec_id,
+                spec_ref::path,
+            ))
             .first::<Spec>(conn)
             .map_err(|err| {
                 debug!("Failed get spec by id: {}", err);
