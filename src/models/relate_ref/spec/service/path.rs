@@ -95,6 +95,7 @@ fn get_parents_ids(
             }
         }
     }
+    specs_levels.reverse();
     Ok(specs_levels)
 }
 

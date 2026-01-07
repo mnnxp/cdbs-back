@@ -54,6 +54,23 @@ impl SpecTranslateList {
             })
     }
 
+    /// Gets specs list witout filter
+    pub(crate) fn get(
+        set_lang_id: i32,
+        paginate: &Paginate,
+        conn: &mut PgConnection,
+    ) -> ServiceResult<Vec<SpecTranslateList>> {
+        spec_translate_list::spec_translate_list
+            .filter(spec_translate_list::lang_id.eq(set_lang_id))
+            .limit(paginate.limit)
+            .offset(paginate.offset)
+            .load::<SpecTranslateList>(conn)
+            .map_err(|err| {
+                debug!("Failed get specs: {:?}", err);
+                ServiceError::InternalServerError
+            })
+    }
+
     /// Gets specs list by ids with/witout filter
     pub(crate) fn get_by_ids(
         target_specs_ids: &[i32],
@@ -61,21 +78,30 @@ impl SpecTranslateList {
         paginate: &Paginate,
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<SpecTranslateList>> {
+        if target_specs_ids.is_empty() {
+            return SpecTranslateList::get(*set_lang_id, paginate, conn)
+        }
+
         let mut query = spec_translate_list::spec_translate_list.into_boxed();
         query = match target_specs_ids.is_empty() {
             true => query.filter(spec_translate_list::lang_id.eq(set_lang_id)),
-            false => query.filter(
-                spec_translate_list::spec_id
-                    .eq_any(target_specs_ids)
-                    .and(spec_translate_list::lang_id.eq(set_lang_id)),
-            ),
+            false if target_specs_ids.len() > 1 => {
+                let order_clause = diesel::dsl::sql::<diesel::sql_types::Integer>(
+                    &format!("array_position(ARRAY{:?}::integer[], spec_id)", target_specs_ids)
+                );
+                query.filter(spec_translate_list::lang_id.eq(set_lang_id)
+                    .and(spec_translate_list::spec_id.eq_any(target_specs_ids)))
+                    .order(order_clause)
+            },
+            false => query.filter(spec_translate_list::lang_id.eq(set_lang_id)
+                .and(spec_translate_list::spec_id.eq_any(target_specs_ids))),
         };
         query
             .limit(paginate.limit)
             .offset(paginate.offset)
             .load::<SpecTranslateList>(conn)
             .map_err(|err| {
-                debug!("Failed get specs: {:?}", err);
+                debug!("Failed to get specs: {:?}", err);
                 ServiceError::InternalServerError
             })
     }
