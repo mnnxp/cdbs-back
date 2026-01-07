@@ -16,6 +16,7 @@ impl SpecTranslateList {
         let specs_ids = spec_to_service::spec_to_service
             .filter(spec_to_service::service_uuid.eq(service_uuid))
             .select(spec_to_service::spec_id)
+            .order_by(spec_to_service::spec_id.asc())
             .limit(1000)
             .load::<i32>(conn)
             .map_err(|err| {

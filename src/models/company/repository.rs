@@ -321,7 +321,7 @@ impl CompanyAndRelatedData {
         // get certificates with slimfile for company
         let certificates_with_slimfile: Vec<CompanyCertificateAndFile> =
             CompanyCertificateAndFile::from_company(&company.uuid, &options.domain, conn)
-                .expect("Error loading spec company with translate");
+                .expect("Error loading certificates company with translate");
 
         // get specs with translation for company
         let company_specs_with_translate: Vec<SpecTranslateList> =

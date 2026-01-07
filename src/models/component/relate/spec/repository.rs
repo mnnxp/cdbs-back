@@ -16,6 +16,7 @@ impl SpecTranslateList {
         let specs_ids = spec_to_component::spec_to_component
             .filter(spec_to_component::component_uuid.eq(component_uuid))
             .select(spec_to_component::spec_id)
+            .order_by(spec_to_component::spec_id.asc())
             .limit(1000)
             .load::<i32>(conn)
             .map_err(|err| {
