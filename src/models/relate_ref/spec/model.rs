@@ -11,12 +11,6 @@ pub(crate) struct Spec {
     // pub(crate) depth: i32,
 }
 
-#[derive(Debug, Insertable)]
-#[diesel(table_name = spec_ref)]
-pub(crate) struct InsertableSpec {
-    pub(crate) parent_spec_id: i32,
-}
-
 /// Catalog (catalog element) data with localization
 #[derive(Serialize, Deserialize, Queryable, Clone, Debug)]
 #[diesel(table_name = spec_translate_list)]
@@ -33,14 +27,6 @@ pub(crate) struct SpecTranslateList {
 #[diesel(table_name = spec_translate_list)]
 pub(crate) struct SpecId {
     pub(crate) spec_id: i32,
-}
-
-#[derive(Debug, Insertable)]
-#[diesel(table_name = spec_translate_list)]
-pub(crate) struct InsertableSpecTranslateList {
-    pub(crate) spec_id: i32,
-    pub(crate) lang_id: i32,
-    pub(crate) spec: String,
 }
 
 /// Catalog data in the form of a path. Separator and depth of the path are set during generation.
