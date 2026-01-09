@@ -44,11 +44,11 @@ pub(crate) fn check_is_owner_with_err(
 pub(crate) fn check_access_standard_for_user(
     target_user_uuid: &Uuid,
     target_standard_uuid: &Uuid,
-    need_access_level: &i32,
+    need_access_level: i32,
     conn: &mut PgConnection,
 ) -> ServiceResult<bool> {
     // if request to view a public standard
-    if need_access_level == &3 {
+    if need_access_level == 3 {
         let access_type_standard = get_access_type_standard(target_standard_uuid, conn)?;
         // if target standard public
         if access_type_standard == 3 {
@@ -89,7 +89,7 @@ pub(crate) fn check_access_standard_for_user(
 pub(crate) fn check_user_access_to_standard(
     target_user_uuid: &Uuid,
     target_standard_uuid: &Uuid,
-    need_access_level: &i32,
+    need_access_level: i32,
     conn: &mut PgConnection,
 ) -> ServiceResult<bool> {
     use crate::schema::user_access_to_standard::dsl::*;
@@ -108,14 +108,14 @@ pub(crate) fn check_user_access_to_standard(
             ServiceError::InternalServerError
         })?;
 
-    Ok(matches!(result_check.first(), Some(x) if need_access_level >= x))
+    Ok(matches!(result_check.first(), Some(x) if need_access_level >= *x))
 }
 
 /// Сhecking the availability of user access provided by the company
 pub(crate) fn check_user_access_provided_by_company(
     target_user_uuid: &Uuid,
     target_standard_uuid: &Uuid,
-    need_access_level: &i32,
+    need_access_level: i32,
     conn: &mut PgConnection,
 ) -> ServiceResult<bool> {
     use crate::models::company::access::util::check_clerk_with_suitable_role;
@@ -135,7 +135,7 @@ pub(crate) fn check_user_access_provided_by_company(
 /// Gets list of companies that have need level access to a standard
 pub(crate) fn get_companies_have_access_to_standard(
     target_standard_uuid: &Uuid,
-    need_access_level: &i32,
+    need_access_level: i32,
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<Uuid>> {
     use crate::schema::company_access_to_standard::dsl::*;

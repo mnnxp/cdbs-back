@@ -50,16 +50,16 @@ impl CompanyRepresentAndRelatedData {
     /// Add company represents related data and translation for represent data
     pub(crate) fn get_by_represent(
         represent: &CompanyRepresent,
-        set_lang_id: &i32,
+        set_lang_id: i32,
         conn: &mut PgConnection,
     ) -> ServiceResult<CompanyRepresentAndRelatedData> {
         // get regions for company represent
         let region =
-            RegionTranslateList::get_region_by_id(&represent.region_id, set_lang_id, conn)?;
+            RegionTranslateList::get_region_by_id(represent.region_id, set_lang_id, conn)?;
 
         // get represent type for company represent
         let representation_type = RepresentationTypeTranslateList::get_by_id(
-            &represent.representation_type_id,
+            represent.representation_type_id,
             set_lang_id,
             conn,
         )?;
@@ -79,7 +79,7 @@ impl CompanyRepresentAndRelatedData {
     /// with type and region data with translation for a given language
     pub(crate) fn get_by_company_uuid(
         company_uuid: &Uuid,
-        set_lang_id: &i32,
+        set_lang_id: i32,
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<CompanyRepresentAndRelatedData>> {
         let company_represents = &CompanyRepresent::get_by_company_uuid(company_uuid, conn)?;
@@ -98,7 +98,7 @@ impl CompanyRepresentAndRelatedData {
         debug!("company_represents: {:?}", company_represents);
         CompanyRepresentAndRelatedData::get_by_represents(
             company_represents,
-            &args.set_lang_id,
+            args.set_lang_id,
             conn,
         )
     }
@@ -107,7 +107,7 @@ impl CompanyRepresentAndRelatedData {
     /// with type and region data with translation for a given language
     pub(crate) fn get_by_represents(
         company_represents: &[CompanyRepresent],
-        set_lang_id: &i32,
+        set_lang_id: i32,
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<CompanyRepresentAndRelatedData>> {
         debug!("company represent: {:?}", company_represents);

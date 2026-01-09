@@ -28,7 +28,7 @@ pub(crate) fn add_certificate(
     check_company_access(
         logged_user_uuid,
         &cert_data.company_uuid,
-        &need_access_level,
+        need_access_level,
         conn,
     )?;
 

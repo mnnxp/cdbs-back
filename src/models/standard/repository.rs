@@ -79,7 +79,7 @@ impl ShowStandardShort {
         check_access_standard_for_user(
             &options.logged_user_uuid,
             target_standard_uuid,
-            &need_access_level,
+            need_access_level,
             conn,
         )?;
 
@@ -101,8 +101,8 @@ impl ShowStandardShort {
 
         // get standard type with translation for standard
         let standard_status = StandardStatusTranslateList::get_by_id(
-            &standard.standard_status_id,
-            &options.set_lang_id,
+            standard.standard_status_id,
+            options.set_lang_id,
             conn,
         )
         .expect("Error loading standard_status");
@@ -188,7 +188,7 @@ impl StandardAndRelatedData {
         check_access_standard_for_user(
             &options.logged_user_uuid,
             target_standard_uuid,
-            &need_access_level,
+            need_access_level,
             conn,
         )?;
 
@@ -218,16 +218,16 @@ impl StandardAndRelatedData {
 
         // get standard type with translation for standard
         let type_access = TypeAccessTranslateList::get_type_access_by_id(
-            &standard.type_access_id,
-            &options.set_lang_id,
+            standard.type_access_id,
+            options.set_lang_id,
             conn,
         )
         .expect("Error loading type_access");
 
         // get standard type with translation for standard
         let standard_status = StandardStatusTranslateList::get_by_id(
-            &standard.standard_status_id,
-            &options.set_lang_id,
+            standard.standard_status_id,
+            options.set_lang_id,
             conn,
         )
         .expect("Error loading standard_status");
@@ -249,7 +249,7 @@ impl StandardAndRelatedData {
         // get specs with translation for standard
         let standard_specs: Vec<SpecTranslateList> = SpecTranslateList::for_standard_by_uuid(
             &standard.uuid,
-            &options.set_lang_id,
+            options.set_lang_id,
             paginate,
             conn,
         )

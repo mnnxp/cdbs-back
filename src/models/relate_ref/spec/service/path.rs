@@ -9,7 +9,7 @@ use diesel::{prelude::*, PgConnection};
 /// A value of `deep_level` sets the depth limit to the parent catalog.
 pub(crate) fn get_paths_specs(
     args: &SpecPathArg,
-    set_lang_id: &i32,
+    set_lang_id: i32,
     paginate: &Paginate,
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<SpecPath>> {
@@ -21,8 +21,8 @@ pub(crate) fn get_paths_specs(
     for sid in &select_ids {
         result.push(SpecPath {
             spec_id: *sid,
-            lang_id: *set_lang_id,
-            path: collect_path_spec(sid, &args.split_char, &args.depth_level, set_lang_id, conn)?,
+            lang_id: set_lang_id,
+            path: collect_path_spec(*sid, &args.split_char, args.depth_level, set_lang_id, conn)?,
         });
     }
     Ok(result)
@@ -56,13 +56,13 @@ fn get_spec_ids(
 
 /// Collecting full path
 fn collect_path_spec(
-    spec_id: &i32,
+    spec_id: i32,
     split_char: &char,
-    depth_level: &i32,
-    set_lang_id: &i32,
+    depth_level: i32,
+    set_lang_id: i32,
     conn: &mut PgConnection,
 ) -> ServiceResult<String> {
-    let target_specs_ids = get_parents_ids(*spec_id, *depth_level, conn).map_err(|err| {
+    let target_specs_ids = get_parents_ids(spec_id, depth_level, conn).map_err(|err| {
         debug!("Failed get parents ids: {}", err);
         ServiceError::InternalServerError
     })?;
@@ -83,7 +83,7 @@ fn get_parents_ids(
     depth_level: i32,
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<i32>> {
-    let spec = Spec::get_by_id(&spec_id, conn)?;
+    let spec = Spec::get_by_id(spec_id, conn)?;
     let mut specs_levels = Vec::new();
     let mut count = 0;
     for part in spec.path.split('.').rev() {

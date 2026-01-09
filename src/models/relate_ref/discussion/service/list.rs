@@ -16,7 +16,7 @@ pub(crate) fn get_discussions(
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<DiscussionInfo>> {
     args.discussion_to
-        .check_access(&options.logged_user_uuid, &3, conn)?;
+        .check_access(&options.logged_user_uuid, 3, conn)?;
     let mut discussion_uuids = args.discussion_to.get_discuss_uuids(conn)?;
     if discussion_uuids.len() > 1 {
         discussion_uuids = objects_order(&discussion_uuids, &args.sort, &args.paginate, conn)?;
@@ -34,7 +34,7 @@ pub(crate) fn get_discussion_comment_list(
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<DiscussionCommentData>> {
     let discussion_to = DiscussionTo::by_discuss_uuid(&args.discussion_uuid, conn)?;
-    discussion_to.check_access(&options.logged_user_uuid, &3, conn)?;
+    discussion_to.check_access(&options.logged_user_uuid, 3, conn)?;
     let mut res = Vec::new();
     for comment_uuid in &DiscussionCommentList::get_uuids(args, conn)? {
         res.push(get_discuss_comment(comment_uuid, &options.domain, conn)?)

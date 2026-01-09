@@ -5,7 +5,7 @@ use uuid::Uuid;
 
 /// Get company uuid by role id
 pub(crate) fn get_company_by_role(
-    target_role_id: &i32,
+    target_role_id: i32,
     conn: &mut PgConnection,
 ) -> ServiceResult<Uuid> {
     use crate::schema::role_member_list::dsl::*;
@@ -28,7 +28,7 @@ pub(crate) fn get_company_by_role(
 /// return error if not found role for company
 pub(crate) fn check_role_of_company(
     target_company_uuid: &Uuid,
-    target_role_id: &i32,
+    target_role_id: i32,
     conn: &mut PgConnection,
 ) -> ServiceResult<bool> {
     use crate::schema::role_member_list::dsl::*;

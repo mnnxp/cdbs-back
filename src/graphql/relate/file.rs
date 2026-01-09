@@ -48,8 +48,8 @@ impl ShowFileRelatedData {
     }
 
     /// File revision number
-    async fn revision(&self) -> &i32 {
-        &self.revision
+    async fn revision(&self) -> i32 {
+        self.revision
     }
 
     /// Commit message (comment on the file or its revision)
@@ -73,8 +73,8 @@ impl ShowFileRelatedData {
     }
 
     /// File size in bytes
-    async fn filesize(&self) -> &i64 {
-        &self.filesize
+    async fn filesize(&self) -> i64 {
+        self.filesize
     }
 
     /// Software associated with the file (to open the file)

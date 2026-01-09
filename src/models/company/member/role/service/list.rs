@@ -31,7 +31,7 @@ pub(super) fn get_company_roles_ids(
 pub(crate) fn get_roles_for_company(
     logged_user_uuid: &Uuid,
     target_company_uuid: &Uuid,
-    set_lang_id: &i32,
+    set_lang_id: i32,
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<RoleMemberAndRelatedData>> {
     use crate::schema::role_member_list::dsl::*;
@@ -41,7 +41,7 @@ pub(crate) fn get_roles_for_company(
     if !check_company_access(
         logged_user_uuid,
         target_company_uuid,
-        &need_access_level,
+        need_access_level,
         conn,
     )? {
         // return error if user not have access level

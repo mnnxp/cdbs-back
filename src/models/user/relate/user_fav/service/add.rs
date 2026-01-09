@@ -21,7 +21,7 @@ pub(crate) fn add_user_fav(
     check_access_user_for_user(
         logged_user_uuid,   // <-- logged user_uuid
         user_favorite_uuid, // <-- target user_uuid
-        &need_access_level,
+        need_access_level,
         conn,
     )?;
 

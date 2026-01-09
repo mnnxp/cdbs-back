@@ -135,8 +135,8 @@ impl ComponentAndRelatedData {
     }
 
     /// Number of people who have added the component to bookmarks
-    async fn subscribers(&self) -> &i32 {
-        &self.subscribers
+    async fn subscribers(&self) -> i32 {
+        self.subscribers
     }
 
     /// Flag of the presence of the component in the user's bookmarks
@@ -177,7 +177,7 @@ impl ComponentAndRelatedData {
             .unwrap_or_default();
         ComponentParamWithTranslation::by_component_uuid(
             &self.uuid,
-            &get_set_language(cxt),
+            get_set_language(cxt),
             &s,
             &p,
             conn,
@@ -228,7 +228,7 @@ impl ComponentAndRelatedData {
         let p = paginate
             .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
             .unwrap_or_default();
-        SpecTranslateList::for_component_by_uuid(&self.uuid, &get_set_language(cxt), &p, conn)
+        SpecTranslateList::for_component_by_uuid(&self.uuid, get_set_language(cxt), &p, conn)
             .expect("Error loading component keywords")
     }
 
@@ -258,7 +258,7 @@ impl ComponentAndRelatedData {
         let conn: &mut PooledConnection = &mut get_conn(cxt).expect("Error get conn to DB");
         let args = ComponentModificationArg::parsing(self.uuid, filter, sort, paginate);
         // get list component modifications with related data and translation
-        ComponentModificationAndRelatedData::by_args(&args, &get_set_language(cxt), conn)
+        ComponentModificationAndRelatedData::by_args(&args, get_set_language(cxt), conn)
             .expect("Error loading component modifications with related data")
     }
 
@@ -579,7 +579,7 @@ impl ComponentModificationAndRelatedData {
             .unwrap_or_default();
         ModificationParamWithTranslation::by_modification_uuid(
             &self.uuid,
-            &get_set_language(cxt),
+            get_set_language(cxt),
             &s,
             &p,
             conn,

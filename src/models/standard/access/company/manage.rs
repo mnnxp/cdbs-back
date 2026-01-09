@@ -13,7 +13,7 @@ use uuid::Uuid;
 pub(crate) fn get_companies_list_access_standard(
     logged_user_uuid: &Uuid,
     target_standard_uuid: &Uuid,
-    set_lang_id: &i32,
+    set_lang_id: i32,
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<CompanyAccessStandardAndRelatedData>> {
     // 1. проверить пользователя на владение стандартом

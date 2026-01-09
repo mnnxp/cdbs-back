@@ -68,11 +68,11 @@ pub(crate) fn check_is_owner_with_err(
 pub(crate) fn check_company_access(
     target_user_uuid: &Uuid,
     target_company_uuid: &Uuid,
-    required_access: &i32,
+    required_access: i32,
     conn: &mut PgConnection,
 ) -> ServiceResult<bool> {
     // if request to view a public company
-    if required_access == &3 {
+    if required_access == 3 {
         let access_type_company = get_access_type_company(target_company_uuid, conn)?;
         // if target company is public
         if access_type_company == 3 {
@@ -85,12 +85,11 @@ pub(crate) fn check_company_access(
         return Ok(true);
     }
 
-    let member_role_in_company_id =
-        member_role_in_company(target_user_uuid, target_company_uuid, conn)?;
+    let member_role_in_company_id = member_role_in_company(target_user_uuid, target_company_uuid, conn)?;
 
-    let found_type_access_id: i32 = get_type_access_id(&member_role_in_company_id, conn)?;
+    let found_type_access_id: i32 = get_type_access_id(member_role_in_company_id, conn)?;
 
-    match &found_type_access_id < required_access {
+    match found_type_access_id < required_access {
         true => Ok(true),
         false => Err(get_err_msg(ErrorMessage::AccessDenied)),
     }
@@ -119,7 +118,7 @@ pub(crate) fn member_role_in_company(
 
 /// Get type_access_id for target role_id
 pub(crate) fn get_type_access_id(
-    target_role_id: &i32,
+    target_role_id: i32,
     conn: &mut PgConnection,
 ) -> ServiceResult<i32> {
     use crate::schema::role_access::dsl::*;
@@ -137,7 +136,7 @@ pub(crate) fn get_type_access_id(
 
 /// Get role IDs for desired level access
 pub(crate) fn get_roles_ids_for_access(
-    required_access: &i32,
+    required_access: i32,
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<i32>> {
     use crate::schema::role_access::dsl::*;

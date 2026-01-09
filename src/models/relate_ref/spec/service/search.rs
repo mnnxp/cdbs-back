@@ -9,7 +9,7 @@ use diesel::PgConnection;
 /// Значение "deep_level" устанавливает предел глубины до родительского раздела.
 pub(crate) fn search_specs_by_name(
     args: &SearchSpecArg,
-    set_lang_id: &i32,
+    set_lang_id: i32,
     paginate: &Paginate,
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<SpecPath>> {

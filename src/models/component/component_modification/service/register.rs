@@ -20,7 +20,7 @@ pub(crate) fn create_component_modification(
     check_access_component_for_user(
         logged_user_uuid,
         &data.component_uuid,
-        &need_access_level,
+        need_access_level,
         conn,
     )?;
     let mut insert_data: InsertableComponentModification = data.into();
@@ -50,7 +50,7 @@ pub(crate) fn creation_multiple_modifications(
     check_access_component_for_user(
         logged_user_uuid,
         &data.component_uuid,
-        &need_access_level,
+        need_access_level,
         conn,
     )?;
 

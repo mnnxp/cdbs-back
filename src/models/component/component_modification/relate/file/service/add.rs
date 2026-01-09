@@ -27,7 +27,7 @@ pub(crate) fn add_modification_files(
     check_access_component_for_user(
         logged_user_uuid,
         &target_component_uuid,
-        &need_access_level,
+        need_access_level,
         conn,
     )?;
 

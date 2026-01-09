@@ -8,7 +8,7 @@ use diesel::{prelude::*, PgConnection};
 /// If a filter is not specified, then all existing ones are aggregated.
 pub(crate) fn get_regions(
     region_ids: &[i32],
-    set_lang_id: &i32,
+    set_lang_id: i32,
     paginate: &Paginate,
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<RegionTranslateList>> {
@@ -19,7 +19,7 @@ pub(crate) fn get_regions(
 }
 
 fn find_all_regions(
-    set_lang_id: &i32,
+    set_lang_id: i32,
     paginate: &Paginate,
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<RegionTranslateList>> {
@@ -37,7 +37,7 @@ fn find_all_regions(
 
 fn find_region_id(
     region_ids: &[i32],
-    set_lang_id: &i32,
+    set_lang_id: i32,
     paginate: &Paginate,
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<RegionTranslateList>> {

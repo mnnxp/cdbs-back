@@ -28,7 +28,7 @@ impl CompanyMemberAndRelatedData {
     /// and role data with translation for a given language
     pub(crate) fn get_list_members_by_company_uuid(
         company_uuid: &Uuid,
-        set_lang_id: &i32,
+        set_lang_id: i32,
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<CompanyMemberAndRelatedData>> {
         let company_members = &CompanyMember::get_by_company_uuid(company_uuid, conn)?;
@@ -44,7 +44,7 @@ impl CompanyMemberAndRelatedData {
     /// and role data with translation for a given language
     pub(crate) fn get_related_data_for_members(
         company_members: &[CompanyMember],
-        set_lang_id: &i32,
+        set_lang_id: i32,
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<CompanyMemberAndRelatedData>> {
         let mut company_member_with_role: Vec<CompanyMemberAndRelatedData> = Vec::new();
@@ -52,7 +52,7 @@ impl CompanyMemberAndRelatedData {
         for member in company_members {
             // get member types for company members
             let member_role =
-                RoleMemberAndRelatedData::get_by_id(&member.role_id, set_lang_id, conn)?;
+                RoleMemberAndRelatedData::get_by_id(member.role_id, set_lang_id, conn)?;
 
             company_member_with_role.push(CompanyMemberAndRelatedData {
                 company_uuid: member.company_uuid,

@@ -161,7 +161,7 @@ pub(crate) fn find_by_uuid(
 /// Фильтр на статус поставщика и открытый доступ.
 pub(crate) fn get_supplier_by_uuid(
     target_company_uuid: &Uuid,
-    set_lang_id: &i32,
+    set_lang_id: i32,
     domain: &str,
     conn: &mut PgConnection,
 ) -> ServiceResult<CompanyAndRelatedData> {

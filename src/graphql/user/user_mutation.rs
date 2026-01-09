@@ -63,7 +63,7 @@ impl UserMutation {
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        change_access_type_user(&logged_user_uuid, &new_type_access, conn)
+        change_access_type_user(&logged_user_uuid, new_type_access, conn)
     }
 
     /// Updates the user's underlying data by UUID.

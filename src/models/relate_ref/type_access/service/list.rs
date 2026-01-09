@@ -8,7 +8,7 @@ use diesel::{prelude::*, PgConnection};
 /// If you do not specify a filter for access types, all existing access types are aggregated.
 pub(crate) fn get_type_access(
     type_access_ids: &[i32],
-    set_lang_id: &i32,
+    set_lang_id: i32,
     paginate: &Paginate,
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<TypeAccessTranslateList>> {
@@ -19,7 +19,7 @@ pub(crate) fn get_type_access(
 }
 
 fn find_all_type_access(
-    set_lang_id: &i32,
+    set_lang_id: i32,
     paginate: &Paginate,
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<TypeAccessTranslateList>> {
@@ -36,7 +36,7 @@ fn find_all_type_access(
 
 fn find_type_access_ids(
     type_access_ids: &[i32],
-    set_lang_id: &i32,
+    set_lang_id: i32,
     paginate: &Paginate,
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<TypeAccessTranslateList>> {

@@ -127,7 +127,7 @@ impl ShowUserShort {
         let need_access_level = 3; // todo!(create enum for manage access level)
 
         // check access user for target user
-        check_access_user_for_user(logged_user_uuid, target_user_uuid, &need_access_level, conn)?;
+        check_access_user_for_user(logged_user_uuid, target_user_uuid, need_access_level, conn)?;
 
         ShowUserShort::get_without_check_by_uuid(target_user_uuid, domain, conn)
     }
@@ -226,16 +226,16 @@ impl UserAndRelatedData {
 
         // get region for user
         let region: RegionTranslateList =
-            RegionTranslateList::get_region_by_id(&user.region_id, &options.set_lang_id, conn)
+            RegionTranslateList::get_region_by_id(user.region_id, options.set_lang_id, conn)
                 .expect("Error loading user_type");
 
         // get program set default for user
         let program: Program =
-            Program::get_program_by_id(&user.program_id, conn).expect("Error get set program");
+            Program::get_program_by_id(user.program_id, conn).expect("Error get set program");
 
         // get type access set for user profile
         let type_access: TypeAccessTranslateList =
-            TypeAccessTranslateList::get_type_access_by_id(&user.type_access_id, &options.set_lang_id, conn)
+            TypeAccessTranslateList::get_type_access_by_id(user.type_access_id, options.set_lang_id, conn)
                 .expect("Error get set type access");
 
         // count subscribers user
@@ -324,12 +324,12 @@ impl ShowUserAndRelatedData {
 
         // get region for user
         let region: RegionTranslateList =
-            RegionTranslateList::get_region_by_id(&user.region_id, &options.set_lang_id, conn)
+            RegionTranslateList::get_region_by_id(user.region_id, options.set_lang_id, conn)
                 .expect("Error loading user_type");
 
         // get program set default for user
         let program: Program =
-            Program::get_program_by_id(&user.program_id, conn).expect("Error get set program");
+            Program::get_program_by_id(user.program_id, conn).expect("Error get set program");
 
         // check whether the object is being tracked auth user
         let is_followed = crate::models::user::user_fav::util::check_subscriber_by_uuid(
@@ -375,7 +375,7 @@ impl ShowUserAndRelatedData {
         let need_access_level = 3; // todo!(create enum for manage access level)
 
         // check access user for user
-        check_access_user_for_user(&options.logged_user_uuid, target_user_uuid, &need_access_level, conn)?;
+        check_access_user_for_user(&options.logged_user_uuid, target_user_uuid, need_access_level, conn)?;
 
         // collect data for user
         ShowUserAndRelatedData::collect_related_data(

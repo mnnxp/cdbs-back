@@ -9,7 +9,7 @@ impl SpecTranslateList {
     /// Gets all specs for service by uuid
     pub(crate) fn for_service_by_uuid(
         service_uuid: &Uuid,
-        set_lang_id: &i32,
+        set_lang_id: i32,
         paginate: &Paginate,
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<SpecTranslateList>> {

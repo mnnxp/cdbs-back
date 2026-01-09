@@ -101,7 +101,7 @@ impl StandardQuery {
         get_standard_specs(
             &logged_user_uuid,
             &standard_uuid,
-            &get_set_language(cxt),
+            get_set_language(cxt),
             &p,
             conn,
         )
@@ -140,7 +140,7 @@ impl StandardQuery {
         get_companies_list_access_standard(
             &logged_user_uuid,
             &standard_uuid,
-            &get_set_language(cxt),
+            get_set_language(cxt),
             conn,
         )
     }
@@ -161,7 +161,7 @@ impl StandardQuery {
         get_users_list_access_standard(
             &logged_user_uuid,
             &standard_uuid,
-            &get_set_language(cxt),
+            get_set_language(cxt),
             conn,
         )
     }
@@ -180,6 +180,6 @@ impl StandardQuery {
         let filter: Vec<i32> = filter.unwrap_or_default();
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        get_standard_statuses(&filter, &get_set_language(cxt), conn)
+        get_standard_statuses(&filter, get_set_language(cxt), conn)
     }
 }

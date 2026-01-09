@@ -17,9 +17,9 @@ pub(crate) fn get_service_specs(
     check_access_service_for_user(
         &options.logged_user_uuid,
         service_uuid,
-        &need_access_level,
+        need_access_level,
         conn,
     )?;
 
-    SpecTranslateList::for_service_by_uuid(service_uuid, &options.set_lang_id, paginate, conn)
+    SpecTranslateList::for_service_by_uuid(service_uuid, options.set_lang_id, paginate, conn)
 }

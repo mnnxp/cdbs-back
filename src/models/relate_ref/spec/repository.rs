@@ -10,7 +10,7 @@ use diesel::prelude::*;
 
 impl Spec {
     /// Gets spec data by id
-    pub(crate) fn get_by_id(target_spec_id: &i32, conn: &mut PgConnection) -> ServiceResult<Spec> {
+    pub(crate) fn get_by_id(target_spec_id: i32, conn: &mut PgConnection) -> ServiceResult<Spec> {
         spec_ref::spec_ref
             .filter(spec_ref::id.eq(target_spec_id))
             .select((
@@ -29,8 +29,8 @@ impl Spec {
 impl SpecTranslateList {
     /// Returns the structure of the parent catalog element
     pub(crate) fn get_parent_by_id(
-        spec_id: &i32,
-        set_lang_id: &i32,
+        spec_id: i32,
+        set_lang_id: i32,
         conn: &mut PgConnection,
     ) -> ServiceResult<SpecTranslateList> {
         let parent_spec_id = spec_ref::spec_ref
@@ -74,12 +74,12 @@ impl SpecTranslateList {
     /// Gets specs list by ids with/witout filter
     pub(crate) fn get_by_ids(
         target_specs_ids: &[i32],
-        set_lang_id: &i32,
+        set_lang_id: i32,
         paginate: &Paginate,
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<SpecTranslateList>> {
         if target_specs_ids.is_empty() {
-            return SpecTranslateList::get(*set_lang_id, paginate, conn)
+            return SpecTranslateList::get(set_lang_id, paginate, conn)
         }
 
         let mut query = spec_translate_list::spec_translate_list.into_boxed();
@@ -110,7 +110,7 @@ impl SpecTranslateList {
     pub(crate) fn get_by_parent_ids(
         target_specs_ids: &[i32],
         target_specs_levels: &[i32],
-        set_lang_id: &i32,
+        set_lang_id: i32,
         paginate: &Paginate,
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<SpecTranslateList>> {
@@ -161,7 +161,7 @@ impl SpecId {
     /// Gets list all spec ids which query text
     pub(crate) fn get_list_by_name(
         query_text: &str,
-        set_lang_id: &i32,
+        set_lang_id: i32,
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<SpecId>> {
         let EngLangName { eng_lang_name } = EngLangName::get_by_id(set_lang_id);

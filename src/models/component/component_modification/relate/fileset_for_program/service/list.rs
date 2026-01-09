@@ -26,7 +26,7 @@ pub(crate) fn get_modification_filesets(
     check_access_component_for_user(
         logged_user_uuid,
         &get_component_by_modification(modification_uuid, conn)?,
-        &need_access_level,
+        need_access_level,
         conn,
     )?;
 

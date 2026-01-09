@@ -80,7 +80,7 @@ pub(crate) fn get_components_by_uuids(
         return Ok(Vec::new());
     }
     // filter components by spec
-    if let Some(ref spec_id) = args.spec_id {
+    if let Some(spec_id) = args.spec_id {
         found_component_uuids =
             filter_components_uuids_by_spec(&found_component_uuids, spec_id, conn)?;
     }
@@ -92,7 +92,7 @@ pub(crate) fn get_components_by_uuids(
         match check_access_component_for_user(
             &options.logged_user_uuid,
             &ct_uuid,
-            &need_access_level,
+            need_access_level,
             conn,
         ) {
             Ok(true) => ct_uuids_with_check.push(ct_uuid),
@@ -206,7 +206,7 @@ pub(crate) fn get_components(
     }
 
     // filter components by spec
-    if let Some(ref spec_id) = arguments.spec_id {
+    if let Some(spec_id) = arguments.spec_id {
         target_component_uuids =
             filter_components_uuids_by_spec(&target_component_uuids, spec_id, conn)?;
         if target_component_uuids.is_empty() {

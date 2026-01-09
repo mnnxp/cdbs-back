@@ -22,7 +22,7 @@ pub(crate) fn get_component_files(
     check_access_component_for_user(
         logged_user_uuid,
         &args.component_uuid,
-        &need_access_level,
+        need_access_level,
         conn,
     )?;
 
@@ -45,7 +45,7 @@ pub(crate) fn get_component_files_list(
     check_access_component_for_user(
         logged_user_uuid,
         &args.component_uuid,
-        &need_access_level,
+        need_access_level,
         conn,
     )?;
 

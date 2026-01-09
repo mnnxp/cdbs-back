@@ -17,7 +17,7 @@ pub(crate) fn delete_standard_file(
     check_access_standard_for_user(
         logged_user_uuid,
         &arguments.standard_uuid,
-        &need_access_level,
+        need_access_level,
         conn,
     )?;
 

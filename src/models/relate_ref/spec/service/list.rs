@@ -8,7 +8,7 @@ use diesel::PgConnection;
 /// Regardless of whether you specify a top section, you can filter by section IDs.
 pub(crate) fn get_specs(
     args: &SpecArg,
-    set_lang_id: &i32,
+    set_lang_id: i32,
     paginate: &Paginate,
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<SpecTranslateList>> {

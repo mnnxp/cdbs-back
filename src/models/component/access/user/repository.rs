@@ -11,7 +11,7 @@ impl UserAccessComponentAndRelatedData {
     /// Collect related data for users lits access component
     pub(crate) fn from_component_by_uuid(
         target_component_uuid: &Uuid,
-        set_lang_id: &i32,
+        set_lang_id: i32,
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<UserAccessComponentAndRelatedData>> {
         let list_users_with_access = user_access_to_component
@@ -25,7 +25,7 @@ impl UserAccessComponentAndRelatedData {
         let mut res: Vec<UserAccessComponentAndRelatedData> = Vec::new();
         for x in list_users_with_access {
             let type_access = TypeAccessTranslateList::get_type_access_by_id(
-                &x.type_access_id,
+                x.type_access_id,
                 set_lang_id,
                 conn,
             )?;

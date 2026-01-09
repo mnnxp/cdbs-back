@@ -26,7 +26,7 @@ pub(crate) fn get_files_of_fileset(
     check_access_component_for_user(
         logged_user_uuid,
         &get_component_by_fileset(&args.fileset_uuid, conn)?,
-        &need_access_level,
+        need_access_level,
         conn,
     )?;
 
@@ -70,7 +70,7 @@ pub(crate) fn get_fileset_files(
     check_access_component_for_user(
         logged_user_uuid,
         &get_component_by_fileset(&args.fileset_uuid, conn)?,
-        &need_access_level,
+        need_access_level,
         conn,
     )?;
 

@@ -110,7 +110,7 @@ impl ShowFileRelatedData {
                 owner_user: ShowUserShort::get_without_check_by_uuid(&sf.user_uuid, domain, conn)?,
                 content_type: sf.content_type.clone(),
                 filesize: sf.filesize,
-                program: Program::get_program_for_ext(&sf.id_ext, conn)?,
+                program: Program::get_program_for_ext(sf.id_ext, conn)?,
                 created_at: sf.created_at,
                 updated_at: sf.updated_at,
             })

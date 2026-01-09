@@ -17,9 +17,9 @@ pub(crate) fn get_component_specs(
     check_access_component_for_user(
         &options.logged_user_uuid,
         component_uuid,
-        &need_access_level,
+        need_access_level,
         conn,
     )?;
 
-    SpecTranslateList::for_component_by_uuid(component_uuid, &options.set_lang_id, paginate, conn)
+    SpecTranslateList::for_component_by_uuid(component_uuid, options.set_lang_id, paginate, conn)
 }

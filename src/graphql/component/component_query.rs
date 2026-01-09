@@ -371,7 +371,7 @@ impl ComponentQuery {
         let filter: Vec<i32> = filter.unwrap_or_default();
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        get_component_types(&filter, &get_set_language(cxt), conn)
+        get_component_types(&filter, get_set_language(cxt), conn)
     }
 
     /// Returns a list of available states (statuses) for components.
@@ -388,6 +388,6 @@ impl ComponentQuery {
         let filter: Vec<i32> = filter.unwrap_or_default();
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        get_actual_statuses(&filter, &get_set_language(cxt), conn)
+        get_actual_statuses(&filter, get_set_language(cxt), conn)
     }
 }

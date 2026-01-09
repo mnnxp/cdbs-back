@@ -21,7 +21,7 @@ pub(crate) fn get_service_files(
     check_access_service_for_user(
         logged_user_uuid,
         &args.service_uuid,
-        &need_access_level,
+        need_access_level,
         conn,
     )?;
 

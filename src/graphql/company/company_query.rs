@@ -79,7 +79,7 @@ impl CompanyQuery {
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        get_supplier_by_uuid(&company_uuid, &get_set_language(cxt), &extract_client_domain(cxt), conn)
+        get_supplier_by_uuid(&company_uuid, get_set_language(cxt), &extract_client_domain(cxt), conn)
     }
 
     /// Returns information about company representative offices.
@@ -120,7 +120,7 @@ impl CompanyQuery {
         get_by_company_uuid(
             &logged_user_uuid,
             &company_uuid,
-            &get_set_language(cxt),
+            get_set_language(cxt),
             conn,
         )
     }
@@ -141,7 +141,7 @@ impl CompanyQuery {
         get_roles_for_company(
             &logged_user_uuid,
             &company_uuid,
-            &get_set_language(cxt),
+            get_set_language(cxt),
             conn,
         )
     }
@@ -158,7 +158,7 @@ impl CompanyQuery {
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        get_types_for_company(&get_set_language(cxt), conn)
+        get_types_for_company(get_set_language(cxt), conn)
     }
 
     /// Returns a list of directories associated with the company by UUID.
@@ -180,7 +180,7 @@ impl CompanyQuery {
         get_company_specs(
             &logged_user_uuid,
             &company_uuid,
-            &get_set_language(cxt),
+            get_set_language(cxt),
             &p,
             conn,
         )
@@ -198,6 +198,6 @@ impl CompanyQuery {
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        get_types_for_represent(&get_set_language(cxt), conn)
+        get_types_for_represent(get_set_language(cxt), conn)
     }
 }

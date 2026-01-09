@@ -128,8 +128,8 @@ impl StandardAndRelatedData {
     }
 
     /// Number of people who have added the standard to their bookmarks
-    async fn subscribers(&self) -> &i32 {
-        &self.subscribers
+    async fn subscribers(&self) -> i32 {
+        self.subscribers
     }
 
     /// Flag of standard presence in user's bookmarks

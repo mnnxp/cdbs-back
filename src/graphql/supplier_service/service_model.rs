@@ -108,7 +108,7 @@ impl ServiceAndRelatedData {
             .unwrap_or_default();
         ServiceParamWithTranslation::by_service_uuid(
             &self.uuid,
-            &get_set_language(cxt),
+            get_set_language(cxt),
             &s,
             &p,
             conn,
@@ -158,7 +158,7 @@ impl ServiceAndRelatedData {
         let p = paginate
             .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
             .unwrap_or_default();
-        SpecTranslateList::for_service_by_uuid(&self.uuid, &get_set_language(cxt), &p, conn)
+        SpecTranslateList::for_service_by_uuid(&self.uuid, get_set_language(cxt), &p, conn)
             .expect("Error loading service keywords")
     }
 

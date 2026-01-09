@@ -19,7 +19,7 @@ pub(crate) fn add_company_fav(
     let need_access_level = 3; // todo!(create enum for manage access level)
 
     // check access user for company
-    check_company_access(logged_user_uuid, company_uuid, &need_access_level, conn)?;
+    check_company_access(logged_user_uuid, company_uuid, need_access_level, conn)?;
 
     // if have need row, just update is_enabled to true
     let check_fav = company_fav::company_fav

@@ -36,7 +36,7 @@ pub(crate) fn get_represents(
     check_company_access(
         logged_user_uuid,
         &args.company_uuid,
-        &need_access_level,
+        need_access_level,
         conn,
     )?;
 

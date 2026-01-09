@@ -23,7 +23,7 @@ pub(crate) fn update_certificate_description(
     check_company_access(
         logged_user_uuid,
         &data.company_uuid,
-        &need_access_level,
+        need_access_level,
         conn,
     )?;
 

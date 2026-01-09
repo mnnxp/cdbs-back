@@ -125,7 +125,7 @@ impl ShowCompanyShort {
         check_company_access(
             &options.logged_user_uuid,
             target_company_uuid,
-            &need_access_level,
+            need_access_level,
             conn,
         )?;
 
@@ -152,14 +152,14 @@ impl ShowCompanyShort {
 
         // get region for company
         let region_with_translate: RegionTranslateList =
-            RegionTranslateList::get_region_by_id(&company.region_id, &options.set_lang_id, conn)
+            RegionTranslateList::get_region_by_id(company.region_id, options.set_lang_id, conn)
                 .expect("Error loading region with translate");
 
         // get company type with translation for company
         let company_type_with_translate: CompanyTypeTranslateList =
             CompanyTypeTranslateList::get_company_type_by_id(
-                &company.company_type_id,
-                &options.set_lang_id,
+                company.company_type_id,
+                options.set_lang_id,
                 conn,
             )
             .expect("Error loading company type with translate");
@@ -271,7 +271,7 @@ impl CompanyAndRelatedData {
         check_company_access(
             &options.logged_user_uuid,
             target_company_uuid,
-            &need_access_level,
+            need_access_level,
             conn,
         )?;
 
@@ -293,19 +293,19 @@ impl CompanyAndRelatedData {
 
         // get company represents for company
         let company_represents_with_related_data =
-            CompanyRepresentAndRelatedData::get_by_company_uuid(&company.uuid, &options.set_lang_id, conn)
+            CompanyRepresentAndRelatedData::get_by_company_uuid(&company.uuid, options.set_lang_id, conn)
                 .expect("Error loading company represents");
 
         // get region for company
         let region_with_translate: RegionTranslateList =
-            RegionTranslateList::get_region_by_id(&company.region_id, &options.set_lang_id, conn)
+            RegionTranslateList::get_region_by_id(company.region_id, options.set_lang_id, conn)
                 .expect("Error loading region with translate");
 
         // get company type with translation for company
         let company_type_with_translate: CompanyTypeTranslateList =
             CompanyTypeTranslateList::get_company_type_by_id(
-                &company.company_type_id,
-                &options.set_lang_id,
+                company.company_type_id,
+                options.set_lang_id,
                 conn,
             )
             .expect("Error loading company type with translate");
@@ -325,13 +325,13 @@ impl CompanyAndRelatedData {
 
         // get specs with translation for company
         let company_specs_with_translate: Vec<SpecTranslateList> =
-            SpecTranslateList::for_company_uuid(&company.uuid, &options.set_lang_id, conn)
+            SpecTranslateList::for_company_uuid(&company.uuid, options.set_lang_id, conn)
                 .expect("Error loading spec company with translate");
 
         // get type access set for company
         let type_access: TypeAccessTranslateList = TypeAccessTranslateList::get_type_access_by_id(
-            &company.type_access_id,
-            &options.set_lang_id,
+            company.type_access_id,
+            options.set_lang_id,
             conn,
         )
         .expect("Error get set type access");
@@ -368,7 +368,7 @@ impl CompanyAndRelatedData {
     /// Only publicly available data is selected without access verification.
     pub(crate) fn get_supplier_by_uuid(
         target_company_uuid: &Uuid,
-        set_lang_id: &i32,
+        set_lang_id: i32,
         domain: &str,
         conn: &mut PgConnection,
     ) -> ServiceResult<CompanyAndRelatedData> {
@@ -405,13 +405,13 @@ impl CompanyAndRelatedData {
 
         // get region for company
         let region_with_translate: RegionTranslateList =
-            RegionTranslateList::get_region_by_id(&company.region_id, set_lang_id, conn)
+            RegionTranslateList::get_region_by_id(company.region_id, set_lang_id, conn)
                 .expect("Error loading region with translate");
 
         // get company type with translation for company
         let company_type_with_translate: CompanyTypeTranslateList =
             CompanyTypeTranslateList::get_company_type_by_id(
-                &company.company_type_id,
+                company.company_type_id,
                 set_lang_id,
                 conn,
             )
@@ -433,7 +433,7 @@ impl CompanyAndRelatedData {
 
         // get type access set for company
         let type_access: TypeAccessTranslateList = TypeAccessTranslateList::get_type_access_by_id(
-            &company.type_access_id,
+            company.type_access_id,
             set_lang_id,
             conn,
         )

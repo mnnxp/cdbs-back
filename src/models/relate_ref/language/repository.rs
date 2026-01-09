@@ -6,7 +6,7 @@ use crate::models::relate_ref::language::model::EngLangName;
 impl EngLangName {
     /// Gets English name language by lang_id
     pub(crate) fn get_by_id(
-        target_language_id: &i32,
+        target_language_id: i32,
         // conn: &mut PgConnection,
     ) -> EngLangName {
         // language_ref::language_ref
@@ -18,7 +18,7 @@ impl EngLangName {
         //         ServiceError::InternalServerError
         //     })
 
-        match *target_language_id {
+        match target_language_id {
             2 => "russian".into(),
             _ => "english".into(),
         }

@@ -34,7 +34,7 @@ impl FilesetProgramRelatedData {
             result.push(FilesetProgramRelatedData {
                 uuid: fset.uuid,
                 modification_uuid: fset.modification_uuid,
-                program: Program::get_program_by_id(&fset.program_id, conn)?,
+                program: Program::get_program_by_id(fset.program_id, conn)?,
             });
         }
         // sorting the list of program names alphabetically

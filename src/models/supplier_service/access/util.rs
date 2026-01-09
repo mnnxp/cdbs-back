@@ -66,11 +66,11 @@ pub(crate) fn check_is_owner_with_err(
 pub(crate) fn check_access_service_for_user(
     target_user_uuid: &Uuid,
     target_service_uuid: &Uuid,
-    need_access_level: &i32,
+    need_access_level: i32,
     conn: &mut PgConnection,
 ) -> ServiceResult<bool> {
     // if request to view a public service
-    if need_access_level == &3 {
+    if need_access_level == 3 {
         let access_type_service = get_access_type_service(target_service_uuid, conn)?;
         // if target service public
         if access_type_service == 3 {
@@ -116,7 +116,7 @@ pub(crate) fn check_access_service_for_user(
 pub(crate) fn check_user_access_to_service(
     target_user_uuid: &Uuid,
     target_service_uuid: &Uuid,
-    need_access_level: &i32,
+    need_access_level: i32,
     conn: &mut PgConnection,
 ) -> ServiceResult<bool> {
     let result_check = user_access_to_service::user_access_to_service
@@ -132,14 +132,14 @@ pub(crate) fn check_user_access_to_service(
             debug!("Failed check user access to service: {:?}", err);
             ServiceError::InternalServerError
         })?;
-    Ok(matches!(result_check.first(), Some(x) if need_access_level >= x))
+    Ok(matches!(result_check.first(), Some(x) if need_access_level >= *x))
 }
 
 /// Сhecking the availability of user access provided by the company
 pub(crate) fn check_user_access_provided_by_company(
     target_user_uuid: &Uuid,
     target_service_uuid: &Uuid,
-    need_access_level: &i32,
+    need_access_level: i32,
     conn: &mut PgConnection,
 ) -> ServiceResult<bool> {
     let target_companis_uuids =
@@ -156,7 +156,7 @@ pub(crate) fn check_user_access_provided_by_company(
 /// Gets list of companies that have need level access to a service
 pub(crate) fn get_companies_have_access_to_service(
     target_service_uuid: &Uuid,
-    need_access_level: &i32,
+    need_access_level: i32,
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<Uuid>> {
     let companies_uuids = company_access_to_service::company_access_to_service

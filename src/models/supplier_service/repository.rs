@@ -77,7 +77,7 @@ impl ShowServiceShort {
         check_access_service_for_user(
             &options.logged_user_uuid,
             target_service_uuid,
-            &need_access_level,
+            need_access_level,
             conn,
         )?;
 
@@ -99,8 +99,8 @@ impl ShowServiceShort {
 
         // get service type with translation for service
         let service_status = ServiceStatusTranslateList::get_by_id(
-            &service.service_status_id,
-            &options.set_lang_id,
+            service.service_status_id,
+            options.set_lang_id,
             conn,
         )
         .expect("Error loading service_status");
@@ -182,7 +182,7 @@ impl ServiceAndRelatedData {
         check_access_service_for_user(
             &options.logged_user_uuid,
             target_service_uuid,
-            &need_access_level,
+            need_access_level,
             conn,
         )?;
 
@@ -204,15 +204,15 @@ impl ServiceAndRelatedData {
 
         // get service type with translation for service
         let service_status = ServiceStatusTranslateList::get_by_id(
-            &service.service_status_id,
-            &options.set_lang_id,
+            service.service_status_id,
+            options.set_lang_id,
             conn,
         )
         .expect("Error loading service_status");
 
         // get region for company
         let region =
-            RegionTranslateList::get_region_by_id(&service.region_id, &options.set_lang_id, conn)
+            RegionTranslateList::get_region_by_id(service.region_id, options.set_lang_id, conn)
                 .expect("Error loading company_type");
 
         Ok(ServiceAndRelatedData {

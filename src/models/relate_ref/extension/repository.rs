@@ -6,7 +6,7 @@ use diesel::prelude::*;
 impl Extension {
     /// Get program id for target extension id
     pub(crate) fn get_program_id(
-        target_extension_id: &i32,
+        target_extension_id: i32,
         conn: &mut PgConnection,
     ) -> ServiceResult<i32> {
         extension_ref::extension_ref

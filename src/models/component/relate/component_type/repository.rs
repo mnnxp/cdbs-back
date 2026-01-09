@@ -6,8 +6,8 @@ use diesel::prelude::*;
 impl ComponentTypeTranslateList {
     /// Get component type by id
     pub(crate) fn get_by_id(
-        component_type_id: &i32,
-        set_lang_id: &i32,
+        component_type_id: i32,
+        set_lang_id: i32,
         conn: &mut PgConnection,
     ) -> ServiceResult<ComponentTypeTranslateList> {
         let component_type = component_type_translate_list::component_type_translate_list
@@ -42,7 +42,7 @@ impl ComponentTypeTranslateList {
     /// if filter empty return all statuses
     pub(crate) fn get_by_ids(
         filter: &[i32],
-        set_lang_id: &i32,
+        set_lang_id: i32,
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<ComponentTypeTranslateList>> {
         let res = match filter.is_empty() {

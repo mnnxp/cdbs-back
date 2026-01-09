@@ -5,8 +5,8 @@ use diesel::{prelude::*, PgConnection};
 
 impl RegionTranslateList {
     pub(crate) fn get_region_by_id(
-        target_region_id: &i32,
-        set_lang_id: &i32,
+        target_region_id: i32,
+        set_lang_id: i32,
         conn: &mut PgConnection,
     ) -> ServiceResult<RegionTranslateList> {
         let check_region = region_translate_list::region_translate_list

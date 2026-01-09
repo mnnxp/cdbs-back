@@ -20,7 +20,7 @@ pub(crate) fn change_role_member(
     if !check_company_access(
         logged_user_uuid,
         &data.company_uuid,
-        &need_access_level,
+        need_access_level,
         conn,
     )? {
         // return error if user not have access level
@@ -28,7 +28,7 @@ pub(crate) fn change_role_member(
     }
 
     // return error if not found role
-    check_role_of_company(&data.company_uuid, &data.role_id, conn)?;
+    check_role_of_company(&data.company_uuid, data.role_id, conn)?;
 
     let res_update = diesel::update(company_member_list)
         .filter(

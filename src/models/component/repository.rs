@@ -82,7 +82,7 @@ impl ShowComponentShort {
         check_access_component_for_user(
             &options.logged_user_uuid,
             component_uuid,
-            &need_access_level,
+            need_access_level,
             conn,
         )?;
 
@@ -109,24 +109,24 @@ impl ShowComponentShort {
 
         // get component type with translation
         let type_access = TypeAccessTranslateList::get_type_access_by_id(
-            &component.type_access_id,
-            &options.set_lang_id,
+            component.type_access_id,
+            options.set_lang_id,
             conn,
         )
         .expect("Error loading type_access");
 
         // get component type with translation for component
         let component_type = ComponentTypeTranslateList::get_by_id(
-            &component.component_type_id,
-            &options.set_lang_id,
+            component.component_type_id,
+            options.set_lang_id,
             conn,
         )
         .expect("Error loading component_type");
 
         // get actual status with translation for component
         let actual_status = ActualStatusTranslateList::get_by_id(
-            &component.actual_status_id,
-            &options.set_lang_id,
+            component.actual_status_id,
+            options.set_lang_id,
             conn,
         )
         .expect("Error loading actual_status");
@@ -199,7 +199,7 @@ impl ShowComponentShort {
             .limit(1000)
             .load::<Uuid>(conn)
             .expect("Failed get public components");
-        if let Some(ref sc_id) = spec_id {
+        if let Some(sc_id) = spec_id {
             component_uuids = filter_components_uuids_by_spec(&component_uuids, sc_id, conn)?;
         }
         // the result for store the result :)
@@ -226,7 +226,7 @@ impl ComponentAndRelatedData {
         check_access_component_for_user(
             &options.logged_user_uuid,
             target_component_uuid,
-            &need_access_level,
+            need_access_level,
             conn,
         )?;
 
@@ -244,24 +244,24 @@ impl ComponentAndRelatedData {
 
         // get component type with translation
         let type_access = TypeAccessTranslateList::get_type_access_by_id(
-            &component.type_access_id,
-            &options.set_lang_id,
+            component.type_access_id,
+            options.set_lang_id,
             conn,
         )
         .expect("Error loading type_access");
 
         // get component type with translation for component
         let component_type = ComponentTypeTranslateList::get_by_id(
-            &component.component_type_id,
-            &options.set_lang_id,
+            component.component_type_id,
+            options.set_lang_id,
             conn,
         )
         .expect("Error loading component_type");
 
         // get actual status with translation for component
         let actual_status = ActualStatusTranslateList::get_by_id(
-            &component.actual_status_id,
-            &options.set_lang_id,
+            component.actual_status_id,
+            options.set_lang_id,
             conn,
         )
         .expect("Error loading actual status");
@@ -305,7 +305,7 @@ impl ComponentAndRelatedData {
 /// If `filter_component_uuids` is empty, no filtering by component UUIDs is applied.
 pub(crate) fn filter_components_uuids_by_spec(
     filter_component_uuids: &[Uuid],
-    spec_id: &i32,
+    spec_id: i32,
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<Uuid>> {
     use crate::schema::spec_ref::dsl as spec_ref;
@@ -322,7 +322,7 @@ pub(crate) fn filter_components_uuids_by_spec(
         })?;
 
     // Include the original spec_id
-    descendant_ids.push(*spec_id);
+    descendant_ids.push(spec_id);
 
     let mut query = spec_to_component::spec_to_component.into_boxed();
 

@@ -150,6 +150,6 @@ impl ServiceQuery {
         check_authorized(cxt)?; // checking authorization
         let filter: Vec<i32> = filter.unwrap_or_default();
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
-        get_service_statuses(&filter, &get_set_language(cxt), conn)
+        get_service_statuses(&filter, get_set_language(cxt), conn)
     }
 }

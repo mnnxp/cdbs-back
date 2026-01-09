@@ -31,7 +31,7 @@ pub(crate) fn update_standard_data(
     check_access_standard_for_user(
         logged_user_uuid,
         target_standard_uuid,
-        &need_access_level,
+        need_access_level,
         conn,
     )?;
 
@@ -40,7 +40,7 @@ pub(crate) fn update_standard_data(
 
     // update column company_uuid
     if let Some(value) = &data.company_uuid {
-        check_company_access(logged_user_uuid, value, &need_access_level, conn)?;
+        check_company_access(logged_user_uuid, value, need_access_level, conn)?;
 
         // check_is_supplier(value, conn)?;
 

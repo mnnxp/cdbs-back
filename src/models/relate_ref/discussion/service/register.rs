@@ -23,7 +23,7 @@ pub(crate) fn create_discussion_comment(
         return Err(get_err_msg(ErrorMessage::TextMustLess(5000)));
     }
     let discussion_to = data.object_discussion.get_discuss_to();
-    discussion_to.check_access(logged_user_uuid, &3, conn)?;
+    discussion_to.check_access(logged_user_uuid, 3, conn)?;
     let valid_discussion_uuid =
         match discussion_to.get_associated_discussion_uuid(&data.discussion_uuid, conn) {
             Ok(d_uuid) => d_uuid,
