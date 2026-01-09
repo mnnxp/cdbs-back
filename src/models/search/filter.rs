@@ -49,8 +49,7 @@ pub(crate) fn objects_search(
     filter: &Filter,
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<Uuid>> {
-    let query = format!(
-        "
+    let query = format!("
     SELECT uuid
     FROM {from}
     WHERE {to_tsvector} @@ websearch_to_tsquery('{search}')
@@ -64,7 +63,7 @@ pub(crate) fn objects_search(
     debug!("SQL search query: {}", query);
 
     let temp: Vec<ObjectUuid> = diesel::sql_query(query).load(conn).map_err(|err| {
-        debug!("Failed search uuid: {:?}", err);
+        debug!("Failed search: {:?}", err);
         ServiceError::InternalServerError
     })?;
     Ok(ObjectUuid::get_uuids(&temp))
