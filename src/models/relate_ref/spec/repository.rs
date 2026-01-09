@@ -1,6 +1,6 @@
 use crate::errors::{ServiceError, ServiceResult};
 use crate::models::relate_ref::{
-    language::model::EngLangName,
+    language::model::SetLangName,
     spec::model::{Spec, SpecId, SpecTranslateList},
 };
 use crate::models::search::order::Paginate;
@@ -164,10 +164,10 @@ impl SpecId {
         set_lang_id: i32,
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<SpecId>> {
-        let EngLangName { eng_lang_name } = EngLangName::get_by_id(set_lang_id);
+        let SetLangName { lang_name } = SetLangName::get_by_id(set_lang_id);
 
         let query = format!("SELECT spec_id FROM spec_translate_list WHERE to_tsvector('{eng}', spec) @@ websearch_to_tsquery('{eng}', '{query}') LIMIT {limit};",
-            eng=eng_lang_name,
+            eng=lang_name,
             query=query_text,
             limit=1000);
         debug!("SQL query: {}", query);

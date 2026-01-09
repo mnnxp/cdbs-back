@@ -71,14 +71,14 @@ pub(crate) struct SetLang {
 }
 
 // for set lang search
-pub(crate) struct EngLangName {
-    pub(crate) eng_lang_name: String,
+pub(crate) struct SetLangName {
+    pub(crate) lang_name: String,
 }
 
-impl From<&str> for EngLangName {
+impl From<&str> for SetLangName {
     fn from(name: &str) -> Self {
         Self {
-            eng_lang_name: name.to_string(),
+            lang_name: name.to_string(),
         }
     }
 }
