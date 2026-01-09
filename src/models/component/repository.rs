@@ -301,8 +301,8 @@ impl ComponentAndRelatedData {
     }
 }
 
-/// Returns a list of component id's that match the catalog.
-/// If the component filter is empty, no filter is applied.
+/// Retrieves a list of component UUIDs associated with the specified catalog and its descendants.
+/// If `filter_component_uuids` is empty, no filtering by component UUIDs is applied.
 pub(crate) fn filter_components_uuids_by_spec(
     filter_component_uuids: &[Uuid],
     spec_id: &i32,
@@ -311,11 +311,18 @@ pub(crate) fn filter_components_uuids_by_spec(
     use crate::schema::spec_ref::dsl as spec_ref;
     use crate::schema::spec_to_component::dsl as spec_to_component;
 
-    let descendant_ids =  spec_ref::spec_ref
-        .filter(spec_ref::path.like(format!("%{}%", spec_id)))
+    // Load IDs of all descendant specs
+    let mut descendant_ids =  spec_ref::spec_ref
+        .filter(spec_ref::path.like(format!("%.{}.%", spec_id)))
         .select(spec_ref::id)
         .load::<i32>(conn)
-        .expect("Failed to load descendant ids");
+        .map_err(|err| {
+            debug!("Failed to load descendant ids for spec {}: {:?}", spec_id, err);
+            ServiceError::InternalServerError
+        })?;
+
+    // Include the original spec_id
+    descendant_ids.push(*spec_id);
 
     let mut query = spec_to_component::spec_to_component.into_boxed();
 
