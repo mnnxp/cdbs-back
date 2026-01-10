@@ -147,6 +147,7 @@ impl SpecTranslateList {
                     .eq_any(target_ids)
                     .and(spec_translate_list::lang_id.eq(set_lang_id)),
             )
+            .order(spec_translate_list::spec.asc())
             .limit(paginate.limit)
             .offset(paginate.offset)
             .load::<SpecTranslateList>(conn)
