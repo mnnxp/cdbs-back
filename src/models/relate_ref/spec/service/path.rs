@@ -4,9 +4,9 @@ use crate::models::relate_ref::spec::model::{Spec, SpecPath, SpecPathArg, SpecTr
 use crate::models::search::order::Paginate;
 use diesel::{prelude::*, PgConnection};
 
-/// Returns paths to catalogs by ID.
-/// When creating a catalog path, the specified separator or default separator "/" is used.
-/// A value of `deep_level` sets the depth limit to the parent catalog.
+/// Returns hierarchical paths for catalogs by their IDs.
+/// Paths are built using parent-child relationships up to the specified depth limit.
+/// Limited to 100 IDs per query to prevent performance issues.
 pub(crate) fn get_paths_specs(
     args: &SpecPathArg,
     set_lang_id: i32,
@@ -18,11 +18,12 @@ pub(crate) fn get_paths_specs(
         return Err(get_err_msg(ErrorMessage::NotMorePathInOneQuery));
     }
     let mut result: Vec<SpecPath> = Vec::new();
-    for sid in &select_ids {
+    for (s_id, s_depth) in &select_ids {
         result.push(SpecPath {
-            spec_id: *sid,
+            spec_id: *s_id,
             lang_id: set_lang_id,
-            path: collect_path_spec(*sid, &args.split_char, args.depth_level, set_lang_id, conn)?,
+            path: collect_path_spec(*s_id, &args.split_char, args.depth_level, set_lang_id, conn)?,
+            depth: *s_depth,
         });
     }
     Ok(result)
@@ -33,17 +34,17 @@ fn get_spec_ids(
     spec_ids: &[i32],
     paginate: &Paginate,
     conn: &mut PgConnection,
-) -> ServiceResult<Vec<i32>> {
+) -> ServiceResult<Vec<(i32,i32)>> {
     use crate::schema::spec_ref::dsl as spec_ref;
     let mut query = spec_ref::spec_ref.into_boxed();
     if !spec_ids.is_empty() {
         query = query.filter(spec_ref::id.eq_any(spec_ids));
     }
     let res_ids = query
-        .select(spec_ref::id)
+        .select((spec_ref::id, spec_ref::depth))
         .offset(paginate.offset)
         .limit(paginate.limit)
-        .load::<i32>(conn)
+        .load::<(i32,i32)>(conn)
         .map_err(|err| {
             debug!("Failed get spec ids: {}", err);
             ServiceError::InternalServerError

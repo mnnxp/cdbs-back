@@ -68,9 +68,7 @@ impl SpecQuery {
         get_specs(&arguments, get_set_language(cxt), &p, conn)
     }
 
-    /// Returns catalogs paths by IDs. Token is not required.
-    /// When creating a catalog path, the specified separator or the default separator "/" is used.
-    /// The value "deep_level" sets the depth limit to the parent section.
+    /// Returns hierarchical paths for catalogs by their IDs.
     async fn specs_paths(
         &self,
         cxt: &Context<'_>,
@@ -88,9 +86,7 @@ impl SpecQuery {
         get_paths_specs(&arguments, get_set_language(cxt), &p, conn)
     }
 
-    /// Returns paths to directory sections searched for by name catalog. Token is not required.
-    /// When creating a catalog path, the specified separator or the default separator "/" is used.
-    /// The value "deep_level" sets the depth limit to the parent section.
+    /// Returns hierarchical paths for catalogs found by name search.
     async fn search_specs(
         &self,
         cxt: &Context<'_>,

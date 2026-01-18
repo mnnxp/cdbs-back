@@ -39,6 +39,8 @@ pub(crate) struct SpecPath {
     pub(crate) lang_id: i32,
     /// Localized catalog name
     pub(crate) path: String,
+    /// Nesting level of the catalogs in hierarchy (1 - root)
+    pub(crate) depth: i32,
 }
 
 /// Arguments for requesting catalog paths

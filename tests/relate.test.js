@@ -43,9 +43,10 @@ const langId2 = 2;
 
 const specLevels3 = [247, 286, 437, 465, 480, 379, 400, 4];
 const specId5 = 5;
-const specPath5Level5 = "ROOT/Mechanics (Construction, Mechanical engineering)/Mechanical components/Fixings/Screws and bolts";
-const specPath5 = "Mechanical components/Fixings/Screws and bolts";
-const specPathSplit5 = "ROOT#Mechanics (Construction, Mechanical engineering)#Mechanical components#Fixings#Screws and bolts";
+const specPath5Level5 = "ROOT/Structural Components/Fastening Elements/Threaded Fasteners/Screws and bolts";
+const specPath5 = "Fastening Elements/Threaded Fasteners/Screws and bolts";
+const specPathSplit5 = "ROOT#Structural Components#Fastening Elements#Threaded Fasteners#Screws and bolts";
+const specPathDepth5 = 5;
 var specName4 = "";
 var specName5 = "";
 var specPath10 = "";
@@ -54,6 +55,19 @@ const paramTranslateList = ` \
 paramId \
 langId \
 paramname \
+`;
+
+const specTranslateList = ` \
+specId \
+langId \
+spec \
+`;
+
+const specPath = ` \
+specId \
+langId \
+path \
+depth \
 `;
 
 async function cleanupParamDb() {
@@ -467,9 +481,7 @@ describe('relate', () => {
             specsPaths (args:{
               specIds: 0
             }){
-              specId
-              langId
-              path
+              ${specPath}
             }
         }`,
       })
@@ -495,9 +507,7 @@ describe('relate', () => {
             specsPaths (args:{
               specIds: 0
             }){
-              specId
-              langId
-              path
+              ${specPath}
             }
         }`,
       })
@@ -523,9 +533,7 @@ describe('relate', () => {
             specsPaths (args:{
               specIds: ${specId5}
             }){
-              specId
-              langId
-              path
+              ${specPath}
             }
         }`,
       })
@@ -535,6 +543,7 @@ describe('relate', () => {
       data: { specsPaths }
     } = body;
     expect(specsPaths[0].path).toBe(specPath5);
+    expect(specsPaths[0].depth).toBe(specPathDepth5);
     done();
   });
 
@@ -552,9 +561,7 @@ describe('relate', () => {
               splitChar: "#"
               depthLevel: 50
             }){
-              specId
-              langId
-              path
+              ${specPath}
             }
         }`,
       })
@@ -578,9 +585,7 @@ describe('relate', () => {
       .send({
         query: `query {
             specsPaths {
-              specId
-              langId
-              path
+              ${specPath}
             }
         }`,
       })
@@ -609,9 +614,7 @@ describe('relate', () => {
               specIds: ${specId5}
               depthLevel: 5
             }){
-              specId
-              langId
-              path
+              ${specPath}
             }
         }`,
       })
@@ -623,6 +626,7 @@ describe('relate', () => {
     } = body;
     expect(specsPaths[0].specId).toBe(specId5);
     expect(specsPaths[0].path).toBe(specPath5Level5);
+    expect(specsPaths[0].depth).toBe(specPathDepth5);
     expect(specsPaths.length).toBe(1);
     done();
   });
@@ -642,9 +646,7 @@ describe('relate', () => {
                 perPage: 10
               }
             ){
-              specId
-              langId
-              path
+              ${specPath}
             }
         }`,
       })
@@ -668,9 +670,7 @@ describe('relate', () => {
             specs (args:{
               specIds: 0
             }){
-              specId
-              spec
-              langId
+              ${specTranslateList}
             }
         }`,
       })
@@ -695,9 +695,7 @@ describe('relate', () => {
             specs (args:{
               specIds: 0
             }){
-              specId
-              spec
-              langId
+              ${specTranslateList}
             }
         }`,
       })
@@ -722,9 +720,7 @@ describe('relate', () => {
             specs (args:{
               specIds: ${specId5}
             }){
-              specId
-              spec
-              langId
+              ${specTranslateList}
             }
         }`,
       })
@@ -750,9 +746,7 @@ describe('relate', () => {
             specs (args:{
               specsLevels: 4
             }){
-              specId
-              spec
-              langId
+              ${specTranslateList}
               parentSpec {
                 specId
                 spec
@@ -802,9 +796,7 @@ describe('relate', () => {
               specIds: [${specLevels3}]
               specsLevels: 4
             }){
-              specId
-              spec
-              langId
+              ${specTranslateList}
             }
         }`,
       })
@@ -831,9 +823,7 @@ describe('relate', () => {
               specIds: [${specLevels3}]
               specsLevels: 3
             }){
-              specId
-              spec
-              langId
+              ${specTranslateList}
             }
         }`,
       })
@@ -843,7 +833,7 @@ describe('relate', () => {
     const {
       data: { specs }
     } = body;
-    specName4 = specs[4].spec;
+    specName4 = specs[3].spec;
     expect(specs).toBeNonEmptyArray();
     done();
   });
@@ -858,9 +848,7 @@ describe('relate', () => {
       .send({
         query: `query {
             specs {
-              specId
-              spec
-              langId
+            ${specTranslateList}
             }
         }`,
       })
@@ -894,9 +882,7 @@ describe('relate', () => {
                 perPage: 3
               }
             ){
-              specId
-              spec
-              langId
+              ${specTranslateList}
             }
         }`,
       })
@@ -906,8 +892,8 @@ describe('relate', () => {
     const {
       data: { specs }
     } = body;
-    expect(specs[1].spec).toBe(specName4);
-    expect(specs.length).toBe(3);
+    expect(specs[0].spec).toBe(specName4);
+    expect(specs.length).toBe(1);
     done();
   });
 
@@ -934,11 +920,11 @@ describe('relate', () => {
     } = body;
     expect(searchSpecs.length).toBe(5);
     expect(searchSpecs[0].specId).toBe(5);
-    expect(searchSpecs[1].specId).toBe(6);
-    expect(searchSpecs[1].path).toBe("Fixings/Screws and bolts/Anchor bolts");
+    expect(searchSpecs[1].specId).toBe(8);
+    expect(searchSpecs[1].path).toBe("Threaded Fasteners/Screws and bolts/U Bolts");
     expect(searchSpecs[2].specId).toBe(7);
-    expect(searchSpecs[3].specId).toBe(8);
-    expect(searchSpecs[4].specId).toBe(9);
+    expect(searchSpecs[3].specId).toBe(9);
+    expect(searchSpecs[4].specId).toBe(6);
     done();
   });
 
