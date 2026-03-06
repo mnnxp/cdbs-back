@@ -13,6 +13,7 @@ mod jwt;
 mod models;
 mod schema;
 mod storage;
+mod macros;
 
 use actix_cors::Cors;
 use actix_web::middleware::Logger;
@@ -36,6 +37,7 @@ async fn main() -> std::io::Result<()> {
     let pool = database::pool::establish_connection(opt.clone());
 
     // Server port
+    let domain = opt.domain.clone();
     let port = opt.port;
 
     let schema = crate::graphql::handler::build_schema(pool.clone()).await;
@@ -62,12 +64,12 @@ async fn main() -> std::io::Result<()> {
             .configure(graphql::route)
     })
     // Running at `format!("{}:{}",port,"0.0.0.0")`
-    .bind(("0.0.0.0", port))
+    .bind((domain.clone(), port))
     .unwrap()
     // Starts server
     .run();
 
-    eprintln!("Listening on 0.0.0.0:{port}");
+    eprintln!("Listening on {domain}:{port}");
 
     // Awaiting server to exit
     server.await

@@ -22,7 +22,7 @@ pub(crate) fn get_companies_list_access_component(
     // 2. получить список пользователей с доступом к компоненту
     let list_companies_with_access = CompanyAccessComponentAndRelatedData::from_component_by_uuid(
         target_component_uuid,
-        &options.set_lang_id,
+        options.set_lang_id,
         conn,
     );
 

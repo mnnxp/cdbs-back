@@ -7,12 +7,8 @@ use async_graphql::*;
 pub(crate) struct Spec {
     pub(crate) id: i32,
     pub(crate) parent_spec_id: i32,
-}
-
-#[derive(Debug, Insertable)]
-#[diesel(table_name = spec_ref)]
-pub(crate) struct InsertableSpec {
-    pub(crate) parent_spec_id: i32,
+    pub(crate) path: String,
+    // pub(crate) depth: i32,
 }
 
 /// Catalog (catalog element) data with localization
@@ -33,14 +29,6 @@ pub(crate) struct SpecId {
     pub(crate) spec_id: i32,
 }
 
-#[derive(Debug, Insertable)]
-#[diesel(table_name = spec_translate_list)]
-pub(crate) struct InsertableSpecTranslateList {
-    pub(crate) spec_id: i32,
-    pub(crate) lang_id: i32,
-    pub(crate) spec: String,
-}
-
 /// Catalog data in the form of a path. Separator and depth of the path are set during generation.
 /// For example, "Root/Fasteners/Bolt", where "/" is the separator and the depth is 3.
 #[derive(Serialize, SimpleObject, Debug)]
@@ -51,6 +39,8 @@ pub(crate) struct SpecPath {
     pub(crate) lang_id: i32,
     /// Localized catalog name
     pub(crate) path: String,
+    /// Nesting level of the catalogs in hierarchy (1 - root)
+    pub(crate) depth: i32,
 }
 
 /// Arguments for requesting catalog paths

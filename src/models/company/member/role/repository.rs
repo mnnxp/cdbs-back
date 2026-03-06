@@ -9,8 +9,8 @@ use diesel::prelude::*;
 impl RoleMemberTranslateList {
     /// Get role data with translate by role id
     pub(crate) fn get_by_id(
-        target_role_id: &i32,
-        set_lang_id: &i32,
+        target_role_id: i32,
+        set_lang_id: i32,
         conn: &mut PgConnection,
     ) -> ServiceResult<RoleMemberTranslateList> {
         let role = role_member_translate_list
@@ -44,7 +44,7 @@ impl RoleMemberTranslateList {
     /// Get roles data with translate by roles IDs
     pub(crate) fn get_roles_by_ids(
         target_roles_ids: &[i32],
-        set_lang_id: &i32,
+        set_lang_id: i32,
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<RoleMemberTranslateList>> {
         let roles = role_member_translate_list
@@ -79,8 +79,8 @@ impl RoleMemberTranslateList {
 impl RoleMemberAndRelatedData {
     /// Get role by id for set lang
     pub(crate) fn get_by_id(
-        target_role_id: &i32,
-        set_lang_id: &i32,
+        target_role_id: i32,
+        set_lang_id: i32,
         conn: &mut PgConnection,
     ) -> ServiceResult<RoleMemberAndRelatedData> {
         let role = RoleMemberTranslateList::get_by_id(target_role_id, set_lang_id, conn)?;
@@ -94,7 +94,7 @@ impl RoleMemberAndRelatedData {
     /// Get roles by IDs for set lang
     pub(crate) fn get_roles_by_ids(
         target_roles_ids: &[i32],
-        set_lang_id: &i32,
+        set_lang_id: i32,
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<RoleMemberAndRelatedData>> {
         let roles = RoleMemberTranslateList::get_roles_by_ids(target_roles_ids, set_lang_id, conn)?;
@@ -103,7 +103,7 @@ impl RoleMemberAndRelatedData {
         for role in roles {
             // get access types for the role
             let access =
-                TypeAccessTranslateList::get_by_role_id(&role.role_member_id, set_lang_id, conn)?;
+                TypeAccessTranslateList::get_by_role_id(role.role_member_id, set_lang_id, conn)?;
 
             res.push(RoleMemberAndRelatedData { role, access })
         }
@@ -115,8 +115,8 @@ impl RoleMemberAndRelatedData {
 impl TypeAccessTranslateList {
     /// Get access type for target role id
     pub(crate) fn get_by_role_id(
-        target_role_id: &i32,
-        set_lang_id: &i32,
+        target_role_id: i32,
+        set_lang_id: i32,
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<TypeAccessTranslateList>> {
         use crate::schema::role_access::dsl as role_access;

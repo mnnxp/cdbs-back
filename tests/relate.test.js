@@ -43,9 +43,10 @@ const langId2 = 2;
 
 const specLevels3 = [247, 286, 437, 465, 480, 379, 400, 4];
 const specId5 = 5;
-const specPath5Level5 = "ROOT/Mechanics (Construction, Mechanical engineering)/Mechanical components/Fixings/Screws and bolts";
-const specPath5 = "Mechanical components/Fixings/Screws and bolts";
-const specPathSplit5 = "ROOT#Mechanics (Construction, Mechanical engineering)#Mechanical components#Fixings#Screws and bolts";
+const specPath5Level5 = "ROOT/Structural Components/Fastening Elements/Threaded Fasteners/Screws and bolts";
+const specPath5 = "Fastening Elements/Threaded Fasteners/Screws and bolts";
+const specPathSplit5 = "ROOT#Structural Components#Fastening Elements#Threaded Fasteners#Screws and bolts";
+const specPathDepth5 = 5;
 var specName4 = "";
 var specName5 = "";
 var specPath10 = "";
@@ -54,6 +55,19 @@ const paramTranslateList = ` \
 paramId \
 langId \
 paramname \
+`;
+
+const specTranslateList = ` \
+specId \
+langId \
+spec \
+`;
+
+const specPath = ` \
+specId \
+langId \
+path \
+depth \
 `;
 
 async function cleanupParamDb() {
@@ -467,9 +481,7 @@ describe('relate', () => {
             specsPaths (args:{
               specIds: 0
             }){
-              specId
-              langId
-              path
+              ${specPath}
             }
         }`,
       })
@@ -495,9 +507,7 @@ describe('relate', () => {
             specsPaths (args:{
               specIds: 0
             }){
-              specId
-              langId
-              path
+              ${specPath}
             }
         }`,
       })
@@ -523,9 +533,7 @@ describe('relate', () => {
             specsPaths (args:{
               specIds: ${specId5}
             }){
-              specId
-              langId
-              path
+              ${specPath}
             }
         }`,
       })
@@ -535,6 +543,7 @@ describe('relate', () => {
       data: { specsPaths }
     } = body;
     expect(specsPaths[0].path).toBe(specPath5);
+    expect(specsPaths[0].depth).toBe(specPathDepth5);
     done();
   });
 
@@ -552,9 +561,7 @@ describe('relate', () => {
               splitChar: "#"
               depthLevel: 50
             }){
-              specId
-              langId
-              path
+              ${specPath}
             }
         }`,
       })
@@ -578,9 +585,7 @@ describe('relate', () => {
       .send({
         query: `query {
             specsPaths {
-              specId
-              langId
-              path
+              ${specPath}
             }
         }`,
       })
@@ -609,9 +614,7 @@ describe('relate', () => {
               specIds: ${specId5}
               depthLevel: 5
             }){
-              specId
-              langId
-              path
+              ${specPath}
             }
         }`,
       })
@@ -623,6 +626,7 @@ describe('relate', () => {
     } = body;
     expect(specsPaths[0].specId).toBe(specId5);
     expect(specsPaths[0].path).toBe(specPath5Level5);
+    expect(specsPaths[0].depth).toBe(specPathDepth5);
     expect(specsPaths.length).toBe(1);
     done();
   });
@@ -642,9 +646,7 @@ describe('relate', () => {
                 perPage: 10
               }
             ){
-              specId
-              langId
-              path
+              ${specPath}
             }
         }`,
       })
@@ -668,9 +670,7 @@ describe('relate', () => {
             specs (args:{
               specIds: 0
             }){
-              specId
-              spec
-              langId
+              ${specTranslateList}
             }
         }`,
       })
@@ -695,9 +695,7 @@ describe('relate', () => {
             specs (args:{
               specIds: 0
             }){
-              specId
-              spec
-              langId
+              ${specTranslateList}
             }
         }`,
       })
@@ -722,9 +720,7 @@ describe('relate', () => {
             specs (args:{
               specIds: ${specId5}
             }){
-              specId
-              spec
-              langId
+              ${specTranslateList}
             }
         }`,
       })
@@ -750,9 +746,7 @@ describe('relate', () => {
             specs (args:{
               specsLevels: 4
             }){
-              specId
-              spec
-              langId
+              ${specTranslateList}
               parentSpec {
                 specId
                 spec
@@ -802,9 +796,7 @@ describe('relate', () => {
               specIds: [${specLevels3}]
               specsLevels: 4
             }){
-              specId
-              spec
-              langId
+              ${specTranslateList}
             }
         }`,
       })
@@ -831,9 +823,7 @@ describe('relate', () => {
               specIds: [${specLevels3}]
               specsLevels: 3
             }){
-              specId
-              spec
-              langId
+              ${specTranslateList}
             }
         }`,
       })
@@ -843,7 +833,7 @@ describe('relate', () => {
     const {
       data: { specs }
     } = body;
-    specName4 = specs[4].spec;
+    specName4 = specs[3].spec;
     expect(specs).toBeNonEmptyArray();
     done();
   });
@@ -858,9 +848,7 @@ describe('relate', () => {
       .send({
         query: `query {
             specs {
-              specId
-              spec
-              langId
+            ${specTranslateList}
             }
         }`,
       })
@@ -894,9 +882,7 @@ describe('relate', () => {
                 perPage: 3
               }
             ){
-              specId
-              spec
-              langId
+              ${specTranslateList}
             }
         }`,
       })
@@ -906,8 +892,8 @@ describe('relate', () => {
     const {
       data: { specs }
     } = body;
-    expect(specs[1].spec).toBe(specName4);
-    expect(specs.length).toBe(3);
+    expect(specs[0].spec).toBe(specName4);
+    expect(specs.length).toBe(1);
     done();
   });
 
@@ -934,11 +920,11 @@ describe('relate', () => {
     } = body;
     expect(searchSpecs.length).toBe(5);
     expect(searchSpecs[0].specId).toBe(5);
-    expect(searchSpecs[1].specId).toBe(6);
-    expect(searchSpecs[1].path).toBe("Fixings/Screws and bolts/Anchor bolts");
+    expect(searchSpecs[1].specId).toBe(8);
+    expect(searchSpecs[1].path).toBe("Threaded Fasteners/Screws and bolts/U Bolts");
     expect(searchSpecs[2].specId).toBe(7);
-    expect(searchSpecs[3].specId).toBe(8);
-    expect(searchSpecs[4].specId).toBe(9);
+    expect(searchSpecs[3].specId).toBe(9);
+    expect(searchSpecs[4].specId).toBe(6);
     done();
   });
 
@@ -1278,6 +1264,344 @@ describe('relate', () => {
     } = body;
     expect(companyRepresentTypes).toBeNonEmptyArray();
     expect(companyRepresentTypes[0].langId).toBe(2);
+    done();
+  });
+
+  // ===TESTING CHINESE LANGUAGE SUPPORT===
+  it('/graphql:Q Company types - OK Chinese (zh-Hans)', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .set(
+        'Accept-Language',
+        `zh-Hans`
+      )
+      .send({
+        query: `query {
+            companyTypes {
+              name
+              langId
+              companyTypeId
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    const {
+      data: { companyTypes }
+    } = body;
+    expect(companyTypes).toBeNonEmptyArray();
+    expect(companyTypes[0].langId).toBe(3);
+    // Find "有限责任公司" in the array (company_type_id = 1)
+    const limitedCompany = companyTypes.find(ct => ct.companyTypeId === 1);
+    expect(limitedCompany).toBeDefined();
+    expect(limitedCompany.name).toBe("有限责任公司");
+    // Check that the first element after alphabetical sort is "上市公司" (company_type_id = 4)
+    expect(companyTypes[0].name).toBe("上市公司");
+    expect(companyTypes[0].companyTypeId).toBe(4);
+    done();
+  });
+
+  it('/graphql:Q Company types - OK Chinese (zh-Hant)', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .set(
+        'Accept-Language',
+        `zh-Hant`
+      )
+      .send({
+        query: `query {
+            companyTypes {
+              name
+              langId
+              companyTypeId
+              shortname
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    const {
+      data: { companyTypes }
+    } = body;
+    expect(companyTypes).toBeNonEmptyArray();
+    expect(companyTypes[0].langId).toBe(3);
+    // Check alphabetical order - "上市公司" comes first
+    expect(companyTypes[0].name).toBe("上市公司");
+    expect(companyTypes[0].shortname).toBe("上市公司");
+    expect(companyTypes[0].companyTypeId).toBe(4);
+    // Verify all expected company types are present
+    const companyTypeIds = companyTypes.map(ct => ct.companyTypeId);
+    expect(companyTypeIds).toContain(1); // 有限责任公司
+    expect(companyTypeIds).toContain(2); // 个体工商户
+    expect(companyTypeIds).toContain(3); // 国有企业
+    expect(companyTypeIds).toContain(4); // 上市公司
+    expect(companyTypeIds).toContain(5); // 股份有限公司
+    done();
+  });
+
+  it('/graphql:Q Company types - OK Chinese (zh-Hans-CN)', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .set(
+        'Accept-Language',
+        `zh-Hans-CN`
+      )
+      .send({
+        query: `query {
+            companyTypes {
+              name
+              langId
+              companyTypeId
+              shortname
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    const {
+      data: { companyTypes }
+    } = body;
+    expect(companyTypes).toBeNonEmptyArray();
+    expect(companyTypes[0].langId).toBe(3);
+    // Check the order - should be alphabetical
+    const names = companyTypes.map(ct => ct.name);
+    expect(names[0]).toBe("上市公司"); // 上 comes first alphabetically
+    // Find specific company types
+    const limitedCompany = companyTypes.find(ct => ct.companyTypeId === 1);
+    const stateOwned = companyTypes.find(ct => ct.companyTypeId === 3);
+    const foreignInvested = companyTypes.find(ct => ct.companyTypeId === 6);
+    expect(limitedCompany?.name).toBe("有限责任公司");
+    expect(stateOwned?.name).toBe("国有企业");
+    expect(foreignInvested?.name).toBe("外商投资企业");
+    done();
+  });
+
+  it('/graphql:Q Company types - OK Chinese (zh-Hant-TW)', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .set(
+        'Accept-Language',
+        `zh-Hant-TW`
+      )
+      .send({
+        query: `query {
+            companyTypes {
+              name
+              langId
+              companyTypeId
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    const {
+      data: { companyTypes }
+    } = body;
+    expect(companyTypes).toBeNonEmptyArray();
+    expect(companyTypes[0].langId).toBe(3);
+    // Just verify the structure and that we get Chinese translations
+    expect(companyTypes).toBeArrayOfObjects();
+    expect(companyTypes[0]).toContainAllKeys(['name', 'langId', 'companyTypeId']);
+    // All items should have Chinese translations
+    companyTypes.forEach(ct => {
+      expect(ct.langId).toBe(3);
+      expect(ct.name).toBeNonEmptyString();
+    });
+    done();
+  });
+
+  it('/graphql:Q Company types - OK Chinese (zh-Hant-HK)', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .set(
+        'Accept-Language',
+        `zh-Hant-HK`
+      )
+      .send({
+        query: `query {
+            companyTypes {
+              name
+              langId
+              companyTypeId
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    const {
+      data: { companyTypes }
+    } = body;
+    expect(companyTypes).toBeNonEmptyArray();
+    expect(companyTypes[0].langId).toBe(3);
+    expect(companyTypes).toHaveLength(12);
+    done();
+  });
+
+  it('/graphql:Q Regions - OK Chinese (zh-Hant-HK)', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .set(
+        'Accept-Language',
+        `zh-Hant-HK`
+      )
+      .send({
+        query: `query {
+            regions {
+              regionId
+              region
+              langId
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    const {
+      data: { regions }
+    } = body;
+    expect(regions).toBeNonEmptyArray();
+    expect(regions[0].langId).toBe(3);
+    expect(regions[0].region).toBe("中东地区");
+    expect(regions[0].regionId).toBe(5);
+    // Find "非洲" (should be later in the array)
+    const africa = regions.find(r => r.regionId === 1);
+    expect(africa).toBeDefined();
+    expect(africa.region).toBe("非洲");
+    // Verify all regions are present
+    const regionIds = regions.map(r => r.regionId);
+    expect(regionIds).toContain(1); // 非洲
+    expect(regionIds).toContain(2); // 澳洲
+    expect(regionIds).toContain(3); // 亚太地区
+    expect(regionIds).toContain(4); // 欧洲
+    expect(regionIds).toContain(5); // 中东地区
+    expect(regionIds).toContain(6); // 北美洲
+    expect(regionIds).toContain(7); // 拉丁美洲
+    expect(regionIds).toContain(8); // 其他地区
+    expect(regionIds).toContain(9); // 南极洲
+    expect(regionIds).toContain(10); // 大洋洲
+    expect(regionIds).toContain(11); // 欧亚大陆
+    done();
+  });
+
+  // Testing different Chinese locales with type access translations
+  it('/graphql:Q Type access list - OK Chinese (zh-Hans)', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .set(
+        'Accept-Language',
+        `zh-Hans`
+      )
+      .send({
+        query: `query {
+            typesAccess {
+              typeAccessId
+              name
+              langId
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { typesAccess }
+    } = body;
+    expect(typesAccess).toBeNonEmptyArray();
+    expect(typesAccess[2].langId).toBe(3); // Public should be at index 2
+    expect(typesAccess[2].name).toBe("公开");
+    done();
+  });
+
+  it('/graphql:Q Type access list - OK Chinese (zh-Hant-TW)', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .set(
+        'Accept-Language',
+        `zh-Hant-TW`
+      )
+      .send({
+        query: `query {
+            typesAccess {
+              typeAccessId
+              name
+              langId
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    const {
+      data: { typesAccess }
+    } = body;
+    expect(typesAccess).toBeNonEmptyArray();
+    expect(typesAccess[2].langId).toBe(3);
+    expect(typesAccess[2].name).toBe("公开");
+    done();
+  });
+
+  // Additional test to verify alphabetical sorting
+  it('/graphql:Q Regions alphabetical order - OK Chinese', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .set(
+        'Accept-Language',
+        `zh`
+      )
+      .send({
+        query: `query {
+            regions {
+              regionId
+              region
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    const {
+      data: { regions }
+    } = body;
+    // Get all regions in the order they were returned
+    const regionNames = regions.map(r => r.region);
+    // Just verify the first few based on alphabetical order
+    expect(regionNames[0]).toBe("中东地区"); // Z
+    expect(regionNames[1]).toBe("亚太地区"); // Y
+    expect(regionNames[2]).toBe("其他地区"); // Q
+    expect(regionNames[3]).toBe("北美洲"); // B
     done();
   });
 });

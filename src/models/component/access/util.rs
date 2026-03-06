@@ -45,14 +45,14 @@ pub(crate) fn check_is_owner_with_err(
 pub(crate) fn check_access_component_for_user(
     target_user_uuid: &Uuid,
     target_component_uuid: &Uuid,
-    need_access_level: &i32,
+    need_access_level: i32,
     conn: &mut PgConnection,
 ) -> ServiceResult<bool> {
     // 1. проверить владение компонентом
     // если флаг ownership_check true
 
     // if request to view a public component
-    if need_access_level == &3 {
+    if need_access_level == 3 {
         let access_type_component = get_access_type_component(target_component_uuid, conn)?;
         // if target component public
         if access_type_component == 3 {
@@ -100,7 +100,7 @@ pub(crate) fn check_access_component_for_user(
 pub(crate) fn check_user_access_to_component(
     target_user_uuid: &Uuid,
     target_component_uuid: &Uuid,
-    need_access_level: &i32,
+    need_access_level: i32,
     conn: &mut PgConnection,
 ) -> ServiceResult<bool> {
     use crate::schema::user_access_to_component::dsl::*;
@@ -121,14 +121,14 @@ pub(crate) fn check_user_access_to_component(
             ServiceError::InternalServerError
         })?;
 
-    Ok(matches!(check_res.first(), Some(x) if need_access_level >= x))
+    Ok(matches!(check_res.first(), Some(x) if need_access_level >= *x))
 }
 
 /// Сhecking the availability of user access provided by the company
 pub(crate) fn check_user_access_provided_by_company(
     target_user_uuid: &Uuid,
     target_component_uuid: &Uuid,
-    need_access_level: &i32,
+    need_access_level: i32,
     conn: &mut PgConnection,
 ) -> ServiceResult<bool> {
     use crate::models::company::access::util::check_clerk_with_suitable_role;
@@ -155,7 +155,7 @@ pub(crate) fn check_user_access_provided_by_company(
 /// Gets list of companies that have need level access to a component
 pub(crate) fn get_companies_have_access_to_component(
     target_component_uuid: &Uuid,
-    need_access_level: &i32,
+    need_access_level: i32,
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<Uuid>> {
     use crate::schema::company_access_to_component::dsl::*;

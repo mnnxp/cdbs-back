@@ -171,7 +171,7 @@ pub(crate) fn change_service_status(
     check_user_access_provided_by_company(
         &options.logged_user_uuid,
         &args.service_uuid,
-        &need_access_level,
+        need_access_level,
         conn,
     )?;
     let old_service_status_id = service_ref::service_ref

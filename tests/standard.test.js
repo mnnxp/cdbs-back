@@ -279,6 +279,8 @@ var fifthRevFileFileTestUuid2 = "";
 var sixthRevFileFileTestUuid2 = "";
 var seventhRevFileFileTestUuid2 = "";
 
+var initialFavStandardsCount = 0;
+
 async function cleanupCompanyDb() {
   return global.knex.raw('DELETE FROM company_ref WHERE orgname in (?,?);', [
     orgname,
@@ -4013,6 +4015,95 @@ describe('standard', () => {
   });
 
   // Testing favorite standards search
+  it('/graphql:Q Get full data Standard - OK ShowStandardShort', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `query selectStandardQuery{
+          standard (standardUuid: "${standardUuidFirst}") {
+            ${standardFullDataQuery}
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    const {
+      data: { standard },
+    } = body;
+    expect(standard.uuid).toBe(standardUuidFirst);
+    expect(standard.subscribers).toBe(0);
+    done();
+  });
+
+  it('/graphql:M addStandardFav - Ok add (user 1)', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation {
+          addStandardFav(standardUuid: "${standardUuidFirst}")
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql addStandardFav=%o', body);
+    expect(body.data.addStandardFav).toBe(true);
+    done();
+  });
+
+  it('/graphql:Q Get full data Standard - OK ShowStandardShort', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `query selectStandardQuery{
+          standard (standardUuid: "${standardUuidFirst}") {
+            ${standardFullDataQuery}
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    const {
+      data: { standard },
+    } = body;
+    expect(standard.uuid).toBe(standardUuidFirst);
+    expect(standard.subscribers).toBe(1);
+    done();
+  });
+
+  it('/graphql:Q selfData - OK check favStandardsCount increment (user 1)', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `query {
+          selfData {
+            favStandardsCount
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql selfData=%o', body);
+    const {
+      data: { selfData },
+    } = body;
+    expect(selfData.favStandardsCount).toBe(initialFavStandardsCount + 1);
+    done();
+  });
+
   it('/graphql:M StandardFav - Ok add', async (done) => {
     const { body } = await agent
       .post('/graphql')
@@ -4028,6 +4119,30 @@ describe('standard', () => {
       .expect(HttpStatus.OK)
     debug('/graphql addStandardFav body=%o', body);
     expect(body.data.addStandardFav).toBe(true);
+    done();
+  });
+
+  it('/graphql:Q Get full data Standard - OK ShowStandardShort', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `query selectStandardQuery{
+          standard (standardUuid: "${standardUuidFirst}") {
+            ${standardFullDataQuery}
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    const {
+      data: { standard },
+    } = body;
+    expect(standard.uuid).toBe(standardUuidFirst);
+    expect(standard.subscribers).toBe(2);
     done();
   });
 
@@ -4059,7 +4174,30 @@ describe('standard', () => {
     done();
   });
 
-  it('/graphql:M StandardFav - Ok delete', async (done) => {
+  it('/graphql:Q selfData - OK check favStandardsCount increment (user 2)', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `query {
+          selfData {
+            favStandardsCount
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql selfData=%o', body);
+    const {
+      data: { selfData },
+    } = body;
+    expect(selfData.favStandardsCount).toBe(initialFavStandardsCount + 1);
+    done();
+  });
+
+  it('/graphql:M StandardFav - Ok delete (user 2)', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .set(
@@ -4074,6 +4212,73 @@ describe('standard', () => {
       .expect(HttpStatus.OK)
     debug('/graphql deleteStandardFav body=%o', body);
     expect(body.data.deleteStandardFav).toBe(true);
+    done();
+  });
+
+  it('/graphql:Q Get full data Standard - OK ShowStandardShort subscribers decrement (user 2)', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `query selectStandardQuery{
+          standard (standardUuid: "${standardUuidFirst}") {
+            ${standardFullDataQuery}
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    const {
+      data: { standard },
+    } = body;
+    expect(standard.uuid).toBe(standardUuidFirst);
+    expect(standard.subscribers).toBe(1);
+    done();
+  });
+
+
+  it('/graphql:M StandardFav - Ok delete (user 1)', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation {
+            deleteStandardFav(standardUuid: "${standardUuidFirst}")
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql deleteStandardFav body=%o', body);
+    expect(body.data.deleteStandardFav).toBe(true);
+    done();
+  });
+
+  it('/graphql:Q Get full data Standard - OK ShowStandardShort subscribers decrement (user 1)', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+        query: `query selectStandardQuery{
+          standard (standardUuid: "${standardUuidFirst}") {
+            ${standardFullDataQuery}
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    const {
+      data: { standard },
+    } = body;
+    expect(standard.uuid).toBe(standardUuidFirst);
+    expect(standard.subscribers).toBe(0);
     done();
   });
 

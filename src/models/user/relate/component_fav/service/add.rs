@@ -19,7 +19,7 @@ pub(crate) fn add_component_fav(
     let need_access_level = 3; // todo!(create enum for manage access level)
 
     // check access user for component
-    check_access_component_for_user(logged_user_uuid, component_uuid, &need_access_level, conn)?;
+    check_access_component_for_user(logged_user_uuid, component_uuid, need_access_level, conn)?;
 
     // if have need row, just update is_enabled to true
     let check_fav = component_fav::component_fav

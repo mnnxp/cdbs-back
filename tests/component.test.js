@@ -84,6 +84,11 @@ const filename2 = "file-test-name 2.pdf";
 const filename3 = "file-test-name 3.pdf";
 const filename4 = "file-test-name 4.pdf";
 const filename5 = "file-test-name 5.pdf";
+const filename6 = "test-favicon-ru.png";
+const filename7 = "company-favicon-org.png";
+const filename8 = "test-component-file.pdf";
+const filename9 = "test-no-proxy.png";
+const filename10 = "certificate.pdf";
 
 const modificationNameM1 = "1/16/20-SS-V";
 const descriptionM1 = "Dest 1/ss-v";
@@ -435,6 +440,7 @@ createdAt \
 `;
 
 var componentUuidNoStandard = "";
+let componentUuidNoStandard2 = "";
 var componentUuidStandard = "";
 var fileUuid1 = "";
 var fileUuid2 = "";
@@ -478,12 +484,17 @@ const veryLongDescriptionModification = Array(25100).join('я');
 const actualStatusIdModification = 1;
 var componentModificationUuidFirst = "";
 var componentModificationUuidSecond = "";
-var filesetForProgramUuid = "";
+var filesetForProgramUuid5 = "";
+var filesetForProgramUuid7 = "";
 var fileOfFilesetUuid = "";
 
 var nameModificationForUpdate = "new name modification";
 var descriptionModificationForUpdate = "new description modification";
 var actualStatusModificationIdForUpdate = 2;
+
+// data for subscribers
+var initialFavCompaniesCount = 0;
+var initialFavComponentsCount = 0;
 
 // data for param
 const paramnameIndexFail = 100;
@@ -704,6 +715,33 @@ describe('component', () => {
       });
   });
 
+  it('/graphql:Q selfData - OK get initial favorites count', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `query {
+          selfData {
+            favCompaniesCount
+            favComponentsCount
+            favStandardsCount
+            favUsersCount
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql selfData=%o', body);
+    const {
+      data: { selfData },
+    } = body;
+    initialFavCompaniesCount = selfData.favCompaniesCount;
+    initialFavComponentsCount = selfData.favComponentsCount;
+    done();
+  });
+
   it('/graphql:M registerCompany - OK Supplier', async (done) => {
     const { body } = await agent
       .post('/graphql')
@@ -742,6 +780,113 @@ describe('component', () => {
       't',
       orgname,
     ]);
+  });
+
+  it('/graphql:Q selfData - OK check favCompaniesCount', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `query {
+          selfData {
+            favCompaniesCount
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql selfData=%o', body);
+    const {
+      data: { selfData },
+    } = body;
+    expect(selfData.favCompaniesCount).toBe(initialFavCompaniesCount);
+    done();
+  });
+
+  it('/graphql:M addCompanyFav - Ok add', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation {
+          addCompanyFav(companyUuid: "${companyUuidSupplier}")
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql addCompanyFav=%o', body);
+    expect(body.data.addCompanyFav).toBe(true);
+    done();
+  });
+
+  it('/graphql:Q selfData - OK check favCompaniesCount increment', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `query {
+          selfData {
+            favCompaniesCount
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql selfData=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { selfData },
+    } = body;
+    expect(selfData.favCompaniesCount).toBe(initialFavCompaniesCount + 1);
+    done();
+  });
+
+  it('/graphql:M CompanyFav - Ok delete after add', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation {
+            deleteCompanyFav(companyUuid: "${companyUuidSupplier}")
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql deleteCompanyFav body=%o', body);
+    // expect(body).toBe(0);
+    expect(body.data.deleteCompanyFav).toBe(true);
+    done();
+  });
+
+  it('/graphql:Q selfData - OK check favCompaniesCount decrement', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `query {
+          selfData {
+            favCompaniesCount
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql selfData=%o', body);
+    const {
+      data: { selfData },
+    } = body;
+    expect(selfData.favCompaniesCount).toBe(initialFavCompaniesCount);
+    done();
   });
 
   it('/graphql:M registerCompany - OK NoSupplier', async (done) => {
@@ -916,7 +1061,211 @@ describe('component', () => {
       data: { registerComponent },
     } = body;
     expect(registerComponent).toBeNonEmptyString();
-    // componentUuidNoStandard = registerComponent.uuid;
+    componentUuidNoStandard2 = registerComponent;
+    done();
+  });
+
+  // Testing proxied
+  // Proxying for user favicon upload (.cadbase.ru)
+  it('/graphql:M uploadFavicon - OK proxy for .cadbase.ru', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set('Host', 'api.cadbase.ru')
+      .set('Authorization', `Bearer ${authorizationTokenFirst}`)
+      .send({
+        query: `mutation {
+          uploadFavicon(filename: "${filename6}") {
+            fileUuid
+            filename
+            uploadUrl
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK);
+      debug('/graphql uploadFavicon proxy .cadbase.ru=%o', body);
+    const { uploadFavicon } = body.data;
+    // Verifying that uploadUrl contains the correct proxied domain
+    expect(uploadFavicon.uploadUrl).toStartWith("https://s3.cadbase.ru/");
+    expect(uploadFavicon.filename).toBe(filename6);
+    // Marking the file as uploaded for further tests
+    await setFileAsUploadedDb(uploadFavicon.fileUuid);
+    // Checking the download link via presignedUrl
+    const { body: downloadBody } = await agent
+      .post('/graphql')
+      .set('Host', 'api.cadbase.ru')
+      .set('Authorization', `Bearer ${authorizationTokenFirst}`)
+      .send({
+        query: `query {
+          presignedUrl(fileUuid: "${uploadFavicon.fileUuid}") {
+            downloadUrl
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK);
+      expect(downloadBody.data.presignedUrl.downloadUrl).toStartWith(
+      "https://s3.cadbase.ru/"
+    );
+    done();
+  });
+
+  // Proxying for company favicon upload (.cadbase.org)
+  it('/graphql:M uploadCompanyFavicon - OK proxy for .cadbase.org', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set('Host', 'api.cadbase.org')
+      .set('Authorization', `Bearer ${authorizationTokenFirst}`)
+      .send({
+        query: `mutation {
+          uploadCompanyFavicon(
+            companyUuid: "${companyUuidNoSupplier}"
+            filename: "${filename7}"
+          ) {
+            fileUuid
+            filename
+            uploadUrl
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK);
+      debug('/graphql uploadCompanyFavicon proxy .cadbase.org=%o', body);
+    const { uploadCompanyFavicon } = body.data;
+    // Checking proxying of the download link
+    expect(uploadCompanyFavicon.uploadUrl).toStartWith("https://s3.cadbase.org/");
+    await setFileAsUploadedDb(uploadCompanyFavicon.fileUuid);
+    // Verifying download via company data request
+    const { body: companyBody } = await agent
+      .post('/graphql')
+      .set('Host', 'api.cadbase.org')
+      .set('Authorization', `Bearer ${authorizationTokenFirst}`)
+      .send({
+        query: `query {
+          company(companyUuid: "${companyUuidNoSupplier}") {
+            imageFile {
+              downloadUrl
+            }
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK);
+      expect(companyBody.data.company.imageFile.downloadUrl).toStartWith(
+      "https://s3.cadbase.org/"
+    );
+    done();
+  });
+
+  // Proxying for component files
+  it('/graphql:M uploadComponentFiles - OK proxy check', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set('Host', 'api.cadbase.ru')
+      .set('Authorization', `Bearer ${authorizationTokenFirst}`)
+      .send({
+        query: `mutation {
+          uploadComponentFiles(args: {
+            componentUuid: "${componentUuidStandard}"
+            filenames: ["${filename8}"]
+          }) {
+            fileUuid
+            filename
+            uploadUrl
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK);
+      debug('/graphql uploadComponentFiles proxy=%o', body);
+    const [fileData] = body.data.uploadComponentFiles;
+    // Checking the download link
+    expect(fileData.filename).toStartWith(filename8);
+    expect(fileData.uploadUrl).toStartWith("https://s3.cadbase.ru/");
+    await setFileAsUploadedDb(fileData.fileUuid);
+    // Verifying the download link through the component
+    const { body: componentBody } = await agent
+      .post('/graphql')
+      .set('Host', 'api.cadbase.ru')
+      .set('Authorization', `Bearer ${authorizationTokenFirst}`)
+      .send({
+        query: `query {
+          componentFiles(args: {
+            componentUuid: "${componentUuidStandard}"
+            filesUuids: ["${fileData.fileUuid}"]
+          }) {
+            downloadUrl
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK);
+      const [downloadFile] = componentBody.data.componentFiles;
+    expect(downloadFile.downloadUrl).toStartWith("https://s3.cadbase.ru/");
+    done();
+  });
+
+  // Checking absence of proxy for unknown domain
+  it('/graphql:M uploadFavicon - NO proxy for unknown domain', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set('Host', 'api.test-domain.com') // Неизвестный домен
+      .set('Authorization', `Bearer ${authorizationTokenFirst}`)
+      .send({
+        query: `mutation {
+          uploadFavicon(filename: "${filename9}") {
+            fileUuid
+            uploadUrl
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK);
+      debug('/graphql uploadFavicon no proxy=%o', body);
+    const { uploadFavicon } = body.data;
+    // The link should contain the original S3 endpoint
+    expect(uploadFavicon.uploadUrl).toContain(".scw.cloud");
+    expect(uploadFavicon.uploadUrl).not.toContain("s3.cadbase.ru");
+    expect(uploadFavicon.uploadUrl).not.toContain("s3.cadbase.org");
+    await setFileAsUploadedDb(uploadFavicon.fileUuid);
+    done();
+  });
+
+  // Proxying for user certificates
+  it('/graphql:M uploadUserCertificate - OK proxy check', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set('Host', 'api.cadbase.org')
+      .set('Authorization', `Bearer ${authorizationTokenFirst}`)
+      .send({
+        query: `mutation {
+          uploadUserCertificate(certData: {
+            description: "Test certificate"
+            filename: "${filename10}"
+          }) {
+            fileUuid
+            uploadUrl
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK);
+    debug('/graphql uploadUserCertificate proxy=%o', body);
+    const { uploadUserCertificate } = body.data;
+    expect(uploadUserCertificate.uploadUrl).toStartWith("https://s3.cadbase.org/");
+    await setFileAsUploadedDb(uploadUserCertificate.fileUuid);
+    // Checking via user data request
+    const { body: userBody } = await agent
+      .post('/graphql')
+      .set('Host', 'api.cadbase.org')
+      .set('Authorization', `Bearer ${authorizationTokenFirst}`)
+      .send({
+        query: `query {
+          selfData {
+            certificates {
+              file {
+                downloadUrl
+              }
+            }
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK);
+      const certificates = userBody.data.selfData.certificates;
+    const lastCertificate = certificates[certificates.length - 1];
+    expect(lastCertificate.file.downloadUrl).toStartWith("https://s3.cadbase.org/");
     done();
   });
 
@@ -1068,7 +1417,79 @@ describe('component', () => {
     done();
   });
 
-  it('/graphql:M ComponentFav - Ok add', async (done) => {
+  it('/graphql:Q selfData - OK check favComponentsCount decrement', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `query {
+          selfData {
+            favComponentsCount
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql selfData=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { selfData },
+    } = body;
+    expect(selfData.favComponentsCount).toBe(initialFavComponentsCount);
+    done();
+  });
+
+  it('/graphql:Q Get full data Component - OK check subscribers count', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+          query: `query componentQuery{
+            component(componentUuid: "${componentUuidStandard}") {
+              ${componentFullDataQuery}
+            }
+          }`,
+        })
+      .expect(HttpStatus.OK)
+    debug('/graphql filter component=%o', body.data.component);
+    // expect(body).toBe(0);
+    const {
+      data: { component },
+    } = body;
+    expect(component.uuid).toBe(componentUuidStandard);
+    expect(component.parentComponentUuid).toBe(componentUuidStandard);
+    expect(component.ownerUser.uuid).toBeNonEmptyString();
+    expect(component.ownerUser.imageFile.uuid).toBeNonEmptyString();
+    expect(component.componentType.componentType).toBeNonEmptyString();
+    expect(component.actualStatus.name).toBeNonEmptyString();
+    expect(component.subscribers).toBe(0);
+    done();
+  });
+
+  it('/graphql:M ComponentFav - Ok add (user 1)', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation {
+            addComponentFav(componentUuid: "${componentUuidStandard}")
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql addComponentFav body=%o', body);
+    expect(body.data.addComponentFav).toBe(true);
+    done();
+  });
+
+  it('/graphql:M ComponentFav - Ok add (user 2)', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .set(
@@ -1085,6 +1506,78 @@ describe('component', () => {
     expect(body.data.addComponentFav).toBe(true);
     done();
   });
+
+  it('/graphql:Q selfData - OK check favComponentsCount increment', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `query {
+          selfData {
+            favComponentsCount
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql selfData=%o', body);
+    const {
+      data: { selfData },
+    } = body;
+    expect(selfData.favComponentsCount).toBe(initialFavComponentsCount + 1);
+    done();
+  });
+
+  it('/graphql:Q Get full data Component - OK check subscribers count', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+          query: `query componentQuery{
+            component(componentUuid: "${componentUuidStandard}") {
+              ${componentFullDataQuery}
+            }
+          }`,
+        })
+      .expect(HttpStatus.OK)
+    debug('/graphql filter component=%o', body.data.component);
+    // expect(body).toBe(0);
+    const {
+      data: { component },
+    } = body;
+    expect(component.uuid).toBe(componentUuidStandard);
+    expect(component.parentComponentUuid).toBe(componentUuidStandard);
+    expect(component.ownerUser.uuid).toBeNonEmptyString();
+    expect(component.ownerUser.imageFile.uuid).toBeNonEmptyString();
+    expect(component.componentType.componentType).toBeNonEmptyString();
+    expect(component.actualStatus.name).toBeNonEmptyString();
+    expect(component.subscribers).toBe(2);
+    done();
+  });
+
+  it('/graphql:M ComponentFav - Ok delete after add', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `mutation {
+            deleteComponentFav(componentUuid: "${componentUuidStandard}")
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql deleteComponentFav body=%o', body);
+    expect(body.data.deleteComponentFav).toBe(true);
+    done();
+  });
+
 
   it('/graphql:Q Fav list components - BadRequest no token', async (done) => {
     const { body } = await agent
@@ -1130,6 +1623,36 @@ describe('component', () => {
     expect(components[1].name).toBe(nameComponent);
     expect(components[1].isFollowed).toBe(true);
     expect(components.length).toBe(4);
+    done();
+  });
+
+  it('/graphql:Q Get full data Component - OK check subscribers count', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenSecond}`
+      )
+      .send({
+          query: `query componentQuery{
+            component(componentUuid: "${componentUuidStandard}") {
+              ${componentFullDataQuery}
+            }
+          }`,
+        })
+      .expect(HttpStatus.OK)
+    debug('/graphql filter component=%o', body.data.component);
+    // expect(body).toBe(0);
+    const {
+      data: { component },
+    } = body;
+    expect(component.uuid).toBe(componentUuidStandard);
+    expect(component.parentComponentUuid).toBe(componentUuidStandard);
+    expect(component.ownerUser.uuid).toBeNonEmptyString();
+    expect(component.ownerUser.imageFile.uuid).toBeNonEmptyString();
+    expect(component.componentType.componentType).toBeNonEmptyString();
+    expect(component.actualStatus.name).toBeNonEmptyString();
+    expect(component.subscribers).toBe(1);
     done();
   });
 
@@ -2962,7 +3485,7 @@ describe('component', () => {
     expect(component.ownerUser.imageFile.uuid).toBeNonEmptyString();
     expect(component.componentType.componentType).toBeNonEmptyString();
     expect(component.actualStatus.name).toBeNonEmptyString();
-    expect(component.subscribers).toBe(2);
+    expect(component.subscribers).toBe(0);
     done();
   });
 
@@ -7983,7 +8506,7 @@ describe('component', () => {
     const {
       data: { registerModificationFileset },
     } = body;
-    filesetForProgramUuid = registerModificationFileset;
+    filesetForProgramUuid7 = registerModificationFileset;
     expect(registerModificationFileset).toBeNonEmptyString();
     done();
   });
@@ -8008,7 +8531,7 @@ describe('component', () => {
     const {
       data: { registerModificationFileset },
     } = body;
-    expect(registerModificationFileset).toBe(filesetForProgramUuid);
+    expect(registerModificationFileset).toBe(filesetForProgramUuid7);
     done();
   });
 
@@ -8064,7 +8587,7 @@ describe('component', () => {
     const {
       data: { registerModificationFileset },
     } = body;
-    filesetForProgramUuid = registerModificationFileset;
+    filesetForProgramUuid5 = registerModificationFileset;
     expect(registerModificationFileset).toBeNonEmptyString();
     done();
   });
@@ -8245,7 +8768,7 @@ describe('component', () => {
       .send({
           query: `query {
             componentModificationFilesOfFileset(args: {
-              filesetUuid: "${filesetForProgramUuid}"
+              filesetUuid: "${filesetForProgramUuid5}"
               fileUuids: []
             }){
               ${fileDataQuery}
@@ -8356,7 +8879,7 @@ describe('component', () => {
           query: `mutation {
             uploadFilesToFileset(
               args: {
-                filesetUuid: "${filesetForProgramUuid}"
+                filesetUuid: "${filesetForProgramUuid5}"
                 filenames: [
                   "${filename1}",
                   "${filename2}",
@@ -8441,7 +8964,7 @@ describe('component', () => {
       .send({
           query: `query {
             componentModificationFilesOfFileset(args: {
-              filesetUuid: "${filesetForProgramUuid}"
+              filesetUuid: "${filesetForProgramUuid5}"
             }){
               ${fileDataQuery}
             }
@@ -8468,7 +8991,7 @@ describe('component', () => {
       .send({
           query: `query {
             componentModificationFilesOfFileset(args: {
-              filesetUuid: "${filesetForProgramUuid}"
+              filesetUuid: "${filesetForProgramUuid5}"
               fileUuids: ["${fileOfFilesetUuid}"]
             }){
               ${fileDataQuery}
@@ -8486,14 +9009,308 @@ describe('component', () => {
     done();
   });
 
+  // Testing component access
+  it('/graphql:M changeComponentAccess - OK change to public', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set('Authorization', `Bearer ${authorizationTokenSecond}`)
+      .send({
+        query: `mutation {
+          changeComponentAccess(args: {
+            componentUuid: "${componentUuidNoStandard2}"
+            newTypeAccessId: ${typeAccessId3}
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK);
+    debug('/graphql changeComponentAccess to public=%o', body);
+    // expect(body).toBe(0);
+    expect(body.data.changeComponentAccess).toBe(true);
+    // Verify that the access type has changed
+    const { body: checkBody } = await agent
+      .post('/graphql')
+      // .set('Authorization', `Bearer ${authorizationTokenSecond}`)
+      .send({
+        query: `query {
+          component(componentUuid: "${componentUuidNoStandard2}") {
+            typeAccess {
+              typeAccessId
+              name
+            }
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK);
+    expect(checkBody.data.component.typeAccess.typeAccessId).toBe(typeAccessId3);
+    done();
+  });
+
+  // Changing to private access
+  it('/graphql:M changeComponentAccess - OK change to private', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set('Authorization', `Bearer ${authorizationTokenSecond}`)
+      .send({
+        query: `mutation {
+          changeComponentAccess(args: {
+            componentUuid: "${componentUuidNoStandard2}"
+            newTypeAccessId: ${typeAccessId1}
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK);
+    debug('/graphql changeComponentAccess to private=%o', body);
+    expect(body.data.changeComponentAccess).toBe(true);
+    // Check access for another user (should be denied)
+    const { body: otherUserBody } = await agent
+      .post('/graphql')
+      .set('Authorization', `Bearer ${authorizationTokenFirst}`)
+      .send({
+        query: `query {
+          component(componentUuid: "${componentUuidNoStandard2}") {
+            uuid
+            name
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK);
+    expect(otherUserBody.data).toBeNull();
+    expect(otherUserBody.errors[0].message).toContain('Access denied');
+    done();
+  });
+
+  // Attempt to change without permissions
+  it('/graphql:M changeComponentAccess - BadRequest no access', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set('Authorization', `Bearer ${authorizationTokenFirst}`)
+      .send({
+        query: `mutation {
+          changeComponentAccess(args: {
+            componentUuid: "${componentUuidNoStandard2}"
+            newTypeAccessId: ${typeAccessId2}
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK);
+    debug('/graphql changeComponentAccess no access=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe('BadRequest: Access denied');
+    done();
+  });
+
+  // Change to the same access type
+  it('/graphql:M changeComponentAccess - OK same access type (try 1)', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set('Authorization', `Bearer ${authorizationTokenSecond}`)
+      .send({
+        query: `mutation {
+          changeComponentAccess(args: {
+            componentUuid: "${componentUuidNoStandard2}"
+            newTypeAccessId: ${typeAccessId1}
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK);
+    debug('/graphql changeComponentAccess same type=%o', body);
+    expect(body.data.changeComponentAccess).toBe(true);
+    done();
+  });
+
+  // Change to the same access type
+  it('/graphql:M changeComponentAccess - OK same access type (try 2)', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set('Authorization', `Bearer ${authorizationTokenSecond}`)
+      .send({
+        query: `mutation {
+          changeComponentAccess(args: {
+            componentUuid: "${componentUuidNoStandard2}"
+            newTypeAccessId: ${typeAccessId1}
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK);
+    debug('/graphql changeComponentAccess same type=%o', body);
+    expect(body.data.changeComponentAccess).toBe(true);
+    done();
+  });
+
+  // Change access to an intermediate level
+  it('/graphql:M changeComponentAccess - OK change to intermediate', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set('Authorization', `Bearer ${authorizationTokenSecond}`)
+      .send({
+        query: `mutation {
+          changeComponentAccess(args: {
+            componentUuid: "${componentUuidNoStandard2}"
+            newTypeAccessId: ${typeAccessId2}
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK);
+    debug('/graphql changeComponentAccess to intermediate=%o', body);
+    expect(body.data.changeComponentAccess).toBe(true);
+    // Verify that the company-participant has access
+    // First, add the company as a participant with access
+    const { body: accessBody } = await agent
+      .post('/graphql')
+      .set('Authorization', `Bearer ${authorizationTokenSecond}`)
+      .send({
+        query: `mutation {
+          setCompanyAccessComponent(args: {
+            componentUuid: "${componentUuidNoStandard2}"
+            companyUuid: "${companyUuidNoSupplier}"
+            typeAccessId: ${typeAccessId2}
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK);
+    expect(accessBody.data.setCompanyAccessComponent).toBe(true);
+    done();
+  });
+
+  // Non-existent component
+  it('/graphql:M changeComponentAccess - BadRequest component not found', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set('Authorization', `Bearer ${authorizationTokenSecond}`)
+      .send({
+        query: `mutation {
+          changeComponentAccess(args: {
+            componentUuid: "${uuidFail}"
+            newTypeAccessId: ${typeAccessId3}
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK);
+    debug('/graphql changeComponentAccess not found=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe('BadRequest: Access denied');
+    done();
+  });
+
+  // Non-existent access type
+  it('/graphql:M changeComponentAccess - BadRequest invalid access type', async (done) => {
+    const invalidAccessId = 5;
+    const { body } = await agent
+      .post('/graphql')
+      .set('Authorization', `Bearer ${authorizationTokenSecond}`)
+      .send({
+        query: `mutation {
+          changeComponentAccess(args: {
+            componentUuid: "${componentUuidNoStandard2}"
+            newTypeAccessId: ${invalidAccessId}
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK);
+    debug('/graphql changeComponentAccess invalid type=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toContain('Internal Server Error');
+    done();
+  });
+
+  // Impact of changing access on users
+  it('/graphql:M changeComponentAccess - BadRequest check user access after change', async (done) => {
+    // Change overall access to private
+    const { body: changeBody } = await agent
+      .post('/graphql')
+      .set('Authorization', `Bearer ${authorizationTokenFirst}`)
+      .send({
+        query: `mutation {
+          changeComponentAccess(args: {
+            componentUuid: "${componentUuidStandard}"
+            newTypeAccessId: ${typeAccessId1}
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK);
+    expect(changeBody.data.changeComponentAccess).toBe(true);
+    // Verify that the user no longer has access
+    const { body: checkBody } = await agent
+      .post('/graphql')
+      .set('Authorization', `Bearer ${authorizationTokenSecond}`)
+      .send({
+        query: `query {
+          component(componentUuid: "${componentUuidStandard}") {
+            uuid
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK);
+    expect(checkBody.data).toBeNull();
+    expect(checkBody.errors[0].message).toContain('Access denied');
+    done();
+  });
+
+  it('/graphql:M changeComponentAccess - Ok check user access after provide access', async (done) => {
+    // First, grant access to the user
+    const { body: grantBody } = await agent
+      .post('/graphql')
+      .set('Authorization', `Bearer ${authorizationTokenFirst}`)
+      .send({
+        query: `mutation {
+          setUserAccessComponent(args: {
+            componentUuid: "${componentUuidStandard}"
+            userUuid: "${authorizationUserSecond}"
+            typeAccessId: ${typeAccessId3}
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK);
+    expect(grantBody.data.setUserAccessComponent).toBe(true);
+    // Verify that the user no longer has access
+    const { body } = await agent
+      .post('/graphql')
+      .set('Authorization', `Bearer ${authorizationTokenSecond}`)
+      .send({
+        query: `query {
+          component(componentUuid: "${componentUuidStandard}") {
+            uuid
+            filesCount
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK);
+    // expect(body).toBe(0);
+    const {
+      data: { component },
+    } = body;
+    expect(component.uuid).toBe(componentUuidStandard);
+    expect(component.filesCount).toBe(1);
+    done();
+  });
+
+  // Change access without a token
+  it('/graphql:M changeComponentAccess - BadRequest no token', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .send({
+        query: `mutation {
+          changeComponentAccess(args: {
+            componentUuid: "${componentUuidNoStandard2}"
+            newTypeAccessId: ${typeAccessId3}
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK);
+    debug('/graphql changeComponentAccess no token=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe('BadRequest: Token not found');
+    done();
+  });
+
   // Testing component modification fileset files
-  it('/graphql:Q componentModificationFilesetFiles - BadRequest no token', async (done) => {
+  it('/graphql:Q componentModificationFilesetFiles - BadRequest (check before tests)', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .send({
           query: `query {
             componentModificationFilesetFiles(args: {
-              filesetUuid: "${filesetForProgramUuid}"
+              filesetUuid: "${filesetForProgramUuid5}"
             }){
               ${downloadFileFields}
             }
@@ -8503,7 +9320,91 @@ describe('component', () => {
     debug('/graphql componentModificationFilesetFiles=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found'
+      'BadRequest: Access denied'
+    );
+    expect(body.errors[0].path[0]).toBe('componentModificationFilesetFiles');
+    done();
+  });
+
+  // Changing to private access
+  it('/graphql:M changeComponentAccess - OK change access to public', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set('Authorization', `Bearer ${authorizationTokenSecond}`)
+      .send({
+        query: `mutation {
+          changeComponentAccess(args: {
+            componentUuid: "${componentUuidNoStandard}"
+            newTypeAccessId: ${typeAccessId3}
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK);
+    debug('/graphql changeComponentAccess to public=%o', body);
+    // expect(body).toBe(0);
+    expect(body.data.changeComponentAccess).toBe(true);
+    done();
+  });
+
+  it('/graphql:Q componentModificationFilesetFiles - Ok public without token', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .send({
+          query: `query {
+            componentModificationFilesetFiles(args: {
+              filesetUuid: "${filesetForProgramUuid5}"
+            }){
+              ${downloadFileFields}
+            }
+          }`,
+        })
+      .expect(HttpStatus.OK)
+    debug('/graphql componentModificationFilesetFiles=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { componentModificationFilesetFiles },
+    } = body;
+    expect(componentModificationFilesetFiles[0].uuid).toBe(fileUuid1);
+    expect(componentModificationFilesetFiles[0].downloadUrl).toBeNonEmptyString();
+    expect(componentModificationFilesetFiles.length).toBe(4);
+    done();
+  });
+
+  it('/graphql:M changeComponentAccess - OK return access to private', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set('Authorization', `Bearer ${authorizationTokenSecond}`)
+      .send({
+        query: `mutation {
+          changeComponentAccess(args: {
+            componentUuid: "${componentUuidNoStandard}"
+            newTypeAccessId: ${typeAccessId1}
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK);
+    debug('/graphql changeComponentAccess to private=%o', body);
+    expect(body.data.changeComponentAccess).toBe(true);
+    done();
+  });
+
+  it('/graphql:Q componentModificationFilesetFiles - BadRequest access denied', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .send({
+          query: `query {
+            componentModificationFilesetFiles(args: {
+              filesetUuid: "${filesetForProgramUuid5}"
+            }){
+              ${downloadFileFields}
+            }
+          }`,
+        })
+      .expect(HttpStatus.OK)
+    debug('/graphql componentModificationFilesetFiles=%o', body);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe(
+      'BadRequest: Access denied'
     );
     expect(body.errors[0].path[0]).toBe('componentModificationFilesetFiles');
     done();
@@ -8544,7 +9445,7 @@ describe('component', () => {
       .send({
           query: `query {
             componentModificationFilesetFiles(args: {
-              filesetUuid: "${filesetForProgramUuid}"
+              filesetUuid: "${filesetForProgramUuid5}"
             }){
               ${downloadFileFields}
             }
@@ -8577,7 +9478,7 @@ describe('component', () => {
       .send({
           query: `query {
             componentModificationFilesetFiles(args: {
-              filesetUuid: "${filesetForProgramUuid}"
+              filesetUuid: "${filesetForProgramUuid5}"
               fileUuids: [
                 "${fileUuid2}",
                 "${fileUuid3}",
@@ -8610,7 +9511,7 @@ describe('component', () => {
       .send({
           query: `query {
             componentModificationFilesetFiles(args: {
-              filesetUuid: "${filesetForProgramUuid}"
+              filesetUuid: "${filesetForProgramUuid5}"
               fileUuids: [
                 "${fileUuid2}",
                 "${fileUuid3}",
@@ -8643,9 +9544,9 @@ describe('component', () => {
       .send({
           query: `query {
             componentModificationFilesetFiles(args: {
-              filesetUuid: "${filesetForProgramUuid}"
+              filesetUuid: "${filesetForProgramUuid5}"
               fileUuids: [
-                "${filesetForProgramUuid}",
+                "${filesetForProgramUuid5}",
                 "${fileUuid4}",
               ]
             }){
@@ -8674,10 +9575,10 @@ describe('component', () => {
       .send({
           query: `query {
             componentModificationFilesetFiles(args: {
-              filesetUuid: "${filesetForProgramUuid}"
+              filesetUuid: "${filesetForProgramUuid5}"
               fileUuids: [
                 "${componentModificationFilesetsSecond}",
-                "${filesetForProgramUuid}",
+                "${filesetForProgramUuid5}",
               ]
             }){
               ${downloadFileFields}
@@ -8733,7 +9634,7 @@ describe('component', () => {
       .send({
         query: `mutation {
           uploadFilesToFileset(args: {
-            filesetUuid: "${filesetForProgramUuid}"
+            filesetUuid: "${filesetForProgramUuid5}"
             filenames: [
               "${filename0}"
               "${filename2}"
@@ -8801,7 +9702,7 @@ describe('component', () => {
       .send({
         query: `mutation {
           uploadFilesToFileset(args: {
-            filesetUuid: "${filesetForProgramUuid}"
+            filesetUuid: "${filesetForProgramUuid5}"
             filenames: [
               "${filename2}"
             ]
@@ -8868,7 +9769,7 @@ describe('component', () => {
       .send({
         query: `mutation {
           uploadFilesToFileset(args: {
-            filesetUuid: "${filesetForProgramUuid}"
+            filesetUuid: "${filesetForProgramUuid5}"
             filenames: [
               "${filename2}"
             ]
@@ -9005,7 +9906,7 @@ describe('component', () => {
       .send({
         query: `mutation {
           uploadFilesToFileset(args: {
-            filesetUuid: "${filesetForProgramUuid}"
+            filesetUuid: "${filesetForProgramUuid5}"
             filenames: [
               "${filename2}"
             ]
@@ -9156,7 +10057,7 @@ describe('component', () => {
       .send({
         query: `mutation {
           uploadFilesToFileset(args: {
-            filesetUuid: "${filesetForProgramUuid}"
+            filesetUuid: "${filesetForProgramUuid5}"
             filenames: [
               "${filename2}"
             ]
@@ -9225,7 +10126,7 @@ describe('component', () => {
       .send({
         query: `query {
           componentModificationFilesOfFileset(
-            args:{filesetUuid: "${filesetForProgramUuid}"}
+            args:{filesetUuid: "${filesetForProgramUuid5}"}
             sort:{
               byField: "filename"
               asDesc: false
@@ -9264,7 +10165,7 @@ describe('component', () => {
       .send({
         query: `mutation {
           uploadFilesToFileset(args: {
-            filesetUuid: "${filesetForProgramUuid}"
+            filesetUuid: "${filesetForProgramUuid5}"
             filenames: [
               "${filename2}"
             ]
@@ -9337,7 +10238,7 @@ describe('component', () => {
       .send({
         query: `mutation {
           uploadFilesToFileset(args: {
-            filesetUuid: "${filesetForProgramUuid}"
+            filesetUuid: "${filesetForProgramUuid5}"
             filenames: [
               "${filename2}"
             ]
@@ -9397,7 +10298,7 @@ describe('component', () => {
           query: `mutation {
             deleteFilesFromFileset(
               args: {
-                filesetUuid: "${filesetForProgramUuid}"
+                filesetUuid: "${filesetForProgramUuid5}"
                 fileUuids: [
                   "${fileUuid1}",
                   "${fileUuid2}",
@@ -9480,7 +10381,7 @@ describe('component', () => {
           query: `mutation {
             deleteFilesFromFileset(
               args: {
-                filesetUuid: "${filesetForProgramUuid}"
+                filesetUuid: "${filesetForProgramUuid5}"
                 fileUuids: [
                   "${seconRevFileFileTestUuid}",
                   "${fileUuid1}"
@@ -9510,7 +10411,7 @@ describe('component', () => {
           query: `mutation {
             deleteFilesFromFileset(
               args: {
-                filesetUuid: "${filesetForProgramUuid}"
+                filesetUuid: "${filesetForProgramUuid5}"
                 fileUuids: [
                   "${fileUuid1}",
                   "${fileUuid4}"
@@ -9538,7 +10439,7 @@ describe('component', () => {
       .send({
           query: `query {
             componentModificationFilesOfFileset(args: {
-              filesetUuid: "${filesetForProgramUuid}"
+              filesetUuid: "${filesetForProgramUuid5}"
             }){
               ${fileDataQuery}
             }
@@ -9561,7 +10462,7 @@ describe('component', () => {
           query: `mutation {
             deleteModificationFileset(args: {
               modificationUuid: "${componentModificationUuidSecond}"
-              filesetUuid: "${filesetForProgramUuid}"
+              filesetUuid: "${filesetForProgramUuid5}"
             })
           }`,
         })
@@ -9586,7 +10487,7 @@ describe('component', () => {
           query: `mutation {
             deleteModificationFileset(args: {
               modificationUuid: "${componentModificationUuidSecond}"
-              filesetUuid: "${filesetForProgramUuid}"
+              filesetUuid: "${filesetForProgramUuid5}"
             })
           }`,
         })
@@ -9610,7 +10511,7 @@ describe('component', () => {
           query: `mutation {
             deleteModificationFileset(args: {
               modificationUuid: "${componentModificationUuidSecond}"
-              filesetUuid: "${filesetForProgramUuid}"
+              filesetUuid: "${filesetForProgramUuid5}"
             })
           }`,
         })
@@ -9634,7 +10535,7 @@ describe('component', () => {
       .send({
           query: `query {
             componentModificationFilesOfFileset(args: {
-              filesetUuid: "${filesetForProgramUuid}"
+              filesetUuid: "${filesetForProgramUuid5}"
             }){
               ${fileDataQuery}
             }

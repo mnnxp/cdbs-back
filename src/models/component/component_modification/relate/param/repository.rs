@@ -11,7 +11,7 @@ impl ModificationParamWithTranslation {
     /// Get parameter translate for modification
     pub(crate) fn by_modification_uuid(
         modification_uuid: &Uuid,
-        set_lang_id: &i32,
+        set_lang_id: i32,
         sort: &Sort,
         paginate: &Paginate,
         conn: &mut PgConnection,
@@ -39,7 +39,7 @@ impl ModificationParamWithTranslation {
         for pv in pre_result {
             result.push(ModificationParamWithTranslation {
                 modification_uuid: *modification_uuid,
-                param: ParamTranslateList::get_by_id(&pv.param_id, set_lang_id, conn)?,
+                param: ParamTranslateList::get_by_id(pv.param_id, set_lang_id, conn)?,
                 value: pv.value,
             });
         }

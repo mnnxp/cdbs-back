@@ -19,7 +19,7 @@ pub(crate) fn create_standard(
     check_company_access(
         logged_user_uuid,
         &data.company_uuid,
-        &need_access_level,
+        need_access_level,
         conn,
     )?;
 
@@ -29,7 +29,7 @@ pub(crate) fn create_standard(
         check_access_standard_for_user(
             logged_user_uuid,
             parent_standard_uuid,
-            &3, // need_access_level
+            3, // need_access_level
             conn,
         )?;
     }

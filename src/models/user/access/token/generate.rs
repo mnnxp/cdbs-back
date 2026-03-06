@@ -16,7 +16,7 @@ pub(crate) fn generate(user: &SlimUser) -> ServiceResult<Token> {
         use structopt::StructOpt;
         crate::cli_args::Opt::from_args()
     };
-    match create_token(user, opt.domain.clone(), opt.auth_duration_in_hour) {
+    match create_token(user, opt.auth_duration_in_hour) {
         Ok(r) => Ok(Token { bearer: Some(r) }),
         Err(e) => Err(e),
     }

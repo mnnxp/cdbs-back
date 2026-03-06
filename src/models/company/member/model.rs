@@ -32,33 +32,33 @@ pub(crate) struct CompanyMemberAndRelatedData {
     pub(crate) updated_at: NaiveDateTime,
 }
 
-/// Abbreviated data about the company member
-#[derive(Debug, Deserialize, SimpleObject)]
-pub(crate) struct SlimCompanyMember {
-    /// Company UUID
-    pub(crate) company_uuid: Uuid,
-    /// User UUID
-    pub(crate) user_uuid: Uuid,
-    /// Identifier of the user's role in the company
-    pub(crate) role_id: i32,
-}
+// /// Abbreviated data about the company member
+// #[derive(Debug, Deserialize, SimpleObject)]
+// pub(crate) struct SlimCompanyMember {
+//     /// Company UUID
+//     pub(crate) company_uuid: Uuid,
+//     /// User UUID
+//     pub(crate) user_uuid: Uuid,
+//     /// Identifier of the user's role in the company
+//     pub(crate) role_id: i32,
+// }
 
-impl From<CompanyMember> for SlimCompanyMember {
-    fn from(data: CompanyMember) -> Self {
-        let CompanyMember {
-            company_uuid,
-            user_uuid,
-            role_id,
-            ..
-        } = data;
+// impl From<CompanyMember> for SlimCompanyMember {
+//     fn from(data: CompanyMember) -> Self {
+//         let CompanyMember {
+//             company_uuid,
+//             user_uuid,
+//             role_id,
+//             ..
+//         } = data;
 
-        Self {
-            company_uuid,
-            user_uuid,
-            role_id,
-        }
-    }
-}
+//         Self {
+//             company_uuid,
+//             user_uuid,
+//             role_id,
+//         }
+//     }
+// }
 
 #[derive(Debug, Insertable)]
 #[diesel(table_name = company_member_list)]

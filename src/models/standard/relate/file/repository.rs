@@ -11,12 +11,14 @@ impl ShowFileRelatedData {
         standard_uuid: &Uuid,
         sort: &Sort,
         paginate: &Paginate,
+        domain: &str,
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<ShowFileRelatedData>> {
         ShowFileRelatedData::get_file_by_uuids(
             &get_file_uuids_by_standard_uuid(standard_uuid, &[], conn)?,
             sort,
             paginate,
+            domain,
             conn,
         )
     }

@@ -4,12 +4,12 @@ use crate::models::relate_ref::spec::model::{Spec, SpecPath, SpecPathArg, SpecTr
 use crate::models::search::order::Paginate;
 use diesel::{prelude::*, PgConnection};
 
-/// Returns paths to catalogs by ID.
-/// When creating a catalog path, the specified separator or default separator "/" is used.
-/// A value of `deep_level` sets the depth limit to the parent catalog.
+/// Returns hierarchical paths for catalogs by their IDs.
+/// Paths are built using parent-child relationships up to the specified depth limit.
+/// Limited to 100 IDs per query to prevent performance issues.
 pub(crate) fn get_paths_specs(
     args: &SpecPathArg,
-    set_lang_id: &i32,
+    set_lang_id: i32,
     paginate: &Paginate,
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<SpecPath>> {
@@ -18,11 +18,12 @@ pub(crate) fn get_paths_specs(
         return Err(get_err_msg(ErrorMessage::NotMorePathInOneQuery));
     }
     let mut result: Vec<SpecPath> = Vec::new();
-    for sid in &select_ids {
+    for (s_id, s_depth) in &select_ids {
         result.push(SpecPath {
-            spec_id: *sid,
-            lang_id: *set_lang_id,
-            path: collect_path_spec(sid, &args.split_char, &args.depth_level, set_lang_id, conn)?,
+            spec_id: *s_id,
+            lang_id: set_lang_id,
+            path: collect_path_spec(*s_id, &args.split_char, args.depth_level, set_lang_id, conn)?,
+            depth: *s_depth,
         });
     }
     Ok(result)
@@ -33,17 +34,17 @@ fn get_spec_ids(
     spec_ids: &[i32],
     paginate: &Paginate,
     conn: &mut PgConnection,
-) -> ServiceResult<Vec<i32>> {
+) -> ServiceResult<Vec<(i32,i32)>> {
     use crate::schema::spec_ref::dsl as spec_ref;
     let mut query = spec_ref::spec_ref.into_boxed();
     if !spec_ids.is_empty() {
         query = query.filter(spec_ref::id.eq_any(spec_ids));
     }
     let res_ids = query
-        .select(spec_ref::id)
+        .select((spec_ref::id, spec_ref::depth))
         .offset(paginate.offset)
         .limit(paginate.limit)
-        .load::<i32>(conn)
+        .load::<(i32,i32)>(conn)
         .map_err(|err| {
             debug!("Failed get spec ids: {}", err);
             ServiceError::InternalServerError
@@ -54,12 +55,12 @@ fn get_spec_ids(
     Ok(res_ids)
 }
 
-/// Collecting full path for specification
+/// Collecting full path
 fn collect_path_spec(
-    spec_id: &i32,
+    spec_id: i32,
     split_char: &char,
-    depth_level: &i32,
-    set_lang_id: &i32,
+    depth_level: i32,
+    set_lang_id: i32,
     conn: &mut PgConnection,
 ) -> ServiceResult<String> {
     let target_specs_ids = get_parents_ids(spec_id, depth_level, conn).map_err(|err| {
@@ -79,29 +80,23 @@ fn collect_path_spec(
 
 /// Get all parents specs up to setting depth level
 fn get_parents_ids(
-    spec_id: &i32,
-    depth_level: &i32,
+    spec_id: i32,
+    depth_level: i32,
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<i32>> {
-    let mut specs_levels: Vec<i32> = vec![*spec_id];
-    let mut spec_id: i32 = *spec_id;
-
-    let depth_level = match depth_level {
-        50.. => 50_usize,
-        _ => *depth_level as usize,
-    };
-
-    loop {
-        let spec: Spec = Spec::get_by_id(&spec_id, conn)?;
-
-        if spec.id == spec.parent_spec_id || specs_levels.len() >= depth_level {
-            break;
+    let spec = Spec::get_by_id(spec_id, conn)?;
+    let mut specs_levels = Vec::new();
+    let mut count = 0;
+    for part in spec.path.split('.').rev() {
+        if let Ok(num) = part.parse::<i32>() {
+            specs_levels.push(num);
+            count += 1;
+            if depth_level > 0 && count >= depth_level {
+                break;
+            }
         }
-
-        specs_levels.push(spec.parent_spec_id);
-        spec_id = spec.parent_spec_id;
     }
-
+    specs_levels.reverse();
     Ok(specs_levels)
 }
 

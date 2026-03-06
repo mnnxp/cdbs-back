@@ -19,7 +19,7 @@ pub(crate) fn create_role_access(
     // check company ownership user with target role
     check_is_owner_with_err(
         logged_user_uuid,
-        &get_company_by_role(&data.role_id, conn)?,
+        &get_company_by_role(data.role_id, conn)?,
         conn,
     )?;
 

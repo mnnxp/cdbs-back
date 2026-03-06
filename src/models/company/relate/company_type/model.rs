@@ -28,17 +28,6 @@ pub(crate) struct CompanyTypeTranslateList {
     pub(crate) shortname: String,
 }
 
-/// Data for adding a new localization (translation) for the company type
-#[derive(Debug, Deserialize, Clone, InputObject)]
-pub(crate) struct IptCompanyTypeTranslateListData {
-    /// Localization language identifier
-    pub(crate) lang_id: i32,
-    /// Full name of the company type
-    pub(crate) name: String,
-    /// Abbreviated name of the company type
-    pub(crate) shortname: String,
-}
-
 /// Data for adding a new company type
 #[derive(Debug, Insertable)]
 #[diesel(table_name = company_type_translate_list)]

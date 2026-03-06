@@ -18,7 +18,7 @@ pub(crate) fn delete_service_file(
     check_access_service_for_user(
         logged_user_uuid,
         &arguments.service_uuid,
-        &need_access_level,
+        need_access_level,
         conn,
     )?;
 

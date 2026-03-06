@@ -8,7 +8,7 @@ use diesel::prelude::*;
 /// If no parameter filter is specified, all existing parameters are aggregated.
 pub(crate) fn get_params(
     param_ids: &[i32],
-    set_lang_id: &i32,
+    set_lang_id: i32,
     paginate: &Paginate,
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<ParamTranslateList>> {
@@ -19,7 +19,7 @@ pub(crate) fn get_params(
 }
 
 fn get_all_params(
-    set_lang_id: &i32,
+    set_lang_id: i32,
     paginate: &Paginate,
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<ParamTranslateList>> {
@@ -36,7 +36,7 @@ fn get_all_params(
 
 fn get_by_ids(
     param_ids: &[i32],
-    set_lang_id: &i32,
+    set_lang_id: i32,
     paginate: &Paginate,
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<ParamTranslateList>> {

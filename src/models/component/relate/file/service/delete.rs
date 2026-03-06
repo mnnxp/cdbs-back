@@ -17,7 +17,7 @@ pub(crate) fn delete_component_file(
     crate::models::component::access::util::check_access_component_for_user(
         logged_user_uuid,
         &data.component_uuid,
-        &need_access_level,
+        need_access_level,
         conn,
     )?;
 

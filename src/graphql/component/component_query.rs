@@ -1,5 +1,6 @@
 use crate::database::{get_conn, PooledConnection};
 use crate::errors::ServiceResult;
+use crate::graphql::handler::extract_client_domain;
 use crate::graphql::{
     component_model::{
         ComponentAndRelatedData, ComponentModificationAndRelatedData, IptComponentFilesArg,
@@ -32,7 +33,7 @@ use crate::models::relate_ref::{
 };
 use crate::models::search::model::{ExtraOptions, IptSearchArg};
 use crate::models::search::order::{Paginate, Sort, TableName};
-use crate::models::user::access::logged::{check_authorized, get_logged_user_uuid};
+use crate::models::user::access::logged::check_authorized;
 use async_graphql::{self, Context, Object};
 use uuid::Uuid;
 
@@ -51,6 +52,7 @@ impl ComponentQuery {
         paginate: Option<IptPaginate>,
     ) -> ServiceResult<Vec<ShowComponentShort>> {
         use crate::models::component::service::list::get_components_by_uuids;
+        debug!("Query search components: {:?}", args);
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
         // authorization check, search maybe without login (no_entry)
         let options = ExtraOptions::from_cxt(cxt, true)?;
@@ -95,6 +97,7 @@ impl ComponentQuery {
         component_uuid: Uuid,
     ) -> ServiceResult<ComponentAndRelatedData> {
         use crate::models::component::service::list::get_component_by_uuid;
+        debug!("Query component: {}", component_uuid);
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
         // authorization check, if token verification fails, try to get the default user UUID
         let options = ExtraOptions::from_cxt(cxt, true)?;
@@ -209,7 +212,7 @@ impl ComponentQuery {
             .unwrap_or_default();
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        get_component_files(&logged_user_uuid, &arguments, &p, conn)
+        get_component_files(&logged_user_uuid, &arguments, &p, &extract_client_domain(cxt), conn)
     }
 
     /// Returns information about files of a component.
@@ -232,7 +235,7 @@ impl ComponentQuery {
             .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
             .unwrap_or_default();
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
-        get_component_files_list(&logged_user_uuid, &arguments, &s, &p, conn)
+        get_component_files_list(&logged_user_uuid, &arguments, &s, &p, &extract_client_domain(cxt), conn)
     }
 
     /// Returns an array of catalogs associated with a component
@@ -270,7 +273,7 @@ impl ComponentQuery {
             .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
             .unwrap_or_default();
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
-        get_component_modification_files(&logged_user_uuid, &args, &p, conn)
+        get_component_modification_files(&logged_user_uuid, &args, &p, &extract_client_domain(cxt), conn)
     }
 
     /// Returns information about files of a component modification.
@@ -292,7 +295,7 @@ impl ComponentQuery {
             .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
             .unwrap_or_default();
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
-        get_component_modification_files_list(&logged_user_uuid, &args, &s, &p, conn)
+        get_component_modification_files_list(&logged_user_uuid, &args, &s, &p, &extract_client_domain(cxt), conn)
     }
 
     /// Returns a list of filesets by component modification UUID.
@@ -331,7 +334,7 @@ impl ComponentQuery {
             .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
             .unwrap_or_default();
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
-        get_files_of_fileset(&logged_user_uuid, &arguments, &s, &p, conn)
+        get_files_of_fileset(&logged_user_uuid, &arguments, &s, &p, &extract_client_domain(cxt), conn)
     }
 
     /// Returns pre-signed URLs and other information for downloading files of component modification fileset.
@@ -343,14 +346,15 @@ impl ComponentQuery {
     ) -> ServiceResult<Vec<DownloadFile>> {
         use component_modification::fileset_for_program::file::service::list::get_fileset_files;
 
-        let logged_user_uuid: Uuid = get_logged_user_uuid(cxt, true)?;
+        // authorization check, if token verification fails, try to get the default user UUID
+        let logged_user_uuid = ExtraOptions::from_cxt(cxt, true).map(|eo| eo.logged_user_uuid)?;
         let arguments: FileOfFilesetArg = FileOfFilesetArg::from(args);
         let p = paginate
             .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
             .unwrap_or_default();
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        get_fileset_files(&logged_user_uuid, &arguments, &p, conn)
+        get_fileset_files(&logged_user_uuid, &arguments, &p, &extract_client_domain(cxt), conn)
     }
 
     /// Returns a list of component types.
@@ -367,7 +371,7 @@ impl ComponentQuery {
         let filter: Vec<i32> = filter.unwrap_or_default();
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        get_component_types(&filter, &get_set_language(cxt), conn)
+        get_component_types(&filter, get_set_language(cxt), conn)
     }
 
     /// Returns a list of available states (statuses) for components.
@@ -384,6 +388,6 @@ impl ComponentQuery {
         let filter: Vec<i32> = filter.unwrap_or_default();
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        get_actual_statuses(&filter, &get_set_language(cxt), conn)
+        get_actual_statuses(&filter, get_set_language(cxt), conn)
     }
 }

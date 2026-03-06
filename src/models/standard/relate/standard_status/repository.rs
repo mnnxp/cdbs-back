@@ -6,8 +6,8 @@ use diesel::prelude::*;
 impl StandardStatusTranslateList {
     /// Get standard status by id and set lang
     pub(crate) fn get_by_id(
-        target_standard_status_id: &i32,
-        set_lang_id: &i32,
+        target_standard_status_id: i32,
+        set_lang_id: i32,
         conn: &mut PgConnection,
     ) -> ServiceResult<StandardStatusTranslateList> {
         let standard_status = standard_status_translate_list::standard_status_translate_list
@@ -41,7 +41,7 @@ impl StandardStatusTranslateList {
     /// if filter empty return all statuses
     pub(crate) fn get_by_ids(
         filter: &[i32],
-        set_lang_id: &i32,
+        set_lang_id: i32,
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<StandardStatusTranslateList>> {
         let res = match filter.is_empty() {

@@ -15,7 +15,7 @@ pub(crate) fn get_component_keywords(
 ) -> ServiceResult<Vec<Keyword>> {
     let need_access_level = 3; // todo!(create enum for manage access level)
 
-    check_access_component_for_user(logged_user_uuid, component_uuid, &need_access_level, conn)?;
+    check_access_component_for_user(logged_user_uuid, component_uuid, need_access_level, conn)?;
 
     Keyword::for_component_without_check(component_uuid, paginate, conn)
 }

@@ -3,14 +3,6 @@ use async_graphql::*;
 // use chrono::*;
 use uuid::Uuid;
 
-// StandardTo component models
-#[derive(Serialize, Deserialize, Queryable, SimpleObject, Clone, Debug)]
-#[diesel(table_name = standard_to_component)]
-pub(crate) struct StandardToComponent {
-    pub(crate) component_uuid: Uuid,
-    pub(crate) standard_uuid: Uuid,
-}
-
 /// Data for requesting the creation of a link between a component and a standard
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub(crate) struct IptStandardToComponentData {

@@ -13,6 +13,7 @@ use uuid::Uuid;
 pub(crate) fn update_favicon(
     target_user_uuid: &Uuid,
     filename: &str,
+    domain: &str,
     conn: &mut PgConnection,
 ) -> ServiceResult<UploadFile> {
     let slim_file = preregister_file(
@@ -26,7 +27,7 @@ pub(crate) fn update_favicon(
     // change image uuid for user
     change_image_uuid(target_user_uuid, &slim_file.uuid, conn);
 
-    let upload_url = upload_presigned_url(&StorageAccess::from_env(), &slim_file.path_file)?;
+    let upload_url = upload_presigned_url(&StorageAccess::from_env(), &slim_file.path_file, domain)?;
 
     Ok(UploadFile {
         file_uuid: slim_file.uuid,

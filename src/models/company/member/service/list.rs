@@ -9,7 +9,7 @@ use uuid::Uuid;
 pub(crate) fn get_by_company_uuid(
     logged_user_uuid: &Uuid,
     target_company_uuid: &Uuid,
-    set_lang_id: &i32,
+    set_lang_id: i32,
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<CompanyMemberAndRelatedData>> {
     let need_access_level = 3; // todo!(create enum for manage access level)
@@ -17,7 +17,7 @@ pub(crate) fn get_by_company_uuid(
     if !check_company_access(
         logged_user_uuid,
         target_company_uuid,
-        &need_access_level,
+        need_access_level,
         conn,
     )? {
         // return error if user not have access level

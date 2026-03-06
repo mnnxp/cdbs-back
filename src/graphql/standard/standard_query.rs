@@ -1,5 +1,6 @@
 use crate::database::{get_conn, PooledConnection};
 use crate::errors::ServiceResult;
+use crate::graphql::handler::extract_client_domain;
 use crate::graphql::relate::attributes::IptPaginate;
 use crate::graphql::standard_model::{
     IptStandardFilesArg, IptStandardsArg, ShowStandardShort, StandardAndRelatedData,
@@ -79,7 +80,7 @@ impl StandardQuery {
             .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
             .unwrap_or_default();
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
-        get_standard_files(&logged_user_uuid, &arguments, &p, conn)
+        get_standard_files(&logged_user_uuid, &arguments, &p, &extract_client_domain(cxt),  conn)
     }
 
     /// Returns an array of catalogs associated with standard
@@ -100,7 +101,7 @@ impl StandardQuery {
         get_standard_specs(
             &logged_user_uuid,
             &standard_uuid,
-            &get_set_language(cxt),
+            get_set_language(cxt),
             &p,
             conn,
         )
@@ -139,7 +140,7 @@ impl StandardQuery {
         get_companies_list_access_standard(
             &logged_user_uuid,
             &standard_uuid,
-            &get_set_language(cxt),
+            get_set_language(cxt),
             conn,
         )
     }
@@ -160,7 +161,7 @@ impl StandardQuery {
         get_users_list_access_standard(
             &logged_user_uuid,
             &standard_uuid,
-            &get_set_language(cxt),
+            get_set_language(cxt),
             conn,
         )
     }
@@ -179,6 +180,6 @@ impl StandardQuery {
         let filter: Vec<i32> = filter.unwrap_or_default();
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        get_standard_statuses(&filter, &get_set_language(cxt), conn)
+        get_standard_statuses(&filter, get_set_language(cxt), conn)
     }
 }

@@ -82,7 +82,7 @@ impl ShowComponentShort {
         check_access_component_for_user(
             &options.logged_user_uuid,
             component_uuid,
-            &need_access_level,
+            need_access_level,
             conn,
         )?;
 
@@ -100,33 +100,33 @@ impl ShowComponentShort {
             .expect("Failed get Component data");
 
         // get image file (favicon) for component
-        let image_file = DownloadFile::get_by_file_uuid(&component.image_file_uuid, conn)
+        let image_file = DownloadFile::get_by_file_uuid(&component.image_file_uuid, &options.domain, conn)
             .expect("Error get presigned url main image");
 
         // get component owner
-        let owner_user = ShowUserShort::get_without_check_by_uuid(&component.user_uuid, conn)
+        let owner_user = ShowUserShort::get_without_check_by_uuid(&component.user_uuid, &options.domain, conn)
             .expect("Error loading slim_user");
 
         // get component type with translation
         let type_access = TypeAccessTranslateList::get_type_access_by_id(
-            &component.type_access_id,
-            &options.set_lang_id,
+            component.type_access_id,
+            options.set_lang_id,
             conn,
         )
         .expect("Error loading type_access");
 
         // get component type with translation for component
         let component_type = ComponentTypeTranslateList::get_by_id(
-            &component.component_type_id,
-            &options.set_lang_id,
+            component.component_type_id,
+            options.set_lang_id,
             conn,
         )
         .expect("Error loading component_type");
 
         // get actual status with translation for component
         let actual_status = ActualStatusTranslateList::get_by_id(
-            &component.actual_status_id,
-            &options.set_lang_id,
+            component.actual_status_id,
+            options.set_lang_id,
             conn,
         )
         .expect("Error loading actual_status");
@@ -199,7 +199,7 @@ impl ShowComponentShort {
             .limit(1000)
             .load::<Uuid>(conn)
             .expect("Failed get public components");
-        if let Some(ref sc_id) = spec_id {
+        if let Some(sc_id) = spec_id {
             component_uuids = filter_components_uuids_by_spec(&component_uuids, sc_id, conn)?;
         }
         // the result for store the result :)
@@ -226,7 +226,7 @@ impl ComponentAndRelatedData {
         check_access_component_for_user(
             &options.logged_user_uuid,
             target_component_uuid,
-            &need_access_level,
+            need_access_level,
             conn,
         )?;
 
@@ -235,33 +235,33 @@ impl ComponentAndRelatedData {
             .expect("Error loading component");
 
         // get image file (favicon) for component
-        let image_file = DownloadFile::get_by_file_uuid(&component.image_file_uuid, conn)
+        let image_file = DownloadFile::get_by_file_uuid(&component.image_file_uuid, &options.domain, conn)
             .expect("Error get presigned url main image");
 
         // get component owner
-        let owner_user = ShowUserShort::get_without_check_by_uuid(&component.user_uuid, conn)
+        let owner_user = ShowUserShort::get_without_check_by_uuid(&component.user_uuid, &options.domain, conn)
             .expect("Error loading slim_user");
 
         // get component type with translation
         let type_access = TypeAccessTranslateList::get_type_access_by_id(
-            &component.type_access_id,
-            &options.set_lang_id,
+            component.type_access_id,
+            options.set_lang_id,
             conn,
         )
         .expect("Error loading type_access");
 
         // get component type with translation for component
         let component_type = ComponentTypeTranslateList::get_by_id(
-            &component.component_type_id,
-            &options.set_lang_id,
+            component.component_type_id,
+            options.set_lang_id,
             conn,
         )
         .expect("Error loading component_type");
 
         // get actual status with translation for component
         let actual_status = ActualStatusTranslateList::get_by_id(
-            &component.actual_status_id,
-            &options.set_lang_id,
+            component.actual_status_id,
+            options.set_lang_id,
             conn,
         )
         .expect("Error loading actual status");
@@ -301,34 +301,43 @@ impl ComponentAndRelatedData {
     }
 }
 
-/// Returns a list of component id's that match the catalog.
-/// If the component filter is empty, no filter is applied.
+/// Retrieves a list of component UUIDs associated with the specified catalog and its descendants.
+/// If `filter_component_uuids` is empty, no filtering by component UUIDs is applied.
 pub(crate) fn filter_components_uuids_by_spec(
     filter_component_uuids: &[Uuid],
-    spec_id: &i32,
+    spec_id: i32,
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<Uuid>> {
+    use crate::schema::spec_ref::dsl as spec_ref;
     use crate::schema::spec_to_component::dsl as spec_to_component;
-    match filter_component_uuids.is_empty() {
-        true => spec_to_component::spec_to_component
-            .filter(spec_to_component::spec_id.eq(spec_id))
-            .select(spec_to_component::component_uuid)
-            .load::<Uuid>(conn)
-            .map_err(|err| {
-                debug!("Fail load uuid list target spec: {:?}", err);
-                ServiceError::InternalServerError
-            }),
-        false => spec_to_component::spec_to_component
-            .filter(
-                spec_to_component::spec_id
-                    .eq(spec_id)
-                    .and(spec_to_component::component_uuid.eq_any(filter_component_uuids)),
-            )
-            .select(spec_to_component::component_uuid)
-            .load::<Uuid>(conn)
-            .map_err(|err| {
-                debug!("Fail load uuid list target spec: {:?}", err);
-                ServiceError::InternalServerError
-            }),
+
+    // Load IDs of all descendant specs
+    let mut descendant_ids =  spec_ref::spec_ref
+        .filter(spec_ref::path.like(format!("%.{}.%", spec_id)))
+        .select(spec_ref::id)
+        .load::<i32>(conn)
+        .map_err(|err| {
+            debug!("Failed to load descendant ids for spec {}: {:?}", spec_id, err);
+            ServiceError::InternalServerError
+        })?;
+
+    // Include the original spec_id
+    descendant_ids.push(spec_id);
+
+    let mut query = spec_to_component::spec_to_component.into_boxed();
+
+    if filter_component_uuids.is_empty() {
+        query = query.filter(spec_to_component::spec_id.eq_any(&descendant_ids))
+    } else {
+        query = query.filter(spec_to_component::spec_id.eq_any(&descendant_ids)
+            .and(spec_to_component::component_uuid.eq_any(filter_component_uuids)));
     }
+
+    query
+        .select(spec_to_component::component_uuid)
+        .load::<Uuid>(conn)
+        .map_err(|err| {
+            debug!("Failed to load components for spec hierarchy {}: {:?}", spec_id, err);
+            ServiceError::InternalServerError
+        })
 }

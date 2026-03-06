@@ -29,7 +29,7 @@ impl ComponentModification {
 impl ComponentModificationAndRelatedData {
     pub(crate) fn by_args(
         args: &ComponentModificationArg,
-        set_lang_id: &i32,
+        set_lang_id: i32,
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<ComponentModificationAndRelatedData>> {
         let object_uuids =
@@ -46,11 +46,11 @@ impl ComponentModificationAndRelatedData {
     /// Get related data for component modification
     pub(crate) fn for_modification(
         cm: &ComponentModification,
-        set_lang_id: &i32,
+        set_lang_id: i32,
         conn: &mut PgConnection,
     ) -> ServiceResult<ComponentModificationAndRelatedData> {
         let actual_status =
-            ActualStatusTranslateList::get_by_id(&cm.actual_status_id, set_lang_id, conn)?;
+            ActualStatusTranslateList::get_by_id(cm.actual_status_id, set_lang_id, conn)?;
         Ok(Self {
             uuid: cm.uuid,
             component_uuid: cm.component_uuid,

@@ -18,6 +18,7 @@ use uuid::Uuid;
 pub(crate) fn add_standard_files(
     logged_user_uuid: &Uuid,
     data: &IptStandardFilesData,
+    domain: &str,
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<UploadFile>> {
     let need_access_level = 1; // todo!(create enum for manage access level)
@@ -25,7 +26,7 @@ pub(crate) fn add_standard_files(
     check_access_standard_for_user(
         logged_user_uuid,
         &data.standard_uuid,
-        &need_access_level,
+        need_access_level,
         conn,
     )?;
 
@@ -49,7 +50,7 @@ pub(crate) fn add_standard_files(
 
         debug!("New standard file: {:?}", slim_file);
 
-        let upload_url = upload_presigned_url(&StorageAccess::from_env(), &slim_file.path_file)?;
+        let upload_url = upload_presigned_url(&StorageAccess::from_env(), &slim_file.path_file, domain)?;
 
         up_files.push(UploadFile {
             file_uuid: slim_file.uuid,
@@ -66,6 +67,7 @@ pub(crate) fn add_standard_files(
 pub(crate) fn add_standard_favicon(
     logged_user_uuid: &Uuid,
     data: &IptStandardFaviconData,
+    domain: &str,
     conn: &mut PgConnection,
 ) -> ServiceResult<UploadFile> {
     let need_access_level = 1; // todo!(create enum for manage access level)
@@ -73,7 +75,7 @@ pub(crate) fn add_standard_favicon(
     check_access_standard_for_user(
         logged_user_uuid,
         &data.standard_uuid,
-        &need_access_level,
+        need_access_level,
         conn,
     )?;
 
@@ -97,7 +99,7 @@ pub(crate) fn add_standard_favicon(
 
     debug!("New standard favicon: {:?}", slim_file);
 
-    let upload_url = upload_presigned_url(&StorageAccess::from_env(), &slim_file.path_file)?;
+    let upload_url = upload_presigned_url(&StorageAccess::from_env(), &slim_file.path_file, domain)?;
 
     Ok(UploadFile {
         file_uuid: slim_file.uuid,

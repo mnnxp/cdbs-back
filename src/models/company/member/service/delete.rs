@@ -19,7 +19,7 @@ pub(crate) fn del_company_member(
     check_company_access(
         logged_user_uuid,
         &data.company_uuid,
-        &need_access_level,
+        need_access_level,
         conn,
     )?;
 

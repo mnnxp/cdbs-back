@@ -1,6 +1,7 @@
 use crate::database::{get_conn, get_pool, PooledConnection};
 use crate::errors::ServiceResult;
 use crate::graphql::file::ShowFileRelatedData;
+use crate::graphql::handler::extract_client_domain;
 use crate::graphql::relate::attributes::IptPaginate;
 use crate::models::relate_ref::file::{
     model::DownloadFile,
@@ -33,7 +34,7 @@ impl StorageQuery {
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        get_url_by_file_uuid(&logged_user_uuid, &file_uuid, conn)
+        get_url_by_file_uuid(&logged_user_uuid, &file_uuid, &extract_client_domain(cxt), conn)
     }
 
     /// Returns information about all revisions (versions) of a file.
@@ -47,7 +48,7 @@ impl StorageQuery {
         let p = paginate
             .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
             .unwrap_or_default();
-        get_revisions_by_file_uuid(&file_uuid, &get_logged_user_uuid(cxt, true)?, &p, conn)
+        get_revisions_by_file_uuid(&file_uuid, &get_logged_user_uuid(cxt, true)?, &p, &extract_client_domain(cxt), conn)
     }
 }
 

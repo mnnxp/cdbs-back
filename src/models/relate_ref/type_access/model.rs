@@ -27,15 +27,6 @@ pub(crate) struct TypeAccessTranslateList {
     pub(crate) name: String,
 }
 
-/// Data for request to add access type
-#[derive(Debug, Deserialize, Clone, InputObject)]
-pub(crate) struct IptTypeAccessTranslateListData {
-    /// Name localization language identifier
-    pub(crate) lang_id: i32,
-    /// Localized name of the access type
-    pub(crate) name: String,
-}
-
 #[derive(Debug, Insertable)]
 #[diesel(table_name = type_access_translate_list)]
 pub(crate) struct InsertableTypeAccessTranslateList {

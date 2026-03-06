@@ -5,7 +5,7 @@ use uuid::Uuid;
 /// Устанавливает уровень доступности профиля пользователя для других пользователей.
 pub(crate) fn change_access_type_user(
     logged_user_uuid: &Uuid,
-    new_type_access: &i32,
+    new_type_access: i32,
     conn: &mut PgConnection,
 ) -> ServiceResult<bool> {
     use crate::schema::user_ref::dsl as user_ref;

@@ -15,7 +15,7 @@ pub(crate) fn get_standard_keywords(
 ) -> ServiceResult<Vec<Keyword>> {
     let need_access_level = 3; // todo!(create enum for manage access level)
 
-    check_access_standard_for_user(logged_user_uuid, standard_uuid, &need_access_level, conn)?;
+    check_access_standard_for_user(logged_user_uuid, standard_uuid, need_access_level, conn)?;
 
     let keyword_ids = keyword_to_standard::keyword_to_standard
         .filter(keyword_to_standard::standard_uuid.eq(standard_uuid))

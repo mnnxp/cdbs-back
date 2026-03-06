@@ -19,7 +19,7 @@ pub(crate) fn add_standard_to_component(
     check_access_component_for_user(
         logged_user_uuid,
         &data.component_uuid,
-        &need_access_level,
+        need_access_level,
         conn,
     )?;
 

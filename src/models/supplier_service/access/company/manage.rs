@@ -22,7 +22,7 @@ pub(crate) fn get_companies_list_access_service(
     // 2. get a list of companies with access to the service
     let list_companies_with_access = CompanyAccessServiceAndRelatedData::from_service_by_uuid(
         target_service_uuid,
-        &options.set_lang_id,
+        options.set_lang_id,
         conn,
     );
 

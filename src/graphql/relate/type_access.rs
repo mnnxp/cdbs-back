@@ -31,7 +31,7 @@ impl TypeAccessQuery {
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
         get_type_access(
             &type_access_ids.unwrap_or_default(),
-            &get_set_language(cxt),
+            get_set_language(cxt),
             &p,
             conn,
         )

@@ -9,13 +9,14 @@ impl SpecTranslateList {
     /// Gets all specs for component by uuid
     pub(crate) fn for_component_by_uuid(
         component_uuid: &Uuid,
-        set_lang_id: &i32,
+        set_lang_id: i32,
         paginate: &Paginate,
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<SpecTranslateList>> {
         let specs_ids = spec_to_component::spec_to_component
             .filter(spec_to_component::component_uuid.eq(component_uuid))
             .select(spec_to_component::spec_id)
+            .order_by(spec_to_component::spec_id.asc())
             .limit(1000)
             .load::<i32>(conn)
             .map_err(|err| {

@@ -13,7 +13,7 @@ pub(crate) fn get_component_suppliers(
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<ComponentSupplierRelatedData>> {
     let need_access_level = 3; // todo!(create enum for manage access level)
-    check_access_component_for_user(logged_user_uuid, component_uuid, &need_access_level, conn)?;
+    check_access_component_for_user(logged_user_uuid, component_uuid, need_access_level, conn)?;
 
     ComponentSupplierRelatedData::by_component_uuid(component_uuid, paginate, conn)
 }

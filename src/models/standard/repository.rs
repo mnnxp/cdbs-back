@@ -79,7 +79,7 @@ impl ShowStandardShort {
         check_access_standard_for_user(
             &options.logged_user_uuid,
             target_standard_uuid,
-            &need_access_level,
+            need_access_level,
             conn,
         )?;
 
@@ -88,22 +88,21 @@ impl ShowStandardShort {
             .expect("Error loading standard");
 
         // get image file (favicon) for standard
-        let image_file = DownloadFile::get_by_file_uuid(&standard.image_file_uuid, conn)
+        let image_file = DownloadFile::get_by_file_uuid(&standard.image_file_uuid, &options.domain, conn)
             .expect("Error get presigned url main image");
 
         // get standard owner company
         let owner_company = ShowCompanyShort::get_without_check_by_uuid(
             &standard.company_uuid,
-            &options.logged_user_uuid,
-            &options.set_lang_id,
+            options,
             conn,
         )
         .expect("Error loading company short data");
 
         // get standard type with translation for standard
         let standard_status = StandardStatusTranslateList::get_by_id(
-            &standard.standard_status_id,
-            &options.set_lang_id,
+            standard.standard_status_id,
+            options.set_lang_id,
             conn,
         )
         .expect("Error loading standard_status");
@@ -189,7 +188,7 @@ impl StandardAndRelatedData {
         check_access_standard_for_user(
             &options.logged_user_uuid,
             target_standard_uuid,
-            &need_access_level,
+            need_access_level,
             conn,
         )?;
 
@@ -198,12 +197,13 @@ impl StandardAndRelatedData {
             .expect("Error loading standard");
 
         // get image file (favicon) for standard
-        let image_file = DownloadFile::get_by_file_uuid(&standard.image_file_uuid, conn)
+        let image_file = DownloadFile::get_by_file_uuid(&standard.image_file_uuid, &options.domain, conn)
             .expect("Error get presigned url main image");
 
         // get data a owner user for a standard
         let owner_user = crate::models::user::model::ShowUserShort::get_without_check_by_uuid(
             &standard.user_uuid,
+            &options.domain,
             conn,
         )
         .expect("Error loading slim_user");
@@ -211,24 +211,23 @@ impl StandardAndRelatedData {
         // get data a owner company for a standard
         let owner_company = ShowCompanyShort::get_without_check_by_uuid(
             &standard.company_uuid,
-            &options.logged_user_uuid,
-            &options.set_lang_id,
+            options,
             conn,
         )
         .expect("Error loading company short data");
 
         // get standard type with translation for standard
         let type_access = TypeAccessTranslateList::get_type_access_by_id(
-            &standard.type_access_id,
-            &options.set_lang_id,
+            standard.type_access_id,
+            options.set_lang_id,
             conn,
         )
         .expect("Error loading type_access");
 
         // get standard type with translation for standard
         let standard_status = StandardStatusTranslateList::get_by_id(
-            &standard.standard_status_id,
-            &options.set_lang_id,
+            standard.standard_status_id,
+            options.set_lang_id,
             conn,
         )
         .expect("Error loading standard_status");
@@ -242,6 +241,7 @@ impl StandardAndRelatedData {
             &standard.uuid,
             &Sort::parsing(TableName::FileRef, "", false),
             paginate,
+            &options.domain,
             conn,
         )
         .expect("Error loading standard files");
@@ -249,7 +249,7 @@ impl StandardAndRelatedData {
         // get specs with translation for standard
         let standard_specs: Vec<SpecTranslateList> = SpecTranslateList::for_standard_by_uuid(
             &standard.uuid,
-            &options.set_lang_id,
+            options.set_lang_id,
             paginate,
             conn,
         )

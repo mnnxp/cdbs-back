@@ -11,7 +11,7 @@ impl CompanyAccessServiceAndRelatedData {
     /// Collect related data for companies lits access service
     pub(crate) fn from_service_by_uuid(
         target_service_uuid: &Uuid,
-        set_lang_id: &i32,
+        set_lang_id: i32,
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<CompanyAccessServiceAndRelatedData>> {
         let list_companies_with_access = company_access_to_service
@@ -25,7 +25,7 @@ impl CompanyAccessServiceAndRelatedData {
         let mut res: Vec<CompanyAccessServiceAndRelatedData> = Vec::new();
         for x in list_companies_with_access {
             let type_access = TypeAccessTranslateList::get_type_access_by_id(
-                &x.type_access_id,
+                x.type_access_id,
                 set_lang_id,
                 conn,
             )?;

@@ -319,6 +319,8 @@ certificates { \
 } \
 `;
 
+var initialFavUsersCount = 0;
+
 async function cleanupTokenDb() {
   return global.knex.raw('DELETE FROM user_token_ref');
 }
@@ -2039,6 +2041,177 @@ describe('users', () => {
     done();
   });
 
+  it('/graphql:Q selfData - OK check favUsersCount no followers', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenUserFirst}`
+      )
+      .send({
+        query: `query {
+          selfData {
+            favUsersCount
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql selfData=%o', body);
+    const {
+      data: { selfData },
+    } = body;
+    expect(selfData.favUsersCount).toBe(initialFavUsersCount);
+    done();
+  });
+
+  it('/graphql:Q User - Ok get public profile (no subscribers)', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenUserSecond}`
+      )
+      .send({
+        query: `query {
+            user(args: {
+              userUuid: "${userUuidFirst}"
+            }){
+              ${showUserAndRelatedData}
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { user }
+    } = body;
+    expect(user.uuid).toBe(userUuidFirst);
+    expect(user.username).toBe(username);
+    expect(user.subscribers).toBe(0);
+    expect(user.isFollowed).toBe(false);
+    done();
+  });
+
+  it('/graphql:M UserFav - Ok add (user 2)', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenUserSecond}`
+      )
+      .send({
+        query: `mutation {
+            addUserFav(userUuid: "${userUuidFirst}")
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql addUserFav body=%o', body);
+    // expect(body).toBe(0);
+    expect(body.data.addUserFav).toBe(true);
+    done();
+  });
+
+  it('/graphql:Q User - Ok get public profile subscribers increment (user 2)', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenUserSecond}`
+      )
+      .send({
+        query: `query {
+            user(args: {
+              userUuid: "${userUuidFirst}"
+            }){
+              ${showUserAndRelatedData}
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { user }
+    } = body;
+    expect(user.uuid).toBe(userUuidFirst);
+    expect(user.username).toBe(username);
+    expect(user.subscribers).toBe(1);
+    expect(user.isFollowed).toBe(true);
+    done();
+  });
+
+  it('/graphql:M UserFav - Ok delete (user 2)', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenUserSecond}`
+      )
+      .send({
+        query: `mutation {
+            deleteUserFav(userUuid: "${userUuidFirst}")
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql deleteUserFav body=%o', body);
+    // expect(body).toBe(0);
+    expect(body.data.deleteUserFav).toBe(true);
+    done();
+  });
+
+  it('/graphql:Q User - Ok get public profile subscribers decrement (user 2)', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenUserSecond}`
+      )
+      .send({
+        query: `query {
+            user(args: {
+              userUuid: "${userUuidFirst}"
+            }){
+              ${showUserAndRelatedData}
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { user }
+    } = body;
+    expect(user.uuid).toBe(userUuidFirst);
+    expect(user.username).toBe(username);
+    expect(user.subscribers).toBe(0);
+    expect(user.isFollowed).toBe(false);
+    done();
+  });
+
+  it('/graphql:Q selfData - OK check favUsersCount decrement', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenUserSecond}`
+      )
+      .send({
+        query: `query {
+          selfData {
+            favUsersCount
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql selfData=%o', body);
+    const {
+      data: { selfData },
+    } = body;
+    expect(selfData.favUsersCount).toBe(initialFavUsersCount);
+    done();
+  });
+
   it('/graphql:M UserFav - Ok add', async (done) => {
     const { body } = await agent
       .post('/graphql')
@@ -2113,6 +2286,85 @@ describe('users', () => {
     done();
   });
 
+  it('/graphql:M deleteUserFav - BadRequest private profile', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenUserFirst}`
+      )
+      .send({
+        query: `mutation {
+          deleteUserFav(userUuid: "${userUuidSecond}")
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    expect(body.errors[0].message).toBe(
+      'Internal Server Error'
+    );
+    done();
+  });
+
+  it('/graphql:M deleteUserFav - Ok is not followed', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenUserSecond}`
+      )
+      .send({
+        query: `mutation {
+          deleteUserFav(userUuid: "${userUuidFirst}")
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql deleteUserFav=%o', body);
+    // expect(body).toBe(0);
+    expect(body.errors[0].message).toBe(
+      'Internal Server Error'
+    );
+    done();
+  });
+
+  it('/graphql:M addUserFav - Ok add', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenUserSecond}`
+      )
+      .send({
+        query: `mutation {
+          addUserFav(userUuid: "${userUuidFirst}")
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql addUserFav=%o', body);
+    // expect(body).toBe(0);
+    expect(body.data.addUserFav).toBe(true);
+    done();
+  });
+
+  it('/graphql:M addUserFav - Ok add', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenUserThree}`
+      )
+      .send({
+        query: `mutation {
+          addUserFav(userUuid: "${userUuidFirst}")
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql addUserFav=%o', body);
+    // expect(body).toBe(0);
+    expect(body.data.addUserFav).toBe(true);
+    done();
+  });
+
   it('/graphql:Q users - OK favorite', async (done) => {
     const { body } = await agent
       .post('/graphql')
@@ -2142,7 +2394,55 @@ describe('users', () => {
     done();
   });
 
-  it('/graphql:Q users - OK no subscribers', async (done) => {
+  it('/graphql:Q selfData - Ok check followers and subscribers', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenUserFirst}`
+      )
+      .send({
+        query: `query {
+            selfData{
+              ${userAndRelatedData}
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    const {
+      data: { selfData }
+    } = body;
+    expect(selfData.uuid).toBe(userUuidFirst);
+    expect(selfData.username).toBe(username);
+    expect(selfData.favCompaniesCount).toBe(1);
+    expect(selfData.favComponentsCount).toBe(2);
+    expect(selfData.favStandardsCount).toBe(1);
+    expect(selfData.favUsersCount).toBe(1);
+    expect(selfData.subscribers).toBe(2);
+    done();
+  });
+
+  it('/graphql:M addUserFav - Ok already added', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenUserFirst}`
+      )
+      .send({
+        query: `mutation {
+          addUserFav(userUuid: "${userUuidFour}")
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql addUserFav=%o', body);
+    // expect(body).toBe(0);
+    expect(body.data.addUserFav).toBe(false);
+    done();
+  });
+
+  it('/graphql:Q users - OK no public subscribers', async (done) => {
     const { body } = await agent
       .post('/graphql')
       .set(
@@ -2165,6 +2465,110 @@ describe('users', () => {
     } = body;
     // expect(body).toBe(0);
     expect(users).toBeEmptyArray();
+    done();
+  });
+
+  it('/graphql:M addUserFav - Ok add', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenUserFour}`
+      )
+      .send({
+        query: `mutation {
+          addUserFav(userUuid: "${userUuidFirst}")
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql addUserFav=%o', body);
+    // expect(body).toBe(0);
+    expect(body.data.addUserFav).toBe(true);
+    done();
+  });
+
+  it('/graphql:Q users - OK 1 public subscriber', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenUserFirst}`
+      )
+      .send({
+        query: `query {
+            users(args: {
+              subscribers: true
+            }) {
+              ${usersListQuery}
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql users=%o', body);
+    const {
+      data: { users }
+    } = body;
+    // expect(body).toBe(0);
+    // expect(users).toBeEmptyArray();
+    expect(users.length).toBe(1);
+    done();
+  });
+
+  it('/graphql:Q selfData - Ok chech followers and subscribers', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenUserFirst}`
+      )
+      .send({
+        query: `query {
+            selfData{
+              ${userAndRelatedData}
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    const {
+      data: { selfData }
+    } = body;
+    expect(selfData.uuid).toBe(userUuidFirst);
+    expect(selfData.username).toBe(username);
+    expect(selfData.favCompaniesCount).toBe(1);
+    expect(selfData.favComponentsCount).toBe(2);
+    expect(selfData.favStandardsCount).toBe(1);
+    expect(selfData.favUsersCount).toBe(1);
+    expect(selfData.subscribers).toBe(3);
+    done();
+  });
+
+  it('/graphql:Q User - Ok check subscribers', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenUserSecond}`
+      )
+      .send({
+        query: `query {
+            user(args: {
+              userUuid: "${userUuidFirst}"
+            }){
+              ${showUserAndRelatedData}
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { user }
+    } = body;
+    expect(user.uuid).toBe(userUuidFirst);
+    expect(user.username).toBe(username);
+    expect(user.subscribers).toBe(3);
+    expect(user.isFollowed).toBe(true);
     done();
   });
 
@@ -2426,8 +2830,8 @@ describe('users', () => {
     } = body;
     expect(user.uuid).toBe(userUuidFirst);
     expect(user.username).toBe(username);
-    expect(user.subscribers).toBe(0);
-    expect(user.isFollowed).toBe(false);
+    expect(user.subscribers).toBe(3);
+    expect(user.isFollowed).toBe(true);
     done();
   });
 

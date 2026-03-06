@@ -60,16 +60,8 @@ impl Aws {
             )),
             ..Default::default()
         };
-
         // debug!("GetObjectRequest: {:#?}", req);
-
-        Ok(req.get_presigned_url(
-            &self.region,
-            &self.credentials,
-            &PreSignedRequestOption {
-                expires_in: std::time::Duration::from_secs(expires),
-            },
-        ))
+        Ok(req.get_presigned_url(&self.region, &self.credentials, &set_option(expires)))
     }
 
     /// Generate url for file upload
@@ -86,15 +78,11 @@ impl Aws {
             // content_length: Some(79_i64),
             ..Default::default()
         };
-
         // debug!("UploadPartRequest: {:#?}", req);
-
-        Ok(req.get_presigned_url(
-            &self.region,
-            &self.credentials,
-            &PreSignedRequestOption {
-                expires_in: std::time::Duration::from_secs(expires),
-            },
-        ))
+        Ok(req.get_presigned_url(&self.region, &self.credentials, &set_option(expires)))
     }
+}
+
+fn set_option(expires: u64) -> PreSignedRequestOption {
+    PreSignedRequestOption { expires_in: std::time::Duration::from_secs(expires) }
 }

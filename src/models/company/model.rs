@@ -303,12 +303,11 @@ pub(crate) struct CompaniesArg {
     pub(crate) user_uuid: Option<Uuid>,
     pub(crate) favorite: bool,
     pub(crate) supplier: bool,
-    pub(crate) set_lang_id: i32,
 }
 
 impl CompaniesArg {
     /// Returns a CompaniesArg with the given arguments and language
-    pub(crate) fn by_arg(data: IptCompaniesArg, set_lang_id: i32) -> Self {
+    pub(crate) fn by_arg(data: IptCompaniesArg) -> Self {
         let IptCompaniesArg {
             companies_uuids,
             user_uuid,
@@ -320,18 +319,16 @@ impl CompaniesArg {
             user_uuid,
             favorite: favorite.unwrap_or(false),
             supplier: supplier.unwrap_or(false),
-            set_lang_id,
         }
     }
 
     /// Returns a CompaniesArg with the specified language and default arguments
-    pub(crate) fn by_lang(set_lang_id: i32) -> Self {
+    pub(crate) fn by_lang() -> Self {
         Self {
             filter_companies_uuids: Vec::new(),
             user_uuid: None,
             favorite: false,
             supplier: false,
-            set_lang_id,
         }
     }
 }

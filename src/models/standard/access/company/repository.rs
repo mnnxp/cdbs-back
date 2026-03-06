@@ -11,7 +11,7 @@ impl CompanyAccessStandardAndRelatedData {
     /// Collect related data for companies lits access standard
     pub(crate) fn from_standard_by_uuid(
         target_standard_uuid: &Uuid,
-        set_lang_id: &i32,
+        set_lang_id: i32,
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<CompanyAccessStandardAndRelatedData>> {
         let list_companies_with_access = company_access_to_standard
@@ -25,7 +25,7 @@ impl CompanyAccessStandardAndRelatedData {
         let mut res: Vec<CompanyAccessStandardAndRelatedData> = Vec::new();
         for x in list_companies_with_access {
             let type_access = TypeAccessTranslateList::get_type_access_by_id(
-                &x.type_access_id,
+                x.type_access_id,
                 set_lang_id,
                 conn,
             )?;

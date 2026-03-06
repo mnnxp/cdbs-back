@@ -19,6 +19,7 @@ use uuid::Uuid;
 pub(crate) fn add_certificate(
     logged_user_uuid: &Uuid,
     cert_data: &IptCompanyCertificateData,
+    domain: &str,
     conn: &mut PgConnection,
 ) -> ServiceResult<UploadFile> {
     let need_access_level = 1; // todo!(create enum for manage access level)
@@ -27,7 +28,7 @@ pub(crate) fn add_certificate(
     check_company_access(
         logged_user_uuid,
         &cert_data.company_uuid,
-        &need_access_level,
+        need_access_level,
         conn,
     )?;
 
@@ -64,7 +65,7 @@ pub(crate) fn add_certificate(
         company_inserted_certificate
     );
 
-    let upload_url = upload_presigned_url(&StorageAccess::from_env(), &slim_file.path_file)?;
+    let upload_url = upload_presigned_url(&StorageAccess::from_env(), &slim_file.path_file, domain)?;
 
     Ok(UploadFile {
         file_uuid: slim_file.uuid,

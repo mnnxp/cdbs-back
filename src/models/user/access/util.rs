@@ -26,7 +26,7 @@ fn get_access_type_user(target_user_uuid: &Uuid, conn: &mut PgConnection) -> Ser
 pub(crate) fn check_access_user_for_user(
     logged_user_uuid: &Uuid,
     target_user_uuid: &Uuid,
-    need_access_level: &i32,
+    need_access_level: i32,
     conn: &mut PgConnection,
 ) -> ServiceResult<bool> {
     // return true if user request myself user
@@ -38,7 +38,7 @@ pub(crate) fn check_access_user_for_user(
     let access_type_user = get_access_type_user(target_user_uuid, conn)?;
 
     // if request to view a public user
-    if need_access_level == &3 {
+    if need_access_level == 3 {
         // if target user public
         if access_type_user == 3 {
             return Ok(true);

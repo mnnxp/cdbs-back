@@ -6,8 +6,8 @@ use diesel::prelude::*;
 impl RepresentationTypeTranslateList {
     /// Get represent type with translate by id
     pub(crate) fn get_by_id(
-        target_id: &i32,
-        set_lang_id: &i32,
+        target_id: i32,
+        set_lang_id: i32,
         conn: &mut PgConnection,
     ) -> ServiceResult<RepresentationTypeTranslateList> {
         let result = rttl::representation_type_translate_list
@@ -38,7 +38,7 @@ impl RepresentationTypeTranslateList {
 
     /// Get all represent types with translate
     pub(crate) fn get_all(
-        set_lang_id: &i32,
+        set_lang_id: i32,
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<RepresentationTypeTranslateList>> {
         rttl::representation_type_translate_list

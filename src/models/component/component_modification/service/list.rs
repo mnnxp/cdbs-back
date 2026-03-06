@@ -17,8 +17,8 @@ pub(crate) fn get_component_modifications(
     check_access_component_for_user(
         &options.logged_user_uuid,
         &args.component_uuid,
-        &need_access_level,
+        need_access_level,
         conn,
     )?;
-    ComponentModificationAndRelatedData::by_args(args, &options.set_lang_id, conn)
+    ComponentModificationAndRelatedData::by_args(args, options.set_lang_id, conn)
 }

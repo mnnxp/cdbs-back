@@ -1,5 +1,6 @@
 use crate::database::{get_conn, PooledConnection};
 use crate::graphql::file::ShowFileRelatedData;
+use crate::graphql::handler::extract_client_domain;
 use crate::graphql::relate::attributes::{IptPaginate, IptSort};
 use crate::models::company::model::ShowCompanyShort;
 use crate::models::relate_ref::{
@@ -107,7 +108,7 @@ impl ServiceAndRelatedData {
             .unwrap_or_default();
         ServiceParamWithTranslation::by_service_uuid(
             &self.uuid,
-            &get_set_language(cxt),
+            get_set_language(cxt),
             &s,
             &p,
             conn,
@@ -137,7 +138,7 @@ impl ServiceAndRelatedData {
         let p = paginate
             .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
             .unwrap_or_default();
-        ShowFileRelatedData::by_service_uuid(&self.uuid, &s, &p, conn)
+        ShowFileRelatedData::by_service_uuid(&self.uuid, &s, &p, &extract_client_domain(cxt), conn)
             .expect("Error loading service files")
     }
 
@@ -157,7 +158,7 @@ impl ServiceAndRelatedData {
         let p = paginate
             .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
             .unwrap_or_default();
-        SpecTranslateList::for_service_by_uuid(&self.uuid, &get_set_language(cxt), &p, conn)
+        SpecTranslateList::for_service_by_uuid(&self.uuid, get_set_language(cxt), &p, conn)
             .expect("Error loading service keywords")
     }
 
@@ -244,9 +245,9 @@ impl ShowServiceShort {
             .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
             .unwrap_or_default();
         match images {
-            Some(false) => DownloadFile::by_service_uuid(&self.uuid, &p, conn)
+            Some(false) => DownloadFile::by_service_uuid(&self.uuid, &p, &extract_client_domain(cxt), conn)
                 .expect("Error loading service files"),
-            _ => DownloadFile::service_image_files(&self.uuid, &p, conn)
+            _ => DownloadFile::service_image_files(&self.uuid, &p, &extract_client_domain(cxt), conn)
                 .expect("Error loading service image files"),
         }
     }

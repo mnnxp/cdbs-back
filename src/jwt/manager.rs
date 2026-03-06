@@ -11,10 +11,9 @@ lazy_static::lazy_static! {
 
 pub(crate) fn create_token(
     user: &SlimUser,
-    issuer: String,
     auth_duration_in_hour: u16,
 ) -> Result<String, ServiceError> {
-    let claims: Claims = Claims::new(user, issuer, auth_duration_in_hour);
+    let claims: Claims = Claims::new(user, String::from("CADBase"), auth_duration_in_hour);
     encode(&Header::new(Algorithm::RS256), &claims, &ENCODE_KEY)
         .map_err(|e| ServiceError::BadRequest(e.to_string()))
 }

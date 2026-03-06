@@ -15,7 +15,7 @@ pub(crate) fn get_service_keywords(
 ) -> ServiceResult<Vec<Keyword>> {
     let need_access_level = 3; // todo!(create enum for manage access level)
 
-    check_access_service_for_user(logged_user_uuid, service_uuid, &need_access_level, conn)?;
+    check_access_service_for_user(logged_user_uuid, service_uuid, need_access_level, conn)?;
 
     Keyword::for_service_without_check(service_uuid, paginate, conn)
 }

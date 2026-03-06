@@ -17,7 +17,7 @@ pub(crate) fn del_standard_keywords(
     check_access_standard_for_user(
         logged_user_uuid,
         &data.standard_uuid,
-        &need_access_level,
+        need_access_level,
         conn,
     )?;
 

@@ -12,12 +12,13 @@ use uuid::Uuid;
 pub(crate) fn get_url_by_file_uuid(
     logged_user_uuid: &Uuid,
     target_file_uuid: &Uuid,
+    domain: &str,
     conn: &mut PgConnection,
 ) -> ServiceResult<DownloadFile> {
     // check ownership file
     check_file_owner_err(logged_user_uuid, target_file_uuid, conn)?;
 
-    DownloadFile::get_by_file_uuid(target_file_uuid, conn)
+    DownloadFile::get_by_file_uuid(target_file_uuid, domain, conn)
 }
 
 /// Возвращает информацию обо всех редакциях (версиях) файла.
@@ -25,10 +26,11 @@ pub(crate) fn get_revisions_by_file_uuid(
     file_uuid: &Uuid,
     logged_user_uuid: &Uuid,
     paginate: &Paginate,
+    domain: &str,
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<ShowFileRelatedData>> {
     // check ownership file
     check_file_owner_err(logged_user_uuid, file_uuid, conn)?;
 
-    ShowFileRelatedData::get_revisions_by_uuid(file_uuid, paginate, conn)
+    ShowFileRelatedData::get_revisions_by_uuid(file_uuid, paginate, domain, conn)
 }

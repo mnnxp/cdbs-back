@@ -17,13 +17,13 @@ use super::attributes::IptPaginate;
 #[Object]
 impl SpecTranslateList {
     /// Catalog element identifier
-    async fn spec_id(&self) -> &i32 {
-        &self.spec_id
+    async fn spec_id(&self) -> i32 {
+        self.spec_id
     }
 
     /// Name localization language identifier
-    async fn lang_id(&self) -> &i32 {
-        &self.lang_id
+    async fn lang_id(&self) -> i32 {
+        self.lang_id
     }
 
     /// Localized catalog name
@@ -38,7 +38,7 @@ impl SpecTranslateList {
             return self.clone();
         }
         let conn: &mut PooledConnection = &mut get_conn(cxt).expect("Error get conn to DB");
-        SpecTranslateList::get_parent_by_id(&self.spec_id, &self.lang_id, conn)
+        SpecTranslateList::get_parent_by_id(self.spec_id, self.lang_id, conn)
             .expect("Error loading parent spec")
     }
 }
@@ -65,12 +65,10 @@ impl SpecQuery {
             .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
             .unwrap_or_default();
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
-        get_specs(&arguments, &get_set_language(cxt), &p, conn)
+        get_specs(&arguments, get_set_language(cxt), &p, conn)
     }
 
-    /// Returns catalogs paths by IDs. Token is not required.
-    /// When creating a catalog path, the specified separator or the default separator "/" is used.
-    /// The value "deep_level" sets the depth limit to the parent section.
+    /// Returns hierarchical paths for catalogs by their IDs.
     async fn specs_paths(
         &self,
         cxt: &Context<'_>,
@@ -85,12 +83,10 @@ impl SpecQuery {
             .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
             .unwrap_or_default();
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
-        get_paths_specs(&arguments, &get_set_language(cxt), &p, conn)
+        get_paths_specs(&arguments, get_set_language(cxt), &p, conn)
     }
 
-    /// Returns paths to directory sections searched for by name catalog. Token is not required.
-    /// When creating a catalog path, the specified separator or the default separator "/" is used.
-    /// The value "deep_level" sets the depth limit to the parent section.
+    /// Returns hierarchical paths for catalogs found by name search.
     async fn search_specs(
         &self,
         cxt: &Context<'_>,
@@ -102,6 +98,6 @@ impl SpecQuery {
             .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
             .unwrap_or_default();
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
-        search_specs_by_name(&arguments, &get_set_language(cxt), &p, conn)
+        search_specs_by_name(&arguments, get_set_language(cxt), &p, conn)
     }
 }

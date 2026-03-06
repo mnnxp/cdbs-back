@@ -20,7 +20,7 @@ pub(crate) fn del_service_keywords(
     check_access_service_for_user(
         logged_user_uuid,
         &data.service_uuid,
-        &need_access_level,
+        need_access_level,
         conn,
     )?;
 

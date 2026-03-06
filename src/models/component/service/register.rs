@@ -22,7 +22,7 @@ pub(crate) fn create_component(
         check_access_component_for_user(
             logged_user_uuid,
             parent_component_uuid,
-            &3, // need_access_level
+            3, // need_access_level
             conn,
         )?;
     }

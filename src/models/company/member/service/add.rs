@@ -21,11 +21,11 @@ pub(crate) fn add_company_member(
     check_company_access(
         logged_user_uuid,
         &data.company_uuid,
-        &need_access_level,
+        need_access_level,
         conn,
     )?;
 
-    check_role_of_company(&data.company_uuid, &data.role_id, conn)?;
+    check_role_of_company(&data.company_uuid, data.role_id, conn)?;
 
     let check_has_member = company_member_list::company_member_list
         .filter(company_member_list::user_uuid.eq(&data.user_uuid))

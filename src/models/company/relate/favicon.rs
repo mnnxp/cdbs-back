@@ -15,6 +15,7 @@ pub(crate) fn update_favicon(
     logged_user_uuid: &Uuid,
     target_company_uuid: &Uuid,
     filename: &str,
+    domain: &str,
     conn: &mut PgConnection,
 ) -> ServiceResult<UploadFile> {
     // check access user for company
@@ -31,7 +32,7 @@ pub(crate) fn update_favicon(
     // change image uuid for company
     change_image_uuid(target_company_uuid, &slim_file.uuid, conn);
 
-    let upload_url = upload_presigned_url(&StorageAccess::from_env(), &slim_file.path_file)?;
+    let upload_url = upload_presigned_url(&StorageAccess::from_env(), &slim_file.path_file, domain)?;
 
     Ok(UploadFile {
         file_uuid: slim_file.uuid,

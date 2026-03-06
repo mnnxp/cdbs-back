@@ -6,8 +6,8 @@ use diesel::prelude::*;
 impl TypeAccessTranslateList {
     /// Get access type by id
     pub(crate) fn get_type_access_by_id(
-        target_type_access_id: &i32,
-        set_lang_id: &i32,
+        target_type_access_id: i32,
+        set_lang_id: i32,
         conn: &mut PgConnection,
     ) -> ServiceResult<TypeAccessTranslateList> {
         let type_access = type_access_translate_list
@@ -42,7 +42,7 @@ impl TypeAccessTranslateList {
     /// Get access types by IDs
     pub(crate) fn get_types_access_by_ids(
         target_types_access_ids: &[i32],
-        set_lang_id: &i32,
+        set_lang_id: i32,
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<TypeAccessTranslateList>> {
         let type_access = type_access_translate_list

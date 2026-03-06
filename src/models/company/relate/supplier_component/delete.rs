@@ -18,7 +18,7 @@ pub(crate) fn del_company_of_suppliers(
     check_company_access(
         logged_user_uuid,
         &data.company_uuid,
-        &need_access_level,
+        need_access_level,
         conn,
     )?;
 

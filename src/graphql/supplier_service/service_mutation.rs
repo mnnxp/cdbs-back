@@ -1,5 +1,6 @@
 use crate::database::{get_conn, PooledConnection};
 use crate::errors::ServiceResult;
+use crate::graphql::handler::extract_client_domain;
 use crate::graphql::service_model::{IptServiceData, IptUpdateServiceData};
 use crate::models::relate_ref::file::model::UploadFile;
 use crate::models::search::model::ExtraOptions;
@@ -263,7 +264,7 @@ impl ServiceMutation {
         // checking authorization and getting user uuid
         let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
-        add_service_files(&args, &logged_user_uuid, conn)
+        add_service_files(&args, &logged_user_uuid, &extract_client_domain(cxt), conn)
     }
 
     /// Deletes a file of a service

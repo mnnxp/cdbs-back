@@ -1,6 +1,7 @@
 use crate::errors::{ServiceError, ServiceResult};
 use crate::models::component::component_fav::model::ComponentFav;
 use crate::schema::component_fav::dsl as component_fav;
+use crate::subscribers_count;
 use diesel::prelude::*;
 use uuid::Uuid;
 
@@ -25,14 +26,6 @@ impl ComponentFav {
         if target_component_uuid == &get_cheat() {
             return Ok(10);
         }
-
-        let count = component_fav::component_fav
-            .filter(component_fav::component_uuid.eq(target_component_uuid))
-            .execute(conn)
-            .map_err(|err| {
-                debug!("Failed get actual status: {:?}", err);
-                ServiceError::InternalServerError
-            })?;
-        Ok(count as i32)
+        subscribers_count!(component_fav, component_uuid, target_component_uuid, conn)
     }
 }

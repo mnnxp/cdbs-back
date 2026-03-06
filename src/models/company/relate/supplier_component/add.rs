@@ -22,7 +22,7 @@ pub(crate) fn add_company_to_suppliers(
     check_company_access(
         logged_user_uuid,
         &data.company_uuid,
-        &need_access_level,
+        need_access_level,
         conn,
     )?;
 
@@ -40,7 +40,7 @@ pub(crate) fn set_company_owner_supplier(
     check_company_access(
         logged_user_uuid,
         &data.company_uuid,
-        &need_access_level,
+        need_access_level,
         conn,
     )?;
 

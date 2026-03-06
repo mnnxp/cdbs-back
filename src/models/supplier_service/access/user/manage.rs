@@ -22,7 +22,7 @@ pub(crate) fn get_users_list_access_service(
     // 2. get the list of users with access to the component
     UserAccessServiceAndRelatedData::from_service_by_uuid(
         target_service_uuid,
-        &options.set_lang_id,
+        options.set_lang_id,
         conn,
     )
 }

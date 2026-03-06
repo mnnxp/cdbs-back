@@ -1,6 +1,7 @@
 use crate::database::{get_conn, PooledConnection};
 use crate::errors::ServiceResult;
 use crate::graphql::component_model::{IptComponentData, IptUpdateComponentData};
+use crate::graphql::handler::extract_client_domain;
 use crate::models::component::{
     access::company::model::{DelCompanyAccessComponentData, IptCompanyAccessComponentData},
     // model::{IptComponentData, IptUpdateComponentData},
@@ -343,7 +344,7 @@ impl ComponentMutation {
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        add_component_files(&logged_user_uuid, &args, conn)
+        add_component_files(&logged_user_uuid, &args, &extract_client_domain(cxt), conn)
     }
 
     /// Updates the main image of the component.
@@ -359,7 +360,7 @@ impl ComponentMutation {
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        add_component_favicon(&logged_user_uuid, &args, conn)
+        add_component_favicon(&logged_user_uuid, &args, &extract_client_domain(cxt), conn)
     }
 
     /// Deletes a file of a component.
@@ -526,7 +527,7 @@ impl ComponentMutation {
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        add_modification_files(&logged_user_uuid, &args, conn)
+        add_modification_files(&logged_user_uuid, &args, &extract_client_domain(cxt), conn)
     }
 
     /// Deletes a file of a component modification.
@@ -589,7 +590,7 @@ impl ComponentMutation {
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        add_files_of_modification_set(&logged_user_uuid, &args, conn)
+        add_files_of_modification_set(&logged_user_uuid, &args, &extract_client_domain(cxt), conn)
     }
 
     /// Removes files from the component modification fileset.

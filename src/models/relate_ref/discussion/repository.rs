@@ -23,7 +23,7 @@ impl DiscussionTo {
     pub(crate) fn check_access(
         &self,
         logged_user_uuid: &Uuid,
-        need_access_level: &i32,
+        need_access_level: i32,
         conn: &mut PgConnection,
     ) -> ServiceResult<bool> {
         debug!("Checking user access to the object {:?}", self);

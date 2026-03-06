@@ -9,6 +9,7 @@ impl CompanyCertificateAndFile {
     /// Gets certificates company with slimfile data
     pub(crate) fn from_company(
         target_company_uuid: &Uuid,
+        domain: &str,
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<CompanyCertificateAndFile>> {
         let certificates_company = company_certificate_ref::company_certificate_ref
@@ -21,7 +22,7 @@ impl CompanyCertificateAndFile {
 
         let mut company_certificates = Vec::new();
         for cert in &certificates_company {
-            let file = DownloadFile::get_by_file_uuid(&cert.file_uuid, conn)?;
+            let file = DownloadFile::get_by_file_uuid(&cert.file_uuid, domain, conn)?;
             company_certificates.push(CompanyCertificateAndFile {
                 file: file.clone(),
                 company_uuid: cert.company_uuid,

@@ -35,7 +35,7 @@ impl ParamQuery {
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
         get_params(
             &param_ids.unwrap_or_default(),
-            &get_set_language(cxt),
+            get_set_language(cxt),
             &p,
             conn,
         )

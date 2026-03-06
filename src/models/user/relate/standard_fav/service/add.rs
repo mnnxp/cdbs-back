@@ -19,7 +19,7 @@ pub(crate) fn add_standard_fav(
     let need_access_level = 3; // todo!(create enum for manage access level)
 
     // check access user for standard
-    check_access_standard_for_user(logged_user_uuid, standard_uuid, &need_access_level, conn)?;
+    check_access_standard_for_user(logged_user_uuid, standard_uuid, need_access_level, conn)?;
 
     // if have need row, just update is_enabled to true
     let check_fav = standard_fav::standard_fav

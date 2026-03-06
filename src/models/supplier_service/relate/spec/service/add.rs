@@ -21,7 +21,7 @@ pub(crate) fn add_service_specs(
     check_access_service_for_user(
         logged_user_uuid,
         &data.service_uuid,
-        &need_access_level,
+        need_access_level,
         conn,
     )?;
 

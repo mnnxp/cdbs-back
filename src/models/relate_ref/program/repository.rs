@@ -6,7 +6,7 @@ use diesel::prelude::*;
 
 impl Program {
     pub(crate) fn get_program_by_id(
-        target_program_id: &i32,
+        target_program_id: i32,
         conn: &mut PgConnection,
     ) -> ServiceResult<Program> {
         program_ref::program_ref
@@ -20,7 +20,7 @@ impl Program {
 
     /// Gets programs for target extension
     pub(crate) fn get_program_for_ext(
-        target_ext_id: &i32,
+        target_ext_id: i32,
         conn: &mut PgConnection,
     ) -> ServiceResult<Program> {
         let target_program_id =
