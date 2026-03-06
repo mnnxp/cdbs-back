@@ -52,8 +52,8 @@ impl UserQuery {
     ) -> ServiceResult<ShowUserAndRelatedData> {
         use crate::models::user::service::list::get_user_data;
 
-        // authorization check
-        let options = ExtraOptions::from_cxt(cxt, false)?;
+        // authorization check (if there is no token, it returns the default token)
+        let options = ExtraOptions::from_cxt(cxt, true)?;
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
         get_user_data(&args, &options, conn)
     }
