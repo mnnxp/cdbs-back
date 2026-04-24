@@ -1,10 +1,8 @@
+use crate::auth::{require_permission, AccessEntity, AccessOperation};
 use crate::errors::err_msg::{get_err_msg, ErrorMessage};
 use crate::errors::{ServiceError, ServiceResult};
 use crate::models::component::service::update::change_updated_at;
-use crate::models::component::{
-    access::util::check_access_component_for_user,
-    param::model::{InsertableComponentParam, IptComponentParamsData},
-};
+use crate::models::component::param::model::{InsertableComponentParam, IptComponentParamsData};
 use crate::models::relate_ref::param::model::IptParamData;
 use crate::schema::param_to_component::dsl::*;
 use diesel::prelude::*;
@@ -17,12 +15,11 @@ pub(crate) fn put_component_params(
     data: &IptComponentParamsData,
     conn: &mut PgConnection,
 ) -> ServiceResult<usize> {
-    let need_access_level = 1; // todo!(create enum for manage access level)
-
-    check_access_component_for_user(
+    require_permission(
         logged_user_uuid,
+        AccessEntity::Component,
         &data.component_uuid,
-        need_access_level,
+        AccessOperation::Manage,
         conn,
     )?;
 

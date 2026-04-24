@@ -9,7 +9,7 @@ mod cli_args;
 mod database;
 mod errors;
 mod graphql;
-mod jwt;
+mod auth;
 mod models;
 mod schema;
 mod storage;

@@ -1,27 +1,40 @@
+use super::model::{InsertableUserToken, UserToken};
 use crate::database::{get_conn, PooledConnection};
 use crate::errors::err_msg::{get_err_msg, ErrorMessage};
 use crate::errors::{ServiceError, ServiceResult};
-use crate::jwt::model::{Claims, Token};
-use crate::models::user::{
-    access::model::{InsertableUserToken, UserToken},
-    model::SlimUser,
-};
+use crate::auth::jwt::model::{Claims, Token};
+use crate::auth::jwt::manager::decode_token;
+use crate::models::user::model::SlimUser;
 use crate::schema::user_token_ref::dsl as user_token_ref;
 use async_graphql::Context;
 // use chrono::NaiveDateTime;
 use diesel::prelude::*;
 use uuid::Uuid;
 
-/// get token from request
+/// Extract token from GraphQL context and validate expiration
 pub(crate) fn token_from_cxt(cxt: &Context<'_>) -> ServiceResult<String> {
-    let token = match cxt.data_opt::<Token>() {
-        Some(token) => token.clone(),
-        None => Token { bearer: None },
-    };
-    match token.bearer {
-        Some(bearer) => Ok(bearer),
-        None => Err(get_err_msg(ErrorMessage::TokenNotFound)),
+    let token = cxt
+        .data_opt::<Token>()
+        .cloned()
+        .unwrap_or(Token { bearer: None });
+
+    let token_str = token.bearer.ok_or_else(|| {
+        debug!("Token not found in context");
+        get_err_msg(ErrorMessage::TokenNotFound)
+    })?;
+
+    // Decode and check expiration
+    let claims = decode_token(&token_str).map_err(|e| {
+        debug!("Failed to decode token: {:?}", e);
+        get_err_msg(ErrorMessage::TokenIsInvalid)
+    })?;
+
+    // Check if token is expired
+    if claims.is_expired() {
+        return Err(get_err_msg(ErrorMessage::TokenExpired));
     }
+
+    Ok(token_str)
 }
 
 /// show all tokens for user_uuid
@@ -45,7 +58,7 @@ pub(crate) fn get_slim_user(jwt: Claims) -> ServiceResult<SlimUser> {
 
 /// updating a token with or without removing the old one
 pub(crate) fn update(cxt: &Context<'_>, flag_delete_token: bool) -> ServiceResult<Token> {
-    use crate::models::user::access::token::{decode, generate};
+    use crate::auth::token::{decode, generate};
 
     let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 

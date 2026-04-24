@@ -1,8 +1,7 @@
+use crate::auth::{require_permission, AccessEntity, AccessOperation};
 use crate::errors::err_msg::{get_err_msg, ErrorMessage};
 use crate::errors::ServiceResult;
 use crate::graphql::standard_model::IptUpdateStandardData;
-use crate::models::company::access::util::check_company_access;
-use crate::models::standard::access::util::check_access_standard_for_user;
 use crate::schema::standard_ref::dsl as standard_ref;
 use diesel::prelude::*;
 use uuid::Uuid;
@@ -26,12 +25,11 @@ pub(crate) fn update_standard_data(
         return Err(get_err_msg(ErrorMessage::TextMustLess(50000)));
     }
 
-    let need_access_level = 1; // todo!(create enum for manage access level)
-
-    check_access_standard_for_user(
+    require_permission(
         logged_user_uuid,
+        AccessEntity::Standard,
         target_standard_uuid,
-        need_access_level,
+        AccessOperation::Manage,
         conn,
     )?;
 
@@ -40,7 +38,13 @@ pub(crate) fn update_standard_data(
 
     // update column company_uuid
     if let Some(value) = &data.company_uuid {
-        check_company_access(logged_user_uuid, value, need_access_level, conn)?;
+        require_permission(
+            logged_user_uuid,
+            AccessEntity::Company,
+            value,
+            AccessOperation::Manage,
+            conn,
+        )?;
 
         // check_is_supplier(value, conn)?;
 

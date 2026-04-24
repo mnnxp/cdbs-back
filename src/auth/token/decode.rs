@@ -1,9 +1,10 @@
 use crate::errors::{ServiceError, ServiceResult};
 // use crate::graphql::model::Context;
-use crate::jwt::manager::decode_token;
-use crate::jwt::model::Claims;
+use crate::auth::jwt::manager::decode_token;
+use crate::auth::jwt::model::Claims;
 
 use async_graphql::*;
+use uuid::Uuid;
 
 // pub(crate) type ClaimsResponse = Claims;
 
@@ -15,7 +16,7 @@ impl Claims {
     async fn username(&self) -> &String {
         &self.username
     }
-    async fn sub(&self) -> &String {
+    async fn sub(&self) -> &Uuid {
         &self.sub
     }
     async fn iat(&self) -> String {

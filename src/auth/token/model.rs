@@ -1,4 +1,4 @@
-use crate::jwt::model::Claims;
+use crate::auth::jwt::model::Claims;
 use crate::schema::*;
 use async_graphql::*;
 use chrono::*;

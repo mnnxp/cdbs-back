@@ -1,6 +1,6 @@
+use crate::auth::{require_permission, AccessEntity, AccessOperation};
 use crate::errors::err_msg::{get_err_msg, ErrorMessage};
 use crate::errors::{ServiceError, ServiceResult};
-use crate::models::supplier_service::access::util::check_access_service_for_user;
 use crate::models::supplier_service::service::update::change_service_updated_at;
 use crate::models::supplier_service::spec::model::{
     InsertableServiceSpec, IptServiceSpecsData, ServiceSpec,
@@ -15,13 +15,11 @@ pub(crate) fn add_service_specs(
     conn: &mut PgConnection,
 ) -> ServiceResult<usize> {
     use crate::schema::spec_to_service::dsl::*;
-
-    let need_access_level = 1; // todo!(create enum for manage access level)
-
-    check_access_service_for_user(
+    require_permission(
         logged_user_uuid,
+        AccessEntity::Service,
         &data.service_uuid,
-        need_access_level,
+        AccessOperation::Write,
         conn,
     )?;
 

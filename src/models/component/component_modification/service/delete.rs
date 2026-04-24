@@ -1,7 +1,7 @@
+use crate::auth::{require_permission, AccessEntity, AccessOperation};
 use crate::errors::{ServiceError, ServiceResult};
 use crate::models::component::service::update::change_updated_at;
 use crate::models::component::{
-    access::util::check_is_owner_with_err,
     component_modification::model::DelComponentModificationData,
     component_modification::relate::fileset_for_program::service::delete::delete_filesets_files_by_modifications,
 };
@@ -17,7 +17,13 @@ pub(crate) fn del_component_modification(
     data: &DelComponentModificationData,
     conn: &mut PgConnection,
 ) -> ServiceResult<Uuid> {
-    check_is_owner_with_err(logged_user_uuid, &data.component_uuid, conn)?;
+    require_permission(
+        logged_user_uuid,
+        AccessEntity::Component,
+        &data.component_uuid,
+        AccessOperation::Manage,
+        conn,
+    )?;
     // update the updated_at component if modification has been removed
     change_updated_at(&data.component_uuid, None, conn)?;
     diesel::delete(

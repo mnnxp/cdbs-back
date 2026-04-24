@@ -8,7 +8,7 @@ use crate::models::relate_ref::program::{
     service::register::create_program,
 };
 use crate::models::search::order::Paginate;
-use crate::models::user::access::logged::check_authorized;
+use crate::auth::token::logged::check_authorized;
 
 use super::attributes::IptPaginate;
 

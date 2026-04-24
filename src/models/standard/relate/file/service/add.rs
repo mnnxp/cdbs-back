@@ -1,3 +1,4 @@
+use crate::auth::{require_permission, AccessEntity, AccessOperation};
 use crate::errors::err_msg::{get_err_msg, ErrorMessage};
 use crate::errors::ServiceResult;
 use crate::models::relate_ref::file::{
@@ -6,7 +7,6 @@ use crate::models::relate_ref::file::{
     service::register::preregister_file,
     util::check_image_filename,
 };
-use crate::models::standard::access::util::check_access_standard_for_user;
 use crate::models::standard::file::model::{IptStandardFaviconData, IptStandardFilesData};
 use crate::storage::model::StorageAccess;
 use crate::storage::presigned_url::upload_presigned_url;
@@ -21,12 +21,11 @@ pub(crate) fn add_standard_files(
     domain: &str,
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<UploadFile>> {
-    let need_access_level = 1; // todo!(create enum for manage access level)
-
-    check_access_standard_for_user(
+    require_permission(
         logged_user_uuid,
+        AccessEntity::Standard,
         &data.standard_uuid,
-        need_access_level,
+        AccessOperation::Manage,
         conn,
     )?;
 
@@ -70,12 +69,11 @@ pub(crate) fn add_standard_favicon(
     domain: &str,
     conn: &mut PgConnection,
 ) -> ServiceResult<UploadFile> {
-    let need_access_level = 1; // todo!(create enum for manage access level)
-
-    check_access_standard_for_user(
+    require_permission(
         logged_user_uuid,
+        AccessEntity::Standard,
         &data.standard_uuid,
-        need_access_level,
+        AccessOperation::Manage,
         conn,
     )?;
 

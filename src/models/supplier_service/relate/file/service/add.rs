@@ -1,3 +1,4 @@
+use crate::auth::{require_permission, AccessEntity, AccessOperation};
 use crate::errors::err_msg::{get_err_msg, ErrorMessage};
 use crate::errors::ServiceResult;
 use crate::models::relate_ref::file::{
@@ -5,7 +6,6 @@ use crate::models::relate_ref::file::{
     model::{ListObject, UploadFile},
     service::register::preregister_file,
 };
-use crate::models::supplier_service::access::util::check_access_service_for_user;
 use crate::models::supplier_service::file::model::IptServiceFilesData;
 use crate::models::supplier_service::service::update::change_service_updated_at;
 use crate::storage::model::StorageAccess;
@@ -21,12 +21,11 @@ pub(crate) fn add_service_files(
     domain: &str,
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<UploadFile>> {
-    let need_access_level = 1; // todo!(create enum for manage access level)
-
-    check_access_service_for_user(
+    require_permission(
         logged_user_uuid,
+        AccessEntity::Service,
         &data.service_uuid,
-        need_access_level,
+        AccessOperation::Write,
         conn,
     )?;
 

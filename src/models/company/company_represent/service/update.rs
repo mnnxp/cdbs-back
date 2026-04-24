@@ -1,6 +1,6 @@
+use crate::auth::{require_permission, AccessEntity, AccessOperation};
 use crate::errors::err_msg::{get_err_msg, ErrorMessage};
 use crate::errors::ServiceResult;
-use crate::models::company::access::util::check_is_owner_with_err;
 use crate::models::company::company_represent::model::IptUpdateCompanyRepresentData;
 use crate::schema::company_represent_ref::dsl as company_represent_ref;
 use diesel::prelude::*;
@@ -16,8 +16,13 @@ pub(crate) fn update_company_represent_by_uuid(
     data: &IptUpdateCompanyRepresentData,
     conn: &mut PgConnection,
 ) -> ServiceResult<usize> {
-    // check access user for company
-    check_is_owner_with_err(logged_user_uuid, target_company_uuid, conn)?;
+    require_permission(
+        logged_user_uuid,
+        AccessEntity::Company,
+        target_company_uuid,
+        AccessOperation::Write,
+        conn,
+    )?;
 
     // for returning change count
     let mut count_update_columns = 0_usize;

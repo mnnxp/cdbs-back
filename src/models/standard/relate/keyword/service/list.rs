@@ -1,7 +1,7 @@
+use crate::auth::{require_permission, AccessEntity, AccessOperation};
 use crate::errors::{ServiceError, ServiceResult};
 use crate::models::relate_ref::keyword::model::Keyword;
 use crate::models::search::order::Paginate;
-use crate::models::standard::access::util::check_access_standard_for_user;
 use crate::schema::keyword_to_standard::dsl as keyword_to_standard;
 use diesel::prelude::*;
 use uuid::Uuid;
@@ -13,9 +13,13 @@ pub(crate) fn get_standard_keywords(
     paginate: &Paginate,
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<Keyword>> {
-    let need_access_level = 3; // todo!(create enum for manage access level)
-
-    check_access_standard_for_user(logged_user_uuid, standard_uuid, need_access_level, conn)?;
+    require_permission(
+        logged_user_uuid,
+        AccessEntity::Standard,
+        standard_uuid,
+        AccessOperation::Read,
+        conn,
+    )?;
 
     let keyword_ids = keyword_to_standard::keyword_to_standard
         .filter(keyword_to_standard::standard_uuid.eq(standard_uuid))

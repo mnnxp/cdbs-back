@@ -1,14 +1,12 @@
+use crate::auth::{require_permission, AccessEntity, AccessOperation};
 use crate::errors::err_msg::{get_err_msg, ErrorMessage};
 use crate::errors::{ServiceError, ServiceResult};
 use crate::models::relate_ref::keyword::{
     model::{IptKeywordData, KeywordId},
     service::register::create_keyword,
 };
-use crate::models::standard::{
-    access::util::check_access_standard_for_user,
-    keyword::model::{
-        InsertableStandardKeyword, IptStandardKeywordsData, IptStandardKeywordsNames,
-    },
+use crate::models::standard::keyword::model::{
+    InsertableStandardKeyword, IptStandardKeywordsData, IptStandardKeywordsNames,
 };
 use crate::schema::keyword_to_standard::dsl as keyword_to_standard;
 use diesel::prelude::*;
@@ -20,12 +18,11 @@ pub(crate) fn add_standard_keywords(
     data: &IptStandardKeywordsData,
     conn: &mut PgConnection,
 ) -> ServiceResult<usize> {
-    let need_access_level = 1; // todo!(create enum for manage access level)
-
-    check_access_standard_for_user(
+    require_permission(
         logged_user_uuid,
+        AccessEntity::Standard,
         &data.standard_uuid,
-        need_access_level,
+        AccessOperation::Manage,
         conn,
     )?;
 

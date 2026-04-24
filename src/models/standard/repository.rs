@@ -1,3 +1,4 @@
+use crate::auth::{require_permission, AccessEntity, AccessOperation};
 use crate::errors::{ServiceError, ServiceResult};
 use crate::graphql::file::ShowFileRelatedData;
 use crate::graphql::standard_model::{ShowStandardShort, StandardAndRelatedData};
@@ -11,7 +12,7 @@ use crate::models::search::{
     order::{Paginate, Sort, TableName},
 };
 use crate::models::standard::{
-    access::util::check_access_standard_for_user, model::Standard,
+    model::Standard,
     standard_fav::model::StandardFav, standard_fav::util::check_subscriber_by_uuid,
     standard_status::model::StandardStatusTranslateList,
 };
@@ -74,12 +75,11 @@ impl ShowStandardShort {
         options: &ExtraOptions,
         conn: &mut PgConnection,
     ) -> ServiceResult<ShowStandardShort> {
-        let need_access_level = 3; // todo!(create enum for manage access level)
-
-        check_access_standard_for_user(
+        require_permission(
             &options.logged_user_uuid,
+            AccessEntity::Standard,
             target_standard_uuid,
-            need_access_level,
+            AccessOperation::Read,
             conn,
         )?;
 
@@ -183,12 +183,11 @@ impl StandardAndRelatedData {
         paginate: &Paginate,
         conn: &mut PgConnection,
     ) -> ServiceResult<StandardAndRelatedData> {
-        let need_access_level = 3; // todo!(create enum for manage access level)
-
-        check_access_standard_for_user(
+        require_permission(
             &options.logged_user_uuid,
+            AccessEntity::Standard,
             target_standard_uuid,
-            need_access_level,
+            AccessOperation::Read,
             conn,
         )?;
 

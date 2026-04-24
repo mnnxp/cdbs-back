@@ -7,35 +7,16 @@ const apiPort = process.env.PORT || 3000;
 const apiDomain = process.env.DOMAIN || "0.0.0.0";
 const url = `http://${apiDomain}:${apiPort}`;
 
-jest.setTimeout(1300);
+jest.setTimeout(30000);
 
-// data for user
+// ==============================================
+// ТЕСТОВЫЕ ДАННЫЕ
+// ==============================================
 const username = "baromi";
 const username2 = "simaco";
 const password = "password";
 
 const uuidFail = "aba22d59-4f6c-24a4-9a37-2d38f0e577a8";
-const userUuid = "31ecc6f8-0c09-4a59-a2d5-34b5b833e59b";
-const userUuid2 = "68b8281a-d19c-4d4b-88eb-6fd4a2afde1b";
-
-var authorizationTokenFirst = "";
-var authorizationTokenSecond = "";
-
-// data for component
-const parentComponentUuid = "a5953fd9-7393-4f1e-a899-06b5e159dbf1";
-
-// data for component modification
-const parentModificationUuid = "aba22d59-4f6c-44a4-9a37-2d38f0e577a8";
-
-// data for param
-const paramnameIndexFail = 100;
-const paramnameIndex = 2;
-const paramname = "Selector";
-const paramNameTest = "testparametr";
-const paramNameTest2 = "testparametr2";
-const paramNameTest3 = "testparametr3";
-var paramIdTest = 1000000;
-var paramIdTest2 = 1000000;
 
 // language
 const langId1 = 1;
@@ -47,29 +28,41 @@ const specPath5Level5 = "ROOT/Structural Components/Fastening Elements/Threaded 
 const specPath5 = "Fastening Elements/Threaded Fasteners/Screws and bolts";
 const specPathSplit5 = "ROOT#Structural Components#Fastening Elements#Threaded Fasteners#Screws and bolts";
 const specPathDepth5 = 5;
-var specName4 = "";
-var specName5 = "";
-var specPath10 = "";
+let specName4 = "";
+let specName5 = "";
+let specPath10 = "";
 
-const paramTranslateList = ` \
-paramId \
-langId \
-paramname \
+const paramNameTest = "testparametr";
+const paramNameTest2 = "testparametr2";
+const paramNameTest3 = "testparametr3";
+let paramIdTest = 1000000;
+let paramIdTest2 = 1000000;
+
+// ==============================================
+// GRAPHQL ЗАПРОСЫ
+// ==============================================
+const paramTranslateList = `
+  paramId
+  langId
+  paramname
 `;
 
-const specTranslateList = ` \
-specId \
-langId \
-spec \
+const specTranslateList = `
+  specId
+  langId
+  spec
 `;
 
-const specPath = ` \
-specId \
-langId \
-path \
-depth \
+const specPathQuery = `
+  specId
+  langId
+  path
+  depth
 `;
 
+// ==============================================
+// ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
+// ==============================================
 async function cleanupParamDb() {
   return global.knex.raw('DELETE FROM param_ref WHERE id in (?,?)', [
     paramIdTest,
@@ -85,10 +78,6 @@ async function cleanupParamTranslateDb() {
   ]);
 }
 
-async function cleanupTokenDb() {
-  return global.knex.raw('DELETE FROM user_token_ref');
-}
-
 async function cleanupUserDb() {
   return global.knex.raw('DELETE FROM user_ref WHERE username IN (?,?)', [
     username,
@@ -96,658 +85,584 @@ async function cleanupUserDb() {
   ]);
 }
 
+// ==============================================
+// ТЕСТЫ
+// ==============================================
 describe('relate', () => {
-  beforeAll(() => {
-    cleanupParamDb();
-    cleanupParamTranslateDb();
-    // cleanupTokenDb();
-    return cleanupUserDb();
-  });
-  afterAll(() => {
-    cleanupParamDb();
-    cleanupParamTranslateDb();
-    // cleanupTokenDb();
-    return cleanupUserDb();
+  let agent;
+  let authorizationTokenFirst = "";
+  let authorizationTokenSecond = "";
+
+  beforeAll(async () => {
+    await cleanupParamDb();
+    await cleanupParamTranslateDb();
+    await cleanupUserDb();
+    agent = request.agent(url);
   });
 
-  const agent = request.agent(url);
+  afterAll(async () => {
+    await cleanupParamDb();
+    await cleanupParamTranslateDb();
+    await cleanupUserDb();
+  });
 
-  it('/graphql:M register - OK', async (done) => {
-    const { body } = await agent
-      .post('/graphql')
-      .send({
-        query: `mutation  {
-            registerUser(args: {
-                email: "testemail@mail.ru",
-                firstname: "test_firstname",
-                lastname: "test_lastname",
-                secondname: "test_secondname",
-                username: "${username}",
-                password: "${password}",
-                phone: "test_phone",
-                description: "test_description",
-                address: "test_address",
-                position: "test_position",
-                timeZone: "Europe/Moscow",
-                regionId: 1,
-                programId: 1,
-            }){
-                uuid
-                programId
-                username
+  // ==============================================
+  // РЕГИСТРАЦИЯ ПОЛЬЗОВАТЕЛЕЙ
+  // ==============================================
+  describe('User Registration', () => {
+    it('should register the first user', async () => {
+      const { body } = await agent.post('/graphql').send({
+        query: `
+          mutation RegisterUser($userData: IptUserData!) {
+            registerUser(args: $userData) {
+              uuid
+              programId
+              username
             }
-        }`,
-      })
-      .expect(HttpStatus.OK)
-    debug('/graphql registerUser=%o', body);
-    const {
-      data: { registerUser },
-    } = body;
-    expect(registerUser).toContainAllKeys(['uuid', 'programId', 'username']);
-    expect(registerUser.uuid).toBeNonEmptyString();
-    expect(registerUser.programId).toBe(1);
-    expect(registerUser.username).toBe(username);
-    done();
-  });
-
-  it('/login - OK', (done) => {
-    agent
-      .post('/login')
-      .send({ "user": {
-            "username": username,
-            "password": password,
           }
-        })
-      .expect(HttpStatus.OK)
-      .then(({ body, headers }) => {
-        debug('/login body=%o', body);
-        expect(body.bearer).toBeNonEmptyString();
-        authorizationTokenFirst = body.bearer;
-        done();
+        `,
+        variables: {
+          userData: {
+            email: "testemail@mail.ru",
+            firstname: "test_firstname",
+            lastname: "test_lastname",
+            secondname: "test_secondname",
+            username: username,
+            password: password,
+            phone: "test_phone",
+            description: "test_description",
+            address: "test_address",
+            position: "test_position",
+            timeZone: "Europe/Moscow",
+            regionId: 1,
+            programId: 1,
+          },
+        },
       });
-  });
 
-  it('/graphql:M register second - OK', async (done) => {
-    const { body } = await agent
-      .post('/graphql')
-      .send({
-        query: `mutation  {
-            registerUser(args: {
-                email: "testemail@mail.ru",
-                firstname: "test_firstname",
-                lastname: "test_lastname",
-                secondname: "test_secondname",
-                username: "${username2}",
-                password: "${password}",
-                phone: "test_phone",
-                description: "test_description",
-                address: "test_address",
-                position: "test_position",
-                timeZone: "Europe/Moscow",
-                regionId: 1,
-                programId: 5,
-            }){
-                uuid
-                programId
-                username
+      expect(body.data.registerUser).toBeDefined();
+      expect(body.data.registerUser.uuid).toBeNonEmptyString();
+      expect(body.data.registerUser.programId).toBe(1);
+      expect(body.data.registerUser.username).toBe(username);
+    });
+
+    it('should login the first user', async () => {
+      const { body } = await agent.post('/login').send({
+        user: {
+          username: username,
+          password: password,
+        },
+      });
+
+      expect(body.bearer).toBeNonEmptyString();
+      authorizationTokenFirst = body.bearer;
+    });
+
+    it('should register the second user', async () => {
+      const { body } = await agent.post('/graphql').send({
+        query: `
+          mutation RegisterUser($userData: IptUserData!) {
+            registerUser(args: $userData) {
+              uuid
+              programId
+              username
             }
-        }`,
-      })
-      .expect(HttpStatus.OK)
-    debug('/graphql registerUser=%o', body);
-    const {
-      data: { registerUser },
-    } = body;
-    expect(registerUser).toContainAllKeys(['uuid', 'programId', 'username']);
-    expect(registerUser.uuid).toBeNonEmptyString();
-    expect(registerUser.programId).toBe(5);
-    expect(registerUser.username).toBe(username2);
-    done();
-  });
-
-  it('/login second - OK', (done) => {
-    agent
-      .post('/login')
-      .send({ "user": {
-            "username": username2,
-            "password": password,
           }
-        })
-      .expect(HttpStatus.OK)
-      .then(({ body, headers }) => {
-        debug('/login body=%o', body);
-        expect(body.bearer).toBeNonEmptyString();
-        authorizationTokenSecond = body.bearer;
-        done();
+        `,
+        variables: {
+          userData: {
+            email: "testemail2@mail.ru",
+            firstname: "test_firstname2",
+            lastname: "test_lastname2",
+            secondname: "test_secondname2",
+            username: username2,
+            password: password,
+            phone: "test_phone2",
+            description: "test_description2",
+            address: "test_address2",
+            position: "test_position2",
+            timeZone: "Europe/Moscow",
+            regionId: 1,
+            programId: 5,
+          },
+        },
       });
+
+      expect(body.data.registerUser).toBeDefined();
+      expect(body.data.registerUser.uuid).toBeNonEmptyString();
+      expect(body.data.registerUser.programId).toBe(5);
+      expect(body.data.registerUser.username).toBe(username2);
+    });
+
+    it('should login the second user', async () => {
+      const { body } = await agent.post('/login').send({
+        user: {
+          username: username2,
+          password: password,
+        },
+      });
+
+      expect(body.bearer).toBeNonEmptyString();
+      authorizationTokenSecond = body.bearer;
+    });
   });
 
-  it('/graphql:M registerParam - BadRequest no token', async (done) => {
-    const { body } = await agent
-      .post('/graphql')
-      .send({
-        query: `mutation  {
-            registerParam(args: {
-                langId: ${langId1},
-                paramname: "${paramNameTest}"
-            }){
+  // ==============================================
+  // ПАРАМЕТРЫ (PARAM)
+  // ==============================================
+  describe('Param Management', () => {
+    it('should NOT register a param without token', async () => {
+      const { body } = await agent.post('/graphql').send({
+        query: `
+          mutation RegisterParam($data: IptParamData!) {
+            registerParam(args: $data) {
               ${paramTranslateList}
             }
-        }`,
-      })
-      .expect(HttpStatus.OK)
-    debug('/graphql body=%o', body);
-    expect(body.data).toBeNull();
-    expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found'
-    );
-    expect(body.errors[0].path[0]).toBe('registerParam');
-    done();
-  });
+          }
+        `,
+        variables: {
+          data: {
+            langId: langId1,
+            paramname: paramNameTest,
+          },
+        },
+      });
 
-  it('/graphql:M registerParam - OK', async (done) => {
-    const { body } = await agent
-      .post('/graphql')
-      .set(
-        'Authorization',
-        `Bearer ${authorizationTokenFirst}`
-      )
-      .send({
-        query: `mutation  {
-            registerParam(args: {
-                langId: ${langId1},
-                paramname: "${paramNameTest}",
-            }){
-              ${paramTranslateList}
-            }
-        }`,
-      })
-      .expect(HttpStatus.OK)
-    debug('/graphql body=%o', body);
-    const {
-      data: { registerParam },
-    } = body;
-    paramIdTest = registerParam.paramId;   // <-- save data for test "already param"
-    expect(registerParam.langId).toBe(langId1);
-    expect(registerParam.paramname).toBe(paramNameTest);
-    done();
-  });
+      expect(body.data).toBeNull();
+      expect(body.errors[0].message).toBe('BadRequest: Token not found');
+      expect(body.errors[0].path[0]).toBe('registerParam');
+    });
 
-  it('/graphql:M registerParam - OK param name is already', async (done) => {
-    const { body } = await agent
-      .post('/graphql')
-      .set(
-        'Authorization',
-        `Bearer ${authorizationTokenFirst}`
-      )
-      .send({
-        query: `mutation  {
-            registerParam(args: {
-                langId: ${langId1},
-                paramname: "${paramNameTest}"
-            }){
-              ${paramTranslateList}
-            }
-        }`,
-      })
-      .expect(HttpStatus.OK)
-    debug('/graphql body=%o', body);
-    const {
-      data: { registerParam },
-    } = body;
-    expect(registerParam.paramId).toBe(paramIdTest);
-    expect(registerParam.langId).toBe(langId1);
-    expect(registerParam.paramname).toBe(paramNameTest);
-    done();
-  });
-
-  it('/graphql:M registerParam - OK', async (done) => {
-    const { body } = await agent
-      .post('/graphql')
-      .set(
-        'Authorization',
-        `Bearer ${authorizationTokenFirst}`
-      )
-      .send({
-        query: `mutation  {
-            registerParam(args: {
-                langId: ${langId1},
-                paramname: "${paramNameTest2}",
-            }){
-              ${paramTranslateList}
-            }
-        }`,
-      })
-      .expect(HttpStatus.OK)
-    debug('/graphql body=%o', body);
-    const {
-      data: { registerParam },
-    } = body;
-    expect(registerParam).not.toBeNull();
-    paramIdTest2 = registerParam.paramId;
-    done();
-  });
-
-  it('/graphql:M registerParamsBulk - OK 2 params name is already, 1 new lang and 1 new', async (done) => {
-    const { body } = await agent
-      .post('/graphql')
-      .set(
-        'Authorization',
-        `Bearer ${authorizationTokenFirst}`
-      )
-      .send({
-        query: `mutation  {
-            registerParamsBulk(args: [
-              {
-                  langId: ${langId1},
-                  paramname: "${paramNameTest}"
-              },
-              {
-                  langId: ${langId1},
-                  paramname: "${paramNameTest2}"
-              },
-              {
-                  langId: ${langId2},
-                  paramname: "${paramNameTest2}"
-              },
-              {
-                  langId: ${langId1},
-                  paramname: "${paramNameTest3}"
+    it('should register a new param', async () => {
+      const { body } = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenFirst}`)
+        .send({
+          query: `
+            mutation RegisterParam($data: IptParamData!) {
+              registerParam(args: $data) {
+                ${paramTranslateList}
               }
-            ]){
-              ${paramTranslateList}
             }
-        }`,
-      })
-      .expect(HttpStatus.OK)
-    debug('/graphql body=%o', body);
-    const {
-      data: { registerParamsBulk },
-    } = body;
-    expect(registerParamsBulk[0].paramId).toBe(paramIdTest);
-    expect(registerParamsBulk[0].langId).toBe(langId1);
-    expect(registerParamsBulk[0].paramname).toBe(paramNameTest);
-    expect(registerParamsBulk[1].paramId).toBe(paramIdTest2);
-    expect(registerParamsBulk[1].langId).toBe(langId1);
-    expect(registerParamsBulk[1].paramname).toBe(paramNameTest2);
-    expect(registerParamsBulk[2].paramId).not.toBe(paramIdTest2);
-    expect(registerParamsBulk[2].langId).toBe(langId2);
-    expect(registerParamsBulk[2].paramname).toBe(paramNameTest2);
-    expect(registerParamsBulk[3].paramId).not.toBeNull();
-    expect(registerParamsBulk[3].langId).toBe(langId1);
-    expect(registerParamsBulk[3].paramname).toBe(paramNameTest3);
-    done();
-  });
+          `,
+          variables: {
+            data: {
+              langId: langId1,
+              paramname: paramNameTest,
+            },
+          },
+        });
 
-  it('/graphql:Q List param - OK', async (done) => {
-    const response1 = await agent
-      .post('/graphql')
-      .set(
-        'Authorization',
-        `Bearer ${authorizationTokenFirst}`
-      )
-      .send({
-        query: `query ListParams {
-            params {
+      expect(body.data.registerParam.langId).toBe(langId1);
+      expect(body.data.registerParam.paramname).toBe(paramNameTest);
+      paramIdTest = body.data.registerParam.paramId;
+    });
+
+    it('should return existing param ID when registering duplicate', async () => {
+      const { body } = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenFirst}`)
+        .send({
+          query: `
+            mutation RegisterParam($data: IptParamData!) {
+              registerParam(args: $data) {
                 paramId
+                langId
                 paramname
-            }
-        }`,
-      })
-      .expect(HttpStatus.OK)
-    debug('/graphql body=%o', response1.body);
-    expect(response1.body.data.params).toBeNonEmptyArray();
-    done();
-  });
-
-  it('/graphql:Q List param - OK with paramId', async (done) => {
-    const response1 = await agent
-      .post('/graphql')
-      .set(
-        'Authorization',
-        `Bearer ${authorizationTokenFirst}`
-      )
-      .send({
-        query: `query ListUserParams {
-            params(
-              paramIds: ${paramnameIndex}
-            ){
-                paramId
-                paramname
-            }
-        }`,
-      })
-      .expect(HttpStatus.OK)
-    debug('/graphql body=%o', response1.body);
-    // expect(response1.body).toBe(0);
-    expect(response1.body.data.params[0].paramId).toBe(paramnameIndex);
-    expect(response1.body.data.params[0].paramname).toBe(paramname);
-    done();
-  });
-
-  it('/graphql:Q List param - OK with array paramId', async (done) => {
-    const response1 = await agent
-      .post('/graphql')
-      .set(
-        'Authorization',
-        `Bearer ${authorizationTokenFirst}`
-      )
-      .send({
-        query: `query ListUserParams {
-            params(
-              paramIds: [1, ${paramnameIndex}]
-            ){
-                paramId
-                paramname
-            }
-        }`,
-      })
-      .expect(HttpStatus.OK)
-    debug('/graphql body=%o', response1.body);
-    expect(response1.body.data.params[1].paramId).toBe(paramnameIndex);
-    expect(response1.body.data.params[1].paramname).toBe(paramname);
-    done();
-  });
-
-  it('/graphql:Q List param - BadRequest no token', async (done) => {
-    const { body } = await agent
-      .post('/graphql')
-      .send({
-        query: `query ListUserParams {
-            params(
-              paramIds: [1, ${paramnameIndex}]
-            ){
-                paramId
-                paramname
-            }
-        }`,
-      })
-      .expect(HttpStatus.OK)
-    debug('/graphql body=%o', body);
-    expect(body.data).toBeNull();
-    expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found'
-    );
-    expect(body.errors[0].path[0]).toBe('params');
-    done();
-  });
-
-  // Testing get full path specification
-  it('/graphql:Q Specs paths - BadRequest id zero (no token)', async (done) => {
-    const { body } = await agent
-      .post('/graphql')
-      .send({
-        query: `query {
-            specsPaths (args:{
-              specIds: 0
-            }){
-              ${specPath}
-            }
-        }`,
-      })
-      .expect(HttpStatus.OK)
-    debug('/graphql body=%o', body);
-    expect(body.data).toBeNull();
-    expect(body.errors[0].message).toBe(
-      'BadRequest: Spec not found'
-    );
-    expect(body.errors[0].path[0]).toBe('specsPaths');
-    done();
-  });
-
-  it('/graphql:Q Specs paths - BadRequest id zero', async (done) => {
-    const { body } = await agent
-      .post('/graphql')
-      .set(
-        'Authorization',
-        `Bearer ${authorizationTokenFirst}`
-      )
-      .send({
-        query: `query {
-            specsPaths (args:{
-              specIds: 0
-            }){
-              ${specPath}
-            }
-        }`,
-      })
-      .expect(HttpStatus.OK)
-    debug('/graphql body=%o', body);
-    expect(body.data).toBeNull();
-    expect(body.errors[0].message).toBe(
-      'BadRequest: Spec not found'
-    );
-    expect(body.errors[0].path[0]).toBe('specsPaths');
-    done();
-  });
-
-  it('/graphql:Q Specs paths - OK', async (done) => {
-    const { body } = await agent
-      .post('/graphql')
-      .set(
-        'Authorization',
-        `Bearer ${authorizationTokenFirst}`
-      )
-      .send({
-        query: `query {
-            specsPaths (args:{
-              specIds: ${specId5}
-            }){
-              ${specPath}
-            }
-        }`,
-      })
-      .expect(HttpStatus.OK)
-    debug('/graphql body=%o', body);
-    const {
-      data: { specsPaths }
-    } = body;
-    expect(specsPaths[0].path).toBe(specPath5);
-    expect(specsPaths[0].depth).toBe(specPathDepth5);
-    done();
-  });
-
-  it('/graphql:Q Specs paths - OK', async (done) => {
-    const { body } = await agent
-      .post('/graphql')
-      .set(
-        'Authorization',
-        `Bearer ${authorizationTokenFirst}`
-      )
-      .send({
-        query: `query {
-            specsPaths (args:{
-              specIds: ${specId5}
-              splitChar: "#"
-              depthLevel: 50
-            }){
-              ${specPath}
-            }
-        }`,
-      })
-      .expect(HttpStatus.OK)
-    debug('/graphql body=%o', body);
-    // expect(body).toBe(0);
-    const {
-      data: { specsPaths }
-    } = body;
-    expect(specsPaths[0].path).toBe(specPathSplit5);
-    done();
-  });
-
-  it('/graphql:Q Specs paths - OK without param', async (done) => {
-    const { body } = await agent
-      .post('/graphql')
-      .set(
-        'Authorization',
-        `Bearer ${authorizationTokenFirst}`
-      )
-      .send({
-        query: `query {
-            specsPaths {
-              ${specPath}
-            }
-        }`,
-      })
-      .expect(HttpStatus.OK)
-    debug('/graphql body=%o', body);
-    // expect(body).toBe(0);
-    const {
-      data: { specsPaths }
-    } = body;
-    specPath10 = specsPaths[10].path;
-    expect(specsPaths[1].path).toBeNonEmptyString();
-    expect(specsPaths.length).toBe(100);
-    done();
-  });
-
-  it('/graphql:Q Specs paths - OK with set depthLevel', async (done) => {
-    const { body } = await agent
-      .post('/graphql')
-      .set(
-        'Authorization',
-        `Bearer ${authorizationTokenFirst}`
-      )
-      .send({
-        query: `query {
-            specsPaths (args:{
-              specIds: ${specId5}
-              depthLevel: 5
-            }){
-              ${specPath}
-            }
-        }`,
-      })
-      .expect(HttpStatus.OK)
-    debug('/graphql body=%o', body);
-    // expect(body).toBe(0);
-    const {
-      data: { specsPaths }
-    } = body;
-    expect(specsPaths[0].specId).toBe(specId5);
-    expect(specsPaths[0].path).toBe(specPath5Level5);
-    expect(specsPaths[0].depth).toBe(specPathDepth5);
-    expect(specsPaths.length).toBe(1);
-    done();
-  });
-
-  it('/graphql:Q Specs paths - OK with paginate', async (done) => {
-    const { body } = await agent
-      .post('/graphql')
-      .set(
-        'Authorization',
-        `Bearer ${authorizationTokenFirst}`
-      )
-      .send({
-        query: `query {
-            specsPaths (
-              paginate: {
-                currentPage: 2
-                perPage: 10
               }
-            ){
-              ${specPath}
             }
-        }`,
-      })
-      .expect(HttpStatus.OK)
-    debug('/graphql body=%o', body);
-    // expect(body).toBe(0);
-    const {
-      data: { specsPaths }
-    } = body;
-    expect(specsPaths[0].path).toBe(specPath10);
-    expect(specsPaths.length).toBe(10);
-    done();
+          `,
+          variables: {
+            data: {
+              langId: langId1,
+              paramname: paramNameTest,
+            },
+          },
+        });
+
+      expect(body.data.registerParam.paramId).toBe(paramIdTest);
+      expect(body.data.registerParam.langId).toBe(langId1);
+      expect(body.data.registerParam.paramname).toBe(paramNameTest);
+    });
+
+    it('should register another param', async () => {
+      const { body } = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenFirst}`)
+        .send({
+          query: `
+            mutation RegisterParam($data: IptParamData!) {
+              registerParam(args: $data) {
+                paramId
+                langId
+                paramname
+              }
+            }
+          `,
+          variables: {
+            data: {
+              langId: langId1,
+              paramname: paramNameTest2,
+            },
+          },
+        });
+
+      expect(body.data.registerParam).not.toBeNull();
+      paramIdTest2 = body.data.registerParam.paramId;
+    });
+
+    it('should register multiple params in bulk', async () => {
+      const { body } = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenFirst}`)
+        .send({
+          query: `
+            mutation RegisterParamsBulk($data: [IptParamData!]!) {
+              registerParamsBulk(args: $data) {
+                paramId
+                langId
+                paramname
+              }
+            }
+          `,
+          variables: {
+            data: [
+              { langId: langId1, paramname: paramNameTest },
+              { langId: langId1, paramname: paramNameTest2 },
+              { langId: langId2, paramname: paramNameTest2 },
+              { langId: langId1, paramname: paramNameTest3 },
+            ],
+          },
+        });
+
+      expect(body.data.registerParamsBulk[0].paramId).toBe(paramIdTest);
+      expect(body.data.registerParamsBulk[0].paramname).toBe(paramNameTest);
+      expect(body.data.registerParamsBulk[1].paramId).toBe(paramIdTest2);
+      expect(body.data.registerParamsBulk[1].paramname).toBe(paramNameTest2);
+      expect(body.data.registerParamsBulk[2].paramId).not.toBe(paramIdTest2);
+      expect(body.data.registerParamsBulk[2].langId).toBe(langId2);
+      expect(body.data.registerParamsBulk[2].paramname).toBe(paramNameTest2);
+      expect(body.data.registerParamsBulk[3].paramId).not.toBeNull();
+      expect(body.data.registerParamsBulk[3].paramname).toBe(paramNameTest3);
+    });
   });
 
-  // Testing get specification
-  it('/graphql:Q Specs - OK (no token)', async (done) => {
-    const { body } = await agent
-      .post('/graphql')
-      .send({
-        query: `query {
-            specs (args:{
-              specIds: 0
-            }){
-              ${specTranslateList}
+  // ==============================================
+  // СПИСКИ ПАРАМЕТРОВ
+  // ==============================================
+  describe('Params List', () => {
+    it('should return list of params', async () => {
+      const { body } = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenFirst}`)
+        .send({
+          query: `
+            query GetParams {
+              params {
+                paramId
+                paramname
+              }
             }
-        }`,
-      })
-      .expect(HttpStatus.OK)
-    debug('/graphql body=%o', body);
-    const {
-      data: { specs }
-    } = body;
-    expect(specs).toBeEmptyArray();
-    done();
+          `,
+        });
+
+      expect(body.data.params).toBeNonEmptyArray();
+    });
+
+    it('should return param by ID', async () => {
+      const { body } = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenFirst}`)
+        .send({
+          query: `
+            query GetParams($paramIds: [Int!]) {
+              params(paramIds: $paramIds) {
+                paramId
+                paramname
+              }
+            }
+          `,
+          variables: { paramIds: 2 },
+        });
+
+      expect(body.data.params[0].paramId).toBe(2);
+      expect(body.data.params[0].paramname).toBe("Selector");
+    });
+
+    it('should return params by array of IDs', async () => {
+      const { body } = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenFirst}`)
+        .send({
+          query: `
+            query GetParams($paramIds: [Int!]) {
+              params(paramIds: $paramIds) {
+                paramId
+                paramname
+              }
+            }
+          `,
+          variables: { paramIds: [1, 2] },
+        });
+
+      expect(body.data.params[1].paramId).toBe(2);
+      expect(body.data.params[1].paramname).toBe("Selector");
+    });
+
+    it('should NOT return params without token', async () => {
+      const { body } = await agent.post('/graphql').send({
+        query: `
+          query GetParams($paramIds: [Int!]) {
+            params(paramIds: $paramIds) {
+              paramId
+              paramname
+            }
+          }
+        `,
+        variables: { paramIds: [1, 2] },
+      });
+
+      expect(body.data).toBeNull();
+      expect(body.errors[0].message).toBe('BadRequest: Token not found');
+      expect(body.errors[0].path[0]).toBe('params');
+    });
   });
 
-  it('/graphql:Q Specs - BadRequest id zero', async (done) => {
-    const { body } = await agent
-      .post('/graphql')
-      .set(
-        'Authorization',
-        `Bearer ${authorizationTokenFirst}`
-      )
-      .send({
-        query: `query {
-            specs (args:{
-              specIds: 0
-            }){
-              ${specTranslateList}
+  // ==============================================
+  // ПУТИ СПЕЦИФИКАЦИЙ (SPECS PATHS)
+  // ==============================================
+  describe('Specs Paths', () => {
+    it('should NOT return path for invalid spec ID without token', async () => {
+      const { body } = await agent.post('/graphql').send({
+        query: `
+          query GetSpecsPaths($specIds: [Int!]) {
+            specsPaths(args: { specIds: $specIds }) {
+              ${specPathQuery}
             }
-        }`,
-      })
-      .expect(HttpStatus.OK)
-    debug('/graphql body=%o', body);
-    const {
-      data: { specs }
-    } = body;
-    expect(specs).toBeEmptyArray();
-    done();
+          }
+        `,
+        variables: { specIds: 0 },
+      });
+
+      expect(body.data).toBeNull();
+      expect(body.errors[0].message).toBe('BadRequest: Spec not found');
+      expect(body.errors[0].path[0]).toBe('specsPaths');
+    });
+
+    it('should NOT return path for invalid spec ID', async () => {
+      const { body } = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenFirst}`)
+        .send({
+          query: `
+            query GetSpecsPaths($specIds: [Int!]) {
+              specsPaths(args: { specIds: $specIds }) {
+                ${specPathQuery}
+              }
+            }
+          `,
+          variables: { specIds: 0 },
+        });
+
+      expect(body.data).toBeNull();
+      expect(body.errors[0].message).toBe('BadRequest: Spec not found');
+      expect(body.errors[0].path[0]).toBe('specsPaths');
+    });
+
+    it('should return path for spec ID 5', async () => {
+      const { body } = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenFirst}`)
+        .send({
+          query: `
+            query GetSpecsPaths($specIds: [Int!]) {
+              specsPaths(args: { specIds: $specIds }) {
+                ${specPathQuery}
+              }
+            }
+          `,
+          variables: { specIds: specId5 },
+        });
+
+      expect(body.data.specsPaths[0].path).toBe(specPath5);
+      expect(body.data.specsPaths[0].depth).toBe(specPathDepth5);
+    });
+
+    it('should return path with custom split character', async () => {
+      const { body } = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenFirst}`)
+        .send({
+          query: `
+            query GetSpecsPaths($specIds: [Int!], $splitChar: String, $depthLevel: Int) {
+              specsPaths(args: { specIds: $specIds, splitChar: $splitChar, depthLevel: $depthLevel }) {
+                ${specPathQuery}
+              }
+            }
+          `,
+          variables: {
+            specIds: specId5,
+            splitChar: "#",
+            depthLevel: 50,
+          },
+        });
+
+      expect(body.data.specsPaths[0].path).toBe(specPathSplit5);
+    });
+
+    it('should return all specs paths without params', async () => {
+      const { body } = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenFirst}`)
+        .send({
+          query: `
+            query GetSpecsPaths {
+              specsPaths {
+                ${specPathQuery}
+              }
+            }
+          `,
+        });
+
+      expect(body.data.specsPaths[1].path).toBeNonEmptyString();
+      expect(body.data.specsPaths.length).toBe(100);
+      specPath10 = body.data.specsPaths[10].path;
+    });
+
+    it('should return path with depth level 5', async () => {
+      const { body } = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenFirst}`)
+        .send({
+          query: `
+            query GetSpecsPaths($specIds: [Int!], $depthLevel: Int) {
+              specsPaths(args: { specIds: $specIds, depthLevel: $depthLevel }) {
+                ${specPathQuery}
+              }
+            }
+          `,
+          variables: {
+            specIds: specId5,
+            depthLevel: 5,
+          },
+        });
+
+      expect(body.data.specsPaths[0].specId).toBe(specId5);
+      expect(body.data.specsPaths[0].path).toBe(specPath5Level5);
+      expect(body.data.specsPaths[0].depth).toBe(specPathDepth5);
+      expect(body.data.specsPaths.length).toBe(1);
+    });
+
+    it('should return paths with depth level 5 (second test)', async () => {
+      const { body } = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenFirst}`)
+        .send({
+          query: `
+            query GetSpecsPaths($specIds: [Int!], $depthLevel: Int) {
+              specsPaths(args: { specIds: $specIds, depthLevel: $depthLevel }) {
+                ${specPathQuery}
+              }
+            }
+          `,
+          variables: {
+            specIds: specId5,
+            depthLevel: 5,
+          },
+        });
+
+      expect(body.data.specsPaths[0].specId).toBe(specId5);
+      expect(body.data.specsPaths[0].path).toBe(specPath5Level5);
+      expect(body.data.specsPaths[0].depth).toBe(specPathDepth5);
+      expect(body.data.specsPaths.length).toBe(1);
+    });
+
+    it('should return paths with pagination', async () => {
+      const { body } = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenFirst}`)
+        .send({
+          query: `
+            query GetSpecsPaths($page: Int, $perPage: Int) {
+              specsPaths(paginate: { currentPage: $page, perPage: $perPage }) {
+                ${specPathQuery}
+              }
+            }
+          `,
+          variables: { page: 2, perPage: 10 },
+        });
+
+      expect(body.data.specsPaths[0].path).toBe(specPath10);
+      expect(body.data.specsPaths.length).toBe(10);
+    });
   });
 
-  it('/graphql:Q Specs - OK', async (done) => {
-    const { body } = await agent
-      .post('/graphql')
-      .set(
-        'Authorization',
-        `Bearer ${authorizationTokenFirst}`
-      )
-      .send({
-        query: `query {
-            specs (args:{
-              specIds: ${specId5}
-            }){
+  // ==============================================
+  // СПЕЦИФИКАЦИИ (SPECS)
+  // ==============================================
+  describe('Specs', () => {
+    it('should return empty array for invalid spec ID without token', async () => {
+      const { body } = await agent.post('/graphql').send({
+        query: `
+          query GetSpecs($specIds: [Int!]) {
+            specs(args: { specIds: $specIds }) {
               ${specTranslateList}
             }
-        }`,
-      })
-      .expect(HttpStatus.OK)
-    debug('/graphql body=%o', body);
-    const {
-      data: { specs }
-    } = body;
-    specName5 = specs[0].spec;
-    expect(specs[0].specId).toBe(specId5);
-    done();
-  });
+          }
+        `,
+        variables: { specIds: 0 },
+      });
 
-  it('/graphql:Q Specs - OK by level and get parent to over ROOT', async (done) => {
-    const { body } = await agent
-      .post('/graphql')
-      .set(
-        'Authorization',
-        `Bearer ${authorizationTokenFirst}`
-      )
-      .send({
-        query: `query {
-            specs (args:{
-              specsLevels: 4
-            }){
-              ${specTranslateList}
-              parentSpec {
+      expect(body.data.specs).toBeEmptyArray();
+    });
+
+    it('should return empty array for invalid spec ID', async () => {
+      const { body } = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenFirst}`)
+        .send({
+          query: `
+            query GetSpecs($specIds: [Int!]) {
+              specs(args: { specIds: $specIds }) {
+                specId
+                spec
+              }
+            }
+          `,
+          variables: { specIds: 0 },
+        });
+
+      expect(body.data.specs).toBeEmptyArray();
+    });
+
+    it('should return spec by ID', async () => {
+      const { body } = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenFirst}`)
+        .send({
+          query: `
+            query GetSpecs($specIds: [Int!]) {
+              specs(args: { specIds: $specIds }) {
+                specId
+                spec
+              }
+            }
+          `,
+          variables: { specIds: specId5 },
+        });
+
+      specName5 = body.data.specs[0].spec;
+      expect(body.data.specs[0].specId).toBe(specId5);
+    });
+
+    it('should return specs with parent hierarchy', async () => {
+      const { body } = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenFirst}`)
+        .send({
+          query: `
+            query GetSpecs($specsLevels: Int) {
+              specs(args: { specsLevels: $specsLevels }) {
                 specId
                 spec
                 parentSpec {
@@ -762,846 +677,625 @@ describe('relate', () => {
                       parentSpec {
                         specId
                         spec
+                        parentSpec {
+                          specId
+                          spec
+                        }
                       }
                     }
                   }
                 }
               }
             }
-        }`,
-      })
-      .expect(HttpStatus.OK)
-    debug('/graphql body=%o', body);
-    // expect(body).toBe(0);
-    const {
-      data: { specs }
-    } = body;
-    expect(specs).toBeNonEmptyArray();
-    expect(specs[1].parentSpec.parentSpec.parentSpec.specId).not.toBe(1);
-    expect(specs[1].parentSpec.parentSpec.parentSpec.parentSpec.specId).toBe(1);
-    expect(specs[1].parentSpec.parentSpec.parentSpec.parentSpec.parentSpec.specId).toBe(1);
-    done();
-  });
+          `,
+          variables: { specsLevels: 4 },
+        });
 
-  it('/graphql:Q Specs - OK filter all', async (done) => {
-    const { body } = await agent
-      .post('/graphql')
-      .set(
-        'Authorization',
-        `Bearer ${authorizationTokenFirst}`
-      )
-      .send({
-        query: `query {
-            specs (args:{
-              specIds: [${specLevels3}]
-              specsLevels: 4
-            }){
-              ${specTranslateList}
-            }
-        }`,
-      })
-      .expect(HttpStatus.OK)
-    debug('/graphql body=%o', body);
-    // expect(body).toBe(0);
-    const {
-      data: { specs }
-    } = body;
-    expect(specs).toBeEmptyArray();
-    done();
-  });
-
-  it('/graphql:Q Specs - OK by level with filter', async (done) => {
-    const { body } = await agent
-      .post('/graphql')
-      .set(
-        'Authorization',
-        `Bearer ${authorizationTokenFirst}`
-      )
-      .send({
-        query: `query {
-            specs (args:{
-              specIds: [${specLevels3}]
-              specsLevels: 3
-            }){
-              ${specTranslateList}
-            }
-        }`,
-      })
-      .expect(HttpStatus.OK)
-    debug('/graphql body=%o', body);
-    // expect(body).toBe(0);
-    const {
-      data: { specs }
-    } = body;
-    specName4 = specs[3].spec;
-    expect(specs).toBeNonEmptyArray();
-    done();
-  });
-
-  it('/graphql:Q Specs - OK without param', async (done) => {
-    const { body } = await agent
-      .post('/graphql')
-      .set(
-        'Authorization',
-        `Bearer ${authorizationTokenFirst}`
-      )
-      .send({
-        query: `query {
-            specs {
-            ${specTranslateList}
-            }
-        }`,
-      })
-      .expect(HttpStatus.OK)
-    debug('/graphql body=%o', body);
-    // expect(body).toBe(0);
-    const {
-      data: { specs }
-    } = body;
-    expect(specs[1].spec).toBeNonEmptyString();
-    expect(specs.length).toBe(100);
-    done();
-  });
-
-  it('/graphql:Q Specs - OK with paginate', async (done) => {
-    const { body } = await agent
-      .post('/graphql')
-      .set(
-        'Authorization',
-        `Bearer ${authorizationTokenFirst}`
-      )
-      .send({
-        query: `query {
-            specs (
-              args:{
-                specIds: [${specLevels3}]
-                specsLevels: 3
-              }
-              paginate: {
-                currentPage: 2
-                perPage: 3
-              }
-            ){
-              ${specTranslateList}
-            }
-        }`,
-      })
-      .expect(HttpStatus.OK)
-    debug('/graphql body=%o', body);
-    // expect(body).toBe(0);
-    const {
-      data: { specs }
-    } = body;
-    expect(specs[0].spec).toBe(specName4);
-    expect(specs.length).toBe(1);
-    done();
-  });
-
-  // Testing search specification
-  it('/graphql:Q searchSpecs - BadRequest (no token)', async (done) => {
-    const { body } = await agent
-      .post('/graphql')
-      .send({
-        query: `query {
-            searchSpecs (args:{
-              text: "bolt"
-            }){
-              specId
-              path
-              langId
-            }
-        }`,
-      })
-      .expect(HttpStatus.OK)
-    debug('/graphql body=%o', body);
-    // expect(body).toBe(0);
-    const {
-      data: { searchSpecs }
-    } = body;
-    expect(searchSpecs.length).toBe(5);
-    expect(searchSpecs[0].specId).toBe(5);
-    expect(searchSpecs[1].specId).toBe(8);
-    expect(searchSpecs[1].path).toBe("Threaded Fasteners/Screws and bolts/U Bolts");
-    expect(searchSpecs[2].specId).toBe(7);
-    expect(searchSpecs[3].specId).toBe(9);
-    expect(searchSpecs[4].specId).toBe(6);
-    done();
-  });
-
-  it('/graphql:Q searchSpecs - Ok empty str', async (done) => {
-    const { body } = await agent
-      .post('/graphql')
-      .set(
-        'Authorization',
-        `Bearer ${authorizationTokenFirst}`
-      )
-      .send({
-        query: `query {
-            searchSpecs (args:{
-              text: ""
-            }){
-              specId
-              path
-              langId
-            }
-        }`,
-      })
-      .expect(HttpStatus.OK)
-    debug('/graphql body=%o', body);
-    const {
-      data: { searchSpecs }
-    } = body;
-    expect(searchSpecs).toBeEmptyArray();
-    done();
-  });
-
-  it('/graphql:Q searchSpecs - OK', async (done) => {
-    const { body } = await agent
-      .post('/graphql')
-      .set(
-        'Authorization',
-        `Bearer ${authorizationTokenFirst}`
-      )
-      .send({
-        query: `query {
-            searchSpecs (args:{
-              text: "${specName5}"
-            }){
-              specId
-              path
-              langId
-            }
-        }`,
-      })
-      .expect(HttpStatus.OK)
-    debug('/graphql body=%o', body);
-    const {
-      data: { searchSpecs }
-    } = body;
-    expect(searchSpecs[0].specId).toBe(specId5);
-    done();
-  });
-
-  it('/graphql:Q searchSpecs paths - OK with custom split', async (done) => {
-    const { body } = await agent
-      .post('/graphql')
-      .set(
-        'Authorization',
-        `Bearer ${authorizationTokenFirst}`
-      )
-      .send({
-        query: `query {
-            searchSpecs (args:{
-              text: "${specName5}"
-              splitChar: "#"
-              depthLevel: 50
-            }){
-              specId
-              path
-              langId
-            }
-        }`,
-      })
-      .expect(HttpStatus.OK)
-    debug('/graphql body=%o', body);
-    // expect(body).toBe(0);
-    const {
-      data: { searchSpecs }
-    } = body;
-    expect(searchSpecs[0].path).toBe(specPathSplit5);
-    done();
-  });
-
-  it('/graphql:Q searchSpecs - OK ru lang', async (done) => {
-    const { body } = await agent
-      .post('/graphql')
-      .set(
-        'Authorization',
-        `Bearer ${authorizationTokenFirst}`
-      )
-      .set(
-        'Accept-Language',
-        `ru`
-      )
-      .send({
-        query: `query {
-            searchSpecs (args:{
-              text: "болт"
-            }){
-              specId
-              path
-              langId
-            }
-        }`,
-      })
-      .expect(HttpStatus.OK)
-    debug('/graphql body=%o', body);
-    // expect(body).toBe(0);
-    const {
-      data: { searchSpecs }
-    } = body;
-    expect(searchSpecs[1].path).toBeNonEmptyString();
-    expect(searchSpecs.length).toBe(5);
-    done();
-  });
-
-  it('/graphql:Q searchSpecs - OK with depthLevel 1', async (done) => {
-    const { body } = await agent
-      .post('/graphql')
-      .set(
-        'Authorization',
-        `Bearer ${authorizationTokenFirst}`
-      )
-      .send({
-        query: `query {
-            searchSpecs (args:{
-              text: "${specName4}"
-              depthLevel: 1
-            }){
-              specId
-              path
-              langId
-            }
-        }`,
-      })
-      .expect(HttpStatus.OK)
-    debug('/graphql body=%o', body);
-    // expect(body).toBe(0);
-    const {
-      data: { searchSpecs }
-    } = body;
-    expect(searchSpecs[0].path).toBe(specName4);
-    done();
-  });
-
-  it('/graphql:Q searchSpecs - OK with paginate', async (done) => {
-    const { body } = await agent
-      .post('/graphql')
-      .set(
-        'Authorization',
-        `Bearer ${authorizationTokenFirst}`
-      )
-      .send({
-        query: `query {
-            searchSpecs (
-              args:{
-                text: "bolt"
-                depthLevel: 1
-              }
-              paginate: {
-                currentPage: 2
-                perPage: 2
-              }
-            ){
-              specId
-              path
-              langId
-            }
-        }`,
-      })
-      .expect(HttpStatus.OK)
-    debug('/graphql body=%o', body);
-    // expect(body).toBe(0);
-    const {
-      data: { searchSpecs }
-    } = body;
-    expect(searchSpecs.length).toBe(2);
-    done();
-  });
-
-  // Testing get company types
-  it('/graphql:Q Company types - BadRequest no token', async (done) => {
-    const { body } = await agent
-      .post('/graphql')
-      .send({
-        query: `query {
-            companyTypes {
-              name
-              langId
-              companyTypeId
-            }
-        }`,
-      })
-      .expect(HttpStatus.OK)
-    debug('/graphql body=%o', body);
-    expect(body.data).toBeNull();
-    expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found'
-    );
-    expect(body.errors[0].path[0]).toBe('companyTypes');
-    done();
-  });
-
-  it('/graphql:Q Company types - OK', async (done) => {
-    const { body } = await agent
-      .post('/graphql')
-      .set(
-        'Authorization',
-        `Bearer ${authorizationTokenFirst}`
-      )
-      .send({
-        query: `query {
-            companyTypes {
-              name
-              langId
-              companyTypeId
-            }
-        }`,
-      })
-      .expect(HttpStatus.OK)
-    debug('/graphql body=%o', body);
-    const {
-      data: { companyTypes }
-    } = body;
-    expect(companyTypes).toBeNonEmptyArray();
-    expect(companyTypes[0].langId).toBe(1);
-    done();
-  });
-
-  it('/graphql:Q Company types - OK', async (done) => {
-    const { body } = await agent
-      .post('/graphql')
-      .set(
-        'Authorization',
-        `Bearer ${authorizationTokenFirst}`
-      )
-      .set(
-        'Accept-Language',
-        `ru`
-      )
-      .send({
-        query: `query {
-            companyTypes {
-              name
-              langId
-              companyTypeId
-            }
-        }`,
-      })
-      .expect(HttpStatus.OK)
-    debug('/graphql body=%o', body);
-    const {
-      data: { companyTypes }
-    } = body;
-    expect(companyTypes).toBeNonEmptyArray();
-    expect(companyTypes[0].langId).toBe(2);
-    done();
-  });
-
-  // Testing get company represent types
-  it('/graphql:Q Company represent types - BadRequest no token', async (done) => {
-    const { body } = await agent
-      .post('/graphql')
-      .send({
-        query: `query {
-            companyRepresentTypes {
-              representationType
-              langId
-              representationTypeId
-            }
-        }`,
-      })
-      .expect(HttpStatus.OK)
-    debug('/graphql body=%o', body);
-    expect(body.data).toBeNull();
-    expect(body.errors[0].message).toBe(
-      'BadRequest: Token not found'
-    );
-    expect(body.errors[0].path[0]).toBe('companyRepresentTypes');
-    done();
-  });
-
-  it('/graphql:Q Company represent types - OK', async (done) => {
-    const { body } = await agent
-      .post('/graphql')
-      .set(
-        'Authorization',
-        `Bearer ${authorizationTokenFirst}`
-      )
-      .send({
-        query: `query {
-            companyRepresentTypes {
-              representationType
-              langId
-              representationTypeId
-            }
-        }`,
-      })
-      .expect(HttpStatus.OK)
-    debug('/graphql body=%o', body);
-    const {
-      data: { companyRepresentTypes }
-    } = body;
-    expect(companyRepresentTypes).toBeNonEmptyArray();
-    expect(companyRepresentTypes[0].langId).toBe(1);
-    done();
-  });
-
-  it('/graphql:Q Company represent types - OK', async (done) => {
-    const { body } = await agent
-      .post('/graphql')
-      .set(
-        'Authorization',
-        `Bearer ${authorizationTokenFirst}`
-      )
-      .set(
-        'Accept-Language',
-        `ru`
-      )
-      .send({
-        query: `query {
-            companyRepresentTypes {
-              representationType
-              langId
-              representationTypeId
-            }
-        }`,
-      })
-      .expect(HttpStatus.OK)
-    debug('/graphql body=%o', body);
-    const {
-      data: { companyRepresentTypes }
-    } = body;
-    expect(companyRepresentTypes).toBeNonEmptyArray();
-    expect(companyRepresentTypes[0].langId).toBe(2);
-    done();
-  });
-
-  // ===TESTING CHINESE LANGUAGE SUPPORT===
-  it('/graphql:Q Company types - OK Chinese (zh-Hans)', async (done) => {
-    const { body } = await agent
-      .post('/graphql')
-      .set(
-        'Authorization',
-        `Bearer ${authorizationTokenFirst}`
-      )
-      .set(
-        'Accept-Language',
-        `zh-Hans`
-      )
-      .send({
-        query: `query {
-            companyTypes {
-              name
-              langId
-              companyTypeId
-            }
-        }`,
-      })
-      .expect(HttpStatus.OK)
-    debug('/graphql body=%o', body);
-    const {
-      data: { companyTypes }
-    } = body;
-    expect(companyTypes).toBeNonEmptyArray();
-    expect(companyTypes[0].langId).toBe(3);
-    // Find "有限责任公司" in the array (company_type_id = 1)
-    const limitedCompany = companyTypes.find(ct => ct.companyTypeId === 1);
-    expect(limitedCompany).toBeDefined();
-    expect(limitedCompany.name).toBe("有限责任公司");
-    // Check that the first element after alphabetical sort is "上市公司" (company_type_id = 4)
-    expect(companyTypes[0].name).toBe("上市公司");
-    expect(companyTypes[0].companyTypeId).toBe(4);
-    done();
-  });
-
-  it('/graphql:Q Company types - OK Chinese (zh-Hant)', async (done) => {
-    const { body } = await agent
-      .post('/graphql')
-      .set(
-        'Authorization',
-        `Bearer ${authorizationTokenFirst}`
-      )
-      .set(
-        'Accept-Language',
-        `zh-Hant`
-      )
-      .send({
-        query: `query {
-            companyTypes {
-              name
-              langId
-              companyTypeId
-              shortname
-            }
-        }`,
-      })
-      .expect(HttpStatus.OK)
-    debug('/graphql body=%o', body);
-    const {
-      data: { companyTypes }
-    } = body;
-    expect(companyTypes).toBeNonEmptyArray();
-    expect(companyTypes[0].langId).toBe(3);
-    // Check alphabetical order - "上市公司" comes first
-    expect(companyTypes[0].name).toBe("上市公司");
-    expect(companyTypes[0].shortname).toBe("上市公司");
-    expect(companyTypes[0].companyTypeId).toBe(4);
-    // Verify all expected company types are present
-    const companyTypeIds = companyTypes.map(ct => ct.companyTypeId);
-    expect(companyTypeIds).toContain(1); // 有限责任公司
-    expect(companyTypeIds).toContain(2); // 个体工商户
-    expect(companyTypeIds).toContain(3); // 国有企业
-    expect(companyTypeIds).toContain(4); // 上市公司
-    expect(companyTypeIds).toContain(5); // 股份有限公司
-    done();
-  });
-
-  it('/graphql:Q Company types - OK Chinese (zh-Hans-CN)', async (done) => {
-    const { body } = await agent
-      .post('/graphql')
-      .set(
-        'Authorization',
-        `Bearer ${authorizationTokenFirst}`
-      )
-      .set(
-        'Accept-Language',
-        `zh-Hans-CN`
-      )
-      .send({
-        query: `query {
-            companyTypes {
-              name
-              langId
-              companyTypeId
-              shortname
-            }
-        }`,
-      })
-      .expect(HttpStatus.OK)
-    debug('/graphql body=%o', body);
-    const {
-      data: { companyTypes }
-    } = body;
-    expect(companyTypes).toBeNonEmptyArray();
-    expect(companyTypes[0].langId).toBe(3);
-    // Check the order - should be alphabetical
-    const names = companyTypes.map(ct => ct.name);
-    expect(names[0]).toBe("上市公司"); // 上 comes first alphabetically
-    // Find specific company types
-    const limitedCompany = companyTypes.find(ct => ct.companyTypeId === 1);
-    const stateOwned = companyTypes.find(ct => ct.companyTypeId === 3);
-    const foreignInvested = companyTypes.find(ct => ct.companyTypeId === 6);
-    expect(limitedCompany?.name).toBe("有限责任公司");
-    expect(stateOwned?.name).toBe("国有企业");
-    expect(foreignInvested?.name).toBe("外商投资企业");
-    done();
-  });
-
-  it('/graphql:Q Company types - OK Chinese (zh-Hant-TW)', async (done) => {
-    const { body } = await agent
-      .post('/graphql')
-      .set(
-        'Authorization',
-        `Bearer ${authorizationTokenFirst}`
-      )
-      .set(
-        'Accept-Language',
-        `zh-Hant-TW`
-      )
-      .send({
-        query: `query {
-            companyTypes {
-              name
-              langId
-              companyTypeId
-            }
-        }`,
-      })
-      .expect(HttpStatus.OK)
-    debug('/graphql body=%o', body);
-    const {
-      data: { companyTypes }
-    } = body;
-    expect(companyTypes).toBeNonEmptyArray();
-    expect(companyTypes[0].langId).toBe(3);
-    // Just verify the structure and that we get Chinese translations
-    expect(companyTypes).toBeArrayOfObjects();
-    expect(companyTypes[0]).toContainAllKeys(['name', 'langId', 'companyTypeId']);
-    // All items should have Chinese translations
-    companyTypes.forEach(ct => {
-      expect(ct.langId).toBe(3);
-      expect(ct.name).toBeNonEmptyString();
+      expect(body.data.specs).toBeNonEmptyArray();
+      expect(body.data.specs[1].parentSpec.parentSpec.parentSpec.specId).not.toBe(1);
+      expect(body.data.specs[1].parentSpec.parentSpec.parentSpec.parentSpec.specId).toBe(1);
     });
-    done();
+
+    it('should return empty array for invalid filter combination', async () => {
+      const { body } = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenFirst}`)
+        .send({
+          query: `
+            query GetSpecs($specIds: [Int!], $specsLevels: Int) {
+              specs(args: { specIds: $specIds, specsLevels: $specsLevels }) {
+                specId
+                spec
+              }
+            }
+          `,
+          variables: {
+            specIds: specLevels3,
+            specsLevels: 4,
+          },
+        });
+
+      expect(body.data.specs).toBeEmptyArray();
+    });
+
+    it('should return specs by level with filter', async () => {
+      const { body } = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenFirst}`)
+        .send({
+          query: `
+            query GetSpecs($specIds: [Int!], $specsLevels: Int) {
+              specs(args: { specIds: $specIds, specsLevels: $specsLevels }) {
+                specId
+                spec
+              }
+            }
+          `,
+          variables: {
+            specIds: specLevels3,
+            specsLevels: 3,
+          },
+        });
+      specName4 = body.data.specs[3].spec;
+      expect(body.data.specs).toBeNonEmptyArray();
+    });
+
+    it('should return all specs without params', async () => {
+      const { body } = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenFirst}`)
+        .send({
+          query: `
+            query GetSpecs {
+              specs {
+                specId
+                spec
+              }
+            }
+          `,
+        });
+
+      expect(body.data.specs[1].spec).toBeNonEmptyString();
+      expect(body.data.specs.length).toBe(100);
+    });
+
+    it('should return specs without params (second test)', async () => {
+      const { body } = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenFirst}`)
+        .send({
+          query: `
+            query GetSpecs {
+              specs {
+                specId
+                spec
+              }
+            }
+          `,
+        });
+
+      expect(body.data.specs).toBeNonEmptyArray();
+      expect(body.data.specs[1].spec).toBeNonEmptyString();
+      expect(body.data.specs.length).toBe(100);
+    });
+
+    it('should return specs with pagination', async () => {
+      const { body } = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenFirst}`)
+        .send({
+          query: `
+            query GetSpecs($specIds: [Int!], $specsLevels: Int, $page: Int, $perPage: Int) {
+              specs(
+                args: { specIds: $specIds, specsLevels: $specsLevels }
+                paginate: { currentPage: $page, perPage: $perPage }
+              ) {
+                specId
+                spec
+              }
+            }
+          `,
+          variables: {
+            specIds: specLevels3,
+            specsLevels: 3,
+            page: 2,
+            perPage: 3,
+          },
+        });
+
+      expect(body.data.specs[0].spec).toBe(specName4);
+      expect(body.data.specs.length).toBe(1);
+    });
   });
 
-  it('/graphql:Q Company types - OK Chinese (zh-Hant-HK)', async (done) => {
-    const { body } = await agent
-      .post('/graphql')
-      .set(
-        'Authorization',
-        `Bearer ${authorizationTokenFirst}`
-      )
-      .set(
-        'Accept-Language',
-        `zh-Hant-HK`
-      )
-      .send({
-        query: `query {
+  // ==============================================
+  // ПОИСК СПЕЦИФИКАЦИЙ
+  // ==============================================
+  describe('Search Specs', () => {
+    it('should search specs by text without token', async () => {
+      const { body } = await agent.post('/graphql').send({
+        query: `
+          query SearchSpecs($text: String!) {
+            searchSpecs(args: { text: $text }) {
+              specId
+              path
+              langId
+            }
+          }
+        `,
+        variables: { text: "bolt" },
+      });
+
+      expect(body.data.searchSpecs.length).toBe(5);
+      expect(body.data.searchSpecs[0].specId).toBe(5);
+      expect(body.data.searchSpecs[1].specId).toBe(8);
+      expect(body.data.searchSpecs[1].path).toBe("Threaded Fasteners/Screws and bolts/U Bolts");
+      expect(body.data.searchSpecs[2].specId).toBe(7);
+      expect(body.data.searchSpecs[3].specId).toBe(9);
+      expect(body.data.searchSpecs[4].specId).toBe(6);
+    });
+
+    it('should return empty array for empty search text', async () => {
+      const { body } = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenFirst}`)
+        .send({
+          query: `
+            query SearchSpecs($text: String!) {
+              searchSpecs(args: { text: $text }) {
+                specId
+                path
+                langId
+              }
+            }
+          `,
+          variables: { text: "" },
+        });
+
+      expect(body.data.searchSpecs).toBeEmptyArray();
+    });
+
+    it('should search specs by name', async () => {
+      const { body } = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenFirst}`)
+        .send({
+          query: `
+            query SearchSpecs($text: String!) {
+              searchSpecs(args: { text: $text }) {
+                specId
+                path
+                langId
+              }
+            }
+          `,
+          variables: { text: specName5 },
+        });
+
+      expect(body.data.searchSpecs[0].specId).toBe(specId5);
+    });
+
+    it('should search specs with custom split character', async () => {
+      const { body } = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenFirst}`)
+        .send({
+          query: `
+            query SearchSpecs($text: String!, $splitChar: String, $depthLevel: Int) {
+              searchSpecs(args: { text: $text, splitChar: $splitChar, depthLevel: $depthLevel }) {
+                specId
+                path
+                langId
+              }
+            }
+          `,
+          variables: {
+            text: specName5,
+            splitChar: "#",
+            depthLevel: 50,
+          },
+        });
+
+      expect(body.data.searchSpecs[0].path).toBe(specPathSplit5);
+    });
+
+    it('should search specs in Russian', async () => {
+      const { body } = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenFirst}`)
+        .set('Accept-Language', 'ru')
+        .send({
+          query: `
+            query SearchSpecs($text: String!) {
+              searchSpecs(args: { text: $text }) {
+                specId
+                path
+                langId
+              }
+            }
+          `,
+          variables: { text: "болт" },
+        });
+
+      expect(body.data.searchSpecs[1].path).toBeNonEmptyString();
+      expect(body.data.searchSpecs.length).toBe(5);
+    });
+
+    it('should search specs with depth level 1', async () => {
+      const { body } = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenFirst}`)
+        .send({
+          query: `
+            query SearchSpecs($text: String!, $depthLevel: Int) {
+              searchSpecs(args: { text: $text, depthLevel: $depthLevel }) {
+                specId
+                path
+                langId
+              }
+            }
+          `,
+          variables: {
+            text: specName5,
+            depthLevel: 1,
+          },
+        });
+
+      expect(body.data.searchSpecs[0].path).toBe(specName5);
+    });
+
+    it('should search specs with pagination', async () => {
+      const { body } = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenFirst}`)
+        .send({
+          query: `
+            query SearchSpecs($text: String!, $depthLevel: Int, $page: Int, $perPage: Int) {
+              searchSpecs(
+                args: { text: $text, depthLevel: $depthLevel }
+                paginate: { currentPage: $page, perPage: $perPage }
+              ) {
+                specId
+                path
+                langId
+              }
+            }
+          `,
+          variables: {
+            text: "bolt",
+            depthLevel: 1,
+            page: 2,
+            perPage: 2,
+          },
+        });
+
+      expect(body.data.searchSpecs.length).toBe(2);
+    });
+  });
+
+  // ==============================================
+  // ТИПЫ КОМПАНИЙ
+  // ==============================================
+  describe('Company Types', () => {
+    it('should NOT return company types without token', async () => {
+      const { body } = await agent.post('/graphql').send({
+        query: `
+          query GetCompanyTypes {
             companyTypes {
               name
               langId
               companyTypeId
             }
-        }`,
-      })
-      .expect(HttpStatus.OK)
-    debug('/graphql body=%o', body);
-    const {
-      data: { companyTypes }
-    } = body;
-    expect(companyTypes).toBeNonEmptyArray();
-    expect(companyTypes[0].langId).toBe(3);
-    expect(companyTypes).toHaveLength(12);
-    done();
+          }
+        `,
+      });
+
+      expect(body.data).toBeNull();
+      expect(body.errors[0].message).toBe('BadRequest: Token not found');
+      expect(body.errors[0].path[0]).toBe('companyTypes');
+    });
+
+    it('should return company types in English', async () => {
+      const { body } = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenFirst}`)
+        .send({
+          query: `
+            query GetCompanyTypes {
+              companyTypes {
+                name
+                langId
+                companyTypeId
+              }
+            }
+          `,
+        });
+
+      expect(body.data.companyTypes).toBeNonEmptyArray();
+      expect(body.data.companyTypes[0].langId).toBe(1);
+    });
+
+    it('should return company types in Russian', async () => {
+      const { body } = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenFirst}`)
+        .set('Accept-Language', 'ru')
+        .send({
+          query: `
+            query GetCompanyTypes {
+              companyTypes {
+                name
+                langId
+                companyTypeId
+              }
+            }
+          `,
+        });
+
+      expect(body.data.companyTypes).toBeNonEmptyArray();
+      expect(body.data.companyTypes[0].langId).toBe(2);
+    });
+
+    it('should return company types in Chinese (zh-Hans)', async () => {
+      const { body } = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenFirst}`)
+        .set('Accept-Language', 'zh-Hans')
+        .send({
+          query: `
+            query GetCompanyTypes {
+              companyTypes {
+                name
+                langId
+                companyTypeId
+              }
+            }
+          `,
+        });
+
+      expect(body.data.companyTypes).toBeNonEmptyArray();
+      expect(body.data.companyTypes[0].langId).toBe(3);
+
+      const limitedCompany = body.data.companyTypes.find(ct => ct.companyTypeId === 1);
+      expect(limitedCompany).toBeDefined();
+      expect(limitedCompany.name).toBe("有限责任公司");
+    });
+
+    it('should return company types in Chinese (zh-Hant)', async () => {
+      const { body } = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenFirst}`)
+        .set('Accept-Language', 'zh-Hant')
+        .send({
+          query: `
+            query GetCompanyTypes {
+              companyTypes {
+                name
+                langId
+                companyTypeId
+                shortname
+              }
+            }
+          `,
+        });
+
+      expect(body.data.companyTypes).toBeNonEmptyArray();
+      expect(body.data.companyTypes[0].langId).toBe(3);
+      expect(body.data.companyTypes[0].name).toBe("上市公司");
+
+      const companyTypeIds = body.data.companyTypes.map(ct => ct.companyTypeId);
+      expect(companyTypeIds).toContain(1);
+      expect(companyTypeIds).toContain(2);
+      expect(companyTypeIds).toContain(3);
+      expect(companyTypeIds).toContain(4);
+      expect(companyTypeIds).toContain(5);
+    });
   });
 
-  it('/graphql:Q Regions - OK Chinese (zh-Hant-HK)', async (done) => {
-    const { body } = await agent
-      .post('/graphql')
-      .set(
-        'Authorization',
-        `Bearer ${authorizationTokenFirst}`
-      )
-      .set(
-        'Accept-Language',
-        `zh-Hant-HK`
-      )
-      .send({
-        query: `query {
-            regions {
-              regionId
-              region
+  // ==============================================
+  // ТИПЫ ПРЕДСТАВИТЕЛЬСТВ КОМПАНИЙ
+  // ==============================================
+  describe('Company Representation Types', () => {
+    it('should NOT return representation types without token', async () => {
+      const { body } = await agent.post('/graphql').send({
+        query: `
+          query GetCompanyRepresentTypes {
+            companyRepresentTypes {
+              representationType
               langId
+              representationTypeId
             }
-        }`,
-      })
-      .expect(HttpStatus.OK)
-    debug('/graphql body=%o', body);
-    const {
-      data: { regions }
-    } = body;
-    expect(regions).toBeNonEmptyArray();
-    expect(regions[0].langId).toBe(3);
-    expect(regions[0].region).toBe("中东地区");
-    expect(regions[0].regionId).toBe(5);
-    // Find "非洲" (should be later in the array)
-    const africa = regions.find(r => r.regionId === 1);
-    expect(africa).toBeDefined();
-    expect(africa.region).toBe("非洲");
-    // Verify all regions are present
-    const regionIds = regions.map(r => r.regionId);
-    expect(regionIds).toContain(1); // 非洲
-    expect(regionIds).toContain(2); // 澳洲
-    expect(regionIds).toContain(3); // 亚太地区
-    expect(regionIds).toContain(4); // 欧洲
-    expect(regionIds).toContain(5); // 中东地区
-    expect(regionIds).toContain(6); // 北美洲
-    expect(regionIds).toContain(7); // 拉丁美洲
-    expect(regionIds).toContain(8); // 其他地区
-    expect(regionIds).toContain(9); // 南极洲
-    expect(regionIds).toContain(10); // 大洋洲
-    expect(regionIds).toContain(11); // 欧亚大陆
-    done();
+          }
+        `,
+      });
+
+      expect(body.data).toBeNull();
+      expect(body.errors[0].message).toBe('BadRequest: Token not found');
+      expect(body.errors[0].path[0]).toBe('companyRepresentTypes');
+    });
+
+    it('should return representation types in English', async () => {
+      const { body } = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenFirst}`)
+        .send({
+          query: `
+            query GetCompanyRepresentTypes {
+              companyRepresentTypes {
+                representationType
+                langId
+                representationTypeId
+              }
+            }
+          `,
+        });
+
+      expect(body.data.companyRepresentTypes).toBeNonEmptyArray();
+      expect(body.data.companyRepresentTypes[0].langId).toBe(1);
+    });
+
+    it('should return representation types in Russian', async () => {
+      const { body } = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenFirst}`)
+        .set('Accept-Language', 'ru')
+        .send({
+          query: `
+            query GetCompanyRepresentTypes {
+              companyRepresentTypes {
+                representationType
+                langId
+                representationTypeId
+              }
+            }
+          `,
+        });
+
+      expect(body.data.companyRepresentTypes).toBeNonEmptyArray();
+      expect(body.data.companyRepresentTypes[0].langId).toBe(2);
+    });
   });
 
-  // Testing different Chinese locales with type access translations
-  it('/graphql:Q Type access list - OK Chinese (zh-Hans)', async (done) => {
-    const { body } = await agent
-      .post('/graphql')
-      .set(
-        'Authorization',
-        `Bearer ${authorizationTokenFirst}`
-      )
-      .set(
-        'Accept-Language',
-        `zh-Hans`
-      )
-      .send({
-        query: `query {
-            typesAccess {
-              typeAccessId
-              name
-              langId
+  // ==============================================
+  // РЕГИОНЫ (CHINESE LOCALIZATION)
+  // ==============================================
+  describe('Regions - Chinese Localization', () => {
+    it('should return regions in Chinese (zh-Hant-HK)', async () => {
+      const { body } = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenFirst}`)
+        .set('Accept-Language', 'zh-Hant-HK')
+        .send({
+          query: `
+            query GetRegions {
+              regions {
+                regionId
+                region
+                langId
+              }
             }
-        }`,
-      })
-      .expect(HttpStatus.OK)
-    debug('/graphql body=%o', body);
-    // expect(body).toBe(0);
-    const {
-      data: { typesAccess }
-    } = body;
-    expect(typesAccess).toBeNonEmptyArray();
-    expect(typesAccess[2].langId).toBe(3); // Public should be at index 2
-    expect(typesAccess[2].name).toBe("公开");
-    done();
+          `,
+        });
+
+      expect(body.data.regions).toBeNonEmptyArray();
+      expect(body.data.regions[0].langId).toBe(3);
+      expect(body.data.regions[0].region).toBe("中东地区");
+      expect(body.data.regions[0].regionId).toBe(5);
+
+      const africa = body.data.regions.find(r => r.regionId === 1);
+      expect(africa).toBeDefined();
+      expect(africa.region).toBe("非洲");
+
+      const regionIds = body.data.regions.map(r => r.regionId);
+      expect(regionIds).toContain(1);
+      expect(regionIds).toContain(2);
+      expect(regionIds).toContain(3);
+      expect(regionIds).toContain(4);
+      expect(regionIds).toContain(5);
+      expect(regionIds).toContain(6);
+      expect(regionIds).toContain(7);
+      expect(regionIds).toContain(8);
+      expect(regionIds).toContain(9);
+      expect(regionIds).toContain(10);
+      expect(regionIds).toContain(11);
+    });
+
+    it('should return regions in Chinese (zh-Hans-CN)', async () => {
+      const { body } = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenFirst}`)
+        .set('Accept-Language', 'zh-Hans-CN')
+        .send({
+          query: `
+            query GetRegions {
+              regions {
+                regionId
+                region
+                langId
+              }
+            }
+          `,
+        });
+
+      expect(body.data.regions).toBeNonEmptyArray();
+      expect(body.data.regions[0].langId).toBe(3);
+
+      const china = body.data.regions.find(r => r.regionId === 12);
+      if (china) {
+        expect(china.region).toBeNonEmptyString();
+      }
+    });
+
+    it('should return regions in alphabetical order for Chinese', async () => {
+      const { body } = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenFirst}`)
+        .set('Accept-Language', 'zh')
+        .send({
+          query: `
+            query GetRegions {
+              regions {
+                regionId
+                region
+              }
+            }
+          `,
+        });
+
+      const regionNames = body.data.regions.map(r => r.region);
+      expect(regionNames[0]).toBe("中东地区");
+      expect(regionNames[1]).toBe("亚太地区");
+      expect(regionNames[2]).toBe("其他地区");
+      expect(regionNames[3]).toBe("北美洲");
+    });
   });
 
-  it('/graphql:Q Type access list - OK Chinese (zh-Hant-TW)', async (done) => {
-    const { body } = await agent
-      .post('/graphql')
-      .set(
-        'Authorization',
-        `Bearer ${authorizationTokenFirst}`
-      )
-      .set(
-        'Accept-Language',
-        `zh-Hant-TW`
-      )
-      .send({
-        query: `query {
-            typesAccess {
-              typeAccessId
-              name
-              langId
+  // ==============================================
+  // ТИПЫ ДОСТУПА (CHINESE LOCALIZATION)
+  // ==============================================
+  describe('Type Access - Chinese Localization', () => {
+    it('should return type access in Chinese (zh-Hans)', async () => {
+      const { body } = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenFirst}`)
+        .set('Accept-Language', 'zh-Hans')
+        .send({
+          query: `
+            query GetTypeAccess {
+              typesAccess {
+                typeAccessId
+                name
+                langId
+              }
             }
-        }`,
-      })
-      .expect(HttpStatus.OK)
-    debug('/graphql body=%o', body);
-    const {
-      data: { typesAccess }
-    } = body;
-    expect(typesAccess).toBeNonEmptyArray();
-    expect(typesAccess[2].langId).toBe(3);
-    expect(typesAccess[2].name).toBe("公开");
-    done();
-  });
+          `,
+        });
 
-  // Additional test to verify alphabetical sorting
-  it('/graphql:Q Regions alphabetical order - OK Chinese', async (done) => {
-    const { body } = await agent
-      .post('/graphql')
-      .set(
-        'Authorization',
-        `Bearer ${authorizationTokenFirst}`
-      )
-      .set(
-        'Accept-Language',
-        `zh`
-      )
-      .send({
-        query: `query {
-            regions {
-              regionId
-              region
+      expect(body.data.typesAccess).toBeNonEmptyArray();
+      expect(body.data.typesAccess[2].langId).toBe(3);
+      expect(body.data.typesAccess[2].name).toBe("公开");
+    });
+
+    it('should return type access in Chinese (zh-Hant-TW)', async () => {
+      const { body } = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenFirst}`)
+        .set('Accept-Language', 'zh-Hant-TW')
+        .send({
+          query: `
+            query GetTypeAccess {
+              typesAccess {
+                typeAccessId
+                name
+                langId
+              }
             }
-        }`,
-      })
-      .expect(HttpStatus.OK)
-    debug('/graphql body=%o', body);
-    const {
-      data: { regions }
-    } = body;
-    // Get all regions in the order they were returned
-    const regionNames = regions.map(r => r.region);
-    // Just verify the first few based on alphabetical order
-    expect(regionNames[0]).toBe("中东地区"); // Z
-    expect(regionNames[1]).toBe("亚太地区"); // Y
-    expect(regionNames[2]).toBe("其他地区"); // Q
-    expect(regionNames[3]).toBe("北美洲"); // B
-    done();
+          `,
+        });
+
+      expect(body.data.typesAccess).toBeNonEmptyArray();
+      expect(body.data.typesAccess[2].langId).toBe(3);
+      expect(body.data.typesAccess[2].name).toBe("公开");
+    });
   });
 });

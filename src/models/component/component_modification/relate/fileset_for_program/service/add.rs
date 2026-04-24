@@ -1,11 +1,9 @@
+use crate::auth::{require_permission, AccessEntity, AccessOperation};
 use crate::errors::{ServiceError, ServiceResult};
 use crate::models::component::service::update::change_updated_at;
-use crate::models::component::{
-    access::util::check_access_component_for_user,
-    component_modification::{
-        fileset_for_program::model::{InsertableFilesetProgram, IptFilesetProgramData},
-        util::get_component_by_modification,
-    },
+use crate::models::component::component_modification::{
+    fileset_for_program::model::{InsertableFilesetProgram, IptFilesetProgramData},
+    util::get_component_by_modification,
 };
 use crate::schema::fileset_for_program::dsl as fileset_for_program;
 use diesel::prelude::*;
@@ -19,12 +17,12 @@ pub(crate) fn create_modification_fileset(
     arg: &IptFilesetProgramData,
     conn: &mut PgConnection,
 ) -> ServiceResult<Uuid> {
-    let need_access_level = 1; // todo!(create enum for manage access level)
     let target_component_uuid = get_component_by_modification(&arg.modification_uuid, conn)?;
-    check_access_component_for_user(
+    require_permission(
         logged_user_uuid,
+        AccessEntity::Component,
         &target_component_uuid,
-        need_access_level,
+        AccessOperation::Manage,
         conn,
     )?;
 

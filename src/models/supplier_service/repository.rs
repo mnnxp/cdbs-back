@@ -1,3 +1,4 @@
+use crate::auth::{require_permission, AccessEntity, AccessOperation};
 use crate::errors::{ServiceError, ServiceResult};
 use crate::graphql::service_model::{ServiceAndRelatedData, ShowServiceShort};
 use crate::models::company::model::ShowCompanyShort;
@@ -5,7 +6,7 @@ use crate::models::relate_ref::region::model::RegionTranslateList;
 use crate::models::search::model::ExtraOptions;
 use crate::models::search::order::{objects_order, Paginate, Sort};
 use crate::models::supplier_service::{
-    access::util::check_access_service_for_user, model::Service,
+    model::Service,
     service_status::model::ServiceStatusTranslateList,
 };
 use crate::models::user::model::ShowUserShort;
@@ -72,12 +73,11 @@ impl ShowServiceShort {
         options: &ExtraOptions,
         conn: &mut PgConnection,
     ) -> ServiceResult<ShowServiceShort> {
-        let need_access_level = 3; // todo!(create enum for manage access level)
-
-        check_access_service_for_user(
+        require_permission(
             &options.logged_user_uuid,
+            AccessEntity::Service,
             target_service_uuid,
-            need_access_level,
+            AccessOperation::Read,
             conn,
         )?;
 
@@ -177,12 +177,11 @@ impl ServiceAndRelatedData {
         options: &ExtraOptions,
         conn: &mut PgConnection,
     ) -> ServiceResult<ServiceAndRelatedData> {
-        let need_access_level = 3; // todo!(create enum for manage access level)
-
-        check_access_service_for_user(
+        require_permission(
             &options.logged_user_uuid,
+            AccessEntity::Service,
             target_service_uuid,
-            need_access_level,
+            AccessOperation::Read,
             conn,
         )?;
 

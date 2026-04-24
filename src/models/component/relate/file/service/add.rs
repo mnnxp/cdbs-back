@@ -1,9 +1,7 @@
+use crate::auth::{require_permission, AccessEntity, AccessOperation};
 use crate::errors::err_msg::{get_err_msg, ErrorMessage};
 use crate::errors::ServiceResult;
-use crate::models::component::access::util::check_access_component_for_user;
-use crate::models::component::relate::file::model::{
-    IptComponentFaviconData, IptComponentFilesData,
-};
+use crate::models::component::relate::file::model::{IptComponentFaviconData, IptComponentFilesData};
 use crate::models::component::service::update::change_updated_at;
 use crate::models::relate_ref::file::{
     commit::Commit,
@@ -24,12 +22,11 @@ pub(crate) fn add_component_files(
     domain: &str,
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<UploadFile>> {
-    let need_access_level = 1; // todo!(create enum for manage access level)
-
-    check_access_component_for_user(
+    require_permission(
         logged_user_uuid,
+        AccessEntity::Component,
         &data.component_uuid,
-        need_access_level,
+        AccessOperation::Write,
         conn,
     )?;
 
@@ -77,12 +74,11 @@ pub(crate) fn add_component_favicon(
     domain: &str,
     conn: &mut PgConnection,
 ) -> ServiceResult<UploadFile> {
-    let need_access_level = 1; // todo!(create enum for manage access level)
-
-    check_access_component_for_user(
+    require_permission(
         logged_user_uuid,
+        AccessEntity::Component,
         &data.component_uuid,
-        need_access_level,
+        AccessOperation::Manage,
         conn,
     )?;
 

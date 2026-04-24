@@ -1,5 +1,5 @@
+use crate::auth::{require_permission, AccessEntity, AccessOperation};
 use crate::errors::{ServiceError, ServiceResult};
-use crate::models::component::access::util::check_access_component_for_user;
 use crate::models::user::component_fav::model::{InsertableComponentFav, IptComponentFavData};
 use crate::models::user::notification::{
     model::{NotificationData, NotificationType},
@@ -16,10 +16,13 @@ pub(crate) fn add_component_fav(
     component_uuid: &Uuid,
     conn: &mut PgConnection,
 ) -> ServiceResult<bool> {
-    let need_access_level = 3; // todo!(create enum for manage access level)
-
-    // check access user for component
-    check_access_component_for_user(logged_user_uuid, component_uuid, need_access_level, conn)?;
+    require_permission(
+        logged_user_uuid,
+        AccessEntity::Component,
+        component_uuid,
+        AccessOperation::Read,
+        conn,
+    )?;
 
     // if have need row, just update is_enabled to true
     let check_fav = component_fav::component_fav

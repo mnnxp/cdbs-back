@@ -2,7 +2,7 @@ use crate::database::{get_conn, PooledConnection};
 use crate::errors::ServiceResult;
 use crate::graphql::handler::extract_client_domain;
 use crate::models::relate_ref::file::model::UploadFile;
-use crate::models::user::access::logged::get_logged_user_uuid;
+use crate::auth::AuthContext;
 use crate::models::user::access::password::IptUpdatePassword;
 use crate::models::user::certificate::model::{
     DelUserCertificateData, IptUpdateUserCertificateData, IptUserCertificateData,
@@ -29,7 +29,7 @@ impl UserMutation {
     async fn delete_user_data(&self, cxt: &Context<'_>, password: String) -> ServiceResult<bool> {
         use crate::models::user::service::delete::delete_user;
 
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
@@ -44,7 +44,7 @@ impl UserMutation {
     ) -> ServiceResult<bool> {
         use crate::models::user::access::password::change_password;
 
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
@@ -59,7 +59,7 @@ impl UserMutation {
     ) -> ServiceResult<bool> {
         use crate::models::user::access::update::change_access_type_user;
 
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
@@ -75,7 +75,7 @@ impl UserMutation {
     ) -> ServiceResult<usize> {
         use crate::models::user::service::update::update_user;
 
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
@@ -90,7 +90,7 @@ impl UserMutation {
     ) -> ServiceResult<UploadFile> {
         use crate::models::user::relate::favicon::update_favicon;
 
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
@@ -105,7 +105,7 @@ impl UserMutation {
     ) -> ServiceResult<UploadFile> {
         use crate::models::user::certificate::service::add::add_certificate;
 
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
@@ -121,7 +121,7 @@ impl UserMutation {
     ) -> ServiceResult<bool> {
         use crate::models::user::certificate::service::update::update_certificate_description;
 
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
@@ -136,7 +136,7 @@ impl UserMutation {
     ) -> ServiceResult<bool> {
         use crate::models::user::certificate::service::delete::del_certificate;
 
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
@@ -147,7 +147,7 @@ impl UserMutation {
     async fn add_company_fav(&self, cxt: &Context<'_>, company_uuid: Uuid) -> ServiceResult<bool> {
         use crate::models::user::company_fav::service::add::add_company_fav;
 
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
@@ -162,7 +162,7 @@ impl UserMutation {
     ) -> ServiceResult<bool> {
         use crate::models::user::company_fav::service::delete::delete_company_fav;
 
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
@@ -177,7 +177,7 @@ impl UserMutation {
     ) -> ServiceResult<bool> {
         use crate::models::user::component_fav::service::add::add_component_fav;
 
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
@@ -192,7 +192,7 @@ impl UserMutation {
     ) -> ServiceResult<bool> {
         use crate::models::user::component_fav::service::delete::delete_component_fav;
 
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
@@ -207,7 +207,7 @@ impl UserMutation {
     ) -> ServiceResult<bool> {
         use crate::models::user::standard_fav::service::add::add_standard_fav;
 
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
@@ -222,7 +222,7 @@ impl UserMutation {
     ) -> ServiceResult<bool> {
         use crate::models::user::standard_fav::service::delete::delete_standard_fav;
 
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
@@ -233,7 +233,7 @@ impl UserMutation {
     async fn add_user_fav(&self, cxt: &Context<'_>, user_uuid: Uuid) -> ServiceResult<bool> {
         use crate::models::user::user_fav::service::add::add_user_fav;
 
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
@@ -244,7 +244,7 @@ impl UserMutation {
     async fn delete_user_fav(&self, cxt: &Context<'_>, user_uuid: Uuid) -> ServiceResult<bool> {
         use crate::models::user::user_fav::service::delete::delete_user_fav;
 
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
@@ -259,7 +259,7 @@ impl UserMutation {
     ) -> ServiceResult<usize> {
         use crate::models::user::notification::service::update::set_notifications_as_read;
 
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
@@ -274,7 +274,7 @@ impl UserMutation {
     ) -> ServiceResult<usize> {
         use crate::models::user::notification::service::delete::delete_notifications;
 
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 

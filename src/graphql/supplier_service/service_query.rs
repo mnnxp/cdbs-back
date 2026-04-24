@@ -18,7 +18,8 @@ use crate::models::supplier_service::{
     model::{ServiceFilesArg, ServicesArg},
     relate::service_status::model::ServiceStatusTranslateList,
 };
-use crate::models::user::access::logged::{check_authorized, get_logged_user_uuid};
+use crate::auth::token::logged::check_authorized;
+use crate::auth::AuthContext;
 use async_graphql::{self, Context, Object};
 use uuid::Uuid;
 
@@ -71,7 +72,7 @@ impl ServiceQuery {
     ) -> ServiceResult<Vec<DownloadFile>> {
         use crate::models::supplier_service::file::service::list::get_service_files;
         // authorization check
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
         let arguments: ServiceFilesArg = args.into();
         let p = paginate
             .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
@@ -105,7 +106,7 @@ impl ServiceQuery {
         paginate: Option<IptPaginate>,
     ) -> ServiceResult<Vec<Keyword>> {
         // authorization check
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
         let p = paginate
             .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
             .unwrap_or_default();

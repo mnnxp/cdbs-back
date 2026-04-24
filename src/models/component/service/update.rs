@@ -1,7 +1,7 @@
+use crate::auth::{require_permission, AccessEntity, AccessOperation};
 use crate::errors::err_msg::{get_err_msg, ErrorMessage};
 use crate::errors::ServiceResult;
 use crate::graphql::component_model::IptUpdateComponentData;
-use crate::models::component::access::util::check_access_component_for_user;
 use crate::schema::component_modification_list::dsl as component_modification_list;
 use crate::schema::component_ref::dsl as component_ref;
 use chrono::Local;
@@ -27,13 +27,11 @@ pub(crate) fn update_component_by_uuid(
         return Err(get_err_msg(ErrorMessage::TextMustLess(50000)));
     }
 
-    // need top level access for change component main data
-    let need_access_level = 1; // todo!(create enum for manage access level)
-
-    check_access_component_for_user(
+    require_permission(
         logged_user_uuid,
+        AccessEntity::Component,
         target_component_uuid,
-        need_access_level,
+        AccessOperation::Manage,
         conn,
     )?;
 

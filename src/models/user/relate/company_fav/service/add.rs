@@ -1,5 +1,5 @@
+use crate::auth::{require_permission, AccessEntity, AccessOperation};
 use crate::errors::{ServiceError, ServiceResult};
-use crate::models::company::access::util::check_company_access;
 use crate::models::company::util::get_company_owner;
 use crate::models::user::company_fav::model::{InsertableCompanyFav, IptCompanyFavData};
 use crate::models::user::notification::{
@@ -16,10 +16,13 @@ pub(crate) fn add_company_fav(
     company_uuid: &Uuid,
     conn: &mut PgConnection,
 ) -> ServiceResult<bool> {
-    let need_access_level = 3; // todo!(create enum for manage access level)
-
-    // check access user for company
-    check_company_access(logged_user_uuid, company_uuid, need_access_level, conn)?;
+    require_permission(
+        logged_user_uuid,
+        AccessEntity::Company,
+        company_uuid,
+        AccessOperation::Read,
+        conn,
+    )?;
 
     // if have need row, just update is_enabled to true
     let check_fav = company_fav::company_fav

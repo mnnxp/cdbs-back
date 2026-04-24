@@ -1,6 +1,6 @@
+use crate::auth::{require_permission, AccessEntity, AccessOperation};
 use crate::errors::err_msg::{get_err_msg, ErrorMessage};
 use crate::errors::{ServiceError, ServiceResult};
-use crate::models::company::access::util::check_company_access;
 use crate::models::company::spec::model::{InsertableCompanySpec, IptCompanySpecsData};
 use crate::schema::spec_to_company::dsl as spec_to_company;
 use diesel::prelude::*;
@@ -14,12 +14,11 @@ pub(crate) fn add_company_specs(
     data: &IptCompanySpecsData,
     conn: &mut PgConnection,
 ) -> ServiceResult<i32> {
-    let need_access_level = 1; // todo!(create enum for manage access level)
-
-    check_company_access(
+    require_permission(
         logged_user_uuid,
+        AccessEntity::Company,
         &data.company_uuid,
-        need_access_level,
+        AccessOperation::Manage,
         conn,
     )?;
 

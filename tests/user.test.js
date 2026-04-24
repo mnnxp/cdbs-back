@@ -18,6 +18,8 @@ const loginData = [ { "user": {
 const fakeUuid = "9a9221c1-f517-40a0-a06d-fdfa8c17a462";
 const baseUserUuid = "31ecc6f8-0c09-4a59-a2d5-34b5b833e59b";
 const baseUsername = "usernameeee";
+const baseUsernamePublicUuid = "c8a008cc-7cdd-4328-904f-50a724865548";
+const baseUsernamePublic = "test";
 const email = "testemail@mail.ru";
 const firstname = "test_firstname";
 const lastname = "test_lastname";
@@ -381,7 +383,7 @@ describe('users', () => {
 
   const agent = request.agent(url);
 
-  it('/graphql:Q user - UNAUTHORIZED (by username)', async (done) => {
+  it('/graphql:Q user - BadRequest (by username)', async (done) => {
     const response1 = await agent
       .post('/graphql')
       .send({
@@ -397,13 +399,13 @@ describe('users', () => {
     debug('/graphql body=%o', response1.body);
     expect(response1.body.data).toBeNull();
     expect(response1.body.errors[0].message).toBe(
-      'BadRequest: Token not found'
+      'BadRequest: Access denied'
     );
     expect(response1.body.errors[0].path[0]).toBe('user');
     done();
   });
 
-  it('/graphql:Q user - UNAUTHORIZED', async (done) => {
+  it('/graphql:Q user - BadRequest private user', async (done) => {
     const response1 = await agent
       .post('/graphql')
       .send({
@@ -419,9 +421,77 @@ describe('users', () => {
     debug('/graphql body=%o', response1.body);
     expect(response1.body.data).toBeNull();
     expect(response1.body.errors[0].message).toBe(
-      'BadRequest: Token not found'
+      'BadRequest: Access denied'
     );
     expect(response1.body.errors[0].path[0]).toBe('user');
+    done();
+  });
+
+  it('/graphql:Q user - BadRequest not found user (fake username)', async (done) => {
+    const response1 = await agent
+      .post('/graphql')
+      .send({
+        query: `query {
+            user(args: {
+              username: "FakeUsername314}"
+            }){
+              ${showUserAndRelatedData}
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', response1.body);
+    expect(response1.body.data).toBeNull();
+    expect(response1.body.errors[0].message).toBe(
+      'BadRequest: Data not found'
+    );
+    expect(response1.body.errors[0].path[0]).toBe('user');
+    done();
+  });
+
+  it('/graphql:Q user - Ok public user (by username and UNAUTHORIZED)', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .send({
+        query: `query {
+            user(args: {
+              username: "${baseUsernamePublic}"
+            }){
+              ${showUserAndRelatedData}
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    // expect(body).toBe(0);
+    const { data: { user } } = body;
+    expect(user.uuid).toBe(baseUsernamePublicUuid);
+    expect(user.username).toBe(baseUsernamePublic);
+    expect(user.subscribers).toBe(0);
+    expect(user.isFollowed).toBe(false);
+    done();
+  });
+
+  it('/graphql:Q user - Ok public user (by uuid and UNAUTHORIZED)', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .send({
+        query: `query {
+            user(args: {
+              userUuid: "${baseUsernamePublicUuid}"
+            }){
+              ${showUserAndRelatedData}
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    // expect(body).toBe(0);
+    const { data: { user } } = body;
+    expect(user.uuid).toBe(baseUsernamePublicUuid);
+    expect(user.username).toBe(baseUsernamePublic);
+    expect(user.subscribers).toBe(0);
+    expect(user.isFollowed).toBe(false);
     done();
   });
 

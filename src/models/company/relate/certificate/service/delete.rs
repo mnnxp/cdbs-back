@@ -1,5 +1,5 @@
+use crate::auth::{require_permission, AccessEntity, AccessOperation};
 use crate::errors::{ServiceError, ServiceResult};
-use crate::models::company::access::util::check_company_access;
 use crate::models::company::certificate::model::DelCompanyCertificateData;
 use crate::models::relate_ref::file::service::delete::{delete_file_by_uuid, delete_file_by_uuids};
 use crate::schema::company_certificate_ref::dsl as company_certificate_ref;
@@ -12,13 +12,11 @@ pub(crate) fn del_certificate(
     data: &DelCompanyCertificateData,
     conn: &mut PgConnection,
 ) -> ServiceResult<bool> {
-    let need_access_level = 1; // todo!(create enum for manage access level)
-
-    // check access user for company
-    check_company_access(
+    require_permission(
         logged_user_uuid,
+        AccessEntity::Company,
         &data.company_uuid,
-        need_access_level,
+        AccessOperation::Manage,
         conn,
     )?;
 

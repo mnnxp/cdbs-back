@@ -1,6 +1,6 @@
+use crate::auth::{require_permission, AccessEntity, AccessOperation};
 use crate::errors::err_msg::{get_err_msg, ErrorMessage};
 use crate::errors::{ServiceError, ServiceResult};
-use crate::models::standard::access::util::check_access_standard_for_user;
 use crate::models::standard::spec::model::{
     InsertableStandardSpec, IptStandardSpecsData, StandardSpec,
 };
@@ -14,13 +14,11 @@ pub(crate) fn add_standard_specs(
     conn: &mut PgConnection,
 ) -> ServiceResult<i32> {
     use crate::schema::spec_to_standard::dsl::*;
-
-    let need_access_level = 1; // todo!(create enum for manage access level)
-
-    check_access_standard_for_user(
+    require_permission(
         logged_user_uuid,
+        AccessEntity::Standard,
         &data.standard_uuid,
-        need_access_level,
+        AccessOperation::Manage,
         conn,
     )?;
 

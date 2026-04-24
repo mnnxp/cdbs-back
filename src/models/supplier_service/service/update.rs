@@ -1,10 +1,9 @@
+use crate::auth::{require_permission, AccessEntity, AccessOperation};
 use crate::errors::err_msg::{get_err_msg, ErrorMessage};
 use crate::errors::ServiceResult;
 use crate::graphql::service_model::{IptServiceStatusArg, IptUpdateServiceData};
 use crate::models::search::model::ExtraOptions;
-use crate::models::supplier_service::access::util::{
-    check_is_owner_with_err, check_user_access_provided_by_company,
-};
+use crate::models::supplier_service::access::util::check_is_owner_with_err;
 use crate::models::supplier_service::history::save_log_service_change;
 use crate::models::supplier_service::util::{get_service_consumer, get_service_status};
 use crate::models::user::notification::model::{NotificationData, NotificationType};
@@ -166,14 +165,14 @@ pub(crate) fn change_service_status(
     if get_service_status(&args.service_uuid, conn)? > 9 {
         return Err(get_err_msg(ErrorMessage::FailedUpdateServiceBadStatus));
     }
-    let need_access_level = 2; // todo!(create enum for manage access level)
-                               // checking the availability of user access provided by the company
-    check_user_access_provided_by_company(
+    require_permission(
         &options.logged_user_uuid,
+        AccessEntity::Service,
         &args.service_uuid,
-        need_access_level,
+        AccessOperation::Manage,
         conn,
     )?;
+
     let old_service_status_id = service_ref::service_ref
         .filter(service_ref::uuid.eq(&args.service_uuid))
         .select(service_ref::service_status_id)

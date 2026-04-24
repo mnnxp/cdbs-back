@@ -7,7 +7,7 @@ use crate::models::relate_ref::license::{
     service::register::create_license,
 };
 use crate::models::search::order::Paginate;
-use crate::models::user::access::logged::check_authorized;
+use crate::auth::token::logged::check_authorized;
 use async_graphql::{self, Context, Object};
 
 #[derive(Default)]

@@ -105,8 +105,8 @@ pub(crate) fn member_role_in_company(
 
     // find role_id user
     company_member_list
-        .filter(company_uuid.eq(target_company_uuid))
-        .filter(user_uuid.eq(target_user_uuid))
+        .filter(company_uuid.eq(target_company_uuid)
+            .and(user_uuid.eq(target_user_uuid)))
         .select(role_id)
         .first(conn)
         .map_err(|err| {

@@ -1,8 +1,9 @@
+use crate::auth::{require_permission, AccessEntity, AccessOperation};
 use crate::errors::{ServiceError, ServiceResult};
-use crate::models::company::access::util::check_is_owner_with_err;
 use crate::models::company::company_represent::model::{
     CompanyRepresent, InsertableCompanyRepresent, IptCompanyRepresentData,
 };
+use crate::schema::company_represent_ref::dsl::company_represent_ref;
 use diesel::prelude::*;
 use uuid::Uuid;
 
@@ -12,9 +13,13 @@ pub(crate) fn create_company_represent(
     data: &IptCompanyRepresentData,
     conn: &mut PgConnection,
 ) -> ServiceResult<bool> {
-    use crate::schema::company_represent_ref::dsl::company_represent_ref;
-
-    check_is_owner_with_err(logged_user_uuid, &data.company_uuid, conn)?;
+    require_permission(
+        logged_user_uuid,
+        AccessEntity::Company,
+        &data.company_uuid,
+        AccessOperation::Write,
+        conn,
+    )?;
 
     // check_is_supplier(&data.company_uuid, conn)?;
 

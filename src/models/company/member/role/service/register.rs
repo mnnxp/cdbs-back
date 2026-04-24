@@ -22,10 +22,9 @@ pub(crate) fn create_role_member(
 
     let flag_found = role_member_translate_list::role_member_translate_list
         .filter(
-            role_member_translate_list::lang_id
-                .eq(&data.lang_id)
-                .and(role_member_translate_list::role_member_id.eq_any(company_roles_ids))
-                .and(role_member_translate_list::name.eq(&data.name)),
+            role_member_translate_list::lang_id.eq(&data.lang_id)
+            .and(role_member_translate_list::role_member_id.eq_any(company_roles_ids))
+            .and(role_member_translate_list::name.eq(&data.name)),
         )
         .select(role_member_translate_list::role_member_id)
         .limit(1)

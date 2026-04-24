@@ -1,5 +1,5 @@
+use crate::auth::{require_permission, AccessEntity, AccessOperation};
 use crate::errors::ServiceResult;
-use crate::models::component::access::util::check_access_component_for_user;
 use crate::models::component::supplier::model::ComponentSupplierRelatedData;
 use crate::models::search::order::Paginate;
 use diesel::prelude::*;
@@ -12,8 +12,12 @@ pub(crate) fn get_component_suppliers(
     paginate: &Paginate,
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<ComponentSupplierRelatedData>> {
-    let need_access_level = 3; // todo!(create enum for manage access level)
-    check_access_component_for_user(logged_user_uuid, component_uuid, need_access_level, conn)?;
-
+    require_permission(
+        logged_user_uuid,
+        AccessEntity::Component,
+        component_uuid,
+        AccessOperation::Read,
+        conn,
+    )?;
     ComponentSupplierRelatedData::by_component_uuid(component_uuid, paginate, conn)
 }

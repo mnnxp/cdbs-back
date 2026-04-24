@@ -1,5 +1,5 @@
+use crate::auth::{require_permission, AccessEntity, AccessOperation};
 use crate::errors::{ServiceError, ServiceResult};
-use crate::models::company::access::util::check_company_access;
 use crate::models::company::certificate::model::{
     CompanyCertificate, InsertableCompanyCertificate, IptCompanyCertificateData,
 };
@@ -22,13 +22,11 @@ pub(crate) fn add_certificate(
     domain: &str,
     conn: &mut PgConnection,
 ) -> ServiceResult<UploadFile> {
-    let need_access_level = 1; // todo!(create enum for manage access level)
-
-    // check access user for company
-    check_company_access(
+    require_permission(
         logged_user_uuid,
+        AccessEntity::Company,
         &cert_data.company_uuid,
-        need_access_level,
+        AccessOperation::Manage,
         conn,
     )?;
 

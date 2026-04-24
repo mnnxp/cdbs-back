@@ -16,7 +16,8 @@ use crate::models::company::{
 use crate::models::relate_ref::{language::get_set_language, spec::model::SpecTranslateList};
 use crate::models::search::model::ExtraOptions;
 use crate::models::search::order::Paginate;
-use crate::models::user::access::logged::{check_authorized, get_logged_user_uuid};
+use crate::auth::token::logged::check_authorized;
+use crate::auth::AuthContext;
 use async_graphql::{self, Context, Object};
 use uuid::Uuid;
 
@@ -93,7 +94,7 @@ impl CompanyQuery {
         use company::company_represent::service::list::get_represents;
 
         // authorization check
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
         let arguments = CompanyRepresentsArg::by_arg(args, get_set_language(cxt));
         // let s = sort.map(|s| Sort::parsing(TableName::CompanyRepresentRef, &s.by_field, s.as_desc))
         //     .unwrap_or(Sort::set_by_table(TableName::CompanyRepresentRef));
@@ -113,7 +114,7 @@ impl CompanyQuery {
         use company::member::service::list::get_by_company_uuid;
 
         // authorization check
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
@@ -134,7 +135,7 @@ impl CompanyQuery {
         use company::member::role::service::list::get_roles_for_company;
 
         // authorization check
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
@@ -171,7 +172,7 @@ impl CompanyQuery {
         use crate::models::company::spec::service::list::get_company_specs;
 
         // authorization check
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
         let p = paginate
             .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
             .unwrap_or_default();

@@ -1,5 +1,5 @@
+use crate::auth::{require_permission, AccessEntity, AccessOperation};
 use crate::errors::{ServiceError, ServiceResult};
-use crate::models::user::access::util::check_access_user_for_user;
 use crate::models::user::notification::{
     model::{NotificationData, NotificationType},
     service::register::create_notification,
@@ -15,13 +15,11 @@ pub(crate) fn add_user_fav(
     user_favorite_uuid: &Uuid,
     conn: &mut PgConnection,
 ) -> ServiceResult<bool> {
-    let need_access_level = 3; // todo!(create enum for manage access level)
-
-    // check access user for user
-    check_access_user_for_user(
-        logged_user_uuid,   // <-- logged user_uuid
-        user_favorite_uuid, // <-- target user_uuid
-        need_access_level,
+    require_permission(
+        logged_user_uuid,
+        AccessEntity::User,
+        user_favorite_uuid,
+        AccessOperation::Read,
         conn,
     )?;
 

@@ -1,5 +1,7 @@
 use crate::errors::{ServiceError, ServiceResult};
-use crate::models::user::access::{hash::verify, model::UserToken};
+use crate::auth::token::{decode, generate, write_token};
+use crate::auth::token::UserToken;
+use crate::models::user::access::hash::verify;
 use crate::models::user::model::{SlimUser, User};
 use diesel::prelude::*;
 
@@ -9,8 +11,6 @@ pub(crate) fn login_with_pass(
     password: &str,
     conn: &mut PgConnection,
 ) -> ServiceResult<UserToken> {
-    use crate::models::user::access::token::{decode, generate, write_token};
-
     let slim_user = login_check(username, password, conn)?;
 
     // serde_json::to_string(&slim_user)

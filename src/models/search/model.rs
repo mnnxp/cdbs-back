@@ -1,7 +1,7 @@
 use crate::errors::ServiceResult;
 use crate::graphql::handler::extract_client_domain;
 use crate::models::relate_ref::language::get_set_language;
-use crate::models::user::access::logged::{default_user_uuid, get_logged_user_uuid};
+use crate::auth::token::logged::{default_user_uuid, get_logged_user_uuid};
 use crate::models::user::model::SlimUser;
 use async_graphql::*;
 use diesel::{prelude::*, sql_types};

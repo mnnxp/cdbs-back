@@ -1,6 +1,6 @@
+use crate::auth::{require_permission, AccessEntity, AccessOperation};
 use crate::errors::err_msg::{get_err_msg, ErrorMessage};
 use crate::errors::{ServiceError, ServiceResult};
-use crate::models::company::access::util::check_is_owner_with_err;
 use diesel::prelude::*;
 use uuid::Uuid;
 
@@ -13,7 +13,13 @@ pub(crate) fn delete_company_represent(
 ) -> ServiceResult<bool> {
     use crate::schema::company_represent_ref::dsl::*;
 
-    check_is_owner_with_err(logged_user_uuid, target_company_uuid, conn)?;
+    require_permission(
+        logged_user_uuid,
+        AccessEntity::Company,
+        target_company_uuid,
+        AccessOperation::Manage,
+        conn,
+    )?;
 
     // debug!("fn target_company_uuid = {}", &target_company_uuid);
     // debug!("fn target_represent_uuid = {}", &target_represent_uuid);

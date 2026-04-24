@@ -673,7 +673,7 @@ describe('discussion', () => {
   });
 
   // Test 7: Authorization error (invalid token)
-  it('should return an error for unauthorized access', async () => {
+  it('should return an error for bad token access', async () => {
     const invalidDiscussionCommentData = {...testDiscussionCommentData };
     invalidDiscussionCommentData.objectDiscussion.objectUuid = componentUuidNoStandard;
     invalidDiscussionCommentData.objectDiscussion.toObject = ToObject.COMPONENT;
@@ -695,7 +695,7 @@ describe('discussion', () => {
     });
 
     const jsonData = await response.json();
-    expect(jsonData.errors[0].message).toBe('Unauthorized');
+    expect(jsonData.errors[0].message).toBe('BadRequest: Your token is invalid');
   });
 
   // Test 8: Invalid input - no objectDiscussion specified
@@ -1796,7 +1796,7 @@ describe('discussion', () => {
     });
     const jsonData = await response.json();
     expect(jsonData.errors).toBeDefined(); // Let's make sure that the definition error
-    expect(jsonData.errors[0].message).toContain('BadRequest: Failed check data'); // Убедитесь, что ошибка связана с невалидным discussionUuid
+    expect(jsonData.errors[0].message).toContain('BadRequest: Failed check data'); // invalid discussionUuid
   });
 
   // Test 35: Successful query discussions without filtering and sorting

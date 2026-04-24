@@ -1,8 +1,10 @@
+use crate::auth::{require_permission, AccessEntity, AccessOperation};
 use crate::errors::{ServiceError, ServiceResult};
 use crate::graphql::component_model::{ComponentAndRelatedData, ShowComponentShort};
 use crate::models::component::{
-    access::util::check_access_component_for_user, actual_status::model::ActualStatusTranslateList,
-    component_fav::model::ComponentFav, component_type::model::ComponentTypeTranslateList,
+    actual_status::model::ActualStatusTranslateList,
+    component_fav::model::ComponentFav,
+    component_type::model::ComponentTypeTranslateList,
     model::Component,
 };
 use crate::models::relate_ref::{
@@ -76,16 +78,13 @@ impl ShowComponentShort {
         options: &ExtraOptions,
         conn: &mut PgConnection,
     ) -> ServiceResult<ShowComponentShort> {
-        let need_access_level = 3; // todo!(create enum for manage access level)
-
-        // check access user for select component
-        check_access_component_for_user(
+        require_permission(
             &options.logged_user_uuid,
+            AccessEntity::Component,
             component_uuid,
-            need_access_level,
+            AccessOperation::Read,
             conn,
         )?;
-
         ShowComponentShort::get_without_check_by_uuid(component_uuid, options, conn)
     }
 
@@ -221,12 +220,11 @@ impl ComponentAndRelatedData {
         options: &ExtraOptions,
         conn: &mut PgConnection,
     ) -> ServiceResult<ComponentAndRelatedData> {
-        let need_access_level = 3; // todo!(create enum for manage access level)
-
-        check_access_component_for_user(
+        require_permission(
             &options.logged_user_uuid,
+            AccessEntity::Component,
             target_component_uuid,
-            need_access_level,
+            AccessOperation::Read,
             conn,
         )?;
 

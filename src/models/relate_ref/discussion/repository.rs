@@ -1,3 +1,4 @@
+use crate::auth::{check_permission, AccessEntity, AccessOperation};
 use crate::errors::err_msg::{get_err_msg, ErrorMessage};
 use crate::errors::{ServiceError, ServiceResult};
 use crate::models::relate_ref::discussion::access::CommentCriteria;
@@ -13,37 +14,29 @@ use super::model::{
     CommentQueryOptions, DiscusToCompany, DiscusToComponent, DiscusToService, Discussion,
     DiscussionCommentList, DiscussionTo,
 };
-use crate::models::company::access::util::check_company_access;
-use crate::models::component::access::util::check_access_component_for_user;
-use crate::models::supplier_service::access::util::check_access_service_for_user;
 use diesel::prelude::*;
 use uuid::Uuid;
 
 impl DiscussionTo {
     pub(crate) fn check_access(
-        &self,
+        &mut self,
         logged_user_uuid: &Uuid,
-        need_access_level: i32,
+        action: AccessOperation,
         conn: &mut PgConnection,
     ) -> ServiceResult<bool> {
         debug!("Checking user access to the object {:?}", self);
-        match self {
-            Self::Company(company_uuid) => {
-                check_company_access(logged_user_uuid, company_uuid, need_access_level, conn)
-            }
-            Self::Component(component_uuid) => check_access_component_for_user(
-                logged_user_uuid,
-                component_uuid,
-                need_access_level,
-                conn,
-            ),
-            Self::Service(service_uuid) => check_access_service_for_user(
-                logged_user_uuid,
-                service_uuid,
-                need_access_level,
-                conn,
-            ),
-        }
+        let (entity, object_uuid) = match self {
+            Self::Company(company_uuid) => (AccessEntity::Company, company_uuid),
+            Self::Component(component_uuid) => (AccessEntity::Component, component_uuid),
+            Self::Service(service_uuid) => (AccessEntity::Service, service_uuid),
+        };
+        check_permission(
+            logged_user_uuid,
+            entity,
+            object_uuid,
+            action,
+            conn,
+        )
     }
 
     pub(crate) fn get_discuss_uuids(&self, conn: &mut PgConnection) -> ServiceResult<Vec<Uuid>> {

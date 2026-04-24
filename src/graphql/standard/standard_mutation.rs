@@ -11,7 +11,7 @@ use crate::models::standard::{
     keyword::model::{IptStandardKeywordsData, IptStandardKeywordsNames},
     spec::model::IptStandardSpecsData,
 };
-use crate::models::user::access::logged::get_logged_user_uuid;
+use crate::auth::AuthContext;
 use async_graphql::{self, Context, Object};
 use uuid::Uuid;
 
@@ -28,7 +28,7 @@ impl StandardMutation {
     ) -> ServiceResult<Uuid> {
         use crate::models::standard::service::register::create_standard;
 
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
@@ -44,7 +44,7 @@ impl StandardMutation {
         use crate::models::standard::access::manage::change_standard_owner_user;
 
         // checking authorization and getting user uuid
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
@@ -60,7 +60,7 @@ impl StandardMutation {
         use crate::models::standard::access::manage::change_standard_type_access;
 
         // checking authorization and getting user uuid
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
@@ -77,7 +77,7 @@ impl StandardMutation {
     ) -> ServiceResult<usize> {
         use crate::models::standard::service::update::update_standard_data;
 
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
@@ -89,7 +89,7 @@ impl StandardMutation {
     async fn delete_standard(&self, cxt: &Context<'_>, standard_uuid: Uuid) -> ServiceResult<Uuid> {
         use crate::models::standard::service::delete::del_standard_data;
 
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
@@ -106,7 +106,7 @@ impl StandardMutation {
         use crate::models::standard::access::company::manage::set_company_access_standard;
 
         // checking authorization and getting company uuid
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
@@ -122,7 +122,7 @@ impl StandardMutation {
         use crate::models::standard::access::company::manage::del_company_access_standard;
 
         // checking authorization and getting company uuid
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
@@ -138,7 +138,7 @@ impl StandardMutation {
         use crate::models::standard::access::user::manage::set_user_access_standard;
 
         // checking authorization and getting user uuid
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
@@ -154,7 +154,7 @@ impl StandardMutation {
         use crate::models::standard::access::user::manage::del_user_access_standard;
 
         // checking authorization and getting user uuid
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
@@ -169,7 +169,7 @@ impl StandardMutation {
     ) -> ServiceResult<i32> {
         use crate::models::standard::spec::service::add::add_standard_specs;
 
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
@@ -184,7 +184,7 @@ impl StandardMutation {
     ) -> ServiceResult<usize> {
         use crate::models::standard::spec::service::delete::del_standard_specs;
 
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
@@ -199,7 +199,7 @@ impl StandardMutation {
     ) -> ServiceResult<usize> {
         use crate::models::standard::keyword::service::add::add_standard_keywords;
 
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
@@ -214,7 +214,7 @@ impl StandardMutation {
     ) -> ServiceResult<usize> {
         use crate::models::standard::keyword::service::add::add_keywords_by_names;
 
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
@@ -229,7 +229,7 @@ impl StandardMutation {
     ) -> ServiceResult<usize> {
         use crate::models::standard::keyword::service::delete::del_standard_keywords;
 
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
@@ -245,7 +245,7 @@ impl StandardMutation {
     ) -> ServiceResult<Vec<UploadFile>> {
         use crate::models::standard::file::service::add::add_standard_files;
 
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
@@ -261,7 +261,7 @@ impl StandardMutation {
     ) -> ServiceResult<UploadFile> {
         use crate::models::standard::file::service::add::add_standard_favicon;
 
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
@@ -276,7 +276,7 @@ impl StandardMutation {
     ) -> ServiceResult<bool> {
         use crate::models::standard::file::service::delete::delete_standard_file;
 
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 

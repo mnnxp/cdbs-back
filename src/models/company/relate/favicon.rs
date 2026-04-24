@@ -1,5 +1,5 @@
+use crate::auth::{require_permission, AccessEntity, AccessOperation};
 use crate::errors::ServiceResult;
-use crate::models::company::access::util::check_is_owner_with_err;
 use crate::models::relate_ref::file::{
     commit::Commit,
     model::{ListObject, UploadFile},
@@ -18,8 +18,13 @@ pub(crate) fn update_favicon(
     domain: &str,
     conn: &mut PgConnection,
 ) -> ServiceResult<UploadFile> {
-    // check access user for company
-    check_is_owner_with_err(logged_user_uuid, target_company_uuid, conn)?;
+    require_permission(
+        logged_user_uuid,
+        AccessEntity::Company,
+        target_company_uuid,
+        AccessOperation::Write,
+        conn,
+    )?;
 
     let slim_file = preregister_file(
         logged_user_uuid,

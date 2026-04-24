@@ -18,7 +18,7 @@ use crate::models::relate_ref::discussion::{
     service::register::create_discussion_comment,
 };
 use crate::models::search::model::ExtraOptions;
-use crate::models::user::access::logged::get_logged_user_uuid;
+use crate::auth::AuthContext;
 
 #[derive(Default)]
 pub struct DiscussionQuery;
@@ -65,7 +65,7 @@ impl DiscussionQuery {
         // authorization check
         let options = ExtraOptions::from_cxt(cxt, false)?;
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
-        get_discussions(&args.into_args(sort, paginate), &options, conn)
+        get_discussions(&mut args.into_args(sort, paginate), &options, conn)
     }
 
     /// Retrieves a list of discussion comments filtered by UUIDs, with optional sorting and pagination.
@@ -136,7 +136,7 @@ impl DiscussionMutation {
         args: IptDiscussionCommentData,
     ) -> ServiceResult<Uuid> {
         // authorization check
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
         debug!(
             "Register discussion comment IptDiscussionCommentData: {:?}",
@@ -170,7 +170,7 @@ impl DiscussionMutation {
         data: IptEditCommentData,
     ) -> ServiceResult<bool> {
         // authorization check
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
         edit_discussion_comment(&logged_user_uuid, &data, conn)
     }
@@ -201,7 +201,7 @@ impl DiscussionMutation {
         comment_uuid: Uuid,
     ) -> ServiceResult<bool> {
         // authorization check
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
         del_discussion_comment(&logged_user_uuid, &comment_uuid, conn)
     }

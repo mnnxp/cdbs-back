@@ -1,3 +1,5 @@
+use crate::auth::access::invalidate_access;
+use crate::auth::AccessEntity;
 use crate::errors::err_msg::{get_err_msg, ErrorMessage};
 use crate::errors::{ServiceError, ServiceResult};
 use crate::models::search::model::ExtraOptions;
@@ -35,6 +37,7 @@ pub(crate) fn set_user_access_service(
 ) -> ServiceResult<bool> {
     // 1. check the user's ownership of the component
     check_is_owner_with_err(logged_user_uuid, &data.service_uuid, conn)?;
+    invalidate_access(&data.user_uuid, AccessEntity::Service, &data.service_uuid);
 
     // 2. change or add access for a specified user
     let get_access = user_access_to_service::user_access_to_service
@@ -100,6 +103,7 @@ pub(crate) fn del_user_access_service(
 ) -> ServiceResult<bool> {
     // 1. check the user's ownership of the component
     check_is_owner_with_err(logged_user_uuid, &data.service_uuid, conn)?;
+    invalidate_access(&data.user_uuid, AccessEntity::Service, &data.service_uuid);
 
     // 2. deactivate access for the specified user
     let del_access = diesel::delete(user_access_to_service::user_access_to_service)

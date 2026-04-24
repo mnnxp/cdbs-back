@@ -1,11 +1,11 @@
+use super::model::Claims;
 use crate::errors::ServiceError;
-use crate::jwt::model::Claims;
 use crate::models::user::model::SlimUser;
 use jsonwebtoken::{decode, encode, Algorithm, DecodingKey, EncodingKey, Header, Validation};
 
 lazy_static::lazy_static! {
     static ref ENCODE_KEY : EncodingKey = EncodingKey::from_rsa_pem(
-        include_bytes!("../../keys/rs256-4096-private.pem")
+        include_bytes!("../../../keys/rs256-4096-private.pem")
     ).expect("Encode private key failed!");
 }
 
@@ -21,7 +21,7 @@ pub(crate) fn create_token(
 pub(crate) fn decode_token(token: &str) -> Result<Claims, ServiceError> {
     decode::<Claims>(
         token,
-        &DecodingKey::from_rsa_pem(include_bytes!("../../keys/rs256-4096-public.pem")).unwrap(),
+        &DecodingKey::from_rsa_pem(include_bytes!("../../../keys/rs256-4096-public.pem")).unwrap(),
         &Validation::new(Algorithm::RS256),
     )
     .map(|data| data.claims)

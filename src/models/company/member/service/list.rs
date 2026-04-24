@@ -1,6 +1,5 @@
-use crate::errors::err_msg::{get_err_msg, ErrorMessage};
+use crate::auth::{require_permission, AccessEntity, AccessOperation};
 use crate::errors::ServiceResult;
-use crate::models::company::access::util::check_company_access;
 use crate::models::company::member::model::CompanyMemberAndRelatedData;
 use diesel::PgConnection;
 use uuid::Uuid;
@@ -12,17 +11,13 @@ pub(crate) fn get_by_company_uuid(
     set_lang_id: i32,
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<CompanyMemberAndRelatedData>> {
-    let need_access_level = 3; // todo!(create enum for manage access level)
-
-    if !check_company_access(
+    require_permission(
         logged_user_uuid,
+        AccessEntity::Company,
         target_company_uuid,
-        need_access_level,
+        AccessOperation::Read,
         conn,
-    )? {
-        // return error if user not have access level
-        return Err(get_err_msg(ErrorMessage::AccessDenied));
-    }
+    )?;
 
     let result: Vec<CompanyMemberAndRelatedData> =
         CompanyMemberAndRelatedData::get_list_members_by_company_uuid(

@@ -1,6 +1,7 @@
+use crate::auth::access::invalidate_access;
+use crate::auth::{require_permission, AccessEntity, AccessOperation};
 use crate::errors::err_msg::{get_err_msg, ErrorMessage};
 use crate::errors::ServiceResult;
-use crate::models::company::access::util::check_company_access;
 use crate::models::company::member::model::IptCompanyMemberData;
 use crate::models::company::member::role::util::check_role_of_company;
 use diesel::prelude::*;
@@ -13,19 +14,14 @@ pub(crate) fn change_role_member(
     conn: &mut PgConnection,
 ) -> ServiceResult<bool> {
     use crate::schema::company_member_list::dsl::*;
-
-    // need top level access for change component main data
-    let need_access_level = 1; // todo!(create enum for manage access level)
-
-    if !check_company_access(
+    require_permission(
         logged_user_uuid,
+        AccessEntity::Company,
         &data.company_uuid,
-        need_access_level,
+        AccessOperation::Manage,
         conn,
-    )? {
-        // return error if user not have access level
-        return Err(get_err_msg(ErrorMessage::AccessDenied));
-    }
+    )?;
+    invalidate_access(&data.user_uuid, AccessEntity::Company, &data.company_uuid);
 
     // return error if not found role
     check_role_of_company(&data.company_uuid, data.role_id, conn)?;

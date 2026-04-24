@@ -26,7 +26,7 @@ impl ExtensionMutation {
         use extension::service::register::create_extension;
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        crate::models::user::access::logged::check_authorized(cxt)?;
+        crate::auth::token::logged::check_authorized(cxt)?;
 
         create_extension(&args, conn)
     }

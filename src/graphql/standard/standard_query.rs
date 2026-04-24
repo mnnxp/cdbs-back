@@ -17,7 +17,8 @@ use crate::models::standard::{
     model::{StandardFilesArg, StandardsArg},
     relate::standard_status::model::StandardStatusTranslateList,
 };
-use crate::models::user::access::logged::{check_authorized, get_logged_user_uuid};
+use crate::auth::token::logged::check_authorized;
+use crate::auth::AuthContext;
 use async_graphql::{self, Context, Object};
 use uuid::Uuid;
 
@@ -74,7 +75,7 @@ impl StandardQuery {
     ) -> ServiceResult<Vec<DownloadFile>> {
         use crate::models::standard::file::service::list::get_standard_files;
         // authorization check
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
         let arguments: StandardFilesArg = args.into();
         let p = paginate
             .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
@@ -93,7 +94,7 @@ impl StandardQuery {
         use crate::models::standard::spec::service::list::get_standard_specs;
 
         // authorization check
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
         let p = paginate
             .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
             .unwrap_or_default();
@@ -117,7 +118,7 @@ impl StandardQuery {
         use crate::models::standard::keyword::service::list::get_standard_keywords;
 
         // authorization check
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
         let p = paginate
             .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
             .unwrap_or_default();
@@ -133,7 +134,7 @@ impl StandardQuery {
     ) -> ServiceResult<Vec<CompanyAccessStandardAndRelatedData>> {
         use crate::models::standard::access::company::manage::get_companies_list_access_standard;
 
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
@@ -154,7 +155,7 @@ impl StandardQuery {
         use crate::models::standard::access::user::manage::get_users_list_access_standard;
 
         // checking authorization and getting user uuid
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 

@@ -2,11 +2,12 @@ use crate::database::{get_conn, PooledConnection};
 use crate::errors::ServiceResult;
 use crate::graphql::handler::extract_client_domain;
 use crate::graphql::relate::attributes::IptPaginate;
-use crate::jwt::model::{Claims, Token};
+use crate::auth::jwt::model::{Claims, Token};
+use crate::auth::AuthContext;
+use crate::auth::token::logged::check_authorized;
+use crate::auth::token::UserToken;
 use crate::models::search::model::ExtraOptions;
 use crate::models::search::order::Paginate;
-use crate::models::user::access::logged::{check_authorized, get_logged_user_uuid};
-use crate::models::user::access::model::UserToken;
 use crate::models::user::model::{
     IptGetUserArg, IptUsersArg, ShowUserAndRelatedData, ShowUserShort, SlimUser,
     UserAndRelatedData, UsersArg,
@@ -14,7 +15,6 @@ use crate::models::user::model::{
 use crate::models::user::notification::model::ShowNotification;
 
 use async_graphql::{self, Context, Object};
-use uuid::Uuid;
 
 #[derive(Default)]
 pub struct UserQuery;
@@ -32,7 +32,7 @@ impl UserQuery {
         use crate::models::user::service::list::get_users;
 
         // authorization check
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
         let arguments: UsersArg = match args {
             Some(x) => UsersArg::from(x),
             None => UsersArg::default(),
@@ -63,7 +63,7 @@ impl UserQuery {
         use crate::models::user::service::list::get_self_slim_data;
 
         // authorization check
-        let logged_user_uuid: Uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
@@ -85,7 +85,7 @@ impl UserQuery {
         use crate::models::user::access::manage::show_user_tokens;
 
         // authorization check
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
@@ -127,7 +127,7 @@ impl UserQuery {
         use crate::models::user::access::manage::delete_target_token;
 
         // authorization check
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
@@ -139,7 +139,7 @@ impl UserQuery {
         use crate::models::user::access::manage::delete_tokens;
 
         // authorization check
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
@@ -154,7 +154,7 @@ impl UserQuery {
         paginate: Option<IptPaginate>,
     ) -> ServiceResult<Vec<ShowNotification>> {
         use crate::models::user::notification::service::list::get_notifications;
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
         let p = paginate
             .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
             .unwrap_or_default();

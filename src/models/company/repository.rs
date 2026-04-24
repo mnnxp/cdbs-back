@@ -1,7 +1,7 @@
+use crate::auth::{require_permission, AccessEntity, AccessOperation};
 use crate::errors::err_msg::{get_err_msg, ErrorMessage};
 use crate::errors::{ServiceError, ServiceResult};
 use crate::models::company::{
-    access::util::check_company_access,
     certificate::model::CompanyCertificateAndFile,
     company_fav::model::CompanyFav,
     company_fav::util::check_subscriber_by_uuid,
@@ -119,13 +119,11 @@ impl ShowCompanyShort {
         options: &ExtraOptions,
         conn: &mut PgConnection,
     ) -> ServiceResult<ShowCompanyShort> {
-        let need_access_level = 3; // todo!(create enum for manage access level)
-
-        // check access user for select company
-        check_company_access(
+        require_permission(
             &options.logged_user_uuid,
+            AccessEntity::Company,
             target_company_uuid,
-            need_access_level,
+            AccessOperation::Read,
             conn,
         )?;
 
@@ -265,13 +263,11 @@ impl CompanyAndRelatedData {
         options: &ExtraOptions,
         conn: &mut PgConnection,
     ) -> ServiceResult<CompanyAndRelatedData> {
-        let need_access_level = 3; // todo!(create enum for manage access level)
-
-        // check access user for company
-        check_company_access(
+        require_permission(
             &options.logged_user_uuid,
+            AccessEntity::Company,
             target_company_uuid,
-            need_access_level,
+            AccessOperation::Read,
             conn,
         )?;
 

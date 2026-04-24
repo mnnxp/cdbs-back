@@ -1,7 +1,6 @@
 use crate::models::user::model::SlimUser;
 use anyhow::Result;
-use chrono::{Duration, Local};
-// use std::convert::TryFrom;
+use chrono::{Duration, Local, Utc};
 use actix_web::http::header::{HeaderMap, AUTHORIZATION};
 use regex::Regex;
 use uuid::Uuid;
@@ -15,7 +14,7 @@ pub struct Claims {
     // issuer
     pub iss: String,
     // subject - uuid user
-    pub sub: String,
+    pub sub: Uuid,
     // issued at
     pub iat: i64,
     // expiry
@@ -41,13 +40,24 @@ impl Claims {
 
         Claims {
             iss: issuer,
-            sub: uuid.to_string(),
+            sub: *uuid,
             program_id: *program_id,
             username: username.clone(),
             iat: iat.timestamp(),
             exp: exp.timestamp(),
         }
     }
+
+    pub(crate) fn is_expired(&self) -> bool {
+        let now = Utc::now().timestamp();
+        debug!("Token expired at: {}, current: {}", self.exp, now);
+        now > self.exp
+    }
+
+    // pub(crate) fn is_valid(&self) -> bool {
+    //     let now = Utc::now().timestamp();
+    //     now >= self.iat && now <= self.exp
+    // }
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -67,7 +77,7 @@ impl TryFrom<Claims> for SlimUser {
         }: Claims = claims;
 
         Ok(SlimUser {
-            uuid: Uuid::parse_str(&sub)?,
+            uuid: sub,
             username,
             program_id,
         })

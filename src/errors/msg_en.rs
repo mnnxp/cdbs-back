@@ -118,6 +118,7 @@ pub(crate) fn value_in_err_msg_en(err_msg: ErrorMessage) -> String {
             String::from("You need to choose a company or a representative company")
         }
         ErrorMessage::TokenIsInvalid => String::from("Your token is invalid"),
+        ErrorMessage::TokenExpired => String::from("Token has expired"),
         ErrorMessage::NameAlreadyThereX(name, x) => {
             format!("This {name} name is already there. Id: {x}")
         }

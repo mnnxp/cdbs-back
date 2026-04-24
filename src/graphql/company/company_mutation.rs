@@ -16,7 +16,7 @@ use crate::models::company::{
 };
 use crate::models::component::supplier::model::IptSupplierComponentData;
 use crate::models::relate_ref::file::model::UploadFile;
-use crate::models::user::access::logged::get_logged_user_uuid;
+use crate::auth::AuthContext;
 
 use async_graphql::{self, Context, Object};
 use uuid::Uuid;
@@ -34,7 +34,7 @@ impl CompanyMutation {
     ) -> ServiceResult<Uuid> {
         use crate::models::company::service::register::create_company;
 
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         create_company(&logged_user_uuid, &args, conn)
@@ -49,7 +49,7 @@ impl CompanyMutation {
     ) -> ServiceResult<usize> {
         use crate::models::company::service::update::update_company_by_uuid;
 
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         update_company_by_uuid(&logged_user_uuid, &company_uuid, &args, conn)
@@ -65,7 +65,7 @@ impl CompanyMutation {
         use crate::models::company::access::manage::change_company_type_access;
 
         // checking authorization and getting user uuid
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         change_company_type_access(&logged_user_uuid, &args, conn)
@@ -77,7 +77,7 @@ impl CompanyMutation {
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
 
         del_company(&logged_user_uuid, &company_uuid, conn)
     }
@@ -91,7 +91,7 @@ impl CompanyMutation {
     ) -> ServiceResult<UploadFile> {
         use crate::models::company::relate::favicon::update_favicon;
 
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         update_favicon(&logged_user_uuid, &company_uuid, &filename, &extract_client_domain(cxt), conn)
@@ -105,7 +105,7 @@ impl CompanyMutation {
     ) -> ServiceResult<UploadFile> {
         use crate::models::company::certificate::service::add::add_certificate;
 
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         add_certificate(&logged_user_uuid, &cert_data, &extract_client_domain(cxt), conn)
@@ -120,7 +120,7 @@ impl CompanyMutation {
     ) -> ServiceResult<bool> {
         use crate::models::company::certificate::service::update::update_certificate_description;
 
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         update_certificate_description(&logged_user_uuid, &args, conn)
@@ -134,7 +134,7 @@ impl CompanyMutation {
     ) -> ServiceResult<bool> {
         use crate::models::company::certificate::service::delete::del_certificate;
 
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         del_certificate(&logged_user_uuid, &args, conn)
@@ -150,7 +150,7 @@ impl CompanyMutation {
     ) -> ServiceResult<i32> {
         use crate::models::company::spec::service::add::add_company_specs;
 
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         add_company_specs(&logged_user_uuid, &args, conn)
@@ -164,7 +164,7 @@ impl CompanyMutation {
     ) -> ServiceResult<usize> {
         use crate::models::company::spec::service::delete::del_company_specs;
 
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         del_company_specs(&logged_user_uuid, &args, conn)
@@ -178,7 +178,7 @@ impl CompanyMutation {
     ) -> ServiceResult<bool> {
         use crate::models::company::company_represent::service::register::create_company_represent;
 
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         create_company_represent(&logged_user_uuid, &args, conn)
@@ -196,7 +196,7 @@ impl CompanyMutation {
     ) -> ServiceResult<usize> {
         use crate::models::company::company_represent::service::update::update_company_represent_by_uuid;
 
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         update_company_represent_by_uuid(
@@ -217,7 +217,7 @@ impl CompanyMutation {
     ) -> ServiceResult<bool> {
         use crate::models::company::company_represent::service::delete::delete_company_represent;
 
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         delete_company_represent(
@@ -238,7 +238,7 @@ impl CompanyMutation {
     ) -> ServiceResult<bool> {
         use crate::models::company::member::service::add::add_company_member;
 
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         add_company_member(&logged_user_uuid, &args, conn)
@@ -252,7 +252,7 @@ impl CompanyMutation {
     ) -> ServiceResult<bool> {
         use crate::models::company::member::service::change::change_role_member;
 
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         change_role_member(&logged_user_uuid, &args, conn)
@@ -267,7 +267,7 @@ impl CompanyMutation {
     ) -> ServiceResult<bool> {
         use crate::models::company::member::service::delete::del_company_member;
 
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         del_company_member(&logged_user_uuid, &args, conn)
@@ -281,7 +281,7 @@ impl CompanyMutation {
     ) -> ServiceResult<i32> {
         use crate::models::company::member::role::service::register::create_role_member;
 
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         create_role_member(&logged_user_uuid, &args, conn)
@@ -295,7 +295,7 @@ impl CompanyMutation {
     ) -> ServiceResult<bool> {
         use crate::models::company::member::role::service::update::change_name_role_company;
 
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         change_name_role_company(&logged_user_uuid, &args, conn)
@@ -309,7 +309,7 @@ impl CompanyMutation {
     ) -> ServiceResult<usize> {
         use crate::models::company::member::role::service::delete::del_role_member;
 
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         del_role_member(&logged_user_uuid, &args, conn)
@@ -323,7 +323,7 @@ impl CompanyMutation {
     ) -> ServiceResult<bool> {
         use crate::models::company::access::role_access::service::register::create_role_access;
 
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         create_role_access(&logged_user_uuid, &args, conn)
@@ -337,7 +337,7 @@ impl CompanyMutation {
     ) -> ServiceResult<usize> {
         use crate::models::company::access::role_access::service::delete::del_role_access;
 
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         del_role_access(&logged_user_uuid, &args, conn)
@@ -351,7 +351,7 @@ impl CompanyMutation {
     ) -> ServiceResult<bool> {
         use crate::models::company::supplier_component::add::add_company_to_suppliers;
 
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         add_company_to_suppliers(&logged_user_uuid, &args, conn)
@@ -365,7 +365,7 @@ impl CompanyMutation {
     ) -> ServiceResult<bool> {
         use crate::models::company::supplier_component::add::set_company_owner_supplier;
 
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         set_company_owner_supplier(&logged_user_uuid, &args, conn)
@@ -379,7 +379,7 @@ impl CompanyMutation {
     ) -> ServiceResult<bool> {
         use crate::models::company::supplier_component::delete::del_company_of_suppliers;
 
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         del_company_of_suppliers(&logged_user_uuid, &args, conn)

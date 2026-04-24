@@ -1,3 +1,5 @@
+use crate::auth::access::invalidate_access;
+use crate::auth::AccessEntity;
 use crate::errors::err_msg::{get_err_msg, ErrorMessage};
 use crate::errors::{ServiceError, ServiceResult};
 use crate::models::component::access::user::model::{
@@ -35,6 +37,8 @@ pub(crate) fn set_user_access_component(
 ) -> ServiceResult<bool> {
     // 1. проверить пользователя на владение компонентом
     check_is_owner_with_err(logged_user_uuid, &data.component_uuid, conn)?;
+
+    invalidate_access(&data.user_uuid, AccessEntity::Component, &data.component_uuid);
 
     let get_access = user_access_to_component::user_access_to_component
         .filter(
@@ -102,6 +106,8 @@ pub(crate) fn del_user_access_component(
 ) -> ServiceResult<bool> {
     // 1. проверить пользователя на владение компонентом
     check_is_owner_with_err(logged_user_uuid, &data.component_uuid, conn)?;
+
+    invalidate_access(&data.user_uuid, AccessEntity::Component, &data.component_uuid);
 
     // 2. деактивировать доступ для указанного пользователя
     let del_access = diesel::delete(user_access_to_component::user_access_to_component)

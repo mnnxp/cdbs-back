@@ -27,7 +27,7 @@ use crate::models::supplier_service::{
     spec::model::IptServiceSpecsData,
     spec::service::{add::add_service_specs, delete::del_service_specs},
 };
-use crate::models::user::access::logged::get_logged_user_uuid;
+use crate::auth::AuthContext;
 use crate::models::user::model::IptUserData;
 use crate::models::user::service::register::create_user;
 use async_graphql::{self, Context, Object};
@@ -116,7 +116,7 @@ impl ServiceMutation {
     /// Returns the UUID of the removed service.
     async fn delete_service(&self, cxt: &Context<'_>, service_uuid: Uuid) -> ServiceResult<Uuid> {
         // checking authorization
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
         del_service_data(&service_uuid, &logged_user_uuid, conn)
     }
@@ -140,7 +140,7 @@ impl ServiceMutation {
         cxt: &Context<'_>,
         args: DelServiceParamData,
     ) -> ServiceResult<usize> {
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
         del_service_params(&args, &logged_user_uuid, conn)
     }
@@ -153,7 +153,7 @@ impl ServiceMutation {
         args: IptCompanyAccessServiceData,
     ) -> ServiceResult<bool> {
         // checking authorization and getting company uuid
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
         set_company_access_service(&args, &logged_user_uuid, conn)
     }
@@ -165,7 +165,7 @@ impl ServiceMutation {
         args: DelCompanyAccessServiceData,
     ) -> ServiceResult<bool> {
         // checking authorization and getting company uuid
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
         del_company_access_service(&args, &logged_user_uuid, conn)
     }
@@ -177,7 +177,7 @@ impl ServiceMutation {
         args: IptUserAccessServiceData,
     ) -> ServiceResult<bool> {
         // checking authorization and getting user uuid
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
         set_user_access_service(&args, &logged_user_uuid, conn)
     }
@@ -189,7 +189,7 @@ impl ServiceMutation {
         args: DelUserAccessServiceData,
     ) -> ServiceResult<bool> {
         // checking authorization and getting user uuid
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
         del_user_access_service(&args, &logged_user_uuid, conn)
     }
@@ -201,7 +201,7 @@ impl ServiceMutation {
         args: IptServiceSpecsData,
     ) -> ServiceResult<usize> {
         // checking authorization and getting user uuid
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
         add_service_specs(&args, &logged_user_uuid, conn)
     }
@@ -213,7 +213,7 @@ impl ServiceMutation {
         args: IptServiceSpecsData,
     ) -> ServiceResult<usize> {
         // checking authorization and getting user uuid
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
         del_service_specs(&args, &logged_user_uuid, conn)
     }
@@ -225,7 +225,7 @@ impl ServiceMutation {
         args: IptServiceKeywordsData,
     ) -> ServiceResult<usize> {
         // checking authorization and getting user uuid
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
         add_service_keywords(&args, &logged_user_uuid, conn)
     }
@@ -237,7 +237,7 @@ impl ServiceMutation {
         args: IptServiceKeywordsNames,
     ) -> ServiceResult<usize> {
         // checking authorization and getting user uuid
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
         add_keywords_by_names(&args, &logged_user_uuid, conn)
     }
@@ -249,7 +249,7 @@ impl ServiceMutation {
         args: IptServiceKeywordsData,
     ) -> ServiceResult<usize> {
         // checking authorization and getting user uuid
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
         del_service_keywords(&args, &logged_user_uuid, conn)
     }
@@ -262,7 +262,7 @@ impl ServiceMutation {
         args: IptServiceFilesData,
     ) -> ServiceResult<Vec<UploadFile>> {
         // checking authorization and getting user uuid
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
         add_service_files(&args, &logged_user_uuid, &extract_client_domain(cxt), conn)
     }
@@ -274,7 +274,7 @@ impl ServiceMutation {
         args: DeleteServiceFileData,
     ) -> ServiceResult<bool> {
         // checking authorization and getting user uuid
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
         delete_service_file(&args, &logged_user_uuid, conn)
     }

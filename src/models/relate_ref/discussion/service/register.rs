@@ -1,3 +1,4 @@
+use crate::auth::AccessOperation;
 use crate::errors::err_msg::{get_err_msg, ErrorMessage};
 use crate::errors::{ServiceError, ServiceResult};
 use crate::graphql::discussion_model::IptDiscussionCommentData;
@@ -22,8 +23,8 @@ pub(crate) fn create_discussion_comment(
     if data.message_content.len() > 5000 {
         return Err(get_err_msg(ErrorMessage::TextMustLess(5000)));
     }
-    let discussion_to = data.object_discussion.get_discuss_to();
-    discussion_to.check_access(logged_user_uuid, 3, conn)?;
+    let mut discussion_to = data.object_discussion.get_discuss_to();
+    discussion_to.check_access(logged_user_uuid, AccessOperation::Read, conn)?;
     let valid_discussion_uuid =
         match discussion_to.get_associated_discussion_uuid(&data.discussion_uuid, conn) {
             Ok(d_uuid) => d_uuid,

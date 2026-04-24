@@ -33,7 +33,7 @@ use crate::models::relate_ref::{
 };
 use crate::models::search::model::{ExtraOptions, IptSearchArg};
 use crate::models::search::order::{Paginate, Sort, TableName};
-use crate::models::user::access::logged::check_authorized;
+use crate::auth::token::logged::check_authorized;
 use async_graphql::{self, Context, Object};
 use uuid::Uuid;
 

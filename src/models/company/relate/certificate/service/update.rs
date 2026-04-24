@@ -1,6 +1,6 @@
+use crate::auth::{require_permission, AccessEntity, AccessOperation};
 use crate::errors::err_msg::{get_err_msg, ErrorMessage};
 use crate::errors::ServiceResult;
-use crate::models::company::access::util::check_company_access;
 use crate::models::company::certificate::model::IptUpdateCompanyCertificateData;
 use crate::schema::company_certificate_ref::dsl as company_certificate_ref;
 use diesel::prelude::*;
@@ -18,12 +18,11 @@ pub(crate) fn update_certificate_description(
         return Err(get_err_msg(ErrorMessage::TextMustLess(250)));
     }
 
-    let need_access_level = 1; // todo!(create enum for manage access level)
-                               // check access user for company
-    check_company_access(
+    require_permission(
         logged_user_uuid,
+        AccessEntity::Company,
         &data.company_uuid,
-        need_access_level,
+        AccessOperation::Manage,
         conn,
     )?;
 

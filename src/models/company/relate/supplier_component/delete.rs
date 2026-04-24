@@ -1,6 +1,6 @@
+use crate::auth::{require_permission, AccessEntity, AccessOperation};
 use crate::errors::err_msg::{get_err_msg, ErrorMessage};
 use crate::errors::ServiceResult;
-use crate::models::company::access::util::check_company_access;
 use crate::models::company::supplier_component::model::DelCompanyOfSuppliersData;
 use diesel::prelude::*;
 use uuid::Uuid;
@@ -12,13 +12,11 @@ pub(crate) fn del_company_of_suppliers(
     conn: &mut PgConnection,
 ) -> ServiceResult<bool> {
     use crate::schema::supplier_to_component::dsl::*;
-
-    let need_access_level = 1; // todo!(create enum for manage access level)
-
-    check_company_access(
+    require_permission(
         logged_user_uuid,
+        AccessEntity::Company,
         &data.company_uuid,
-        need_access_level,
+        AccessOperation::Manage,
         conn,
     )?;
 

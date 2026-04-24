@@ -10,7 +10,7 @@ use crate::models::relate_ref::file::{
     service::update::{confirm_upload, set_active_revision_by_uuid},
 };
 use crate::models::search::order::Paginate;
-use crate::models::user::access::logged::get_logged_user_uuid;
+use crate::auth::AuthContext;
 use async_graphql::{self, Context, Object};
 use uuid::Uuid;
 
@@ -30,7 +30,7 @@ impl StorageQuery {
         file_uuid: Uuid,
     ) -> ServiceResult<DownloadFile> {
         // authorization check
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
@@ -48,7 +48,13 @@ impl StorageQuery {
         let p = paginate
             .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
             .unwrap_or_default();
-        get_revisions_by_file_uuid(&file_uuid, &get_logged_user_uuid(cxt, true)?, &p, &extract_client_domain(cxt), conn)
+        get_revisions_by_file_uuid(
+            &file_uuid,
+            &AuthContext::from_graphql(cxt)?.user_uuid(),
+            &p,
+            &extract_client_domain(cxt),
+            conn
+        )
     }
 }
 
@@ -61,7 +67,7 @@ impl StorageMutation {
         cxt: &Context<'_>,
         file_uuids: Vec<Uuid>,
     ) -> ServiceResult<usize> {
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
 
         if file_uuids.is_empty() {
             return Ok(0); // <-- Not found uuids, just return 0
@@ -78,7 +84,7 @@ impl StorageMutation {
         cxt: &Context<'_>,
         file_uuid: Uuid,
     ) -> ServiceResult<bool> {
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
@@ -90,7 +96,7 @@ impl StorageMutation {
     /// After deleting the active revision without activating the other one,
     /// uploading a new file with the same name will be the solution to view other (inactive) revisions of the file.
     async fn delete_file(&self, cxt: &Context<'_>, file_uuid: Uuid) -> ServiceResult<bool> {
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 

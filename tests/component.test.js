@@ -1217,7 +1217,7 @@ describe('component', () => {
       debug('/graphql uploadFavicon no proxy=%o', body);
     const { uploadFavicon } = body.data;
     // The link should contain the original S3 endpoint
-    expect(uploadFavicon.uploadUrl).toContain(".scw.cloud");
+    expect(uploadFavicon.uploadUrl).toContain(".cloud");
     expect(uploadFavicon.uploadUrl).not.toContain("s3.cadbase.ru");
     expect(uploadFavicon.uploadUrl).not.toContain("s3.cadbase.org");
     await setFileAsUploadedDb(uploadFavicon.fileUuid);

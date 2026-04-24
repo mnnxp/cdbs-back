@@ -11,7 +11,7 @@ use crate::models::relate_ref::param::{
     service::register::create_param,
 };
 use crate::models::search::order::Paginate;
-use crate::models::user::access::logged::check_authorized;
+use crate::auth::token::logged::check_authorized;
 
 #[derive(Default)]
 pub struct ParamQuery;

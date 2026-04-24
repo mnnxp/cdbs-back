@@ -1,6 +1,7 @@
+use crate::auth::access::invalidate_access;
+use crate::auth::{require_permission, AccessEntity, AccessOperation};
 use crate::errors::err_msg::{get_err_msg, ErrorMessage};
 use crate::errors::{ServiceError, ServiceResult};
-use crate::models::company::access::util::check_company_access;
 use crate::models::company::member::model::{InsertableCompanyMember, IptCompanyMemberData};
 use crate::models::company::member::role::util::check_role_of_company;
 use crate::schema::company_member_list::dsl as company_member_list;
@@ -15,15 +16,14 @@ pub(crate) fn add_company_member(
     data: &IptCompanyMemberData,
     conn: &mut PgConnection,
 ) -> ServiceResult<bool> {
-    // need top level access for change component main data
-    let need_access_level = 1; // todo!(create enum for manage access level)
-
-    check_company_access(
+    require_permission(
         logged_user_uuid,
+        AccessEntity::Company,
         &data.company_uuid,
-        need_access_level,
+        AccessOperation::Manage,
         conn,
     )?;
+    invalidate_access(&data.user_uuid, AccessEntity::Company, &data.company_uuid);
 
     check_role_of_company(&data.company_uuid, data.role_id, conn)?;
 

@@ -1,3 +1,5 @@
+use crate::auth::access::{invalidate_access, invalidate_user_cache};
+use crate::auth::AccessEntity;
 use crate::errors::{ServiceError, ServiceResult};
 use crate::models::component::access::model::{ChangeOwnerComponent, ChangeTypeAccessComponent};
 use crate::models::component::access::util::check_is_owner_with_err;
@@ -15,6 +17,9 @@ pub(crate) fn change_component_owner_user(
 
     // 1. проверить пользователя на владение компонентом
     check_is_owner_with_err(logged_user_uuid, &data.component_uuid, conn)?;
+
+    invalidate_access(&data.new_owner_user_uuid, AccessEntity::Component, &data.component_uuid);
+    invalidate_user_cache(logged_user_uuid);
 
     // 2. изменить владельца компонента и обовление даты изменения компонента
     let change_owner = diesel::update(

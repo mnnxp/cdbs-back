@@ -1,9 +1,7 @@
+use crate::auth::{require_permission, AccessEntity, AccessOperation};
 use crate::errors::{ServiceError, ServiceResult};
 use crate::graphql::standard_model::IptStandardData;
-use crate::models::company::access::util::check_company_access;
-use crate::models::standard::{
-    access::util::check_access_standard_for_user, model::InsertableStandard,
-};
+use crate::models::standard::model::InsertableStandard;
 use crate::schema::standard_ref::dsl as standard_ref;
 use diesel::prelude::*;
 use uuid::Uuid;
@@ -14,22 +12,22 @@ pub(crate) fn create_standard(
     data: &IptStandardData,
     conn: &mut PgConnection,
 ) -> ServiceResult<Uuid> {
-    let need_access_level = 2; // todo!(create enum for manage access level)
-
-    check_company_access(
+    require_permission(
         logged_user_uuid,
+        AccessEntity::Company,
         &data.company_uuid,
-        need_access_level,
+        AccessOperation::Manage,
         conn,
     )?;
 
     // check_is_supplier(&data.company_uuid, conn)?;
 
     if let Some(parent_standard_uuid) = &data.parent_standard_uuid {
-        check_access_standard_for_user(
+        require_permission(
             logged_user_uuid,
+            AccessEntity::Standard,
             parent_standard_uuid,
-            3, // need_access_level
+            AccessOperation::Manage,
             conn,
         )?;
     }

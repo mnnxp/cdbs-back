@@ -1,7 +1,7 @@
 use crate::cli_args::Opt;
 use crate::database::Pool;
 use crate::graphql::{MutationRoot, QueryRoot};
-use crate::jwt::model::Token;
+use crate::auth::jwt::model::Token;
 use crate::models::relate_ref::language::model::SetLang;
 use actix_web::{web, HttpRequest, HttpResponse, Result};
 use actix_web::http::header::{HeaderMap, HOST, ORIGIN};

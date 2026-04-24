@@ -1,5 +1,4 @@
 use super::{
-    access::util::check_access_user_for_user,
     certificate::model::UserCertificateAndFile,
     model::{
         ShowUserAndRelatedData, ShowUserShort, SlimUser, UserAndRelatedData, UserQuery, UserShort,
@@ -7,16 +6,12 @@ use super::{
     relate::util::{count_companies_for_user, count_components_for_user, count_standards_for_user},
     user_fav::model::UserFav,
 };
-use crate::models::{
-    company::company_fav::model::CompanyFav,
-    component::component_fav::model::ComponentFav,
-    relate_ref::{
+use crate::{auth::{require_permission, AccessEntity, AccessOperation}, models::{
+    company::company_fav::model::CompanyFav, component::component_fav::model::ComponentFav, relate_ref::{
         file::model::DownloadFile, program::model::Program, region::model::RegionTranslateList,
         type_access::model::TypeAccessTranslateList,
-    },
-    standard::standard_fav::model::StandardFav,
-    search::model::ExtraOptions,
-};
+    }, search::model::ExtraOptions, standard::standard_fav::model::StandardFav
+}};
 use crate::schema::user_ref::dsl as user_ref;
 use crate::{
     errors::{ServiceError, ServiceResult},
@@ -124,10 +119,13 @@ impl ShowUserShort {
         domain: &str,
         conn: &mut PgConnection,
     ) -> ServiceResult<ShowUserShort> {
-        let need_access_level = 3; // todo!(create enum for manage access level)
-
-        // check access user for target user
-        check_access_user_for_user(logged_user_uuid, target_user_uuid, need_access_level, conn)?;
+        require_permission(
+            logged_user_uuid,
+            AccessEntity::User,
+            target_user_uuid,
+            AccessOperation::Read,
+            conn,
+        )?;
 
         ShowUserShort::get_without_check_by_uuid(target_user_uuid, domain, conn)
     }
@@ -372,10 +370,13 @@ impl ShowUserAndRelatedData {
         options: &ExtraOptions,
         conn: &mut PgConnection,
     ) -> ServiceResult<ShowUserAndRelatedData> {
-        let need_access_level = 3; // todo!(create enum for manage access level)
-
-        // check access user for user
-        check_access_user_for_user(&options.logged_user_uuid, target_user_uuid, need_access_level, conn)?;
+        require_permission(
+            &options.logged_user_uuid,
+            AccessEntity::User,
+            target_user_uuid,
+            AccessOperation::Read,
+            conn,
+        )?;
 
         // collect data for user
         ShowUserAndRelatedData::collect_related_data(
