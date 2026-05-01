@@ -306,7 +306,7 @@ impl CompanyMutation {
         &self,
         cxt: &Context<'_>,
         args: DelRoleMemberData,
-    ) -> ServiceResult<usize> {
+    ) -> ServiceResult<bool> {
         use crate::models::company::member::role::service::delete::del_role_member;
 
         let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();

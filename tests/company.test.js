@@ -18,6 +18,11 @@ const uuidFail = "aba22d59-4f6c-24a4-9a37-2d38f0e577a8";
 const userUuidBase = "31ecc6f8-0c09-4a59-a2d5-34b5b833e59b";
 const userUuid2 = "68b8281a-d19c-4d4b-88eb-6fd4a2afde1b";
 
+var authorizationUserFirst = "";
+var authorizationTokenFirst = "";
+var authorizationUserSecond = "";
+var authorizationTokenSecond = "";
+
 var firstAccess = 1;
 var secondAccess = 2;
 
@@ -25,7 +30,10 @@ var langId = 1;
 var nameRole = "test role";
 var newRoleId = 0;
 var nameRole2 = "test role2";
-var newRoleId2 = 0;
+var nameRole2 = "test role2";
+var newRoleId3 = 0;
+var nameRole3 = "Test Role For Deletion";
+let testRoleId = 0;
 
 // data for company
 const orgname = "orgname supplier of the test";
@@ -3889,6 +3897,226 @@ describe('company', () => {
   });
 
   // Testing delete role access
+  // Testing delete company role mutation
+  describe('deleteCompanyRole', () => {
+    // Test: No authentication token provided
+    it('/graphql:M deleteCompanyRole - BadRequest no token', async () => {
+      const { body } = await agent
+        .post('/graphql')
+        .send({
+          query: `mutation {
+            deleteCompanyRole(args: {
+              companyUuid: "${companyUuidNoSupplier}"
+              roleId: 1
+            })
+          }`,
+        })
+        .expect(HttpStatus.OK);
+
+      debug('/graphql deleteCompanyRole no token=%o', body);
+      expect(body.data).toBeNull();
+      expect(body.errors[0].message).toBe('BadRequest: Token not found');
+      expect(body.errors[0].path[0]).toBe('deleteCompanyRole');
+    });
+
+    // Test: User without proper permissions tries to delete a role
+    it('/graphql:M deleteCompanyRole - BadRequest access denied', async () => {
+      const { body } = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenSecond}`)
+        .send({
+          query: `mutation {
+            deleteCompanyRole(args: {
+              companyUuid: "${companyUuidNoSupplier}"
+              roleId: 1
+            })
+          }`,
+        })
+        .expect(HttpStatus.OK);
+
+      debug('/graphql deleteCompanyRole access denied=%o', body);
+      expect(body.data).toBeNull();
+      expect(body.errors[0].message).toBe('BadRequest: Access denied');
+      expect(body.errors[0].path[0]).toBe('deleteCompanyRole');
+    });
+
+    // Test: Successfully delete a company role
+    it('/graphql:M deleteCompanyRole - OK delete company role', async () => {
+      // Create a test role first
+      const createResponse = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenFirst}`)
+        .send({
+          query: `mutation {
+            registerCompanyRole(args: {
+              companyUuid: "${companyUuidNoSupplier}"
+              langId: 1
+              name: "Test Role For Deletion ${Date.now()}"
+            })
+          }`,
+        })
+        .expect(HttpStatus.OK);
+
+      testRoleId = createResponse.body.data.registerCompanyRole;
+      expect(testRoleId).toBeGreaterThan(0);
+
+      // Delete the created role
+      const { body } = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenFirst}`)
+        .send({
+          query: `mutation {
+            deleteCompanyRole(args: {
+              companyUuid: "${companyUuidNoSupplier}"
+              roleId: ${testRoleId}
+            })
+          }`,
+        })
+        .expect(HttpStatus.OK);
+
+      debug('/graphql deleteCompanyRole success=%o', body);
+      const { data: { deleteCompanyRole } } = body;
+      expect(deleteCompanyRole).toBe(true);
+    });
+
+    // Test: Attempt to delete a role that has members assigned to it
+    it('/graphql:M deleteCompanyRole - BadRequest role is in use', async () => {
+      // Create a role
+      const roleName = `Role With Members ${Date.now()}`;
+      const createResponse = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenFirst}`)
+        .send({
+          query: `mutation {
+            registerCompanyRole(args: {
+              companyUuid: "${companyUuidNoSupplier}"
+              langId: 1
+              name: "${roleName}"
+            })
+          }`,
+        })
+        .expect(HttpStatus.OK);
+
+      const roleId = createResponse.body.data.registerCompanyRole;
+      expect(roleId).toBeGreaterThan(0);
+      console.log(`Created role with ID: ${roleId}`);
+
+      // Add the test user as a company member with this role
+      const addMemberResponse = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenFirst}`)
+        .send({
+          query: `mutation {
+            addCompanyMember(args: {
+              companyUuid: "${companyUuidNoSupplier}"
+              userUuid: "${authorizationUserSecond}"
+              roleId: ${roleId}
+            })
+          }`,
+        })
+        .expect(HttpStatus.OK);
+      expect(addMemberResponse.body.data.addCompanyMember).toBe(true);
+      console.log(`Added user ${authorizationUserSecond} to role ${roleId}`);
+
+      // Try to delete the role that has members assigned
+      const { body } = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenFirst}`)
+        .send({
+          query: `mutation {
+            deleteCompanyRole(args: {
+              companyUuid: "${companyUuidNoSupplier}"
+              roleId: ${roleId}
+            })
+          }`,
+        })
+        .expect(HttpStatus.OK);
+
+      debug('/graphql deleteCompanyRole role in use=%o', body);
+      expect(body.data).toBeNull();
+      expect(body.errors[0].message).toBe('BadRequest: Role is assigned to members');
+      expect(body.errors[0].path[0]).toBe('deleteCompanyRole');
+
+      // Cleanup: Remove the member from company first
+      const removeMemberResponse = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenFirst}`)
+        .send({
+          query: `mutation {
+            deleteCompanyMember(args: {
+              companyUuid: "${companyUuidNoSupplier}"
+              userUuid: "${authorizationUserSecond}"
+            })
+          }`,
+        })
+        .expect(HttpStatus.OK);
+
+      expect(removeMemberResponse.body.data.deleteCompanyMember).toBe(true);
+
+      // Now delete the test role (should succeed as no members assigned)
+      const deleteResponse = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenFirst}`)
+        .send({
+          query: `mutation {
+            deleteCompanyRole(args: {
+              companyUuid: "${companyUuidNoSupplier}"
+              roleId: ${roleId}
+            })
+          }`,
+        })
+        .expect(HttpStatus.OK);
+
+      expect(deleteResponse.body.data.deleteCompanyRole).toBe(true);
+      console.log(`Deleted role ${roleId}`);
+    });
+
+    // Test: Delete a non-existent role returns false
+    it('/graphql:M deleteCompanyRole - returns false for non-existent role', async () => {
+      const nonExistentRoleId = 99999;
+
+      const { body } = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenFirst}`)
+        .send({
+          query: `mutation {
+            deleteCompanyRole(args: {
+              companyUuid: "${companyUuidNoSupplier}"
+              roleId: ${nonExistentRoleId}
+            })
+          }`,
+        })
+        .expect(HttpStatus.OK);
+
+      debug('/graphql deleteCompanyRole non-existent=%o', body);
+      const { data: { deleteCompanyRole } } = body;
+      expect(deleteCompanyRole).toBe(false);
+    });
+
+    // Test: Delete with invalid company UUID
+    it('/graphql:M deleteCompanyRole - BadRequest invalid company uuid', async () => {
+      const invalidCompanyUuid = '00000000-0000-0000-0000-000000000000';
+
+      const { body } = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenFirst}`)
+        .send({
+          query: `mutation {
+            deleteCompanyRole(args: {
+              companyUuid: "${invalidCompanyUuid}"
+              roleId: 1
+            })
+          }`,
+        })
+        .expect(HttpStatus.OK);
+
+      debug('/graphql deleteCompanyRole invalid company=%o', body);
+      expect(body.data).toBeNull();
+      expect(body.errors[0].message).toBe('BadRequest: Access denied');
+      expect(body.errors[0].path[0]).toBe('deleteCompanyRole');
+    });
+  });
+
   it('/graphql:M deleteCompanyRole - BadRequest no token', async (done) => {
     const { body } = await agent
       .post('/graphql')
@@ -3956,7 +4184,7 @@ describe('company', () => {
     const {
       data: { deleteCompanyRole },
     } = body;
-    expect(deleteCompanyRole).toBe(1);
+    expect(deleteCompanyRole).toBe(true);
     done();
   });
 
@@ -3981,7 +4209,7 @@ describe('company', () => {
     const {
       data: { deleteCompanyRole },
     } = body;
-    expect(deleteCompanyRole).toBe(0);
+    expect(deleteCompanyRole).toBe(false);
     done();
   });
 

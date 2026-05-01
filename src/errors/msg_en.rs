@@ -14,6 +14,7 @@ pub(crate) fn value_in_err_msg_en(err_msg: ErrorMessage) -> String {
         ErrorMessage::DuplicateOfExistingData => {
             String::from("Duplication of existing data was detected")
         }
+        ErrorMessage::RoleIsInUse => String::from("Role is assigned to members"),
         ErrorMessage::ErrorDeleteRole => String::from("Error when deleting a role"),
         ErrorMessage::ErrorIncorrectId => String::from("Error incorrect id"),
         ErrorMessage::ErrorRecordingDependencyData => {

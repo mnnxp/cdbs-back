@@ -23,6 +23,8 @@ pub(crate) enum ErrorMessage {
     FoundDuplicateToken,
     /// "Duplication of existing data was detected"
     DuplicateOfExistingData,
+    /// "Role is assigned to members"
+    RoleIsInUse,
     /// "Error when deleting a role"
     ErrorDeleteRole,
     /// "Error incorrect id"
