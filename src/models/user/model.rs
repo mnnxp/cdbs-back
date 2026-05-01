@@ -369,6 +369,10 @@ pub(crate) struct IptUsersArg {
     pub(crate) subscribers: Option<bool>,
     /// Filter by the presence of users in favorites of the active user
     pub(crate) favorite: Option<bool>,
+    /// Full-text search by username, firstname, lastname, email
+    pub(crate) search: Option<String>,
+    /// Exclude specific users from results by their UUIDs
+    pub(crate) exclude_uuids: Option<Vec<Uuid>>,
 }
 
 #[derive(Debug, Default)]
@@ -376,6 +380,8 @@ pub(crate) struct UsersArg {
     pub(crate) filter_users_uuids: Vec<Uuid>,
     pub(crate) subscribers: bool,
     pub(crate) favorite: bool,
+    pub(crate) search: Option<String>,
+    pub(crate) exclude_uuids: Option<Vec<Uuid>>,
 }
 
 impl From<IptUsersArg> for UsersArg {
@@ -384,12 +390,16 @@ impl From<IptUsersArg> for UsersArg {
             users_uuids,
             subscribers,
             favorite,
+            search,
+            exclude_uuids,
         } = data;
 
         Self {
             filter_users_uuids: users_uuids.unwrap_or_default(),
             subscribers: subscribers.unwrap_or(false),
             favorite: favorite.unwrap_or(false),
+            search,
+            exclude_uuids,
         }
     }
 }

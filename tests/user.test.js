@@ -21,6 +21,7 @@ const baseUsername = "usernameeee";
 const baseUsernamePublicUuid = "c8a008cc-7cdd-4328-904f-50a724865548";
 const baseUsernamePublic = "test";
 const email = "testemail@mail.ru";
+const email2 = "random@random.random";
 const firstname = "test_firstname";
 const lastname = "test_lastname";
 const secondname = "test_secondname";
@@ -603,7 +604,7 @@ describe('users', () => {
       .send({
         query: `mutation  {
             registerUser(args: {
-                email: "random@random.random",
+                email: "${email2}",
                 username: "${username4}",
                 password: "${password}",
                 typeAccessId: ${type_access_id_public}
@@ -4291,5 +4292,195 @@ describe('users', () => {
         expect(body).toBe('Unauthorized');
         done();
       });
+  });
+
+  // ==============================================
+  // ТЕСТЫ НА ПОИСК ПОЛЬЗОВАТЕЛЕЙ С ФИЛЬТРАЦИЕЙ
+  // ==============================================
+  describe('User Search and Filter Tests', () => {
+    // ========== ТЕСТЫ ПОИСКА ==========
+    it('should search users by username partial match', async () => {
+      const { body } = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenUserFirst}`)
+        .send({
+          query: `
+            query SearchUsers($search: String!) {
+              users(args: { search: $search }, paginate: { currentPage: 1, perPage: 10 }) {
+                uuid
+                username
+              }
+            }
+          `,
+          variables: { search: username4.substring(0, 4) }
+        });
+      expect(body.data.users).toBeNonEmptyArray();
+      expect(body.data.users.some(u => u.username === username4)).toBe(true);
+    });
+
+    it('should search users by email partial match', async () => {
+      const { body } = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenUserFirst}`)
+        .send({
+          query: `
+            query SearchUsersByEmail($search: String!) {
+              users(args: { search: $search }, paginate: { currentPage: 1, perPage: 10 }) {
+                uuid
+                username
+              }
+            }
+          `,
+          variables: { search: email2.substring(3, 11) }
+        });
+
+      expect(body.data.users.length).toBe(1);
+      expect(body.data.users.some(u => u.username === username4)).toBe(true);
+    });
+
+    it('should exclude users by UUID from results', async () => {
+      const { body } = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenUserFirst}`)
+        .send({
+          query: `
+            query SearchUsersWithExclude($excludeUuids: [UUID!]) {
+              users(args: {
+                search: "test"
+                excludeUuids: $excludeUuids
+              }, paginate: { currentPage: 1, perPage: 10 }) {
+                uuid
+                username
+              }
+            }
+          `,
+          variables: { excludeUuids: [userUuidFirst] }
+        });
+
+      expect(body.data.users).toBeNonEmptyArray();
+      expect(body.data.users.some(u => u.uuid === userUuidFirst)).toBe(false);
+    });
+
+    it('should combine search and exclude filters', async () => {
+      const { body } = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenUserFirst}`)
+        .send({
+          query: `
+            query SearchUsersWithFilters($search: String!, $excludeUuids: [UUID!]) {
+              users(args: {
+                search: $search
+                excludeUuids: $excludeUuids
+              }, paginate: { currentPage: 1, perPage: 10 }) {
+                uuid
+                username
+              }
+            }
+          `,
+          variables: {
+            search: username4.substring(0, 4),
+            excludeUuids: [userUuidFour]
+          }
+        });
+
+      // Должен вернуть пустой массив, так как единственный подходящий пользователь исключен
+      expect(body.data.users).toBeEmptyArray();
+    });
+
+    it('should return empty array for search with no matches', async () => {
+      const { body } = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenUserFirst}`)
+        .send({
+          query: `
+            query SearchUsersNoMatch($search: String!) {
+              users(args: { search: $search }, paginate: { currentPage: 1, perPage: 10 }) {
+                uuid
+                username
+              }
+            }
+          `,
+          variables: { search: 'xyzabcdefghijk_no_match_12345' }
+        });
+
+      expect(body.data.users).toBeEmptyArray();
+    });
+
+    it('should paginate search results', async () => {
+      const { body } = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenUserFirst}`)
+        .send({
+          query: `
+            query SearchUsersPaginated($search: String!, $page: Int!, $perPage: Int!) {
+              users(
+                args: { search: $search }
+                paginate: { currentPage: $page, perPage: $perPage }
+              ) {
+                uuid
+                username
+              }
+            }
+          `,
+          variables: {
+            search: 'test',
+            page: 1,
+            perPage: 2
+          }
+        });
+
+      expect(body.data.users.length).toBeLessThanOrEqual(2);
+    });
+
+    // ========== ТЕСТЫ ДЛЯ EXCLUDE UUID ==========
+
+    it('should exclude multiple users by UUID', async () => {
+      const { body } = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenUserFirst}`)
+        .send({
+          query: `
+            query SearchUsersMultipleExclude($excludeUuids: [UUID!]) {
+              users(
+                args: {
+                  search: "three"
+                  excludeUuids: $excludeUuids
+                }
+                paginate: { currentPage: 1, perPage: 10 }
+              ) {
+                uuid
+                username
+              }
+            }
+          `,
+          variables: { excludeUuids: [userUuidThree, userUuidFour] }
+        });
+
+      // username3 = "threeusername" должен быть исключен
+      expect(body.data.users.some(u => u.username === username3)).toBe(false);
+    });
+
+    it('should return all users when search is empty', async () => {
+      const { body } = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenUserFirst}`)
+        .send({
+          query: `
+            query AllUsersWithPagination($page: Int!, $perPage: Int!) {
+              users(paginate: { currentPage: $page, perPage: $perPage }) {
+                uuid
+                username
+              }
+            }
+          `,
+          variables: { page: 1, perPage: 35 }
+        });
+
+      expect(body.data.users.length).toBeGreaterThanOrEqual(33);
+      // expect(body.data.users.some(u => u.username === username)).toBe(true);
+      // expect(body.data.users.some(u => u.username === username2)).toBe(true);
+      // expect(body.data.users.some(u => u.username === username3)).toBe(true);
+      expect(body.data.users.some(u => u.username === username4)).toBe(true);
+    });
   });
 });

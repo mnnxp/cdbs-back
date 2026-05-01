@@ -149,30 +149,53 @@ impl ShowUserShort {
     }
 
     /// get ShowUserShort data of public users with filter by user_uuids
-    pub(crate) fn get_all_public_users(
+        pub(crate) fn get_all_public_users(
+        search: &Option<String>,
+        exclude_uuids: &Option<Vec<Uuid>>,
         paginate: &Paginate,
         domain: &str,
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<ShowUserShort>> {
-        let users = user_ref::user_ref
+        let mut query = user_ref::user_ref
+            .filter(user_ref::type_access_id.eq(3))
+            .filter(user_ref::is_enabled.eq(true))
+            .filter(user_ref::is_delete.eq(false))
+            .into_boxed();
+
+        // Search by text
+        if let Some(search_text) = search {
+            if !search_text.is_empty() {
+                let pattern = format!("%{}%", search_text);
+                query = query.filter(
+                    user_ref::username.like(pattern.clone())
+                        .or(user_ref::firstname.like(pattern.clone()))
+                        .or(user_ref::lastname.like(pattern.clone()))
+                        .or(user_ref::email.like(pattern.clone()))
+                );
+            }
+        }
+
+        // Exclusion of users by UUID
+        if let Some(exclude_list) = exclude_uuids {
+            if !exclude_list.is_empty() {
+                query = query.filter(user_ref::uuid.ne_all(exclude_list));
+            }
+        }
+
+        let users = query
             .select((
                 user_ref::uuid,
                 user_ref::firstname,
                 user_ref::lastname,
                 user_ref::username,
-                user_ref::image_file_uuid,
+                user_ref::image_file_uuid
             ))
-            .filter(
-                user_ref::type_access_id
-                    .eq(3)
-                    .and(user_ref::is_enabled.eq(true))
-                    .and(user_ref::is_delete.eq(false)),
-            )
             .limit(paginate.limit)
             .offset(paginate.offset)
+            .order_by(user_ref::username.asc())
             .load::<UserShort>(conn)
             .map_err(|err| {
-                debug!("Faile get user_data: {:?}", err);
+                debug!("Failed get user_data: {:?}", err);
                 ServiceError::InternalServerError
             })?;
 
