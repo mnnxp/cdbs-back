@@ -320,7 +320,7 @@ impl CompanyMutation {
         &self,
         cxt: &Context<'_>,
         args: IptRoleAccessData,
-    ) -> ServiceResult<bool> {
+    ) -> ServiceResult<usize> {
         use crate::models::company::access::role_access::service::register::create_role_access;
 
         let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
