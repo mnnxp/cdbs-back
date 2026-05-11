@@ -322,6 +322,18 @@ certificates { \
 } \
 `;
 
+const SET_USER_ACCESS_STANDARD_MUTATION = `
+    mutation SetUserAccessStandard($standardUuid: UUID!, $userUuid: UUID!, $typeAccessId: Int!) {
+        setUserAccessStandard(
+          args: {
+              standardUuid: $standardUuid
+              userUuid: $userUuid
+              typeAccessId: $typeAccessId
+            }
+        )
+    }
+`;
+
 var initialFavUsersCount = 0;
 
 async function cleanupTokenDb() {
@@ -3394,15 +3406,12 @@ describe('users', () => {
         `Bearer ${authorizationTokenUserFirst}`
       )
       .send({
-        query: `mutation  {
-            setUserAccessStandard(
-              args: {
-                standardUuid: "${standardUuidFirst}"
-                userUuid: "${userUuidSecond}"
-                typeAccessId: ${typeAccessId2}
-              }
-            )
-        }`,
+          query: SET_USER_ACCESS_STANDARD_MUTATION,
+          variables: {
+              standardUuid: standardUuidFirst,
+              userUuid: userUuidSecond,
+              typeAccessId: typeAccessId2
+          }
       })
       .expect(HttpStatus.OK)
     debug('/graphql setUserAccessStandard=%o', body);
@@ -3451,15 +3460,12 @@ describe('users', () => {
         `Bearer ${authorizationTokenUserFirst}`
       )
       .send({
-        query: `mutation  {
-            setUserAccessStandard(
-              args: {
-                standardUuid: "${standardUuidFirst}"
-                userUuid: "${userUuidThree}"
-                typeAccessId: ${typeAccessId2}
-              }
-            )
-        }`,
+          query: SET_USER_ACCESS_STANDARD_MUTATION,
+          variables: {
+              standardUuid: standardUuidFirst,
+              userUuid: userUuidThree,
+              typeAccessId: typeAccessId2
+          }
       })
       .expect(HttpStatus.OK)
     debug('/graphql setUserAccessStandard=%o', body);

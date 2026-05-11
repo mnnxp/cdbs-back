@@ -85,13 +85,16 @@ const SELF_DATA_QUERY = `
 const COMPANY_MEMBERS_QUERY = `
     query GetCompanyMembers($companyUuid: UUID!) {
         companyMembers(companyUuid: $companyUuid) {
-            userUuid
-            role {
+            user {
+                uuid
+                username
+            }
+            companyRole {
                 role {
                     roleMemberId
                     name
                 }
-                access {
+                permissions {
                     typeAccessId
                     name
                 }
@@ -152,20 +155,41 @@ const GET_COMPONENT_QUERY = `
 const GET_COMPONENT_ACCESS_LIST_QUERY = `
     query GetComponentAccess($componentUuid: UUID!) {
         getUsersListAccessComponent(componentUuid: $componentUuid) {
-            userUuid
-            typeAccess {
+            user {
+                uuid
+                username
+            }
+            permission {
                 typeAccessId
                 name
             }
             isEnabled
         }
         getCompaniesListAccessComponent(componentUuid: $componentUuid) {
-            companyUuid
-            typeAccess {
+            company {
+                uuid
+                shortname
+            }
+            permission {
                 typeAccessId
                 name
             }
             isEnabled
+        }
+    }
+`;
+
+const GET_COMPANY_ROLES_QUERY = `
+    query GetCompanyRoles($companyUuid: UUID!) {
+        companyRoles(companyUuid: $companyUuid) {
+            role {
+                roleMemberId
+                name
+            }
+            permissions {
+                typeAccessId
+                name
+            }
         }
     }
 `;
@@ -535,25 +559,12 @@ describe('RBAC Tests', () => {
                 .post('/graphql')
                 .set('Authorization', `Bearer ${adminToken}`)
                 .send({
-                    query: `
-                        query GetCompanyRoles($companyUuid: UUID!) {
-                            companyRoles(companyUuid: $companyUuid) {
-                                role {
-                                    roleMemberId
-                                    name
-                                }
-                                access {
-                                    typeAccessId
-                                    name
-                                }
-                            }
-                        }
-                    `,
+                    query: GET_COMPANY_ROLES_QUERY,
                     variables: { companyUuid }
                 });
 
             expect(body.data?.companyRoles).toBeDefined();
-            expect(body.data.companyRoles.length).toBe(0); // Нет ролей, кроме владельца
+            expect(body.data.companyRoles.length).toBe(0);
         });
 
         it('should create a new role in company', async () => {
@@ -592,7 +603,7 @@ describe('RBAC Tests', () => {
                     }
                 });
 
-            expect(body.data?.addAccessRole).toBe(true);
+            expect(body.data?.addAccessRole).toBe(2);
         });
 
         it('should add engineer user to company with the role', async () => {
@@ -629,12 +640,16 @@ describe('RBAC Tests', () => {
                 });
 
             expect(body.data?.companyMembers).toBeDefined();
-            expect(body.data.companyMembers.length).toBe(1); // только engineer (admin не в members, он owner)
+            expect(body.data.companyMembers.length).toBe(1); // only engineer (owner is not included)
 
             const member = body.data.companyMembers[0];
-            expect(member.userUuid).toBe(engineerUserUuid);
-            expect(member.role.role.name).toBe("Engineer");
-            expect(member.role.access.length).toBe(2);
+            expect(member.user.uuid).toBe(engineerUserUuid);
+            expect(member.companyRole.role.name).toBe("Engineer");
+            expect(member.companyRole.permissions.length).toBe(2);
+            expect(member.companyRole.permissions[0].typeAccessId).toBe(2);
+            expect(member.companyRole.permissions[0].name).toBe("Write");
+            expect(member.companyRole.permissions[1].typeAccessId).toBe(3);
+            expect(member.companyRole.permissions[1].name).toBe("Read");
             expect(member.isEnabled).toBe(true);
         });
 
@@ -643,20 +658,7 @@ describe('RBAC Tests', () => {
                 .post('/graphql')
                 .set('Authorization', `Bearer ${adminToken}`)
                 .send({
-                    query: `
-                        query GetCompanyRoles($companyUuid: UUID!) {
-                            companyRoles(companyUuid: $companyUuid) {
-                                role {
-                                    roleMemberId
-                                    name
-                                }
-                                access {
-                                    typeAccessId
-                                    name
-                                }
-                            }
-                        }
-                    `,
+                    query: GET_COMPANY_ROLES_QUERY,
                     variables: { companyUuid }
                 });
 
@@ -665,7 +667,11 @@ describe('RBAC Tests', () => {
 
             const role = body.data.companyRoles[0];
             expect(role.role.name).toBe("Engineer");
-            expect(role.access.length).toBe(2); // Write and Read
+            expect(role.permissions.length).toBe(2);
+            expect(role.permissions[0].typeAccessId).toBe(2);
+            expect(role.permissions[0].name).toBe("Write");
+            expect(role.permissions[1].typeAccessId).toBe(3);
+            expect(role.permissions[1].name).toBe("Read");
         });
 
         it('should change user role in company', async () => {
@@ -707,8 +713,8 @@ describe('RBAC Tests', () => {
                     variables: { companyUuid }
                 });
 
-            const member = membersBody.data?.companyMembers.find(m => m.userUuid === engineerUserUuid);
-            expect(member.role.role.name).toBe("Manager");
+            const member = membersBody.data?.companyMembers.find(m => m.user.uuid === engineerUserUuid);
+            expect(member.companyRole.role.name).toBe("Manager");
         });
 
         it('should remove user from company', async () => {
@@ -1473,13 +1479,7 @@ describe('RBAC Tests', () => {
                     .post('/graphql')
                     .set('Authorization', `Bearer ${adminToken}`)
                     .send({
-                        query: `
-                            query GetCompanyRoles($companyUuid: UUID!) {
-                                companyRoles(companyUuid: $companyUuid) {
-                                    role { roleMemberId name }
-                                }
-                            }
-                        `,
+                        query: GET_COMPANY_ROLES_QUERY,
                         variables: { companyUuid: companyUuid }
                     });
 

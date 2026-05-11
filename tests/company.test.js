@@ -107,11 +107,6 @@ companyType { \
   name \
   shortname \
 } \
-companyType { \
-  companyTypeId \
-	langId \
-  shortname \
-} \
 companyCertificates { \
   companyUuid
   file { \
@@ -161,6 +156,11 @@ companyType { \
   langId \
   name \
   shortname \
+} \
+typeAccess { \
+  typeAccessId \
+  langId \
+  name \
 } \
 isSupplier \
 isFollowed \
@@ -235,7 +235,7 @@ role {  \
   langId  \
   name  \
 } \
-access {  \
+permissions {  \
   typeAccessId  \
   langId  \
   name  \
@@ -244,14 +244,17 @@ access {  \
 
 const companyMembersQuery = ` \
 companyUuid \
-userUuid  \
-role {  \
+user { \
+  uuid
+  username
+}  \
+companyRole {  \
   role {  \
     roleMemberId  \
     langId  \
     name  \
   } \
-  access {  \
+  permissions {  \
     typeAccessId  \
     langId  \
     name  \
@@ -262,6 +265,7 @@ createdAt \
 updatedAt \
 `;
 
+const companyMembersContainKeys = ["companyUuid", "createdAt", "isEnabled", "companyRole", "updatedAt", "user"];
 
 // data for component
 const parentComponentUuid = "a5953fd9-7393-4f1e-a899-06b5e159dbf1";
@@ -395,6 +399,7 @@ describe('company', () => {
       })
       .expect(HttpStatus.OK)
     debug('/graphql supplierCompany=%o', body);
+    // expect(body).toBe(0);
     const {
       data: { supplierCompany },
     } = body;
@@ -418,6 +423,7 @@ describe('company', () => {
       })
       .expect(HttpStatus.OK)
     debug('/graphql supplierCompany=%o', body);
+    // expect(body).toBe(0);
     const {
       data: { supplierCompany },
     } = body;
@@ -2960,7 +2966,7 @@ describe('company', () => {
     expect(companyRoles[0].role.roleMemberId).toBe(newRoleId);
     expect(companyRoles[0].role.langId).toBe(langId);
     expect(companyRoles[0].role.name).toBe(nameRole);
-    expect(companyRoles[0].access).toBeEmptyArray();
+    expect(companyRoles[0].permissions).toBeEmptyArray();
     done();
   });
 
@@ -3032,7 +3038,42 @@ describe('company', () => {
     const {
       data: { addAccessRole },
     } = body;
-    expect(addAccessRole).toBe(true);
+    expect(addAccessRole).toBe(3);
+    done();
+  });
+
+  it('/graphql:Q companyRoles - OK show company roles', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenFirst}`
+      )
+      .send({
+        query: `query  {
+            companyRoles(
+              companyUuid: "${companyUuidNoSupplier}"
+            ) {
+              ${companyRolesQuery}
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql companyRoles=%o', body);
+    // expect(body).toBe(0);
+    const {
+      data: { companyRoles },
+    } = body;
+    expect(companyRoles[0].role.roleMemberId).toBe(newRoleId);
+    expect(companyRoles[0].role.langId).toBe(langId);
+    expect(companyRoles[0].role.name).toBe(nameRole);
+    // expect(companyRoles[0].permissions).toBeEmptyArray();
+    expect(companyRoles[0].permissions[0].typeAccessId).toBe(1);
+    expect(companyRoles[0].permissions[0].name).toBe("Manage");
+    expect(companyRoles[0].permissions[1].typeAccessId).toBe(2);
+    expect(companyRoles[0].permissions[1].name).toBe("Write");
+    expect(companyRoles[0].permissions[2].typeAccessId).toBe(3);
+    expect(companyRoles[0].permissions[2].name).toBe("Read");
     done();
   });
 
@@ -3726,15 +3767,13 @@ describe('company', () => {
     const {
       data: { companyMembers },
     } = body;
-    expect(companyMembers[0]).toContainAllKeys(
-      ["companyUuid", "createdAt", "isEnabled", "role", "updatedAt", "userUuid"]
-    );
+    expect(companyMembers[0]).toContainAllKeys(companyMembersContainKeys);
     // "langId", "name", "typeAccessId", "role", "langId", "name", "roleMemberId",
     expect(companyMembers[0].companyUuid).toBe(companyUuidNoSupplier);
-    expect(companyMembers[0].userUuid).toBe(authorizationUserSecond);
+    expect(companyMembers[0].user.uuid).toBe(authorizationUserSecond);
     expect(companyMembers[0].isEnabled).toBe(true);
-    expect(companyMembers[0].role.role.roleMemberId).toBe(newRoleId);
-    expect(companyMembers[0].role.access[0].name).toBeNonEmptyString();
+    expect(companyMembers[0].companyRole.role.roleMemberId).toBe(newRoleId);
+    expect(companyMembers[0].companyRole.permissions[0].name).toBe("Write");
     done();
   });
 
@@ -3760,15 +3799,12 @@ describe('company', () => {
     const {
       data: { companyMembers },
     } = body;
-    expect(companyMembers[0]).toContainAllKeys(
-      ["companyUuid", "createdAt", "isEnabled", "role", "updatedAt", "userUuid"]
-    );
-    // "langId", "name", "typeAccessId", "role", "langId", "name", "roleMemberId",
+    expect(companyMembers[0]).toContainAllKeys(companyMembersContainKeys);
     expect(companyMembers[0].companyUuid).toBe(companyUuidNoSupplier);
-    expect(companyMembers[0].userUuid).toBe(authorizationUserSecond);
+    expect(companyMembers[0].user.uuid).toBe(authorizationUserSecond);
     expect(companyMembers[0].isEnabled).toBe(true);
-    expect(companyMembers[0].role.role.roleMemberId).toBe(newRoleId);
-    expect(companyMembers[0].role.access[0].name).toBeNonEmptyString();
+    expect(companyMembers[0].companyRole.role.roleMemberId).toBe(newRoleId);
+    expect(companyMembers[0].companyRole.permissions[0].name).toBe("Write");
     done();
   });
 
@@ -4240,6 +4276,267 @@ describe('company', () => {
     expect(companies[0].uuid).toBe(companyUuidBase);
     // expect(companies.length).toBe(1);
     done();
+  });
+
+  // Test companies list with search functionality
+  describe('companies query with search', () => {
+    // Test: Search companies by orgname
+    it('/graphql:Q companies - OK search by orgname', async () => {
+      const { body } = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenFirst}`)
+        .send({
+          query: `query {
+            companies(args: {
+              search: "${orgnameUpdate.slice(0, 10)}"
+            }) {
+              ${companiesListQuery}
+            }
+          }`,
+        })
+        .expect(HttpStatus.OK);
+
+      debug('/graphql companies search by orgname=%o', body);
+      const { data: { companies } } = body;
+      expect(companies).toBeNonEmptyArray();
+      const found = companies.some(c => c.uuid === companyUuidNoSupplier);
+      expect(found).toBe(true);
+    });
+
+    // Test: Search companies by shortname
+    it('/graphql:Q companies - OK search by shortname', async () => {
+      const { body } = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenFirst}`)
+        .send({
+          query: `query {
+            companies(args: {
+              search: "${shortnameUpdate}"
+            }) {
+              ${companiesListQuery}
+            }
+          }`,
+        })
+        .expect(HttpStatus.OK);
+
+      debug('/graphql companies search by shortname=%o', body);
+      const { data: { companies } } = body;
+      expect(companies).toBeNonEmptyArray();
+      const found = companies.some(c => c.uuid === companyUuidNoSupplier);
+      expect(found).toBe(true);
+    });
+
+    // Test: Search companies by INN
+    it('/graphql:Q companies - OK search by inn', async () => {
+      const { body } = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenFirst}`)
+        .send({
+          query: `query {
+            companies(args: {
+              search: "${innUpdate}"
+            }) {
+              ${companiesListQuery}
+            }
+          }`,
+        })
+        .expect(HttpStatus.OK);
+
+      debug('/graphql companies search by inn=%o', body);
+      const { data: { companies } } = body;
+      expect(companies).toBeNonEmptyArray();
+      const found = companies.some(c => c.uuid === companyUuidNoSupplier);
+      expect(found).toBe(true);
+    });
+
+    // Test: Search with no results
+    it('/graphql:Q companies - OK search no results', async () => {
+      const { body } = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenFirst}`)
+        .send({
+          query: `query {
+            companies(args: {
+              search: "nonexistentcompany12345"
+            }) {
+              ${companiesListQuery}
+            }
+          }`,
+        })
+        .expect(HttpStatus.OK);
+
+      debug('/graphql companies search no results=%o', body);
+      const { data: { companies } } = body;
+      expect(companies).toBeEmptyArray();
+    });
+
+    // Test: Search with exclude_uuids
+    it('/graphql:Q companies - OK search with exclude uuids', async () => {
+      const { body } = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenFirst}`)
+        .send({
+          query: `query {
+            companies(args: {
+              search: "${shortnameUpdate}"
+              excludeUuids: ["${companyUuidNoSupplier}"]
+            }) {
+              ${companiesListQuery}
+            }
+          }`,
+        })
+        .expect(HttpStatus.OK);
+
+      debug('/graphql companies search with exclude=%o', body);
+      const { data: { companies } } = body;
+      const found = companies.some(c => c.uuid === companyUuidNoSupplier);
+      expect(found).toBe(false);
+    });
+
+    // Test: Search with specific company UUIDs filter
+    it('/graphql:Q companies - OK search with companies uuids filter', async () => {
+      const { body } = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenFirst}`)
+        .send({
+          query: `query {
+            companies(args: {
+              companiesUuids: ["${companyUuidNoSupplier}"]
+              search: "${shortnameUpdate}"
+            }) {
+              ${companiesListQuery}
+            }
+          }`,
+        })
+        .expect(HttpStatus.OK);
+
+      debug('/graphql companies search with uuids=%o', body);
+      const { data: { companies } } = body;
+      expect(companies).toHaveLength(1);
+      expect(companies[0].uuid).toBe(companyUuidNoSupplier);
+    });
+
+    // Test: Search with companies UUIDs that don't match
+    it('/graphql:Q companies - OK search with non-matching uuids', async () => {
+      const { body } = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenFirst}`)
+        .send({
+          query: `query {
+            companies(args: {
+              companiesUuids: ["${uuidFake}"]
+              search: "${shortnameUpdate}"
+            }) {
+              ${companiesListQuery}
+            }
+          }`,
+        })
+        .expect(HttpStatus.OK);
+
+      debug('/graphql companies search non-matching uuids=%o', body);
+      const { data: { companies } } = body;
+      expect(companies).toBeEmptyArray();
+    });
+
+    // Test: Search with supplier filter
+    it('/graphql:Q companies - OK search with supplier filter', async () => {
+      const { body } = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenFirst}`)
+        .send({
+          query: `query {
+            companies(args: {
+              supplier: true
+              search: "${supplierCompany3tShortName}"
+            }) {
+              ${companiesListQuery}
+            }
+          }`,
+        })
+        .expect(HttpStatus.OK);
+
+      debug('/graphql companies search with supplier=%o', body);
+      const { data: { companies } } = body;
+      expect(companies).toBeNonEmptyArray();
+      expect(companies.every(c => c.isSupplier)).toBe(true);
+      const found = companies.some(c => c.uuid === supplierCompany3t);
+      expect(found).toBe(true);
+    });
+
+    // Test: Search by case-insensitive
+    it('/graphql:Q companies - OK case insensitive search', async () => {
+      const upperCaseSearch = shortnameUpdate.toUpperCase();
+      const { body } = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenFirst}`)
+        .send({
+          query: `query {
+            companies(args: {
+              search: "${upperCaseSearch}"
+            }) {
+              ${companiesListQuery}
+            }
+          }`,
+        })
+        .expect(HttpStatus.OK);
+
+      debug('/graphql companies case insensitive search=%o', body);
+      const { data: { companies } } = body;
+      expect(companies).toBeNonEmptyArray();
+      const found = companies.some(c => c.uuid === companyUuidNoSupplier);
+      expect(found).toBe(true);
+    });
+
+    // Test: Search with pagination
+    it('/graphql:Q companies - OK search with pagination', async () => {
+      const { body } = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenFirst}`)
+        .send({
+          query: `query {
+            companies(
+              args: {
+                search: "${shortnameUpdate}"
+              }
+              paginate: {
+                currentPage: 1
+                perPage: 1
+              }
+            ) {
+              ${companiesListQuery}
+            }
+          }`,
+        })
+        .expect(HttpStatus.OK);
+
+      debug('/graphql companies search with pagination=%o', body);
+      const { data: { companies } } = body;
+      expect(companies.length).toBe(1);
+      expect(companies[0].uuid).toBe(companyUuidNoSupplier);
+    });
+
+    // Test: Search with exclude multiple uuids
+    it('/graphql:Q companies - OK exclude multiple uuids', async () => {
+      const { body } = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenFirst}`)
+        .send({
+          query: `query {
+            companies(args: {
+              search: "${shortnameUpdate}"
+              excludeUuids: ["${companyUuidNoSupplier}", "${uuidFake}"]
+            }) {
+              ${companiesListQuery}
+            }
+          }`,
+        })
+        .expect(HttpStatus.OK);
+
+      debug('/graphql companies exclude multiple uuids=%o', body);
+      const { data: { companies } } = body;
+      const found = companies.some(c => c.uuid === companyUuidNoSupplier);
+      expect(found).toBe(false);
+    });
   });
 
   // Testing delete company

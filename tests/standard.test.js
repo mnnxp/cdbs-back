@@ -38,6 +38,38 @@ var standardUuidFirst = "";
 var standardUuidSecond = "";
 var standardUuidNoSupplier = "";
 
+const usersListAccessStandardQuery = ` \
+standardUuid \
+user { \
+  uuid \
+  username \
+} \
+permission { \
+  typeAccessId \
+  langId \
+  name \
+} \
+isEnabled \
+createdAt \
+updatedAt \
+`;
+
+const companiesListAccessStandardQuery = ` \
+standardUuid \
+company { \
+  uuid \
+  shortname \
+} \
+permission { \
+  typeAccessId \
+  langId \
+  name \
+} \
+isEnabled \
+createdAt \
+updatedAt \
+`;
+
 const standardFullDataQuery = ` \
 uuid \
 parentStandardUuid \
@@ -3438,7 +3470,7 @@ describe('standard', () => {
     const {
       data: { addAccessRole },
     } = body;
-    expect(addAccessRole).toBe(true);
+    expect(addAccessRole).toBe(2);
     done();
   });
 
@@ -3480,16 +3512,7 @@ describe('standard', () => {
             getCompaniesListAccessStandard(
               standardUuid: "${standardUuidFirst}"
             ) {
-              standardUuid
-              companyUuid
-              typeAccess {
-                typeAccessId
-                langId
-                name
-              }
-              isEnabled
-              createdAt
-              updatedAt
+              ${companiesListAccessStandardQuery}
             }
         }`,
       })
@@ -3524,7 +3547,7 @@ describe('standard', () => {
     const {
       data: { addAccessRole },
     } = body;
-    expect(addAccessRole).toBe(true);
+    expect(addAccessRole).toBe(1);
     done();
   });
 
@@ -3540,16 +3563,7 @@ describe('standard', () => {
             getCompaniesListAccessStandard(
               standardUuid: "${standardUuidFirst}"
             ) {
-              standardUuid
-              companyUuid
-              typeAccess {
-                typeAccessId
-                langId
-                name
-              }
-              isEnabled
-              createdAt
-              updatedAt
+              ${companiesListAccessStandardQuery}
             }
         }`,
       })
@@ -3560,8 +3574,9 @@ describe('standard', () => {
       data: { getCompaniesListAccessStandard },
     } = body;
     expect(getCompaniesListAccessStandard[0].standardUuid).toBe(standardUuidFirst);
-    expect(getCompaniesListAccessStandard[0].companyUuid).toBe(companyUuidNoSupplier);
-    expect(getCompaniesListAccessStandard[0].typeAccess.typeAccessId).toBe(typeAccessId1);
+    expect(getCompaniesListAccessStandard[0].company.uuid).toBe(companyUuidNoSupplier);
+    expect(getCompaniesListAccessStandard[0].permission.typeAccessId).toBe(typeAccessId1);
+    expect(getCompaniesListAccessStandard[0].permission.name).toBe("Manage");
     done();
   });
 
@@ -3893,16 +3908,7 @@ describe('standard', () => {
             getUsersListAccessStandard(
               standardUuid: "${standardUuidFirst}"
             ) {
-              standardUuid
-              userUuid
-              typeAccess {
-                typeAccessId
-                langId
-                name
-              }
-              isEnabled
-              createdAt
-              updatedAt
+              ${usersListAccessStandardQuery}
             }
         }`,
       })
@@ -3928,16 +3934,7 @@ describe('standard', () => {
             getUsersListAccessStandard(
               standardUuid: "${standardUuidFirst}"
             ) {
-              standardUuid
-              userUuid
-              typeAccess {
-                typeAccessId
-                langId
-                name
-              }
-              isEnabled
-              createdAt
-              updatedAt
+              ${usersListAccessStandardQuery}
             }
         }`,
       })
@@ -3948,8 +3945,8 @@ describe('standard', () => {
       data: { getUsersListAccessStandard },
     } = body;
     expect(getUsersListAccessStandard[0].standardUuid).toBe(standardUuidFirst);
-    expect(getUsersListAccessStandard[0].userUuid).toBe(authorizationUserSecond);
-    expect(getUsersListAccessStandard[0].typeAccess.typeAccessId).toBe(typeAccessId1);
+    expect(getUsersListAccessStandard[0].user.uuid).toBe(authorizationUserSecond);
+    expect(getUsersListAccessStandard[0].permission.typeAccessId).toBe(typeAccessId1);
     done();
   });
 

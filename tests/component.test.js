@@ -105,6 +105,38 @@ const actualStatusIdM4 = 4;
 const badFilenameComponentFaviconTest = "no image file.pdf";
 const goodFilenameComponentFaviconTest = "image file.png";
 
+const usersListAccessComponentQuery = ` \
+componentUuid \
+user { \
+  uuid \
+  username \
+} \
+permission { \
+  typeAccessId \
+  langId \
+  name \
+} \
+isEnabled \
+createdAt \
+updatedAt \
+`;
+
+const companiesListAccessComponentQuery = ` \
+componentUuid \
+company { \
+  uuid \
+  shortname \
+} \
+permission { \
+  typeAccessId \
+  langId \
+  name \
+} \
+isEnabled \
+createdAt \
+updatedAt \
+`;
+
 const componentFullDataQuery = ` \
 uuid \
 parentComponentUuid \
@@ -437,6 +469,52 @@ filename \
 revision \
 parentFileUuid \
 createdAt \
+`;
+
+const SET_USER_ACCESS_COMPONENT_MUTATION = `
+    mutation SetUserAccessComponent($componentUuid: UUID!, $userUuid: UUID!, $typeAccessId: Int!) {
+        setUserAccessComponent(
+          args: {
+                componentUuid: $componentUuid
+                userUuid: $userUuid
+                typeAccessId: $typeAccessId
+            }
+        )
+    }
+`;
+
+const SET_COMPANY_ACCESS_COMPONENT_MUTATION = `
+    mutation SetCompanyAccessComponent($componentUuid: UUID!, $companyUuid: UUID!, $typeAccessId: Int!) {
+        setCompanyAccessComponent(
+          args: {
+                componentUuid: $componentUuid
+                companyUuid: $companyUuid
+                typeAccessId: $typeAccessId
+            }
+        )
+    }
+`;
+
+const DELETE_USER_ACCESS_COMPONENT_MUTATION = `
+    mutation DeleteUserAccessComponent($componentUuid: UUID!, $userUuid: UUID!) {
+        deleteUserAccessComponent(
+          args: {
+                componentUuid: $componentUuid
+                userUuid: $userUuid
+            }
+        )
+    }
+`;
+
+const DELETE_COMPANY_ACCESS_COMPONENT_MUTATION = `
+    mutation DeleteCompanyAccessComponent($componentUuid: UUID!, $companyUuid: UUID!) {
+        deleteCompanyAccessComponent(
+          args: {
+                componentUuid: $componentUuid
+                companyUuid: $companyUuid
+            }
+        )
+    }
 `;
 
 var componentUuidNoStandard = "";
@@ -3202,6 +3280,8 @@ describe('component', () => {
       data: { components }
     } = body;
     expect(components[0].typeAccess.typeAccessId).toBe(typeAccessId3);
+    expect(components[0].typeAccess.langId).toBe(1);
+    expect(components[0].typeAccess.name).toBe("Public");
     expect(components.length).toBe(1);
     done();
   });
@@ -9159,15 +9239,15 @@ describe('component', () => {
       .post('/graphql')
       .set('Authorization', `Bearer ${authorizationTokenSecond}`)
       .send({
-        query: `mutation {
-          setCompanyAccessComponent(args: {
-            componentUuid: "${componentUuidNoStandard2}"
-            companyUuid: "${companyUuidNoSupplier}"
-            typeAccessId: ${typeAccessId2}
-          })
-        }`,
+          query: SET_COMPANY_ACCESS_COMPONENT_MUTATION,
+          variables: {
+              componentUuid: componentUuidNoStandard2,
+              companyUuid: companyUuidNoSupplier,
+              typeAccessId: typeAccessId2
+          }
       })
       .expect(HttpStatus.OK);
+    // expect(accessBody).toBe(0);
     expect(accessBody.data.setCompanyAccessComponent).toBe(true);
     done();
   });
@@ -9252,13 +9332,12 @@ describe('component', () => {
       .post('/graphql')
       .set('Authorization', `Bearer ${authorizationTokenFirst}`)
       .send({
-        query: `mutation {
-          setUserAccessComponent(args: {
-            componentUuid: "${componentUuidStandard}"
-            userUuid: "${authorizationUserSecond}"
-            typeAccessId: ${typeAccessId3}
-          })
-        }`,
+          query: SET_USER_ACCESS_COMPONENT_MUTATION,
+          variables: {
+              componentUuid: componentUuidStandard,
+              userUuid: authorizationUserSecond,
+              typeAccessId: typeAccessId3
+          }
       })
       .expect(HttpStatus.OK);
     expect(grantBody.data.setUserAccessComponent).toBe(true);
@@ -10681,15 +10760,12 @@ describe('component', () => {
         `Bearer ${authorizationTokenFirst}`
       )
       .send({
-        query: `mutation  {
-            setUserAccessComponent(
-              args: {
-                componentUuid: "${componentUuidStandard}"
-                userUuid: "${authorizationUserSecond}"
-                typeAccessId: ${secondAccess}
-              }
-            )
-        }`,
+          query: SET_USER_ACCESS_COMPONENT_MUTATION,
+          variables: {
+              componentUuid: componentUuidStandard,
+              userUuid: authorizationUserSecond,
+              typeAccessId: secondAccess
+          }
       })
       .expect(HttpStatus.OK)
     debug('/graphql setUserAccessComponent=%o', body);
@@ -10740,15 +10816,12 @@ describe('component', () => {
         `Bearer ${authorizationTokenFirst}`
       )
       .send({
-        query: `mutation  {
-            setUserAccessComponent(
-              args: {
-                componentUuid: "${componentUuidStandard}"
-                userUuid: "${authorizationUserSecond}"
-                typeAccessId: ${firstAccess}
-              }
-            )
-        }`,
+          query: SET_USER_ACCESS_COMPONENT_MUTATION,
+          variables: {
+              componentUuid: componentUuidStandard,
+              userUuid: authorizationUserSecond,
+              typeAccessId: firstAccess
+          }
       })
       .expect(HttpStatus.OK)
     debug('/graphql setUserAccessComponent=%o', body);
@@ -10772,16 +10845,7 @@ describe('component', () => {
             getUsersListAccessComponent(
               componentUuid: "${componentUuidStandard}"
             ) {
-              componentUuid
-              userUuid
-              typeAccess {
-                typeAccessId
-                langId
-                name
-              }
-              isEnabled
-              createdAt
-              updatedAt
+              ${usersListAccessComponentQuery}
             }
         }`,
       })
@@ -10807,16 +10871,7 @@ describe('component', () => {
             getUsersListAccessComponent(
               componentUuid: "${componentUuidStandard}"
             ) {
-              componentUuid
-              userUuid
-              typeAccess {
-                typeAccessId
-                langId
-                name
-              }
-              isEnabled
-              createdAt
-              updatedAt
+              ${usersListAccessComponentQuery}
             }
         }`,
       })
@@ -10827,8 +10882,8 @@ describe('component', () => {
       data: { getUsersListAccessComponent },
     } = body;
     expect(getUsersListAccessComponent[0].componentUuid).toBe(componentUuidStandard);
-    expect(getUsersListAccessComponent[0].userUuid).toBe(authorizationUserSecond);
-    expect(getUsersListAccessComponent[0].typeAccess.typeAccessId).toBe(firstAccess);
+    expect(getUsersListAccessComponent[0].user.uuid).toBe(authorizationUserSecond);
+    expect(getUsersListAccessComponent[0].permission.typeAccessId).toBe(firstAccess);
     done();
   });
 
@@ -10871,14 +10926,11 @@ describe('component', () => {
         `Bearer ${authorizationTokenFirst}`
       )
       .send({
-        query: `mutation  {
-            deleteUserAccessComponent(
-              args: {
-                componentUuid: "${componentUuidStandard}"
-                userUuid: "${authorizationUserSecond}"
-              }
-            )
-        }`,
+          query: DELETE_USER_ACCESS_COMPONENT_MUTATION,
+          variables: {
+              componentUuid: componentUuidStandard,
+              userUuid: authorizationUserSecond
+          }
       })
       .expect(HttpStatus.OK)
     debug('/graphql deleteUserAccessComponent=%o', body);
@@ -10898,14 +10950,11 @@ describe('component', () => {
         `Bearer ${authorizationTokenFirst}`
       )
       .send({
-        query: `mutation  {
-            deleteUserAccessComponent(
-              args: {
-                componentUuid: "${componentUuidStandard}"
-                userUuid: "${authorizationUserSecond}"
-              }
-            )
-        }`,
+          query: DELETE_USER_ACCESS_COMPONENT_MUTATION,
+          variables: {
+              componentUuid: componentUuidStandard,
+              userUuid: authorizationUserSecond
+          }
       })
       .expect(HttpStatus.OK)
     debug('/graphql deleteUserAccessComponent=%o', body);
@@ -10958,15 +11007,12 @@ describe('component', () => {
         `Bearer ${authorizationTokenFirst}`
       )
       .send({
-        query: `mutation  {
-            setCompanyAccessComponent(
-              args: {
-                componentUuid: "${componentUuidStandard}"
-                companyUuid: "${companyUuidNoSupplier}"
-                typeAccessId: ${secondAccess}
-              }
-            )
-        }`,
+          query: SET_COMPANY_ACCESS_COMPONENT_MUTATION,
+          variables: {
+              componentUuid: componentUuidStandard,
+              companyUuid: companyUuidNoSupplier,
+              typeAccessId: secondAccess
+          }
       })
       .expect(HttpStatus.OK)
     debug('/graphql setCompanyAccessComponent=%o', body);
@@ -11017,15 +11063,12 @@ describe('component', () => {
         `Bearer ${authorizationTokenFirst}`
       )
       .send({
-        query: `mutation  {
-            setCompanyAccessComponent(
-              args: {
-                componentUuid: "${componentUuidStandard}"
-                companyUuid: "${companyUuidNoSupplier}"
-                typeAccessId: ${firstAccess}
-              }
-            )
-        }`,
+          query: SET_COMPANY_ACCESS_COMPONENT_MUTATION,
+          variables: {
+              componentUuid: componentUuidStandard,
+              companyUuid: companyUuidNoSupplier,
+              typeAccessId: firstAccess
+          }
       })
       .expect(HttpStatus.OK)
     debug('/graphql setCompanyAccessComponent=%o', body);
@@ -11084,7 +11127,7 @@ describe('component', () => {
     const {
       data: { addAccessRole },
     } = body;
-    expect(addAccessRole).toBe(true);
+    expect(addAccessRole).toBe(1);
     done();
   });
 
@@ -11126,16 +11169,7 @@ describe('component', () => {
             getCompaniesListAccessComponent(
               componentUuid: "${componentUuidStandard}"
             ) {
-              componentUuid
-              companyUuid
-              typeAccess {
-                typeAccessId
-                langId
-                name
-              }
-              isEnabled
-              createdAt
-              updatedAt
+              ${companiesListAccessComponentQuery}
             }
         }`,
       })
@@ -11170,7 +11204,7 @@ describe('component', () => {
     const {
       data: { addAccessRole },
     } = body;
-    expect(addAccessRole).toBe(true);
+    expect(addAccessRole).toBe(1);
     done();
   });
 
@@ -11186,16 +11220,7 @@ describe('component', () => {
             getCompaniesListAccessComponent(
               componentUuid: "${componentUuidStandard}"
             ) {
-              componentUuid
-              companyUuid
-              typeAccess {
-                typeAccessId
-                langId
-                name
-              }
-              isEnabled
-              createdAt
-              updatedAt
+              ${companiesListAccessComponentQuery}
             }
         }`,
       })
@@ -11206,8 +11231,8 @@ describe('component', () => {
       data: { getCompaniesListAccessComponent },
     } = body;
     expect(getCompaniesListAccessComponent[0].componentUuid).toBe(componentUuidStandard);
-    expect(getCompaniesListAccessComponent[0].companyUuid).toBe(companyUuidNoSupplier);
-    expect(getCompaniesListAccessComponent[0].typeAccess.typeAccessId).toBe(firstAccess);
+    expect(getCompaniesListAccessComponent[0].company.uuid).toBe(companyUuidNoSupplier);
+    expect(getCompaniesListAccessComponent[0].permission.typeAccessId).toBe(firstAccess);
     done();
   });
 
@@ -11251,14 +11276,11 @@ describe('component', () => {
         `Bearer ${authorizationTokenFirst}`
       )
       .send({
-        query: `mutation  {
-            deleteCompanyAccessComponent(
-              args: {
-                componentUuid: "${componentUuidStandard}"
-                companyUuid: "${companyUuidNoSupplier}"
-              }
-            )
-        }`,
+          query: DELETE_COMPANY_ACCESS_COMPONENT_MUTATION,
+          variables: {
+              componentUuid: componentUuidStandard,
+              companyUuid: companyUuidNoSupplier
+          }
       })
       .expect(HttpStatus.OK)
     debug('/graphql deleteCompanyAccessComponent=%o', body);
@@ -11278,14 +11300,11 @@ describe('component', () => {
         `Bearer ${authorizationTokenFirst}`
       )
       .send({
-        query: `mutation  {
-            deleteCompanyAccessComponent(
-              args: {
-                componentUuid: "${componentUuidStandard}"
-                companyUuid: "${companyUuidNoSupplier}"
-              }
-            )
-        }`,
+          query: DELETE_COMPANY_ACCESS_COMPONENT_MUTATION,
+          variables: {
+              componentUuid: componentUuidStandard,
+              companyUuid: companyUuidNoSupplier
+          }
       })
       .expect(HttpStatus.OK)
     debug('/graphql deleteCompanyAccessComponent=%o', body);
@@ -11491,6 +11510,8 @@ describe('component', () => {
               }
               typeAccess {
                 typeAccessId
+                langId
+                name
               }
             }
           }`,
@@ -11504,6 +11525,7 @@ describe('component', () => {
     expect(component.uuid).toBe(componentUuidNoStandard);
     expect(component.ownerUser.uuid).toBe(authorizationUserSecond);
     expect(component.typeAccess.typeAccessId).toBe(typeAccessId2);
+    expect(component.typeAccess.name).toBe("Protected");
     done();
   });
 
