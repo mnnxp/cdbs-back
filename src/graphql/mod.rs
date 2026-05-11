@@ -65,7 +65,6 @@ pub struct MutationRoot(
     RegionMutation,
     // SpecMutation,
     StorageMutation,
-    // TypeAccessMutation,
 );
 
 use crate::graphql::handler::{graphiql, graphql};
