@@ -1,12 +1,17 @@
+use crate::auth::permission::PermissionTranslateList;
+use crate::database::{get_conn, PooledConnection};
 use crate::graphql::file::ShowFileRelatedData;
+use crate::graphql::handler::extract_client_domain;
 use crate::models::company::model::ShowCompanyShort;
 use crate::models::relate_ref::{
     file::model::DownloadFile, keyword::model::Keyword,
     spec::model::SpecTranslateList, type_access::model::TypeAccessTranslateList,
 };
+use crate::models::standard::access::company::model::CompanyAccessStandardAndRelatedData;
+use crate::models::standard::access::user::model::UserAccessStandardAndRelatedData;
 use crate::models::standard::standard_status::model::StandardStatusTranslateList;
 use crate::models::user::model::ShowUserShort;
-use async_graphql::{InputObject, Object};
+use async_graphql::{Context, InputObject, Object};
 use chrono::NaiveDateTime;
 use uuid::Uuid;
 
@@ -262,4 +267,76 @@ pub(crate) struct IptStandardFilesArg {
     pub(crate) standard_uuid: Uuid,
     /// Filter by standard UUID files
     pub(crate) files_uuids: Option<Vec<Uuid>>,
+}
+
+#[Object]
+/// User access data to the standard with additional information
+impl UserAccessStandardAndRelatedData {
+    /// UUID of the standard
+    async fn standard_uuid(&self) -> &Uuid {
+        &self.standard_uuid
+    }
+
+    /// User info
+    async fn user(&self, cxt: &Context<'_>) -> ShowUserShort {
+        let conn: &mut PooledConnection = &mut get_conn(cxt).expect("Error get conn to DB");
+        ShowUserShort::get_without_check_by_uuid(&self.user_uuid, &extract_client_domain(cxt), conn)
+            .expect("Failed get user short data")
+    }
+
+    /// Access level with localization (Manage/Write/Read)
+    async fn permission(&self) -> &PermissionTranslateList {
+        &self.permission
+    }
+
+    /// Access activity flag
+    async fn is_enabled(&self) -> bool {
+        self.is_enabled
+    }
+
+    /// Date of first access assignment
+    async fn created_at(&self) -> &NaiveDateTime {
+        &self.created_at
+    }
+
+    /// Date of access modification
+    async fn updated_at(&self) -> &NaiveDateTime {
+        &self.updated_at
+    }
+}
+
+/// Company access data to the standard with additional information
+#[Object]
+impl CompanyAccessStandardAndRelatedData {
+    /// UUID of the standard
+    async fn standard_uuid(&self) -> &Uuid {
+        &self.standard_uuid
+    }
+
+    /// Company info
+    async fn company(&self, cxt: &Context<'_>) -> ShowCompanyShort {
+        let conn: &mut PooledConnection = &mut get_conn(cxt).expect("Error get conn to DB");
+        ShowCompanyShort::get_without_check_by_uuid(&self.company_uuid, conn)
+            .expect("Failed get company short data")
+    }
+
+    /// Access level with localization (Manage/Write/Read)
+    async fn permission(&self) -> &PermissionTranslateList {
+        &self.permission
+    }
+
+    /// Access activity flag
+    async fn is_enabled(&self) -> bool {
+        self.is_enabled
+    }
+
+    /// Date of first access assignment
+    async fn created_at(&self) -> &NaiveDateTime {
+        &self.created_at
+    }
+
+    /// Date of access modification
+    async fn updated_at(&self) -> &NaiveDateTime {
+        &self.updated_at
+    }
 }

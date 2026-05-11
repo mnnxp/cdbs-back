@@ -301,7 +301,7 @@ impl CompanyMutation {
         change_name_role_company(&logged_user_uuid, &args, conn)
     }
 
-    /// Removes the role of company members.
+    /// Removes the role of company.
     async fn delete_company_role(
         &self,
         cxt: &Context<'_>,

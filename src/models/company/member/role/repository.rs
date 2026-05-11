@@ -1,3 +1,4 @@
+use crate::auth::permission::PermissionTranslateList;
 use crate::errors::{ServiceError, ServiceResult};
 use crate::models::company::member::role::model::{
     RoleMemberAndRelatedData, RoleMemberTranslateList,
@@ -85,10 +86,13 @@ impl RoleMemberAndRelatedData {
     ) -> ServiceResult<RoleMemberAndRelatedData> {
         let role = RoleMemberTranslateList::get_by_id(target_role_id, set_lang_id, conn)?;
 
-        let access = TypeAccessTranslateList::get_by_role_id(target_role_id, set_lang_id, conn)?;
+        let permissions = TypeAccessTranslateList::get_by_role_id(target_role_id, set_lang_id, conn)?;
 
         // if found data return RoleMemberAndRelatedData
-        Ok(RoleMemberAndRelatedData { role, access })
+        Ok(RoleMemberAndRelatedData {
+            role,
+            permissions: permissions.into_iter().map(PermissionTranslateList::from).collect(),
+        })
     }
 
     /// Get roles by IDs for set lang
@@ -102,10 +106,13 @@ impl RoleMemberAndRelatedData {
         let mut res: Vec<RoleMemberAndRelatedData> = Vec::new();
         for role in roles {
             // get access types for the role
-            let access =
+            let permissions =
                 TypeAccessTranslateList::get_by_role_id(role.role_member_id, set_lang_id, conn)?;
 
-            res.push(RoleMemberAndRelatedData { role, access })
+            res.push(RoleMemberAndRelatedData {
+                role,
+                permissions: permissions.into_iter().map(PermissionTranslateList::from).collect(),
+            })
         }
 
         Ok(res)

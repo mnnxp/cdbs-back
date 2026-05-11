@@ -1,6 +1,5 @@
 use crate::database::{get_conn, PooledConnection};
 use crate::errors::ServiceResult;
-use crate::graphql::handler::extract_client_domain;
 use crate::graphql::relate::attributes::IptPaginate;
 use crate::models::company;
 use crate::models::company::{
@@ -32,7 +31,6 @@ impl CompanyQuery {
         &self,
         cxt: &Context<'_>,
         args: Option<IptCompaniesArg>,
-        // sort: Option<IptSort>,
         paginate: Option<IptPaginate>,
     ) -> ServiceResult<Vec<ShowCompanyShort>> {
         use company::service::list::get_companies;
@@ -43,8 +41,6 @@ impl CompanyQuery {
             Some(x) => CompaniesArg::by_arg(x),
             None => CompaniesArg::by_lang(),
         };
-        // let s = sort.map(|s| Sort::parsing(TableName::CompanieRef, &s.by_field, s.as_desc))
-        //     .unwrap_or(Sort::set_by_table(TableName::CompanieRef));
         let p = paginate
             .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
             .unwrap_or_default();
@@ -80,7 +76,7 @@ impl CompanyQuery {
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        get_supplier_by_uuid(&company_uuid, get_set_language(cxt), &extract_client_domain(cxt), conn)
+        get_supplier_by_uuid(&company_uuid, conn)
     }
 
     /// Returns information about company representative offices.

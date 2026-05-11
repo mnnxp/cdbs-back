@@ -1,3 +1,4 @@
+use crate::auth::permission::PermissionTranslateList;
 use crate::database::{get_conn, PooledConnection};
 use crate::graphql::file::ShowFileRelatedData;
 use crate::graphql::handler::extract_client_domain;
@@ -8,6 +9,8 @@ use crate::models::relate_ref::{
     region::model::RegionTranslateList, spec::model::SpecTranslateList,
 };
 use crate::models::search::order::{Paginate, Sort, TableName};
+use crate::models::supplier_service::access::company::model::CompanyAccessServiceAndRelatedData;
+use crate::models::supplier_service::access::user::model::UserAccessServiceAndRelatedData;
 use crate::models::supplier_service::{
     model::{ServiceFilesArg, ServicesArg},
     param::model::ServiceParamWithTranslation,
@@ -18,7 +21,7 @@ use async_graphql::{Context, InputObject, Object};
 use chrono::NaiveDateTime;
 use uuid::Uuid;
 
-/// Complete information about service (part) and related data.
+/// Complete information about service and related data.
 /// Default sorting: `createdAt`. Sorting by `name`, `description`, `serviceStatusId`, `updatedAt` is available.
 #[derive(Debug)]
 pub(crate) struct ServiceAndRelatedData {
@@ -328,4 +331,76 @@ pub(crate) struct IptServiceStatusArg {
     pub(crate) service_uuid: Uuid,
     /// Identifier of the status of the state (readiness) of the service
     pub(crate) service_status_id: i32,
+}
+
+#[Object]
+/// User access data to the service with additional information
+impl UserAccessServiceAndRelatedData {
+    /// UUID of the service
+    async fn service_uuid(&self) -> &Uuid {
+        &self.service_uuid
+    }
+
+    /// User info
+    async fn user(&self, cxt: &Context<'_>) -> ShowUserShort {
+        let conn: &mut PooledConnection = &mut get_conn(cxt).expect("Error get conn to DB");
+        ShowUserShort::get_without_check_by_uuid(&self.user_uuid, &extract_client_domain(cxt), conn)
+            .expect("Failed get user short data")
+    }
+
+    /// Access level with localization (Manage/Write/Read)
+    async fn permission(&self) -> &PermissionTranslateList {
+        &self.permission
+    }
+
+    /// Access activity flag
+    async fn is_enabled(&self) -> bool {
+        self.is_enabled
+    }
+
+    /// Date of first access assignment
+    async fn created_at(&self) -> &NaiveDateTime {
+        &self.created_at
+    }
+
+    /// Date of access modification
+    async fn updated_at(&self) -> &NaiveDateTime {
+        &self.updated_at
+    }
+}
+
+/// Company access data to the service with additional information
+#[Object]
+impl CompanyAccessServiceAndRelatedData {
+    /// UUID of the service
+    async fn service_uuid(&self) -> &Uuid {
+        &self.service_uuid
+    }
+
+    /// Company info
+    async fn company(&self, cxt: &Context<'_>) -> ShowCompanyShort {
+        let conn: &mut PooledConnection = &mut get_conn(cxt).expect("Error get conn to DB");
+        ShowCompanyShort::get_without_check_by_uuid(&self.company_uuid, conn)
+            .expect("Failed get company short data")
+    }
+
+    /// Access level with localization (Manage/Write/Read)
+    async fn permission(&self) -> &PermissionTranslateList {
+        &self.permission
+    }
+
+    /// Access activity flag
+    async fn is_enabled(&self) -> bool {
+        self.is_enabled
+    }
+
+    /// Date of first access assignment
+    async fn created_at(&self) -> &NaiveDateTime {
+        &self.created_at
+    }
+
+    /// Date of access modification
+    async fn updated_at(&self) -> &NaiveDateTime {
+        &self.updated_at
+    }
 }

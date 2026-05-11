@@ -1,3 +1,4 @@
+use crate::auth::permission::PermissionTranslateList;
 use crate::database::{get_conn, PooledConnection};
 use crate::errors::ServiceResult;
 use crate::models::relate_ref::{
@@ -12,8 +13,6 @@ use super::attributes::IptPaginate;
 
 #[derive(Default)]
 pub struct TypeAccessQuery;
-// #[derive(Default)]
-// pub struct TypeAccessMutation;
 
 #[Object]
 impl TypeAccessQuery {
@@ -36,19 +35,34 @@ impl TypeAccessQuery {
             conn,
         )
     }
-}
 
-// #[Object]
-// impl TypeAccessMutation {
-//     /// Adds a new type access.
-//     /// Returns an error with the type access ID if it already exists.
-//     async fn register_type_access(
-//         &self,
-//         cxt: &Context<'_>,
-//         args: IptTypeAccessTranslateListData,
-//     ) -> ServiceResult<TypeAccessTranslateList> {
-//         check_authorized(cxt)?;
-//         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
-//         create_type_access(&args, conn)
-//     }
-// }
+    /// Returns permission levels for RBAC.
+    async fn permissions(
+        &self,
+        cxt: &Context<'_>,
+        permission_ids: Option<Vec<i32>>,
+        paginate: Option<IptPaginate>,
+    ) -> ServiceResult<Vec<PermissionTranslateList>> {
+        let p = paginate
+            .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
+            .unwrap_or_default();
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+
+        // Get type accesses (only 1,2,3 for permissions)
+        let type_accesses = get_type_access(
+            &permission_ids.unwrap_or_default(),
+            get_set_language(cxt),
+            &p,
+            conn,
+        )?;
+
+        // Convert to PermissionTranslateList
+        let permissions = type_accesses
+            .into_iter()
+            .filter(|ta| ta.type_access_id >= 1 && ta.type_access_id <= 3) // Only 1,2,3
+            .map(PermissionTranslateList::from)
+            .collect();
+
+        Ok(permissions)
+    }
+}

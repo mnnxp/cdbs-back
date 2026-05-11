@@ -1,9 +1,13 @@
+use crate::auth::permission::PermissionTranslateList;
 use crate::database::{get_conn, PooledConnection};
 use crate::graphql::file::ShowFileRelatedData;
 use crate::graphql::handler::extract_client_domain;
 use crate::graphql::relate::attributes::{IptPaginate, IptSort};
 use crate::graphql::standard_model::ShowStandardShort;
+use crate::models::company::model::ShowCompanyShort;
+use crate::models::component::access::company::model::CompanyAccessComponentAndRelatedData;
 use crate::models::component::{
+    access::user::model::UserAccessComponentAndRelatedData,
     actual_status::model::ActualStatusTranslateList,
     component_modification::{
         fileset_for_program::model::FilesetProgramRelatedData, model::ComponentModificationArg,
@@ -662,5 +666,77 @@ impl FilesetProgramRelatedData {
         let conn: &mut PooledConnection = &mut get_conn(cxt).expect("Error get conn to DB");
         Paginate::get_count(&self.uuid, &TableName::FileToFilesetForProgram, conn)
             .expect("Error count items")
+    }
+}
+
+#[Object]
+/// User access data to the component (part) with additional information
+impl UserAccessComponentAndRelatedData {
+    /// UUID of the component
+    async fn component_uuid(&self) -> &Uuid {
+        &self.component_uuid
+    }
+
+    /// User info
+    async fn user(&self, cxt: &Context<'_>) -> ShowUserShort {
+        let conn: &mut PooledConnection = &mut get_conn(cxt).expect("Error get conn to DB");
+        ShowUserShort::get_without_check_by_uuid(&self.user_uuid, &extract_client_domain(cxt), conn)
+            .expect("Failed get user short data")
+    }
+
+    /// Access level with localization (Manage/Write/Read)
+    async fn permission(&self) -> &PermissionTranslateList {
+        &self.permission
+    }
+
+    /// Access activity flag
+    async fn is_enabled(&self) -> bool {
+        self.is_enabled
+    }
+
+    /// Date of first access assignment
+    async fn created_at(&self) -> &NaiveDateTime {
+        &self.created_at
+    }
+
+    /// Date of access modification
+    async fn updated_at(&self) -> &NaiveDateTime {
+        &self.updated_at
+    }
+}
+
+/// Company access data to the component (part) with additional information
+#[Object]
+impl CompanyAccessComponentAndRelatedData {
+    /// UUID of the component
+    async fn component_uuid(&self) -> &Uuid {
+        &self.component_uuid
+    }
+
+    /// Company info
+    async fn company(&self, cxt: &Context<'_>) -> ShowCompanyShort {
+        let conn: &mut PooledConnection = &mut get_conn(cxt).expect("Error get conn to DB");
+        ShowCompanyShort::get_without_check_by_uuid(&self.company_uuid, conn)
+            .expect("Failed get company short data")
+    }
+
+    /// Access level with localization (Manage/Write/Read)
+    async fn permission(&self) -> &PermissionTranslateList {
+        &self.permission
+    }
+
+    /// Access activity flag
+    async fn is_enabled(&self) -> bool {
+        self.is_enabled
+    }
+
+    /// Date of first access assignment
+    async fn created_at(&self) -> &NaiveDateTime {
+        &self.created_at
+    }
+
+    /// Date of access modification
+    async fn updated_at(&self) -> &NaiveDateTime {
+        &self.updated_at
     }
 }
