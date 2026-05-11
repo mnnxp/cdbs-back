@@ -33,7 +33,7 @@ impl CompanyAccessServiceAndRelatedData {
             res.push(CompanyAccessServiceAndRelatedData {
                 service_uuid: x.service_uuid,
                 company_uuid: x.company_uuid,
-                type_access: type_access.clone(),
+                permission: type_access.into(),
                 is_enabled: x.is_enabled,
                 created_at: x.created_at,
                 updated_at: x.updated_at,

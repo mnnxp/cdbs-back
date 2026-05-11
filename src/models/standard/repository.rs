@@ -92,12 +92,8 @@ impl ShowStandardShort {
             .expect("Error get presigned url main image");
 
         // get standard owner company
-        let owner_company = ShowCompanyShort::get_without_check_by_uuid(
-            &standard.company_uuid,
-            options,
-            conn,
-        )
-        .expect("Error loading company short data");
+        let owner_company = ShowCompanyShort::get_without_check_by_uuid(&standard.company_uuid, conn)
+            .expect("Error loading company short data");
 
         // get standard type with translation for standard
         let standard_status = StandardStatusTranslateList::get_by_id(
@@ -208,12 +204,8 @@ impl StandardAndRelatedData {
         .expect("Error loading slim_user");
 
         // get data a owner company for a standard
-        let owner_company = ShowCompanyShort::get_without_check_by_uuid(
-            &standard.company_uuid,
-            options,
-            conn,
-        )
-        .expect("Error loading company short data");
+        let owner_company = ShowCompanyShort::get_without_check_by_uuid(&standard.company_uuid, conn)
+            .expect("Error loading company short data");
 
         // get standard type with translation for standard
         let type_access = TypeAccessTranslateList::get_type_access_by_id(

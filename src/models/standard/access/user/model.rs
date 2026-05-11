@@ -1,6 +1,6 @@
-use crate::models::relate_ref::type_access::model::TypeAccessTranslateList;
+use crate::auth::permission::PermissionTranslateList;
 use crate::schema::*;
-use async_graphql::{InputObject, SimpleObject};
+use async_graphql::InputObject;
 use chrono::*;
 use uuid::Uuid;
 
@@ -17,14 +17,14 @@ pub(crate) struct UserAccessStandard {
 }
 
 /// Data on whether the user has access to the standard
-#[derive(Debug, Deserialize, SimpleObject)]
+#[derive(Debug, Deserialize)]
 pub(crate) struct UserAccessStandardAndRelatedData {
     /// UUID of the standard
     pub(crate) standard_uuid: Uuid,
     /// User UUID
     pub(crate) user_uuid: Uuid,
-    /// Access type (level) with localization
-    pub(crate) type_access: TypeAccessTranslateList,
+    /// Access level with localization
+    pub(crate) permission: PermissionTranslateList,
     /// Access activity flag
     pub(crate) is_enabled: bool,
     /// Date access was first issued to the user

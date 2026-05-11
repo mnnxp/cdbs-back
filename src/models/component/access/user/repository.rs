@@ -32,7 +32,7 @@ impl UserAccessComponentAndRelatedData {
             res.push(UserAccessComponentAndRelatedData {
                 component_uuid: x.component_uuid,
                 user_uuid: x.user_uuid,
-                type_access: type_access.clone(),
+                permission: type_access.into(),
                 is_enabled: x.is_enabled,
                 created_at: x.created_at,
                 updated_at: x.updated_at,

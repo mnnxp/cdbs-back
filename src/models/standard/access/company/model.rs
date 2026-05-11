@@ -1,6 +1,6 @@
-use crate::models::relate_ref::type_access::model::TypeAccessTranslateList;
+use crate::auth::permission::PermissionTranslateList;
 use crate::schema::*;
-use async_graphql::{InputObject, SimpleObject};
+use async_graphql::InputObject;
 use chrono::*;
 use uuid::Uuid;
 
@@ -17,14 +17,14 @@ pub(crate) struct CompanyAccessStandard {
 }
 
 /// Data on the availability of access to the standard for the company (members of the company)
-#[derive(Debug, Deserialize, SimpleObject)]
+#[derive(Debug, Deserialize)]
 pub(crate) struct CompanyAccessStandardAndRelatedData {
     /// UUID of the standard
     pub(crate) standard_uuid: Uuid,
     /// UUID of accessing company
     pub(crate) company_uuid: Uuid,
-    /// Type of access with localization
-    pub(crate) type_access: TypeAccessTranslateList,
+    /// Access level with localization
+    pub(crate) permission: PermissionTranslateList,
     /// Access activity flag
     pub(crate) is_enabled: bool,
     /// Date of first issuance of access to the company

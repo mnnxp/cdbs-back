@@ -90,12 +90,8 @@ impl ShowServiceShort {
             .expect("Error loading slim_user");
 
         // get service owner company
-        let owner_company = ShowCompanyShort::get_without_check_by_uuid(
-            &service.company_uuid,
-            options,
-            conn,
-        )
-        .expect("Error loading company short data");
+        let owner_company = ShowCompanyShort::get_without_check_by_uuid(&service.company_uuid, conn)
+            .expect("Error loading company short data");
 
         // get service type with translation for service
         let service_status = ServiceStatusTranslateList::get_by_id(
@@ -194,12 +190,8 @@ impl ServiceAndRelatedData {
             .expect("Error loading slim_user");
 
         // get data a owner company for a service
-        let owner_company = ShowCompanyShort::get_without_check_by_uuid(
-            &service.company_uuid,
-            options,
-            conn,
-        )
-        .expect("Error loading company short data");
+        let owner_company = ShowCompanyShort::get_without_check_by_uuid(&service.company_uuid, conn)
+            .expect("Error loading company short data");
 
         // get service type with translation for service
         let service_status = ServiceStatusTranslateList::get_by_id(

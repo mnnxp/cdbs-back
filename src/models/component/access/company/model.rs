@@ -1,6 +1,6 @@
-use crate::models::relate_ref::type_access::model::TypeAccessTranslateList;
+use crate::auth::permission::PermissionTranslateList;
 use crate::schema::*;
-use async_graphql::{InputObject, SimpleObject};
+use async_graphql::InputObject;
 use chrono::*;
 use uuid::Uuid;
 
@@ -17,14 +17,14 @@ pub(crate) struct CompanyAccessComponent {
 }
 
 /// Company access data to the component (part) with additional information
-#[derive(Debug, Deserialize, SimpleObject)]
+#[derive(Debug, Deserialize)]
 pub(crate) struct CompanyAccessComponentAndRelatedData {
     /// UUID of the component
     pub(crate) component_uuid: Uuid,
     /// UUID of the company
     pub(crate) company_uuid: Uuid,
-    /// Information about the type of access with localization
-    pub(crate) type_access: TypeAccessTranslateList,
+    /// Access level with localization
+    pub(crate) permission: PermissionTranslateList,
     /// Access activity flag
     pub(crate) is_enabled: bool,
     /// Date of first access assignment
