@@ -834,7 +834,7 @@ describe('users', () => {
         `Bearer ${authorizationTokenUserFirst}`
       )
       .send({
-        query: `query tokenQuery {
+        query: `mutation tokenQuery {
          getToken {
             bearer
          }
@@ -849,7 +849,7 @@ describe('users', () => {
         `Bearer ${authorizationTokenUserFirst}`
       )
       .send({
-        query: `query tokenQuery {
+        query: `mutation tokenQuery {
          getToken {
             bearer
          }
@@ -872,7 +872,7 @@ describe('users', () => {
         `Bearer ${authorizationTokenUserFirst}`
       )
       .send({
-        query: `query tokenQuery {
+        query: `mutation tokenQuery {
          getToken {
             bearer
          }
@@ -943,7 +943,7 @@ describe('users', () => {
         `Bearer ${authorizationTokenUserFirstUpdate}`
       )
       .send({
-        query: `query deleteTokenQuery {
+        query: `mutation deleteTokenQuery {
           deleteToken(token: "${authorizationTokenUserFirstUpdate}")
         }`,
       })
@@ -990,7 +990,7 @@ describe('users', () => {
         `Bearer ${authorizationTokenUserFirstUpdate}`
       )
       .send({
-        query: `query deleteTokenQuery {
+        query: `mutation deleteTokenQuery {
           deleteToken(token: "${authorizationTokenUserFirst}")
         }`,
       })
@@ -3986,7 +3986,7 @@ describe('users', () => {
         `Bearer ${authorizationTokenUserFirstUpdate}`
       )
       .send({
-        query: `query tokenQuery {
+        query: `mutation tokenQuery {
          getToken {
             bearer
          }
@@ -4010,7 +4010,7 @@ describe('users', () => {
         `Bearer ${authorizationTokenUserFirst}`
       )
       .send({
-        query: `query tokenQuery {
+        query: `mutation tokenQuery {
          updateToken {
             bearer
          }
@@ -4148,7 +4148,7 @@ describe('users', () => {
         `Bearer ${authorizationTokenUserFirstUpdate}`
       )
       .send({
-        query: `query tokenQuery {
+        query: `mutation tokenQuery {
          updateToken {
             bearer
          }

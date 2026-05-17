@@ -1,3 +1,5 @@
+use crate::auth::jwt::model::Token;
+use crate::auth::token::logged::check_authorized;
 use crate::database::{get_conn, PooledConnection};
 use crate::errors::ServiceResult;
 use crate::graphql::handler::extract_client_domain;
@@ -279,6 +281,40 @@ impl UserMutation {
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
         delete_notifications(&logged_user_uuid, &notifications_ids, conn)
+    }
+
+    /// Generates a token for the user without deleting other valid tokens.
+    /// Returns the user's new authorization token.
+    async fn get_token(&self, cxt: &Context<'_>) -> ServiceResult<Token> {
+        use crate::models::user::access::manage::get_user_token;
+        check_authorized(cxt)?;
+        get_user_token(cxt)
+    }
+
+    /// Generates a token for the user with the user's other tokens deactivated.
+    /// Returns the user's new authorization token.
+    async fn update_token(&self, cxt: &Context<'_>) -> ServiceResult<Token> {
+        use crate::models::user::access::manage::update_user_token;
+        check_authorized(cxt)?;
+        update_user_token(cxt)
+    }
+
+    /// Deactivates the specified user token.
+    async fn delete_token(&self, cxt: &Context<'_>, token: String) -> ServiceResult<bool> {
+        use crate::models::user::access::manage::delete_target_token;
+        // authorization check
+        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+        delete_target_token(&logged_user_uuid, token.as_str(), conn)
+    }
+
+    /// Deactivates all user tokens.
+    async fn delete_all_tokens(&self, cxt: &Context<'_>) -> ServiceResult<usize> {
+        use crate::models::user::access::manage::delete_tokens;
+        // authorization check
+        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+        delete_tokens(&logged_user_uuid, conn)
     }
 
     async fn logout(&self, cxt: &Context<'_>) -> ServiceResult<String> {
