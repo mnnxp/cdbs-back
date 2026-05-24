@@ -1002,6 +1002,100 @@ describe('users', () => {
       done();
   });
 
+  describe('Token validation and expiry', () => {
+    it('/graphql:Q isTokenValid - OK with valid token', async (done) => {
+      const response = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenUserSecond}`)
+        .send({
+          query: `query {
+            isTokenValid
+          }`,
+        })
+        .expect(HttpStatus.OK);
+      debug('/graphql isTokenValid=%o', response.body);
+      expect(response.body.data.isTokenValid).toBe(true);
+      done();
+    });
+
+    it('/graphql:Q isTokenValid - OK with invalid token (revoked)', async (done) => {
+      const response = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenUserFirstUpdate}`)
+        .send({
+          query: `query {
+            isTokenValid
+          }`,
+        })
+        .expect(HttpStatus.OK);
+      debug('/graphql isTokenValid invalid token=%o', response.body);
+      expect(response.body.data.isTokenValid).toBe(false);
+      done();
+    });
+
+    it('/graphql:Q isTokenValid - OK with valid token (updated)', async (done) => {
+      const response = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenUserFirst}`)
+        .send({
+          query: `query {
+            isTokenValid
+          }`,
+        })
+        .expect(HttpStatus.OK);
+      debug('/graphql isTokenValid invalid token=%o', response.body);
+      expect(response.body.data.isTokenValid).toBe(true);
+      done();
+    });
+
+    it('/graphql:Q isTokenValid - Unauthorized without token', async (done) => {
+      const response = await agent
+        .post('/graphql')
+        .send({
+          query: `query {
+            isTokenValid
+          }`,
+        })
+        .expect(HttpStatus.OK);
+      debug('/graphql isTokenValid no token=%o', response.body);
+      expect(response.body.data).toBeNull();
+      expect(response.body.errors[0].message).toBe('BadRequest: Token not found');
+      expect(response.body.errors[0].path[0]).toBe('isTokenValid');
+      done();
+    });
+
+    it('/graphql:Q tokenDaysUntilExpiry - OK returns number', async (done) => {
+      const response = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenUserSecond}`)
+        .send({
+          query: `query {
+            tokenDaysUntilExpiry
+          }`,
+        })
+        .expect(HttpStatus.OK);
+      debug('/graphql tokenDaysUntilExpiry=%o', response.body);
+      expect(response.body.data.tokenDaysUntilExpiry).toBeGreaterThanOrEqual(0);
+      done();
+    });
+
+    it('/graphql:Q tokenDaysUntilExpiry - Unauthorized without token', async (done) => {
+      const response = await agent
+        .post('/graphql')
+        .send({
+          query: `query {
+            tokenDaysUntilExpiry
+          }`,
+        })
+        .expect(HttpStatus.OK);
+      debug('/graphql tokenDaysUntilExpiry no token=%o', response.body);
+      expect(response.body.data).toBeNull();
+      expect(response.body.errors[0].message).toBe('BadRequest: Token not found');
+      expect(response.body.errors[0].path[0]).toBe('tokenDaysUntilExpiry');
+      done();
+    });
+  });
+
   it('/graphql:Q selfData - OK', async (done) => {
     const { body } = await agent
       .post('/graphql')

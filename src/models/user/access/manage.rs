@@ -1,12 +1,13 @@
 use crate::errors::ServiceResult;
 use crate::auth::jwt::model::{Claims, Token};
-use crate::auth::token::{show_tokens, update, decode, token_from_cxt, delete_user_token, delete_all_tokens};
+use crate::auth::jwt::manager::decode_token;
+use crate::auth::token::{check_token, decode, delete_all_tokens, delete_user_token, show_tokens, token_from_cxt, update};
 use crate::auth::token::UserToken;
 use async_graphql::Context;
 use diesel::prelude::PgConnection;
 use uuid::Uuid;
 
-/// Возвращает активные токены авторизованного пользователя.
+/// Returns active tokens of the authenticated user.
 pub(crate) fn show_user_tokens(
     logged_user_uuid: &Uuid,
     conn: &mut PgConnection,
@@ -14,25 +15,45 @@ pub(crate) fn show_user_tokens(
     show_tokens(logged_user_uuid, conn)
 }
 
-/// Генерирует токен для пользователя без удаления других действующих токенов.
-/// Возвращает новый токен авторизации пользователя.
+/// Returns true if current token is still valid (not expired or revoked)
+pub(crate) fn check_token_valid(
+    cxt: &Context<'_>,
+    conn: &mut PgConnection,
+) -> ServiceResult<bool> {
+    let token_str = token_from_cxt(cxt)?;
+    let claims = decode_token(&token_str)?;
+    if claims.is_valid() {
+        check_token(&token_str, conn)
+    } else {
+        Ok(false)
+    }
+}
+
+/// Returns days until token expiration for current user
+pub(crate) fn get_token_days_until_expiry(cxt: &Context<'_>) -> ServiceResult<i64> {
+    let token_str = token_from_cxt(cxt)?;
+    let claims = decode_token(&token_str)?;
+    Ok(claims.days_until_expiry())
+}
+
+/// Generates a new token without deleting other active tokens.
+/// Returns the user's new authorization token.
 pub(crate) fn get_user_token(cxt: &Context<'_>) -> ServiceResult<Token> {
     update(cxt, false)
 }
 
-/// Генерирует токен для пользователя с деактивацией других токенов пользователя.
-/// Возвращает новый токен авторизации пользователя.
+/// Generates a new token and deactivates the current token.
+/// Returns the user's new authorization token.
 pub(crate) fn update_user_token(cxt: &Context<'_>) -> ServiceResult<Token> {
     update(cxt, true)
 }
 
-/// Возвращает провайдера токена, UUID и имя пользователя пользователя, идентификатор программы пользователя,
-/// дату выдачи токена и дату истечения срока действия токена.
+/// Returns token provider, user UUID, username, program ID, issued at, and expiration date.
 pub(crate) fn decode_user_token(cxt: &Context<'_>) -> ServiceResult<Claims> {
     decode(&token_from_cxt(cxt)?)
 }
 
-/// Деактивирует указанный токен пользователя.
+/// Deactivates the specified user token.
 pub(crate) fn delete_target_token(
     logged_user_uuid: &Uuid,
     target_token: &str,
@@ -41,7 +62,7 @@ pub(crate) fn delete_target_token(
     delete_user_token(logged_user_uuid, target_token, conn)
 }
 
-/// Деактивирует все токены пользователя.
+/// Deactivates all tokens of the user.
 pub(crate) fn delete_tokens(
     logged_user_uuid: &Uuid,
     conn: &mut PgConnection,

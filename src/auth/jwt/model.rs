@@ -54,10 +54,14 @@ impl Claims {
         now > self.exp
     }
 
-    // pub(crate) fn is_valid(&self) -> bool {
-    //     let now = Utc::now().timestamp();
-    //     now >= self.iat && now <= self.exp
-    // }
+    pub(crate) fn is_valid(&self) -> bool {
+        let now = Utc::now().timestamp();
+        now >= self.iat && now <= self.exp
+    }
+
+    pub(crate) fn days_until_expiry(&self) -> i64 {
+        (self.exp - Utc::now().timestamp()) / 86400
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]

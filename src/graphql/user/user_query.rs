@@ -102,6 +102,19 @@ impl UserQuery {
         decode_user_token(cxt)
     }
 
+    /// Returns true if current token is still valid (not expired or revoked)
+    async fn is_token_valid(&self, cxt: &Context<'_>) -> ServiceResult<bool> {
+        use crate::models::user::access::manage::check_token_valid;
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+        check_token_valid(cxt, conn)
+    }
+
+    /// Returns days until token expiration for current user
+    async fn token_days_until_expiry(&self, cxt: &Context<'_>) -> ServiceResult<i64> {
+        use crate::models::user::access::manage::get_token_days_until_expiry;
+        get_token_days_until_expiry(cxt)
+    }
+
     /// Returns an aggregated list of user notifications.
     async fn notifications(
         &self,
