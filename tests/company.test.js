@@ -2124,7 +2124,8 @@ describe('company', () => {
     const {
       data: { registerCompanyRepresent },
     } = body;
-    expect(registerCompanyRepresent).toBe(true);
+    expect(registerCompanyRepresent.length).toBe(36);
+    uuidRepresentFirst = registerCompanyRepresent;
     done();
   });
 
@@ -2148,8 +2149,8 @@ describe('company', () => {
     debug('/graphql all body=%o', body);
     // expect(body).toBe(0);
     // for test delete represent not owned user
-    uuidRepresentFirst = body.data.companyRepresents[0].uuid;
     expect(body.data.companyRepresents).toBeNonEmptyArray();
+    expect(body.data.companyRepresents[0].uuid).toBe(uuidRepresentFirst);
     expect(body.data.companyRepresents[0].companyUuid).toBe(companyUuidSupplier);
     done();
   });
@@ -2175,7 +2176,7 @@ describe('company', () => {
       })
       .expect(HttpStatus.OK)
     debug('/graphql - body=%o', body);
-    expect(body.data.registerCompanyRepresent).toBe(true);
+    expect(body.data.registerCompanyRepresent.length).toBe(36);
     done();
   });
 

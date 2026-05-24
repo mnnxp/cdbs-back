@@ -175,7 +175,7 @@ impl CompanyMutation {
         &self,
         cxt: &Context<'_>,
         args: IptCompanyRepresentData,
-    ) -> ServiceResult<bool> {
+    ) -> ServiceResult<Uuid> {
         use crate::models::company::company_represent::service::register::create_company_represent;
 
         let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();

@@ -12,7 +12,7 @@ pub(crate) fn create_company_represent(
     logged_user_uuid: &Uuid,
     data: &IptCompanyRepresentData,
     conn: &mut PgConnection,
-) -> ServiceResult<bool> {
+) -> ServiceResult<Uuid> {
     require_permission(
         logged_user_uuid,
         AccessEntity::Company,
@@ -24,6 +24,7 @@ pub(crate) fn create_company_represent(
     // check_is_supplier(&data.company_uuid, conn)?;
 
     let company_represent: InsertableCompanyRepresent = data.into();
+    let new_uuid = company_represent.uuid;
     diesel::insert_into(company_represent_ref)
         .values(&company_represent)
         .get_result::<CompanyRepresent>(conn)
@@ -32,5 +33,5 @@ pub(crate) fn create_company_represent(
             ServiceError::InternalServerError
         })?;
 
-    Ok(true)
+    Ok(new_uuid)
 }
