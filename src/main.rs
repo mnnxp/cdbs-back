@@ -18,6 +18,8 @@ mod macros;
 use actix_cors::Cors;
 use actix_web::middleware::Logger;
 use actix_web::{web::Data, App, HttpServer};
+use crate::database::pool::establish_connection;
+use crate::graphql::handler::build_schema;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -32,15 +34,16 @@ async fn main() -> std::io::Result<()> {
         use structopt::StructOpt;
         cli_args::Opt::from_args()
     };
+    let opt_data = Data::new(opt.clone());
 
     // Database
-    let pool = database::pool::establish_connection(opt.clone());
+    let pool = establish_connection(opt.clone());
+    let pool_data = Data::new(pool.clone());
+    let schema = Data::new(build_schema(pool).await);
 
     // Server port
     let domain = opt.domain.clone();
     let port = opt.port;
-
-    let schema = crate::graphql::handler::build_schema(pool.clone()).await;
 
     // Server
     let server = HttpServer::new(move || {
@@ -49,12 +52,12 @@ async fn main() -> std::io::Result<()> {
         // CORS a very permissive set of default for quick development
         let cors = Cors::permissive();
         App::new()
-            // Database
-            .app_data(Data::new(pool.clone()))
-            // .app_data(schema)
-            .app_data(Data::new(schema.clone()))
             // Options
-            .app_data(Data::new(opt.clone()))
+            .app_data(opt_data.clone())
+            // Database
+            .app_data(pool_data.clone())
+            // .app_data(schema)
+            .app_data(schema.clone())
             // CORS
             .wrap(cors)
             // Error logging
@@ -64,12 +67,12 @@ async fn main() -> std::io::Result<()> {
             .configure(graphql::route)
     })
     // Running at `format!("{}:{}",port,"0.0.0.0")`
-    .bind((domain.clone(), port))
+    .bind((domain, port))
     .unwrap()
     // Starts server
     .run();
 
-    eprintln!("Listening on {domain}:{port}");
+    eprintln!("Listening on {}:{}", opt.domain, opt.port);
 
     // Awaiting server to exit
     server.await
