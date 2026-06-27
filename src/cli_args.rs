@@ -5,6 +5,14 @@ use structopt::StructOpt;
 #[derive(StructOpt, Debug, Clone)]
 #[structopt(name = "cdbs-back")]
 pub struct Opt {
+    /// Path to JWT private key
+    #[structopt(long, env = "JWT_PRIVATE_KEY", default_value = "./keys/rs256-4096-private.pem")]
+    pub(crate) jwt_private_key: String,
+
+    /// Path to JWT public key
+    #[structopt(long, env = "JWT_PUBLIC_KEY", default_value = "./keys/rs256-4096-public.pem")]
+    pub(crate) jwt_public_key: String,
+
     /// Entry point of the GraphQL API (for display)
     #[structopt(long, env = "API_POINT", default_value = "http://127.0.0.1:3000/graphql")]
     pub api_point: String,

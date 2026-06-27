@@ -1,11 +1,11 @@
+keys/
+*.pem
+*.key
 /target
 **/*.rs.bk
 .idea/
 node_modules/
 python_modules/
-
-# ---> Node
-# Logs
 logs
 *.log
 npm-debug.log*
