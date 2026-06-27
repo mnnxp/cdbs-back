@@ -5,6 +5,10 @@ use structopt::StructOpt;
 #[derive(StructOpt, Debug, Clone)]
 #[structopt(name = "cdbs-back")]
 pub struct Opt {
+    /// Allowed CORS origins (comma-separated)
+    #[structopt(long, env = "ALLOWED_ORIGINS", default_value = "http://localhost:3000,http://127.0.0.1:3000")]
+    pub(crate) allowed_origins: String,
+
     /// Path to JWT private key
     #[structopt(long, env = "JWT_PRIVATE_KEY", default_value = "./keys/rs256-4096-private.pem")]
     pub(crate) jwt_private_key: String,
