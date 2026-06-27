@@ -34,6 +34,7 @@ const descriptionStandard2 = "Test GOST standard 2222";
 const publicationAt2 = "2011-08-31T00:00:00";
 const standardStatusId2 =  3;
 const regionId2 = 5;
+const tooLongKeyword = 'я'.repeat(101);
 var standardUuidFirst = "";
 var standardUuidSecond = "";
 var standardUuidNoSupplier = "";
@@ -2841,7 +2842,7 @@ describe('standard', () => {
         query: `mutation  {
           addStandardKeywordsByNames(args: {
             standardUuid: "${standardUuidFirst}"
-            keywords: ["asd11","слишкомслишкомслишкомслишкомслишкомдлинноеключевоеслово","asd12345678","asd12"]
+            keywords: ["asd11","${tooLongKeyword}","asd12345678","asd12"]
           })
         }`,
       })
@@ -2849,7 +2850,7 @@ describe('standard', () => {
     debug('/graphql addStandardKeywordsByNames=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      "BadRequest: Text must be less than 100 bit (~50 symbols)"
+      "BadRequest: Text must be less than 100 characters"
     );
     expect(body.errors[0].path[0]).toBe('addStandardKeywordsByNames');
     done();

@@ -22,7 +22,7 @@ pub(crate) fn update_user(
     if data
         .description
         .as_ref()
-        .map(|d| d.len())
+        .map(|d| d.chars().count())
         .unwrap_or_default()
         > 50000
     {

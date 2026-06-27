@@ -20,7 +20,7 @@ pub(crate) fn create_discussion_comment(
     if data.message_content.is_empty() {
         return Err(get_err_msg(ErrorMessage::DataNotFound));
     }
-    if data.message_content.len() > 5000 {
+    if data.message_content.chars().count() > 5000 {
         return Err(get_err_msg(ErrorMessage::TextMustLess(5000)));
     }
     let mut discussion_to = data.object_discussion.get_discuss_to();

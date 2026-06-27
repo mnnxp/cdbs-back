@@ -1,4 +1,5 @@
 use crate::auth::{require_permission, AccessEntity, AccessOperation};
+use crate::errors::err_msg::{get_err_msg, ErrorMessage};
 use crate::errors::{ServiceError, ServiceResult};
 use crate::models::company::certificate::model::{
     CompanyCertificate, InsertableCompanyCertificate, IptCompanyCertificateData,
@@ -22,6 +23,11 @@ pub(crate) fn add_certificate(
     domain: &str,
     conn: &mut PgConnection,
 ) -> ServiceResult<UploadFile> {
+    // update data validation
+    if cert_data.description.chars().count() > 500 {
+        return Err(get_err_msg(ErrorMessage::TextMustLess(500)));
+    }
+
     require_permission(
         logged_user_uuid,
         AccessEntity::Company,

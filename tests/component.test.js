@@ -89,6 +89,7 @@ const filename7 = "company-favicon-org.png";
 const filename8 = "test-component-file.pdf";
 const filename9 = "test-no-proxy.png";
 const filename10 = "certificate.pdf";
+const tooLongCommitMessage = 'ф'.repeat(550);
 
 const modificationNameM1 = "1/16/20-SS-V";
 const descriptionM1 = "Dest 1/ss-v";
@@ -558,7 +559,7 @@ const baseFilesetUuid = "5de37b5d-75af-4323-b5b4-2cf1e849baa2";
 const modificationName = "testmodificationcomponent";
 const modificationName2 = "test modification component 2";
 const descriptionModification = "commentcomponent";
-const veryLongDescriptionModification = Array(25100).join('я');
+const tooLongDescriptionModification = 'я'.repeat(50001);
 const actualStatusIdModification = 1;
 var componentModificationUuidFirst = "";
 var componentModificationUuidSecond = "";
@@ -4880,7 +4881,7 @@ describe('component', () => {
             filenames: [
               "${filename2}"
             ]
-            commitMsg: "Very long message to test the length limit of 225 characters. It's important to remember that char represents a Unicode Scalar Value, and may not match your idea of what a 'character' is. Iteration over grapheme clusters may be what you actually want."
+            commitMsg: "${tooLongCommitMessage}"
           }) {
             fileUuid
             filename
@@ -4931,7 +4932,8 @@ describe('component', () => {
     expect(showFileRevisions[2].uuid).toBe(threeRevFileFileTestUuid2);
     expect(showFileRevisions[2].filename).toBe(filename2);
     expect(showFileRevisions[2].revision).toBe(3);
-    expect(showFileRevisions[2].commitMsg).toBe("Very long message to test the length limit of 225 characters. It's important to remember that char represents a Unicode Scalar Value, and may not match your idea of what a 'character' is. Iteration over grapheme clusters m...");
+    expect(showFileRevisions[2].commitMsg.length).toBe(500);
+    expect(showFileRevisions[2].commitMsg.endsWith('...')).toBe(true);
     expect(showFileRevisions.length).toBe(3);
     await setFlagDeleteAsOldRevDb(threeRevFileFileTestUuid2);
     done();
@@ -6381,7 +6383,7 @@ describe('component', () => {
               componentModificationUuid: "${componentModificationUuidFirst}"
               args: {
                 modificationName: "${nameModificationForUpdate}"
-                description: "${veryLongDescriptionModification}"
+                description: "${tooLongDescriptionModification}"
                 actualStatusId: ${actualStatusModificationIdForUpdate}
               }
             )
@@ -6392,7 +6394,7 @@ describe('component', () => {
     // expect(body).toBe(0);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      'BadRequest: Text must be less than 50000 bit (~25000 symbols)'
+      'BadRequest: Text must be less than 50000 characters'
     );
     expect(body.errors[0].path[0]).toBe('putComponentModificationUpdate');
     done();

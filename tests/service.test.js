@@ -31,6 +31,7 @@ const nameService2 = "GOST 2012 Test service 2222";
 const descriptionService2 = "Test GOST service 2222";
 const serviceStatusId2 =  3;
 const regionId2 = 5;
+const tooLongKeyword = 'я'.repeat(101);
 var serviceUuidFirst = "";
 var serviceUuidSecond = "";
 var serviceUuidSupplier = "";
@@ -2585,7 +2586,7 @@ describe('service', () => {
         query: `mutation  {
           addServiceKeywordsByNames(args: {
             serviceUuid: "${serviceUuidFirst}"
-            keywords: ["asd11","слишкомслишкомслишкомслишкомслишкомдлинноеключевоеслово","asd12345678","asd12"]
+            keywords: ["asd11","${tooLongKeyword}","asd12345678","asd12"]
           })
         }`,
       })
@@ -2593,7 +2594,7 @@ describe('service', () => {
     debug('/graphql addServiceKeywordsByNames=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      "BadRequest: Text must be less than 100 bit (~50 symbols)"
+      "BadRequest: Text must be less than 100 characters"
     );
     expect(body.errors[0].path[0]).toBe('addServiceKeywordsByNames');
     done();

@@ -18,7 +18,7 @@ pub(crate) fn update_standard_data(
     if data
         .description
         .as_ref()
-        .map(|d| d.len())
+        .map(|d| d.chars().count())
         .unwrap_or_default()
         > 50000
     {

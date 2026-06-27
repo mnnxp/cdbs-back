@@ -1,3 +1,4 @@
+use crate::errors::err_msg::{get_err_msg, ErrorMessage};
 use crate::errors::{ServiceError, ServiceResult};
 use crate::models::relate_ref::file::{
     commit::Commit,
@@ -21,6 +22,11 @@ pub(crate) fn add_certificate(
     domain: &str,
     conn: &mut PgConnection,
 ) -> ServiceResult<UploadFile> {
+    // update data validation
+    if cert_data.description.chars().count() > 500 {
+        return Err(get_err_msg(ErrorMessage::TextMustLess(500)));
+    }
+
     let slim_file = preregister_file(
         logged_user_uuid,
         ListObject::UserCertificate(*logged_user_uuid),
@@ -32,7 +38,7 @@ pub(crate) fn add_certificate(
     let new_user_certificate = InsertableUserCertificate {
         file_uuid: slim_file.uuid,
         user_uuid: *logged_user_uuid,
-        description: cert_data.description.to_string(),
+        description: cert_data.description.clone(),
     };
 
     let user_inserted_certificate = diesel::insert_into(user_certificate_ref)

@@ -963,11 +963,11 @@ describe('discussion', () => {
   });
 
   // Test 16: Limit message_content length (Latin)
-  it('should prevent message_content exceeding 4000 bytes (latin characters)', async () => {
+  it('should prevent message_content exceeding 5001 characters', async () => {
     const longMessageData = {...testDiscussionCommentData };
     longMessageData.objectDiscussion.objectUuid = companyUuidSupplier;
     longMessageData.objectDiscussion.toObject = ToObject.COMPANY;
-    longMessageData.messageContent = 'a'.repeat(6001);
+    longMessageData.messageContent = 'a'.repeat(5001);
 
     const response = await fetch(api, {
       method: 'POST',
@@ -985,15 +985,15 @@ describe('discussion', () => {
       }),
     });
     const jsonData = await response.json();
-    expect(jsonData.errors[0].message).toBe('BadRequest: Text must be less than 5000 bit (~2500 symbols)');
+    expect(jsonData.errors[0].message).toBe('BadRequest: Text must be less than 5000 characters');
   });
 
   // Test 17: Limit message_content length (non-Latin characters)
-  it('should prevent message_content exceeding 4000 bytes (non-latin characters)', async () => {
+  it('should prevent message_content exceeding 5001 non-latin characters', async () => {
     const longMessageData = {...testDiscussionCommentData };
     longMessageData.objectDiscussion.objectUuid = companyUuidSupplier;
     longMessageData.objectDiscussion.toObject = ToObject.COMPANY;
-    longMessageData.messageContent = 'я'.repeat(6001);
+    longMessageData.messageContent = 'я'.repeat(5001);
 
     const response = await fetch(api, {
       method: 'POST',
@@ -1011,7 +1011,7 @@ describe('discussion', () => {
       }),
     });
     const jsonData = await response.json();
-    expect(jsonData.errors[0].message).toBe('BadRequest: Text must be less than 5000 bit (~2500 symbols)');
+    expect(jsonData.errors[0].message).toBe('BadRequest: Text must be less than 5000 characters');
   });
 
   // Test 18: Specified discussionUuid not related to parent_comment_uuid

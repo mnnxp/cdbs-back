@@ -122,6 +122,7 @@ const descriptionCertificateTest = "test desctiption for certificate";
 const descriptionCertificateUpdateTest = "test of the test description";
 const badFilenameCertificateTest = "name* file/ certificate.pdf";
 const goodFilenameCertificateTest = "name file certificate.pdf";
+const tooLongCertificateDescription = '中'.repeat(501);
 
 var fileCertificateTestUuid = "";
 
@@ -1409,6 +1410,33 @@ describe('users', () => {
     done();
   });
 
+  it('/graphql:M UserCertificate - BadRequest description too long (upload)', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenUserFirst}`
+      )
+      .send({
+        query: `mutation {
+          uploadUserCertificate(certData: {
+            description: "${tooLongCertificateDescription}"
+            filename: "${badFilenameCertificateTest}"
+          }) {
+            fileUuid
+            filename
+            uploadUrl
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql - body=%o', body);
+    const { errors, data } = body;
+    expect(data).toBeNull();
+    expect(errors[0].message).toBe("BadRequest: Text must be less than 500 characters");
+    done();
+  });
+
   it('/graphql:M UserCertificate - Ok', async (done) => {
     const { body } = await agent
       .post('/graphql')
@@ -1507,6 +1535,29 @@ describe('users', () => {
       'BadRequest: Token not found'
     );
     expect(body.errors[0].path[0]).toBe('updateUserCertificate');
+    done();
+  });
+
+  it('/graphql:M updateUserCertificate - BadRequest description too long', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenUserFirst}`
+      )
+      .send({
+        query: `mutation {
+          updateUserCertificate(args: {
+            fileUuid: "${fileCertificateTestUuid}"
+            description: "${tooLongCertificateDescription}"
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql - body=%o', body);
+    const { errors, data } = body;
+    expect(data).toBeNull();
+    expect(errors[0].message).toBe("BadRequest: Text must be less than 500 characters");
     done();
   });
 

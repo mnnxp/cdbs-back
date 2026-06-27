@@ -13,8 +13,8 @@ pub(crate) fn update_certificate_description(
     conn: &mut PgConnection,
 ) -> ServiceResult<bool> {
     // update data validation
-    if data.description.len() > 250 {
-        return Err(get_err_msg(ErrorMessage::TextMustLess(250)));
+    if data.description.chars().count() > 500 {
+        return Err(get_err_msg(ErrorMessage::TextMustLess(500)));
     }
 
     // update column description
@@ -27,7 +27,7 @@ pub(crate) fn update_certificate_description(
             ),
         ),
     )
-    .set(user_certificate_ref::description.eq(data.description.to_string()))
+    .set(user_certificate_ref::description.eq(data.description.clone()))
     .execute(conn);
 
     match res {
