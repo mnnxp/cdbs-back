@@ -59,9 +59,9 @@ pub(crate) struct DiscussionCommentList {
     pub(crate) author_uuid: Uuid,
     /// Comment content
     pub(crate) message_content: String,
-    /// Сomment editing indicator
+    /// Comment editing indicator
     pub(crate) is_edited: bool,
-    /// Сomment hiding indicator
+    /// Comment hiding indicator
     pub(crate) is_hidden: bool,
     /// Comment creation date
     pub(crate) created_at: NaiveDateTime,

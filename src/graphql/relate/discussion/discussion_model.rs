@@ -124,9 +124,9 @@ pub(crate) struct DiscussionCommentData {
     pub(crate) author: ShowUserShort,
     /// Content of the comment message
     pub(crate) message_content: String,
-    /// Сomment editing indicator
+    /// Comment editing indicator
     pub(crate) is_edited: bool,
-    /// Сomment hiding indicator
+    /// Comment hiding indicator
     pub(crate) is_hidden: bool,
     /// Comment creation date
     pub(crate) created_at: NaiveDateTime,
@@ -161,12 +161,12 @@ impl DiscussionCommentData {
         &self.message_content
     }
 
-    /// Сomment editing indicator
+    /// Comment editing indicator
     async fn is_edited(&self) -> &bool {
         &self.is_edited
     }
 
-    /// Сomment hiding indicator
+    /// Comment hiding indicator
     async fn is_hidden(&self) -> &bool {
         &self.is_hidden
     }
