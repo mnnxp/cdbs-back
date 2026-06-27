@@ -1,6 +1,7 @@
 use super::{get_vec_in_string, model::ObjectUuid};
 use crate::errors::{ServiceError, ServiceResult};
-use diesel::prelude::*;
+use diesel::{PgConnection, RunQueryDsl, sql_query};
+use diesel::sql_types::Text;
 use uuid::Uuid;
 
 pub(crate) struct Filter {
@@ -52,19 +53,21 @@ pub(crate) fn objects_search(
     let query = format!("
     SELECT uuid
     FROM {from}
-    WHERE {to_tsvector} @@ websearch_to_tsquery('{search}')
+    WHERE {to_tsvector} @@ websearch_to_tsquery($1)
     {filter}
     LIMIT 1000;",
         from = from,
         to_tsvector = to_tsvector,
-        search = search,
         filter = filter.get_complete(),
     );
     debug!("SQL search query: {}", query);
 
-    let temp: Vec<ObjectUuid> = diesel::sql_query(query).load(conn).map_err(|err| {
-        debug!("Failed search: {:?}", err);
-        ServiceError::InternalServerError
-    })?;
+    let temp: Vec<ObjectUuid> = sql_query(query)
+        .bind::<Text, _>(search)
+        .load(conn)
+        .map_err(|err| {
+            debug!("Failed search: {:?}", err);
+            ServiceError::InternalServerError
+        })?;
     Ok(ObjectUuid::get_uuids(&temp))
 }
