@@ -82,28 +82,21 @@ impl SpecTranslateList {
             return SpecTranslateList::get(set_lang_id, paginate, conn)
         }
 
-        let mut query = spec_translate_list::spec_translate_list.into_boxed();
-        query = match target_specs_ids.is_empty() {
-            true => query.filter(spec_translate_list::lang_id.eq(set_lang_id)),
-            false if target_specs_ids.len() > 1 => {
-                let order_clause = diesel::dsl::sql::<diesel::sql_types::Integer>(
-                    &format!("array_position(ARRAY{:?}::integer[], spec_id)", target_specs_ids)
-                );
-                query.filter(spec_translate_list::lang_id.eq(set_lang_id)
-                    .and(spec_translate_list::spec_id.eq_any(target_specs_ids)))
-                    .order(order_clause)
-            },
-            false => query.filter(spec_translate_list::lang_id.eq(set_lang_id)
-                .and(spec_translate_list::spec_id.eq_any(target_specs_ids))),
-        };
-        query
+        let mut specs = spec_translate_list::spec_translate_list
+            .filter(spec_translate_list::lang_id.eq(set_lang_id)
+                .and(spec_translate_list::spec_id.eq_any(target_specs_ids)))
             .limit(paginate.limit)
             .offset(paginate.offset)
             .load::<SpecTranslateList>(conn)
             .map_err(|err| {
                 debug!("Failed to get specs: {:?}", err);
                 ServiceError::InternalServerError
-            })
+            })?;
+
+        specs.sort_by_key(|s| {
+            target_specs_ids.iter().position(|&id| id == s.spec_id).unwrap_or(usize::MAX)
+        });
+        Ok(specs)
     }
 
     /// Gets specs list by parent ids with/witout filter
