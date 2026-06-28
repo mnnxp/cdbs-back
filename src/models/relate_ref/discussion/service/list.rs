@@ -106,7 +106,7 @@ mod tests {
         let result = filter_discussion(&mut discussion_uuids, &filter_discuss_uuids);
 
         // Assert
-        assert!(result == false);
+        assert!(!result);
         assert_eq!(discussion_uuids.len(), 3); // List must not change
     }
 
@@ -121,7 +121,7 @@ mod tests {
         let result = filter_discussion(&mut discussion_uuids, &filter_discuss_uuids);
 
         // Assert
-        assert!(result == true);
+        assert!(result);
         assert_eq!(discussion_uuids.len(), 1); // List must contain only one item
         assert_eq!(discussion_uuids[0], filter_discuss_uuid);
     }
@@ -138,7 +138,7 @@ mod tests {
         let result = filter_discussion(&mut discussion_uuids, &filter_discuss_uuids);
 
         // Assert
-        assert!(result == true);
+        assert!(result);
         assert_eq!(discussion_uuids.len(), 2); // List must contain two items
         assert!(discussion_uuids.contains(&filter_discuss_uuid1));
         assert!(discussion_uuids.contains(&filter_discuss_uuid2));
@@ -155,7 +155,7 @@ mod tests {
         let result = filter_discussion(&mut discussion_uuids, &filter_discuss_uuids);
 
         // Assert
-        assert!(result == true);
+        assert!(result);
         assert_eq!(discussion_uuids.len(), 0); // List must be empty
     }
 }

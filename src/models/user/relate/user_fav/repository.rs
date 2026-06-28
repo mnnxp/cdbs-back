@@ -42,7 +42,7 @@ impl ShowUserShort {
                         .like(pattern.clone())
                         .or(user_ref::firstname.like(pattern.clone()))
                         .or(user_ref::lastname.like(pattern.clone()))
-                        .or(user_ref::email.like(pattern.clone())),
+                        .or(user_ref::email.like(pattern)),
                 );
             }
         }
@@ -99,7 +99,7 @@ impl ShowUserShort {
                         .like(pattern.clone())
                         .or(user_ref::firstname.like(pattern.clone()))
                         .or(user_ref::lastname.like(pattern.clone()))
-                        .or(user_ref::email.like(pattern.clone())),
+                        .or(user_ref::email.like(pattern)),
                 );
             }
         }
