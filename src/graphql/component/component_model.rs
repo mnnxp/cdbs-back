@@ -211,8 +211,14 @@ impl ComponentAndRelatedData {
         let p = paginate
             .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
             .unwrap_or_default();
-        ShowFileRelatedData::by_component_uuid(&self.uuid, &s, &p, &extract_client_domain(cxt), conn)
-            .expect("Error loading component files")
+        ShowFileRelatedData::by_component_uuid(
+            &self.uuid,
+            &s,
+            &p,
+            &extract_client_domain(cxt),
+            conn,
+        )
+        .expect("Error loading component files")
     }
 
     /// Returns the total number of files in the component (without filters)
@@ -613,8 +619,15 @@ impl ComponentModificationAndRelatedData {
             .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
             .unwrap_or_default();
         let conn: &mut PooledConnection = &mut get_conn(cxt).expect("Error get conn to DB");
-        ShowFileRelatedData::get_component_modification_files_offsec(&self.uuid, &[], &s, &p, &extract_client_domain(cxt), conn)
-            .expect("Error loading files of component modification")
+        ShowFileRelatedData::get_component_modification_files_offsec(
+            &self.uuid,
+            &[],
+            &s,
+            &p,
+            &extract_client_domain(cxt),
+            conn,
+        )
+        .expect("Error loading files of component modification")
     }
 
     /// Returns the total number of files in the modification (without filters)
@@ -657,8 +670,15 @@ impl FilesetProgramRelatedData {
             .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
             .unwrap_or_default();
         let conn: &mut PooledConnection = &mut get_conn(cxt).expect("Error get conn to DB");
-        ShowFileRelatedData::get_files_of_fileset_offsec(&self.uuid, &[], &s, &p, &extract_client_domain(cxt), conn)
-            .expect("Error loading files of fileset")
+        ShowFileRelatedData::get_files_of_fileset_offsec(
+            &self.uuid,
+            &[],
+            &s,
+            &p,
+            &extract_client_domain(cxt),
+            conn,
+        )
+        .expect("Error loading files of fileset")
     }
 
     /// Returns the total number of files in the fileset (without filters)

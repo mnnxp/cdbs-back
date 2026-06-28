@@ -89,11 +89,11 @@ pub(crate) fn get_components_by_uuids(
     for ct_uuid in found_component_uuids {
         // check access user for select component
         match check_permission(
-                &options.logged_user_uuid,
-                AccessEntity::Component,
-                &ct_uuid,
-                AccessOperation::Read,
-                conn,
+            &options.logged_user_uuid,
+            AccessEntity::Component,
+            &ct_uuid,
+            AccessOperation::Read,
+            conn,
         ) {
             Ok(true) => ct_uuids_with_check.push(ct_uuid),
             err => debug!("Bad access (get_list_by_uuids): {:?}", err),

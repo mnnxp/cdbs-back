@@ -5,23 +5,23 @@ extern crate serde_derive;
 #[macro_use]
 extern crate log;
 
+mod auth;
 mod cli_args;
 mod config;
 mod database;
 mod errors;
 mod graphql;
-mod auth;
+mod macros;
 mod models;
 mod schema;
 mod storage;
-mod macros;
 
-use actix_cors::Cors;
-use actix_web::middleware::Logger;
-use actix_web::http::header;
-use actix_web::{web::Data, App, HttpServer};
 use crate::database::pool::establish_connection;
 use crate::graphql::handler::build_schema;
+use actix_cors::Cors;
+use actix_web::http::header;
+use actix_web::middleware::Logger;
+use actix_web::{web::Data, App, HttpServer};
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -48,7 +48,8 @@ async fn main() -> std::io::Result<()> {
     let port = opt.port;
 
     // Parse allowed origins from comma-separated env var
-    let allowed_origins: Vec<String> = opt.allowed_origins
+    let allowed_origins: Vec<String> = opt
+        .allowed_origins
         .split(',')
         .map(|s| s.trim().to_string())
         .collect();
@@ -58,9 +59,7 @@ async fn main() -> std::io::Result<()> {
         let origins = allowed_origins.clone();
         // Configure CORS: restrict origins, methods, and headers
         let cors = Cors::default()
-            .allowed_origin_fn(move |origin, _req| {
-                origins.iter().any(|allowed| origin == allowed)
-            })
+            .allowed_origin_fn(move |origin, _req| origins.iter().any(|allowed| origin == allowed))
             .allowed_methods(vec!["OPTIONS", "POST"])
             .allowed_headers(vec![
                 header::AUTHORIZATION,

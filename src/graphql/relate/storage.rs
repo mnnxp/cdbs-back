@@ -1,3 +1,4 @@
+use crate::auth::AuthContext;
 use crate::database::{get_conn, get_pool, PooledConnection};
 use crate::errors::ServiceResult;
 use crate::graphql::file::ShowFileRelatedData;
@@ -10,7 +11,6 @@ use crate::models::relate_ref::file::{
     service::update::{confirm_upload, set_active_revision_by_uuid},
 };
 use crate::models::search::order::Paginate;
-use crate::auth::AuthContext;
 use async_graphql::{self, Context, Object};
 use uuid::Uuid;
 
@@ -34,7 +34,12 @@ impl StorageQuery {
 
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        get_url_by_file_uuid(&logged_user_uuid, &file_uuid, &extract_client_domain(cxt), conn)
+        get_url_by_file_uuid(
+            &logged_user_uuid,
+            &file_uuid,
+            &extract_client_domain(cxt),
+            conn,
+        )
     }
 
     /// Returns information about all revisions (versions) of a file.
@@ -53,7 +58,7 @@ impl StorageQuery {
             &AuthContext::from_graphql(cxt)?.user_uuid(),
             &p,
             &extract_client_domain(cxt),
-            conn
+            conn,
         )
     }
 }

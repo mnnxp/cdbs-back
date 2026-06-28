@@ -6,13 +6,20 @@ use super::{
     relate::util::{count_companies_for_user, count_components_for_user, count_standards_for_user},
     user_fav::model::UserFav,
 };
-use crate::{auth::{require_permission, AccessEntity, AccessOperation}, models::{
-    company::company_fav::model::CompanyFav, component::component_fav::model::ComponentFav, relate_ref::{
-        file::model::DownloadFile, program::model::Program, region::model::RegionTranslateList,
-        type_access::model::TypeAccessTranslateList,
-    }, search::model::ExtraOptions, standard::standard_fav::model::StandardFav
-}};
 use crate::schema::user_ref::dsl as user_ref;
+use crate::{
+    auth::{require_permission, AccessEntity, AccessOperation},
+    models::{
+        company::company_fav::model::CompanyFav,
+        component::component_fav::model::ComponentFav,
+        relate_ref::{
+            file::model::DownloadFile, program::model::Program, region::model::RegionTranslateList,
+            type_access::model::TypeAccessTranslateList,
+        },
+        search::model::ExtraOptions,
+        standard::standard_fav::model::StandardFav,
+    },
+};
 use crate::{
     errors::{ServiceError, ServiceResult},
     models::search::order::Paginate,
@@ -149,7 +156,7 @@ impl ShowUserShort {
     }
 
     /// get ShowUserShort data of public users with filter by user_uuids
-        pub(crate) fn get_all_public_users(
+    pub(crate) fn get_all_public_users(
         search: &Option<String>,
         exclude_uuids: &Option<Vec<Uuid>>,
         paginate: &Paginate,
@@ -167,10 +174,11 @@ impl ShowUserShort {
             if !search_text.is_empty() {
                 let pattern = format!("%{}%", search_text);
                 query = query.filter(
-                    user_ref::username.like(pattern.clone())
+                    user_ref::username
+                        .like(pattern.clone())
                         .or(user_ref::firstname.like(pattern.clone()))
                         .or(user_ref::lastname.like(pattern.clone()))
-                        .or(user_ref::email.like(pattern.clone()))
+                        .or(user_ref::email.like(pattern.clone())),
                 );
             }
         }
@@ -188,7 +196,7 @@ impl ShowUserShort {
                 user_ref::firstname,
                 user_ref::lastname,
                 user_ref::username,
-                user_ref::image_file_uuid
+                user_ref::image_file_uuid,
             ))
             .limit(paginate.limit)
             .offset(paginate.offset)
@@ -202,7 +210,11 @@ impl ShowUserShort {
         let mut users_with_image: Vec<ShowUserShort> = Vec::new();
         for user in users.iter() {
             let mut data = ShowUserShort::new(user);
-            data.put_image_file(DownloadFile::get_by_file_uuid(&user.image_file_uuid, domain, conn)?);
+            data.put_image_file(DownloadFile::get_by_file_uuid(
+                &user.image_file_uuid,
+                domain,
+                conn,
+            )?);
 
             users_with_image.push(data);
         }
@@ -238,12 +250,13 @@ impl UserAndRelatedData {
         conn: &mut PgConnection,
     ) -> ServiceResult<UserAndRelatedData> {
         // collect data for user
-        let user: UserQuery =
-            UserQuery::get_user_by_uuid(&options.logged_user_uuid, conn).expect("Error loading user");
+        let user: UserQuery = UserQuery::get_user_by_uuid(&options.logged_user_uuid, conn)
+            .expect("Error loading user");
 
         // get image file (favicon) for user
-        let image_file = DownloadFile::get_by_file_uuid(&user.image_file_uuid, &options.domain, conn)
-            .expect("Error loading user file");
+        let image_file =
+            DownloadFile::get_by_file_uuid(&user.image_file_uuid, &options.domain, conn)
+                .expect("Error loading user file");
 
         // get region for user
         let region: RegionTranslateList =
@@ -255,9 +268,12 @@ impl UserAndRelatedData {
             Program::get_program_by_id(user.program_id, conn).expect("Error get set program");
 
         // get type access set for user profile
-        let type_access: TypeAccessTranslateList =
-            TypeAccessTranslateList::get_type_access_by_id(user.type_access_id, options.set_lang_id, conn)
-                .expect("Error get set type access");
+        let type_access: TypeAccessTranslateList = TypeAccessTranslateList::get_type_access_by_id(
+            user.type_access_id,
+            options.set_lang_id,
+            conn,
+        )
+        .expect("Error get set type access");
 
         // count subscribers user
         let subscribers: i32 = UserFav::get_count_followers_by_uuid(&user.uuid, conn)?;
@@ -280,8 +296,9 @@ impl UserAndRelatedData {
             .expect("Error get count standards_count");
 
         // counting companies in a user's favorite
-        let fav_companies_count: i32 = CompanyFav::get_count_by_user_uuid(&options.logged_user_uuid, conn)
-            .expect("Error get count fav_companies_count");
+        let fav_companies_count: i32 =
+            CompanyFav::get_count_by_user_uuid(&options.logged_user_uuid, conn)
+                .expect("Error get count fav_companies_count");
 
         // counting components in a user's favorite
         let fav_components_count: i32 =
@@ -289,12 +306,14 @@ impl UserAndRelatedData {
                 .expect("Error get count fav_components_count");
 
         // counting standards in a user's favorite
-        let fav_standards_count: i32 = StandardFav::get_count_by_user_uuid(&options.logged_user_uuid, conn)
-            .expect("Error get count fav_standards_count");
+        let fav_standards_count: i32 =
+            StandardFav::get_count_by_user_uuid(&options.logged_user_uuid, conn)
+                .expect("Error get count fav_standards_count");
 
         // counting users in a user's favorite
-        let fav_users_count: i32 = UserFav::get_count_favorites_by_uuid(&options.logged_user_uuid, conn)
-            .expect("Error get count fav_users_count");
+        let fav_users_count: i32 =
+            UserFav::get_count_favorites_by_uuid(&options.logged_user_uuid, conn)
+                .expect("Error get count fav_users_count");
 
         Ok(UserAndRelatedData {
             uuid: user.uuid,
@@ -340,8 +359,9 @@ impl ShowUserAndRelatedData {
             UserQuery::get_user_by_uuid(target_user_uuid, conn).expect("Error loading user");
 
         // get image file (favicon) for user
-        let image_file = DownloadFile::get_by_file_uuid(&user.image_file_uuid, &options.domain, conn)
-            .expect("Error loading user file");
+        let image_file =
+            DownloadFile::get_by_file_uuid(&user.image_file_uuid, &options.domain, conn)
+                .expect("Error loading user file");
 
         // get region for user
         let region: RegionTranslateList =
@@ -402,10 +422,6 @@ impl ShowUserAndRelatedData {
         )?;
 
         // collect data for user
-        ShowUserAndRelatedData::collect_related_data(
-            target_user_uuid,
-            options,
-            conn,
-        )
+        ShowUserAndRelatedData::collect_related_data(target_user_uuid, options, conn)
     }
 }

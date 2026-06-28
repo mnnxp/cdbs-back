@@ -1,5 +1,5 @@
 use crate::errors::err_msg::{get_err_msg, ErrorMessage};
-use crate::errors::{ServiceResult, ServiceError};
+use crate::errors::{ServiceError, ServiceResult};
 use crate::models::company::access::util::check_is_owner_with_err;
 use crate::models::company::member::role::model::DelRoleMemberData;
 use crate::schema::company_member_list;
@@ -21,8 +21,11 @@ pub(crate) fn del_role_member(
     // Check if any members are still assigned to this role
     let has_members = company_member_list::table
         .select(company_member_list::role_id)
-        .filter(company_member_list::role_id.eq(&data.role_id)
-            .and(company_member_list::company_uuid.eq(&data.company_uuid)))
+        .filter(
+            company_member_list::role_id
+                .eq(&data.role_id)
+                .and(company_member_list::company_uuid.eq(&data.company_uuid)),
+        )
         .first::<i32>(conn)
         .optional() // Returns Ok(None) instead of Err(NotFound)
         .map_err(|e| {
@@ -41,7 +44,7 @@ pub(crate) fn del_role_member(
     let deleted_rows = diesel::delete(
         role_member_list::table
             .filter(role_member_list::id.eq(&data.role_id))
-            .filter(role_member_list::company_uuid.eq(&data.company_uuid))
+            .filter(role_member_list::company_uuid.eq(&data.company_uuid)),
     )
     .execute(conn)
     .map_err(|err| {

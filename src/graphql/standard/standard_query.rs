@@ -1,3 +1,5 @@
+use crate::auth::token::logged::check_authorized;
+use crate::auth::AuthContext;
 use crate::database::{get_conn, PooledConnection};
 use crate::errors::ServiceResult;
 use crate::graphql::handler::extract_client_domain;
@@ -17,8 +19,6 @@ use crate::models::standard::{
     model::{StandardFilesArg, StandardsArg},
     relate::standard_status::model::StandardStatusTranslateList,
 };
-use crate::auth::token::logged::check_authorized;
-use crate::auth::AuthContext;
 use async_graphql::{self, Context, Object};
 use uuid::Uuid;
 
@@ -81,7 +81,13 @@ impl StandardQuery {
             .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
             .unwrap_or_default();
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
-        get_standard_files(&logged_user_uuid, &arguments, &p, &extract_client_domain(cxt),  conn)
+        get_standard_files(
+            &logged_user_uuid,
+            &arguments,
+            &p,
+            &extract_client_domain(cxt),
+            conn,
+        )
     }
 
     /// Returns an array of catalogs associated with standard

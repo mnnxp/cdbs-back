@@ -1,4 +1,5 @@
 use super::attributes::IptPaginate;
+use crate::auth::token::logged::check_authorized;
 use crate::database::{get_conn, PooledConnection};
 use crate::errors::ServiceResult;
 use crate::models::relate_ref::license::{
@@ -7,7 +8,6 @@ use crate::models::relate_ref::license::{
     service::register::create_license,
 };
 use crate::models::search::order::Paginate;
-use crate::auth::token::logged::check_authorized;
 use async_graphql::{self, Context, Object};
 
 #[derive(Default)]

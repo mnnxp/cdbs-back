@@ -1,6 +1,6 @@
+use crate::config;
 use crate::errors::err_msg::{get_err_msg, ErrorMessage};
 use crate::errors::ServiceResult;
-use crate::config;
 use diesel::prelude::*;
 use uuid::Uuid;
 

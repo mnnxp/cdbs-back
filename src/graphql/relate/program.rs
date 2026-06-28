@@ -1,5 +1,6 @@
 use async_graphql::{self, Context, Object};
 
+use crate::auth::token::logged::check_authorized;
 use crate::database::{get_conn, PooledConnection};
 use crate::errors::ServiceResult;
 use crate::models::relate_ref::program::{
@@ -8,7 +9,6 @@ use crate::models::relate_ref::program::{
     service::register::create_program,
 };
 use crate::models::search::order::Paginate;
-use crate::auth::token::logged::check_authorized;
 
 use super::attributes::IptPaginate;
 

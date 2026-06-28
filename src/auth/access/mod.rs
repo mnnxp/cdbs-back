@@ -3,13 +3,8 @@
 
 mod cache;
 pub(crate) use cache::{
-    check_component_access,
-    check_standard_access,
-    check_service_access,
-    check_company_access,
-    invalidate_access,
-    invalidate_user_cache,
-    invalidate_object_cache,
+    check_company_access, check_component_access, check_service_access, check_standard_access,
+    invalidate_access, invalidate_object_cache, invalidate_user_cache,
 };
 
 use crate::errors::ServiceResult;
@@ -28,8 +23,8 @@ use crate::models::supplier_service::access::util::{
     check_is_owner as service_owner, get_access_type_service, get_companies_have_access_to_service,
 };
 use crate::schema::user_access_to_component::dsl as user_access_to_component;
-use crate::schema::user_access_to_standard::dsl as user_access_to_standard;
 use crate::schema::user_access_to_service::dsl as user_access_to_service;
+use crate::schema::user_access_to_standard::dsl as user_access_to_standard;
 use diesel::prelude::*;
 use uuid::Uuid;
 
@@ -93,7 +88,7 @@ pub(crate) fn get_component_access(
                 has_access: true,
                 access_level: Some(3),
                 source: AccessSource::Public,
-            })
+            });
         }
     }
 
@@ -111,9 +106,15 @@ fn get_direct_component_access(
     conn: &mut PgConnection,
 ) -> ServiceResult<Option<i32>> {
     let level = user_access_to_component::user_access_to_component
-        .filter(user_access_to_component::component_uuid.eq(component_uuid)
-            .and(user_access_to_component::user_uuid.eq(user_uuid)
-            .and(user_access_to_component::is_enabled.eq(true))))
+        .filter(
+            user_access_to_component::component_uuid
+                .eq(component_uuid)
+                .and(
+                    user_access_to_component::user_uuid
+                        .eq(user_uuid)
+                        .and(user_access_to_component::is_enabled.eq(true)),
+                ),
+        )
         .select(user_access_to_component::type_access_id)
         .first(conn)
         .optional()?;
@@ -175,7 +176,7 @@ pub(crate) fn get_standard_access(
                 has_access: true,
                 access_level: Some(3),
                 source: AccessSource::Public,
-            })
+            });
         }
     }
 
@@ -192,9 +193,15 @@ fn get_direct_standard_access(
     conn: &mut PgConnection,
 ) -> ServiceResult<Option<i32>> {
     let level = user_access_to_standard::user_access_to_standard
-        .filter(user_access_to_standard::standard_uuid.eq(standard_uuid)
-            .and(user_access_to_standard::user_uuid.eq(user_uuid)
-            .and(user_access_to_standard::is_enabled.eq(true))))
+        .filter(
+            user_access_to_standard::standard_uuid
+                .eq(standard_uuid)
+                .and(
+                    user_access_to_standard::user_uuid
+                        .eq(user_uuid)
+                        .and(user_access_to_standard::is_enabled.eq(true)),
+                ),
+        )
         .select(user_access_to_standard::type_access_id)
         .first(conn)
         .optional()?;
@@ -255,7 +262,7 @@ pub(crate) fn get_service_access(
                 has_access: true,
                 access_level: Some(3),
                 source: AccessSource::Public,
-            })
+            });
         }
     }
 
@@ -272,9 +279,13 @@ fn get_direct_service_access(
     conn: &mut PgConnection,
 ) -> ServiceResult<Option<i32>> {
     let level = user_access_to_service::user_access_to_service
-        .filter(user_access_to_service::service_uuid.eq(service_uuid)
-            .and(user_access_to_service::user_uuid.eq(user_uuid)
-            .and(user_access_to_service::is_enabled.eq(true))))
+        .filter(
+            user_access_to_service::service_uuid.eq(service_uuid).and(
+                user_access_to_service::user_uuid
+                    .eq(user_uuid)
+                    .and(user_access_to_service::is_enabled.eq(true)),
+            ),
+        )
         .select(user_access_to_service::type_access_id)
         .first(conn)
         .optional()?;
@@ -333,7 +344,7 @@ pub(crate) fn get_company_access(
                 has_access: true,
                 access_level: Some(3),
                 source: AccessSource::Public,
-            })
+            });
         }
     }
 

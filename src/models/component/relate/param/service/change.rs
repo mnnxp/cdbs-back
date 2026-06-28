@@ -1,8 +1,8 @@
 use crate::auth::{require_permission, AccessEntity, AccessOperation};
 use crate::errors::err_msg::{get_err_msg, ErrorMessage};
 use crate::errors::{ServiceError, ServiceResult};
-use crate::models::component::service::update::change_updated_at;
 use crate::models::component::param::model::{InsertableComponentParam, IptComponentParamsData};
+use crate::models::component::service::update::change_updated_at;
 use crate::models::relate_ref::param::model::IptParamData;
 use crate::schema::param_to_component::dsl::*;
 use diesel::prelude::*;

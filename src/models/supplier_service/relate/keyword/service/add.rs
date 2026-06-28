@@ -5,8 +5,10 @@ use crate::models::relate_ref::keyword::{
     model::{IptKeywordData, KeywordId},
     service::register::create_keyword,
 };
+use crate::models::supplier_service::keyword::model::{
+    InsertableServiceKeyword, IptServiceKeywordsData, IptServiceKeywordsNames,
+};
 use crate::models::supplier_service::service::update::change_service_updated_at;
-use crate::models::supplier_service::keyword::model::{InsertableServiceKeyword, IptServiceKeywordsData, IptServiceKeywordsNames};
 use crate::schema::keyword_to_service::dsl as keyword_to_service;
 use diesel::prelude::*;
 use uuid::Uuid;

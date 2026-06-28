@@ -49,7 +49,8 @@ pub(crate) fn add_standard_files(
 
         debug!("New standard file: {:?}", slim_file);
 
-        let upload_url = upload_presigned_url(&StorageAccess::from_env(), &slim_file.path_file, domain)?;
+        let upload_url =
+            upload_presigned_url(&StorageAccess::from_env(), &slim_file.path_file, domain)?;
 
         up_files.push(UploadFile {
             file_uuid: slim_file.uuid,
@@ -97,7 +98,8 @@ pub(crate) fn add_standard_favicon(
 
     debug!("New standard favicon: {:?}", slim_file);
 
-    let upload_url = upload_presigned_url(&StorageAccess::from_env(), &slim_file.path_file, domain)?;
+    let upload_url =
+        upload_presigned_url(&StorageAccess::from_env(), &slim_file.path_file, domain)?;
 
     Ok(UploadFile {
         file_uuid: slim_file.uuid,

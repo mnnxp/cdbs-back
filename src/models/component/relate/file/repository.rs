@@ -71,7 +71,9 @@ impl DownloadFile {
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<DownloadFile>> {
         match get_files_by_ext(component_uuid, &FileByExtArg::image(), conn) {
-            Ok(image_uuids) => DownloadFile::get_by_file_uuids(&image_uuids, paginate, domain, conn),
+            Ok(image_uuids) => {
+                DownloadFile::get_by_file_uuids(&image_uuids, paginate, domain, conn)
+            }
             Err(err) => {
                 debug!("Error get files by ext: {}", err);
                 Ok(Vec::new())

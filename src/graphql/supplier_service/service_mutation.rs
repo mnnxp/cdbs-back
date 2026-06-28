@@ -1,3 +1,4 @@
+use crate::auth::AuthContext;
 use crate::database::{get_conn, PooledConnection};
 use crate::errors::ServiceResult;
 use crate::graphql::handler::extract_client_domain;
@@ -27,7 +28,6 @@ use crate::models::supplier_service::{
     spec::model::IptServiceSpecsData,
     spec::service::{add::add_service_specs, delete::del_service_specs},
 };
-use crate::auth::AuthContext;
 use crate::models::user::model::IptUserData;
 use crate::models::user::service::register::create_user;
 use async_graphql::{self, Context, Object};

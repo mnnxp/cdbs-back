@@ -1,13 +1,13 @@
+use crate::auth::jwt::model::Token;
 use crate::cli_args::Opt;
 use crate::database::Pool;
 use crate::graphql::{MutationRoot, QueryRoot};
-use crate::auth::jwt::model::Token;
 use crate::models::relate_ref::language::model::SetLang;
-use actix_web::{web, HttpRequest, HttpResponse, Result};
 use actix_web::http::header::{HeaderMap, HOST, ORIGIN};
+use actix_web::{web, HttpRequest, HttpResponse, Result};
 use async_graphql::{
     http::{playground_source, GraphQLPlaygroundConfig},
-    EmptySubscription, Schema, Context
+    Context, EmptySubscription, Schema,
 };
 use async_graphql_actix_web::{GraphQLRequest, GraphQLResponse};
 
@@ -75,12 +75,13 @@ impl From<&HeaderMap> for ClientDomain {
             .map(|s| {
                 // Remove protocol and port
                 s.replace("https://", "")
-                .replace("http://", "")
-                .split(':')
-                .next()
-                .unwrap_or(s)
-                .to_string()
-            }).unwrap_or_default();
+                    .replace("http://", "")
+                    .split(':')
+                    .next()
+                    .unwrap_or(s)
+                    .to_string()
+            })
+            .unwrap_or_default();
         debug!("Referer: {}", domain);
         Self { domain }
     }

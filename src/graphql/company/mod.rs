@@ -4,9 +4,6 @@ pub mod company_query;
 pub use company_mutation::*;
 pub use company_query::*;
 
-use async_graphql::{Context, Object};
-use chrono::NaiveDateTime;
-use uuid::Uuid;
 use crate::auth::AuthContext;
 use crate::database::{get_conn, PooledConnection};
 use crate::errors::ServiceResult;
@@ -16,6 +13,7 @@ use crate::models::company::company_fav::model::CompanyFav;
 use crate::models::company::company_fav::util::check_subscriber_by_uuid;
 use crate::models::company::company_represent::model::CompanyRepresentAndRelatedData;
 use crate::models::company::company_type::model::CompanyTypeTranslateList;
+use crate::models::company::member::model::CompanyMemberAndRelatedData;
 use crate::models::company::member::role::model::RoleMemberAndRelatedData;
 use crate::models::company::model::{CompanyAndRelatedData, ShowCompanyShort};
 use crate::models::relate_ref::file::model::DownloadFile;
@@ -24,7 +22,9 @@ use crate::models::relate_ref::spec::model::SpecTranslateList;
 use crate::models::relate_ref::type_access::model::TypeAccessTranslateList;
 use crate::models::search::model::ExtraOptions;
 use crate::models::user::model::ShowUserShort;
-use crate::models::company::member::model::CompanyMemberAndRelatedData;
+use async_graphql::{Context, Object};
+use chrono::NaiveDateTime;
+use uuid::Uuid;
 
 /// Full company information and related data
 #[Object]
@@ -101,7 +101,10 @@ impl CompanyAndRelatedData {
     }
 
     /// Data on the company's representative offices
-    async fn company_represents(&self, cxt: &Context<'_>) -> ServiceResult<Vec<CompanyRepresentAndRelatedData>> {
+    async fn company_represents(
+        &self,
+        cxt: &Context<'_>,
+    ) -> ServiceResult<Vec<CompanyRepresentAndRelatedData>> {
         let options = ExtraOptions::from_cxt(cxt, true)?;
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
         CompanyRepresentAndRelatedData::get_by_company_uuid(&self.uuid, options.set_lang_id, conn)
@@ -111,11 +114,18 @@ impl CompanyAndRelatedData {
     async fn company_type(&self, cxt: &Context<'_>) -> ServiceResult<CompanyTypeTranslateList> {
         let options = ExtraOptions::from_cxt(cxt, true)?;
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
-        CompanyTypeTranslateList::get_company_type_by_id(self.company_type_id, options.set_lang_id, conn)
+        CompanyTypeTranslateList::get_company_type_by_id(
+            self.company_type_id,
+            options.set_lang_id,
+            conn,
+        )
     }
 
     /// List of certificates and competencies of the companies
-    async fn company_certificates(&self, cxt: &Context<'_>) -> ServiceResult<Vec<CompanyCertificateAndFile>> {
+    async fn company_certificates(
+        &self,
+        cxt: &Context<'_>,
+    ) -> ServiceResult<Vec<CompanyCertificateAndFile>> {
         let options = ExtraOptions::from_cxt(cxt, true)?;
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
         CompanyCertificateAndFile::from_company(&self.uuid, &options.domain, conn)
@@ -132,7 +142,11 @@ impl CompanyAndRelatedData {
     async fn type_access(&self, cxt: &Context<'_>) -> ServiceResult<TypeAccessTranslateList> {
         let options = ExtraOptions::from_cxt(cxt, true)?;
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
-        TypeAccessTranslateList::get_type_access_by_id(self.type_access_id, options.set_lang_id, conn)
+        TypeAccessTranslateList::get_type_access_by_id(
+            self.type_access_id,
+            options.set_lang_id,
+            conn,
+        )
     }
 
     /// Supplier status (within the platform)
@@ -213,14 +227,22 @@ impl ShowCompanyShort {
     async fn company_type(&self, cxt: &Context<'_>) -> ServiceResult<CompanyTypeTranslateList> {
         let options = ExtraOptions::from_cxt(cxt, true)?;
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
-        CompanyTypeTranslateList::get_company_type_by_id(self.company_type_id, options.set_lang_id, conn)
+        CompanyTypeTranslateList::get_company_type_by_id(
+            self.company_type_id,
+            options.set_lang_id,
+            conn,
+        )
     }
 
     /// Type of access to company profile
     async fn type_access(&self, cxt: &Context<'_>) -> ServiceResult<TypeAccessTranslateList> {
         let options = ExtraOptions::from_cxt(cxt, true)?;
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
-        TypeAccessTranslateList::get_type_access_by_id(self.type_access_id, options.set_lang_id, conn)
+        TypeAccessTranslateList::get_type_access_by_id(
+            self.type_access_id,
+            options.set_lang_id,
+            conn,
+        )
     }
 
     /// Supplier status (within the platform)
@@ -283,5 +305,4 @@ impl CompanyMemberAndRelatedData {
     async fn updated_at(&self) -> &NaiveDateTime {
         &self.updated_at
     }
-
 }

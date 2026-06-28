@@ -30,13 +30,7 @@ impl DiscussionTo {
             Self::Component(component_uuid) => (AccessEntity::Component, component_uuid),
             Self::Service(service_uuid) => (AccessEntity::Service, service_uuid),
         };
-        check_permission(
-            logged_user_uuid,
-            entity,
-            object_uuid,
-            action,
-            conn,
-        )
+        check_permission(logged_user_uuid, entity, object_uuid, action, conn)
     }
 
     pub(crate) fn get_discuss_uuids(&self, conn: &mut PgConnection) -> ServiceResult<Vec<Uuid>> {

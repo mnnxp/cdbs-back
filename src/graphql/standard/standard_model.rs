@@ -4,8 +4,8 @@ use crate::graphql::file::ShowFileRelatedData;
 use crate::graphql::handler::extract_client_domain;
 use crate::models::company::model::ShowCompanyShort;
 use crate::models::relate_ref::{
-    file::model::DownloadFile, keyword::model::Keyword,
-    spec::model::SpecTranslateList, type_access::model::TypeAccessTranslateList,
+    file::model::DownloadFile, keyword::model::Keyword, spec::model::SpecTranslateList,
+    type_access::model::TypeAccessTranslateList,
 };
 use crate::models::standard::access::company::model::CompanyAccessStandardAndRelatedData;
 use crate::models::standard::access::user::model::UserAccessStandardAndRelatedData;

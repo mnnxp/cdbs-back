@@ -34,7 +34,7 @@ fn get_spec_ids(
     spec_ids: &[i32],
     paginate: &Paginate,
     conn: &mut PgConnection,
-) -> ServiceResult<Vec<(i32,i32)>> {
+) -> ServiceResult<Vec<(i32, i32)>> {
     use crate::schema::spec_ref::dsl as spec_ref;
     let mut query = spec_ref::spec_ref.into_boxed();
     if !spec_ids.is_empty() {
@@ -44,7 +44,7 @@ fn get_spec_ids(
         .select((spec_ref::id, spec_ref::depth))
         .offset(paginate.offset)
         .limit(paginate.limit)
-        .load::<(i32,i32)>(conn)
+        .load::<(i32, i32)>(conn)
         .map_err(|err| {
             debug!("Failed get spec ids: {}", err);
             ServiceError::InternalServerError

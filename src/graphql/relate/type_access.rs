@@ -2,8 +2,7 @@ use crate::auth::permission::PermissionTranslateList;
 use crate::database::{get_conn, PooledConnection};
 use crate::errors::ServiceResult;
 use crate::models::relate_ref::{
-    language::get_set_language,
-    type_access::model::TypeAccessTranslateList,
+    language::get_set_language, type_access::model::TypeAccessTranslateList,
     type_access::service::list::get_type_access,
 };
 use crate::models::search::order::Paginate;

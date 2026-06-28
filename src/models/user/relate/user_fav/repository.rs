@@ -38,10 +38,11 @@ impl ShowUserShort {
             if !search_text.is_empty() {
                 let pattern = format!("%{}%", search_text);
                 query = query.filter(
-                    user_ref::username.like(pattern.clone())
+                    user_ref::username
+                        .like(pattern.clone())
                         .or(user_ref::firstname.like(pattern.clone()))
                         .or(user_ref::lastname.like(pattern.clone()))
-                        .or(user_ref::email.like(pattern.clone()))
+                        .or(user_ref::email.like(pattern.clone())),
                 );
             }
         }
@@ -94,10 +95,11 @@ impl ShowUserShort {
             if !search_text.is_empty() {
                 let pattern = format!("%{}%", search_text);
                 query = query.filter(
-                    user_ref::username.like(pattern.clone())
+                    user_ref::username
+                        .like(pattern.clone())
                         .or(user_ref::firstname.like(pattern.clone()))
                         .or(user_ref::lastname.like(pattern.clone()))
-                        .or(user_ref::email.like(pattern.clone()))
+                        .or(user_ref::email.like(pattern.clone())),
                 );
             }
         }

@@ -1,3 +1,4 @@
+use crate::auth::AuthContext;
 use crate::database::{get_conn, PooledConnection};
 use crate::errors::ServiceResult;
 use crate::graphql::handler::extract_client_domain;
@@ -11,7 +12,6 @@ use crate::models::standard::{
     keyword::model::{IptStandardKeywordsData, IptStandardKeywordsNames},
     spec::model::IptStandardSpecsData,
 };
-use crate::auth::AuthContext;
 use async_graphql::{self, Context, Object};
 use uuid::Uuid;
 

@@ -48,9 +48,8 @@ pub(crate) fn get_self_user_data(
     conn: &mut PgConnection,
 ) -> ServiceResult<UserAndRelatedData> {
     // collect data for user
-    let result: UserAndRelatedData =
-        UserAndRelatedData::collect_related_data(options, conn)
-            .expect("Error loading user and collect related data");
+    let result: UserAndRelatedData = UserAndRelatedData::collect_related_data(options, conn)
+        .expect("Error loading user and collect related data");
     debug!("Self user data: {:#?}", result);
     Ok(result)
 }
@@ -99,8 +98,15 @@ pub(crate) fn get_users(
         ),
         // get all public users
         (false, false) => match filter_users_uuids.is_empty() {
-            true => ShowUserShort::get_all_public_users(search, exclude_uuids, paginate, domain, conn),
-            false => ShowUserShort::get_users_by_uuids(logged_user_uuid, filter_users_uuids, domain, conn),
+            true => {
+                ShowUserShort::get_all_public_users(search, exclude_uuids, paginate, domain, conn)
+            }
+            false => ShowUserShort::get_users_by_uuids(
+                logged_user_uuid,
+                filter_users_uuids,
+                domain,
+                conn,
+            ),
         },
         (true, true) => Err(get_err_msg(ErrorMessage::FailedMatchArguments)),
     }

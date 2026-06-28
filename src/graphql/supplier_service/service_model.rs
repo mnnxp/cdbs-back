@@ -248,10 +248,14 @@ impl ShowServiceShort {
             .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
             .unwrap_or_default();
         match images {
-            Some(false) => DownloadFile::by_service_uuid(&self.uuid, &p, &extract_client_domain(cxt), conn)
-                .expect("Error loading service files"),
-            _ => DownloadFile::service_image_files(&self.uuid, &p, &extract_client_domain(cxt), conn)
-                .expect("Error loading service image files"),
+            Some(false) => {
+                DownloadFile::by_service_uuid(&self.uuid, &p, &extract_client_domain(cxt), conn)
+                    .expect("Error loading service files")
+            }
+            _ => {
+                DownloadFile::service_image_files(&self.uuid, &p, &extract_client_domain(cxt), conn)
+                    .expect("Error loading service image files")
+            }
         }
     }
 }

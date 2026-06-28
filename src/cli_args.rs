@@ -7,19 +7,35 @@ use uuid::Uuid;
 #[structopt(name = "cdbs-back")]
 pub struct Opt {
     /// Allowed CORS origins (comma-separated)
-    #[structopt(long, env = "ALLOWED_ORIGINS", default_value = "http://localhost:3000,http://127.0.0.1:3000")]
+    #[structopt(
+        long,
+        env = "ALLOWED_ORIGINS",
+        default_value = "http://localhost:3000,http://127.0.0.1:3000"
+    )]
     pub(crate) allowed_origins: String,
 
     /// Path to JWT private key
-    #[structopt(long, env = "JWT_PRIVATE_KEY", default_value = "./keys/rs256-4096-private.pem")]
+    #[structopt(
+        long,
+        env = "JWT_PRIVATE_KEY",
+        default_value = "./keys/rs256-4096-private.pem"
+    )]
     pub(crate) jwt_private_key: String,
 
     /// Path to JWT public key
-    #[structopt(long, env = "JWT_PUBLIC_KEY", default_value = "./keys/rs256-4096-public.pem")]
+    #[structopt(
+        long,
+        env = "JWT_PUBLIC_KEY",
+        default_value = "./keys/rs256-4096-public.pem"
+    )]
     pub(crate) jwt_public_key: String,
 
     /// Entry point of the GraphQL API (for display)
-    #[structopt(long, env = "API_POINT", default_value = "http://127.0.0.1:3000/graphql")]
+    #[structopt(
+        long,
+        env = "API_POINT",
+        default_value = "http://127.0.0.1:3000/graphql"
+    )]
     pub api_point: String,
 
     /// Port to listen to
@@ -80,18 +96,34 @@ pub struct Opt {
     pub(crate) s3_endpoint: String,
 
     /// Root component UUID (self-referencing parent)
-    #[structopt(long, env = "ROOT_COMPONENT_UUID", default_value = "a5953fd9-7393-4f1e-a899-06b5e159dbf1")]
+    #[structopt(
+        long,
+        env = "ROOT_COMPONENT_UUID",
+        default_value = "a5953fd9-7393-4f1e-a899-06b5e159dbf1"
+    )]
     pub(crate) root_component_uuid: Uuid,
 
     /// Root standard UUID (self-referencing parent)
-    #[structopt(long, env = "ROOT_STANDARD_UUID", default_value = "303ec2aa-2066-42e3-93fb-de4fb9344bcb")]
+    #[structopt(
+        long,
+        env = "ROOT_STANDARD_UUID",
+        default_value = "303ec2aa-2066-42e3-93fb-de4fb9344bcb"
+    )]
     pub(crate) root_standard_uuid: Uuid,
 
     /// Root modification UUID (self-referencing parent)
-    #[structopt(long, env = "ROOT_MODIFICATION_UUID", default_value = "aba22d59-4f6c-44a4-9a37-2d38f0e577a8")]
+    #[structopt(
+        long,
+        env = "ROOT_MODIFICATION_UUID",
+        default_value = "aba22d59-4f6c-44a4-9a37-2d38f0e577a8"
+    )]
     pub(crate) root_modification_uuid: Uuid,
 
     /// Default image UUID (placeholder)
-    #[structopt(long, env = "DEFAULT_IMAGE_UUID", default_value = "bc1c2151-86d0-4656-9c9d-d016dd584297")]
+    #[structopt(
+        long,
+        env = "DEFAULT_IMAGE_UUID",
+        default_value = "bc1c2151-86d0-4656-9c9d-d016dd584297"
+    )]
     pub(crate) default_image_uuid: Uuid,
 }

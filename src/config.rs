@@ -1,6 +1,6 @@
-use uuid::Uuid;
-use structopt::StructOpt;
 use crate::cli_args::Opt;
+use structopt::StructOpt;
+use uuid::Uuid;
 
 lazy_static::lazy_static! {
     static ref CONFIG: Opt = Opt::from_args();

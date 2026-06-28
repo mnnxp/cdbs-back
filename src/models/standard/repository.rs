@@ -12,8 +12,8 @@ use crate::models::search::{
     order::{Paginate, Sort, TableName},
 };
 use crate::models::standard::{
-    model::Standard,
-    standard_fav::model::StandardFav, standard_fav::util::check_subscriber_by_uuid,
+    model::Standard, standard_fav::model::StandardFav,
+    standard_fav::util::check_subscriber_by_uuid,
     standard_status::model::StandardStatusTranslateList,
 };
 use crate::schema::standard_ref::dsl as standard_ref;
@@ -88,12 +88,14 @@ impl ShowStandardShort {
             .expect("Error loading standard");
 
         // get image file (favicon) for standard
-        let image_file = DownloadFile::get_by_file_uuid(&standard.image_file_uuid, &options.domain, conn)
-            .expect("Error get presigned url main image");
+        let image_file =
+            DownloadFile::get_by_file_uuid(&standard.image_file_uuid, &options.domain, conn)
+                .expect("Error get presigned url main image");
 
         // get standard owner company
-        let owner_company = ShowCompanyShort::get_without_check_by_uuid(&standard.company_uuid, conn)
-            .expect("Error loading company short data");
+        let owner_company =
+            ShowCompanyShort::get_without_check_by_uuid(&standard.company_uuid, conn)
+                .expect("Error loading company short data");
 
         // get standard type with translation for standard
         let standard_status = StandardStatusTranslateList::get_by_id(
@@ -192,8 +194,9 @@ impl StandardAndRelatedData {
             .expect("Error loading standard");
 
         // get image file (favicon) for standard
-        let image_file = DownloadFile::get_by_file_uuid(&standard.image_file_uuid, &options.domain, conn)
-            .expect("Error get presigned url main image");
+        let image_file =
+            DownloadFile::get_by_file_uuid(&standard.image_file_uuid, &options.domain, conn)
+                .expect("Error get presigned url main image");
 
         // get data a owner user for a standard
         let owner_user = crate::models::user::model::ShowUserShort::get_without_check_by_uuid(
@@ -204,8 +207,9 @@ impl StandardAndRelatedData {
         .expect("Error loading slim_user");
 
         // get data a owner company for a standard
-        let owner_company = ShowCompanyShort::get_without_check_by_uuid(&standard.company_uuid, conn)
-            .expect("Error loading company short data");
+        let owner_company =
+            ShowCompanyShort::get_without_check_by_uuid(&standard.company_uuid, conn)
+                .expect("Error loading company short data");
 
         // get standard type with translation for standard
         let type_access = TypeAccessTranslateList::get_type_access_by_id(

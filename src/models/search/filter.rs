@@ -1,7 +1,7 @@
 use super::{get_vec_in_string, model::ObjectUuid};
 use crate::errors::{ServiceError, ServiceResult};
-use diesel::{PgConnection, RunQueryDsl, sql_query};
 use diesel::sql_types::Text;
+use diesel::{sql_query, PgConnection, RunQueryDsl};
 use uuid::Uuid;
 
 pub(crate) struct Filter {
@@ -51,7 +51,8 @@ pub(crate) fn objects_search(
     filter: &Filter,
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<Uuid>> {
-    let query = format!("
+    let query = format!(
+        "
     SELECT DISTINCT {select}
     FROM {from}
     WHERE {to_tsvector} @@ websearch_to_tsquery($1)

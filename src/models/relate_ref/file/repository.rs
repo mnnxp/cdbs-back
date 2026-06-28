@@ -252,7 +252,10 @@ impl SlimFile {
     }
 
     /// Returns a string in which each byte of data is encoded using two hexadecimal digits
-    pub(crate) fn encode_sha256_hash(file_uuid: &Uuid, conn: &mut PgConnection) -> ServiceResult<String> {
+    pub(crate) fn encode_sha256_hash(
+        file_uuid: &Uuid,
+        conn: &mut PgConnection,
+    ) -> ServiceResult<String> {
         let sha256_hash = file_ref::file_ref
             .select(file_ref::sha256_hash)
             .filter(
@@ -316,7 +319,7 @@ impl SlimFile {
                 // save presigned url to database
                 save_presign_url(&slim_file.uuid, &presigned_url, conn)?;
                 presigned_url
-            },
+            }
         };
         // replace domain with proxy server (if necessary)
         Ok(presigned_url.proxied(domain))

@@ -1,6 +1,6 @@
-use crate::errors::{ServiceError, ServiceResult};
-use crate::auth::token::{decode, generate, write_token};
 use crate::auth::token::UserToken;
+use crate::auth::token::{decode, generate, write_token};
+use crate::errors::{ServiceError, ServiceResult};
 use crate::models::user::access::hash::verify;
 use crate::models::user::model::{SlimUser, User};
 use diesel::prelude::*;

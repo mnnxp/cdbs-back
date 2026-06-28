@@ -1,3 +1,4 @@
+use crate::auth::AuthContext;
 use crate::database::{get_conn, PooledConnection};
 use crate::errors::ServiceResult;
 use crate::graphql::handler::extract_client_domain;
@@ -16,7 +17,6 @@ use crate::models::company::{
 };
 use crate::models::component::supplier::model::IptSupplierComponentData;
 use crate::models::relate_ref::file::model::UploadFile;
-use crate::auth::AuthContext;
 
 use async_graphql::{self, Context, Object};
 use uuid::Uuid;
@@ -94,7 +94,13 @@ impl CompanyMutation {
         let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        update_favicon(&logged_user_uuid, &company_uuid, &filename, &extract_client_domain(cxt), conn)
+        update_favicon(
+            &logged_user_uuid,
+            &company_uuid,
+            &filename,
+            &extract_client_domain(cxt),
+            conn,
+        )
     }
 
     /// Uploading a new company certificate. Returns a structure with a pre-signed URL for uploading a certificate file.
@@ -108,7 +114,12 @@ impl CompanyMutation {
         let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
 
-        add_certificate(&logged_user_uuid, &cert_data, &extract_client_domain(cxt), conn)
+        add_certificate(
+            &logged_user_uuid,
+            &cert_data,
+            &extract_client_domain(cxt),
+            conn,
+        )
     }
 
     /// Updates a company certificate description.

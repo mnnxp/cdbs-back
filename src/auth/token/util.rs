@@ -1,9 +1,9 @@
 use super::model::{InsertableUserToken, UserToken};
+use crate::auth::jwt::manager::decode_token;
+use crate::auth::jwt::model::{Claims, Token};
 use crate::database::{get_conn, PooledConnection};
 use crate::errors::err_msg::{get_err_msg, ErrorMessage};
 use crate::errors::{ServiceError, ServiceResult};
-use crate::auth::jwt::model::{Claims, Token};
-use crate::auth::jwt::manager::decode_token;
 use crate::models::user::model::SlimUser;
 use crate::schema::user_token_ref::dsl as user_token_ref;
 use async_graphql::Context;

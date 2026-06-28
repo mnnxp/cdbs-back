@@ -20,8 +20,8 @@ use regex::Regex;
 use uuid::Uuid;
 
 use super::model::{ListObject, PreliminaryFileData};
-use crate::schema::file_ref::dsl as file_ref;
 use crate::config;
+use crate::schema::file_ref::dsl as file_ref;
 
 /// Retund default image uuid
 pub(crate) fn get_default_image() -> Uuid {

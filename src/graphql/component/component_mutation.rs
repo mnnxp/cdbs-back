@@ -1,3 +1,4 @@
+use crate::auth::AuthContext;
 use crate::database::{get_conn, PooledConnection};
 use crate::errors::ServiceResult;
 use crate::graphql::component_model::{IptComponentData, IptUpdateComponentData};
@@ -36,7 +37,6 @@ use crate::models::component::{
     supplier::model::DelSuppliersComponentData,
 };
 use crate::models::relate_ref::file::model::UploadFile;
-use crate::auth::AuthContext;
 
 use async_graphql::{self, Context, Object};
 use uuid::Uuid;

@@ -1,8 +1,8 @@
-use std::fs;
-use jsonwebtoken::{decode, encode, Algorithm, DecodingKey, EncodingKey, Header, Validation};
+use super::model::Claims;
 use crate::errors::ServiceError;
 use crate::models::user::model::SlimUser;
-use super::model::Claims;
+use jsonwebtoken::{decode, encode, Algorithm, DecodingKey, EncodingKey, Header, Validation};
+use std::fs;
 
 // Initialize JWT keys once on first access.
 // Keys are loaded from paths defined in environment variables or CLI arguments.
@@ -48,9 +48,7 @@ pub(crate) fn create_token(
 }
 
 /// Decodes and validates a JWT token using global static keys
-pub(crate) fn decode_token(
-    token: &str,
-) -> Result<Claims, ServiceError> {
+pub(crate) fn decode_token(token: &str) -> Result<Claims, ServiceError> {
     decode::<Claims>(
         token,
         &JWT_KEYS.decoding,

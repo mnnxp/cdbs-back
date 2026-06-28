@@ -86,12 +86,16 @@ impl RoleMemberAndRelatedData {
     ) -> ServiceResult<RoleMemberAndRelatedData> {
         let role = RoleMemberTranslateList::get_by_id(target_role_id, set_lang_id, conn)?;
 
-        let permissions = TypeAccessTranslateList::get_by_role_id(target_role_id, set_lang_id, conn)?;
+        let permissions =
+            TypeAccessTranslateList::get_by_role_id(target_role_id, set_lang_id, conn)?;
 
         // if found data return RoleMemberAndRelatedData
         Ok(RoleMemberAndRelatedData {
             role,
-            permissions: permissions.into_iter().map(PermissionTranslateList::from).collect(),
+            permissions: permissions
+                .into_iter()
+                .map(PermissionTranslateList::from)
+                .collect(),
         })
     }
 
@@ -111,7 +115,10 @@ impl RoleMemberAndRelatedData {
 
             res.push(RoleMemberAndRelatedData {
                 role,
-                permissions: permissions.into_iter().map(PermissionTranslateList::from).collect(),
+                permissions: permissions
+                    .into_iter()
+                    .map(PermissionTranslateList::from)
+                    .collect(),
             })
         }
 

@@ -1,6 +1,6 @@
-use serde::{Deserialize, Serialize};
-use async_graphql::SimpleObject;
 use crate::models::relate_ref::type_access::model::TypeAccessTranslateList;
+use async_graphql::SimpleObject;
+use serde::{Deserialize, Serialize};
 
 /// Permission representation for RBAC (Manage, Write, Read)
 /// This is a GraphQL wrapper over TypeAccessTranslateList with renamed levels

@@ -1,11 +1,11 @@
+use crate::auth::jwt::model::Claims;
+use crate::auth::token::logged::check_authorized;
+use crate::auth::token::UserToken;
+use crate::auth::AuthContext;
 use crate::database::{get_conn, PooledConnection};
 use crate::errors::ServiceResult;
 use crate::graphql::handler::extract_client_domain;
 use crate::graphql::relate::attributes::IptPaginate;
-use crate::auth::jwt::model::Claims;
-use crate::auth::AuthContext;
-use crate::auth::token::logged::check_authorized;
-use crate::auth::token::UserToken;
 use crate::models::search::model::ExtraOptions;
 use crate::models::search::order::Paginate;
 use crate::models::user::model::{
@@ -41,7 +41,13 @@ impl UserQuery {
             .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
             .unwrap_or_default();
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
-        get_users(&logged_user_uuid, &arguments, &p, &extract_client_domain(cxt), conn)
+        get_users(
+            &logged_user_uuid,
+            &arguments,
+            &p,
+            &extract_client_domain(cxt),
+            conn,
+        )
     }
 
     /// Returns basic and associated user data by UUID.

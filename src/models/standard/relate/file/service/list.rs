@@ -3,8 +3,7 @@ use crate::errors::ServiceResult;
 use crate::models::relate_ref::file::model::DownloadFile;
 use crate::models::search::order::Paginate;
 use crate::models::standard::{
-    file::repository::get_file_uuids_by_standard_uuid,
-    model::StandardFilesArg,
+    file::repository::get_file_uuids_by_standard_uuid, model::StandardFilesArg,
 };
 use diesel::prelude::*;
 use uuid::Uuid;

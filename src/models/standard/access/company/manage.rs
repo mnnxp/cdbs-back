@@ -55,7 +55,11 @@ pub(crate) fn set_company_access_standard(
     // 1. проверить пользователя на владение стандартом
     check_is_owner_with_err(logged_user_uuid, &data.standard_uuid, conn)?;
 
-    invalidate_access(logged_user_uuid, AccessEntity::Standard, &data.standard_uuid);
+    invalidate_access(
+        logged_user_uuid,
+        AccessEntity::Standard,
+        &data.standard_uuid,
+    );
 
     // 2. изменить или добавить доступ для указанной компании
     let set_access = diesel::update(

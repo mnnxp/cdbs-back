@@ -84,5 +84,7 @@ impl Aws {
 }
 
 fn set_option(expires: u64) -> PreSignedRequestOption {
-    PreSignedRequestOption { expires_in: std::time::Duration::from_secs(expires) }
+    PreSignedRequestOption {
+        expires_in: std::time::Duration::from_secs(expires),
+    }
 }

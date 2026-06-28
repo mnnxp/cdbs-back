@@ -1,16 +1,16 @@
 // src/auth/access/cache.rs
 
+use diesel::PgConnection;
 use std::collections::HashMap;
 use std::sync::RwLock;
-use std::time::{Instant, Duration};
-use diesel::PgConnection;
+use std::time::{Duration, Instant};
 use uuid::Uuid;
 
 use crate::auth::rbac::AccessEntity;
 use crate::errors::ServiceResult;
 
-use super::{get_component_access, get_standard_access, get_service_access, get_company_access};
 use super::AccessInfo;
+use super::{get_company_access, get_component_access, get_service_access, get_standard_access};
 
 lazy_static::lazy_static! {
     static ref ACCESS_CACHE: RwLock<HashMap<AccessCacheKey, CachedAccess>> = RwLock::new(HashMap::new());
@@ -117,15 +117,21 @@ where
 
     // Execute check
     let result = checker(user_uuid, object_uuid, conn);
-    debug!("Get access {:?} in object {:?}, result {:?}", user_uuid, object_uuid, result);
+    debug!(
+        "Get access {:?} in object {:?}, result {:?}",
+        user_uuid, object_uuid, result
+    );
     let result = result?;
     // Store in cache
     {
         let mut cache = ACCESS_CACHE.write().unwrap();
-        cache.insert(key, CachedAccess {
-            result: result.clone(),
-            cached_at: Instant::now(),
-        });
+        cache.insert(
+            key,
+            CachedAccess {
+                result: result.clone(),
+                cached_at: Instant::now(),
+            },
+        );
     }
 
     Ok(result)

@@ -1,3 +1,5 @@
+use crate::auth::token::logged::check_authorized;
+use crate::auth::AuthContext;
 use crate::database::{get_conn, PooledConnection};
 use crate::errors::ServiceResult;
 use crate::graphql::handler::extract_client_domain;
@@ -18,8 +20,6 @@ use crate::models::supplier_service::{
     model::{ServiceFilesArg, ServicesArg},
     relate::service_status::model::ServiceStatusTranslateList,
 };
-use crate::auth::token::logged::check_authorized;
-use crate::auth::AuthContext;
 use async_graphql::{self, Context, Object};
 use uuid::Uuid;
 
@@ -78,7 +78,13 @@ impl ServiceQuery {
             .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
             .unwrap_or_default();
         let conn: &mut PooledConnection = &mut get_conn(cxt)?;
-        get_service_files(&logged_user_uuid, &arguments, &p, &extract_client_domain(cxt), conn)
+        get_service_files(
+            &logged_user_uuid,
+            &arguments,
+            &p,
+            &extract_client_domain(cxt),
+            conn,
+        )
     }
 
     /// Returns an array of catalogs associated with service

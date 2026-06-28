@@ -13,11 +13,7 @@ impl Spec {
     pub(crate) fn get_by_id(target_spec_id: i32, conn: &mut PgConnection) -> ServiceResult<Spec> {
         spec_ref::spec_ref
             .filter(spec_ref::id.eq(target_spec_id))
-            .select((
-                spec_ref::id,
-                spec_ref::parent_spec_id,
-                spec_ref::path,
-            ))
+            .select((spec_ref::id, spec_ref::parent_spec_id, spec_ref::path))
             .first::<Spec>(conn)
             .map_err(|err| {
                 debug!("Failed get spec by id: {}", err);
@@ -79,12 +75,15 @@ impl SpecTranslateList {
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<SpecTranslateList>> {
         if target_specs_ids.is_empty() {
-            return SpecTranslateList::get(set_lang_id, paginate, conn)
+            return SpecTranslateList::get(set_lang_id, paginate, conn);
         }
 
         let mut specs = spec_translate_list::spec_translate_list
-            .filter(spec_translate_list::lang_id.eq(set_lang_id)
-                .and(spec_translate_list::spec_id.eq_any(target_specs_ids)))
+            .filter(
+                spec_translate_list::lang_id
+                    .eq(set_lang_id)
+                    .and(spec_translate_list::spec_id.eq_any(target_specs_ids)),
+            )
             .limit(paginate.limit)
             .offset(paginate.offset)
             .load::<SpecTranslateList>(conn)
@@ -94,7 +93,10 @@ impl SpecTranslateList {
             })?;
 
         specs.sort_by_key(|s| {
-            target_specs_ids.iter().position(|&id| id == s.spec_id).unwrap_or(usize::MAX)
+            target_specs_ids
+                .iter()
+                .position(|&id| id == s.spec_id)
+                .unwrap_or(usize::MAX)
         });
         Ok(specs)
     }
@@ -160,14 +162,16 @@ impl SpecId {
     ) -> ServiceResult<Vec<SpecId>> {
         let SetLangName { lang_name } = SetLangName::get_by_id(set_lang_id);
 
-        let query = format!("
+        let query = format!(
+            "
         SELECT spec_id
         FROM spec_translate_list
         WHERE to_tsvector('{lang}', spec) @@ websearch_to_tsquery('{lang}', '{query}')
         LIMIT {limit};",
-            lang=lang_name,
-            query=query_text,
-            limit=1000);
+            lang = lang_name,
+            query = query_text,
+            limit = 1000
+        );
         debug!("SQL query: {}", query);
 
         diesel::sql_query(query)

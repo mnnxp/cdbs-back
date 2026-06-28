@@ -1,8 +1,8 @@
+use crate::config;
 use crate::errors::err_msg::{get_err_msg, ErrorMessage};
 use crate::errors::{ServiceError, ServiceResult};
 use crate::models::relate_ref::file::model::FileByExtArg;
 use crate::schema::component_ref::dsl as component_ref;
-use crate::config;
 use diesel::prelude::*;
 use uuid::Uuid;
 

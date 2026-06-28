@@ -2,8 +2,7 @@ use crate::auth::{require_permission, AccessEntity, AccessOperation};
 use crate::errors::{ServiceError, ServiceResult};
 use crate::graphql::component_model::IptComponentData;
 use crate::models::component::component_modification::{
-    model::InsertableComponentModification,
-    service::register::single_modification,
+    model::InsertableComponentModification, service::register::single_modification,
 };
 use crate::models::component::model::InsertableComponent;
 use crate::models::user::component_fav::service::add::component_to_fav_ft;

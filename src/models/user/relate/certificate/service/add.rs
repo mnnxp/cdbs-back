@@ -51,7 +51,8 @@ pub(crate) fn add_certificate(
 
     debug!("User inserted certificate: {:?}", user_inserted_certificate);
 
-    let upload_url = upload_presigned_url(&StorageAccess::from_env(), &slim_file.path_file, domain)?;
+    let upload_url =
+        upload_presigned_url(&StorageAccess::from_env(), &slim_file.path_file, domain)?;
 
     Ok(UploadFile {
         file_uuid: slim_file.uuid,

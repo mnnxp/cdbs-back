@@ -58,7 +58,9 @@ pub(crate) fn value_in_err_msg_en(err_msg: ErrorMessage) -> String {
         ErrorMessage::FailedWriteMetadata => String::from("Failed write metadata"),
         ErrorMessage::FailedRemoveAccessForRole => String::from("Failed: access not delete"),
         ErrorMessage::FileObjectNotFound => String::from("File to object association not found"),
-        ErrorMessage::TextMustLess(max_len) => format!("Text must be less than {} characters", max_len),
+        ErrorMessage::TextMustLess(max_len) => {
+            format!("Text must be less than {} characters", max_len)
+        }
         ErrorMessage::NeedSetUuidOrUsername => String::from("Need set userUuid or username"),
         ErrorMessage::NoActiveFileRevisionFound => String::from("No active file revision found"),
         ErrorMessage::NoSuitableSupplierHasBeenFound => {

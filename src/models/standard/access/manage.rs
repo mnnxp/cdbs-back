@@ -16,7 +16,11 @@ pub(crate) fn change_standard_owner_user(
     // 1. проверить пользователя на владение стандартом
     check_is_owner_with_err(logged_user_uuid, &data.standard_uuid, conn)?;
 
-    invalidate_access(&data.new_owner_user_uuid, AccessEntity::Standard, &data.standard_uuid);
+    invalidate_access(
+        &data.new_owner_user_uuid,
+        AccessEntity::Standard,
+        &data.standard_uuid,
+    );
     invalidate_user_cache(logged_user_uuid);
 
     // 2. изменить владельца компонента

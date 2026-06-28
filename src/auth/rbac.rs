@@ -1,5 +1,5 @@
-use crate::errors::ServiceResult;
 use crate::errors::err_msg::{get_err_msg, ErrorMessage};
+use crate::errors::ServiceResult;
 use crate::models::supplier_service::access::util::check_user_access_provided_by_company;
 use diesel::prelude::*;
 use uuid::Uuid;
@@ -82,12 +82,8 @@ impl<'a> PermissionChecker<'a> {
             AccessEntity::Company => {
                 self.check_company_access(user_uuid, access_entity_uuid, action)
             }
-            AccessEntity::User => {
-                self.check_user_access(user_uuid, access_entity_uuid, action)
-            }
-            // AccessEntity::Discussion => {
-            //     self.check_discussion_access(user_uuid, access_entity_uuid, action)
-            // }
+            AccessEntity::User => self.check_user_access(user_uuid, access_entity_uuid, action),
+            // AccessEntity::Discussion => self.check_discussion_access(user_uuid, access_entity_uuid, action),
         }
     }
 
@@ -157,7 +153,9 @@ impl<'a> PermissionChecker<'a> {
             // Проверка: является ли пользователь прямым владельцем сервиса? Если да — доступ на редактирование разрешен.
             AccessOperation::Write => check_is_owner(user_uuid, service_uuid, self.conn),
             // 2. Дополнительная проверка: есть ли у пользователя делегированные права или права через участие в проекте/команде на нужном уровне.
-            _ => check_access_service_for_user(user_uuid, service_uuid, need_access_level, self.conn),
+            _ => {
+                check_access_service_for_user(user_uuid, service_uuid, need_access_level, self.conn)
+            }
         }
     }
 
@@ -168,9 +166,7 @@ impl<'a> PermissionChecker<'a> {
         company_uuid: &Uuid,
         action: AccessOperation,
     ) -> ServiceResult<bool> {
-        use crate::models::company::access::util::{
-            check_company_access, check_is_owner_company,
-        };
+        use crate::models::company::access::util::{check_company_access, check_is_owner_company};
 
         let need_access_level = action.to_access_level();
 
@@ -196,7 +192,12 @@ impl<'a> PermissionChecker<'a> {
         }
 
         let need_access_level = action.to_access_level();
-        check_access_user_for_user(logged_user_uuid, target_user_uuid, need_access_level, self.conn)
+        check_access_user_for_user(
+            logged_user_uuid,
+            target_user_uuid,
+            need_access_level,
+            self.conn,
+        )
     }
 
     // /// Проверить доступ к обсуждению

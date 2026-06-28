@@ -39,6 +39,11 @@ impl SpecTranslateList {
         set_lang_id: i32,
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<SpecTranslateList>> {
-        SpecTranslateList::for_company_by_uuid(company_uuid, set_lang_id, &Paginate::default(), conn)
+        SpecTranslateList::for_company_by_uuid(
+            company_uuid,
+            set_lang_id,
+            &Paginate::default(),
+            conn,
+        )
     }
 }

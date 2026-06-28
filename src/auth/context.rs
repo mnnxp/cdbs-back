@@ -1,6 +1,6 @@
+use crate::auth::token::{check_token, whose_token};
 use crate::database::{get_conn, PooledConnection};
 use crate::errors::{ServiceError, ServiceResult};
-use crate::auth::token::{check_token, whose_token};
 use async_graphql::Context;
 use uuid::Uuid;
 

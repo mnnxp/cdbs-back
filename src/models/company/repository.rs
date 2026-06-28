@@ -1,7 +1,9 @@
 use crate::auth::{require_permission, AccessEntity, AccessOperation};
 use crate::errors::err_msg::{get_err_msg, ErrorMessage};
 use crate::errors::{ServiceError, ServiceResult};
-use crate::models::company::model::{Company, CompanyAndRelatedData, ShowCompanyShort, SlimCompany};
+use crate::models::company::model::{
+    Company, CompanyAndRelatedData, ShowCompanyShort, SlimCompany,
+};
 use crate::models::search::model::ExtraOptions;
 use crate::models::search::order::Paginate;
 use crate::schema::company_ref::dsl as company_ref;
@@ -106,7 +108,9 @@ impl ShowCompanyShort {
                 &uuid,
                 AccessOperation::Read,
                 conn,
-            ).is_ok() {
+            )
+            .is_ok()
+            {
                 accessible_uuids.push(uuid);
             }
         }
@@ -184,9 +188,10 @@ impl ShowCompanyShort {
 
         let mut result = Vec::new();
         for target_company_uuid in target_companies_uuids.iter() {
-            result.push(
-                ShowCompanyShort::get_without_check_by_uuid(target_company_uuid, conn)?
-            );
+            result.push(ShowCompanyShort::get_without_check_by_uuid(
+                target_company_uuid,
+                conn,
+            )?);
         }
         Ok(result)
     }

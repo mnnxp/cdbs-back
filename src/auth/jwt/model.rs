@@ -1,7 +1,7 @@
 use crate::models::user::model::SlimUser;
+use actix_web::http::header::{HeaderMap, AUTHORIZATION};
 use anyhow::Result;
 use chrono::{Duration, Local, Utc};
-use actix_web::http::header::{HeaderMap, AUTHORIZATION};
 use regex::Regex;
 use uuid::Uuid;
 

@@ -1,3 +1,4 @@
+use crate::auth::token::logged::check_authorized;
 use crate::database::{get_conn, PooledConnection};
 use crate::errors::ServiceResult;
 use crate::graphql::relate::attributes::IptPaginate;
@@ -7,7 +8,6 @@ use crate::models::relate_ref::keyword::{
     service::register::create_keyword,
 };
 use crate::models::search::order::Paginate;
-use crate::auth::token::logged::check_authorized;
 use async_graphql::{self, Context, Object};
 
 #[derive(Default)]
