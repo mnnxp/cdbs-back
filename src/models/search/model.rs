@@ -81,12 +81,16 @@ impl ExtraOptions {
 #[derive(InputObject, Deserialize, Debug)]
 pub(crate) struct IptSearchArg {
     pub(crate) search: String,
-    #[graphql(default = false)]
+    #[graphql(default = true)]
     pub(crate) by_params: bool,
-    #[graphql(default = false)]
+    #[graphql(default = true)]
     pub(crate) by_specs: bool,
-    #[graphql(default = false)]
+    #[graphql(default = true)]
     pub(crate) by_keywords: bool,
+    #[graphql(default = true)]
+    pub(crate) by_modifications: bool,
+    #[graphql(default = true)]
+    pub(crate) by_modification_params: bool,
     pub(crate) company_uuid: Option<Uuid>,
     pub(crate) standard_uuid: Option<Uuid>,
     pub(crate) service_uuid: Option<Uuid>,

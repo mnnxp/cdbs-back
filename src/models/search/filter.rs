@@ -45,17 +45,19 @@ impl Filter {
 /// returns ids of found objects or an error from the database
 pub(crate) fn objects_search(
     from: &str,
+    select: &str,
     to_tsvector: &str,
     search: &str,
     filter: &Filter,
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<Uuid>> {
     let query = format!("
-    SELECT uuid
+    SELECT DISTINCT {select}
     FROM {from}
     WHERE {to_tsvector} @@ websearch_to_tsquery($1)
     {filter}
     LIMIT 1000;",
+        select = select,
         from = from,
         to_tsvector = to_tsvector,
         filter = filter.get_complete(),
