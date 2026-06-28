@@ -21,22 +21,16 @@ use uuid::Uuid;
 
 use super::model::{ListObject, PreliminaryFileData};
 use crate::schema::file_ref::dsl as file_ref;
-
-lazy_static::lazy_static! {
-    static ref DEFAULT_IMAGE_UUID : Uuid =
-        Uuid::parse_str("bc1c2151-86d0-4656-9c9d-d016dd584297")
-            .expect("Set default image uuid failed!");
-}
+use crate::config;
 
 /// Retund default image uuid
 pub(crate) fn get_default_image() -> Uuid {
-    *DEFAULT_IMAGE_UUID
+    config::default_image_uuid()
 }
 
 /// Check default file by uuid
 pub(crate) fn check_default_file(file_uuid: &Uuid) -> bool {
-    let defalt_uuid = *DEFAULT_IMAGE_UUID;
-    &defalt_uuid == file_uuid
+    &config::default_image_uuid() == file_uuid
 }
 
 /// Find extension id on table for file extension

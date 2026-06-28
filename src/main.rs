@@ -6,6 +6,7 @@ extern crate serde_derive;
 extern crate log;
 
 mod cli_args;
+mod config;
 mod database;
 mod errors;
 mod graphql;

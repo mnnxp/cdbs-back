@@ -1,5 +1,6 @@
 use chrono::NaiveDateTime;
 use structopt::StructOpt;
+use uuid::Uuid;
 
 /// GraphQl API, Diesel PostgreSQL, session authentication and JWT boilerplate server
 #[derive(StructOpt, Debug, Clone)]
@@ -77,4 +78,20 @@ pub struct Opt {
     /// Url to endpoint S3
     #[structopt(long, env = "S3_ENDPOINT")]
     pub(crate) s3_endpoint: String,
+
+    /// Root component UUID (self-referencing parent)
+    #[structopt(long, env = "ROOT_COMPONENT_UUID", default_value = "a5953fd9-7393-4f1e-a899-06b5e159dbf1")]
+    pub(crate) root_component_uuid: Uuid,
+
+    /// Root standard UUID (self-referencing parent)
+    #[structopt(long, env = "ROOT_STANDARD_UUID", default_value = "303ec2aa-2066-42e3-93fb-de4fb9344bcb")]
+    pub(crate) root_standard_uuid: Uuid,
+
+    /// Root modification UUID (self-referencing parent)
+    #[structopt(long, env = "ROOT_MODIFICATION_UUID", default_value = "aba22d59-4f6c-44a4-9a37-2d38f0e577a8")]
+    pub(crate) root_modification_uuid: Uuid,
+
+    /// Default image UUID (placeholder)
+    #[structopt(long, env = "DEFAULT_IMAGE_UUID", default_value = "bc1c2151-86d0-4656-9c9d-d016dd584297")]
+    pub(crate) default_image_uuid: Uuid,
 }
