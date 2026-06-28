@@ -1,6 +1,7 @@
 keys/
 *.pem
 *.key
+.env
 /target
 **/*.rs.bk
 .idea/
