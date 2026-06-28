@@ -28,6 +28,10 @@ pub(crate) fn make_hash_salt(password: &[u8], psw_salt: &[u8]) -> Vec<u8> {
         .into_bytes()
 }
 
-pub(crate) fn verify(psw_hash: &[u8], psw_salt: &[u8], password: &[u8]) -> bool {
-    make_hash_salt(password, psw_salt) == psw_hash
+pub(crate) fn verify(psw_hash: &[u8], password: &[u8]) -> bool {
+    let hash_str = match std::str::from_utf8(psw_hash) {
+        Ok(s) => s,
+        Err(_) => return false,
+    };
+    argon2::verify_encoded(hash_str, password).unwrap_or(false)
 }

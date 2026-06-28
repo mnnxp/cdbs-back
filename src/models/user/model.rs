@@ -14,7 +14,7 @@ pub(crate) struct User {
     uuid: Uuid,
     // email: String,
     psw_hash: Vec<u8>,
-    psw_salt: Vec<u8>,
+    // psw_salt: Vec<u8>,
     // firstname: String,
     // lastname: String,
     // secondname: String,
@@ -39,11 +39,6 @@ impl User {
     /// Gets password hash
     pub(super) fn get_psw_hash(&self) -> &[u8] {
         &self.psw_hash
-    }
-
-    /// Gets password salt
-    pub(super) fn get_psw_salt(&self) -> &[u8] {
-        &self.psw_salt
     }
 }
 

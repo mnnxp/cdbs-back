@@ -30,24 +30,6 @@ pub(crate) struct IptUpdatePassword {
     pub(crate) new_password: String,
 }
 
-#[derive(Queryable)]
-struct HashPassword {
-    psw_hash: Vec<u8>,
-    psw_salt: Vec<u8>,
-}
-
-impl HashPassword {
-    /// Gets password hash
-    fn get_psw_hash(&self) -> &[u8] {
-        &self.psw_hash
-    }
-
-    /// Gets password salt
-    fn get_psw_salt(&self) -> &[u8] {
-        &self.psw_salt
-    }
-}
-
 /// Устанавливает новый пароль для авторизованного пользователя.
 pub(crate) fn change_password(
     logged_user_uuid: &Uuid,
@@ -111,13 +93,13 @@ pub(crate) fn check_password(
 ) -> ServiceResult<bool> {
     let hash_pass = user_ref::user_ref
         .filter(user_ref::uuid.eq(logged_user_uuid))
-        .select((user_ref::psw_hash, user_ref::psw_salt))
-        .first::<HashPassword>(conn)
+        .select(user_ref::psw_hash)
+        .first::<Vec<u8>>(conn)
         .map_err(|_| ServiceError::InternalServerError)?;
 
     // debug!("HashPassword: {:?}", hash_pass);
 
-    match verify(hash_pass.get_psw_hash(), hash_pass.get_psw_salt(), password) {
+    match verify(&hash_pass, password) {
         true => Ok(true),
         false => Err(get_err_msg(ErrorMessage::PasswordIsNotCorrect)),
     }

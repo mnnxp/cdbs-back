@@ -47,18 +47,13 @@ fn login_check(username: &str, password: &str, conn: &mut PgConnection) -> Servi
         .select((
             user_ref::uuid,
             user_ref::psw_hash,
-            user_ref::psw_salt,
             user_ref::username,
             user_ref::program_id,
         ))
         .first::<User>(conn)
         .map_err(|_| ServiceError::Unauthorized)?;
 
-    match verify(
-        user.get_psw_hash(),
-        user.get_psw_salt(),
-        password.as_bytes(),
-    ) {
+    match verify(user.get_psw_hash(), password.as_bytes()) {
         true => Ok(user.into()),
         false => Err(ServiceError::Unauthorized),
     }
