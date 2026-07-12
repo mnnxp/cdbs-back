@@ -1,4 +1,5 @@
-use crate::auth::token::logged::{default_user_uuid, get_logged_user_uuid};
+use crate::auth::token::logged::get_logged_user_uuid;
+use crate::config;
 use crate::errors::ServiceResult;
 use crate::graphql::handler::extract_client_domain;
 use crate::models::relate_ref::language::get_set_language;
@@ -52,17 +53,17 @@ impl ExtraOptions {
                 no_entry: false,
             }),
             Err(err) => {
-                if let (Ok(logged_user_uuid), true) = (default_user_uuid(cxt), no_entry) {
+                if no_entry {
                     // default user uuid and set language
-                    return Ok(Self {
-                        logged_user_uuid,
+                    Ok(Self {
+                        logged_user_uuid: config::default_user_uuid(),
                         set_lang_id,
                         domain,
-                        no_entry: true,
-                    });
+                        no_entry,
+                    })
+                } else {
+                    Err(err)
                 }
-                // error message
-                Err(err)
             }
         }
     }

@@ -25,3 +25,8 @@ pub(crate) fn root_modification_uuid() -> Uuid {
 pub(crate) fn default_image_uuid() -> Uuid {
     CONFIG.default_image_uuid
 }
+
+/// Default user UUID (anonymous)
+pub(crate) fn default_user_uuid() -> Uuid {
+    CONFIG.default_user_uuid
+}

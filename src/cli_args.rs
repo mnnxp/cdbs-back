@@ -126,4 +126,12 @@ pub struct Opt {
         default_value = "bc1c2151-86d0-4656-9c9d-d016dd584297"
     )]
     pub(crate) default_image_uuid: Uuid,
+
+    /// Default user UUID (anonymous)
+    #[structopt(
+        long,
+        env = "DEFAULT_USER_UUID",
+        default_value = "413a9b1c-da2d-44f9-a492-58f9448b402e"
+    )]
+    pub(crate) default_user_uuid: Uuid,
 }
