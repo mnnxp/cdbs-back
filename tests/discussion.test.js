@@ -1304,7 +1304,6 @@ describe('discussion', () => {
     });
     const jsonData = await response.json();
     // expect(jsonData).toBe(0);
-    expect(jsonData.errors).toBeDefined(); // Make sure the error is defined
     expect(jsonData.errors[0].message).toBe('Internal Server Error'); // Make sure the error is related to a non-valid objectUuid
   });
 
@@ -1795,7 +1794,6 @@ describe('discussion', () => {
       }),
     });
     const jsonData = await response.json();
-    expect(jsonData.errors).toBeDefined(); // Let's make sure that the definition error
     expect(jsonData.errors[0].message).toContain('BadRequest: Failed check data'); // invalid discussionUuid
   });
 
@@ -1871,7 +1869,6 @@ describe('discussion', () => {
       }),
     });
     const jsonData = await response.json();
-    expect(jsonData.errors).toBeDefined(); // Let's make sure that the definition error
     expect(jsonData.errors[0].message).toContain('BadRequest: Access denied');
   });
 
@@ -1948,7 +1945,6 @@ describe('discussion', () => {
       }),
     });
     const jsonData = await response.json();
-    expect(jsonData.errors).toBeDefined(); // Let's make sure that the definition error
     expect(jsonData.errors[0].message).toContain('BadRequest: Access denied');
   });
 
@@ -2063,7 +2059,6 @@ describe('discussion', () => {
       }),
     });
     const jsonData = await response.json();
-    expect(jsonData.errors).toBeDefined(); // Let's make sure that the definition error
     expect(jsonData.errors[0].message).toContain('Internal Server Error'); // Make sure the error is related to invalid objectUuid
   });
 
@@ -2282,7 +2277,6 @@ describe('discussion', () => {
       }),
     });
     const jsonData = await editCommentResponse.json();
-    expect(jsonData.errors).toBeDefined(); // Let's make sure that the definition error
     expect(jsonData.errors[0].message).toContain('BadRequest: Access denied');
   });
 

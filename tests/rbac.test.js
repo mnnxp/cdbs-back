@@ -9,7 +9,7 @@ const url = `http://${apiDomain}:${apiPort}`;
 
 jest.setTimeout(1300);
 
-// Тестовые данные
+// Test data
 const usernameAdmin = "admin_user";
 const usernameEngineer = "engineer_user";
 const usernameViewer = "viewer_user";
@@ -21,7 +21,7 @@ const otherUsername = "other_user";
 const anotherUsername = "other_user2";
 const password = "password123";
 
-// UUID для тестов
+// UUIDs for tests
 const uuidFake = "00000000-0000-0000-0000-000000000000";
 let adminUserUuid = "";
 let engineerUserUuid = "";
@@ -41,14 +41,14 @@ let customerToken = "";
 let otherToken = "";
 let anotherToken = "";
 
-// Данные для компаний
+// Company data
 let companyUuid = "";
 let componentUuid = "";
 let standardUuid = "";
 let serviceUuid = "";
 let testStandardUuid = "";
 
-// Уровни доступа
+// Access levels
 const ACCESS_LEVEL = {
     OWNER: 1,
     EDIT: 1,
@@ -59,7 +59,7 @@ const ACCESS_LEVEL = {
     PUBLIC: 3
 };
 
-// Роли
+// Roles
 const ROLES = {
     ADMIN: "Admin",
     ENGINEER: "Engineer",
@@ -68,7 +68,7 @@ const ROLES = {
     GUEST: "Guest"
 };
 
-// GraphQL запросы
+// GraphQL queries
 const SELF_DATA_QUERY = `
     query {
         selfData {
@@ -292,7 +292,7 @@ const CREATE_COMPONENT_MODIFICATION_MUTATION = `
     }
 `;
 
-// Вспомогательные функции
+// Helper functions
 async function cleanupDatabase() {
     await global.knex.raw('DELETE FROM user_token_ref');
     await global.knex.raw('DELETE FROM user_ref WHERE username IN (?,?,?,?,?,?,?,?,?)', [
@@ -599,7 +599,7 @@ describe('RBAC Tests', () => {
                     `,
                     variables: {
                         roleId: testRoleId,
-                        accessTypes: [2, 3]  // Write and Read
+                        accessTypes: [2, 3]  // Create and Read
                     }
                 });
 
@@ -663,7 +663,7 @@ describe('RBAC Tests', () => {
                 });
 
             expect(body.data?.companyRoles).toBeDefined();
-            expect(body.data.companyRoles.length).toBe(1); // только созданная роль Engineer
+            expect(body.data.companyRoles.length).toBe(1); // only the created role Engineer
 
             const role = body.data.companyRoles[0];
             expect(role.role.name).toBe("Engineer");
@@ -675,7 +675,7 @@ describe('RBAC Tests', () => {
         });
 
         it('should change user role in company', async () => {
-            // Сначала создаём новую роль
+            // First, create a new role
             const { body: createRoleBody } = await agent
                 .post('/graphql')
                 .set('Authorization', `Bearer ${adminToken}`)
@@ -689,7 +689,7 @@ describe('RBAC Tests', () => {
 
             const newRoleId = createRoleBody.data?.registerCompanyRole;
 
-            // Меняем роль пользователя
+            // Change the user's role
             const { body } = await agent
                 .post('/graphql')
                 .set('Authorization', `Bearer ${adminToken}`)
@@ -704,7 +704,7 @@ describe('RBAC Tests', () => {
 
             expect(body.data?.changeRoleMember).toBe(true);
 
-            // Проверяем, что роль изменилась
+            // Verify that the role has changed
             const { body: membersBody } = await agent
                 .post('/graphql')
                 .set('Authorization', `Bearer ${adminToken}`)
@@ -738,7 +738,7 @@ describe('RBAC Tests', () => {
 
             expect(body.data?.deleteCompanyMember).toBe(true);
 
-            // Проверяем, что пользователь удалён
+            // Verify that the user has been deleted
             const { body: membersBody } = await agent
                 .post('/graphql')
                 .set('Authorization', `Bearer ${adminToken}`)
@@ -758,7 +758,7 @@ describe('RBAC Tests', () => {
         let nonSupplierCompanyUuid = "";
 
         beforeAll(async () => {
-            // Создаём компанию без статуса поставщика
+            // Create a company without supplier status
             nonSupplierCompanyUuid = await createCompany(agent, adminToken, 'Non-Supplier Test Company');
         });
 
@@ -773,9 +773,6 @@ describe('RBAC Tests', () => {
                         companyUuid: nonSupplierCompanyUuid
                     }
                 });
-
-            // Должна быть ошибка "The company is not supplier"
-            expect(body.errors).toBeDefined();
             expect(body.errors[0].message).toContain('The company is not supplier');
         });
 
@@ -818,7 +815,6 @@ describe('RBAC Tests', () => {
                     `,
                     variables: { name: `Test Standard ${Date.now()}` }
                 });
-
             expect(body.errors).toBeUndefined();
             expect(body.data?.registerStandard).toBeDefined();
             expect(body.data.registerStandard).toBeNonEmptyString();
@@ -850,10 +846,10 @@ describe('RBAC Tests', () => {
         let memberToken = "";
 
         beforeAll(async () => {
-            // Создаём non-supplier компанию
+            // Create a non-supplier company
             accessTestCompanyUuid = await createCompany(agent, adminToken, 'Access Test Company');
 
-            // Добавляем пользователя в компанию
+            // Add a user to the company
             await agent
                 .post('/graphql')
                 .set('Authorization', `Bearer ${adminToken}`)
@@ -876,12 +872,12 @@ describe('RBAC Tests', () => {
 
             memberToken = engineerToken;
 
-            // Создаём приватный компонент
+            // Create a private component
             componentUuid = await createComponent(agent, adminToken, 'Private Component', ACCESS_LEVEL.PRIVATE);
         });
 
         it('should NOT give access to component via non-supplier company membership alone', async () => {
-            // Проверяем доступ члена non-supplier компании к приватному компоненту
+            // Check access of a non-supplier company member to the private component
             const { body } = await agent
                 .post('/graphql')
                 .set('Authorization', `Bearer ${memberToken}`)
@@ -897,14 +893,14 @@ describe('RBAC Tests', () => {
                     variables: { uuid: componentUuid }
                 });
 
-            // Членство в non-supplier компании НЕ даёт автоматический доступ к компоненту
+            // Membership in a non-supplier company does NOT automatically grant access to the component
             // expect(body).toBe(0);
             expect(body.data?.myAccessToComponent.hasAccess).toBe(false);
             expect(body.data?.myAccessToComponent.source).toBe('NONE');
         });
 
         it('should grant access when company explicitly gets access', async () => {
-            // Выдаём доступ компании к компоненту
+            // Grant the company access to the component
             await agent
                 .post('/graphql')
                 .set('Authorization', `Bearer ${adminToken}`)
@@ -925,7 +921,7 @@ describe('RBAC Tests', () => {
                     }
                 });
 
-            // Проверяем доступ члена компании
+            // Verify access for a company member
             const { body } = await agent
                 .post('/graphql')
                 .set('Authorization', `Bearer ${memberToken}`)
@@ -956,7 +952,7 @@ describe('RBAC Tests', () => {
         });
 
         it('should allow owner to update component', async () => {
-            // Сначала проверим доступ
+            // First, check access
             const { body: accessBody } = await agent
                 .post('/graphql')
                 .set('Authorization', `Bearer ${adminToken}`)
@@ -969,7 +965,7 @@ describe('RBAC Tests', () => {
             expect(accessBody.data?.myAccessToComponent.accessLevel).toBe(1);
             expect(accessBody.data?.myAccessToComponent.source).toBe('OWNER');
 
-            // Затем выполняем операцию
+            // Then perform the operation
             const { body: updateBody } = await agent
                 .post('/graphql')
                 .set('Authorization', `Bearer ${adminToken}`)
@@ -995,8 +991,6 @@ describe('RBAC Tests', () => {
                         name: 'Should Not Update'
                     }
                 });
-
-            expect(body.errors).toBeDefined();
             expect(body.errors[0].message).toContain('Access denied');
         });
 
@@ -1011,8 +1005,6 @@ describe('RBAC Tests', () => {
                         name: 'Engineer Update Test'
                     }
                 });
-
-            expect(body.errors).toBeDefined();
             expect(body.errors[0].message).toContain('Access denied');
         });
 
@@ -1024,8 +1016,6 @@ describe('RBAC Tests', () => {
                     query: GET_COMPONENT_QUERY,
                     variables: { uuid: privateComponentUuid }
                 });
-
-            expect(body.errors).toBeDefined();
             expect(body.errors[0].message).toContain('Access denied');
         });
 
@@ -1037,7 +1027,6 @@ describe('RBAC Tests', () => {
                     query: GET_COMPONENT_QUERY,
                     variables: { uuid: publicComponentUuid }
                 });
-
             expect(body.errors).toBeUndefined();
             expect(body.data?.component).toBeDefined();
             expect(body.data.component.uuid).toBe(publicComponentUuid);
@@ -1146,7 +1135,6 @@ describe('RBAC Tests', () => {
                     `,
                     variables: { uuid: componentUuid }
                 });
-
             expect(body.errors).toBeUndefined();
             expect(body.data?.myAccessToComponent.hasAccess).toBe(true);
             expect(body.data?.myAccessToComponent.accessLevel).toBe(1);
@@ -1171,7 +1159,7 @@ describe('RBAC Tests', () => {
                     variables: { uuid: componentUuid }
                 });
 
-            // Guest may not have valid token or may not exist in DB
+            // Guest may not have a valid token or may not exist in the DB
             if (body.errors) {
                 expect(body.errors[0].message).toContain('Unauthorized');
             } else {
@@ -1181,7 +1169,7 @@ describe('RBAC Tests', () => {
         });
 
         it('should return DIRECT_ACCESS after granting access to guest', async () => {
-            // First, ensure guest user exists and has valid token
+            // First, ensure guest user exists and has a valid token
             // If guestToken is invalid, create a new test user instead
             let validGuestToken = guestToken;
             let validguestUserUuid = guestUserUuid;
@@ -1263,7 +1251,6 @@ describe('RBAC Tests', () => {
                     `,
                     variables: { uuid: componentUuid }
                 });
-
             expect(body.errors).toBeUndefined();
             expect(body.data?.myAccessToComponent.hasAccess).toBe(true);
             expect(body.data?.myAccessToComponent.accessLevel).toBe(3);
@@ -1289,8 +1276,7 @@ describe('RBAC Tests', () => {
                     variables: { uuid: publicComponentUuid }
                 });
 
-            // Without token, should return error (token required for myAccessTo*)
-            expect(body.errors).toBeDefined();
+            // Without token, should return an error (token required for myAccessTo*)
             expect(body.errors[0].message).toContain('Token not found');
         });
 
@@ -1310,7 +1296,6 @@ describe('RBAC Tests', () => {
                     `,
                     variables: { standardUuid: testStandardUuid }
                 });
-
             expect(body.errors).toBeUndefined();
             expect(body.data?.myAccessToStandard.hasAccess).toBe(true);
             expect(body.data?.myAccessToStandard.accessLevel).toBe(1);
@@ -1333,7 +1318,6 @@ describe('RBAC Tests', () => {
                     `,
                     variables: { standardUuid: testStandardUuid }
                 });
-
             expect(body.errors).toBeUndefined();
             expect(body.data?.myAccessToStandard.hasAccess).toBe(false);
             expect(body.data?.myAccessToStandard.source).toBe('NONE');
@@ -1355,7 +1339,6 @@ describe('RBAC Tests', () => {
                     `,
                     variables: { standardUuid: standardUuid }  // ← public standard
                 });
-
             expect(body.errors).toBeUndefined();
             expect(body.data?.myAccessToStandard.hasAccess).toBe(true);
             expect(body.data?.myAccessToStandard.accessLevel).toBe(3);
@@ -1378,7 +1361,6 @@ describe('RBAC Tests', () => {
                     `,
                     variables: { standardUuid: standardUuid }  // ← public standard
                 });
-
             expect(body.errors).toBeUndefined();
             expect(body.data?.myAccessToStandard.hasAccess).toBe(true);
             expect(body.data?.myAccessToStandard.accessLevel).toBe(1);
@@ -1401,7 +1383,6 @@ describe('RBAC Tests', () => {
                     `,
                     variables: { uuid: serviceUuid }
                 });
-
             expect(body.errors).toBeUndefined();
             expect(body.data?.myAccessToService.hasAccess).toBe(true);
             expect(body.data?.myAccessToService.accessLevel).toBe(1);
@@ -1424,7 +1405,6 @@ describe('RBAC Tests', () => {
                     `,
                     variables: { uuid: serviceUuid }
                 });
-
             expect(body.errors).toBeUndefined();
             expect(body.data?.myAccessToService.hasAccess).toBe(false);
             expect(body.data?.myAccessToService.source).toBe('NONE');
@@ -1446,7 +1426,6 @@ describe('RBAC Tests', () => {
                     `,
                     variables: { uuid: companyUuid }
                 });
-
             expect(body.errors).toBeUndefined();
             expect(body.data?.myAccessToCompany.hasAccess).toBe(true);
             expect(body.data?.myAccessToCompany.accessLevel).toBe(1);
@@ -1543,7 +1522,6 @@ describe('RBAC Tests', () => {
                     `,
                     variables: { uuid: companyUuid }
                 });
-
             expect(body.errors).toBeUndefined();
             expect(body.data?.myAccessToCompany.hasAccess).toBe(true);
             expect(body.data?.myAccessToCompany.source).toBe('COMPANY_ROLE');
@@ -1580,8 +1558,6 @@ describe('RBAC Tests', () => {
                     query: DELETE_COMPONENT_MUTATION,
                     variables: { componentUuid: tempComponentUuid }
                 });
-
-            expect(body.errors).toBeDefined();
             expect(body.errors[0].message).toContain('Access denied');
         });
     });
@@ -1621,8 +1597,7 @@ describe('RBAC Tests', () => {
                         name: 'Should Fail'
                     }
                 });
-
-            expect(body.errors).toBeDefined();
+            expect(body.errors[0].message).toBe('BadRequest: Access denied');
         });
 
         it('should handle invalid access level', async () => {
@@ -1637,12 +1612,11 @@ describe('RBAC Tests', () => {
                         typeAccessId: 99
                     }
                 });
-
-            expect(body.errors).toBeDefined();
+            expect(body.errors[0].message).toBe('Internal Server Error');
         });
 
         it('should handle duplicate access grants', async () => {
-            // Первое предоставление доступа
+            // First grant access
             await agent
                 .post('/graphql')
                 .set('Authorization', `Bearer ${adminToken}`)
@@ -1655,7 +1629,7 @@ describe('RBAC Tests', () => {
                     }
                 });
 
-            // Повторное предоставление того же доступа
+            // Re-grant the same access
             const { body } = await agent
                 .post('/graphql')
                 .set('Authorization', `Bearer ${adminToken}`)
@@ -1667,9 +1641,8 @@ describe('RBAC Tests', () => {
                         typeAccessId: ACCESS_LEVEL.VIEW
                     }
                 });
-
             expect(body.errors).toBeUndefined();
-            // Должно вернуть true, но не создать дубликат
+            // Should return true, but not create a duplicate
             expect(body.data?.setUserAccessComponent).toBe(true);
         });
 
@@ -1683,8 +1656,6 @@ describe('RBAC Tests', () => {
                         name: 'No Auth Test'
                     }
                 });
-
-            expect(body.errors).toBeDefined();
             expect(body.errors[0].message).toContain('Token not found');
         });
     });
@@ -1733,7 +1704,7 @@ describe('RBAC Tests', () => {
     });
 
     // ==============================================
-    // 1. ТЕСТЫ НА УРОВЕНЬ 1 (MANAGE) — ОБНОВЛЕНИЕ ОБЪЕКТОВ
+    // 1. LEVEL 1 TESTS (MANAGE) — OBJECT UPDATE
     // ==============================================
     describe('Access Level 1 (Manage) Tests', () => {
         let testComponentUuid, testStandardUuid, testServiceUuid;
@@ -1742,7 +1713,7 @@ describe('RBAC Tests', () => {
             testComponentUuid = await createComponent(agent, adminToken, 'Manage Test Component', ACCESS_LEVEL.PROTECTED);
             testStandardUuid = await createStandard(agent, adminToken, 'Manage Test Standard', ACCESS_LEVEL.PROTECTED);
 
-            // Выдаем доступ уровня 1
+            // Grant level 1 access
             await agent.post('/graphql').set('Authorization', `Bearer ${adminToken}`).send({
                 query: SET_USER_ACCESS_MUTATION,
                 variables: { componentUuid: testComponentUuid, userUuid: managerUserUuid, typeAccessId: 1 }
@@ -1778,7 +1749,7 @@ describe('RBAC Tests', () => {
     });
 
     // ==============================================
-    // 2. ТЕСТЫ НА УРОВЕНЬ 2 (WRITE) — СОЗДАНИЕ СВЯЗЕЙ
+    // 2. LEVEL 2 TESTS (WRITE) — CREATE RELATIONSHIPS
     // ==============================================
     describe('Access Level 2 (Write) Tests', () => {
         let testComponentUuid = "";
@@ -1817,7 +1788,7 @@ describe('RBAC Tests', () => {
     });
 
     // ==============================================
-    // 3. ТЕСТЫ НА ПРЯМОЙ ДОСТУП (DIRECT ACCESS)
+    // 3. DIRECT ACCESS TESTS
     // ==============================================
     describe('Direct Access Tests', () => {
         let componentUuid = "";
@@ -1841,7 +1812,7 @@ describe('RBAC Tests', () => {
     });
 
     // ==============================================
-    // 4. ТЕСТЫ БЕЗ ТОКЕНА
+    // 4. TESTS WITHOUT TOKEN
     // ==============================================
     describe('Unauthorized Access Tests', () => {
         let publicComponentUuid, privateComponentUuid;
@@ -1877,7 +1848,7 @@ describe('RBAC Tests', () => {
     });
 
     // ==============================================
-    // ТЕСТЫ НА УДАЛЕНИЕ ДОЧЕРНИХ ЭЛЕМЕНТОВ (MANAGE)
+    // TESTS FOR DELETING CHILD ELEMENTS (MANAGE)
     // ==============================================
     describe('Delete Child Objects Tests', () => {
         let componentUuid = "";
@@ -1886,7 +1857,7 @@ describe('RBAC Tests', () => {
         beforeAll(async () => {
             componentUuid = await createComponent(agent, adminToken, 'Delete Child Test Component', ACCESS_LEVEL.PROTECTED);
 
-            // Выдаем права
+            // Grant permissions
             await agent.post('/graphql').set('Authorization', `Bearer ${adminToken}`).send({
                 query: SET_USER_ACCESS_MUTATION,
                 variables: { componentUuid, userUuid: managerUserUuid, typeAccessId: 1 }
@@ -1896,13 +1867,13 @@ describe('RBAC Tests', () => {
                 variables: { componentUuid, userUuid: writerUserUuid, typeAccessId: 2 }
             });
 
-            // Writer создает спецификацию
+            // Writer creates a specification
             await agent.post('/graphql').set('Authorization', `Bearer ${writerToken}`).send({
                 query: ADD_COMPONENT_SPECS_MUTATION,
                 variables: { componentUuid, specIds: 10 }
             });
 
-            // Writer создает модификацию
+            // Writer creates a modification
             const modRes = await agent.post('/graphql').set('Authorization', `Bearer ${writerToken}`).send({
                 query: CREATE_COMPONENT_MODIFICATION_MUTATION,
                 variables: { componentUuid, modificationName: "Test Mod" }
@@ -1921,7 +1892,7 @@ describe('RBAC Tests', () => {
         });
 
         it('should deny Write (2) to delete component specs', async () => {
-            // Сначала добавляем новую спецификацию, которую будем пытаться удалить
+            // First, add a new specification to attempt deletion
             await agent.post('/graphql').set('Authorization', `Bearer ${writerToken}`).send({
                 query: ADD_COMPONENT_SPECS_MUTATION,
                 variables: { componentUuid, specIds: 20 }
@@ -1931,7 +1902,6 @@ describe('RBAC Tests', () => {
                 query: DELETE_COMPONENT_SPECS_MUTATION,
                 variables: { componentUuid, specIds: 20 }
             });
-            expect(body.errors).toBeDefined();
             expect(body.errors[0].message).toBe('BadRequest: Access denied');
         });
 
@@ -1945,7 +1915,7 @@ describe('RBAC Tests', () => {
         });
 
         it('should deny Write (2) to delete component modification', async () => {
-            // Создаем новую модификацию через Write
+            // Create a new modification through Write
             const modRes = await agent.post('/graphql').set('Authorization', `Bearer ${writerToken}`).send({
                 query: CREATE_COMPONENT_MODIFICATION_MUTATION,
                 variables: { componentUuid, modificationName: "Another Test Mod" }
@@ -1956,13 +1926,12 @@ describe('RBAC Tests', () => {
                 query: DELETE_COMPONENT_MODIFICATION_MUTATION,
                 variables: { componentUuid, modificationUuid: newModificationUuid }
             });
-            expect(body.errors).toBeDefined();
             expect(body.errors[0].message).toBe('BadRequest: Access denied');
         });
     });
 
     // ==============================================
-    // ТЕСТЫ НА OWNER-ONLY ОПЕРАЦИИ
+    // OWNER-ONLY OPERATIONS TESTS
     // ==============================================
     describe('Owner-Only Operations Tests', () => {
         let componentUuid = "";
@@ -1978,7 +1947,6 @@ describe('RBAC Tests', () => {
                 query: DELETE_COMPONENT_MUTATION,
                 variables: { componentUuid }
             });
-            expect(body.errors).toBeDefined();
             expect(body.errors[0].message).toBe('BadRequest: Access denied');
         });
 
@@ -1987,7 +1955,6 @@ describe('RBAC Tests', () => {
                 query: `mutation DeleteStandard($standardUuid: UUID!) { deleteStandard(standardUuid: $standardUuid) }`,
                 variables: { standardUuid }
             });
-            expect(body.errors).toBeDefined();
             expect(body.errors[0].message).toBe('BadRequest: Access denied');
         });
 
@@ -1996,7 +1963,6 @@ describe('RBAC Tests', () => {
                 query: SET_USER_ACCESS_MUTATION,
                 variables: { componentUuid, userUuid: guestUserUuid, typeAccessId: 3 }
             });
-            expect(body.errors).toBeDefined();
             expect(body.errors[0].message).toBe('BadRequest: Access denied');
         });
 
@@ -2013,13 +1979,12 @@ describe('RBAC Tests', () => {
                 `,
                 variables: { standardUuid, userUuid: guestUserUuid, typeAccessId: 3 }
             });
-            expect(body.errors).toBeDefined();
             expect(body.errors[0].message).toBe('BadRequest: Access denied');
         });
     });
 
     // ==============================================
-    // ТЕСТЫ НА ИЕРАРХИЮ УРОВНЕЙ ДОСТУПА
+    // HIERARCHY OF ACCESS LEVELS TESTS
     // ==============================================
     describe('Access Level Hierarchy Tests', () => {
         let componentUuid = "";
@@ -2027,7 +1992,7 @@ describe('RBAC Tests', () => {
         beforeAll(async () => {
             componentUuid = await createComponent(agent, adminToken, 'Hierarchy Test Component', ACCESS_LEVEL.PROTECTED);
 
-            // Выдаем разные уровни доступа
+            // Grant different access levels
             await agent.post('/graphql').set('Authorization', `Bearer ${adminToken}`).send({
                 query: SET_USER_ACCESS_MUTATION,
                 variables: { componentUuid, userUuid: managerUserUuid, typeAccessId: 1 }
@@ -2067,14 +2032,14 @@ describe('RBAC Tests', () => {
         });
 
         it('should have proper hierarchy: Manage (1) can update, Write (2) cannot', async () => {
-            // Manage (1) может обновлять
+            // Manage (1) can update
             const manageRes = await agent.post('/graphql').set('Authorization', `Bearer ${managerToken}`).send({
                 query: UPDATE_COMPONENT_MUTATION,
                 variables: { componentUuid, name: 'Updated by Manage' }
             });
             expect(manageRes.body.data?.putComponentUpdate).toBe(1);
 
-            // Write (2) не может обновлять
+            // Write (2) cannot update
             const writeRes = await agent.post('/graphql').set('Authorization', `Bearer ${writerToken}`).send({
                 query: UPDATE_COMPONENT_MUTATION,
                 variables: { componentUuid, name: 'Try by Write' }
@@ -2088,10 +2053,10 @@ describe('RBAC Tests', () => {
         let serviceRequestUuid = "";
 
         beforeAll(async () => {
-            // Создаем компанию-поставщика
+            // Create a supplier company
             supplierCompanyUuid = await createCompany(agent, adminToken, `Supplier Company ${Date.now()}`);
             await setCompanySupplier(supplierCompanyUuid);
-            // Клиент создает запрос к компании-поставщику
+            // Client creates a request to the supplier company
             serviceRequestUuid = await createService(agent, customerToken, 'Request for Service', supplierCompanyUuid);
         });
 
@@ -2159,8 +2124,6 @@ describe('RBAC Tests', () => {
                         name: `Hacked ${Date.now()}`
                     }
                 });
-
-            expect(body.errors).toBeDefined();
             expect(body.errors[0].message).toBe('BadRequest: Access denied');
         });
     });
