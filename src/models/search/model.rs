@@ -45,7 +45,7 @@ impl ExtraOptions {
     pub(crate) fn from_cxt(cxt: &Context<'_>, no_entry: bool) -> ServiceResult<Self> {
         let set_lang_id = get_set_language(cxt);
         let domain = extract_client_domain(cxt);
-        match get_logged_user_uuid(cxt, true) {
+        match get_logged_user_uuid(cxt) {
             Ok(logged_user_uuid) => Ok(Self {
                 logged_user_uuid,
                 set_lang_id,

@@ -1,6 +1,8 @@
 use super::model::Claims;
+use crate::errors::err_msg::{get_err_msg, ErrorMessage};
 use crate::errors::ServiceError;
 use crate::models::user::model::SlimUser;
+use jsonwebtoken::errors::ErrorKind;
 use jsonwebtoken::{decode, encode, Algorithm, DecodingKey, EncodingKey, Header, Validation};
 use std::fs;
 
@@ -55,5 +57,11 @@ pub(crate) fn decode_token(token: &str) -> Result<Claims, ServiceError> {
         &Validation::new(Algorithm::RS256),
     )
     .map(|data| data.claims)
-    .map_err(|e| ServiceError::BadRequest(e.to_string()))
+    .map_err(|err| {
+        debug!("Failed to decode token: {:?}", err);
+        match err.kind() {
+            ErrorKind::ExpiredSignature => ServiceError::Unauthorized,
+            _ => get_err_msg(ErrorMessage::TokenIsInvalid),
+        }
+    })
 }

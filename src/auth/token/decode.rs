@@ -1,7 +1,7 @@
 use crate::errors::{ServiceError, ServiceResult};
 // use crate::graphql::model::Context;
-use crate::auth::jwt::manager::decode_token;
-use crate::auth::jwt::model::Claims;
+use crate::auth::token::manager::decode_token;
+use crate::auth::token::model::Claims;
 
 use async_graphql::*;
 use uuid::Uuid;

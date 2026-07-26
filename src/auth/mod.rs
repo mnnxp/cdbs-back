@@ -1,6 +1,7 @@
 pub(crate) mod access;
+pub(crate) mod api_key;
 mod context;
-pub(crate) mod jwt;
+pub(crate) mod middleware;
 pub(crate) mod permission;
 mod rbac;
 pub(crate) mod token;

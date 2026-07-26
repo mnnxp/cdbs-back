@@ -19,8 +19,6 @@ pub(crate) enum ErrorMessage {
     DataNotFound,
     /// "Found duplicate data"
     FoundDuplicateData,
-    /// "Found duplicate token"
-    FoundDuplicateToken,
     /// "Duplication of existing data was detected"
     DuplicateOfExistingData,
     /// "Role is assigned to members"
@@ -149,8 +147,6 @@ pub(crate) enum ErrorMessage {
     NeedToChooseCompanyOrRepresentative,
     /// "Your token is invalid"
     TokenIsInvalid,
-    /// "Token has expired"
-    TokenExpired,
     /// format!("This {} name is already there. Id: {}", name, x)
     NameAlreadyThereX(String, i32),
     /// format!("This ids {:?} already has", error_ids)

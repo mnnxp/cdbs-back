@@ -1,10 +1,10 @@
-use crate::auth::jwt::manager::decode_token;
-use crate::auth::jwt::model::{Claims, Token};
-use crate::auth::token::UserToken;
+use crate::auth::token::manager::decode_token;
+use crate::auth::token::model::{Claims, Token};
 use crate::auth::token::{
-    check_token, decode, delete_all_tokens, delete_user_token, show_tokens, token_from_cxt, update,
+    decode, delete_all_tokens, delete_user_token, show_tokens, token_from_cxt, update,
 };
-use crate::errors::ServiceResult;
+use crate::auth::token::{find_user_by_token, UserToken};
+use crate::errors::{ServiceError, ServiceResult};
 use async_graphql::Context;
 use diesel::prelude::PgConnection;
 use uuid::Uuid;
@@ -20,11 +20,10 @@ pub(crate) fn show_user_tokens(
 /// Returns true if current token is still valid (not expired or revoked)
 pub(crate) fn check_token_valid(cxt: &Context<'_>, conn: &mut PgConnection) -> ServiceResult<bool> {
     let token_str = token_from_cxt(cxt)?;
-    let claims = decode_token(&token_str)?;
-    if claims.is_valid() {
-        check_token(&token_str, conn)
-    } else {
-        Ok(false)
+    match find_user_by_token(&token_str, conn) {
+        Ok(_user_uuid) => Ok(true),
+        Err(ServiceError::Unauthorized) => Ok(false),
+        Err(err) => Err(err),
     }
 }
 

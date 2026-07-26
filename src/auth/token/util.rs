@@ -1,17 +1,18 @@
 use super::model::{InsertableUserToken, UserToken};
-use crate::auth::jwt::manager::decode_token;
-use crate::auth::jwt::model::{Claims, Token};
+use crate::auth::token::manager::decode_token;
+use crate::auth::token::model::{Claims, Token};
 use crate::database::{get_conn, PooledConnection};
 use crate::errors::err_msg::{get_err_msg, ErrorMessage};
 use crate::errors::{ServiceError, ServiceResult};
 use crate::models::user::model::SlimUser;
 use crate::schema::user_token_ref::dsl as user_token_ref;
 use async_graphql::Context;
-// use chrono::NaiveDateTime;
+use chrono::Local;
 use diesel::prelude::*;
+use diesel::result::Error;
 use uuid::Uuid;
 
-/// Extract token from GraphQL context and validate expiration
+/// Extract token from GraphQL context
 pub(crate) fn token_from_cxt(cxt: &Context<'_>) -> ServiceResult<String> {
     let token = cxt
         .data_opt::<Token>()
@@ -22,17 +23,6 @@ pub(crate) fn token_from_cxt(cxt: &Context<'_>) -> ServiceResult<String> {
         debug!("Token not found in context");
         get_err_msg(ErrorMessage::TokenNotFound)
     })?;
-
-    // Decode and check expiration
-    let claims = decode_token(&token_str).map_err(|e| {
-        debug!("Failed to decode token: {:?}", e);
-        get_err_msg(ErrorMessage::TokenIsInvalid)
-    })?;
-
-    // Check if token is expired
-    if claims.is_expired() {
-        return Err(get_err_msg(ErrorMessage::TokenExpired));
-    }
 
     Ok(token_str)
 }
@@ -64,12 +54,13 @@ pub(crate) fn update(cxt: &Context<'_>, flag_delete_token: bool) -> ServiceResul
 
     // get old token
     let old_token = token_from_cxt(cxt)?;
-    if !check_token(old_token.as_str(), conn)? {
-        return Err(get_err_msg(ErrorMessage::TokenIsInvalid));
-    }
 
     // decrypt old token
     let old_data = decode(old_token.as_str())?;
+
+    // check in db
+    get_user_by_token(old_token.as_str(), conn)?;
+
     if flag_delete_token {
         // deactivate old token
         delete_token(old_token.as_str(), conn)?;
@@ -176,37 +167,32 @@ pub(crate) fn write_token(
     }
 }
 
-/// check token for validity
-pub(crate) fn check_token(target_token: &str, conn: &mut PgConnection) -> ServiceResult<bool> {
-    let naive_local_now = chrono::Local::now().naive_local();
-
-    let get_token = user_token_ref::user_token_ref
-        .filter(
-            user_token_ref::token
-                .eq(target_token)
-                .and(user_token_ref::expiration_at.gt(naive_local_now)),
-        )
-        .execute(conn)
-        .map_err(|err| {
-            debug!("Failed check token: {:?}", err);
-            ServiceError::InternalServerError
-        })?;
-
-    match get_token {
-        0 => Ok(false),
-        1 => Ok(true),
-        _ => Err(get_err_msg(ErrorMessage::FoundDuplicateToken)),
-    }
-}
-
-/// get the user_uuid who owns the token
-pub(crate) fn whose_token(target_token: &str, conn: &mut PgConnection) -> ServiceResult<Uuid> {
+/// Queries the database for a valid token and returns the owner's UUID
+pub(crate) fn get_user_by_token(
+    target_token: &str,
+    conn: &mut PgConnection,
+) -> ServiceResult<Uuid> {
+    let naive_local_now = Local::now().naive_local();
     user_token_ref::user_token_ref
         .filter(user_token_ref::token.eq(target_token))
+        .filter(user_token_ref::expiration_at.gt(naive_local_now))
         .select(user_token_ref::user_uuid)
-        .first(conn)
-        .map_err(|err| {
-            debug!("Failed get token: {:?}", err);
-            ServiceError::InternalServerError
+        .first::<Uuid>(conn)
+        .map_err(|err| match err {
+            Error::NotFound => ServiceError::Unauthorized,
+            _ => {
+                debug!("Failed to validate token in DB: {:?}", err);
+                ServiceError::InternalServerError
+            }
         })
+}
+
+/// Decodes the JWT token and verifies its existence and validity in the database
+pub(crate) fn find_user_by_token(
+    target_token: &str,
+    conn: &mut PgConnection,
+) -> ServiceResult<Uuid> {
+    // check valid token in string
+    decode_token(target_token)?;
+    get_user_by_token(target_token, conn)
 }

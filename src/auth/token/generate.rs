@@ -1,5 +1,5 @@
-use crate::auth::jwt::manager::create_token;
-use crate::auth::jwt::model::Token;
+use crate::auth::token::manager::create_token;
+use crate::auth::token::model::Token;
 use crate::errors::ServiceResult;
 use crate::models::user::model::SlimUser;
 use async_graphql::*;

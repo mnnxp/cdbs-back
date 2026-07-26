@@ -16,6 +16,7 @@ mod models;
 mod schema;
 mod storage;
 
+use crate::auth::middleware::AuthMiddleware;
 use crate::database::pool::establish_connection;
 use crate::graphql::handler::build_schema;
 use actix_cors::Cors;
@@ -65,6 +66,7 @@ async fn main() -> std::io::Result<()> {
                 header::AUTHORIZATION,
                 header::CONTENT_TYPE,
                 header::ACCEPT_LANGUAGE,
+                header::HeaderName::from_static("x-api-key"),
             ])
             .supports_credentials()
             .max_age(3600);
@@ -74,6 +76,8 @@ async fn main() -> std::io::Result<()> {
             .wrap(cors)
             // Error logging
             .wrap(Logger::default())
+            // Authentication
+            .wrap(AuthMiddleware)
             // Options
             .app_data(opt_data.clone())
             // Database

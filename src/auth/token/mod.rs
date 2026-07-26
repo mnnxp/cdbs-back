@@ -1,7 +1,8 @@
 mod decode;
 mod generate;
 pub(crate) mod logged;
-mod model;
+pub(crate) mod manager;
+pub(crate) mod model;
 mod util;
 
 pub(crate) use decode::decode;

@@ -1,5 +1,9 @@
-use crate::auth::jwt::model::Token;
+use crate::auth::api_key::model::IptUpdateApiKeyData;
+use crate::auth::api_key::repository::{
+    change_api_key, generate_api_key, regenerate_api_key, revoke_api_key,
+};
 use crate::auth::token::logged::check_authorized;
+use crate::auth::token::model::Token;
 use crate::auth::AuthContext;
 use crate::database::{get_conn, PooledConnection};
 use crate::errors::ServiceResult;
@@ -13,6 +17,7 @@ use crate::models::user::model::IptUpdateUserData;
 use crate::models::user::model::{IptUserData, SlimUser};
 
 use async_graphql::{self, Context, Object};
+use chrono::{DateTime, Utc};
 use uuid::Uuid;
 
 #[derive(Default)]
@@ -293,6 +298,8 @@ impl UserMutation {
         delete_notifications(&logged_user_uuid, &notifications_ids, conn)
     }
 
+    // TOKEN MANAGEMENT
+
     /// Generates a token for the user without deleting other valid tokens.
     /// Returns the user's new authorization token.
     async fn get_token(&self, cxt: &Context<'_>) -> ServiceResult<Token> {
@@ -332,5 +339,45 @@ impl UserMutation {
 
         // removed user token
         logout_user(cxt)
+    }
+
+    // API KEY MANAGEMENT
+
+    /// Creates a new API key for the authenticated user.
+    async fn create_api_key(
+        &self,
+        cxt: &Context<'_>,
+        name: String,
+        expires_at: Option<DateTime<Utc>>,
+    ) -> ServiceResult<String> {
+        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+        generate_api_key(&logged_user_uuid, &name, expires_at, conn)
+    }
+
+    /// Updates an API key metadata.
+    async fn update_api_key(
+        &self,
+        cxt: &Context<'_>,
+        key_id: i32,
+        args: IptUpdateApiKeyData,
+    ) -> ServiceResult<usize> {
+        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+        change_api_key(key_id, &logged_user_uuid, &args, conn)
+    }
+
+    /// Deletes (revokes) an API key.
+    async fn delete_api_key(&self, cxt: &Context<'_>, key_id: i32) -> ServiceResult<bool> {
+        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+        revoke_api_key(key_id, &logged_user_uuid, conn)
+    }
+
+    /// Regenerates an API key (revokes old, creates new).
+    async fn rotate_api_key(&self, cxt: &Context<'_>, key_id: i32) -> ServiceResult<String> {
+        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+        regenerate_api_key(key_id, &logged_user_uuid, conn)
     }
 }

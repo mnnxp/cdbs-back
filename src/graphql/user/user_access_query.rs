@@ -1,5 +1,3 @@
-//! GraphQL queries for current user's access information to various objects.
-
 use async_graphql::{Context, Enum, Object, SimpleObject};
 use uuid::Uuid;
 
@@ -10,8 +8,6 @@ use crate::auth::access::{
 use crate::auth::AuthContext;
 use crate::database::get_conn;
 use crate::errors::ServiceResult;
-
-// ========== GraphQL Types ==========
 
 #[derive(SimpleObject, Debug)]
 pub struct AccessCheckResult {
@@ -54,8 +50,6 @@ impl From<AuthAccessInfo> for AccessCheckResult {
     }
 }
 
-// ========== Queries ==========
-
 #[derive(Default)]
 pub struct UserAccessQuery;
 
@@ -64,11 +58,11 @@ impl UserAccessQuery {
     /// Get current user's access information for a specific component
     async fn my_access_to_component(
         &self,
-        ctx: &Context<'_>,
+        cxt: &Context<'_>,
         component_uuid: Uuid,
     ) -> ServiceResult<AccessCheckResult> {
-        let user_uuid = AuthContext::from_graphql(ctx)?.user_uuid();
-        let mut conn = get_conn(ctx)?;
+        let user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
+        let mut conn = get_conn(cxt)?;
         let info = check_component_access(&user_uuid, &component_uuid, &mut conn)?;
         Ok(info.into())
     }
@@ -76,11 +70,11 @@ impl UserAccessQuery {
     /// Get current user's access information for a specific standard
     async fn my_access_to_standard(
         &self,
-        ctx: &Context<'_>,
+        cxt: &Context<'_>,
         standard_uuid: Uuid,
     ) -> ServiceResult<AccessCheckResult> {
-        let user_uuid = AuthContext::from_graphql(ctx)?.user_uuid();
-        let mut conn = get_conn(ctx)?;
+        let user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
+        let mut conn = get_conn(cxt)?;
         let info = check_standard_access(&user_uuid, &standard_uuid, &mut conn)?;
         Ok(info.into())
     }
@@ -88,11 +82,11 @@ impl UserAccessQuery {
     /// Get current user's access information for a specific service
     async fn my_access_to_service(
         &self,
-        ctx: &Context<'_>,
+        cxt: &Context<'_>,
         service_uuid: Uuid,
     ) -> ServiceResult<AccessCheckResult> {
-        let user_uuid = AuthContext::from_graphql(ctx)?.user_uuid();
-        let mut conn = get_conn(ctx)?;
+        let user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
+        let mut conn = get_conn(cxt)?;
         let info = check_service_access(&user_uuid, &service_uuid, &mut conn)?;
         Ok(info.into())
     }
@@ -100,11 +94,11 @@ impl UserAccessQuery {
     /// Get current user's access information for a specific company
     async fn my_access_to_company(
         &self,
-        ctx: &Context<'_>,
+        cxt: &Context<'_>,
         company_uuid: Uuid,
     ) -> ServiceResult<AccessCheckResult> {
-        let user_uuid = AuthContext::from_graphql(ctx)?.user_uuid();
-        let mut conn = get_conn(ctx)?;
+        let user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
+        let mut conn = get_conn(cxt)?;
         let info = check_company_access(&user_uuid, &company_uuid, &mut conn)?;
         Ok(info.into())
     }

@@ -1,11 +1,13 @@
-use crate::auth::jwt::model::Claims;
+use crate::auth::api_key::repository::{get_api_key, list_api_keys};
 use crate::auth::token::logged::check_authorized;
+use crate::auth::token::model::Claims;
 use crate::auth::token::UserToken;
 use crate::auth::AuthContext;
 use crate::database::{get_conn, PooledConnection};
 use crate::errors::ServiceResult;
 use crate::graphql::handler::extract_client_domain;
 use crate::graphql::relate::attributes::IptPaginate;
+use crate::graphql::user::api_key_model::ApiKeyData;
 use crate::models::search::model::ExtraOptions;
 use crate::models::search::order::Paginate;
 use crate::models::user::model::{
@@ -140,5 +142,21 @@ impl UserQuery {
             &p,
             conn,
         )
+    }
+
+    /// Lists all API keys for the authenticated user.
+    async fn api_keys(&self, cxt: &Context<'_>) -> ServiceResult<Vec<ApiKeyData>> {
+        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+        let keys = list_api_keys(&logged_user_uuid, conn)?;
+        Ok(keys.into_iter().map(ApiKeyData::from).collect())
+    }
+
+    /// Gets a specific API key by ID.
+    async fn api_key(&self, cxt: &Context<'_>, key_id: i32) -> ServiceResult<ApiKeyData> {
+        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
+        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+        let key = get_api_key(key_id, &logged_user_uuid, conn)?;
+        Ok(ApiKeyData::from(key))
     }
 }

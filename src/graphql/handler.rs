@@ -1,10 +1,11 @@
-use crate::auth::jwt::model::Token;
+use crate::auth::middleware::AuthStatus;
+use crate::auth::token::model::Token;
 use crate::cli_args::Opt;
 use crate::database::Pool;
 use crate::graphql::{MutationRoot, QueryRoot};
 use crate::models::relate_ref::language::model::SetLang;
 use actix_web::http::header::{HeaderMap, HOST, ORIGIN};
-use actix_web::{web, HttpRequest, HttpResponse, Result};
+use actix_web::{web, HttpMessage, HttpRequest, HttpResponse, Result};
 use async_graphql::{
     http::{playground_source, GraphQLPlaygroundConfig},
     Context, EmptySubscription, Schema,
@@ -31,9 +32,14 @@ pub async fn graphql(
 ) -> GraphQLResponse {
     let mut request = gql_request.into_inner();
 
+    // get JWT / api key
+    if let Some(auth_status) = req.extensions().get::<AuthStatus>() {
+        request = request.data(auth_status.clone());
+    }
+
     let headers_req = req.headers();
 
-    // get token from request
+    // get token from request (fallback)
     let token: Token = headers_req.into();
 
     // set the language for sending responses
