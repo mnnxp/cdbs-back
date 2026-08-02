@@ -1,6 +1,6 @@
 CADBase Backend
 =====
-The platform for publishing and sharing information on drawings and manufacturers.
+A high-performance, containerized GraphQL API server for managing and sharing CAD models, technical drawings, and manufacturer data. Built with Rust, Diesel, and Actix-web.
 
 ## Getting Started
 
@@ -18,7 +18,6 @@ vi .env
 mkdir -p keys
 openssl genrsa -out keys/rs256-4096-private.pem 4096
 openssl rsa -in keys/rs256-4096-private.pem -pubout > keys/rs256-4096-public.pem
-chmod 600 keys/rs256-4096-private.pem
 
 # Run the server
 cargo run
@@ -34,8 +33,8 @@ cargo run
 | `PORT` | Server port | `3000` |
 | `RUST_LOG` | Log level (info, debug, trace, warn, error) | `info` |
 | **Authentication** |||
-| `JWT_PRIVATE_KEY` | Path to RSA private key for JWT signing | `./keys/rs256-4096-private.pem` |
-| `JWT_PUBLIC_KEY` | Path to RSA public key for JWT verification | `./keys/rs256-4096-public.pem` |
+| `JWT_PRIVATE_KEY` | Raw PEM content of the RSA private key | `"-----BEGIN PRIVATE KEY-----\nMIIJQQIBADANB..."` |
+| `JWT_PUBLIC_KEY`  | Raw PEM content of the RSA public key | `"-----BEGIN PUBLIC KEY-----\nMIICIjANBgkqh..."` |
 | `AUTH_DURATION_IN_HOUR` | JWT token validity in hours | `24` |
 | **CORS** |||
 | `ALLOWED_ORIGINS` | Comma-separated list of allowed CORS origins | `http://localhost:3000,http://127.0.0.1:3000` |
@@ -60,18 +59,6 @@ cargo run
 
 > **Note:** All environment variables can also be passed as CLI arguments. Run `cargo run -- --help` for details.
 > **Warning:** System UUIDs must match existing database values. Do not change them unless you know what you are doing.
-
-### Generate RSA keys for JWT
-
-**Important:** JWT keys are not stored in the repository. Generate them locally:
-
-```shell script
-mkdir -p keys
-openssl genrsa -out keys/rs256-4096-private.pem 4096
-openssl rsa -in keys/rs256-4096-private.pem -pubout > keys/rs256-4096-public.pem
-chmod 600 keys/rs256-4096-private.pem
-chmod 644 keys/rs256-4096-public.pem
-```
 
 ### Logging
 

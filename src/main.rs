@@ -17,6 +17,7 @@ mod schema;
 mod storage;
 
 use crate::auth::middleware::AuthMiddleware;
+use crate::auth::token::manager::init_jwt_keys;
 use crate::database::pool::establish_connection;
 use crate::graphql::handler::build_schema;
 use actix_cors::Cors;
@@ -38,6 +39,11 @@ async fn main() -> std::io::Result<()> {
         cli_args::Opt::from_args()
     };
     let opt_data = Data::new(opt.clone());
+
+    if let Err(err) = init_jwt_keys(&opt.jwt_private_key, &opt.jwt_public_key) {
+        log::error!("Invalid JWT RSA keys format: {:?}", err);
+        std::process::exit(1);
+    }
 
     // Database
     let pool = establish_connection(opt.clone());
