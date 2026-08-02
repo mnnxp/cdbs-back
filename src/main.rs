@@ -18,6 +18,7 @@ mod storage;
 
 use crate::auth::middleware::AuthMiddleware;
 use crate::auth::token::manager::init_jwt_keys;
+use crate::config::init_config;
 use crate::database::pool::establish_connection;
 use crate::graphql::handler::build_schema;
 use actix_cors::Cors;
@@ -38,7 +39,12 @@ async fn main() -> std::io::Result<()> {
         use structopt::StructOpt;
         cli_args::Opt::from_args()
     };
-    let opt_data = Data::new(opt.clone());
+
+    // Freeze application configuration globally
+    if let Err(err) = init_config(opt.clone()) {
+        log::error!("Configuration error: {}", err);
+        std::process::exit(1);
+    }
 
     if let Err(err) = init_jwt_keys(&opt.jwt_private_key, &opt.jwt_public_key) {
         log::error!("Invalid JWT RSA keys format: {:?}", err);
@@ -46,7 +52,7 @@ async fn main() -> std::io::Result<()> {
     }
 
     // Database
-    let pool = establish_connection(opt.clone());
+    let pool = establish_connection();
     let pool_data = Data::new(pool.clone());
     let schema = Data::new(build_schema(pool).await);
 
@@ -84,8 +90,6 @@ async fn main() -> std::io::Result<()> {
             .wrap(Logger::default())
             // Authentication
             .wrap(AuthMiddleware)
-            // Options
-            .app_data(opt_data.clone())
             // Database
             .app_data(pool_data.clone())
             // .app_data(schema)

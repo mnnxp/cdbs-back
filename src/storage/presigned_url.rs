@@ -1,29 +1,19 @@
+use crate::config::{aws_client, s3_bucket, s3_expiration_presigned_url};
 use crate::errors::{ServiceError, ServiceResult};
 use crate::models::relate_ref::file::model::SlimFile;
-use crate::storage::model::{InsertablePresignedUrl, StorageAccess};
-use crate::storage::s3::Aws;
+use crate::schema::presigned_url_ref::dsl as presigned_url_ref;
+use crate::storage::model::InsertablePresignedUrl;
 use chrono::{Duration, Local};
 use diesel::prelude::*;
+use log::debug;
 use uuid::Uuid;
 
 use super::model::S3Proxer;
 
 /// Gets presigned url for target file by path
-pub(crate) fn download_presigned_url(
-    access_storage: &StorageAccess,
-    slim_file: &SlimFile,
-) -> ServiceResult<String> {
-    let opt = {
-        use structopt::StructOpt;
-        crate::cli_args::Opt::from_args()
-    };
-
-    let presigned_url = Aws::from(access_storage)
-        .download_presigned_url(
-            &access_storage.bucket,
-            slim_file,
-            opt.s3_expiration_presigned_url,
-        )
+pub(crate) fn download_presigned_url(slim_file: &SlimFile) -> ServiceResult<String> {
+    let presigned_url = aws_client()
+        .get_download_presigned_url(s3_bucket(), slim_file, s3_expiration_presigned_url())
         .map_err(|err| {
             debug!("Failed make presign-url: {:#?}", err);
             ServiceError::InternalServerError
@@ -34,22 +24,9 @@ pub(crate) fn download_presigned_url(
 }
 
 /// Gets presigned url for upload files to storage
-pub(crate) fn upload_presigned_url(
-    access_storage: &StorageAccess,
-    path_file: &str,
-    domain: &str,
-) -> ServiceResult<String> {
-    let opt = {
-        use structopt::StructOpt;
-        crate::cli_args::Opt::from_args()
-    };
-
-    Aws::from(access_storage)
-        .get_upload_signed_url(
-            &access_storage.bucket,
-            path_file,
-            opt.s3_expiration_presigned_url,
-        )
+pub(crate) fn upload_presigned_url(path_file: &str, domain: &str) -> ServiceResult<String> {
+    aws_client()
+        .get_upload_signed_url(s3_bucket(), path_file, s3_expiration_presigned_url())
         .map(|url| url.proxied(domain))
         .map_err(|err| {
             debug!("Failed make presign-url: {:#?}", err);
@@ -63,16 +40,12 @@ pub(crate) fn save_presign_url(
     presigned_url: &str,
     conn: &mut PgConnection,
 ) -> ServiceResult<usize> {
-    use crate::schema::presigned_url_ref::dsl as presigned_url_ref;
-    let opt = {
-        use structopt::StructOpt;
-        crate::cli_args::Opt::from_args()
-    };
+    let expiration = s3_expiration_presigned_url();
 
     // in db the url action time less than the real one
-    let expiration_at = match opt.s3_expiration_presigned_url {
-        800.. => opt.s3_expiration_presigned_url - 400,
-        _ => opt.s3_expiration_presigned_url,
+    let expiration_at = match expiration {
+        800.. => expiration - 400,
+        _ => expiration,
     };
     let new_expiration_at = Local::now().naive_local() + Duration::seconds(expiration_at as i64);
 

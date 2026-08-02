@@ -45,7 +45,7 @@ impl Aws {
     }
 
     /// Generate url for file download
-    pub(crate) fn download_presigned_url(
+    pub(crate) fn get_download_presigned_url(
         &self,
         bucket: &str,
         slim_file: &SlimFile,

@@ -11,7 +11,6 @@ use crate::models::relate_ref::file::{
     service::register::preregister_file,
     util::check_image_filename,
 };
-use crate::storage::model::StorageAccess;
 use crate::storage::presigned_url::upload_presigned_url;
 use diesel::PgConnection;
 use uuid::Uuid;
@@ -52,8 +51,7 @@ pub(crate) fn add_component_files(
 
         debug!("New component file: {:?}", slim_file);
 
-        let upload_url =
-            upload_presigned_url(&StorageAccess::from_env(), &slim_file.path_file, domain)?;
+        let upload_url = upload_presigned_url(&slim_file.path_file, domain)?;
 
         up_files.push(UploadFile {
             file_uuid: slim_file.uuid,
@@ -105,8 +103,7 @@ pub(crate) fn add_component_favicon(
 
     debug!("New component file: {:?}", slim_file);
 
-    let upload_url =
-        upload_presigned_url(&StorageAccess::from_env(), &slim_file.path_file, domain)?;
+    let upload_url = upload_presigned_url(&slim_file.path_file, domain)?;
 
     change_updated_at(&data.component_uuid, None, conn)?;
 

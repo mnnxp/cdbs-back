@@ -15,7 +15,6 @@ use crate::models::standard::access::util::check_is_owner_with_err as standard_c
 use crate::models::supplier_service::access::util::check_is_owner_with_err as service_check_is_owner_with_err;
 use crate::models::supplier_service::service::update::change_service_updated_at;
 use crate::storage::metadata::object_headers;
-use crate::storage::model::StorageAccess;
 use diesel::prelude::*;
 use uuid::Uuid;
 
@@ -38,17 +37,12 @@ pub(crate) async fn confirm_upload(
         return Ok(0); // not found files for check
     }
 
-    // getting storage access data for target user
-    let storage_access = StorageAccess::from_env();
-
     // getting data for all files in vec
     for file_d in files {
-        let file_h = object_headers(&storage_access, &file_d.path_file)
-            .await
-            .map_err(|err| {
-                debug!("Failed get object headers: {:?}", err);
-                ServiceError::InternalServerError
-            })?;
+        let file_h = object_headers(&file_d.path_file).await.map_err(|err| {
+            debug!("Failed get object headers: {:?}", err);
+            ServiceError::InternalServerError
+        })?;
 
         // update file metadata in file_ref table
         let update_file_rows = update_file_data_by_uuid(

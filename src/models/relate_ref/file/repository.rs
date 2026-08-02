@@ -10,7 +10,7 @@ use crate::models::search::order::{objects_order, Paginate, Sort, TableName};
 use crate::models::user::model::ShowUserShort;
 use crate::schema::file_ref::dsl as file_ref;
 use crate::schema::presigned_url_ref::dsl as presigned_url_ref;
-use crate::storage::model::{S3Proxer, StorageAccess};
+use crate::storage::model::S3Proxer;
 use crate::storage::presigned_url::{download_presigned_url, save_presign_url};
 use diesel::prelude::*;
 use uuid::Uuid;
@@ -315,7 +315,7 @@ impl SlimFile {
             None => {
                 debug!("Failed get presigned_url");
                 // creates and saves (updates) download presigned url for a file in the database
-                let presigned_url = download_presigned_url(&StorageAccess::from_env(), &slim_file)?;
+                let presigned_url = download_presigned_url(&slim_file)?;
                 // save presigned url to database
                 save_presign_url(&slim_file.uuid, &presigned_url, conn)?;
                 presigned_url

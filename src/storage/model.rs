@@ -1,7 +1,6 @@
-use crate::cli_args::Opt;
+use crate::config::s3_endpoint;
 use crate::schema::*;
 use chrono::NaiveDateTime;
-use structopt::StructOpt;
 use uuid::Uuid;
 
 /// Proxying S3 storage URLs based on the client's domain.
@@ -42,8 +41,7 @@ impl<T: AsRef<str>> S3Proxer for T {
             // "127.0.0.1" => "https://s3.localhost.cloud",
             _ => return self.as_ref().to_string(),
         };
-        let opt = Opt::from_args();
-        self.as_ref().replace(&opt.s3_endpoint, s3_proxy)
+        self.as_ref().replace(s3_endpoint(), s3_proxy)
     }
 }
 
@@ -54,49 +52,6 @@ pub(crate) struct InsertablePresignedUrl {
     pub(crate) file_uuid: Uuid,
     pub(crate) presigned_url: String,
     pub(crate) expiration_at: NaiveDateTime,
-}
-
-#[derive(Clone, Debug)]
-pub(crate) struct StorageAccess {
-    application_key_id: String,
-    application_key: String,
-    pub(crate) bucket: String,
-    pub(crate) region: String,
-    pub(crate) endpoint: String,
-}
-
-impl StorageAccess {
-    /// Gets data to access S3 from environment for generate presign-urls
-    pub(crate) fn from_env() -> StorageAccess {
-        let opt = Opt::from_args();
-
-        // checking expiration date for key
-        if opt.s3_access_expiration_at < chrono::Local::now().naive_local() {
-            panic!("The data to access S3 is not valid.");
-        }
-
-        StorageAccess {
-            application_key_id: opt.s3_application_key_id,
-            application_key: opt.s3_application_key,
-            bucket: opt.s3_bucket,
-            region: opt.s3_region,
-            endpoint: opt.s3_endpoint,
-        }
-    }
-}
-
-impl From<&StorageAccess> for super::s3::Aws {
-    fn from(data: &StorageAccess) -> super::s3::Aws {
-        let application_key_id = &data.application_key_id;
-        let application_key = &data.application_key;
-
-        super::s3::Aws::new(
-            application_key_id,
-            application_key,
-            &data.region,
-            &data.endpoint,
-        )
-    }
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]

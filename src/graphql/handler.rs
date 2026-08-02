@@ -1,6 +1,6 @@
 use crate::auth::middleware::AuthStatus;
 use crate::auth::token::model::Token;
-use crate::cli_args::Opt;
+use crate::config::api_point;
 use crate::database::Pool;
 use crate::graphql::{MutationRoot, QueryRoot};
 use crate::models::relate_ref::language::model::SetLang;
@@ -56,11 +56,12 @@ pub async fn graphql(
     schema.execute(request).await.into()
 }
 
-pub async fn graphiql(opt: web::Data<Opt>) -> Result<HttpResponse> {
+pub async fn graphiql() -> Result<HttpResponse> {
+    let endpoint = api_point();
     Ok(HttpResponse::Ok()
         .content_type("text/html; charset=utf-8")
         .body(playground_source(
-            GraphQLPlaygroundConfig::new(&opt.api_point).subscription_endpoint(&opt.api_point),
+            GraphQLPlaygroundConfig::new(&endpoint).subscription_endpoint(&endpoint),
         )))
 }
 

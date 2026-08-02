@@ -9,7 +9,6 @@ use crate::models::relate_ref::file::{
     model::{ListObject, UploadFile},
     service::register::preregister_file,
 };
-use crate::storage::model::StorageAccess;
 use crate::storage::presigned_url::upload_presigned_url;
 use diesel::PgConnection;
 use uuid::Uuid;
@@ -52,8 +51,7 @@ pub(crate) fn add_modification_files(
 
         debug!("New modification file: {:?}", slim_file);
 
-        let upload_url =
-            upload_presigned_url(&StorageAccess::from_env(), &slim_file.path_file, domain)?;
+        let upload_url = upload_presigned_url(&slim_file.path_file, domain)?;
 
         up_files.push(UploadFile {
             file_uuid: slim_file.uuid,

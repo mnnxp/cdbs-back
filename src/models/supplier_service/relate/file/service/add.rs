@@ -8,7 +8,6 @@ use crate::models::relate_ref::file::{
 };
 use crate::models::supplier_service::file::model::IptServiceFilesData;
 use crate::models::supplier_service::service::update::change_service_updated_at;
-use crate::storage::model::StorageAccess;
 use crate::storage::presigned_url::upload_presigned_url;
 use diesel::PgConnection;
 use uuid::Uuid;
@@ -49,8 +48,7 @@ pub(crate) fn add_service_files(
 
         debug!("New service file: {:?}", slim_file);
 
-        let upload_url =
-            upload_presigned_url(&StorageAccess::from_env(), &slim_file.path_file, domain)?;
+        let upload_url = upload_presigned_url(&slim_file.path_file, domain)?;
 
         up_files.push(UploadFile {
             file_uuid: slim_file.uuid,
