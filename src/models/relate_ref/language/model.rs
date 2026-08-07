@@ -1,5 +1,5 @@
 use crate::schema::*;
-use actix_web::http::header::{HeaderMap, LanguageTag, ACCEPT_LANGUAGE};
+use actix_web::http::header::{HeaderMap, ACCEPT_LANGUAGE};
 use async_graphql::*;
 
 /// Gets SetLang from request
@@ -10,10 +10,13 @@ impl From<&HeaderMap> for SetLang {
             None => 1,
             Some(str_lang) => {
                 debug!("ACCEPT_LANGUAGE: {:?}", str_lang);
-                match str_lang.parse::<LanguageTag>() {
-                    Ok(x) if x.primary_language() == "ru" => 2,
-                    Ok(x) if x.primary_language() == "zh" => 3,
-                    _ => 1,
+                let lower = str_lang.to_lowercase();
+                if lower.starts_with("ru") {
+                    2
+                } else if lower.starts_with("zh") {
+                    3
+                } else {
+                    1
                 }
             }
         };
