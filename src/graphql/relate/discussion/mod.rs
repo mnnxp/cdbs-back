@@ -57,14 +57,14 @@ impl DiscussionQuery {
     /// * Database connection or query execution fails.
     async fn discussions(
         &self,
-        cxt: &Context<'_>,
+        ctx: &Context<'_>,
         args: IptObjectDiscussionsArg,
         sort: Option<IptSort>,
         paginate: Option<IptPaginate>,
     ) -> ServiceResult<Vec<DiscussionInfo>> {
         // authorization check
-        let options = ExtraOptions::from_cxt(cxt, false)?;
-        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+        let options = ExtraOptions::from_ctx(ctx, false)?;
+        let conn: &mut PooledConnection = &mut get_conn(ctx)?;
         get_discussions(&mut args.into_args(sort, paginate), &options, conn)
     }
 
@@ -98,14 +98,14 @@ impl DiscussionQuery {
     /// * Database connection or query execution fails.
     async fn discussion_comments(
         &self,
-        cxt: &Context<'_>,
+        ctx: &Context<'_>,
         args: IptDiscussionCommentsArg,
         sort: Option<IptSort>,
         paginate: Option<IptPaginate>,
     ) -> ServiceResult<Vec<DiscussionCommentData>> {
         // authorization check
-        let options = ExtraOptions::from_cxt(cxt, false)?;
-        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+        let options = ExtraOptions::from_ctx(ctx, false)?;
+        let conn: &mut PooledConnection = &mut get_conn(ctx)?;
         get_discussion_comment_list(&args.into_args(sort, paginate), &options, conn)
     }
 }
@@ -132,12 +132,12 @@ impl DiscussionMutation {
     /// * Database connection or query execution fails.
     async fn register_discussion_comment(
         &self,
-        cxt: &Context<'_>,
+        ctx: &Context<'_>,
         args: IptDiscussionCommentData,
     ) -> ServiceResult<Uuid> {
         // authorization check
-        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
-        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+        let logged_user_uuid = AuthContext::from_graphql(ctx)?.user_uuid();
+        let conn: &mut PooledConnection = &mut get_conn(ctx)?;
         debug!(
             "Register discussion comment IptDiscussionCommentData: {:?}",
             args
@@ -166,12 +166,12 @@ impl DiscussionMutation {
     /// * The comment's message content remains unchanged after the update attempt.
     async fn edit_comment(
         &self,
-        cxt: &Context<'_>,
+        ctx: &Context<'_>,
         data: IptEditCommentData,
     ) -> ServiceResult<bool> {
         // authorization check
-        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
-        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+        let logged_user_uuid = AuthContext::from_graphql(ctx)?.user_uuid();
+        let conn: &mut PooledConnection = &mut get_conn(ctx)?;
         edit_discussion_comment(&logged_user_uuid, &data, conn)
     }
 
@@ -195,10 +195,10 @@ impl DiscussionMutation {
     /// * Authorization check fails.
     /// * Database connection or query execution fails.
     /// * Failed to delete the comment from the database.
-    async fn delete_comment(&self, cxt: &Context<'_>, comment_uuid: Uuid) -> ServiceResult<bool> {
+    async fn delete_comment(&self, ctx: &Context<'_>, comment_uuid: Uuid) -> ServiceResult<bool> {
         // authorization check
-        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
-        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+        let logged_user_uuid = AuthContext::from_graphql(ctx)?.user_uuid();
+        let conn: &mut PooledConnection = &mut get_conn(ctx)?;
         del_discussion_comment(&logged_user_uuid, &comment_uuid, conn)
     }
 }

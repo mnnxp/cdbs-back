@@ -98,11 +98,11 @@ impl ServiceAndRelatedData {
     /// Default sorting: `paramId`. Sorting by `paramname` and `value` is available.
     async fn service_params(
         &self,
-        cxt: &Context<'_>,
+        ctx: &Context<'_>,
         sort: Option<IptSort>,
         paginate: Option<IptPaginate>,
     ) -> Vec<ServiceParamWithTranslation> {
-        let conn: &mut PooledConnection = &mut get_conn(cxt).expect("Error get conn to DB");
+        let conn: &mut PooledConnection = &mut get_conn(ctx).expect("Error get conn to DB");
         let s = sort
             .map(|s| Sort::parsing(TableName::ParamTranslateList, &s.by_field, s.as_desc))
             .unwrap_or(Sort::set_by_table(TableName::ParamTranslateList));
@@ -111,7 +111,7 @@ impl ServiceAndRelatedData {
             .unwrap_or_default();
         ServiceParamWithTranslation::by_service_uuid(
             &self.uuid,
-            get_set_language(cxt),
+            get_set_language(ctx),
             &s,
             &p,
             conn,
@@ -120,8 +120,8 @@ impl ServiceAndRelatedData {
     }
 
     /// Returns the total number of params in the service (without filters)
-    async fn params_count(&self, cxt: &Context<'_>) -> i64 {
-        let conn: &mut PooledConnection = &mut get_conn(cxt).expect("Error get conn to DB");
+    async fn params_count(&self, ctx: &Context<'_>) -> i64 {
+        let conn: &mut PooledConnection = &mut get_conn(ctx).expect("Error get conn to DB");
         Paginate::get_count(&self.uuid, &TableName::ParamToService, conn)
             .expect("Error count items")
     }
@@ -130,48 +130,48 @@ impl ServiceAndRelatedData {
     /// Sorting by `revision`, `filename`, `size`, `updatedAt` is available.
     async fn files(
         &self,
-        cxt: &Context<'_>,
+        ctx: &Context<'_>,
         sort: Option<IptSort>,
         paginate: Option<IptPaginate>,
     ) -> Vec<ShowFileRelatedData> {
-        let conn: &mut PooledConnection = &mut get_conn(cxt).expect("Error get conn to DB");
+        let conn: &mut PooledConnection = &mut get_conn(ctx).expect("Error get conn to DB");
         let s = sort
             .map(|s| Sort::parsing(TableName::FileRef, &s.by_field, s.as_desc))
             .unwrap_or(Sort::set_by_table(TableName::FileRef));
         let p = paginate
             .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
             .unwrap_or_default();
-        ShowFileRelatedData::by_service_uuid(&self.uuid, &s, &p, &extract_client_domain(cxt), conn)
+        ShowFileRelatedData::by_service_uuid(&self.uuid, &s, &p, &extract_client_domain(ctx), conn)
             .expect("Error loading service files")
     }
 
     /// Returns the total number of files in the service (without filters)
-    async fn files_count(&self, cxt: &Context<'_>) -> i64 {
-        let conn: &mut PooledConnection = &mut get_conn(cxt).expect("Error get conn to DB");
+    async fn files_count(&self, ctx: &Context<'_>) -> i64 {
+        let conn: &mut PooledConnection = &mut get_conn(ctx).expect("Error get conn to DB");
         Paginate::get_count(&self.uuid, &TableName::FileToService, conn).expect("Error count items")
     }
 
     /// Catalogs to which the service is added
     async fn service_specs(
         &self,
-        cxt: &Context<'_>,
+        ctx: &Context<'_>,
         paginate: Option<IptPaginate>,
     ) -> Vec<SpecTranslateList> {
-        let conn: &mut PooledConnection = &mut get_conn(cxt).expect("Error get conn to DB");
+        let conn: &mut PooledConnection = &mut get_conn(ctx).expect("Error get conn to DB");
         let p = paginate
             .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
             .unwrap_or_default();
-        SpecTranslateList::for_service_by_uuid(&self.uuid, get_set_language(cxt), &p, conn)
+        SpecTranslateList::for_service_by_uuid(&self.uuid, get_set_language(ctx), &p, conn)
             .expect("Error loading service keywords")
     }
 
     /// Service keywords (tags)
     async fn service_keywords(
         &self,
-        cxt: &Context<'_>,
+        ctx: &Context<'_>,
         paginate: Option<IptPaginate>,
     ) -> Vec<Keyword> {
-        let conn: &mut PooledConnection = &mut get_conn(cxt).expect("Error get conn to DB");
+        let conn: &mut PooledConnection = &mut get_conn(ctx).expect("Error get conn to DB");
         let p = paginate
             .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
             .unwrap_or_default();
@@ -239,21 +239,21 @@ impl ShowServiceShort {
     /// Files (images by default) associated with the service
     async fn files(
         &self,
-        cxt: &Context<'_>,
+        ctx: &Context<'_>,
         paginate: Option<IptPaginate>,
         images: Option<bool>,
     ) -> Vec<DownloadFile> {
-        let conn: &mut PooledConnection = &mut get_conn(cxt).expect("Error get conn to DB");
+        let conn: &mut PooledConnection = &mut get_conn(ctx).expect("Error get conn to DB");
         let p = paginate
             .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
             .unwrap_or_default();
         match images {
             Some(false) => {
-                DownloadFile::by_service_uuid(&self.uuid, &p, &extract_client_domain(cxt), conn)
+                DownloadFile::by_service_uuid(&self.uuid, &p, &extract_client_domain(ctx), conn)
                     .expect("Error loading service files")
             }
             _ => {
-                DownloadFile::service_image_files(&self.uuid, &p, &extract_client_domain(cxt), conn)
+                DownloadFile::service_image_files(&self.uuid, &p, &extract_client_domain(ctx), conn)
                     .expect("Error loading service image files")
             }
         }
@@ -346,9 +346,9 @@ impl UserAccessServiceAndRelatedData {
     }
 
     /// User info
-    async fn user(&self, cxt: &Context<'_>) -> ShowUserShort {
-        let conn: &mut PooledConnection = &mut get_conn(cxt).expect("Error get conn to DB");
-        ShowUserShort::get_without_check_by_uuid(&self.user_uuid, &extract_client_domain(cxt), conn)
+    async fn user(&self, ctx: &Context<'_>) -> ShowUserShort {
+        let conn: &mut PooledConnection = &mut get_conn(ctx).expect("Error get conn to DB");
+        ShowUserShort::get_without_check_by_uuid(&self.user_uuid, &extract_client_domain(ctx), conn)
             .expect("Failed get user short data")
     }
 
@@ -382,8 +382,8 @@ impl CompanyAccessServiceAndRelatedData {
     }
 
     /// Company info
-    async fn company(&self, cxt: &Context<'_>) -> ShowCompanyShort {
-        let conn: &mut PooledConnection = &mut get_conn(cxt).expect("Error get conn to DB");
+    async fn company(&self, ctx: &Context<'_>) -> ShowCompanyShort {
+        let conn: &mut PooledConnection = &mut get_conn(ctx).expect("Error get conn to DB");
         ShowCompanyShort::get_without_check_by_uuid(&self.company_uuid, conn)
             .expect("Failed get company short data")
     }

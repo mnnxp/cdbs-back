@@ -22,8 +22,8 @@ impl AuthContext {
     ///
     /// # Database errors
     /// Other database errors are propagated as their respective `ServiceError` variants
-    pub(crate) fn from_graphql(cxt: &Context<'_>) -> ServiceResult<Self> {
-        let user_uuid = get_logged_user_uuid(cxt)?;
+    pub(crate) fn from_graphql(ctx: &Context<'_>) -> ServiceResult<Self> {
+        let user_uuid = get_logged_user_uuid(ctx)?;
         debug!("AuthContext user_uuid: {:?}", user_uuid);
         Ok(Self { user_uuid })
     }

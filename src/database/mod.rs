@@ -14,8 +14,8 @@ pub(crate) fn db_connection(pool: &Pool) -> Result<PooledConnection, ServiceErro
     Ok(conn)
 }
 
-pub(crate) fn get_conn(cxt: &Context) -> Result<PooledConnection, ServiceError> {
-    let conn = cxt
+pub(crate) fn get_conn(ctx: &Context) -> Result<PooledConnection, ServiceError> {
+    let conn = ctx
         .data::<Pool>()
         .expect("Can't get pool")
         .get()
@@ -23,7 +23,7 @@ pub(crate) fn get_conn(cxt: &Context) -> Result<PooledConnection, ServiceError> 
     Ok(conn)
 }
 
-pub(crate) fn get_pool(cxt: &Context) -> Result<PgPool, ServiceError> {
-    let pool = cxt.data::<Pool>().expect("Can't get pool").clone();
+pub(crate) fn get_pool(ctx: &Context) -> Result<PgPool, ServiceError> {
+    let pool = ctx.data::<Pool>().expect("Can't get pool").clone();
     Ok(pool)
 }

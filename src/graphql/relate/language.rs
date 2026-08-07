@@ -14,16 +14,16 @@ impl LanguageQuery {
     /// Returns a list of available languages.
     async fn languages(
         &self,
-        cxt: &Context<'_>,
+        ctx: &Context<'_>,
         lang_ids: Option<Vec<i32>>,
         paginate: Option<IptPaginate>,
     ) -> ServiceResult<Vec<Language>> {
         // authorization check
-        check_authorized(cxt)?;
+        check_authorized(ctx)?;
         let p = paginate
             .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
             .unwrap_or_default();
-        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(ctx)?;
         get_languages(&lang_ids.unwrap_or_default(), &p, conn)
     }
 }

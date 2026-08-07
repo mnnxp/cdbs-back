@@ -13,8 +13,8 @@ use diesel::result::Error;
 use uuid::Uuid;
 
 /// Extract token from GraphQL context
-pub(crate) fn token_from_cxt(cxt: &Context<'_>) -> ServiceResult<String> {
-    let token = cxt
+pub(crate) fn token_from_ctx(ctx: &Context<'_>) -> ServiceResult<String> {
+    let token = ctx
         .data_opt::<Token>()
         .cloned()
         .unwrap_or(Token { bearer: None });
@@ -47,13 +47,13 @@ pub(crate) fn get_slim_user(jwt: Claims) -> ServiceResult<SlimUser> {
 }
 
 /// updating a token with or without removing the old one
-pub(crate) fn update(cxt: &Context<'_>, flag_delete_token: bool) -> ServiceResult<Token> {
+pub(crate) fn update(ctx: &Context<'_>, flag_delete_token: bool) -> ServiceResult<Token> {
     use crate::auth::token::{decode, generate};
 
-    let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+    let conn: &mut PooledConnection = &mut get_conn(ctx)?;
 
     // get old token
-    let old_token = token_from_cxt(cxt)?;
+    let old_token = token_from_ctx(ctx)?;
 
     // decrypt old token
     let old_data = decode(old_token.as_str())?;

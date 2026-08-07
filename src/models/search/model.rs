@@ -42,10 +42,10 @@ impl ExtraOptions {
     /// Returns the structure with logged user uuid and set language.
     /// If token validation fails and no_entry is true, will be made to retrieve the default user UUID.
     /// If the default user UUID could not be obtained, the first error received during token validation will be returned.
-    pub(crate) fn from_cxt(cxt: &Context<'_>, no_entry: bool) -> ServiceResult<Self> {
-        let set_lang_id = get_set_language(cxt);
-        let domain = extract_client_domain(cxt);
-        match get_logged_user_uuid(cxt) {
+    pub(crate) fn from_ctx(ctx: &Context<'_>, no_entry: bool) -> ServiceResult<Self> {
+        let set_lang_id = get_set_language(ctx);
+        let domain = extract_client_domain(ctx);
+        match get_logged_user_uuid(ctx) {
             Ok(logged_user_uuid) => Ok(Self {
                 logged_user_uuid,
                 set_lang_id,
@@ -68,11 +68,11 @@ impl ExtraOptions {
         }
     }
 
-    pub(crate) fn by_slim_user(cxt: &Context<'_>, slim_user: &SlimUser) -> Self {
+    pub(crate) fn by_slim_user(ctx: &Context<'_>, slim_user: &SlimUser) -> Self {
         Self {
             logged_user_uuid: slim_user.uuid,
-            set_lang_id: get_set_language(cxt),
-            domain: extract_client_domain(cxt),
+            set_lang_id: get_set_language(ctx),
+            domain: extract_client_domain(ctx),
             no_entry: false,
         }
     }

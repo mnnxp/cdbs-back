@@ -20,13 +20,13 @@ impl ExtensionMutation {
     /// Creates an association of an extension with a software solution.
     async fn register_extension(
         &self,
-        cxt: &Context<'_>,
+        ctx: &Context<'_>,
         args: IptExtensionData,
     ) -> ServiceResult<Extension> {
         use extension::service::register::create_extension;
-        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(ctx)?;
 
-        crate::auth::token::logged::check_authorized(cxt)?;
+        crate::auth::token::logged::check_authorized(ctx)?;
 
         create_extension(&args, conn)
     }

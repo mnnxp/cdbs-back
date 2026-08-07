@@ -26,18 +26,18 @@ impl StorageQuery {
     /// a component, a modification of a component, a set of files, or a standard.
     async fn presigned_url(
         &self,
-        cxt: &Context<'_>,
+        ctx: &Context<'_>,
         file_uuid: Uuid,
     ) -> ServiceResult<DownloadFile> {
         // authorization check
-        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
+        let logged_user_uuid = AuthContext::from_graphql(ctx)?.user_uuid();
 
-        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(ctx)?;
 
         get_url_by_file_uuid(
             &logged_user_uuid,
             &file_uuid,
-            &extract_client_domain(cxt),
+            &extract_client_domain(ctx),
             conn,
         )
     }
@@ -45,19 +45,19 @@ impl StorageQuery {
     /// Returns information about all revisions (versions) of a file.
     async fn show_file_revisions(
         &self,
-        cxt: &Context<'_>,
+        ctx: &Context<'_>,
         file_uuid: Uuid,
         paginate: Option<IptPaginate>,
     ) -> ServiceResult<Vec<ShowFileRelatedData>> {
-        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(ctx)?;
         let p = paginate
             .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
             .unwrap_or_default();
         get_revisions_by_file_uuid(
             &file_uuid,
-            &AuthContext::from_graphql(cxt)?.user_uuid(),
+            &AuthContext::from_graphql(ctx)?.user_uuid(),
             &p,
-            &extract_client_domain(cxt),
+            &extract_client_domain(ctx),
             conn,
         )
     }
@@ -69,16 +69,16 @@ impl StorageMutation {
     /// After successful uploaded is confirmed, the file will be processed.
     async fn upload_completed(
         &self,
-        cxt: &Context<'_>,
+        ctx: &Context<'_>,
         file_uuids: Vec<Uuid>,
     ) -> ServiceResult<usize> {
-        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
+        let logged_user_uuid = AuthContext::from_graphql(ctx)?.user_uuid();
 
         if file_uuids.is_empty() {
             return Ok(0); // <-- Not found uuids, just return 0
         }
 
-        let pool = get_pool(cxt)?;
+        let pool = get_pool(ctx)?;
 
         confirm_upload(&logged_user_uuid, &file_uuids, &pool).await
     }
@@ -86,12 +86,12 @@ impl StorageMutation {
     /// Sets a specified file revision (versions) as active.
     async fn change_active_file_revision(
         &self,
-        cxt: &Context<'_>,
+        ctx: &Context<'_>,
         file_uuid: Uuid,
     ) -> ServiceResult<bool> {
-        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
+        let logged_user_uuid = AuthContext::from_graphql(ctx)?.user_uuid();
 
-        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(ctx)?;
 
         set_active_revision_by_uuid(&logged_user_uuid, &file_uuid, conn)
     }
@@ -100,10 +100,10 @@ impl StorageMutation {
     /// If the active revision of a file is deleted, other revisions of the file will not show.
     /// After deleting the active revision without activating the other one,
     /// uploading a new file with the same name will be the solution to view other (inactive) revisions of the file.
-    async fn delete_file(&self, cxt: &Context<'_>, file_uuid: Uuid) -> ServiceResult<bool> {
-        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
+    async fn delete_file(&self, ctx: &Context<'_>, file_uuid: Uuid) -> ServiceResult<bool> {
+        let logged_user_uuid = AuthContext::from_graphql(ctx)?.user_uuid();
 
-        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(ctx)?;
 
         delete_file_with_check_by_uuid(&logged_user_uuid, &file_uuid, conn)
     }

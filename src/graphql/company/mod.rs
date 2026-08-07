@@ -80,40 +80,40 @@ impl CompanyAndRelatedData {
     }
 
     /// Data on the profile that owns the company
-    async fn owner_user(&self, cxt: &Context<'_>) -> ServiceResult<ShowUserShort> {
-        let options = ExtraOptions::from_cxt(cxt, true)?;
-        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+    async fn owner_user(&self, ctx: &Context<'_>) -> ServiceResult<ShowUserShort> {
+        let options = ExtraOptions::from_ctx(ctx, true)?;
+        let conn: &mut PooledConnection = &mut get_conn(ctx)?;
         ShowUserShort::get_without_check_by_uuid(&self.user_uuid, &options.domain, conn)
     }
 
     /// Data for displaying the company logo
-    async fn image_file(&self, cxt: &Context<'_>) -> ServiceResult<DownloadFile> {
-        let options = ExtraOptions::from_cxt(cxt, true)?;
-        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+    async fn image_file(&self, ctx: &Context<'_>) -> ServiceResult<DownloadFile> {
+        let options = ExtraOptions::from_ctx(ctx, true)?;
+        let conn: &mut PooledConnection = &mut get_conn(ctx)?;
         DownloadFile::get_by_file_uuid(&self.image_file_uuid, &options.domain, conn)
     }
 
     /// Main company region
-    async fn region(&self, cxt: &Context<'_>) -> ServiceResult<RegionTranslateList> {
-        let options = ExtraOptions::from_cxt(cxt, true)?;
-        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+    async fn region(&self, ctx: &Context<'_>) -> ServiceResult<RegionTranslateList> {
+        let options = ExtraOptions::from_ctx(ctx, true)?;
+        let conn: &mut PooledConnection = &mut get_conn(ctx)?;
         RegionTranslateList::get_region_by_id(self.region_id, options.set_lang_id, conn)
     }
 
     /// Data on the company's representative offices
     async fn company_represents(
         &self,
-        cxt: &Context<'_>,
+        ctx: &Context<'_>,
     ) -> ServiceResult<Vec<CompanyRepresentAndRelatedData>> {
-        let options = ExtraOptions::from_cxt(cxt, true)?;
-        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+        let options = ExtraOptions::from_ctx(ctx, true)?;
+        let conn: &mut PooledConnection = &mut get_conn(ctx)?;
         CompanyRepresentAndRelatedData::get_by_company_uuid(&self.uuid, options.set_lang_id, conn)
     }
 
     /// Type of company/society organization
-    async fn company_type(&self, cxt: &Context<'_>) -> ServiceResult<CompanyTypeTranslateList> {
-        let options = ExtraOptions::from_cxt(cxt, true)?;
-        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+    async fn company_type(&self, ctx: &Context<'_>) -> ServiceResult<CompanyTypeTranslateList> {
+        let options = ExtraOptions::from_ctx(ctx, true)?;
+        let conn: &mut PooledConnection = &mut get_conn(ctx)?;
         CompanyTypeTranslateList::get_company_type_by_id(
             self.company_type_id,
             options.set_lang_id,
@@ -124,24 +124,24 @@ impl CompanyAndRelatedData {
     /// List of certificates and competencies of the companies
     async fn company_certificates(
         &self,
-        cxt: &Context<'_>,
+        ctx: &Context<'_>,
     ) -> ServiceResult<Vec<CompanyCertificateAndFile>> {
-        let options = ExtraOptions::from_cxt(cxt, true)?;
-        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+        let options = ExtraOptions::from_ctx(ctx, true)?;
+        let conn: &mut PooledConnection = &mut get_conn(ctx)?;
         CompanyCertificateAndFile::from_company(&self.uuid, &options.domain, conn)
     }
 
     /// List of catalogs monitored by the company
-    async fn company_specs(&self, cxt: &Context<'_>) -> ServiceResult<Vec<SpecTranslateList>> {
-        let options = ExtraOptions::from_cxt(cxt, true)?;
-        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+    async fn company_specs(&self, ctx: &Context<'_>) -> ServiceResult<Vec<SpecTranslateList>> {
+        let options = ExtraOptions::from_ctx(ctx, true)?;
+        let conn: &mut PooledConnection = &mut get_conn(ctx)?;
         SpecTranslateList::for_company_uuid(&self.uuid, options.set_lang_id, conn)
     }
 
     /// Type of access to company profile
-    async fn type_access(&self, cxt: &Context<'_>) -> ServiceResult<TypeAccessTranslateList> {
-        let options = ExtraOptions::from_cxt(cxt, true)?;
-        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+    async fn type_access(&self, ctx: &Context<'_>) -> ServiceResult<TypeAccessTranslateList> {
+        let options = ExtraOptions::from_ctx(ctx, true)?;
+        let conn: &mut PooledConnection = &mut get_conn(ctx)?;
         TypeAccessTranslateList::get_type_access_by_id(
             self.type_access_id,
             options.set_lang_id,
@@ -160,16 +160,16 @@ impl CompanyAndRelatedData {
     }
 
     /// Number of people who have added the company to their bookmarks
-    async fn subscribers(&self, cxt: &Context<'_>) -> ServiceResult<i32> {
-        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+    async fn subscribers(&self, ctx: &Context<'_>) -> ServiceResult<i32> {
+        let conn: &mut PooledConnection = &mut get_conn(ctx)?;
         CompanyFav::get_count_followers_by_uuid(&self.uuid, conn)
     }
 
     /// Flag of company presence in user's bookmarks
-    async fn is_followed(&self, cxt: &Context<'_>) -> bool {
-        AuthContext::from_graphql(cxt)
+    async fn is_followed(&self, ctx: &Context<'_>) -> bool {
+        AuthContext::from_graphql(ctx)
             .and_then(|auth| {
-                let mut conn = get_conn(cxt)?;
+                let mut conn = get_conn(ctx)?;
                 check_subscriber_by_uuid(&self.uuid, &auth.user_uuid(), &mut conn)
             })
             .unwrap_or(false)
@@ -210,23 +210,23 @@ impl ShowCompanyShort {
     }
 
     /// Data for displaying the company logo
-    async fn image_file(&self, cxt: &Context<'_>) -> ServiceResult<DownloadFile> {
-        let options = ExtraOptions::from_cxt(cxt, true)?;
-        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+    async fn image_file(&self, ctx: &Context<'_>) -> ServiceResult<DownloadFile> {
+        let options = ExtraOptions::from_ctx(ctx, true)?;
+        let conn: &mut PooledConnection = &mut get_conn(ctx)?;
         DownloadFile::get_by_file_uuid(&self.image_file_uuid, &options.domain, conn)
     }
 
     /// Main region of the company's activity
-    async fn region(&self, cxt: &Context<'_>) -> ServiceResult<RegionTranslateList> {
-        let options = ExtraOptions::from_cxt(cxt, true)?;
-        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+    async fn region(&self, ctx: &Context<'_>) -> ServiceResult<RegionTranslateList> {
+        let options = ExtraOptions::from_ctx(ctx, true)?;
+        let conn: &mut PooledConnection = &mut get_conn(ctx)?;
         RegionTranslateList::get_region_by_id(self.region_id, options.set_lang_id, conn)
     }
 
     /// Type of company/community organization
-    async fn company_type(&self, cxt: &Context<'_>) -> ServiceResult<CompanyTypeTranslateList> {
-        let options = ExtraOptions::from_cxt(cxt, true)?;
-        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+    async fn company_type(&self, ctx: &Context<'_>) -> ServiceResult<CompanyTypeTranslateList> {
+        let options = ExtraOptions::from_ctx(ctx, true)?;
+        let conn: &mut PooledConnection = &mut get_conn(ctx)?;
         CompanyTypeTranslateList::get_company_type_by_id(
             self.company_type_id,
             options.set_lang_id,
@@ -235,9 +235,9 @@ impl ShowCompanyShort {
     }
 
     /// Type of access to company profile
-    async fn type_access(&self, cxt: &Context<'_>) -> ServiceResult<TypeAccessTranslateList> {
-        let options = ExtraOptions::from_cxt(cxt, true)?;
-        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+    async fn type_access(&self, ctx: &Context<'_>) -> ServiceResult<TypeAccessTranslateList> {
+        let options = ExtraOptions::from_ctx(ctx, true)?;
+        let conn: &mut PooledConnection = &mut get_conn(ctx)?;
         TypeAccessTranslateList::get_type_access_by_id(
             self.type_access_id,
             options.set_lang_id,
@@ -251,10 +251,10 @@ impl ShowCompanyShort {
     }
 
     /// Flag of company presence in user's bookmarks
-    async fn is_followed(&self, cxt: &Context<'_>) -> bool {
-        AuthContext::from_graphql(cxt)
+    async fn is_followed(&self, ctx: &Context<'_>) -> bool {
+        AuthContext::from_graphql(ctx)
             .and_then(|auth| {
-                let mut conn = get_conn(cxt)?;
+                let mut conn = get_conn(ctx)?;
                 check_subscriber_by_uuid(&self.uuid, &auth.user_uuid(), &mut conn)
             })
             .unwrap_or(false)
@@ -280,9 +280,9 @@ impl CompanyMemberAndRelatedData {
     }
 
     /// User info
-    async fn user(&self, cxt: &Context<'_>) -> ShowUserShort {
-        let conn: &mut PooledConnection = &mut get_conn(cxt).expect("Error get conn to DB");
-        ShowUserShort::get_without_check_by_uuid(&self.user_uuid, &extract_client_domain(cxt), conn)
+    async fn user(&self, ctx: &Context<'_>) -> ShowUserShort {
+        let conn: &mut PooledConnection = &mut get_conn(ctx).expect("Error get conn to DB");
+        ShowUserShort::get_without_check_by_uuid(&self.user_uuid, &extract_client_domain(ctx), conn)
             .expect("Failed get user short data")
     }
 

@@ -23,14 +23,14 @@ impl StandardMutation {
     /// Creates a standard, returns the UUID of the new standard.
     async fn register_standard(
         &self,
-        cxt: &Context<'_>,
+        ctx: &Context<'_>,
         args: IptStandardData,
     ) -> ServiceResult<Uuid> {
         use crate::models::standard::service::register::create_standard;
 
-        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
+        let logged_user_uuid = AuthContext::from_graphql(ctx)?.user_uuid();
 
-        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(ctx)?;
 
         create_standard(&logged_user_uuid, &args, conn)
     }
@@ -38,15 +38,15 @@ impl StandardMutation {
     /// Transfers ownership of a standard to another user.
     async fn transfer_standard_ownership(
         &self,
-        cxt: &Context<'_>,
+        ctx: &Context<'_>,
         args: ChangeOwnerStandard,
     ) -> ServiceResult<bool> {
         use crate::models::standard::access::manage::change_standard_owner_user;
 
         // checking authorization and getting user uuid
-        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
+        let logged_user_uuid = AuthContext::from_graphql(ctx)?.user_uuid();
 
-        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(ctx)?;
 
         change_standard_owner_user(&logged_user_uuid, &args, conn)
     }
@@ -54,15 +54,15 @@ impl StandardMutation {
     /// Changes the default access to a standard.
     async fn change_standard_access(
         &self,
-        cxt: &Context<'_>,
+        ctx: &Context<'_>,
         args: ChangeTypeAccessStandard,
     ) -> ServiceResult<bool> {
         use crate::models::standard::access::manage::change_standard_type_access;
 
         // checking authorization and getting user uuid
-        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
+        let logged_user_uuid = AuthContext::from_graphql(ctx)?.user_uuid();
 
-        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(ctx)?;
 
         change_standard_type_access(&logged_user_uuid, &args, conn)
     }
@@ -71,27 +71,27 @@ impl StandardMutation {
     /// Returns the number of successful changes or an error if all the specified data already exists.
     async fn put_standard_update(
         &self,
-        cxt: &Context<'_>,
+        ctx: &Context<'_>,
         standard_uuid: Uuid,
         args: IptUpdateStandardData,
     ) -> ServiceResult<usize> {
         use crate::models::standard::service::update::update_standard_data;
 
-        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
+        let logged_user_uuid = AuthContext::from_graphql(ctx)?.user_uuid();
 
-        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(ctx)?;
 
         update_standard_data(&logged_user_uuid, &standard_uuid, &args, conn)
     }
 
     /// Deletes a standard and its associated data.
     /// Returns the UUID of the removed standard.
-    async fn delete_standard(&self, cxt: &Context<'_>, standard_uuid: Uuid) -> ServiceResult<Uuid> {
+    async fn delete_standard(&self, ctx: &Context<'_>, standard_uuid: Uuid) -> ServiceResult<Uuid> {
         use crate::models::standard::service::delete::del_standard_data;
 
-        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
+        let logged_user_uuid = AuthContext::from_graphql(ctx)?.user_uuid();
 
-        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(ctx)?;
 
         del_standard_data(&logged_user_uuid, &standard_uuid, conn)
     }
@@ -100,15 +100,15 @@ impl StandardMutation {
     /// This access applies to all members of the company according to their roles.
     async fn set_company_access_standard(
         &self,
-        cxt: &Context<'_>,
+        ctx: &Context<'_>,
         args: IptCompanyAccessStandardData,
     ) -> ServiceResult<bool> {
         use crate::models::standard::access::company::manage::set_company_access_standard;
 
         // checking authorization and getting company uuid
-        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
+        let logged_user_uuid = AuthContext::from_graphql(ctx)?.user_uuid();
 
-        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(ctx)?;
 
         set_company_access_standard(&logged_user_uuid, &args, conn)
     }
@@ -116,15 +116,15 @@ impl StandardMutation {
     /// Removes access to a standard for a company.
     async fn delete_company_access_standard(
         &self,
-        cxt: &Context<'_>,
+        ctx: &Context<'_>,
         args: DelCompanyAccessStandardData,
     ) -> ServiceResult<bool> {
         use crate::models::standard::access::company::manage::del_company_access_standard;
 
         // checking authorization and getting company uuid
-        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
+        let logged_user_uuid = AuthContext::from_graphql(ctx)?.user_uuid();
 
-        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(ctx)?;
 
         del_company_access_standard(&logged_user_uuid, &args, conn)
     }
@@ -132,15 +132,15 @@ impl StandardMutation {
     /// Sets access to a standard for a user.
     async fn set_user_access_standard(
         &self,
-        cxt: &Context<'_>,
+        ctx: &Context<'_>,
         args: IptUserAccessStandardData,
     ) -> ServiceResult<bool> {
         use crate::models::standard::access::user::manage::set_user_access_standard;
 
         // checking authorization and getting user uuid
-        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
+        let logged_user_uuid = AuthContext::from_graphql(ctx)?.user_uuid();
 
-        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(ctx)?;
 
         set_user_access_standard(&logged_user_uuid, &args, conn)
     }
@@ -148,15 +148,15 @@ impl StandardMutation {
     /// Removes access to a standard for a user.
     async fn delete_user_access_standard(
         &self,
-        cxt: &Context<'_>,
+        ctx: &Context<'_>,
         args: DelUserAccessStandardData,
     ) -> ServiceResult<bool> {
         use crate::models::standard::access::user::manage::del_user_access_standard;
 
         // checking authorization and getting user uuid
-        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
+        let logged_user_uuid = AuthContext::from_graphql(ctx)?.user_uuid();
 
-        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(ctx)?;
 
         del_user_access_standard(&logged_user_uuid, &args, conn)
     }
@@ -164,14 +164,14 @@ impl StandardMutation {
     /// Adds a standard connection to directory sections.
     async fn add_standard_specs(
         &self,
-        cxt: &Context<'_>,
+        ctx: &Context<'_>,
         args: IptStandardSpecsData,
     ) -> ServiceResult<i32> {
         use crate::models::standard::spec::service::add::add_standard_specs;
 
-        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
+        let logged_user_uuid = AuthContext::from_graphql(ctx)?.user_uuid();
 
-        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(ctx)?;
 
         add_standard_specs(&logged_user_uuid, &args, conn)
     }
@@ -179,14 +179,14 @@ impl StandardMutation {
     /// Removes a standard's association with catalogs
     async fn delete_standard_specs(
         &self,
-        cxt: &Context<'_>,
+        ctx: &Context<'_>,
         args: IptStandardSpecsData,
     ) -> ServiceResult<usize> {
         use crate::models::standard::spec::service::delete::del_standard_specs;
 
-        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
+        let logged_user_uuid = AuthContext::from_graphql(ctx)?.user_uuid();
 
-        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(ctx)?;
 
         del_standard_specs(&logged_user_uuid, &args, conn)
     }
@@ -194,14 +194,14 @@ impl StandardMutation {
     /// Adds keywords to a standard by IDs.
     async fn add_standard_keywords(
         &self,
-        cxt: &Context<'_>,
+        ctx: &Context<'_>,
         args: IptStandardKeywordsData,
     ) -> ServiceResult<usize> {
         use crate::models::standard::keyword::service::add::add_standard_keywords;
 
-        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
+        let logged_user_uuid = AuthContext::from_graphql(ctx)?.user_uuid();
 
-        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(ctx)?;
 
         add_standard_keywords(&logged_user_uuid, &args, conn)
     }
@@ -209,14 +209,14 @@ impl StandardMutation {
     /// Adds keywords to a standard by words.
     async fn add_standard_keywords_by_names(
         &self,
-        cxt: &Context<'_>,
+        ctx: &Context<'_>,
         args: IptStandardKeywordsNames,
     ) -> ServiceResult<usize> {
         use crate::models::standard::keyword::service::add::add_keywords_by_names;
 
-        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
+        let logged_user_uuid = AuthContext::from_graphql(ctx)?.user_uuid();
 
-        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(ctx)?;
 
         add_keywords_by_names(&logged_user_uuid, &args, conn)
     }
@@ -224,14 +224,14 @@ impl StandardMutation {
     /// Removes keywords from a standard.
     async fn delete_standard_keywords(
         &self,
-        cxt: &Context<'_>,
+        ctx: &Context<'_>,
         args: IptStandardKeywordsData,
     ) -> ServiceResult<usize> {
         use crate::models::standard::keyword::service::delete::del_standard_keywords;
 
-        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
+        let logged_user_uuid = AuthContext::from_graphql(ctx)?.user_uuid();
 
-        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(ctx)?;
 
         del_standard_keywords(&logged_user_uuid, &args, conn)
     }
@@ -240,45 +240,45 @@ impl StandardMutation {
     /// Returns structures with a pre-signed URL for uploading a files.
     async fn upload_standard_files(
         &self,
-        cxt: &Context<'_>,
+        ctx: &Context<'_>,
         args: IptStandardFilesData,
     ) -> ServiceResult<Vec<UploadFile>> {
         use crate::models::standard::file::service::add::add_standard_files;
 
-        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
+        let logged_user_uuid = AuthContext::from_graphql(ctx)?.user_uuid();
 
-        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(ctx)?;
 
-        add_standard_files(&logged_user_uuid, &args, &extract_client_domain(cxt), conn)
+        add_standard_files(&logged_user_uuid, &args, &extract_client_domain(ctx), conn)
     }
 
     /// Updates the main image of the standard.
     /// Returns a structure with a pre-signed URL for uploading an image file.
     async fn upload_standard_favicon(
         &self,
-        cxt: &Context<'_>,
+        ctx: &Context<'_>,
         args: IptStandardFaviconData,
     ) -> ServiceResult<UploadFile> {
         use crate::models::standard::file::service::add::add_standard_favicon;
 
-        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
+        let logged_user_uuid = AuthContext::from_graphql(ctx)?.user_uuid();
 
-        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(ctx)?;
 
-        add_standard_favicon(&logged_user_uuid, &args, &extract_client_domain(cxt), conn)
+        add_standard_favicon(&logged_user_uuid, &args, &extract_client_domain(ctx), conn)
     }
 
     /// Deletes a file of a standard.
     async fn delete_standard_file(
         &self,
-        cxt: &Context<'_>,
+        ctx: &Context<'_>,
         args: DeleteStandardFileData,
     ) -> ServiceResult<bool> {
         use crate::models::standard::file::service::delete::delete_standard_file;
 
-        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
+        let logged_user_uuid = AuthContext::from_graphql(ctx)?.user_uuid();
 
-        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(ctx)?;
 
         delete_standard_file(&logged_user_uuid, &args, conn)
     }

@@ -32,12 +32,12 @@ impl SpecTranslateList {
     }
 
     /// Localized catalog name
-    async fn parent_spec(&self, cxt: &Context<'_>) -> SpecTranslateList {
+    async fn parent_spec(&self, ctx: &Context<'_>) -> SpecTranslateList {
         // return itself if this is the root catalog
         if self.spec_id == 1 {
             return self.clone();
         }
-        let conn: &mut PooledConnection = &mut get_conn(cxt).expect("Error get conn to DB");
+        let conn: &mut PooledConnection = &mut get_conn(ctx).expect("Error get conn to DB");
         SpecTranslateList::get_parent_by_id(self.spec_id, self.lang_id, conn)
             .expect("Error loading parent spec")
     }
@@ -53,7 +53,7 @@ impl SpecQuery {
     /// Regardless of specifying the top section, specifying a filter by section IDs is available.
     async fn specs(
         &self,
-        cxt: &Context<'_>,
+        ctx: &Context<'_>,
         args: Option<IptSpecArg>,
         paginate: Option<IptPaginate>,
     ) -> ServiceResult<Vec<SpecTranslateList>> {
@@ -64,14 +64,14 @@ impl SpecQuery {
         let p = paginate
             .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
             .unwrap_or_default();
-        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
-        get_specs(&arguments, get_set_language(cxt), &p, conn)
+        let conn: &mut PooledConnection = &mut get_conn(ctx)?;
+        get_specs(&arguments, get_set_language(ctx), &p, conn)
     }
 
     /// Returns hierarchical paths for catalogs by their IDs.
     async fn specs_paths(
         &self,
-        cxt: &Context<'_>,
+        ctx: &Context<'_>,
         args: Option<IptSpecPathArg>,
         paginate: Option<IptPaginate>,
     ) -> ServiceResult<Vec<SpecPath>> {
@@ -82,14 +82,14 @@ impl SpecQuery {
         let p = paginate
             .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
             .unwrap_or_default();
-        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
-        get_paths_specs(&arguments, get_set_language(cxt), &p, conn)
+        let conn: &mut PooledConnection = &mut get_conn(ctx)?;
+        get_paths_specs(&arguments, get_set_language(ctx), &p, conn)
     }
 
     /// Returns hierarchical paths for catalogs found by name search.
     async fn search_specs(
         &self,
-        cxt: &Context<'_>,
+        ctx: &Context<'_>,
         args: IptSearchSpecArg,
         paginate: Option<IptPaginate>,
     ) -> ServiceResult<Vec<SpecPath>> {
@@ -97,7 +97,7 @@ impl SpecQuery {
         let p = paginate
             .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
             .unwrap_or_default();
-        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
-        search_specs_by_name(&arguments, get_set_language(cxt), &p, conn)
+        let conn: &mut PooledConnection = &mut get_conn(ctx)?;
+        search_specs_by_name(&arguments, get_set_language(ctx), &p, conn)
     }
 }

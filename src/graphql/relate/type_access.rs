@@ -19,17 +19,17 @@ impl TypeAccessQuery {
     /// If a filter for types access is not specified, then all existing ones are aggregated.
     async fn types_access(
         &self,
-        cxt: &Context<'_>,
+        ctx: &Context<'_>,
         type_access_ids: Option<Vec<i32>>,
         paginate: Option<IptPaginate>,
     ) -> ServiceResult<Vec<TypeAccessTranslateList>> {
         let p = paginate
             .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
             .unwrap_or_default();
-        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(ctx)?;
         get_type_access(
             &type_access_ids.unwrap_or_default(),
-            get_set_language(cxt),
+            get_set_language(ctx),
             &p,
             conn,
         )
@@ -38,19 +38,19 @@ impl TypeAccessQuery {
     /// Returns permission levels for RBAC.
     async fn permissions(
         &self,
-        cxt: &Context<'_>,
+        ctx: &Context<'_>,
         permission_ids: Option<Vec<i32>>,
         paginate: Option<IptPaginate>,
     ) -> ServiceResult<Vec<PermissionTranslateList>> {
         let p = paginate
             .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
             .unwrap_or_default();
-        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(ctx)?;
 
         // Get type accesses (only 1,2,3 for permissions)
         let type_accesses = get_type_access(
             &permission_ids.unwrap_or_default(),
-            get_set_language(cxt),
+            get_set_language(ctx),
             &p,
             conn,
         )?;

@@ -27,14 +27,14 @@ impl UserQuery {
     /// UUIDs, user (UUID), subscribers, favorite (for self).
     async fn users(
         &self,
-        cxt: &Context<'_>,
+        ctx: &Context<'_>,
         args: Option<IptUsersArg>,
         paginate: Option<IptPaginate>,
     ) -> ServiceResult<Vec<ShowUserShort>> {
         use crate::models::user::service::list::get_users;
 
         // authorization check
-        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
+        let logged_user_uuid = AuthContext::from_graphql(ctx)?.user_uuid();
         let arguments: UsersArg = match args {
             Some(x) => UsersArg::from(x),
             None => UsersArg::default(),
@@ -42,12 +42,12 @@ impl UserQuery {
         let p = paginate
             .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
             .unwrap_or_default();
-        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(ctx)?;
         get_users(
             &logged_user_uuid,
             &arguments,
             &p,
-            &extract_client_domain(cxt),
+            &extract_client_domain(ctx),
             conn,
         )
     }
@@ -55,87 +55,87 @@ impl UserQuery {
     /// Returns basic and associated user data by UUID.
     async fn user(
         &self,
-        cxt: &Context<'_>,
+        ctx: &Context<'_>,
         args: IptGetUserArg,
     ) -> ServiceResult<ShowUserAndRelatedData> {
         use crate::models::user::service::list::get_user_data;
 
         // authorization check (if there is no token, it returns the default token)
-        let options = ExtraOptions::from_cxt(cxt, true)?;
-        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+        let options = ExtraOptions::from_ctx(ctx, true)?;
+        let conn: &mut PooledConnection = &mut get_conn(ctx)?;
         get_user_data(&args, &options, conn)
     }
 
     /// Returns a structure with basic information about the user (SlimUser).
-    async fn myself(&self, cxt: &Context<'_>) -> ServiceResult<SlimUser> {
+    async fn myself(&self, ctx: &Context<'_>) -> ServiceResult<SlimUser> {
         use crate::models::user::service::list::get_self_slim_data;
 
         // authorization check
-        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
+        let logged_user_uuid = AuthContext::from_graphql(ctx)?.user_uuid();
 
-        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(ctx)?;
 
         get_self_slim_data(&logged_user_uuid, conn)
     }
 
     /// Returns complete information about the authorized user.
-    async fn self_data(&self, cxt: &Context<'_>) -> ServiceResult<UserAndRelatedData> {
+    async fn self_data(&self, ctx: &Context<'_>) -> ServiceResult<UserAndRelatedData> {
         use crate::models::user::service::list::get_self_user_data;
 
         // authorization check
-        let options = ExtraOptions::from_cxt(cxt, false)?;
-        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+        let options = ExtraOptions::from_ctx(ctx, false)?;
+        let conn: &mut PooledConnection = &mut get_conn(ctx)?;
         get_self_user_data(&options, conn)
     }
 
     /// Returns the active tokens of the authorized user.
-    async fn show_tokens(&self, cxt: &Context<'_>) -> ServiceResult<Vec<UserToken>> {
+    async fn show_tokens(&self, ctx: &Context<'_>) -> ServiceResult<Vec<UserToken>> {
         use crate::models::user::access::manage::show_user_tokens;
 
         // authorization check
-        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
+        let logged_user_uuid = AuthContext::from_graphql(ctx)?.user_uuid();
 
-        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(ctx)?;
 
         show_user_tokens(&logged_user_uuid, conn)
     }
 
     /// Returns the token provider, username, user UUID, program ID for user,
     /// token issuance date, and token expiration date.
-    async fn decode_token(&self, cxt: &Context<'_>) -> ServiceResult<Claims> {
+    async fn decode_token(&self, ctx: &Context<'_>) -> ServiceResult<Claims> {
         use crate::models::user::access::manage::decode_user_token;
 
-        check_authorized(cxt)?;
+        check_authorized(ctx)?;
 
-        decode_user_token(cxt)
+        decode_user_token(ctx)
     }
 
     /// Returns true if current token is still valid (not expired or revoked)
-    async fn is_token_valid(&self, cxt: &Context<'_>) -> ServiceResult<bool> {
+    async fn is_token_valid(&self, ctx: &Context<'_>) -> ServiceResult<bool> {
         use crate::models::user::access::manage::check_token_valid;
-        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
-        check_token_valid(cxt, conn)
+        let conn: &mut PooledConnection = &mut get_conn(ctx)?;
+        check_token_valid(ctx, conn)
     }
 
     /// Returns days until token expiration for current user
-    async fn token_days_until_expiry(&self, cxt: &Context<'_>) -> ServiceResult<i64> {
+    async fn token_days_until_expiry(&self, ctx: &Context<'_>) -> ServiceResult<i64> {
         use crate::models::user::access::manage::get_token_days_until_expiry;
-        get_token_days_until_expiry(cxt)
+        get_token_days_until_expiry(ctx)
     }
 
     /// Returns an aggregated list of user notifications.
     async fn notifications(
         &self,
-        cxt: &Context<'_>,
+        ctx: &Context<'_>,
         notification_ids: Option<Vec<i32>>,
         paginate: Option<IptPaginate>,
     ) -> ServiceResult<Vec<ShowNotification>> {
         use crate::models::user::notification::service::list::get_notifications;
-        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
+        let logged_user_uuid = AuthContext::from_graphql(ctx)?.user_uuid();
         let p = paginate
             .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
             .unwrap_or_default();
-        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(ctx)?;
         get_notifications(
             &logged_user_uuid,
             &notification_ids.unwrap_or_default(),
@@ -145,17 +145,17 @@ impl UserQuery {
     }
 
     /// Lists all API keys for the authenticated user.
-    async fn api_keys(&self, cxt: &Context<'_>) -> ServiceResult<Vec<ApiKeyData>> {
-        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
-        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+    async fn api_keys(&self, ctx: &Context<'_>) -> ServiceResult<Vec<ApiKeyData>> {
+        let logged_user_uuid = AuthContext::from_graphql(ctx)?.user_uuid();
+        let conn: &mut PooledConnection = &mut get_conn(ctx)?;
         let keys = list_api_keys(&logged_user_uuid, conn)?;
         Ok(keys.into_iter().map(ApiKeyData::from).collect())
     }
 
     /// Gets a specific API key by ID.
-    async fn api_key(&self, cxt: &Context<'_>, key_id: i32) -> ServiceResult<ApiKeyData> {
-        let logged_user_uuid = AuthContext::from_graphql(cxt)?.user_uuid();
-        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+    async fn api_key(&self, ctx: &Context<'_>, key_id: i32) -> ServiceResult<ApiKeyData> {
+        let logged_user_uuid = AuthContext::from_graphql(ctx)?.user_uuid();
+        let conn: &mut PooledConnection = &mut get_conn(ctx)?;
         let key = get_api_key(key_id, &logged_user_uuid, conn)?;
         Ok(ApiKeyData::from(key))
     }

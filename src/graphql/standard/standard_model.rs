@@ -278,9 +278,9 @@ impl UserAccessStandardAndRelatedData {
     }
 
     /// User info
-    async fn user(&self, cxt: &Context<'_>) -> ShowUserShort {
-        let conn: &mut PooledConnection = &mut get_conn(cxt).expect("Error get conn to DB");
-        ShowUserShort::get_without_check_by_uuid(&self.user_uuid, &extract_client_domain(cxt), conn)
+    async fn user(&self, ctx: &Context<'_>) -> ShowUserShort {
+        let conn: &mut PooledConnection = &mut get_conn(ctx).expect("Error get conn to DB");
+        ShowUserShort::get_without_check_by_uuid(&self.user_uuid, &extract_client_domain(ctx), conn)
             .expect("Failed get user short data")
     }
 
@@ -314,8 +314,8 @@ impl CompanyAccessStandardAndRelatedData {
     }
 
     /// Company info
-    async fn company(&self, cxt: &Context<'_>) -> ShowCompanyShort {
-        let conn: &mut PooledConnection = &mut get_conn(cxt).expect("Error get conn to DB");
+    async fn company(&self, ctx: &Context<'_>) -> ShowCompanyShort {
+        let conn: &mut PooledConnection = &mut get_conn(ctx).expect("Error get conn to DB");
         ShowCompanyShort::get_without_check_by_uuid(&self.company_uuid, conn)
             .expect("Failed get company short data")
     }

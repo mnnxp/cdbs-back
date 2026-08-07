@@ -95,8 +95,8 @@ impl From<&HeaderMap> for ClientDomain {
 }
 
 /// Extract the client's domain from HTTP headers
-pub(crate) fn extract_client_domain(cxt: &Context<'_>) -> String {
-    match cxt.data_opt::<ClientDomain>() {
+pub(crate) fn extract_client_domain(ctx: &Context<'_>) -> String {
+    match ctx.data_opt::<ClientDomain>() {
         Some(cd) => cd.domain.clone(),
         None => "unknown".to_string(),
     }
