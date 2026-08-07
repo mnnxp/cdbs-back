@@ -1,18 +1,11 @@
 use crate::schema::*;
-use actix_web::http::header::{HeaderMap, HeaderName, LanguageTag};
+use actix_web::http::header::{HeaderMap, LanguageTag, ACCEPT_LANGUAGE};
 use async_graphql::*;
-
-lazy_static::lazy_static! {
-    static ref ACCEPT_LANGUAGE: HeaderName =
-        HeaderName::from_lowercase(b"accept-language").unwrap();
-}
 
 /// Gets SetLang from request
 impl From<&HeaderMap> for SetLang {
     fn from(req: &HeaderMap) -> Self {
-        let lang = req
-            .get(ACCEPT_LANGUAGE.clone())
-            .and_then(|v| v.to_str().ok());
+        let lang = req.get(&ACCEPT_LANGUAGE).and_then(|v| v.to_str().ok());
         let lang_id = match lang {
             None => 1,
             Some(str_lang) => {

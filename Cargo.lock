@@ -648,7 +648,6 @@ dependencies = [
  "hex",
  "hmac 0.12.1",
  "jsonwebtoken",
- "lazy_static",
  "log",
  "num",
  "r2d2",

@@ -53,9 +53,11 @@ cargo run
 | `S3_EXP_PRESIGNED_URL` | Presigned URL expiration in seconds | `800` |
 | **System UUIDs** |||
 | `ROOT_COMPONENT_UUID` | Root component UUID (self-referencing parent) | `a5953fd9-7393-4f1e-a899-06b5e159dbf1` |
-| `ROOT_STANDARD_UUID` | Root standard UUID (self-referencing parent) | `303ec2aa-2066-42e3-93fb-de4fb9344bcb` |
 | `ROOT_MODIFICATION_UUID` | Root modification UUID | `aba22d59-4f6c-44a4-9a37-2d38f0e577a8` |
+| `ROOT_STANDARD_UUID` | Root standard UUID (self-referencing parent) | `303ec2aa-2066-42e3-93fb-de4fb9344bcb` |
+| `ROOT_DISCUSSION_COMMENT_UUID` | Root discussion comment UUID | `dd92b579-019b-48ed-a9e2-28131dbdd363` |
 | `DEFAULT_IMAGE_UUID` | Default placeholder image UUID | `bc1c2151-86d0-4656-9c9d-d016dd584297` |
+| `DEFAULT_USER_UUID` | Default user UUID (anonymous) | `413a9b1c-da2d-44f9-a492-58f9448b402e` |
 
 > **Note:** All environment variables can also be passed as CLI arguments. Run `cargo run -- --help` for details.
 > **Warning:** System UUIDs must match existing database values. Do not change them unless you know what you are doing.

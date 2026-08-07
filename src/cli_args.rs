@@ -111,6 +111,14 @@ pub struct Opt {
     )]
     pub(crate) root_modification_uuid: Uuid,
 
+    /// Root discussion comment UUID (self-referencing parent)
+    #[structopt(
+        long,
+        env = "ROOT_DISCUSSION_COMMENT_UUID",
+        default_value = "dd92b579-019b-48ed-a9e2-28131dbdd363"
+    )]
+    pub(crate) root_discussion_comment_uuid: Uuid,
+
     /// Default image UUID (placeholder)
     #[structopt(
         long,

@@ -86,6 +86,11 @@ pub(crate) fn root_modification_uuid() -> Uuid {
     get_config().root_modification_uuid
 }
 
+/// Root discussion comment UUID (self-referencing parent)
+pub(crate) fn root_discussion_comment_uuid() -> Uuid {
+    get_config().root_discussion_comment_uuid
+}
+
 /// Default image UUID (placeholder)
 pub(crate) fn default_image_uuid() -> Uuid {
     get_config().default_image_uuid

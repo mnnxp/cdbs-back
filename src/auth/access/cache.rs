@@ -2,7 +2,7 @@
 
 use diesel::PgConnection;
 use std::collections::HashMap;
-use std::sync::RwLock;
+use std::sync::{OnceLock, RwLock};
 use std::time::{Duration, Instant};
 use uuid::Uuid;
 
@@ -12,8 +12,12 @@ use crate::errors::ServiceResult;
 use super::AccessInfo;
 use super::{get_company_access, get_component_access, get_service_access, get_standard_access};
 
-lazy_static::lazy_static! {
-    static ref ACCESS_CACHE: RwLock<HashMap<AccessCacheKey, CachedAccess>> = RwLock::new(HashMap::new());
+/// Global thread-safe storage for access control caching
+static ACCESS_CACHE: OnceLock<RwLock<HashMap<AccessCacheKey, CachedAccess>>> = OnceLock::new();
+
+/// Returns a reference to the global access cache
+fn get_cache() -> &'static RwLock<HashMap<AccessCacheKey, CachedAccess>> {
+    ACCESS_CACHE.get_or_init(|| RwLock::new(HashMap::new()))
 }
 
 #[derive(Hash, Eq, PartialEq, Clone, Debug)]
@@ -104,7 +108,7 @@ where
 
     // Read from cache
     {
-        let cache = ACCESS_CACHE.read().unwrap();
+        let cache = get_cache().read().unwrap();
         if let Some(cached) = cache.get(&key) {
             if cached.cached_at.elapsed() < Duration::from_secs(TTL_SECONDS) {
                 debug!("Access cache HIT: {:?}", key);
@@ -124,7 +128,7 @@ where
     let result = result?;
     // Store in cache
     {
-        let mut cache = ACCESS_CACHE.write().unwrap();
+        let mut cache = get_cache().write().unwrap();
         cache.insert(
             key,
             CachedAccess {
@@ -144,13 +148,13 @@ pub(crate) fn invalidate_access(user_uuid: &Uuid, entity: AccessEntity, object_u
 }
 
 pub(crate) fn invalidate_user_cache(user_uuid: &Uuid) {
-    let mut cache = ACCESS_CACHE.write().unwrap();
+    let mut cache = get_cache().write().unwrap();
     cache.retain(|key, _| &key.user_uuid != user_uuid);
     debug!("Cache invalidated for user: {:?}", user_uuid);
 }
 
 pub(crate) fn invalidate_object_cache(entity: AccessEntity, object_uuid: &Uuid) {
-    let mut cache = ACCESS_CACHE.write().unwrap();
+    let mut cache = get_cache().write().unwrap();
     cache.retain(|key, _| key.entity != entity || &key.object_uuid != object_uuid);
     debug!("Cache invalidated for {:?}: {:?}", entity, object_uuid);
 }

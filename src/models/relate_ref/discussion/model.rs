@@ -1,9 +1,8 @@
+use crate::config::root_discussion_comment_uuid;
 use crate::models::search::order::{Paginate, Sort};
 use crate::schema::*;
 use chrono::{Local, NaiveDateTime};
 use uuid::Uuid;
-
-use super::util::get_root_discussion_comment_uuid;
 
 #[derive(Debug, Clone)]
 pub(crate) enum DiscussionTo {
@@ -79,7 +78,7 @@ impl DiscussionCommentList {
         let current_time = Local::now().naive_local();
         let parent_comment_uuid = match parent_comment_uuid {
             Some(pcu) => pcu,
-            None => get_root_discussion_comment_uuid(),
+            None => root_discussion_comment_uuid(),
         };
 
         Self {
