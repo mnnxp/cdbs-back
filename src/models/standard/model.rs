@@ -2,7 +2,7 @@ use crate::config;
 use crate::graphql::standard_model::{IptStandardData, IptStandardFilesArg, IptStandardsArg};
 use crate::models::relate_ref::file::util::get_default_image;
 use crate::schema::standard_ref;
-use chrono::{Local, NaiveDateTime};
+use chrono::{NaiveDateTime, Utc};
 use uuid::Uuid;
 
 #[derive(Identifiable, Queryable, Debug)]
@@ -94,8 +94,8 @@ impl From<&IptStandardData> for InsertableStandard {
             type_access_id: *type_access_id,
             standard_status_id: *standard_status_id,
             is_delete: false,
-            created_at: Local::now().naive_local(),
-            updated_at: Local::now().naive_local(),
+            created_at: Utc::now().naive_utc(),
+            updated_at: Utc::now().naive_utc(),
         }
     }
 }

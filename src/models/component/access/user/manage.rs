@@ -70,7 +70,7 @@ pub(crate) fn set_user_access_component(
             .set((
                 user_access_to_component::type_access_id.eq(data.type_access_id),
                 user_access_to_component::is_enabled.eq(true),
-                user_access_to_component::updated_at.eq(chrono::Local::now().naive_local()),
+                user_access_to_component::updated_at.eq(chrono::Utc::now().naive_utc()),
             ))
             .returning(user_access_to_component::is_enabled)
             .get_result::<bool>(conn)

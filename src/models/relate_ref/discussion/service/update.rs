@@ -4,7 +4,7 @@ use crate::graphql::discussion_model::IptEditCommentData;
 use crate::models::relate_ref::discussion::access::CommentCriteria;
 use crate::schema::discussion_comment_list::dsl as discussion_comment_list;
 use crate::schema::discussion_ref::dsl as discussion_ref;
-use chrono::Local;
+use chrono::Utc;
 use diesel::prelude::*;
 use uuid::Uuid;
 
@@ -33,7 +33,7 @@ pub(crate) fn edit_discussion_comment(
         )
         .set((
             discussion_comment_list::message_content.eq(&data.updated_message),
-            discussion_comment_list::updated_at.eq(&Local::now().naive_local()),
+            discussion_comment_list::updated_at.eq(&Utc::now().naive_utc()),
         ))
         .returning(discussion_comment_list::discussion_uuid)
         .get_result::<Uuid>(conn)
@@ -51,7 +51,7 @@ pub(crate) fn change_discussion_updated_at(
     conn: &mut PgConnection,
 ) -> ServiceResult<usize> {
     diesel::update(discussion_ref::discussion_ref.filter(discussion_ref::uuid.eq(discussion_uuid)))
-        .set(discussion_ref::last_activity_at.eq(Local::now().naive_local()))
+        .set(discussion_ref::last_activity_at.eq(Utc::now().naive_utc()))
         .execute(conn)
         .map_err(|err| {
             debug!("Failed update data: {:?}", err);

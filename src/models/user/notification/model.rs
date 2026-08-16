@@ -115,7 +115,7 @@ impl From<&NotificationData> for InsertableNotification {
         Self {
             notification: notification.to_string(),
             degree_importance_id: degree_importance.get_id(),
-            created_at: chrono::Local::now().naive_local(),
+            created_at: chrono::Utc::now().naive_utc(),
         }
     }
 }

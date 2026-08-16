@@ -228,7 +228,7 @@ pub(crate) fn update_company_by_uuid(
     }
 
     diesel::update(company_ref::company_ref.filter(company_ref::uuid.eq(target_company_uuid)))
-        .set(company_ref::updated_at.eq(chrono::Local::now().naive_local()))
+        .set(company_ref::updated_at.eq(chrono::Utc::now().naive_utc()))
         .execute(conn)
         .map_err(|err| {
             debug!("Failed update data: {:?}", err);

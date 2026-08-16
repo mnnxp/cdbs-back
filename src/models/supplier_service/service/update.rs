@@ -9,7 +9,7 @@ use crate::models::supplier_service::util::{get_service_consumer, get_service_st
 use crate::models::user::notification::model::{NotificationData, NotificationType};
 use crate::models::user::notification::service::register::create_notification;
 use crate::schema::service_ref::dsl as service_ref;
-use chrono::Local;
+use chrono::Utc;
 use diesel::prelude::*;
 use uuid::Uuid;
 
@@ -228,7 +228,7 @@ pub(crate) fn change_service_updated_at(
 ) -> ServiceResult<usize> {
     save_log_service_change(target_service_uuid, logged_user_uuid, old_data, conn);
     diesel::update(service_ref::service_ref.filter(service_ref::uuid.eq(target_service_uuid)))
-        .set(service_ref::updated_at.eq(Local::now().naive_local()))
+        .set(service_ref::updated_at.eq(Utc::now().naive_utc()))
         .execute(conn)
         .map_err(|err| {
             debug!("Failed update data: {:?}", err);

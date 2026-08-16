@@ -67,7 +67,7 @@ pub(crate) fn set_company_access_component(
     .set((
         type_access_id.eq(data.type_access_id),
         is_enabled.eq(true),
-        updated_at.eq(chrono::Local::now().naive_local()),
+        updated_at.eq(chrono::Utc::now().naive_utc()),
     ))
     .execute(conn);
 

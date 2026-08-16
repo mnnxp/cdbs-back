@@ -296,13 +296,13 @@ impl SlimFile {
                 debug!("Failed get download string for file: {:?}", err);
                 ServiceError::InternalServerError
             })?;
-        let naive_local_now = chrono::Local::now().naive_local();
+        let naive_utc_now = chrono::Utc::now().naive_utc();
         let get_url_from_db = presigned_url_ref::presigned_url_ref
             .select(presigned_url_ref::presigned_url)
             .filter(
                 presigned_url_ref::file_uuid
                     .eq(&slim_file.uuid)
-                    .and(presigned_url_ref::expiration_at.gt(naive_local_now)),
+                    .and(presigned_url_ref::expiration_at.gt(naive_utc_now)),
             )
             .limit(1)
             .load::<String>(conn)

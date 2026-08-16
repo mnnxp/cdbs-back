@@ -243,7 +243,7 @@ pub(crate) fn update_user(
     }
 
     diesel::update(user_ref::user_ref.filter(user_ref::uuid.eq(logged_user_uuid)))
-        .set(user_ref::updated_at.eq(chrono::Local::now().naive_local()))
+        .set(user_ref::updated_at.eq(chrono::Utc::now().naive_utc()))
         .execute(conn)
         .map_err(|err| {
             debug!("Failed update data: {:?}", err);

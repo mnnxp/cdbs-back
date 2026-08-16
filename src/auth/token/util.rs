@@ -7,7 +7,7 @@ use crate::errors::{ServiceError, ServiceResult};
 use crate::models::user::model::SlimUser;
 use crate::schema::user_token_ref::dsl as user_token_ref;
 use async_graphql::Context;
-use chrono::Local;
+use chrono::Utc;
 use diesel::prelude::*;
 use diesel::result::Error;
 use uuid::Uuid;
@@ -172,10 +172,10 @@ pub(crate) fn get_user_by_token(
     target_token: &str,
     conn: &mut PgConnection,
 ) -> ServiceResult<Uuid> {
-    let naive_local_now = Local::now().naive_local();
+    let naive_utc_now = Utc::now().naive_utc();
     user_token_ref::user_token_ref
         .filter(user_token_ref::token.eq(target_token))
-        .filter(user_token_ref::expiration_at.gt(naive_local_now))
+        .filter(user_token_ref::expiration_at.gt(naive_utc_now))
         .select(user_token_ref::user_uuid)
         .first::<Uuid>(conn)
         .map_err(|err| match err {

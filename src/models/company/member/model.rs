@@ -96,8 +96,8 @@ impl From<&IptCompanyMemberData> for InsertableCompanyMember {
             user_uuid: *user_uuid,
             role_id: *role_id,
             is_enabled: true,
-            created_at: chrono::Local::now().naive_local(),
-            updated_at: chrono::Local::now().naive_local(),
+            created_at: chrono::Utc::now().naive_utc(),
+            updated_at: chrono::Utc::now().naive_utc(),
         }
     }
 }

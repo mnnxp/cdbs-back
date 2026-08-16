@@ -155,7 +155,7 @@ fn update_file_data_by_uuid(
             .set((
                 file_ref::is_checked.eq(new_file_data.is_checked),
                 file_ref::is_hidden.eq(new_file_data.is_hidden),
-                file_ref::updated_at.eq(chrono::Local::now().naive_local()),
+                file_ref::updated_at.eq(chrono::Utc::now().naive_utc()),
             ))
             .execute(conn)
             .map_err(|err| {

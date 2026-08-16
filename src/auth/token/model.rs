@@ -3,7 +3,7 @@ use crate::schema::*;
 use actix_web::http::header::{HeaderMap, AUTHORIZATION};
 use anyhow::Result;
 use async_graphql::SimpleObject;
-use chrono::{Duration, Local, NaiveDateTime, Utc};
+use chrono::{Duration, NaiveDateTime, Utc};
 use uuid::Uuid;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -32,7 +32,7 @@ impl Claims {
             ..
         } = slim_user;
 
-        let iat = Local::now();
+        let iat = Utc::now();
         let exp = iat + Duration::hours(i64::from(auth_duration_in_hour));
 
         Claims {

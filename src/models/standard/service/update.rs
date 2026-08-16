@@ -137,7 +137,7 @@ pub(crate) fn update_standard_data(
     }
 
     diesel::update(standard_ref::standard_ref.filter(standard_ref::uuid.eq(target_standard_uuid)))
-        .set(standard_ref::updated_at.eq(chrono::Local::now().naive_local()))
+        .set(standard_ref::updated_at.eq(chrono::Utc::now().naive_utc()))
         .execute(conn)
         .map_err(|err| {
             debug!("Failed update data: {:?}", err);

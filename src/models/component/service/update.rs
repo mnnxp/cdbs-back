@@ -4,7 +4,7 @@ use crate::errors::ServiceResult;
 use crate::graphql::component_model::IptUpdateComponentData;
 use crate::schema::component_modification_list::dsl as component_modification_list;
 use crate::schema::component_ref::dsl as component_ref;
-use chrono::Local;
+use chrono::Utc;
 use diesel::prelude::*;
 use uuid::Uuid;
 
@@ -141,7 +141,7 @@ pub(crate) fn change_updated_at(
     target_modification_uuid: Option<&Uuid>,
     conn: &mut PgConnection,
 ) -> ServiceResult<usize> {
-    let new_updated_at = Local::now().naive_local();
+    let new_updated_at = Utc::now().naive_utc();
     let res = diesel::update(
         component_ref::component_ref.filter(component_ref::uuid.eq(target_component_uuid)),
     )

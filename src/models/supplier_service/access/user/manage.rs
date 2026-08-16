@@ -65,7 +65,7 @@ pub(crate) fn set_user_access_service(
         .set((
             user_access_to_service::type_access_id.eq(data.type_access_id),
             user_access_to_service::is_enabled.eq(true),
-            user_access_to_service::updated_at.eq(chrono::Local::now().naive_local()),
+            user_access_to_service::updated_at.eq(chrono::Utc::now().naive_utc()),
         ))
         .returning(user_access_to_service::is_enabled)
         .get_result(conn)

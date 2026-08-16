@@ -1,7 +1,7 @@
 use crate::config::root_discussion_comment_uuid;
 use crate::models::search::order::{Paginate, Sort};
 use crate::schema::*;
-use chrono::{Local, NaiveDateTime};
+use chrono::{NaiveDateTime, Utc};
 use uuid::Uuid;
 
 #[derive(Debug, Clone)]
@@ -29,7 +29,7 @@ pub(crate) struct Discussion {
 
 impl Discussion {
     pub(crate) fn new() -> Self {
-        let current_time = Local::now().naive_local();
+        let current_time = Utc::now().naive_utc();
         Self {
             uuid: Uuid::new_v4(),
             last_activity_at: current_time,
@@ -75,7 +75,7 @@ impl DiscussionCommentList {
         message_content: String,
         discussion_uuid: Uuid,
     ) -> Self {
-        let current_time = Local::now().naive_local();
+        let current_time = Utc::now().naive_utc();
         let parent_comment_uuid = match parent_comment_uuid {
             Some(pcu) => pcu,
             None => root_discussion_comment_uuid(),

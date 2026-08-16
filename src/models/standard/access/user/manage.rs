@@ -62,7 +62,7 @@ pub(crate) fn set_user_access_standard(
         .set((
             user_access_to_standard::type_access_id.eq(data.type_access_id),
             user_access_to_standard::is_enabled.eq(true),
-            user_access_to_standard::updated_at.eq(chrono::Local::now().naive_local()),
+            user_access_to_standard::updated_at.eq(chrono::Utc::now().naive_utc()),
         ))
         .returning(user_access_to_standard::is_enabled)
         .get_result(conn)

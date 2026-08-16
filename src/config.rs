@@ -1,6 +1,6 @@
 use crate::cli_args::Opt;
 use crate::storage::s3::Aws;
-use chrono::Local;
+use chrono::Utc;
 use std::sync::OnceLock;
 use uuid::Uuid;
 
@@ -9,7 +9,7 @@ static CONFIG: OnceLock<Opt> = OnceLock::new();
 
 /// Initializes the global configuration
 pub(crate) fn init_config(opt: Opt) -> Result<(), &'static str> {
-    if opt.s3_access_expiration_at < Local::now().naive_local() {
+    if opt.s3_access_expiration_at < Utc::now().naive_utc() {
         return Err("The data to access S3 is expired.");
     }
     if CONFIG.set(opt).is_err() {

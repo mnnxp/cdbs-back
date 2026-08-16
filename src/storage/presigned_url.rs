@@ -3,7 +3,7 @@ use crate::errors::{ServiceError, ServiceResult};
 use crate::models::relate_ref::file::model::SlimFile;
 use crate::schema::presigned_url_ref::dsl as presigned_url_ref;
 use crate::storage::model::InsertablePresignedUrl;
-use chrono::{Duration, Local};
+use chrono::{Duration, Utc};
 use diesel::prelude::*;
 use log::debug;
 use uuid::Uuid;
@@ -47,7 +47,7 @@ pub(crate) fn save_presign_url(
         800.. => expiration - 400,
         _ => expiration,
     };
-    let new_expiration_at = Local::now().naive_local() + Duration::seconds(expiration_at as i64);
+    let new_expiration_at = Utc::now().naive_utc() + Duration::seconds(expiration_at as i64);
 
     // save new presigned_url for download to db
     let check_old_url = presigned_url_ref::presigned_url_ref

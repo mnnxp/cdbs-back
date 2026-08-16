@@ -34,7 +34,7 @@ pub(crate) fn change_role_member(
         )
         .set((
             role_id.eq(data.role_id),
-            updated_at.eq(chrono::Local::now().naive_local()),
+            updated_at.eq(chrono::Utc::now().naive_utc()),
         ))
         .execute(conn);
 

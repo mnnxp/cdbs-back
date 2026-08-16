@@ -226,7 +226,7 @@ pub(crate) fn set_hidden_flag(
     diesel::update(file_ref::file_ref.filter(file_ref::uuid.eq(file_uuid)))
         .set((
             file_ref::is_hidden.eq(set_flag),
-            file_ref::updated_at.eq(chrono::Local::now().naive_local()),
+            file_ref::updated_at.eq(chrono::Utc::now().naive_utc()),
         ))
         .execute(conn)
         .map(|changes| changes == 1)
@@ -259,7 +259,7 @@ pub(crate) fn set_hidden_flag_revisions(
     )
     .set((
         file_ref::is_hidden.eq(true),
-        file_ref::updated_at.eq(chrono::Local::now().naive_local()),
+        file_ref::updated_at.eq(chrono::Utc::now().naive_utc()),
     ))
     .execute(conn)
     .map_err(|err| {
