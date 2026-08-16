@@ -1,4 +1,5 @@
 use crate::config::s3_endpoint;
+use crate::errors::{ServiceError, ServiceResult};
 use crate::schema::*;
 use chrono::NaiveDateTime;
 use uuid::Uuid;
@@ -61,22 +62,20 @@ pub(crate) struct FileHeaders {
     pub(crate) updated_at: Option<NaiveDateTime>,
 }
 
-impl From<rusoto_s3::HeadObjectOutput> for FileHeaders {
-    fn from(data: rusoto_s3::HeadObjectOutput) -> Self {
-        let rusoto_s3::HeadObjectOutput {
-            content_length,
-            content_type,
-            last_modified,
-            ..
-        } = data;
-
-        Self {
-            content_length,
-            content_type,
-            updated_at: last_modified.map(|date_str| {
+impl FileHeaders {
+    pub(crate) fn from_head_object(data: rusoto_s3::HeadObjectOutput) -> ServiceResult<Self> {
+        let updated_at = data
+            .last_modified
+            .map(|date_str| {
                 NaiveDateTime::parse_from_str(date_str.as_str(), "%a, %d %b %Y %H:%M:%S GMT")
-                    .unwrap()
-            }),
-        }
+                    .map_err(|_| ServiceError::InternalServerError)
+            })
+            .transpose()?;
+
+        Ok(Self {
+            content_length: data.content_length,
+            content_type: data.content_type,
+            updated_at,
+        })
     }
 }

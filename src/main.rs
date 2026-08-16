@@ -114,7 +114,7 @@ async fn main() -> std::io::Result<()> {
             .configure(graphql::route)
     })
     .bind((domain, port))
-    .unwrap()
+    .expect("Failed to bind to socket")
     // Starts server
     .run();
 

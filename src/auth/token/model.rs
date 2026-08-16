@@ -1,3 +1,4 @@
+use crate::errors::{ServiceError, ServiceResult};
 use crate::models::user::model::SlimUser;
 use crate::schema::*;
 use actix_web::http::header::{HeaderMap, AUTHORIZATION};
@@ -118,13 +119,17 @@ pub(super) struct InsertableUserToken {
 
 impl InsertableUserToken {
     /// Create based on data without token
-    pub(super) fn new(user_uuid: &Uuid, jwt: &Claims) -> Self {
-        Self {
+    pub(super) fn new(user_uuid: &Uuid, jwt: &Claims) -> ServiceResult<Self> {
+        let created_at = NaiveDateTime::from_timestamp_opt(jwt.iat, 0)
+            .ok_or(ServiceError::InternalServerError)?;
+        let expiration_at = NaiveDateTime::from_timestamp_opt(jwt.exp, 0)
+            .ok_or(ServiceError::InternalServerError)?;
+        Ok(Self {
             user_uuid: *user_uuid,
             token: String::new(),
-            created_at: NaiveDateTime::from_timestamp_opt(jwt.iat, 0).unwrap(),
-            expiration_at: NaiveDateTime::from_timestamp_opt(jwt.exp, 0).unwrap(),
-        }
+            created_at,
+            expiration_at,
+        })
     }
 
     /// Change token data

@@ -152,7 +152,7 @@ pub(crate) fn write_token(
     match check_token {
         // creating a structure for writing token to a table
         0 => {
-            let mut data = InsertableUserToken::new(logged_user_uuid, &jwt);
+            let mut data = InsertableUserToken::new(logged_user_uuid, &jwt)?;
             data.put_token(new_token);
             diesel::insert_into(user_token_ref::user_token_ref)
                 .values(&data)

@@ -101,8 +101,6 @@ impl From<&IptCompanyRepresentData> for InsertableCompanyRepresent {
             ..
         } = company_represent_data;
 
-        // let company_uuid = "31ecc6f8-0c09-4a59-a2d5-34b5b833e59b".parse().unwrap();
-
         Self {
             uuid: Uuid::new_v4(),
             company_uuid: *company_uuid,

@@ -7,7 +7,7 @@ use std::time::{Duration, Instant};
 use uuid::Uuid;
 
 use crate::auth::rbac::AccessEntity;
-use crate::errors::ServiceResult;
+use crate::errors::{ServiceError, ServiceResult};
 
 use super::AccessInfo;
 use super::{get_company_access, get_component_access, get_service_access, get_standard_access};
@@ -108,7 +108,13 @@ where
 
     // Read from cache
     {
-        let cache = get_cache().read().unwrap();
+        let cache = match get_cache().read() {
+            Ok(c) => c,
+            Err(e) => {
+                log::error!("Failed to acquire read lock: {}", e);
+                return Err(ServiceError::InternalServerError);
+            }
+        };
         if let Some(cached) = cache.get(&key) {
             if cached.cached_at.elapsed() < Duration::from_secs(TTL_SECONDS) {
                 debug!("Access cache HIT: {:?}", key);
@@ -128,7 +134,13 @@ where
     let result = result?;
     // Store in cache
     {
-        let mut cache = get_cache().write().unwrap();
+        let mut cache = match get_cache().write() {
+            Ok(c) => c,
+            Err(e) => {
+                log::error!("Failed to acquire write lock: {}", e);
+                return Err(ServiceError::InternalServerError);
+            }
+        };
         cache.insert(
             key,
             CachedAccess {
@@ -148,13 +160,21 @@ pub(crate) fn invalidate_access(user_uuid: &Uuid, entity: AccessEntity, object_u
 }
 
 pub(crate) fn invalidate_user_cache(user_uuid: &Uuid) {
-    let mut cache = get_cache().write().unwrap();
-    cache.retain(|key, _| &key.user_uuid != user_uuid);
-    debug!("Cache invalidated for user: {:?}", user_uuid);
+    match get_cache().write() {
+        Ok(mut cache) => {
+            cache.retain(|key, _| &key.user_uuid != user_uuid);
+            debug!("Cache invalidated for user: {:?}", user_uuid);
+        }
+        Err(e) => log::error!("Cache write lock failed for user: {}", e),
+    }
 }
 
 pub(crate) fn invalidate_object_cache(entity: AccessEntity, object_uuid: &Uuid) {
-    let mut cache = get_cache().write().unwrap();
-    cache.retain(|key, _| key.entity != entity || &key.object_uuid != object_uuid);
-    debug!("Cache invalidated for {:?}: {:?}", entity, object_uuid);
+    match get_cache().write() {
+        Ok(mut cache) => {
+            cache.retain(|key, _| key.entity != entity || &key.object_uuid != object_uuid);
+            debug!("Cache invalidated for {:?}: {:?}", entity, object_uuid);
+        }
+        Err(e) => log::error!("Cache write lock failed for object: {}", e),
+    }
 }

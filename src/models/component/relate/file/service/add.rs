@@ -88,8 +88,7 @@ pub(crate) fn add_component_favicon(
         return Err(get_err_msg(ErrorMessage::BadFilename));
     }
 
-    // return error if not correct file name
-    if !check_image_filename(&data.filename) {
+    if !check_image_filename(&data.filename)? {
         return Err(get_err_msg(ErrorMessage::SelectedFileIsNotImage));
     }
 

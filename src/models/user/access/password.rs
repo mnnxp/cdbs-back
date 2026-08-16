@@ -57,7 +57,7 @@ fn update_password(
     let psw_salt = make_salt();
 
     // make hash with salt for save password in database
-    let psw_hash = make_hash_salt(new_password, &psw_salt);
+    let psw_hash = make_hash_salt(new_password, &psw_salt)?;
 
     // update hash and salt in database
     diesel::update(user_ref::user_ref.filter(user_ref::uuid.eq(logged_user_uuid)))

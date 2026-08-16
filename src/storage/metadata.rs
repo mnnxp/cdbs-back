@@ -11,5 +11,5 @@ pub(crate) async fn object_headers(path_file: &str) -> ServiceResult<FileHeaders
 
     let file_headers = get_object_headers_by_path(&client, s3_bucket(), path_file).await?;
 
-    Ok(file_headers.into())
+    FileHeaders::from_head_object(file_headers)
 }

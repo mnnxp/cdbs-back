@@ -37,11 +37,13 @@ pub(crate) fn check_default_file(file_uuid: &Uuid) -> bool {
 pub(crate) fn find_id_ext(filename: &str, conn: &mut PgConnection) -> i32 {
     use crate::schema::extension_ref::dsl::*;
     // debug!("Filename_str {:?}", filename);
-    let ext_str = Regex::new(r"\.\w+$")
-        .unwrap()
-        .find(filename)
-        .map(|m| m.as_str())
-        .unwrap_or_default();
+    let ext_str = match Regex::new(r"\.\w+$") {
+        Ok(rg) => rg.find(filename).map(|m| m.as_str()).unwrap_or_default(),
+        Err(e) => {
+            log::error!("Invalid regex: {}", e);
+            ""
+        }
+    };
     // debug!("Ext_str {:?}", ext_str);
     if ext_str.is_empty() {
         return 1;
@@ -55,14 +57,14 @@ pub(crate) fn find_id_ext(filename: &str, conn: &mut PgConnection) -> i32 {
 }
 
 /// Checking that the file name matches the image
-pub(crate) fn check_image_filename(filename: &str) -> bool {
+pub(crate) fn check_image_filename(filename: &str) -> ServiceResult<bool> {
     let ext_str = Regex::new(r"\.\w+$")
-        .unwrap()
+        .map_err(|_| ServiceError::InternalServerError)?
         .find(filename)
-        .unwrap()
+        .ok_or(get_err_msg(ErrorMessage::BadFilename))?
         .as_str();
 
-    matches!(
+    Ok(matches!(
         ext_str.to_lowercase().as_str(),
         ".apng"
             | ".avif"
@@ -75,7 +77,7 @@ pub(crate) fn check_image_filename(filename: &str) -> bool {
             | ".png"
             | ".svg"
             | ".webp"
-    )
+    ))
 }
 
 /// Checking for a file with the same name for the same object.

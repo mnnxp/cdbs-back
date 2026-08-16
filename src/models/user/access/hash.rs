@@ -1,3 +1,4 @@
+use crate::errors::{ServiceError, ServiceResult};
 use argon2::{self, Config, Variant, Version};
 use rand::RngCore;
 
@@ -12,7 +13,7 @@ pub(crate) fn make_salt() -> [u8; SALT_LEN] {
 }
 
 /// Hashes a password using Argon2id with production-ready, resource-efficient parameters
-pub(crate) fn make_hash_salt(password: &[u8], psw_salt: &[u8]) -> Vec<u8> {
+pub(crate) fn make_hash_salt(password: &[u8], psw_salt: &[u8]) -> ServiceResult<Vec<u8>> {
     let config = Config {
         variant: Variant::Argon2id, // Defends against both GPU brute-force and side-channel attacks
         version: Version::Version13,
@@ -23,8 +24,11 @@ pub(crate) fn make_hash_salt(password: &[u8], psw_salt: &[u8]) -> Vec<u8> {
     };
 
     argon2::hash_encoded(password, psw_salt, &config)
-        .unwrap()
-        .into_bytes()
+        .map(|hash| hash.into_bytes())
+        .map_err(|e| {
+            log::error!("Argon2 hashing failed: {:?}", e);
+            ServiceError::InternalServerError
+        })
 }
 
 /// Verifies a password against an encoded Argon2id hash string

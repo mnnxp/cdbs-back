@@ -1,5 +1,6 @@
 use super::access::hash::{make_hash_salt, make_salt};
 use super::certificate::model::UserCertificateAndFile;
+use crate::errors::ServiceResult;
 use crate::models::relate_ref::{
     file::model::DownloadFile, file::util::get_default_image, program::model::Program,
     region::model::RegionTranslateList, type_access::model::TypeAccessTranslateList,
@@ -227,11 +228,11 @@ pub(crate) struct IptUserData {
 }
 
 impl InsertableUser {
-    pub(crate) fn by_arg(ipt_data: IptUserData) -> Self {
+    pub(crate) fn by_arg(ipt_data: IptUserData) -> ServiceResult<Self> {
         let psw_salt = make_salt();
-        let psw_hash = make_hash_salt(ipt_data.password.as_bytes(), &psw_salt);
+        let psw_hash = make_hash_salt(ipt_data.password.as_bytes(), &psw_salt)?;
 
-        Self {
+        Ok(Self {
             uuid: Uuid::new_v4(),
             email: ipt_data.email.to_string(),
             psw_hash,
@@ -255,7 +256,7 @@ impl InsertableUser {
             is_delete: false,
             created_at: chrono::Utc::now().naive_utc(),
             updated_at: chrono::Utc::now().naive_utc(),
-        }
+        })
     }
 }
 
