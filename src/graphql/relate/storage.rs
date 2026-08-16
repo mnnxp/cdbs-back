@@ -80,7 +80,8 @@ impl StorageMutation {
 
         let pool = get_pool(ctx)?;
 
-        confirm_upload(&logged_user_uuid, &file_uuids, &pool).await
+        let confirmed_uuids = confirm_upload(&logged_user_uuid, &file_uuids, &pool).await?;
+        Ok(confirmed_uuids.len())
     }
 
     /// Sets a specified file revision (versions) as active.
