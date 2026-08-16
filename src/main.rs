@@ -23,7 +23,7 @@ use crate::database::pool::establish_connection;
 use crate::graphql::handler::build_schema;
 use actix_cors::Cors;
 use actix_web::http::header;
-use actix_web::middleware::Logger;
+use actix_web::middleware::{DefaultHeaders, Logger};
 use actix_web::{web::Data, App, HttpServer};
 
 #[actix_web::main]
@@ -82,10 +82,25 @@ async fn main() -> std::io::Result<()> {
             ])
             .supports_credentials()
             .max_age(3600);
+
+        // Configure security headers
+        let security_headers = DefaultHeaders::new()
+            .add(("Cross-Origin-Opener-Policy", "same-origin"))
+            .add(("Cross-Origin-Embedder-Policy", "require-corp"))
+            .add(("X-Content-Type-Options", "nosniff"))
+            .add(("X-Frame-Options", "DENY"))
+            // Enforces Strict HTTPS (HSTS) for 30 days
+            .add((
+                "Strict-Transport-Security",
+                "max-age=2592000; includeSubDomains",
+            ));
+
         // Build
         App::new()
             // CORS
             .wrap(cors)
+            // COOP, COEP and OWASP
+            .wrap(security_headers)
             // Error logging
             .wrap(Logger::default())
             // Authentication
