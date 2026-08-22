@@ -3,7 +3,6 @@ use crate::auth::token::{find_user_by_token, token_from_ctx};
 use crate::database::{get_conn, PooledConnection};
 use crate::errors::{ServiceError, ServiceResult};
 use async_graphql::Context;
-use log::debug;
 use uuid::Uuid;
 
 /// Checking user authorization

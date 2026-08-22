@@ -4,7 +4,6 @@ use crate::errors::ServiceError;
 use crate::models::user::model::SlimUser;
 use jsonwebtoken::errors::{Error, ErrorKind};
 use jsonwebtoken::{decode, encode, Algorithm, DecodingKey, EncodingKey, Header, Validation};
-use log::debug;
 use std::sync::OnceLock;
 
 /// Global static storage for JWT keys

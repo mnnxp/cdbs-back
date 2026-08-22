@@ -6,7 +6,6 @@ use crate::schema::company_member_list;
 use crate::schema::role_member_list;
 
 use diesel::prelude::*;
-use log::debug;
 use uuid::Uuid;
 
 /// Deletes a company member role if no members are currently assigned to it.

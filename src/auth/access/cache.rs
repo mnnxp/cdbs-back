@@ -111,7 +111,7 @@ where
         let cache = match get_cache().read() {
             Ok(c) => c,
             Err(e) => {
-                log::error!("Failed to acquire read lock: {}", e);
+                error!("Failed to acquire read lock: {}", e);
                 return Err(ServiceError::InternalServerError);
             }
         };
@@ -137,7 +137,7 @@ where
         let mut cache = match get_cache().write() {
             Ok(c) => c,
             Err(e) => {
-                log::error!("Failed to acquire write lock: {}", e);
+                error!("Failed to acquire write lock: {}", e);
                 return Err(ServiceError::InternalServerError);
             }
         };
@@ -165,7 +165,7 @@ pub(crate) fn invalidate_user_cache(user_uuid: &Uuid) {
             cache.retain(|key, _| &key.user_uuid != user_uuid);
             debug!("Cache invalidated for user: {:?}", user_uuid);
         }
-        Err(e) => log::error!("Cache write lock failed for user: {}", e),
+        Err(e) => error!("Cache write lock failed for user: {}", e),
     }
 }
 
@@ -175,6 +175,6 @@ pub(crate) fn invalidate_object_cache(entity: AccessEntity, object_uuid: &Uuid) 
             cache.retain(|key, _| key.entity != entity || &key.object_uuid != object_uuid);
             debug!("Cache invalidated for {:?}: {:?}", entity, object_uuid);
         }
-        Err(e) => log::error!("Cache write lock failed for object: {}", e),
+        Err(e) => error!("Cache write lock failed for object: {}", e),
     }
 }

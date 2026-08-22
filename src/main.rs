@@ -42,12 +42,12 @@ async fn main() -> std::io::Result<()> {
 
     // Freeze application configuration globally
     if let Err(err) = init_config(opt.clone()) {
-        log::error!("Configuration error: {}", err);
+        error!("Configuration error: {}", err);
         std::process::exit(1);
     }
 
     if let Err(err) = init_jwt_keys(&opt.jwt_private_key, &opt.jwt_public_key) {
-        log::error!("Invalid JWT RSA keys format: {:?}", err);
+        error!("Invalid JWT RSA keys format: {:?}", err);
         std::process::exit(1);
     }
 

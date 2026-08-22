@@ -13,7 +13,7 @@ pub(crate) fn init_config(opt: Opt) -> Result<(), &'static str> {
         return Err("The data to access S3 is expired.");
     }
     if CONFIG.set(opt).is_err() {
-        log::warn!("Configuration has already been initialized!");
+        warn!("Configuration has already been initialized!");
     }
     Ok(())
 }

@@ -26,7 +26,7 @@ pub(crate) fn make_hash_salt(password: &[u8], psw_salt: &[u8]) -> ServiceResult<
     argon2::hash_encoded(password, psw_salt, &config)
         .map(|hash| hash.into_bytes())
         .map_err(|e| {
-            log::error!("Argon2 hashing failed: {:?}", e);
+            error!("Argon2 hashing failed: {:?}", e);
             ServiceError::InternalServerError
         })
 }

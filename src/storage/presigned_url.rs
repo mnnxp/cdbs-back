@@ -5,7 +5,6 @@ use crate::schema::presigned_url_ref::dsl as presigned_url_ref;
 use crate::storage::model::InsertablePresignedUrl;
 use chrono::{Duration, Utc};
 use diesel::prelude::*;
-use log::debug;
 use uuid::Uuid;
 
 use super::model::S3Proxer;

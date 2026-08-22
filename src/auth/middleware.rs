@@ -2,7 +2,6 @@ use actix_web::dev::{Service, ServiceRequest, Transform};
 use actix_web::http::header;
 use actix_web::{web, HttpMessage};
 use futures::future::{ready, Ready};
-use log::debug;
 use std::future::Future;
 use std::pin::Pin;
 use std::rc::Rc;

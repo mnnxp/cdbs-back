@@ -40,7 +40,7 @@ pub(crate) fn find_id_ext(filename: &str, conn: &mut PgConnection) -> i32 {
     let ext_str = match Regex::new(r"\.\w+$") {
         Ok(rg) => rg.find(filename).map(|m| m.as_str()).unwrap_or_default(),
         Err(e) => {
-            log::error!("Invalid regex: {}", e);
+            error!("Invalid regex: {}", e);
             ""
         }
     };
