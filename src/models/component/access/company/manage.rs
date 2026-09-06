@@ -1,3 +1,5 @@
+use crate::auth::access::invalidate_object_cache;
+use crate::auth::AccessEntity;
 use crate::errors::err_msg::{get_err_msg, ErrorMessage};
 use crate::errors::ServiceResult;
 use crate::models::component::access::company::model::{
@@ -52,6 +54,7 @@ pub(crate) fn set_company_access_component(
 ) -> ServiceResult<bool> {
     // 1. проверить пользователя на владение компонентом
     check_is_owner_with_err(logged_user_uuid, &data.component_uuid, conn)?;
+    invalidate_object_cache(AccessEntity::Component, &data.component_uuid);
 
     // 2. изменить или добавить доступ для указанной компании
     let set_access = diesel::update(
@@ -64,7 +67,7 @@ pub(crate) fn set_company_access_component(
     .set((
         type_access_id.eq(data.type_access_id),
         is_enabled.eq(true),
-        updated_at.eq(chrono::Local::now().naive_local()),
+        updated_at.eq(chrono::Utc::now().naive_utc()),
     ))
     .execute(conn);
 
@@ -138,6 +141,7 @@ pub(crate) fn del_company_access_component(
 ) -> ServiceResult<bool> {
     // 1. проверить пользователя на владение компонентом
     check_is_owner_with_err(logged_user_uuid, &data.component_uuid, conn)?;
+    invalidate_object_cache(AccessEntity::Component, &data.component_uuid);
 
     // 2. деактивировать доступ для указанной компании
     let del_access = diesel::delete(company_access_to_component)

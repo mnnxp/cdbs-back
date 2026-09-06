@@ -1,12 +1,10 @@
+use crate::auth::{require_permission, AccessEntity, AccessOperation};
 use crate::errors::{ServiceError, ServiceResult};
 use crate::graphql::component_model::IptComponentData;
-use crate::models::component::{
-    access::util::check_access_component_for_user,
-    component_modification::{
-        model::InsertableComponentModification, service::register::single_modification,
-    },
-    model::InsertableComponent,
+use crate::models::component::component_modification::{
+    model::InsertableComponentModification, service::register::single_modification,
 };
+use crate::models::component::model::InsertableComponent;
 use crate::models::user::component_fav::service::add::component_to_fav_ft;
 use crate::schema::component_ref::dsl as component_ref;
 use diesel::prelude::*;
@@ -19,10 +17,11 @@ pub(crate) fn create_component(
     conn: &mut PgConnection,
 ) -> ServiceResult<Uuid> {
     if let Some(ref parent_component_uuid) = data.parent_component_uuid {
-        check_access_component_for_user(
+        require_permission(
             logged_user_uuid,
+            AccessEntity::Component,
             parent_component_uuid,
-            3, // need_access_level
+            AccessOperation::Read,
             conn,
         )?;
     }

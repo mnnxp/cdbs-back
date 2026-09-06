@@ -1,11 +1,4 @@
-use super::certificate::model::CompanyCertificateAndFile;
-use super::company_represent::model::CompanyRepresentAndRelatedData;
-use super::company_type::model::CompanyTypeTranslateList;
-use crate::models::relate_ref::{
-    file::model::DownloadFile, file::util::get_default_image, region::model::RegionTranslateList,
-    spec::model::SpecTranslateList, type_access::model::TypeAccessTranslateList,
-};
-use crate::models::user::model::ShowUserShort;
+use crate::models::relate_ref::file::util::get_default_image;
 use crate::schema::*;
 use async_graphql::*;
 use chrono::*;
@@ -39,7 +32,7 @@ pub(crate) struct Company {
 }
 
 /// Full company information and related data
-#[derive(Debug, SimpleObject)]
+#[derive(Debug, Clone, Queryable)]
 pub(crate) struct CompanyAndRelatedData {
     /// Company UUID on the platform
     pub(crate) uuid: Uuid,
@@ -61,38 +54,49 @@ pub(crate) struct CompanyAndRelatedData {
     pub(crate) site_url: String,
     /// Main time zone
     pub(crate) time_zone: String,
-    /// Data on the profile that owns the company
-    pub(crate) owner_user: ShowUserShort,
-    /// Data for displaying the company logo
-    pub(crate) image_file: DownloadFile,
-    /// Main company region
-    pub(crate) region: RegionTranslateList,
-    /// Data on the company's representative offices
-    pub(crate) company_represents: Vec<CompanyRepresentAndRelatedData>,
-    /// Type of company/society organization
-    pub(crate) company_type: CompanyTypeTranslateList,
-    /// List of certificates and competencies of the companies
-    pub(crate) company_certificates: Vec<CompanyCertificateAndFile>,
-    /// List of catalogs monitored by the company
-    pub(crate) company_specs: Vec<SpecTranslateList>,
-    /// Type of access to company profile
-    pub(crate) type_access: TypeAccessTranslateList,
+    pub(crate) user_uuid: Uuid,
+    pub(crate) image_file_uuid: Uuid,
+    pub(crate) region_id: i32,
+    pub(crate) company_type_id: i32,
+    pub(crate) type_access_id: i32,
     /// Supplier status (within the platform)
     pub(crate) is_supplier: bool,
     /// E-mail confirmation result flag
     pub(crate) is_email_verified: bool,
-    /// Number of people who have added the company to their bookmarks
-    pub(crate) subscribers: i32,
-    /// Flag of company presence in user's bookmarks
-    pub(crate) is_followed: bool,
     /// Date of creation of the company profile
     pub(crate) created_at: NaiveDateTime,
     /// Date of update of the company's basic data
     pub(crate) updated_at: NaiveDateTime,
 }
 
+impl From<Company> for CompanyAndRelatedData {
+    fn from(company: Company) -> Self {
+        Self {
+            uuid: company.uuid,
+            orgname: company.orgname,
+            shortname: company.shortname,
+            inn: company.inn,
+            phone: company.phone,
+            email: company.email,
+            description: company.description,
+            address: company.address,
+            site_url: company.site_url,
+            time_zone: company.time_zone,
+            user_uuid: company.user_uuid,
+            image_file_uuid: company.image_file_uuid,
+            region_id: company.region_id,
+            company_type_id: company.company_type_id,
+            type_access_id: company.type_access_id,
+            is_supplier: company.is_supplier,
+            is_email_verified: company.is_email_verified,
+            created_at: company.created_at,
+            updated_at: company.updated_at,
+        }
+    }
+}
+
 /// Abbreviated company data
-#[derive(Debug, SimpleObject)]
+#[derive(Debug, Clone, Queryable)]
 pub(crate) struct ShowCompanyShort {
     /// Company UUID on the platform
     pub(crate) uuid: Uuid,
@@ -102,20 +106,34 @@ pub(crate) struct ShowCompanyShort {
     pub(crate) inn: String,
     /// Company Description
     pub(crate) description: String,
-    /// Data for displaying the company logo
-    pub(crate) image_file: DownloadFile,
-    /// Main region of the company's activity
-    pub(crate) region: RegionTranslateList,
-    /// Type of company/community organization
-    pub(crate) company_type: CompanyTypeTranslateList,
+    pub(crate) image_file_uuid: Uuid,
+    pub(crate) region_id: i32,
+    pub(crate) company_type_id: i32,
+    pub(crate) type_access_id: i32,
     /// Supplier status (within the platform)
     pub(crate) is_supplier: bool,
-    /// Flag of company presence in user's bookmarks
-    pub(crate) is_followed: bool,
     /// Date of creation of the company profile
     pub(crate) created_at: NaiveDateTime,
     /// Date of update of the company's basic data
     pub(crate) updated_at: NaiveDateTime,
+}
+
+impl From<Company> for ShowCompanyShort {
+    fn from(company: Company) -> Self {
+        Self {
+            uuid: company.uuid,
+            shortname: company.shortname,
+            description: company.description,
+            inn: company.inn,
+            image_file_uuid: company.image_file_uuid,
+            region_id: company.region_id,
+            company_type_id: company.company_type_id,
+            type_access_id: company.type_access_id,
+            is_supplier: company.is_supplier,
+            created_at: company.created_at,
+            updated_at: company.updated_at,
+        }
+    }
 }
 
 #[derive(Debug, Insertable)]
@@ -222,8 +240,8 @@ impl From<&IptCompanyData> for InsertableCompany {
             is_email_verified: false,
             is_enabled: true,
             is_delete: false,
-            created_at: chrono::Local::now().naive_local(),
-            updated_at: chrono::Local::now().naive_local(),
+            created_at: chrono::Utc::now().naive_utc(),
+            updated_at: chrono::Utc::now().naive_utc(),
         }
     }
 }
@@ -295,6 +313,10 @@ pub(crate) struct IptCompaniesArg {
     pub(crate) favorite: Option<bool>,
     /// Filter by supplier status
     pub(crate) supplier: Option<bool>,
+    /// Full-text search by company name, shortname
+    pub(crate) search: Option<String>,
+    /// Exclude specific users from results by their UUIDs
+    pub(crate) exclude_uuids: Option<Vec<Uuid>>,
 }
 
 #[derive(Debug)]
@@ -303,6 +325,8 @@ pub(crate) struct CompaniesArg {
     pub(crate) user_uuid: Option<Uuid>,
     pub(crate) favorite: bool,
     pub(crate) supplier: bool,
+    pub(crate) search: Option<String>,
+    pub(crate) exclude_uuids: Option<Vec<Uuid>>,
 }
 
 impl CompaniesArg {
@@ -313,12 +337,16 @@ impl CompaniesArg {
             user_uuid,
             favorite,
             supplier,
+            search,
+            exclude_uuids,
         } = data;
         Self {
             filter_companies_uuids: companies_uuids.unwrap_or_default(),
             user_uuid,
             favorite: favorite.unwrap_or(false),
             supplier: supplier.unwrap_or(false),
+            search,
+            exclude_uuids,
         }
     }
 
@@ -329,6 +357,8 @@ impl CompaniesArg {
             user_uuid: None,
             favorite: false,
             supplier: false,
+            search: None,
+            exclude_uuids: None,
         }
     }
 }

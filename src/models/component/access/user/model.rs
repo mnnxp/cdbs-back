@@ -1,6 +1,6 @@
-use crate::models::relate_ref::type_access::model::TypeAccessTranslateList;
+use crate::auth::permission::PermissionTranslateList;
 use crate::schema::*;
-use async_graphql::{InputObject, SimpleObject};
+use async_graphql::InputObject;
 use chrono::*;
 use uuid::Uuid;
 
@@ -17,14 +17,14 @@ pub(crate) struct UserAccessComponent {
 }
 
 /// User access data to the component (part) with additional information
-#[derive(Debug, Deserialize, SimpleObject)]
+#[derive(Debug, Deserialize)]
 pub(crate) struct UserAccessComponentAndRelatedData {
     /// UUID of the component
     pub(crate) component_uuid: Uuid,
     /// UUID of the user
     pub(crate) user_uuid: Uuid,
-    /// Information about the type of access with localization
-    pub(crate) type_access: TypeAccessTranslateList,
+    /// Access level with localization
+    pub(crate) permission: PermissionTranslateList,
     /// Access activity flag
     pub(crate) is_enabled: bool,
     /// Date of first access assignment
@@ -69,8 +69,8 @@ impl From<&IptUserAccessComponentData> for InsertableUserAccessComponent {
             user_uuid: *user_uuid,
             type_access_id: *type_access_id,
             is_enabled: true,
-            created_at: chrono::Local::now().naive_local(),
-            updated_at: chrono::Local::now().naive_local(),
+            created_at: chrono::Utc::now().naive_utc(),
+            updated_at: chrono::Utc::now().naive_utc(),
         }
     }
 }

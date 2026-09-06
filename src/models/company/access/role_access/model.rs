@@ -1,14 +1,7 @@
 use crate::schema::*;
 use async_graphql::*;
 
-// RoleAccess models
-#[derive(Serialize, Deserialize, Queryable, Debug)]
-#[diesel(table_name = role_access)]
-pub(crate) struct RoleAccess {
-    pub(crate) role_id: i32,
-    pub(crate) type_access_id: i32,
-}
-
+/// RoleAccess models
 #[derive(Debug, Insertable)]
 #[diesel(table_name = role_access)]
 pub(crate) struct InsertableRoleAccess {

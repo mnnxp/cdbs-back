@@ -134,8 +134,8 @@ impl From<PreliminaryFileData> for InsertableFile {
             is_checked: false,
             is_hidden: true,
             is_delete: false,
-            created_at: chrono::Local::now().naive_local(),
-            updated_at: chrono::Local::now().naive_local(),
+            created_at: chrono::Utc::now().naive_utc(),
+            updated_at: chrono::Utc::now().naive_utc(),
         }
     }
 }

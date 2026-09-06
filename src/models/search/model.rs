@@ -1,7 +1,8 @@
+use crate::auth::token::logged::get_logged_user_uuid;
+use crate::config;
 use crate::errors::ServiceResult;
 use crate::graphql::handler::extract_client_domain;
 use crate::models::relate_ref::language::get_set_language;
-use crate::models::user::access::logged::{default_user_uuid, get_logged_user_uuid};
 use crate::models::user::model::SlimUser;
 use async_graphql::*;
 use diesel::{prelude::*, sql_types};
@@ -41,10 +42,10 @@ impl ExtraOptions {
     /// Returns the structure with logged user uuid and set language.
     /// If token validation fails and no_entry is true, will be made to retrieve the default user UUID.
     /// If the default user UUID could not be obtained, the first error received during token validation will be returned.
-    pub(crate) fn from_cxt(cxt: &Context<'_>, no_entry: bool) -> ServiceResult<Self> {
-        let set_lang_id = get_set_language(cxt);
-        let domain = extract_client_domain(cxt);
-        match get_logged_user_uuid(cxt, true) {
+    pub(crate) fn from_ctx(ctx: &Context<'_>, no_entry: bool) -> ServiceResult<Self> {
+        let set_lang_id = get_set_language(ctx);
+        let domain = extract_client_domain(ctx);
+        match get_logged_user_uuid(ctx) {
             Ok(logged_user_uuid) => Ok(Self {
                 logged_user_uuid,
                 set_lang_id,
@@ -52,26 +53,26 @@ impl ExtraOptions {
                 no_entry: false,
             }),
             Err(err) => {
-                if let (Ok(logged_user_uuid), true) = (default_user_uuid(cxt), no_entry) {
+                if no_entry {
                     // default user uuid and set language
-                    return Ok(Self {
-                        logged_user_uuid,
+                    Ok(Self {
+                        logged_user_uuid: config::default_user_uuid(),
                         set_lang_id,
                         domain,
-                        no_entry: true,
-                    });
+                        no_entry,
+                    })
+                } else {
+                    Err(err)
                 }
-                // error message
-                Err(err)
             }
         }
     }
 
-    pub(crate) fn by_slim_user(cxt: &Context<'_>, slim_user: &SlimUser) -> Self {
+    pub(crate) fn by_slim_user(ctx: &Context<'_>, slim_user: &SlimUser) -> Self {
         Self {
             logged_user_uuid: slim_user.uuid,
-            set_lang_id: get_set_language(cxt),
-            domain: extract_client_domain(cxt),
+            set_lang_id: get_set_language(ctx),
+            domain: extract_client_domain(ctx),
             no_entry: false,
         }
     }
@@ -81,12 +82,16 @@ impl ExtraOptions {
 #[derive(InputObject, Deserialize, Debug)]
 pub(crate) struct IptSearchArg {
     pub(crate) search: String,
-    #[graphql(default = false)]
+    #[graphql(default = true)]
     pub(crate) by_params: bool,
-    #[graphql(default = false)]
+    #[graphql(default = true)]
     pub(crate) by_specs: bool,
-    #[graphql(default = false)]
+    #[graphql(default = true)]
     pub(crate) by_keywords: bool,
+    #[graphql(default = true)]
+    pub(crate) by_modifications: bool,
+    #[graphql(default = true)]
+    pub(crate) by_modification_params: bool,
     pub(crate) company_uuid: Option<Uuid>,
     pub(crate) standard_uuid: Option<Uuid>,
     pub(crate) service_uuid: Option<Uuid>,

@@ -1,5 +1,4 @@
 use super::{
-    access::util::check_access_user_for_user,
     certificate::model::UserCertificateAndFile,
     model::{
         ShowUserAndRelatedData, ShowUserShort, SlimUser, UserAndRelatedData, UserQuery, UserShort,
@@ -7,17 +6,20 @@ use super::{
     relate::util::{count_companies_for_user, count_components_for_user, count_standards_for_user},
     user_fav::model::UserFav,
 };
-use crate::models::{
-    company::company_fav::model::CompanyFav,
-    component::component_fav::model::ComponentFav,
-    relate_ref::{
-        file::model::DownloadFile, program::model::Program, region::model::RegionTranslateList,
-        type_access::model::TypeAccessTranslateList,
-    },
-    standard::standard_fav::model::StandardFav,
-    search::model::ExtraOptions,
-};
 use crate::schema::user_ref::dsl as user_ref;
+use crate::{
+    auth::{require_permission, AccessEntity, AccessOperation},
+    models::{
+        company::company_fav::model::CompanyFav,
+        component::component_fav::model::ComponentFav,
+        relate_ref::{
+            file::model::DownloadFile, program::model::Program, region::model::RegionTranslateList,
+            type_access::model::TypeAccessTranslateList,
+        },
+        search::model::ExtraOptions,
+        standard::standard_fav::model::StandardFav,
+    },
+};
 use crate::{
     errors::{ServiceError, ServiceResult},
     models::search::order::Paginate,
@@ -124,10 +126,13 @@ impl ShowUserShort {
         domain: &str,
         conn: &mut PgConnection,
     ) -> ServiceResult<ShowUserShort> {
-        let need_access_level = 3; // todo!(create enum for manage access level)
-
-        // check access user for target user
-        check_access_user_for_user(logged_user_uuid, target_user_uuid, need_access_level, conn)?;
+        require_permission(
+            logged_user_uuid,
+            AccessEntity::User,
+            target_user_uuid,
+            AccessOperation::Read,
+            conn,
+        )?;
 
         ShowUserShort::get_without_check_by_uuid(target_user_uuid, domain, conn)
     }
@@ -152,11 +157,40 @@ impl ShowUserShort {
 
     /// get ShowUserShort data of public users with filter by user_uuids
     pub(crate) fn get_all_public_users(
+        search: &Option<String>,
+        exclude_uuids: &Option<Vec<Uuid>>,
         paginate: &Paginate,
         domain: &str,
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<ShowUserShort>> {
-        let users = user_ref::user_ref
+        let mut query = user_ref::user_ref
+            .filter(user_ref::type_access_id.eq(3))
+            .filter(user_ref::is_enabled.eq(true))
+            .filter(user_ref::is_delete.eq(false))
+            .into_boxed();
+
+        // Search by text
+        if let Some(search_text) = search {
+            if !search_text.is_empty() {
+                let pattern = format!("%{}%", search_text);
+                query = query.filter(
+                    user_ref::username
+                        .like(pattern.clone())
+                        .or(user_ref::firstname.like(pattern.clone()))
+                        .or(user_ref::lastname.like(pattern.clone()))
+                        .or(user_ref::email.like(pattern)),
+                );
+            }
+        }
+
+        // Exclusion of users by UUID
+        if let Some(exclude_list) = exclude_uuids {
+            if !exclude_list.is_empty() {
+                query = query.filter(user_ref::uuid.ne_all(exclude_list));
+            }
+        }
+
+        let users = query
             .select((
                 user_ref::uuid,
                 user_ref::firstname,
@@ -164,24 +198,23 @@ impl ShowUserShort {
                 user_ref::username,
                 user_ref::image_file_uuid,
             ))
-            .filter(
-                user_ref::type_access_id
-                    .eq(3)
-                    .and(user_ref::is_enabled.eq(true))
-                    .and(user_ref::is_delete.eq(false)),
-            )
             .limit(paginate.limit)
             .offset(paginate.offset)
+            .order_by(user_ref::username.asc())
             .load::<UserShort>(conn)
             .map_err(|err| {
-                debug!("Faile get user_data: {:?}", err);
+                debug!("Failed get user_data: {:?}", err);
                 ServiceError::InternalServerError
             })?;
 
         let mut users_with_image: Vec<ShowUserShort> = Vec::new();
         for user in users.iter() {
             let mut data = ShowUserShort::new(user);
-            data.put_image_file(DownloadFile::get_by_file_uuid(&user.image_file_uuid, domain, conn)?);
+            data.put_image_file(DownloadFile::get_by_file_uuid(
+                &user.image_file_uuid,
+                domain,
+                conn,
+            )?);
 
             users_with_image.push(data);
         }
@@ -217,12 +250,13 @@ impl UserAndRelatedData {
         conn: &mut PgConnection,
     ) -> ServiceResult<UserAndRelatedData> {
         // collect data for user
-        let user: UserQuery =
-            UserQuery::get_user_by_uuid(&options.logged_user_uuid, conn).expect("Error loading user");
+        let user: UserQuery = UserQuery::get_user_by_uuid(&options.logged_user_uuid, conn)
+            .expect("Error loading user");
 
         // get image file (favicon) for user
-        let image_file = DownloadFile::get_by_file_uuid(&user.image_file_uuid, &options.domain, conn)
-            .expect("Error loading user file");
+        let image_file =
+            DownloadFile::get_by_file_uuid(&user.image_file_uuid, &options.domain, conn)
+                .expect("Error loading user file");
 
         // get region for user
         let region: RegionTranslateList =
@@ -234,9 +268,12 @@ impl UserAndRelatedData {
             Program::get_program_by_id(user.program_id, conn).expect("Error get set program");
 
         // get type access set for user profile
-        let type_access: TypeAccessTranslateList =
-            TypeAccessTranslateList::get_type_access_by_id(user.type_access_id, options.set_lang_id, conn)
-                .expect("Error get set type access");
+        let type_access: TypeAccessTranslateList = TypeAccessTranslateList::get_type_access_by_id(
+            user.type_access_id,
+            options.set_lang_id,
+            conn,
+        )
+        .expect("Error get set type access");
 
         // count subscribers user
         let subscribers: i32 = UserFav::get_count_followers_by_uuid(&user.uuid, conn)?;
@@ -259,8 +296,9 @@ impl UserAndRelatedData {
             .expect("Error get count standards_count");
 
         // counting companies in a user's favorite
-        let fav_companies_count: i32 = CompanyFav::get_count_by_user_uuid(&options.logged_user_uuid, conn)
-            .expect("Error get count fav_companies_count");
+        let fav_companies_count: i32 =
+            CompanyFav::get_count_by_user_uuid(&options.logged_user_uuid, conn)
+                .expect("Error get count fav_companies_count");
 
         // counting components in a user's favorite
         let fav_components_count: i32 =
@@ -268,12 +306,14 @@ impl UserAndRelatedData {
                 .expect("Error get count fav_components_count");
 
         // counting standards in a user's favorite
-        let fav_standards_count: i32 = StandardFav::get_count_by_user_uuid(&options.logged_user_uuid, conn)
-            .expect("Error get count fav_standards_count");
+        let fav_standards_count: i32 =
+            StandardFav::get_count_by_user_uuid(&options.logged_user_uuid, conn)
+                .expect("Error get count fav_standards_count");
 
         // counting users in a user's favorite
-        let fav_users_count: i32 = UserFav::get_count_favorites_by_uuid(&options.logged_user_uuid, conn)
-            .expect("Error get count fav_users_count");
+        let fav_users_count: i32 =
+            UserFav::get_count_favorites_by_uuid(&options.logged_user_uuid, conn)
+                .expect("Error get count fav_users_count");
 
         Ok(UserAndRelatedData {
             uuid: user.uuid,
@@ -319,8 +359,9 @@ impl ShowUserAndRelatedData {
             UserQuery::get_user_by_uuid(target_user_uuid, conn).expect("Error loading user");
 
         // get image file (favicon) for user
-        let image_file = DownloadFile::get_by_file_uuid(&user.image_file_uuid, &options.domain, conn)
-            .expect("Error loading user file");
+        let image_file =
+            DownloadFile::get_by_file_uuid(&user.image_file_uuid, &options.domain, conn)
+                .expect("Error loading user file");
 
         // get region for user
         let region: RegionTranslateList =
@@ -372,16 +413,15 @@ impl ShowUserAndRelatedData {
         options: &ExtraOptions,
         conn: &mut PgConnection,
     ) -> ServiceResult<ShowUserAndRelatedData> {
-        let need_access_level = 3; // todo!(create enum for manage access level)
-
-        // check access user for user
-        check_access_user_for_user(&options.logged_user_uuid, target_user_uuid, need_access_level, conn)?;
+        require_permission(
+            &options.logged_user_uuid,
+            AccessEntity::User,
+            target_user_uuid,
+            AccessOperation::Read,
+            conn,
+        )?;
 
         // collect data for user
-        ShowUserAndRelatedData::collect_related_data(
-            target_user_uuid,
-            options,
-            conn,
-        )
+        ShowUserAndRelatedData::collect_related_data(target_user_uuid, options, conn)
     }
 }

@@ -673,7 +673,7 @@ describe('discussion', () => {
   });
 
   // Test 7: Authorization error (invalid token)
-  it('should return an error for unauthorized access', async () => {
+  it('should return an error for bad token access', async () => {
     const invalidDiscussionCommentData = {...testDiscussionCommentData };
     invalidDiscussionCommentData.objectDiscussion.objectUuid = componentUuidNoStandard;
     invalidDiscussionCommentData.objectDiscussion.toObject = ToObject.COMPONENT;
@@ -695,7 +695,7 @@ describe('discussion', () => {
     });
 
     const jsonData = await response.json();
-    expect(jsonData.errors[0].message).toBe('Unauthorized');
+    expect(jsonData.errors[0].message).toBe('BadRequest: Your token is invalid');
   });
 
   // Test 8: Invalid input - no objectDiscussion specified
@@ -963,11 +963,11 @@ describe('discussion', () => {
   });
 
   // Test 16: Limit message_content length (Latin)
-  it('should prevent message_content exceeding 4000 bytes (latin characters)', async () => {
+  it('should prevent message_content exceeding 5001 characters', async () => {
     const longMessageData = {...testDiscussionCommentData };
     longMessageData.objectDiscussion.objectUuid = companyUuidSupplier;
     longMessageData.objectDiscussion.toObject = ToObject.COMPANY;
-    longMessageData.messageContent = 'a'.repeat(6001);
+    longMessageData.messageContent = 'a'.repeat(5001);
 
     const response = await fetch(api, {
       method: 'POST',
@@ -985,15 +985,15 @@ describe('discussion', () => {
       }),
     });
     const jsonData = await response.json();
-    expect(jsonData.errors[0].message).toBe('BadRequest: Text must be less than 5000 bit (~2500 symbols)');
+    expect(jsonData.errors[0].message).toBe('BadRequest: Text must be less than 5000 characters');
   });
 
   // Test 17: Limit message_content length (non-Latin characters)
-  it('should prevent message_content exceeding 4000 bytes (non-latin characters)', async () => {
+  it('should prevent message_content exceeding 5001 non-latin characters', async () => {
     const longMessageData = {...testDiscussionCommentData };
     longMessageData.objectDiscussion.objectUuid = companyUuidSupplier;
     longMessageData.objectDiscussion.toObject = ToObject.COMPANY;
-    longMessageData.messageContent = 'я'.repeat(6001);
+    longMessageData.messageContent = 'я'.repeat(5001);
 
     const response = await fetch(api, {
       method: 'POST',
@@ -1011,7 +1011,7 @@ describe('discussion', () => {
       }),
     });
     const jsonData = await response.json();
-    expect(jsonData.errors[0].message).toBe('BadRequest: Text must be less than 5000 bit (~2500 symbols)');
+    expect(jsonData.errors[0].message).toBe('BadRequest: Text must be less than 5000 characters');
   });
 
   // Test 18: Specified discussionUuid not related to parent_comment_uuid
@@ -1304,7 +1304,6 @@ describe('discussion', () => {
     });
     const jsonData = await response.json();
     // expect(jsonData).toBe(0);
-    expect(jsonData.errors).toBeDefined(); // Make sure the error is defined
     expect(jsonData.errors[0].message).toBe('Internal Server Error'); // Make sure the error is related to a non-valid objectUuid
   });
 
@@ -1795,8 +1794,7 @@ describe('discussion', () => {
       }),
     });
     const jsonData = await response.json();
-    expect(jsonData.errors).toBeDefined(); // Let's make sure that the definition error
-    expect(jsonData.errors[0].message).toContain('BadRequest: Failed check data'); // Убедитесь, что ошибка связана с невалидным discussionUuid
+    expect(jsonData.errors[0].message).toContain('BadRequest: Failed check data'); // invalid discussionUuid
   });
 
   // Test 35: Successful query discussions without filtering and sorting
@@ -1871,7 +1869,6 @@ describe('discussion', () => {
       }),
     });
     const jsonData = await response.json();
-    expect(jsonData.errors).toBeDefined(); // Let's make sure that the definition error
     expect(jsonData.errors[0].message).toContain('BadRequest: Access denied');
   });
 
@@ -1948,7 +1945,6 @@ describe('discussion', () => {
       }),
     });
     const jsonData = await response.json();
-    expect(jsonData.errors).toBeDefined(); // Let's make sure that the definition error
     expect(jsonData.errors[0].message).toContain('BadRequest: Access denied');
   });
 
@@ -2063,7 +2059,6 @@ describe('discussion', () => {
       }),
     });
     const jsonData = await response.json();
-    expect(jsonData.errors).toBeDefined(); // Let's make sure that the definition error
     expect(jsonData.errors[0].message).toContain('Internal Server Error'); // Make sure the error is related to invalid objectUuid
   });
 
@@ -2282,7 +2277,6 @@ describe('discussion', () => {
       }),
     });
     const jsonData = await editCommentResponse.json();
-    expect(jsonData.errors).toBeDefined(); // Let's make sure that the definition error
     expect(jsonData.errors[0].message).toContain('BadRequest: Access denied');
   });
 

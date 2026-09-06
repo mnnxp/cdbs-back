@@ -1,3 +1,4 @@
+use crate::auth::{require_permission, AccessEntity, AccessOperation};
 use crate::errors::{ServiceError, ServiceResult};
 use crate::graphql::service_model::{ServiceAndRelatedData, ShowServiceShort};
 use crate::models::company::model::ShowCompanyShort;
@@ -5,8 +6,7 @@ use crate::models::relate_ref::region::model::RegionTranslateList;
 use crate::models::search::model::ExtraOptions;
 use crate::models::search::order::{objects_order, Paginate, Sort};
 use crate::models::supplier_service::{
-    access::util::check_access_service_for_user, model::Service,
-    service_status::model::ServiceStatusTranslateList,
+    model::Service, service_status::model::ServiceStatusTranslateList,
 };
 use crate::models::user::model::ShowUserShort;
 use crate::schema::service_ref::dsl as service_ref;
@@ -72,12 +72,11 @@ impl ShowServiceShort {
         options: &ExtraOptions,
         conn: &mut PgConnection,
     ) -> ServiceResult<ShowServiceShort> {
-        let need_access_level = 3; // todo!(create enum for manage access level)
-
-        check_access_service_for_user(
+        require_permission(
             &options.logged_user_uuid,
+            AccessEntity::Service,
             target_service_uuid,
-            need_access_level,
+            AccessOperation::Read,
             conn,
         )?;
 
@@ -86,16 +85,14 @@ impl ShowServiceShort {
             Service::get_service_by_uuid(target_service_uuid, conn).expect("Error loading service");
 
         // get data a owner user for a service
-        let owner_user = ShowUserShort::get_without_check_by_uuid(&service.user_uuid, &options.domain, conn)
-            .expect("Error loading slim_user");
+        let owner_user =
+            ShowUserShort::get_without_check_by_uuid(&service.user_uuid, &options.domain, conn)
+                .expect("Error loading slim_user");
 
         // get service owner company
-        let owner_company = ShowCompanyShort::get_without_check_by_uuid(
-            &service.company_uuid,
-            options,
-            conn,
-        )
-        .expect("Error loading company short data");
+        let owner_company =
+            ShowCompanyShort::get_without_check_by_uuid(&service.company_uuid, conn)
+                .expect("Error loading company short data");
 
         // get service type with translation for service
         let service_status = ServiceStatusTranslateList::get_by_id(
@@ -177,12 +174,11 @@ impl ServiceAndRelatedData {
         options: &ExtraOptions,
         conn: &mut PgConnection,
     ) -> ServiceResult<ServiceAndRelatedData> {
-        let need_access_level = 3; // todo!(create enum for manage access level)
-
-        check_access_service_for_user(
+        require_permission(
             &options.logged_user_uuid,
+            AccessEntity::Service,
             target_service_uuid,
-            need_access_level,
+            AccessOperation::Read,
             conn,
         )?;
 
@@ -191,16 +187,14 @@ impl ServiceAndRelatedData {
             Service::get_service_by_uuid(target_service_uuid, conn).expect("Error loading service");
 
         // get data a owner user for a service
-        let owner_user = ShowUserShort::get_without_check_by_uuid(&service.user_uuid, &options.domain, conn)
-            .expect("Error loading slim_user");
+        let owner_user =
+            ShowUserShort::get_without_check_by_uuid(&service.user_uuid, &options.domain, conn)
+                .expect("Error loading slim_user");
 
         // get data a owner company for a service
-        let owner_company = ShowCompanyShort::get_without_check_by_uuid(
-            &service.company_uuid,
-            options,
-            conn,
-        )
-        .expect("Error loading company short data");
+        let owner_company =
+            ShowCompanyShort::get_without_check_by_uuid(&service.company_uuid, conn)
+                .expect("Error loading company short data");
 
         // get service type with translation for service
         let service_status = ServiceStatusTranslateList::get_by_id(

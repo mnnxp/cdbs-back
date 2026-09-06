@@ -1,5 +1,7 @@
+use crate::auth::token::UserToken;
+use crate::auth::token::{decode, generate, write_token};
 use crate::errors::{ServiceError, ServiceResult};
-use crate::models::user::access::{hash::verify, model::UserToken};
+use crate::models::user::access::hash::verify;
 use crate::models::user::model::{SlimUser, User};
 use diesel::prelude::*;
 
@@ -9,8 +11,6 @@ pub(crate) fn login_with_pass(
     password: &str,
     conn: &mut PgConnection,
 ) -> ServiceResult<UserToken> {
-    use crate::models::user::access::token::{decode, generate, write_token};
-
     let slim_user = login_check(username, password, conn)?;
 
     // serde_json::to_string(&slim_user)
@@ -47,18 +47,13 @@ fn login_check(username: &str, password: &str, conn: &mut PgConnection) -> Servi
         .select((
             user_ref::uuid,
             user_ref::psw_hash,
-            user_ref::psw_salt,
             user_ref::username,
             user_ref::program_id,
         ))
         .first::<User>(conn)
         .map_err(|_| ServiceError::Unauthorized)?;
 
-    match verify(
-        user.get_psw_hash(),
-        user.get_psw_salt(),
-        password.as_bytes(),
-    ) {
+    match verify(user.get_psw_hash(), password.as_bytes()) {
         true => Ok(user.into()),
         false => Err(ServiceError::Unauthorized),
     }

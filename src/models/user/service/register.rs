@@ -4,16 +4,14 @@ use crate::models::user::model::{InsertableUser, IptUserData, SlimUser};
 use crate::models::user::util::check_use_username;
 use crate::schema::user_ref::dsl as user_ref;
 use diesel::prelude::*;
-// use uuid::Uuid;
 
 /// Добавляет нового пользователя.
-/// Обязательные значения: адрес электронной почты, имя пользователя и пароль.
 pub(crate) fn create_user(data: IptUserData, conn: &mut PgConnection) -> ServiceResult<SlimUser> {
     if check_use_username(&data.username, conn)? {
         return Err(get_err_msg(ErrorMessage::UsernameIsAlreadyUsed));
     }
 
-    let insert_values = InsertableUser::by_arg(data);
+    let insert_values = InsertableUser::by_arg(data)?;
 
     diesel::insert_into(user_ref::user_ref)
         .values(&insert_values)

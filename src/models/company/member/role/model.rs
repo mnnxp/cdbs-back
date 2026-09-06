@@ -1,4 +1,4 @@
-use crate::models::relate_ref::type_access::model::TypeAccessTranslateList;
+use crate::auth::permission::PermissionTranslateList;
 use crate::schema::*;
 use async_graphql::*;
 use uuid::Uuid;
@@ -39,7 +39,7 @@ pub(crate) struct RoleMemberAndRelatedData {
     /// Company role data
     pub(crate) role: RoleMemberTranslateList,
     /// Access level data for the role
-    pub(crate) access: Vec<TypeAccessTranslateList>,
+    pub(crate) permissions: Vec<PermissionTranslateList>,
 }
 
 /// Data for adding a new company/community role

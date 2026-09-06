@@ -1,3 +1,5 @@
+use crate::auth::access::invalidate_object_cache;
+use crate::auth::AccessEntity;
 use crate::errors::err_msg::{get_err_msg, ErrorMessage};
 use crate::errors::ServiceResult;
 use crate::models::search::model::ExtraOptions;
@@ -52,6 +54,7 @@ pub(crate) fn set_company_access_service(
 ) -> ServiceResult<bool> {
     // 1. check the user for service ownership
     check_is_owner_with_err(logged_user_uuid, &data.service_uuid, conn)?;
+    invalidate_object_cache(AccessEntity::Service, &data.service_uuid);
 
     // 2. change or add access for the specified company
     let set_access = diesel::update(
@@ -64,7 +67,7 @@ pub(crate) fn set_company_access_service(
     .set((
         type_access_id.eq(data.type_access_id),
         is_enabled.eq(true),
-        updated_at.eq(chrono::Local::now().naive_local()),
+        updated_at.eq(chrono::Utc::now().naive_utc()),
     ))
     .execute(conn);
 
@@ -120,6 +123,7 @@ pub(crate) fn del_company_access_service(
 ) -> ServiceResult<bool> {
     // 1. verify the user's ownership of the service
     check_is_owner_with_err(logged_user_uuid, &data.service_uuid, conn)?;
+    invalidate_object_cache(AccessEntity::Service, &data.service_uuid);
 
     // 2. deactivate access for the specified company
     let del_access = diesel::delete(company_access_to_service)

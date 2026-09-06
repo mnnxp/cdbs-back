@@ -15,7 +15,11 @@
 macro_rules! subscribers_count {
     ($table:ident, $column:ident, $filter_uuid:expr, $conn:expr) => {{
         let count: i64 = $table::$table
-            .filter($table::$column.eq($filter_uuid).and($table::is_enabled.eq(true)))
+            .filter(
+                $table::$column
+                    .eq($filter_uuid)
+                    .and($table::is_enabled.eq(true)),
+            )
             .count()
             .get_result($conn)
             .map_err(|err| {

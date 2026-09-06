@@ -1,3 +1,4 @@
+use crate::auth::token::logged::check_authorized;
 use crate::database::{get_conn, PooledConnection};
 use crate::errors::ServiceResult;
 use crate::graphql::relate::attributes::IptPaginate;
@@ -7,7 +8,6 @@ use crate::models::relate_ref::keyword::{
     service::register::create_keyword,
 };
 use crate::models::search::order::Paginate;
-use crate::models::user::access::logged::check_authorized;
 use async_graphql::{self, Context, Object};
 
 #[derive(Default)]
@@ -22,16 +22,16 @@ impl KeywordQuery {
     /// Keywords can be used for components and standards, as well as for companies.
     async fn keywords(
         &self,
-        cxt: &Context<'_>,
+        ctx: &Context<'_>,
         keyword_ids: Vec<i32>,
         paginate: Option<IptPaginate>,
     ) -> ServiceResult<Vec<Keyword>> {
         // authorization check
-        check_authorized(cxt)?;
+        check_authorized(ctx)?;
         let p = paginate
             .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
             .unwrap_or_default();
-        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(ctx)?;
         get_keywords(&keyword_ids, &p, conn)
     }
 }
@@ -42,13 +42,13 @@ impl KeywordMutation {
     /// Returns an error with the keyword ID if it already exists.
     async fn register_keyword(
         &self,
-        cxt: &Context<'_>,
+        ctx: &Context<'_>,
         args: IptKeywordData,
     ) -> ServiceResult<Keyword> {
         // authorization check
-        check_authorized(cxt)?;
+        check_authorized(ctx)?;
 
-        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(ctx)?;
 
         create_keyword(&args, conn)
     }

@@ -19,10 +19,10 @@ pub(crate) enum ErrorMessage {
     DataNotFound,
     /// "Found duplicate data"
     FoundDuplicateData,
-    /// "Found duplicate token"
-    FoundDuplicateToken,
     /// "Duplication of existing data was detected"
     DuplicateOfExistingData,
+    /// "Role is assigned to members"
+    RoleIsInUse,
     /// "Error when deleting a role"
     ErrorDeleteRole,
     /// "Error incorrect id"
@@ -69,7 +69,7 @@ pub(crate) enum ErrorMessage {
     FailedRemoveAccessForRole,
     /// "File to object association not found"
     FileObjectNotFound,
-    /// format!("Text must be less than {} bit (~{} symbols)", max_bit, max_bit/2)
+    /// format!("Text must be less than {} characters", max_len)
     TextMustLess(i32),
     /// "Need set userUuid or username"
     NeedSetUuidOrUsername,

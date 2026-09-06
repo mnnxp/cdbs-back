@@ -48,9 +48,8 @@ pub(crate) fn get_self_user_data(
     conn: &mut PgConnection,
 ) -> ServiceResult<UserAndRelatedData> {
     // collect data for user
-    let result: UserAndRelatedData =
-        UserAndRelatedData::collect_related_data(options, conn)
-            .expect("Error loading user and collect related data");
+    let result: UserAndRelatedData = UserAndRelatedData::collect_related_data(options, conn)
+        .expect("Error loading user and collect related data");
     debug!("Self user data: {:#?}", result);
     Ok(result)
 }
@@ -69,6 +68,8 @@ pub(crate) fn get_users(
         filter_users_uuids,
         subscribers,
         favorite,
+        search,
+        exclude_uuids,
     } = arguments;
 
     // select target users uuids
@@ -78,6 +79,8 @@ pub(crate) fn get_users(
         (true, false) => ShowUserShort::get_followers_by_user_uuid(
             logged_user_uuid,
             filter_users_uuids,
+            search,
+            exclude_uuids,
             paginate,
             domain,
             conn,
@@ -87,14 +90,23 @@ pub(crate) fn get_users(
         (false, true) => ShowUserShort::get_favorites_by_user_uuid(
             logged_user_uuid,
             filter_users_uuids,
+            search,
+            exclude_uuids,
             paginate,
             domain,
             conn,
         ),
         // get all public users
         (false, false) => match filter_users_uuids.is_empty() {
-            true => ShowUserShort::get_all_public_users(paginate, domain, conn),
-            false => ShowUserShort::get_users_by_uuids(logged_user_uuid, filter_users_uuids, domain, conn),
+            true => {
+                ShowUserShort::get_all_public_users(search, exclude_uuids, paginate, domain, conn)
+            }
+            false => ShowUserShort::get_users_by_uuids(
+                logged_user_uuid,
+                filter_users_uuids,
+                domain,
+                conn,
+            ),
         },
         (true, true) => Err(get_err_msg(ErrorMessage::FailedMatchArguments)),
     }

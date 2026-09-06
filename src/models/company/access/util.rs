@@ -85,7 +85,8 @@ pub(crate) fn check_company_access(
         return Ok(true);
     }
 
-    let member_role_in_company_id = member_role_in_company(target_user_uuid, target_company_uuid, conn)?;
+    let member_role_in_company_id =
+        member_role_in_company(target_user_uuid, target_company_uuid, conn)?;
 
     let found_type_access_id: i32 = get_type_access_id(member_role_in_company_id, conn)?;
 
@@ -105,8 +106,11 @@ pub(crate) fn member_role_in_company(
 
     // find role_id user
     company_member_list
-        .filter(company_uuid.eq(target_company_uuid))
-        .filter(user_uuid.eq(target_user_uuid))
+        .filter(
+            company_uuid
+                .eq(target_company_uuid)
+                .and(user_uuid.eq(target_user_uuid)),
+        )
         .select(role_id)
         .first(conn)
         .map_err(|err| {

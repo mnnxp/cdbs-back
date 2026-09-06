@@ -1,5 +1,5 @@
+use crate::auth::{require_permission, AccessEntity, AccessOperation};
 use crate::errors::{ServiceError, ServiceResult};
-use crate::models::standard::access::util::check_access_standard_for_user;
 use crate::models::user::notification::{
     model::{NotificationData, NotificationType},
     service::register::create_notification,
@@ -16,10 +16,13 @@ pub(crate) fn add_standard_fav(
     standard_uuid: &Uuid,
     conn: &mut PgConnection,
 ) -> ServiceResult<bool> {
-    let need_access_level = 3; // todo!(create enum for manage access level)
-
-    // check access user for standard
-    check_access_standard_for_user(logged_user_uuid, standard_uuid, need_access_level, conn)?;
+    require_permission(
+        logged_user_uuid,
+        AccessEntity::Standard,
+        standard_uuid,
+        AccessOperation::Read,
+        conn,
+    )?;
 
     // if have need row, just update is_enabled to true
     let check_fav = standard_fav::standard_fav

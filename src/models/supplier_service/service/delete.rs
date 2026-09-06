@@ -3,7 +3,7 @@ use crate::errors::{ServiceError, ServiceResult};
 use crate::models::company::access::util::check_is_owner_with_err;
 use crate::models::relate_ref::file::service::delete::delete_file_by_uuids;
 use crate::schema::{file_to_service::dsl as file_to_service, service_ref::dsl as service_ref};
-use chrono::Local;
+use chrono::Utc;
 use diesel::prelude::*;
 use uuid::Uuid;
 
@@ -58,7 +58,7 @@ fn delete_service(del_service_uuid: &Uuid, conn: &mut PgConnection) -> ServiceRe
         .filter(service_ref::uuid.eq(del_service_uuid))
         .set((
             service_ref::is_delete.eq(true),
-            service_ref::updated_at.eq(Local::now().naive_local()),
+            service_ref::updated_at.eq(Utc::now().naive_utc()),
         ))
         .execute(conn)
         .map_err(|err| {

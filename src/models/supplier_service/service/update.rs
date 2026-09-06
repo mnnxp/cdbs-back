@@ -1,16 +1,15 @@
+use crate::auth::{require_permission, AccessEntity, AccessOperation};
 use crate::errors::err_msg::{get_err_msg, ErrorMessage};
 use crate::errors::ServiceResult;
 use crate::graphql::service_model::{IptServiceStatusArg, IptUpdateServiceData};
 use crate::models::search::model::ExtraOptions;
-use crate::models::supplier_service::access::util::{
-    check_is_owner_with_err, check_user_access_provided_by_company,
-};
+use crate::models::supplier_service::access::util::check_is_owner_with_err;
 use crate::models::supplier_service::history::save_log_service_change;
 use crate::models::supplier_service::util::{get_service_consumer, get_service_status};
 use crate::models::user::notification::model::{NotificationData, NotificationType};
 use crate::models::user::notification::service::register::create_notification;
 use crate::schema::service_ref::dsl as service_ref;
-use chrono::Local;
+use chrono::Utc;
 use diesel::prelude::*;
 use uuid::Uuid;
 
@@ -29,7 +28,7 @@ pub(crate) fn update_service_data(
     if data
         .description
         .as_ref()
-        .map(|d| d.len())
+        .map(|d| d.chars().count())
         .unwrap_or_default()
         > 50000
     {
@@ -166,14 +165,14 @@ pub(crate) fn change_service_status(
     if get_service_status(&args.service_uuid, conn)? > 9 {
         return Err(get_err_msg(ErrorMessage::FailedUpdateServiceBadStatus));
     }
-    let need_access_level = 2; // todo!(create enum for manage access level)
-                               // checking the availability of user access provided by the company
-    check_user_access_provided_by_company(
+    require_permission(
         &options.logged_user_uuid,
+        AccessEntity::Service,
         &args.service_uuid,
-        need_access_level,
+        AccessOperation::Manage,
         conn,
     )?;
+
     let old_service_status_id = service_ref::service_ref
         .filter(service_ref::uuid.eq(&args.service_uuid))
         .select(service_ref::service_status_id)
@@ -229,7 +228,7 @@ pub(crate) fn change_service_updated_at(
 ) -> ServiceResult<usize> {
     save_log_service_change(target_service_uuid, logged_user_uuid, old_data, conn);
     diesel::update(service_ref::service_ref.filter(service_ref::uuid.eq(target_service_uuid)))
-        .set(service_ref::updated_at.eq(Local::now().naive_local()))
+        .set(service_ref::updated_at.eq(Utc::now().naive_utc()))
         .execute(conn)
         .map_err(|err| {
             debug!("Failed update data: {:?}", err);

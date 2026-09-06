@@ -54,8 +54,7 @@ impl CompanyRepresentAndRelatedData {
         conn: &mut PgConnection,
     ) -> ServiceResult<CompanyRepresentAndRelatedData> {
         // get regions for company represent
-        let region =
-            RegionTranslateList::get_region_by_id(represent.region_id, set_lang_id, conn)?;
+        let region = RegionTranslateList::get_region_by_id(represent.region_id, set_lang_id, conn)?;
 
         // get represent type for company represent
         let representation_type = RepresentationTypeTranslateList::get_by_id(

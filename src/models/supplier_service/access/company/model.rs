@@ -1,6 +1,6 @@
-use crate::models::relate_ref::type_access::model::TypeAccessTranslateList;
+use crate::auth::permission::PermissionTranslateList;
 use crate::schema::*;
-use async_graphql::{InputObject, SimpleObject};
+use async_graphql::InputObject;
 use chrono::*;
 use uuid::Uuid;
 
@@ -17,14 +17,14 @@ pub(crate) struct CompanyAccessService {
 }
 
 /// Data on the availability of access to the service for the company (members of the company)
-#[derive(Debug, Deserialize, SimpleObject)]
+#[derive(Debug, Deserialize)]
 pub(crate) struct CompanyAccessServiceAndRelatedData {
     /// UUID of the service
     pub(crate) service_uuid: Uuid,
     /// UUID of accessing company
     pub(crate) company_uuid: Uuid,
-    /// Type of access with localization
-    pub(crate) type_access: TypeAccessTranslateList,
+    /// Access level with localization
+    pub(crate) permission: PermissionTranslateList,
     /// Access activity flag
     pub(crate) is_enabled: bool,
     /// Date of first issuance of access to the company
@@ -69,8 +69,8 @@ impl From<&IptCompanyAccessServiceData> for InsertableCompanyAccessService {
             company_uuid: *company_uuid,
             type_access_id: *type_access_id,
             is_enabled: true,
-            created_at: chrono::Local::now().naive_local(),
-            updated_at: chrono::Local::now().naive_local(),
+            created_at: chrono::Utc::now().naive_utc(),
+            updated_at: chrono::Utc::now().naive_utc(),
         }
     }
 }

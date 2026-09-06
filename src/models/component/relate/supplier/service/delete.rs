@@ -1,3 +1,4 @@
+use crate::auth::{require_permission, AccessEntity, AccessOperation};
 use crate::errors::err_msg::{get_err_msg, ErrorMessage};
 use crate::errors::ServiceResult;
 use crate::models::component::supplier::model::DelSuppliersComponentData;
@@ -12,12 +13,11 @@ pub(crate) fn del_suppliers_component(
 ) -> ServiceResult<usize> {
     use crate::schema::supplier_to_component::dsl::*;
 
-    let need_access_level = 1; // todo!(create enum for manage access level)
-
-    crate::models::component::access::util::check_access_component_for_user(
+    require_permission(
         logged_user_uuid,
+        AccessEntity::Component,
         &data.component_uuid,
-        need_access_level,
+        AccessOperation::Manage,
         conn,
     )?;
 

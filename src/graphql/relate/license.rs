@@ -1,4 +1,5 @@
 use super::attributes::IptPaginate;
+use crate::auth::token::logged::check_authorized;
 use crate::database::{get_conn, PooledConnection};
 use crate::errors::ServiceResult;
 use crate::models::relate_ref::license::{
@@ -7,7 +8,6 @@ use crate::models::relate_ref::license::{
     service::register::create_license,
 };
 use crate::models::search::order::Paginate;
-use crate::models::user::access::logged::check_authorized;
 use async_graphql::{self, Context, Object};
 
 #[derive(Default)]
@@ -21,15 +21,15 @@ impl LicenseQuery {
     /// If a filter for licenses is not specified, then all existing ones are aggregated.
     async fn licenses(
         &self,
-        cxt: &Context<'_>,
+        ctx: &Context<'_>,
         license_ids: Option<Vec<i32>>,
         paginate: Option<IptPaginate>,
     ) -> ServiceResult<Vec<License>> {
-        check_authorized(cxt)?; // authorization check
+        check_authorized(ctx)?; // authorization check
         let p = paginate
             .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
             .unwrap_or_default();
-        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(ctx)?;
         get_licenses(&license_ids.unwrap_or_default(), &p, conn)
     }
 }
@@ -40,13 +40,13 @@ impl LicenseMutation {
     /// Returns an error with the license ID if it already exists.
     async fn register_license(
         &self,
-        cxt: &Context<'_>,
+        ctx: &Context<'_>,
         args: LicenseData,
     ) -> ServiceResult<License> {
         // todo!(check owned company)
-        check_authorized(cxt)?;
+        check_authorized(ctx)?;
 
-        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(ctx)?;
 
         create_license(&args, conn)
     }

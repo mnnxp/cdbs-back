@@ -1,9 +1,13 @@
+use crate::auth::permission::PermissionTranslateList;
 use crate::database::{get_conn, PooledConnection};
 use crate::graphql::file::ShowFileRelatedData;
 use crate::graphql::handler::extract_client_domain;
 use crate::graphql::relate::attributes::{IptPaginate, IptSort};
 use crate::graphql::standard_model::ShowStandardShort;
+use crate::models::company::model::ShowCompanyShort;
+use crate::models::component::access::company::model::CompanyAccessComponentAndRelatedData;
 use crate::models::component::{
+    access::user::model::UserAccessComponentAndRelatedData,
     actual_status::model::ActualStatusTranslateList,
     component_modification::{
         fileset_for_program::model::FilesetProgramRelatedData, model::ComponentModificationArg,
@@ -164,11 +168,11 @@ impl ComponentAndRelatedData {
     /// Default sorting: `paramId`. Sorting by `paramname` and `value` is available.
     async fn component_params(
         &self,
-        cxt: &Context<'_>,
+        ctx: &Context<'_>,
         sort: Option<IptSort>,
         paginate: Option<IptPaginate>,
     ) -> Vec<ComponentParamWithTranslation> {
-        let conn: &mut PooledConnection = &mut get_conn(cxt).expect("Error get conn to DB");
+        let conn: &mut PooledConnection = &mut get_conn(ctx).expect("Error get conn to DB");
         let s = sort
             .map(|s| Sort::parsing(TableName::ParamTranslateList, &s.by_field, s.as_desc))
             .unwrap_or(Sort::set_by_table(TableName::ParamTranslateList));
@@ -177,7 +181,7 @@ impl ComponentAndRelatedData {
             .unwrap_or_default();
         ComponentParamWithTranslation::by_component_uuid(
             &self.uuid,
-            get_set_language(cxt),
+            get_set_language(ctx),
             &s,
             &p,
             conn,
@@ -186,8 +190,8 @@ impl ComponentAndRelatedData {
     }
 
     /// Returns the total number of params in the component (without filters)
-    async fn params_count(&self, cxt: &Context<'_>) -> i64 {
-        let conn: &mut PooledConnection = &mut get_conn(cxt).expect("Error get conn to DB");
+    async fn params_count(&self, ctx: &Context<'_>) -> i64 {
+        let conn: &mut PooledConnection = &mut get_conn(ctx).expect("Error get conn to DB");
         Paginate::get_count(&self.uuid, &TableName::ParamToComponent, conn)
             .expect("Error count items")
     }
@@ -196,24 +200,30 @@ impl ComponentAndRelatedData {
     /// Sorting by `revision`, `filename`, `size`, `updatedAt` is available.
     async fn files(
         &self,
-        cxt: &Context<'_>,
+        ctx: &Context<'_>,
         sort: Option<IptSort>,
         paginate: Option<IptPaginate>,
     ) -> Vec<ShowFileRelatedData> {
-        let conn: &mut PooledConnection = &mut get_conn(cxt).expect("Error get conn to DB");
+        let conn: &mut PooledConnection = &mut get_conn(ctx).expect("Error get conn to DB");
         let s = sort
             .map(|s| Sort::parsing(TableName::FileRef, &s.by_field, s.as_desc))
             .unwrap_or(Sort::set_by_table(TableName::FileRef));
         let p = paginate
             .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
             .unwrap_or_default();
-        ShowFileRelatedData::by_component_uuid(&self.uuid, &s, &p, &extract_client_domain(cxt), conn)
-            .expect("Error loading component files")
+        ShowFileRelatedData::by_component_uuid(
+            &self.uuid,
+            &s,
+            &p,
+            &extract_client_domain(ctx),
+            conn,
+        )
+        .expect("Error loading component files")
     }
 
     /// Returns the total number of files in the component (without filters)
-    async fn files_count(&self, cxt: &Context<'_>) -> i64 {
-        let conn: &mut PooledConnection = &mut get_conn(cxt).expect("Error get conn to DB");
+    async fn files_count(&self, ctx: &Context<'_>) -> i64 {
+        let conn: &mut PooledConnection = &mut get_conn(ctx).expect("Error get conn to DB");
         Paginate::get_count(&self.uuid, &TableName::FileToComponent, conn)
             .expect("Error count items")
     }
@@ -221,24 +231,24 @@ impl ComponentAndRelatedData {
     /// Catalogs to which the component is added
     async fn component_specs(
         &self,
-        cxt: &Context<'_>,
+        ctx: &Context<'_>,
         paginate: Option<IptPaginate>,
     ) -> Vec<SpecTranslateList> {
-        let conn: &mut PooledConnection = &mut get_conn(cxt).expect("Error get conn to DB");
+        let conn: &mut PooledConnection = &mut get_conn(ctx).expect("Error get conn to DB");
         let p = paginate
             .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
             .unwrap_or_default();
-        SpecTranslateList::for_component_by_uuid(&self.uuid, get_set_language(cxt), &p, conn)
+        SpecTranslateList::for_component_by_uuid(&self.uuid, get_set_language(ctx), &p, conn)
             .expect("Error loading component keywords")
     }
 
     /// Component keywords (tags)
     async fn component_keywords(
         &self,
-        cxt: &Context<'_>,
+        ctx: &Context<'_>,
         paginate: Option<IptPaginate>,
     ) -> Vec<Keyword> {
-        let conn: &mut PooledConnection = &mut get_conn(cxt).expect("Error get conn to DB");
+        let conn: &mut PooledConnection = &mut get_conn(ctx).expect("Error get conn to DB");
         let p = paginate
             .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
             .unwrap_or_default();
@@ -250,21 +260,21 @@ impl ComponentAndRelatedData {
     /// Default sorting: `createdAt`. Sorting by `name`, `actualStatusId`, `updatedAt` is available.
     async fn component_modifications(
         &self,
-        cxt: &Context<'_>,
+        ctx: &Context<'_>,
         filter: Option<Vec<Uuid>>,
         sort: Option<IptSort>,
         paginate: Option<IptPaginate>,
     ) -> Vec<ComponentModificationAndRelatedData> {
-        let conn: &mut PooledConnection = &mut get_conn(cxt).expect("Error get conn to DB");
+        let conn: &mut PooledConnection = &mut get_conn(ctx).expect("Error get conn to DB");
         let args = ComponentModificationArg::parsing(self.uuid, filter, sort, paginate);
         // get list component modifications with related data and translation
-        ComponentModificationAndRelatedData::by_args(&args, get_set_language(cxt), conn)
+        ComponentModificationAndRelatedData::by_args(&args, get_set_language(ctx), conn)
             .expect("Error loading component modifications with related data")
     }
 
     /// Returns the total number of modifications in the component (without filters)
-    async fn modifications_count(&self, cxt: &Context<'_>) -> i64 {
-        let conn: &mut PooledConnection = &mut get_conn(cxt).expect("Error get conn to DB");
+    async fn modifications_count(&self, ctx: &Context<'_>) -> i64 {
+        let conn: &mut PooledConnection = &mut get_conn(ctx).expect("Error get conn to DB");
         Paginate::get_count(&self.uuid, &TableName::ComponentModification, conn)
             .expect("Error count items")
     }
@@ -272,10 +282,10 @@ impl ComponentAndRelatedData {
     /// Manufacturer or suppliers of the component (if component.is_base is true)
     async fn component_suppliers(
         &self,
-        cxt: &Context<'_>,
+        ctx: &Context<'_>,
         paginate: Option<IptPaginate>,
     ) -> Vec<ComponentSupplierRelatedData> {
-        let conn: &mut PooledConnection = &mut get_conn(cxt).expect("Error get conn to DB");
+        let conn: &mut PooledConnection = &mut get_conn(ctx).expect("Error get conn to DB");
         let p = paginate
             .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
             .unwrap_or_default();
@@ -284,8 +294,8 @@ impl ComponentAndRelatedData {
     }
 
     /// Returns the total number of suppliers in the component (without filters)
-    async fn suppliers_count(&self, cxt: &Context<'_>) -> i64 {
-        let conn: &mut PooledConnection = &mut get_conn(cxt).expect("Error get conn to DB");
+    async fn suppliers_count(&self, ctx: &Context<'_>) -> i64 {
+        let conn: &mut PooledConnection = &mut get_conn(ctx).expect("Error get conn to DB");
         Paginate::get_count(&self.uuid, &TableName::SupplierToComponent, conn)
             .expect("Error count items")
     }
@@ -294,22 +304,22 @@ impl ComponentAndRelatedData {
     /// Standards include standardization documents and related information.
     async fn component_standards(
         &self,
-        cxt: &Context<'_>,
+        ctx: &Context<'_>,
         paginate: Option<IptPaginate>,
     ) -> Vec<ShowStandardShort> {
-        let conn: &mut PooledConnection = &mut get_conn(cxt).expect("Error get conn to DB");
+        let conn: &mut PooledConnection = &mut get_conn(ctx).expect("Error get conn to DB");
         let p = paginate
             .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
             .unwrap_or_default();
-        let options = ExtraOptions::from_cxt(cxt, true).expect("Failed to get options");
+        let options = ExtraOptions::from_ctx(ctx, true).expect("Failed to get options");
         // collect data for component standards
         ShowStandardShort::for_component(&self.uuid, &p, &options, conn)
             .expect("Error loading standard component with relate")
     }
 
     /// Returns the total number of standards in the component (without filters)
-    async fn standards_count(&self, cxt: &Context<'_>) -> i64 {
-        let conn: &mut PooledConnection = &mut get_conn(cxt).expect("Error get conn to DB");
+    async fn standards_count(&self, ctx: &Context<'_>) -> i64 {
+        let conn: &mut PooledConnection = &mut get_conn(ctx).expect("Error get conn to DB");
         Paginate::get_count(&self.uuid, &TableName::StandardToComponent, conn)
             .expect("Error count items")
     }
@@ -416,15 +426,15 @@ impl ShowComponentShort {
     /// Files (images by default) associated with the component
     async fn files(
         &self,
-        cxt: &Context<'_>,
+        ctx: &Context<'_>,
         paginate: Option<IptPaginate>,
         images: Option<bool>,
     ) -> Vec<DownloadFile> {
-        let conn: &mut PooledConnection = &mut get_conn(cxt).expect("Error get conn to DB");
+        let conn: &mut PooledConnection = &mut get_conn(ctx).expect("Error get conn to DB");
         let p = paginate
             .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
             .unwrap_or_default();
-        let domain = extract_client_domain(cxt);
+        let domain = extract_client_domain(ctx);
         match images {
             Some(false) => DownloadFile::by_component_uuid(&self.uuid, &p, &domain, conn)
                 .expect("Error loading component files"),
@@ -436,10 +446,10 @@ impl ShowComponentShort {
     /// Manufacturer or suppliers of the component (if component.is_base is true)
     async fn component_suppliers(
         &self,
-        cxt: &Context<'_>,
+        ctx: &Context<'_>,
         paginate: Option<IptPaginate>,
     ) -> Vec<ComponentSupplierRelatedData> {
-        let conn: &mut PooledConnection = &mut get_conn(cxt).expect("Error get conn to DB");
+        let conn: &mut PooledConnection = &mut get_conn(ctx).expect("Error get conn to DB");
         let p = paginate
             .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
             .unwrap_or_default();
@@ -549,15 +559,15 @@ impl ComponentModificationAndRelatedData {
     }
 
     /// Component modification file sets data (list)
-    async fn filesets_for_program(&self, cxt: &Context<'_>) -> Vec<FilesetProgramRelatedData> {
-        let conn: &mut PooledConnection = &mut get_conn(cxt).expect("Error get conn to DB");
+    async fn filesets_for_program(&self, ctx: &Context<'_>) -> Vec<FilesetProgramRelatedData> {
+        let conn: &mut PooledConnection = &mut get_conn(ctx).expect("Error get conn to DB");
         FilesetProgramRelatedData::by_modification_uuid(&self.uuid, conn)
             .expect("Error loading filesets for modification")
     }
 
     /// Returns the total number of filesets in the modification (without filters)
-    async fn filesets_count(&self, cxt: &Context<'_>) -> i64 {
-        let conn: &mut PooledConnection = &mut get_conn(cxt).expect("Error get conn to DB");
+    async fn filesets_count(&self, ctx: &Context<'_>) -> i64 {
+        let conn: &mut PooledConnection = &mut get_conn(ctx).expect("Error get conn to DB");
         Paginate::get_count(&self.uuid, &TableName::FilesetForProgram, conn)
             .expect("Error count items")
     }
@@ -566,11 +576,11 @@ impl ComponentModificationAndRelatedData {
     /// Default sorting: `paramId`. Sorting by `paramname` and `value` is available.
     async fn modification_params(
         &self,
-        cxt: &Context<'_>,
+        ctx: &Context<'_>,
         sort: Option<IptSort>,
         paginate: Option<IptPaginate>,
     ) -> Vec<ModificationParamWithTranslation> {
-        let conn: &mut PooledConnection = &mut get_conn(cxt).expect("Error get conn to DB");
+        let conn: &mut PooledConnection = &mut get_conn(ctx).expect("Error get conn to DB");
         let s = sort
             .map(|s| Sort::parsing(TableName::ParamTranslateList, &s.by_field, s.as_desc))
             .unwrap_or(Sort::set_by_table(TableName::ParamTranslateList));
@@ -579,7 +589,7 @@ impl ComponentModificationAndRelatedData {
             .unwrap_or_default();
         ModificationParamWithTranslation::by_modification_uuid(
             &self.uuid,
-            get_set_language(cxt),
+            get_set_language(ctx),
             &s,
             &p,
             conn,
@@ -588,8 +598,8 @@ impl ComponentModificationAndRelatedData {
     }
 
     /// Returns the total number of parameters in the modification (without filters)
-    async fn params_count(&self, cxt: &Context<'_>) -> i64 {
-        let conn: &mut PooledConnection = &mut get_conn(cxt).expect("Error get conn to DB");
+    async fn params_count(&self, ctx: &Context<'_>) -> i64 {
+        let conn: &mut PooledConnection = &mut get_conn(ctx).expect("Error get conn to DB");
         Paginate::get_count(&self.uuid, &TableName::ParamToModification, conn)
             .expect("Error count items")
     }
@@ -598,7 +608,7 @@ impl ComponentModificationAndRelatedData {
     /// Sorting by `revision`, `filename`, `size`, `updatedAt` is available.
     async fn files(
         &self,
-        cxt: &Context<'_>,
+        ctx: &Context<'_>,
         sort: Option<IptSort>,
         paginate: Option<IptPaginate>,
     ) -> Vec<ShowFileRelatedData> {
@@ -608,14 +618,21 @@ impl ComponentModificationAndRelatedData {
         let p = paginate
             .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
             .unwrap_or_default();
-        let conn: &mut PooledConnection = &mut get_conn(cxt).expect("Error get conn to DB");
-        ShowFileRelatedData::get_component_modification_files_offsec(&self.uuid, &[], &s, &p, &extract_client_domain(cxt), conn)
-            .expect("Error loading files of component modification")
+        let conn: &mut PooledConnection = &mut get_conn(ctx).expect("Error get conn to DB");
+        ShowFileRelatedData::get_component_modification_files_offsec(
+            &self.uuid,
+            &[],
+            &s,
+            &p,
+            &extract_client_domain(ctx),
+            conn,
+        )
+        .expect("Error loading files of component modification")
     }
 
     /// Returns the total number of files in the modification (without filters)
-    async fn files_count(&self, cxt: &Context<'_>) -> i64 {
-        let conn: &mut PooledConnection = &mut get_conn(cxt).expect("Error get conn to DB");
+    async fn files_count(&self, ctx: &Context<'_>) -> i64 {
+        let conn: &mut PooledConnection = &mut get_conn(ctx).expect("Error get conn to DB");
         Paginate::get_count(&self.uuid, &TableName::FileToModification, conn)
             .expect("Error count items")
     }
@@ -642,7 +659,7 @@ impl FilesetProgramRelatedData {
     /// Sorting by `revision`, `filename`, `size`, `updatedAt` is available.
     async fn files(
         &self,
-        cxt: &Context<'_>,
+        ctx: &Context<'_>,
         sort: Option<IptSort>,
         paginate: Option<IptPaginate>,
     ) -> Vec<ShowFileRelatedData> {
@@ -652,15 +669,94 @@ impl FilesetProgramRelatedData {
         let p = paginate
             .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
             .unwrap_or_default();
-        let conn: &mut PooledConnection = &mut get_conn(cxt).expect("Error get conn to DB");
-        ShowFileRelatedData::get_files_of_fileset_offsec(&self.uuid, &[], &s, &p, &extract_client_domain(cxt), conn)
-            .expect("Error loading files of fileset")
+        let conn: &mut PooledConnection = &mut get_conn(ctx).expect("Error get conn to DB");
+        ShowFileRelatedData::get_files_of_fileset_offsec(
+            &self.uuid,
+            &[],
+            &s,
+            &p,
+            &extract_client_domain(ctx),
+            conn,
+        )
+        .expect("Error loading files of fileset")
     }
 
     /// Returns the total number of files in the fileset (without filters)
-    async fn files_count(&self, cxt: &Context<'_>) -> i64 {
-        let conn: &mut PooledConnection = &mut get_conn(cxt).expect("Error get conn to DB");
+    async fn files_count(&self, ctx: &Context<'_>) -> i64 {
+        let conn: &mut PooledConnection = &mut get_conn(ctx).expect("Error get conn to DB");
         Paginate::get_count(&self.uuid, &TableName::FileToFilesetForProgram, conn)
             .expect("Error count items")
+    }
+}
+
+#[Object]
+/// User access data to the component (part) with additional information
+impl UserAccessComponentAndRelatedData {
+    /// UUID of the component
+    async fn component_uuid(&self) -> &Uuid {
+        &self.component_uuid
+    }
+
+    /// User info
+    async fn user(&self, ctx: &Context<'_>) -> ShowUserShort {
+        let conn: &mut PooledConnection = &mut get_conn(ctx).expect("Error get conn to DB");
+        ShowUserShort::get_without_check_by_uuid(&self.user_uuid, &extract_client_domain(ctx), conn)
+            .expect("Failed get user short data")
+    }
+
+    /// Access level with localization (Manage/Write/Read)
+    async fn permission(&self) -> &PermissionTranslateList {
+        &self.permission
+    }
+
+    /// Access activity flag
+    async fn is_enabled(&self) -> bool {
+        self.is_enabled
+    }
+
+    /// Date of first access assignment
+    async fn created_at(&self) -> &NaiveDateTime {
+        &self.created_at
+    }
+
+    /// Date of access modification
+    async fn updated_at(&self) -> &NaiveDateTime {
+        &self.updated_at
+    }
+}
+
+/// Company access data to the component (part) with additional information
+#[Object]
+impl CompanyAccessComponentAndRelatedData {
+    /// UUID of the component
+    async fn component_uuid(&self) -> &Uuid {
+        &self.component_uuid
+    }
+
+    /// Company info
+    async fn company(&self, ctx: &Context<'_>) -> ShowCompanyShort {
+        let conn: &mut PooledConnection = &mut get_conn(ctx).expect("Error get conn to DB");
+        ShowCompanyShort::get_without_check_by_uuid(&self.company_uuid, conn)
+            .expect("Failed get company short data")
+    }
+
+    /// Access level with localization (Manage/Write/Read)
+    async fn permission(&self) -> &PermissionTranslateList {
+        &self.permission
+    }
+
+    /// Access activity flag
+    async fn is_enabled(&self) -> bool {
+        self.is_enabled
+    }
+
+    /// Date of first access assignment
+    async fn created_at(&self) -> &NaiveDateTime {
+        &self.created_at
+    }
+
+    /// Date of access modification
+    async fn updated_at(&self) -> &NaiveDateTime {
+        &self.updated_at
     }
 }

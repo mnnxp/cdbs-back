@@ -1,9 +1,9 @@
+use crate::auth::{require_permission, AccessEntity, AccessOperation};
 use crate::errors::{ServiceError, ServiceResult};
 use crate::graphql::component_model::{ComponentAndRelatedData, ShowComponentShort};
 use crate::models::component::{
-    access::util::check_access_component_for_user, actual_status::model::ActualStatusTranslateList,
-    component_fav::model::ComponentFav, component_type::model::ComponentTypeTranslateList,
-    model::Component,
+    actual_status::model::ActualStatusTranslateList, component_fav::model::ComponentFav,
+    component_type::model::ComponentTypeTranslateList, model::Component,
 };
 use crate::models::relate_ref::{
     file::model::DownloadFile, license::model::License, type_access::model::TypeAccessTranslateList,
@@ -76,16 +76,13 @@ impl ShowComponentShort {
         options: &ExtraOptions,
         conn: &mut PgConnection,
     ) -> ServiceResult<ShowComponentShort> {
-        let need_access_level = 3; // todo!(create enum for manage access level)
-
-        // check access user for select component
-        check_access_component_for_user(
+        require_permission(
             &options.logged_user_uuid,
+            AccessEntity::Component,
             component_uuid,
-            need_access_level,
+            AccessOperation::Read,
             conn,
         )?;
-
         ShowComponentShort::get_without_check_by_uuid(component_uuid, options, conn)
     }
 
@@ -100,12 +97,14 @@ impl ShowComponentShort {
             .expect("Failed get Component data");
 
         // get image file (favicon) for component
-        let image_file = DownloadFile::get_by_file_uuid(&component.image_file_uuid, &options.domain, conn)
-            .expect("Error get presigned url main image");
+        let image_file =
+            DownloadFile::get_by_file_uuid(&component.image_file_uuid, &options.domain, conn)
+                .expect("Error get presigned url main image");
 
         // get component owner
-        let owner_user = ShowUserShort::get_without_check_by_uuid(&component.user_uuid, &options.domain, conn)
-            .expect("Error loading slim_user");
+        let owner_user =
+            ShowUserShort::get_without_check_by_uuid(&component.user_uuid, &options.domain, conn)
+                .expect("Error loading slim_user");
 
         // get component type with translation
         let type_access = TypeAccessTranslateList::get_type_access_by_id(
@@ -221,12 +220,11 @@ impl ComponentAndRelatedData {
         options: &ExtraOptions,
         conn: &mut PgConnection,
     ) -> ServiceResult<ComponentAndRelatedData> {
-        let need_access_level = 3; // todo!(create enum for manage access level)
-
-        check_access_component_for_user(
+        require_permission(
             &options.logged_user_uuid,
+            AccessEntity::Component,
             target_component_uuid,
-            need_access_level,
+            AccessOperation::Read,
             conn,
         )?;
 
@@ -235,12 +233,14 @@ impl ComponentAndRelatedData {
             .expect("Error loading component");
 
         // get image file (favicon) for component
-        let image_file = DownloadFile::get_by_file_uuid(&component.image_file_uuid, &options.domain, conn)
-            .expect("Error get presigned url main image");
+        let image_file =
+            DownloadFile::get_by_file_uuid(&component.image_file_uuid, &options.domain, conn)
+                .expect("Error get presigned url main image");
 
         // get component owner
-        let owner_user = ShowUserShort::get_without_check_by_uuid(&component.user_uuid, &options.domain, conn)
-            .expect("Error loading slim_user");
+        let owner_user =
+            ShowUserShort::get_without_check_by_uuid(&component.user_uuid, &options.domain, conn)
+                .expect("Error loading slim_user");
 
         // get component type with translation
         let type_access = TypeAccessTranslateList::get_type_access_by_id(
@@ -312,12 +312,15 @@ pub(crate) fn filter_components_uuids_by_spec(
     use crate::schema::spec_to_component::dsl as spec_to_component;
 
     // Load IDs of all descendant specs
-    let mut descendant_ids =  spec_ref::spec_ref
+    let mut descendant_ids = spec_ref::spec_ref
         .filter(spec_ref::path.like(format!("%.{}.%", spec_id)))
         .select(spec_ref::id)
         .load::<i32>(conn)
         .map_err(|err| {
-            debug!("Failed to load descendant ids for spec {}: {:?}", spec_id, err);
+            debug!(
+                "Failed to load descendant ids for spec {}: {:?}",
+                spec_id, err
+            );
             ServiceError::InternalServerError
         })?;
 
@@ -329,15 +332,21 @@ pub(crate) fn filter_components_uuids_by_spec(
     if filter_component_uuids.is_empty() {
         query = query.filter(spec_to_component::spec_id.eq_any(&descendant_ids))
     } else {
-        query = query.filter(spec_to_component::spec_id.eq_any(&descendant_ids)
-            .and(spec_to_component::component_uuid.eq_any(filter_component_uuids)));
+        query = query.filter(
+            spec_to_component::spec_id
+                .eq_any(&descendant_ids)
+                .and(spec_to_component::component_uuid.eq_any(filter_component_uuids)),
+        );
     }
 
     query
         .select(spec_to_component::component_uuid)
         .load::<Uuid>(conn)
         .map_err(|err| {
-            debug!("Failed to load components for spec hierarchy {}: {:?}", spec_id, err);
+            debug!(
+                "Failed to load components for spec hierarchy {}: {:?}",
+                spec_id, err
+            );
             ServiceError::InternalServerError
         })
 }

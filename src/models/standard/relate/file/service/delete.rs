@@ -1,6 +1,6 @@
+use crate::auth::{require_permission, AccessEntity, AccessOperation};
 use crate::errors::{ServiceError, ServiceResult};
 use crate::models::relate_ref::file::service::delete::delete_file_by_uuid;
-use crate::models::standard::access::util::check_access_standard_for_user;
 use crate::models::standard::relate::file::model::DeleteStandardFileData;
 use crate::schema::file_to_standard::dsl as file_to_standard;
 use diesel::prelude::*;
@@ -12,12 +12,11 @@ pub(crate) fn delete_standard_file(
     arguments: &DeleteStandardFileData,
     conn: &mut PgConnection,
 ) -> ServiceResult<bool> {
-    let need_access_level = 1; // todo!(create enum for manage access level)
-
-    check_access_standard_for_user(
+    require_permission(
         logged_user_uuid,
+        AccessEntity::Standard,
         &arguments.standard_uuid,
-        need_access_level,
+        AccessOperation::Manage,
         conn,
     )?;
 

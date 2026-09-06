@@ -1,3 +1,4 @@
+use crate::auth::AccessOperation;
 use crate::errors::ServiceResult;
 use crate::graphql::discussion_model::{DiscussionCommentData, DiscussionInfo};
 use crate::models::relate_ref::discussion::model::{
@@ -11,12 +12,12 @@ use uuid::Uuid;
 
 /// Returns a list of available discussion.
 pub(crate) fn get_discussions(
-    args: &DiscussQueryOptions,
+    args: &mut DiscussQueryOptions,
     options: &ExtraOptions,
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<DiscussionInfo>> {
     args.discussion_to
-        .check_access(&options.logged_user_uuid, 3, conn)?;
+        .check_access(&options.logged_user_uuid, AccessOperation::Read, conn)?;
     let mut discussion_uuids = args.discussion_to.get_discuss_uuids(conn)?;
     if discussion_uuids.len() > 1 {
         discussion_uuids = objects_order(&discussion_uuids, &args.sort, &args.paginate, conn)?;
@@ -33,8 +34,8 @@ pub(crate) fn get_discussion_comment_list(
     options: &ExtraOptions,
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<DiscussionCommentData>> {
-    let discussion_to = DiscussionTo::by_discuss_uuid(&args.discussion_uuid, conn)?;
-    discussion_to.check_access(&options.logged_user_uuid, 3, conn)?;
+    let mut discussion_to = DiscussionTo::by_discuss_uuid(&args.discussion_uuid, conn)?;
+    discussion_to.check_access(&options.logged_user_uuid, AccessOperation::Read, conn)?;
     let mut res = Vec::new();
     for comment_uuid in &DiscussionCommentList::get_uuids(args, conn)? {
         res.push(get_discuss_comment(comment_uuid, &options.domain, conn)?)
@@ -105,7 +106,7 @@ mod tests {
         let result = filter_discussion(&mut discussion_uuids, &filter_discuss_uuids);
 
         // Assert
-        assert!(result == false);
+        assert!(!result);
         assert_eq!(discussion_uuids.len(), 3); // List must not change
     }
 
@@ -120,7 +121,7 @@ mod tests {
         let result = filter_discussion(&mut discussion_uuids, &filter_discuss_uuids);
 
         // Assert
-        assert!(result == true);
+        assert!(result);
         assert_eq!(discussion_uuids.len(), 1); // List must contain only one item
         assert_eq!(discussion_uuids[0], filter_discuss_uuid);
     }
@@ -137,7 +138,7 @@ mod tests {
         let result = filter_discussion(&mut discussion_uuids, &filter_discuss_uuids);
 
         // Assert
-        assert!(result == true);
+        assert!(result);
         assert_eq!(discussion_uuids.len(), 2); // List must contain two items
         assert!(discussion_uuids.contains(&filter_discuss_uuid1));
         assert!(discussion_uuids.contains(&filter_discuss_uuid2));
@@ -154,7 +155,7 @@ mod tests {
         let result = filter_discussion(&mut discussion_uuids, &filter_discuss_uuids);
 
         // Assert
-        assert!(result == true);
+        assert!(result);
         assert_eq!(discussion_uuids.len(), 0); // List must be empty
     }
 }

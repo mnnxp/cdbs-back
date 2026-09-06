@@ -1,17 +1,12 @@
+use crate::config;
 use crate::errors::err_msg::{get_err_msg, ErrorMessage};
 use crate::errors::ServiceResult;
 use diesel::prelude::*;
 use uuid::Uuid;
 
-lazy_static::lazy_static! {
-    static ref ROOT_MODIFICATION_UUID : Uuid =
-        Uuid::parse_str("aba22d59-4f6c-44a4-9a37-2d38f0e577a8")
-            .expect("Set root modification uuid failed!");
-}
-
 /// Retund default component modification uuid
 pub(crate) fn get_root_modification_uuid() -> Uuid {
-    *ROOT_MODIFICATION_UUID
+    config::root_modification_uuid()
 }
 
 /// Get component uuid from modification by uuid

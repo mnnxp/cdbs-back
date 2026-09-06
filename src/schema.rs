@@ -861,6 +861,19 @@ table! {
     }
 }
 
+table! {
+    user_api_key_ref (id) {
+        id -> Int4,
+        user_uuid -> Uuid,
+        key_hash -> Bytea,
+        name -> Varchar,
+        last_used_at -> Nullable<Timestamptz>,
+        expires_at -> Timestamptz,
+        is_active -> Bool,
+        created_at -> Timestamptz,
+    }
+}
+
 joinable!(actual_status_translate_list -> actual_status_ref (actual_status_id));
 joinable!(actual_status_translate_list -> language_ref (lang_id));
 joinable!(company_access_to_component -> company_ref (company_uuid));
@@ -1030,6 +1043,7 @@ joinable!(user_ref -> program_ref (program_id));
 joinable!(user_ref -> region_ref (region_id));
 joinable!(user_ref -> type_access_ref (type_access_id));
 joinable!(user_token_ref -> user_ref (user_uuid));
+joinable!(user_api_key_ref -> user_ref (user_uuid));
 
 allow_tables_to_appear_in_same_query!(
     actual_status_ref,
@@ -1129,4 +1143,5 @@ allow_tables_to_appear_in_same_query!(
     user_history_list,
     user_ref,
     user_token_ref,
+    user_api_key_ref,
 );

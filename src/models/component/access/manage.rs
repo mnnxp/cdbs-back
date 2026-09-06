@@ -1,7 +1,9 @@
+use crate::auth::access::{invalidate_access, invalidate_user_cache};
+use crate::auth::AccessEntity;
 use crate::errors::{ServiceError, ServiceResult};
 use crate::models::component::access::model::{ChangeOwnerComponent, ChangeTypeAccessComponent};
 use crate::models::component::access::util::check_is_owner_with_err;
-use chrono::Local;
+use chrono::Utc;
 use diesel::prelude::*;
 use uuid::Uuid;
 
@@ -16,6 +18,13 @@ pub(crate) fn change_component_owner_user(
     // 1. проверить пользователя на владение компонентом
     check_is_owner_with_err(logged_user_uuid, &data.component_uuid, conn)?;
 
+    invalidate_access(
+        &data.new_owner_user_uuid,
+        AccessEntity::Component,
+        &data.component_uuid,
+    );
+    invalidate_user_cache(logged_user_uuid);
+
     // 2. изменить владельца компонента и обовление даты изменения компонента
     let change_owner = diesel::update(
         component_ref.filter(
@@ -25,7 +34,7 @@ pub(crate) fn change_component_owner_user(
     ) // <-- на всякий пожарный :)
     .set((
         user_uuid.eq(data.new_owner_user_uuid),
-        updated_at.eq(Local::now().naive_local()),
+        updated_at.eq(Utc::now().naive_utc()),
     ))
     .returning(user_uuid)
     .get_result::<Uuid>(conn)
@@ -57,7 +66,7 @@ pub(crate) fn change_component_type_access(
     ) // <-- на всякий пожарный :)
     .set((
         type_access_id.eq(&data.new_type_access_id),
-        updated_at.eq(Local::now().naive_local()),
+        updated_at.eq(Utc::now().naive_utc()),
     ))
     .returning(type_access_id)
     .get_result::<i32>(conn)

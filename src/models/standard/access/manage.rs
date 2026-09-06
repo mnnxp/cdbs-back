@@ -1,3 +1,5 @@
+use crate::auth::access::{invalidate_access, invalidate_user_cache};
+use crate::auth::AccessEntity;
 use crate::errors::{ServiceError, ServiceResult};
 use crate::models::standard::access::model::{ChangeOwnerStandard, ChangeTypeAccessStandard};
 use crate::models::standard::access::util::check_is_owner_with_err;
@@ -13,6 +15,13 @@ pub(crate) fn change_standard_owner_user(
 ) -> ServiceResult<bool> {
     // 1. проверить пользователя на владение стандартом
     check_is_owner_with_err(logged_user_uuid, &data.standard_uuid, conn)?;
+
+    invalidate_access(
+        &data.new_owner_user_uuid,
+        AccessEntity::Standard,
+        &data.standard_uuid,
+    );
+    invalidate_user_cache(logged_user_uuid);
 
     // 2. изменить владельца компонента
     let change_owner = diesel::update(

@@ -31,9 +31,42 @@ const nameService2 = "GOST 2012 Test service 2222";
 const descriptionService2 = "Test GOST service 2222";
 const serviceStatusId2 =  3;
 const regionId2 = 5;
+const tooLongKeyword = 'я'.repeat(101);
 var serviceUuidFirst = "";
 var serviceUuidSecond = "";
 var serviceUuidSupplier = "";
+
+const usersListAccessServiceQuery = ` \
+serviceUuid \
+user { \
+  uuid \
+  username \
+} \
+permission { \
+  typeAccessId \
+  langId \
+  name \
+} \
+isEnabled \
+createdAt \
+updatedAt \
+`;
+
+const companiesListAccessServiceQuery = ` \
+serviceUuid \
+company { \
+  uuid \
+  shortname \
+} \
+permission { \
+  typeAccessId \
+  langId \
+  name \
+} \
+isEnabled \
+createdAt \
+updatedAt \
+`;
 
 const serviceFullDataQuery = ` \
 uuid \
@@ -2553,7 +2586,7 @@ describe('service', () => {
         query: `mutation  {
           addServiceKeywordsByNames(args: {
             serviceUuid: "${serviceUuidFirst}"
-            keywords: ["asd11","слишкомслишкомслишкомслишкомслишкомдлинноеключевоеслово","asd12345678","asd12"]
+            keywords: ["asd11","${tooLongKeyword}","asd12345678","asd12"]
           })
         }`,
       })
@@ -2561,7 +2594,7 @@ describe('service', () => {
     debug('/graphql addServiceKeywordsByNames=%o', body);
     expect(body.data).toBeNull();
     expect(body.errors[0].message).toBe(
-      "BadRequest: Text must be less than 100 bit (~50 symbols)"
+      "BadRequest: Text must be less than 100 characters"
     );
     expect(body.errors[0].path[0]).toBe('addServiceKeywordsByNames');
     done();
@@ -3176,7 +3209,7 @@ describe('service', () => {
     const {
       data: { addAccessRole },
     } = body;
-    expect(addAccessRole).toBe(true);
+    expect(addAccessRole).toBe(2);
     done();
   });
 
@@ -3218,16 +3251,7 @@ describe('service', () => {
             getCompaniesListAccessService(
               serviceUuid: "${serviceUuidFirst}"
             ) {
-              serviceUuid
-              companyUuid
-              typeAccess {
-                typeAccessId
-                langId
-                name
-              }
-              isEnabled
-              createdAt
-              updatedAt
+              ${companiesListAccessServiceQuery}
             }
         }`,
       })
@@ -3262,7 +3286,7 @@ describe('service', () => {
     const {
       data: { addAccessRole },
     } = body;
-    expect(addAccessRole).toBe(true);
+    expect(addAccessRole).toBe(1);
     done();
   });
 
@@ -3278,16 +3302,7 @@ describe('service', () => {
             getCompaniesListAccessService(
               serviceUuid: "${serviceUuidFirst}"
             ) {
-              serviceUuid
-              companyUuid
-              typeAccess {
-                typeAccessId
-                langId
-                name
-              }
-              isEnabled
-              createdAt
-              updatedAt
+              ${companiesListAccessServiceQuery}
             }
         }`,
       })
@@ -3298,8 +3313,8 @@ describe('service', () => {
       data: { getCompaniesListAccessService },
     } = body;
     expect(getCompaniesListAccessService[0].serviceUuid).toBe(serviceUuidFirst);
-    expect(getCompaniesListAccessService[0].companyUuid).toBe(companyUuidNoSupplier);
-    expect(getCompaniesListAccessService[0].typeAccess.typeAccessId).toBe(typeAccessId1);
+    expect(getCompaniesListAccessService[0].company.uuid).toBe(companyUuidNoSupplier);
+    expect(getCompaniesListAccessService[0].permission.typeAccessId).toBe(typeAccessId1);
     done();
   });
 
@@ -3621,16 +3636,7 @@ describe('service', () => {
             getUsersListAccessService(
               serviceUuid: "${serviceUuidFirst}"
             ) {
-              serviceUuid
-              userUuid
-              typeAccess {
-                typeAccessId
-                langId
-                name
-              }
-              isEnabled
-              createdAt
-              updatedAt
+              ${usersListAccessServiceQuery}
             }
         }`,
       })
@@ -3656,16 +3662,7 @@ describe('service', () => {
             getUsersListAccessService(
               serviceUuid: "${serviceUuidFirst}"
             ) {
-              serviceUuid
-              userUuid
-              typeAccess {
-                typeAccessId
-                langId
-                name
-              }
-              isEnabled
-              createdAt
-              updatedAt
+              ${usersListAccessServiceQuery}
             }
         }`,
       })
@@ -3676,8 +3673,8 @@ describe('service', () => {
       data: { getUsersListAccessService },
     } = body;
     expect(getUsersListAccessService[0].serviceUuid).toBe(serviceUuidFirst);
-    expect(getUsersListAccessService[0].userUuid).toBe(authorizationUserSecond);
-    expect(getUsersListAccessService[0].typeAccess.typeAccessId).toBe(typeAccessId1);
+    expect(getUsersListAccessService[0].user.uuid).toBe(authorizationUserSecond);
+    expect(getUsersListAccessService[0].permission.typeAccessId).toBe(typeAccessId1);
     done();
   });
 

@@ -1,5 +1,5 @@
 use crate::schema::*;
-use chrono::{Local, NaiveDateTime};
+use chrono::{NaiveDateTime, Utc};
 use uuid::Uuid;
 
 #[derive(Debug, Insertable)]
@@ -19,7 +19,7 @@ impl InsertableServiceHistoryList {
             type_of_change_id: 1,
             user_uuid: *user_uuid,
             old_data,
-            changed_at: Local::now().naive_local(),
+            changed_at: Utc::now().naive_utc(),
         }
     }
 }

@@ -627,7 +627,7 @@ dependencies = [
 
 [[package]]
 name = "cdbs-back"
-version = "0.3.1"
+version = "0.3.2"
 dependencies = [
  "actix-cors",
  "actix-multipart",
@@ -648,7 +648,6 @@ dependencies = [
  "hex",
  "hmac 0.12.1",
  "jsonwebtoken",
- "lazy_static",
  "log",
  "num",
  "r2d2",

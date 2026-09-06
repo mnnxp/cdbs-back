@@ -18,7 +18,10 @@ const loginData = [ { "user": {
 const fakeUuid = "9a9221c1-f517-40a0-a06d-fdfa8c17a462";
 const baseUserUuid = "31ecc6f8-0c09-4a59-a2d5-34b5b833e59b";
 const baseUsername = "usernameeee";
+const baseUsernamePublicUuid = "c8a008cc-7cdd-4328-904f-50a724865548";
+const baseUsernamePublic = "test";
 const email = "testemail@mail.ru";
+const email2 = "random@random.random";
 const firstname = "test_firstname";
 const lastname = "test_lastname";
 const secondname = "test_secondname";
@@ -119,6 +122,7 @@ const descriptionCertificateTest = "test desctiption for certificate";
 const descriptionCertificateUpdateTest = "test of the test description";
 const badFilenameCertificateTest = "name* file/ certificate.pdf";
 const goodFilenameCertificateTest = "name file certificate.pdf";
+const tooLongCertificateDescription = '中'.repeat(501);
 
 var fileCertificateTestUuid = "";
 
@@ -319,6 +323,18 @@ certificates { \
 } \
 `;
 
+const SET_USER_ACCESS_STANDARD_MUTATION = `
+    mutation SetUserAccessStandard($standardUuid: UUID!, $userUuid: UUID!, $typeAccessId: Int!) {
+        setUserAccessStandard(
+          args: {
+              standardUuid: $standardUuid
+              userUuid: $userUuid
+              typeAccessId: $typeAccessId
+            }
+        )
+    }
+`;
+
 var initialFavUsersCount = 0;
 
 async function cleanupTokenDb() {
@@ -381,7 +397,7 @@ describe('users', () => {
 
   const agent = request.agent(url);
 
-  it('/graphql:Q user - UNAUTHORIZED (by username)', async (done) => {
+  it('/graphql:Q user - BadRequest (by username)', async (done) => {
     const response1 = await agent
       .post('/graphql')
       .send({
@@ -397,13 +413,13 @@ describe('users', () => {
     debug('/graphql body=%o', response1.body);
     expect(response1.body.data).toBeNull();
     expect(response1.body.errors[0].message).toBe(
-      'BadRequest: Token not found'
+      'BadRequest: Access denied'
     );
     expect(response1.body.errors[0].path[0]).toBe('user');
     done();
   });
 
-  it('/graphql:Q user - UNAUTHORIZED', async (done) => {
+  it('/graphql:Q user - BadRequest private user', async (done) => {
     const response1 = await agent
       .post('/graphql')
       .send({
@@ -419,9 +435,77 @@ describe('users', () => {
     debug('/graphql body=%o', response1.body);
     expect(response1.body.data).toBeNull();
     expect(response1.body.errors[0].message).toBe(
-      'BadRequest: Token not found'
+      'BadRequest: Access denied'
     );
     expect(response1.body.errors[0].path[0]).toBe('user');
+    done();
+  });
+
+  it('/graphql:Q user - BadRequest not found user (fake username)', async (done) => {
+    const response1 = await agent
+      .post('/graphql')
+      .send({
+        query: `query {
+            user(args: {
+              username: "FakeUsername314}"
+            }){
+              ${showUserAndRelatedData}
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', response1.body);
+    expect(response1.body.data).toBeNull();
+    expect(response1.body.errors[0].message).toBe(
+      'BadRequest: Data not found'
+    );
+    expect(response1.body.errors[0].path[0]).toBe('user');
+    done();
+  });
+
+  it('/graphql:Q user - Ok public user (by username and UNAUTHORIZED)', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .send({
+        query: `query {
+            user(args: {
+              username: "${baseUsernamePublic}"
+            }){
+              ${showUserAndRelatedData}
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    // expect(body).toBe(0);
+    const { data: { user } } = body;
+    expect(user.uuid).toBe(baseUsernamePublicUuid);
+    expect(user.username).toBe(baseUsernamePublic);
+    expect(user.subscribers).toBe(0);
+    expect(user.isFollowed).toBe(false);
+    done();
+  });
+
+  it('/graphql:Q user - Ok public user (by uuid and UNAUTHORIZED)', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .send({
+        query: `query {
+            user(args: {
+              userUuid: "${baseUsernamePublicUuid}"
+            }){
+              ${showUserAndRelatedData}
+            }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql body=%o', body);
+    // expect(body).toBe(0);
+    const { data: { user } } = body;
+    expect(user.uuid).toBe(baseUsernamePublicUuid);
+    expect(user.username).toBe(baseUsernamePublic);
+    expect(user.subscribers).toBe(0);
+    expect(user.isFollowed).toBe(false);
     done();
   });
 
@@ -533,7 +617,7 @@ describe('users', () => {
       .send({
         query: `mutation  {
             registerUser(args: {
-                email: "random@random.random",
+                email: "${email2}",
                 username: "${username4}",
                 password: "${password}",
                 typeAccessId: ${type_access_id_public}
@@ -751,7 +835,7 @@ describe('users', () => {
         `Bearer ${authorizationTokenUserFirst}`
       )
       .send({
-        query: `query tokenQuery {
+        query: `mutation tokenQuery {
          getToken {
             bearer
          }
@@ -766,7 +850,7 @@ describe('users', () => {
         `Bearer ${authorizationTokenUserFirst}`
       )
       .send({
-        query: `query tokenQuery {
+        query: `mutation tokenQuery {
          getToken {
             bearer
          }
@@ -789,7 +873,7 @@ describe('users', () => {
         `Bearer ${authorizationTokenUserFirst}`
       )
       .send({
-        query: `query tokenQuery {
+        query: `mutation tokenQuery {
          getToken {
             bearer
          }
@@ -860,7 +944,7 @@ describe('users', () => {
         `Bearer ${authorizationTokenUserFirstUpdate}`
       )
       .send({
-        query: `query deleteTokenQuery {
+        query: `mutation deleteTokenQuery {
           deleteToken(token: "${authorizationTokenUserFirstUpdate}")
         }`,
       })
@@ -907,7 +991,7 @@ describe('users', () => {
         `Bearer ${authorizationTokenUserFirstUpdate}`
       )
       .send({
-        query: `query deleteTokenQuery {
+        query: `mutation deleteTokenQuery {
           deleteToken(token: "${authorizationTokenUserFirst}")
         }`,
       })
@@ -917,6 +1001,100 @@ describe('users', () => {
         'Unauthorized'
       );
       done();
+  });
+
+  describe('Token validation and expiry', () => {
+    it('/graphql:Q isTokenValid - OK with valid token', async (done) => {
+      const response = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenUserSecond}`)
+        .send({
+          query: `query {
+            isTokenValid
+          }`,
+        })
+        .expect(HttpStatus.OK);
+      debug('/graphql isTokenValid=%o', response.body);
+      expect(response.body.data.isTokenValid).toBe(true);
+      done();
+    });
+
+    it('/graphql:Q isTokenValid - OK with invalid token (revoked)', async (done) => {
+      const response = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenUserFirstUpdate}`)
+        .send({
+          query: `query {
+            isTokenValid
+          }`,
+        })
+        .expect(HttpStatus.OK);
+      debug('/graphql isTokenValid invalid token=%o', response.body);
+      expect(response.body.data.isTokenValid).toBe(false);
+      done();
+    });
+
+    it('/graphql:Q isTokenValid - OK with valid token (updated)', async (done) => {
+      const response = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenUserFirst}`)
+        .send({
+          query: `query {
+            isTokenValid
+          }`,
+        })
+        .expect(HttpStatus.OK);
+      debug('/graphql isTokenValid invalid token=%o', response.body);
+      expect(response.body.data.isTokenValid).toBe(true);
+      done();
+    });
+
+    it('/graphql:Q isTokenValid - Unauthorized without token', async (done) => {
+      const response = await agent
+        .post('/graphql')
+        .send({
+          query: `query {
+            isTokenValid
+          }`,
+        })
+        .expect(HttpStatus.OK);
+      debug('/graphql isTokenValid no token=%o', response.body);
+      expect(response.body.data).toBeNull();
+      expect(response.body.errors[0].message).toBe('BadRequest: Token not found');
+      expect(response.body.errors[0].path[0]).toBe('isTokenValid');
+      done();
+    });
+
+    it('/graphql:Q tokenDaysUntilExpiry - OK returns number', async (done) => {
+      const response = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenUserSecond}`)
+        .send({
+          query: `query {
+            tokenDaysUntilExpiry
+          }`,
+        })
+        .expect(HttpStatus.OK);
+      debug('/graphql tokenDaysUntilExpiry=%o', response.body);
+      expect(response.body.data.tokenDaysUntilExpiry).toBeGreaterThanOrEqual(0);
+      done();
+    });
+
+    it('/graphql:Q tokenDaysUntilExpiry - Unauthorized without token', async (done) => {
+      const response = await agent
+        .post('/graphql')
+        .send({
+          query: `query {
+            tokenDaysUntilExpiry
+          }`,
+        })
+        .expect(HttpStatus.OK);
+      debug('/graphql tokenDaysUntilExpiry no token=%o', response.body);
+      expect(response.body.data).toBeNull();
+      expect(response.body.errors[0].message).toBe('BadRequest: Token not found');
+      expect(response.body.errors[0].path[0]).toBe('tokenDaysUntilExpiry');
+      done();
+    });
   });
 
   it('/graphql:Q selfData - OK', async (done) => {
@@ -1232,6 +1410,33 @@ describe('users', () => {
     done();
   });
 
+  it('/graphql:M UserCertificate - BadRequest description too long (upload)', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenUserFirst}`
+      )
+      .send({
+        query: `mutation {
+          uploadUserCertificate(certData: {
+            description: "${tooLongCertificateDescription}"
+            filename: "${badFilenameCertificateTest}"
+          }) {
+            fileUuid
+            filename
+            uploadUrl
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql - body=%o', body);
+    const { errors, data } = body;
+    expect(data).toBeNull();
+    expect(errors[0].message).toBe("BadRequest: Text must be less than 500 characters");
+    done();
+  });
+
   it('/graphql:M UserCertificate - Ok', async (done) => {
     const { body } = await agent
       .post('/graphql')
@@ -1330,6 +1535,29 @@ describe('users', () => {
       'BadRequest: Token not found'
     );
     expect(body.errors[0].path[0]).toBe('updateUserCertificate');
+    done();
+  });
+
+  it('/graphql:M updateUserCertificate - BadRequest description too long', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set(
+        'Authorization',
+        `Bearer ${authorizationTokenUserFirst}`
+      )
+      .send({
+        query: `mutation {
+          updateUserCertificate(args: {
+            fileUuid: "${fileCertificateTestUuid}"
+            description: "${tooLongCertificateDescription}"
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK)
+    debug('/graphql - body=%o', body);
+    const { errors, data } = body;
+    expect(data).toBeNull();
+    expect(errors[0].message).toBe("BadRequest: Text must be less than 500 characters");
     done();
   });
 
@@ -3323,15 +3551,12 @@ describe('users', () => {
         `Bearer ${authorizationTokenUserFirst}`
       )
       .send({
-        query: `mutation  {
-            setUserAccessStandard(
-              args: {
-                standardUuid: "${standardUuidFirst}"
-                userUuid: "${userUuidSecond}"
-                typeAccessId: ${typeAccessId2}
-              }
-            )
-        }`,
+          query: SET_USER_ACCESS_STANDARD_MUTATION,
+          variables: {
+              standardUuid: standardUuidFirst,
+              userUuid: userUuidSecond,
+              typeAccessId: typeAccessId2
+          }
       })
       .expect(HttpStatus.OK)
     debug('/graphql setUserAccessStandard=%o', body);
@@ -3380,15 +3605,12 @@ describe('users', () => {
         `Bearer ${authorizationTokenUserFirst}`
       )
       .send({
-        query: `mutation  {
-            setUserAccessStandard(
-              args: {
-                standardUuid: "${standardUuidFirst}"
-                userUuid: "${userUuidThree}"
-                typeAccessId: ${typeAccessId2}
-              }
-            )
-        }`,
+          query: SET_USER_ACCESS_STANDARD_MUTATION,
+          variables: {
+              standardUuid: standardUuidFirst,
+              userUuid: userUuidThree,
+              typeAccessId: typeAccessId2
+          }
       })
       .expect(HttpStatus.OK)
     debug('/graphql setUserAccessStandard=%o', body);
@@ -3909,7 +4131,7 @@ describe('users', () => {
         `Bearer ${authorizationTokenUserFirstUpdate}`
       )
       .send({
-        query: `query tokenQuery {
+        query: `mutation tokenQuery {
          getToken {
             bearer
          }
@@ -3933,7 +4155,7 @@ describe('users', () => {
         `Bearer ${authorizationTokenUserFirst}`
       )
       .send({
-        query: `query tokenQuery {
+        query: `mutation tokenQuery {
          updateToken {
             bearer
          }
@@ -4071,7 +4293,7 @@ describe('users', () => {
         `Bearer ${authorizationTokenUserFirstUpdate}`
       )
       .send({
-        query: `query tokenQuery {
+        query: `mutation tokenQuery {
          updateToken {
             bearer
          }
@@ -4221,5 +4443,195 @@ describe('users', () => {
         expect(body).toBe('Unauthorized');
         done();
       });
+  });
+
+  // ==============================================
+  // ТЕСТЫ НА ПОИСК ПОЛЬЗОВАТЕЛЕЙ С ФИЛЬТРАЦИЕЙ
+  // ==============================================
+  describe('User Search and Filter Tests', () => {
+    // ========== ТЕСТЫ ПОИСКА ==========
+    it('should search users by username partial match', async () => {
+      const { body } = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenUserFirst}`)
+        .send({
+          query: `
+            query SearchUsers($search: String!) {
+              users(args: { search: $search }, paginate: { currentPage: 1, perPage: 10 }) {
+                uuid
+                username
+              }
+            }
+          `,
+          variables: { search: username4.substring(0, 4) }
+        });
+      expect(body.data.users).toBeNonEmptyArray();
+      expect(body.data.users.some(u => u.username === username4)).toBe(true);
+    });
+
+    it('should search users by email partial match', async () => {
+      const { body } = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenUserFirst}`)
+        .send({
+          query: `
+            query SearchUsersByEmail($search: String!) {
+              users(args: { search: $search }, paginate: { currentPage: 1, perPage: 10 }) {
+                uuid
+                username
+              }
+            }
+          `,
+          variables: { search: email2.substring(3, 11) }
+        });
+
+      expect(body.data.users.length).toBe(1);
+      expect(body.data.users.some(u => u.username === username4)).toBe(true);
+    });
+
+    it('should exclude users by UUID from results', async () => {
+      const { body } = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenUserFirst}`)
+        .send({
+          query: `
+            query SearchUsersWithExclude($excludeUuids: [UUID!]) {
+              users(args: {
+                search: "test"
+                excludeUuids: $excludeUuids
+              }, paginate: { currentPage: 1, perPage: 10 }) {
+                uuid
+                username
+              }
+            }
+          `,
+          variables: { excludeUuids: [userUuidFirst] }
+        });
+
+      expect(body.data.users).toBeNonEmptyArray();
+      expect(body.data.users.some(u => u.uuid === userUuidFirst)).toBe(false);
+    });
+
+    it('should combine search and exclude filters', async () => {
+      const { body } = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenUserFirst}`)
+        .send({
+          query: `
+            query SearchUsersWithFilters($search: String!, $excludeUuids: [UUID!]) {
+              users(args: {
+                search: $search
+                excludeUuids: $excludeUuids
+              }, paginate: { currentPage: 1, perPage: 10 }) {
+                uuid
+                username
+              }
+            }
+          `,
+          variables: {
+            search: username4.substring(0, 4),
+            excludeUuids: [userUuidFour]
+          }
+        });
+
+      // Должен вернуть пустой массив, так как единственный подходящий пользователь исключен
+      expect(body.data.users).toBeEmptyArray();
+    });
+
+    it('should return empty array for search with no matches', async () => {
+      const { body } = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenUserFirst}`)
+        .send({
+          query: `
+            query SearchUsersNoMatch($search: String!) {
+              users(args: { search: $search }, paginate: { currentPage: 1, perPage: 10 }) {
+                uuid
+                username
+              }
+            }
+          `,
+          variables: { search: 'xyzabcdefghijk_no_match_12345' }
+        });
+
+      expect(body.data.users).toBeEmptyArray();
+    });
+
+    it('should paginate search results', async () => {
+      const { body } = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenUserFirst}`)
+        .send({
+          query: `
+            query SearchUsersPaginated($search: String!, $page: Int!, $perPage: Int!) {
+              users(
+                args: { search: $search }
+                paginate: { currentPage: $page, perPage: $perPage }
+              ) {
+                uuid
+                username
+              }
+            }
+          `,
+          variables: {
+            search: 'test',
+            page: 1,
+            perPage: 2
+          }
+        });
+
+      expect(body.data.users.length).toBeLessThanOrEqual(2);
+    });
+
+    // ========== ТЕСТЫ ДЛЯ EXCLUDE UUID ==========
+
+    it('should exclude multiple users by UUID', async () => {
+      const { body } = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenUserFirst}`)
+        .send({
+          query: `
+            query SearchUsersMultipleExclude($excludeUuids: [UUID!]) {
+              users(
+                args: {
+                  search: "three"
+                  excludeUuids: $excludeUuids
+                }
+                paginate: { currentPage: 1, perPage: 10 }
+              ) {
+                uuid
+                username
+              }
+            }
+          `,
+          variables: { excludeUuids: [userUuidThree, userUuidFour] }
+        });
+
+      // username3 = "threeusername" должен быть исключен
+      expect(body.data.users.some(u => u.username === username3)).toBe(false);
+    });
+
+    it('should return all users when search is empty', async () => {
+      const { body } = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenUserFirst}`)
+        .send({
+          query: `
+            query AllUsersWithPagination($page: Int!, $perPage: Int!) {
+              users(paginate: { currentPage: $page, perPage: $perPage }) {
+                uuid
+                username
+              }
+            }
+          `,
+          variables: { page: 1, perPage: 35 }
+        });
+
+      expect(body.data.users.length).toBeGreaterThanOrEqual(33);
+      // expect(body.data.users.some(u => u.username === username)).toBe(true);
+      // expect(body.data.users.some(u => u.username === username2)).toBe(true);
+      // expect(body.data.users.some(u => u.username === username3)).toBe(true);
+      expect(body.data.users.some(u => u.username === username4)).toBe(true);
+    });
   });
 });

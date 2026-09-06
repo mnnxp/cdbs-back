@@ -1,6 +1,6 @@
+use crate::auth::{require_permission, AccessEntity, AccessOperation};
 use crate::errors::err_msg::{get_err_msg, ErrorMessage};
 use crate::errors::ServiceResult;
-use crate::models::component::access::util::check_access_component_for_user;
 use crate::models::component::relate::file::model::{
     IptComponentFaviconData, IptComponentFilesData,
 };
@@ -11,7 +11,6 @@ use crate::models::relate_ref::file::{
     service::register::preregister_file,
     util::check_image_filename,
 };
-use crate::storage::model::StorageAccess;
 use crate::storage::presigned_url::upload_presigned_url;
 use diesel::PgConnection;
 use uuid::Uuid;
@@ -24,12 +23,11 @@ pub(crate) fn add_component_files(
     domain: &str,
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<UploadFile>> {
-    let need_access_level = 1; // todo!(create enum for manage access level)
-
-    check_access_component_for_user(
+    require_permission(
         logged_user_uuid,
+        AccessEntity::Component,
         &data.component_uuid,
-        need_access_level,
+        AccessOperation::Write,
         conn,
     )?;
 
@@ -53,7 +51,7 @@ pub(crate) fn add_component_files(
 
         debug!("New component file: {:?}", slim_file);
 
-        let upload_url = upload_presigned_url(&StorageAccess::from_env(), &slim_file.path_file, domain)?;
+        let upload_url = upload_presigned_url(&slim_file.path_file, domain)?;
 
         up_files.push(UploadFile {
             file_uuid: slim_file.uuid,
@@ -77,12 +75,11 @@ pub(crate) fn add_component_favicon(
     domain: &str,
     conn: &mut PgConnection,
 ) -> ServiceResult<UploadFile> {
-    let need_access_level = 1; // todo!(create enum for manage access level)
-
-    check_access_component_for_user(
+    require_permission(
         logged_user_uuid,
+        AccessEntity::Component,
         &data.component_uuid,
-        need_access_level,
+        AccessOperation::Manage,
         conn,
     )?;
 
@@ -91,8 +88,7 @@ pub(crate) fn add_component_favicon(
         return Err(get_err_msg(ErrorMessage::BadFilename));
     }
 
-    // return error if not correct file name
-    if !check_image_filename(&data.filename) {
+    if !check_image_filename(&data.filename)? {
         return Err(get_err_msg(ErrorMessage::SelectedFileIsNotImage));
     }
 
@@ -106,7 +102,7 @@ pub(crate) fn add_component_favicon(
 
     debug!("New component file: {:?}", slim_file);
 
-    let upload_url = upload_presigned_url(&StorageAccess::from_env(), &slim_file.path_file, domain)?;
+    let upload_url = upload_presigned_url(&slim_file.path_file, domain)?;
 
     change_updated_at(&data.component_uuid, None, conn)?;
 

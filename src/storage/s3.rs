@@ -45,7 +45,7 @@ impl Aws {
     }
 
     /// Generate url for file download
-    pub(crate) fn download_presigned_url(
+    pub(crate) fn get_download_presigned_url(
         &self,
         bucket: &str,
         slim_file: &SlimFile,
@@ -84,5 +84,7 @@ impl Aws {
 }
 
 fn set_option(expires: u64) -> PreSignedRequestOption {
-    PreSignedRequestOption { expires_in: std::time::Duration::from_secs(expires) }
+    PreSignedRequestOption {
+        expires_in: std::time::Duration::from_secs(expires),
+    }
 }

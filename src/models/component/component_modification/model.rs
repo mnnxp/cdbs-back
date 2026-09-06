@@ -37,7 +37,7 @@ pub(crate) struct InsertableComponentModification {
 impl InsertableComponentModification {
     /// Returns a structure with the specified component UUID
     pub(crate) fn get_default_for_component(component_uuid: &Uuid) -> Self {
-        let local_time = chrono::Local::now().naive_local();
+        let local_time = chrono::Utc::now().naive_utc();
         Self {
             uuid: Uuid::new_v4(),
             component_uuid: *component_uuid,
@@ -56,7 +56,7 @@ impl InsertableComponentModification {
         component_uuid: Uuid,
         modifications_data: &IptModificationsData,
     ) -> Self {
-        let local_time = chrono::Local::now().naive_local();
+        let local_time = chrono::Utc::now().naive_utc();
         Self {
             uuid: Uuid::new_v4(),
             component_uuid,
@@ -141,8 +141,8 @@ impl From<&IptComponentModificationData> for InsertableComponentModification {
             description: description.clone(),
             actual_status_id: *actual_status_id,
             is_delete: false,
-            created_at: chrono::Local::now().naive_local(),
-            updated_at: chrono::Local::now().naive_local(),
+            created_at: chrono::Utc::now().naive_utc(),
+            updated_at: chrono::Utc::now().naive_utc(),
         }
     }
 }

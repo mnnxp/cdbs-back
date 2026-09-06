@@ -57,8 +57,8 @@ impl DiscussionInfo {
     }
 
     /// Returns the number of comments left on this discussion
-    async fn replies_count(&self, cxt: &Context<'_>) -> ServiceResult<i64> {
-        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+    async fn replies_count(&self, ctx: &Context<'_>) -> ServiceResult<i64> {
+        let conn: &mut PooledConnection = &mut get_conn(ctx)?;
         Discussion::comments_count(&self.uuid, conn)
     }
 
@@ -89,20 +89,20 @@ impl DiscussionInfo {
     /// * Database connection or query execution fails.
     async fn comments(
         &self,
-        cxt: &Context<'_>,
+        ctx: &Context<'_>,
         filter_by_uuids: Option<Vec<Uuid>>,
         sort: Option<IptSort>,
         paginate: Option<IptPaginate>,
     ) -> ServiceResult<Vec<DiscussionCommentData>> {
         // authorization check
-        let options = ExtraOptions::from_cxt(cxt, false)?;
+        let options = ExtraOptions::from_ctx(ctx, false)?;
         let s = sort
             .map(|s| Sort::parsing(TableName::DiscussionCommentList, &s.by_field, s.as_desc))
             .unwrap_or(Sort::set_by_table(TableName::DiscussionCommentList));
         let p = paginate
             .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
             .unwrap_or_default();
-        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(ctx)?;
         get_discussion_comment_list(
             &CommentQueryOptions::new(self.uuid, None, filter_by_uuids.unwrap_or_default(), s, p),
             &options,
@@ -124,9 +124,9 @@ pub(crate) struct DiscussionCommentData {
     pub(crate) author: ShowUserShort,
     /// Content of the comment message
     pub(crate) message_content: String,
-    /// Сomment editing indicator
+    /// Comment editing indicator
     pub(crate) is_edited: bool,
-    /// Сomment hiding indicator
+    /// Comment hiding indicator
     pub(crate) is_hidden: bool,
     /// Comment creation date
     pub(crate) created_at: NaiveDateTime,
@@ -161,12 +161,12 @@ impl DiscussionCommentData {
         &self.message_content
     }
 
-    /// Сomment editing indicator
+    /// Comment editing indicator
     async fn is_edited(&self) -> &bool {
         &self.is_edited
     }
 
-    /// Сomment hiding indicator
+    /// Comment hiding indicator
     async fn is_hidden(&self) -> &bool {
         &self.is_hidden
     }
@@ -182,27 +182,27 @@ impl DiscussionCommentData {
     }
 
     /// Returns the number of comments-replies left on this comment
-    async fn replies_count(&self, cxt: &Context<'_>) -> ServiceResult<i64> {
-        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+    async fn replies_count(&self, ctx: &Context<'_>) -> ServiceResult<i64> {
+        let conn: &mut PooledConnection = &mut get_conn(ctx)?;
         DiscussionCommentList::replies_count(&self.uuid, conn)
     }
 
     /// Returns comments that were posted in reply to this commentary
     async fn replies(
         &self,
-        cxt: &Context<'_>,
+        ctx: &Context<'_>,
         sort: Option<IptSort>,
         paginate: Option<IptPaginate>,
     ) -> ServiceResult<Vec<DiscussionCommentData>> {
         // authorization check
-        let options = ExtraOptions::from_cxt(cxt, false)?;
+        let options = ExtraOptions::from_ctx(ctx, false)?;
         let s = sort
             .map(|s| Sort::parsing(TableName::DiscussionCommentList, &s.by_field, s.as_desc))
             .unwrap_or(Sort::set_by_table(TableName::DiscussionCommentList));
         let p = paginate
             .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
             .unwrap_or_default();
-        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(ctx)?;
         get_discussion_comment_list(
             &CommentQueryOptions::new(self.discussion_uuid, Some(self.uuid), Vec::new(), s, p),
             &options,

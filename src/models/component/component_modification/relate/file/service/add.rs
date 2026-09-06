@@ -1,6 +1,6 @@
+use crate::auth::{require_permission, AccessEntity, AccessOperation};
 use crate::errors::err_msg::{get_err_msg, ErrorMessage};
 use crate::errors::ServiceResult;
-use crate::models::component::access::util::check_access_component_for_user;
 use crate::models::component::component_modification::relate::file::model::IptModificationFilesData;
 use crate::models::component::component_modification::util::get_component_by_modification;
 use crate::models::component::service::update::change_updated_at;
@@ -9,7 +9,6 @@ use crate::models::relate_ref::file::{
     model::{ListObject, UploadFile},
     service::register::preregister_file,
 };
-use crate::storage::model::StorageAccess;
 use crate::storage::presigned_url::upload_presigned_url;
 use diesel::PgConnection;
 use uuid::Uuid;
@@ -22,12 +21,12 @@ pub(crate) fn add_modification_files(
     domain: &str,
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<UploadFile>> {
-    let need_access_level = 1; // todo!(create enum for manage access level)
     let target_component_uuid = get_component_by_modification(&data.modification_uuid, conn)?;
-    check_access_component_for_user(
+    require_permission(
         logged_user_uuid,
+        AccessEntity::Component,
         &target_component_uuid,
-        need_access_level,
+        AccessOperation::Manage,
         conn,
     )?;
 
@@ -52,7 +51,7 @@ pub(crate) fn add_modification_files(
 
         debug!("New modification file: {:?}", slim_file);
 
-        let upload_url = upload_presigned_url(&StorageAccess::from_env(), &slim_file.path_file, domain)?;
+        let upload_url = upload_presigned_url(&slim_file.path_file, domain)?;
 
         up_files.push(UploadFile {
             file_uuid: slim_file.uuid,

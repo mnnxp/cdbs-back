@@ -1,9 +1,8 @@
+use crate::auth::{require_permission, AccessEntity, AccessOperation};
 use crate::errors::ServiceResult;
 use crate::graphql::file::ShowFileRelatedData;
 use crate::models::component::file::repository::get_file_uuids_by_component_uuid;
-use crate::models::component::{
-    access::util::check_access_component_for_user, model::ComponentFilesArg,
-};
+use crate::models::component::model::ComponentFilesArg;
 use crate::models::relate_ref::file::model::DownloadFile;
 use crate::models::search::order::{Paginate, Sort};
 use diesel::prelude::*;
@@ -17,12 +16,11 @@ pub(crate) fn get_component_files(
     domain: &str,
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<DownloadFile>> {
-    let need_access_level = 3; // todo!(create enum for manage access level)
-
-    check_access_component_for_user(
+    require_permission(
         logged_user_uuid,
+        AccessEntity::Component,
         &args.component_uuid,
-        need_access_level,
+        AccessOperation::Read,
         conn,
     )?;
 
@@ -40,12 +38,11 @@ pub(crate) fn get_component_files_list(
     domain: &str,
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<ShowFileRelatedData>> {
-    let need_access_level = 3; // todo!(create enum for manage access level)
-
-    check_access_component_for_user(
+    require_permission(
         logged_user_uuid,
+        AccessEntity::Component,
         &args.component_uuid,
-        need_access_level,
+        AccessOperation::Read,
         conn,
     )?;
 

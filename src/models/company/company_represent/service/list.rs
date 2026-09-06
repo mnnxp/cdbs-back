@@ -1,6 +1,6 @@
+use crate::auth::{require_permission, AccessEntity, AccessOperation};
 use crate::errors::err_msg::{get_err_msg, ErrorMessage};
 use crate::errors::{ServiceError, ServiceResult};
-use crate::models::company::access::util::check_company_access;
 use crate::models::company::company_represent::model::{
     CompanyRepresentAndRelatedData, CompanyRepresentsArg,
 };
@@ -32,11 +32,11 @@ pub(crate) fn get_represents(
         }
     }
 
-    let need_access_level = 3;
-    check_company_access(
+    require_permission(
         logged_user_uuid,
+        AccessEntity::Company,
         &args.company_uuid,
-        need_access_level,
+        AccessOperation::Read,
         conn,
     )?;
 

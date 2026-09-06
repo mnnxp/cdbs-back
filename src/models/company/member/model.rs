@@ -16,14 +16,14 @@ pub(crate) struct CompanyMember {
 }
 
 /// Company (community) member data
-#[derive(Debug, Deserialize, SimpleObject)]
+#[derive(Debug, Deserialize)]
 pub(crate) struct CompanyMemberAndRelatedData {
     /// Company UUID
     pub(crate) company_uuid: Uuid,
     /// User UUID
     pub(crate) user_uuid: Uuid,
     /// User's role in the company (access rights are granted based on the role)
-    pub(crate) role: RoleMemberAndRelatedData,
+    pub(crate) company_role: RoleMemberAndRelatedData,
     /// Activity flag of the company member
     pub(crate) is_enabled: bool,
     /// Date the user was added to the company
@@ -96,8 +96,8 @@ impl From<&IptCompanyMemberData> for InsertableCompanyMember {
             user_uuid: *user_uuid,
             role_id: *role_id,
             is_enabled: true,
-            created_at: chrono::Local::now().naive_local(),
-            updated_at: chrono::Local::now().naive_local(),
+            created_at: chrono::Utc::now().naive_utc(),
+            updated_at: chrono::Utc::now().naive_utc(),
         }
     }
 }

@@ -1,6 +1,7 @@
+use crate::auth::token::manager::create_token;
+use crate::auth::token::model::Token;
+use crate::config::auth_duration_in_hour;
 use crate::errors::ServiceResult;
-use crate::jwt::manager::create_token;
-use crate::jwt::model::Token;
 use crate::models::user::model::SlimUser;
 use async_graphql::*;
 
@@ -12,11 +13,8 @@ impl Token {
 }
 
 pub(crate) fn generate(user: &SlimUser) -> ServiceResult<Token> {
-    let opt = {
-        use structopt::StructOpt;
-        crate::cli_args::Opt::from_args()
-    };
-    match create_token(user, opt.auth_duration_in_hour) {
+    let duration = auth_duration_in_hour();
+    match create_token(user, duration) {
         Ok(r) => Ok(Token { bearer: Some(r) }),
         Err(e) => Err(e),
     }

@@ -1,10 +1,10 @@
+use crate::auth::{require_permission, AccessEntity, AccessOperation};
 use crate::errors::err_msg::{get_err_msg, ErrorMessage};
 use crate::errors::ServiceResult;
 use crate::graphql::component_model::IptUpdateComponentData;
-use crate::models::component::access::util::check_access_component_for_user;
 use crate::schema::component_modification_list::dsl as component_modification_list;
 use crate::schema::component_ref::dsl as component_ref;
-use chrono::Local;
+use chrono::Utc;
 use diesel::prelude::*;
 use uuid::Uuid;
 
@@ -20,20 +20,18 @@ pub(crate) fn update_component_by_uuid(
     if data
         .description
         .as_ref()
-        .map(|d| d.len())
+        .map(|d| d.chars().count())
         .unwrap_or_default()
         > 50000
     {
         return Err(get_err_msg(ErrorMessage::TextMustLess(50000)));
     }
 
-    // need top level access for change component main data
-    let need_access_level = 1; // todo!(create enum for manage access level)
-
-    check_access_component_for_user(
+    require_permission(
         logged_user_uuid,
+        AccessEntity::Component,
         target_component_uuid,
-        need_access_level,
+        AccessOperation::Manage,
         conn,
     )?;
 
@@ -143,7 +141,7 @@ pub(crate) fn change_updated_at(
     target_modification_uuid: Option<&Uuid>,
     conn: &mut PgConnection,
 ) -> ServiceResult<usize> {
-    let new_updated_at = Local::now().naive_local();
+    let new_updated_at = Utc::now().naive_utc();
     let res = diesel::update(
         component_ref::component_ref.filter(component_ref::uuid.eq(target_component_uuid)),
     )

@@ -1,3 +1,4 @@
+use crate::auth::{require_permission, AccessEntity, AccessOperation};
 use crate::errors::{ServiceError, ServiceResult};
 use crate::models::company::util::check_is_supplier;
 use crate::models::component::supplier::model::{
@@ -14,14 +15,12 @@ pub(crate) fn add_component_base_supplier(
     data: &IptSupplierComponentData,
     conn: &mut PgConnection,
 ) -> ServiceResult<bool> {
-    // if logged user can view base component,
-    // they can add company to supplier list
-    let need_access_level = 3; // todo!(create enum for manage access level)
-
-    crate::models::component::access::util::check_access_component_for_user(
+    // if logged user can view base component, they can add company to supplier list (temp solution)
+    require_permission(
         logged_user_uuid,
+        AccessEntity::Component,
         &data.component_uuid,
-        need_access_level,
+        AccessOperation::Read,
         conn,
     )?;
 

@@ -1,6 +1,6 @@
+use crate::auth::{require_permission, AccessEntity, AccessOperation};
 use crate::errors::err_msg::{get_err_msg, ErrorMessage};
 use crate::errors::ServiceResult;
-use crate::models::company::access::util::check_company_access;
 use crate::models::component::access::company::manage::give_company_top_access_component;
 use crate::models::component::supplier::model::IptSupplierComponentData;
 use crate::models::component::supplier::service::add::{
@@ -17,15 +17,13 @@ pub(crate) fn add_company_to_suppliers(
     data: &IptSupplierComponentData,
     conn: &mut PgConnection,
 ) -> ServiceResult<bool> {
-    let need_access_level = 1; // todo!(create enum for manage access level)
-
-    check_company_access(
+    require_permission(
         logged_user_uuid,
+        AccessEntity::Company,
         &data.company_uuid,
-        need_access_level,
+        AccessOperation::Manage,
         conn,
     )?;
-
     add_component_base_supplier(logged_user_uuid, data, conn)
 }
 
@@ -35,12 +33,11 @@ pub(crate) fn set_company_owner_supplier(
     data: &IptSupplierComponentData,
     conn: &mut PgConnection,
 ) -> ServiceResult<bool> {
-    let need_access_level = 1; // todo!(create enum for manage access level)
-
-    check_company_access(
+    require_permission(
         logged_user_uuid,
+        AccessEntity::Company,
         &data.company_uuid,
-        need_access_level,
+        AccessOperation::Manage,
         conn,
     )?;
 

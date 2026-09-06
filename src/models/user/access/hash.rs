@@ -1,33 +1,41 @@
-use argon2::{self, Config};
+use crate::errors::{ServiceError, ServiceResult};
+use argon2::{self, Config, Variant, Version};
+use rand::RngCore;
 
-const SALT_LEN: usize = 128;
+/// Standard cryptographic salt length (256-bit)
+const SALT_LEN: usize = 32;
 
+/// Generates a cryptographically secure random salt
 pub(crate) fn make_salt() -> [u8; SALT_LEN] {
-    use rand::Rng;
-    const CHARSET: &[u8] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZ\
-                            abcdefghijklmnopqrstuvwxyz\
-                            0123456789)(*&^%$#@!~";
-    let mut rng = rand::thread_rng();
-
-    let mut psw_salt: [u8; SALT_LEN] = [0_u8; SALT_LEN];
-
-    let mut count = 0;
-
-    while count < SALT_LEN {
-        let x = rng.gen_range(0..CHARSET.len());
-        psw_salt[count] = x as u8;
-        count += 1;
-    }
-
+    let mut psw_salt = [0_u8; SALT_LEN];
+    rand::thread_rng().fill_bytes(&mut psw_salt);
     psw_salt
 }
 
-pub(crate) fn make_hash_salt(password: &[u8], psw_salt: &[u8]) -> Vec<u8> {
-    argon2::hash_encoded(password, psw_salt, &Config::default())
-        .unwrap()
-        .into_bytes()
+/// Hashes a password using Argon2id with production-ready, resource-efficient parameters
+pub(crate) fn make_hash_salt(password: &[u8], psw_salt: &[u8]) -> ServiceResult<Vec<u8>> {
+    let config = Config {
+        variant: Variant::Argon2id, // Defends against both GPU brute-force and side-channel attacks
+        version: Version::Version13,
+        mem_cost: 16384, // 16 MB memory overhead (optimal)
+        time_cost: 2,    // 2 passes: quick execution (~15-30ms) to prevent DoS vectors
+        lanes: 1,        // 1 thread: prevents thread pool exhaustion under concurrent login load
+        ..Default::default()
+    };
+
+    argon2::hash_encoded(password, psw_salt, &config)
+        .map(|hash| hash.into_bytes())
+        .map_err(|e| {
+            error!("Argon2 hashing failed: {:?}", e);
+            ServiceError::InternalServerError
+        })
 }
 
-pub(crate) fn verify(psw_hash: &[u8], psw_salt: &[u8], password: &[u8]) -> bool {
-    make_hash_salt(password, psw_salt) == psw_hash
+/// Verifies a password against an encoded Argon2id hash string
+pub(crate) fn verify(psw_hash: &[u8], password: &[u8]) -> bool {
+    let hash_str = match std::str::from_utf8(psw_hash) {
+        Ok(s) => s,
+        Err(_) => return false,
+    };
+    argon2::verify_encoded(hash_str, password).unwrap_or(false)
 }

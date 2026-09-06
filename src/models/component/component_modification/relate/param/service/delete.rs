@@ -1,3 +1,4 @@
+use crate::auth::{require_permission, AccessEntity, AccessOperation};
 use crate::errors::err_msg::{get_err_msg, ErrorMessage};
 use crate::errors::ServiceResult;
 use crate::models::component::component_modification::param::model::DelModificationParamData;
@@ -12,12 +13,12 @@ pub(crate) fn del_modification_params(
     data: &DelModificationParamData,
     conn: &mut PgConnection,
 ) -> ServiceResult<usize> {
-    let need_access_level = 1; // todo!(create enum for manage access level)
     let target_component_uuid = get_component_by_modification(&data.modification_uuid, conn)?;
-    crate::models::component::access::util::check_access_component_for_user(
+    require_permission(
         logged_user_uuid,
+        AccessEntity::Component,
         &target_component_uuid,
-        need_access_level,
+        AccessOperation::Manage,
         conn,
     )?;
 

@@ -1,14 +1,9 @@
+use crate::config;
 use crate::graphql::standard_model::{IptStandardData, IptStandardFilesArg, IptStandardsArg};
 use crate::models::relate_ref::file::util::get_default_image;
 use crate::schema::standard_ref;
-use chrono::{Local, NaiveDateTime};
+use chrono::{NaiveDateTime, Utc};
 use uuid::Uuid;
-
-lazy_static::lazy_static! {
-    static ref ROOT_STANDARD_UUID : Uuid =
-        Uuid::parse_str("303ec2aa-2066-42e3-93fb-de4fb9344bcb")
-            .expect("Set root standard uuid failed!");
-}
 
 #[derive(Identifiable, Queryable, Debug)]
 #[diesel(primary_key(uuid))]
@@ -55,7 +50,7 @@ impl InsertableStandard {
 
     /// Change parent uuid to base for insert new row
     pub(crate) fn parent_uuid_to_base(&mut self) {
-        self.parent_standard_uuid = *ROOT_STANDARD_UUID;
+        self.parent_standard_uuid = config::root_standard_uuid();
     }
 
     /// Set image uuid (for set default image)
@@ -99,8 +94,8 @@ impl From<&IptStandardData> for InsertableStandard {
             type_access_id: *type_access_id,
             standard_status_id: *standard_status_id,
             is_delete: false,
-            created_at: Local::now().naive_local(),
-            updated_at: Local::now().naive_local(),
+            created_at: Utc::now().naive_utc(),
+            updated_at: Utc::now().naive_utc(),
         }
     }
 }

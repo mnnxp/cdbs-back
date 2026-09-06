@@ -25,11 +25,12 @@ pub use relate::storage::{StorageMutation, StorageQuery};
 pub use relate::type_access::TypeAccessQuery;
 pub use standard::{standard_model, StandardMutation, StandardQuery};
 pub use supplier_service::{service_model, ServiceMutation, ServiceQuery};
-pub use user::{UserMutation, UserQuery};
+pub use user::{UserAccessQuery, UserMutation, UserQuery};
 
 #[derive(MergedObject, Default)]
 pub struct QueryRoot(
     UserQuery,
+    UserAccessQuery,
     ComponentQuery,
     StandardQuery,
     ServiceQuery,
@@ -64,7 +65,6 @@ pub struct MutationRoot(
     RegionMutation,
     // SpecMutation,
     StorageMutation,
-    // TypeAccessMutation,
 );
 
 use crate::graphql::handler::{graphiql, graphql};

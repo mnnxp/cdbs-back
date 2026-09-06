@@ -1,5 +1,6 @@
 use super::access::hash::{make_hash_salt, make_salt};
 use super::certificate::model::UserCertificateAndFile;
+use crate::errors::ServiceResult;
 use crate::models::relate_ref::{
     file::model::DownloadFile, file::util::get_default_image, program::model::Program,
     region::model::RegionTranslateList, type_access::model::TypeAccessTranslateList,
@@ -14,7 +15,7 @@ pub(crate) struct User {
     uuid: Uuid,
     // email: String,
     psw_hash: Vec<u8>,
-    psw_salt: Vec<u8>,
+    // psw_salt: Vec<u8>,
     // firstname: String,
     // lastname: String,
     // secondname: String,
@@ -39,11 +40,6 @@ impl User {
     /// Gets password hash
     pub(super) fn get_psw_hash(&self) -> &[u8] {
         &self.psw_hash
-    }
-
-    /// Gets password salt
-    pub(super) fn get_psw_salt(&self) -> &[u8] {
-        &self.psw_salt
     }
 }
 
@@ -232,11 +228,11 @@ pub(crate) struct IptUserData {
 }
 
 impl InsertableUser {
-    pub(crate) fn by_arg(ipt_data: IptUserData) -> Self {
+    pub(crate) fn by_arg(ipt_data: IptUserData) -> ServiceResult<Self> {
         let psw_salt = make_salt();
-        let psw_hash = make_hash_salt(ipt_data.password.as_bytes(), &psw_salt);
+        let psw_hash = make_hash_salt(ipt_data.password.as_bytes(), &psw_salt)?;
 
-        Self {
+        Ok(Self {
             uuid: Uuid::new_v4(),
             email: ipt_data.email.to_string(),
             psw_hash,
@@ -258,9 +254,9 @@ impl InsertableUser {
             is_email_verified: false,
             is_enabled: true,
             is_delete: false,
-            created_at: chrono::Local::now().naive_local(),
-            updated_at: chrono::Local::now().naive_local(),
-        }
+            created_at: chrono::Utc::now().naive_utc(),
+            updated_at: chrono::Utc::now().naive_utc(),
+        })
     }
 }
 
@@ -369,6 +365,10 @@ pub(crate) struct IptUsersArg {
     pub(crate) subscribers: Option<bool>,
     /// Filter by the presence of users in favorites of the active user
     pub(crate) favorite: Option<bool>,
+    /// Full-text search by username, firstname, lastname, email
+    pub(crate) search: Option<String>,
+    /// Exclude specific users from results by their UUIDs
+    pub(crate) exclude_uuids: Option<Vec<Uuid>>,
 }
 
 #[derive(Debug, Default)]
@@ -376,6 +376,8 @@ pub(crate) struct UsersArg {
     pub(crate) filter_users_uuids: Vec<Uuid>,
     pub(crate) subscribers: bool,
     pub(crate) favorite: bool,
+    pub(crate) search: Option<String>,
+    pub(crate) exclude_uuids: Option<Vec<Uuid>>,
 }
 
 impl From<IptUsersArg> for UsersArg {
@@ -384,12 +386,16 @@ impl From<IptUsersArg> for UsersArg {
             users_uuids,
             subscribers,
             favorite,
+            search,
+            exclude_uuids,
         } = data;
 
         Self {
             filter_users_uuids: users_uuids.unwrap_or_default(),
             subscribers: subscribers.unwrap_or(false),
             favorite: favorite.unwrap_or(false),
+            search,
+            exclude_uuids,
         }
     }
 }

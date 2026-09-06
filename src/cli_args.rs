@@ -1,12 +1,33 @@
 use chrono::NaiveDateTime;
 use structopt::StructOpt;
+use uuid::Uuid;
 
 /// GraphQl API, Diesel PostgreSQL, session authentication and JWT boilerplate server
 #[derive(StructOpt, Debug, Clone)]
 #[structopt(name = "cdbs-back")]
 pub struct Opt {
+    /// Allowed CORS origins (comma-separated)
+    #[structopt(
+        long,
+        env = "ALLOWED_ORIGINS",
+        default_value = "http://localhost:3000,http://127.0.0.1:3000"
+    )]
+    pub(crate) allowed_origins: String,
+
+    /// Path to JWT private key
+    #[structopt(long, env = "JWT_PRIVATE_KEY")]
+    pub(crate) jwt_private_key: String,
+
+    /// Path to JWT public key
+    #[structopt(long, env = "JWT_PUBLIC_KEY")]
+    pub(crate) jwt_public_key: String,
+
     /// Entry point of the GraphQL API (for display)
-    #[structopt(long, env = "API_POINT", default_value = "http://127.0.0.1:3000/graphql")]
+    #[structopt(
+        long,
+        env = "API_POINT",
+        default_value = "http://127.0.0.1:3000/graphql"
+    )]
     pub api_point: String,
 
     /// Port to listen to
@@ -65,4 +86,52 @@ pub struct Opt {
     /// Url to endpoint S3
     #[structopt(long, env = "S3_ENDPOINT")]
     pub(crate) s3_endpoint: String,
+
+    /// Root component UUID (self-referencing parent)
+    #[structopt(
+        long,
+        env = "ROOT_COMPONENT_UUID",
+        default_value = "a5953fd9-7393-4f1e-a899-06b5e159dbf1"
+    )]
+    pub(crate) root_component_uuid: Uuid,
+
+    /// Root standard UUID (self-referencing parent)
+    #[structopt(
+        long,
+        env = "ROOT_STANDARD_UUID",
+        default_value = "303ec2aa-2066-42e3-93fb-de4fb9344bcb"
+    )]
+    pub(crate) root_standard_uuid: Uuid,
+
+    /// Root modification UUID (self-referencing parent)
+    #[structopt(
+        long,
+        env = "ROOT_MODIFICATION_UUID",
+        default_value = "aba22d59-4f6c-44a4-9a37-2d38f0e577a8"
+    )]
+    pub(crate) root_modification_uuid: Uuid,
+
+    /// Root discussion comment UUID (self-referencing parent)
+    #[structopt(
+        long,
+        env = "ROOT_DISCUSSION_COMMENT_UUID",
+        default_value = "dd92b579-019b-48ed-a9e2-28131dbdd363"
+    )]
+    pub(crate) root_discussion_comment_uuid: Uuid,
+
+    /// Default image UUID (placeholder)
+    #[structopt(
+        long,
+        env = "DEFAULT_IMAGE_UUID",
+        default_value = "bc1c2151-86d0-4656-9c9d-d016dd584297"
+    )]
+    pub(crate) default_image_uuid: Uuid,
+
+    /// Default user UUID (anonymous)
+    #[structopt(
+        long,
+        env = "DEFAULT_USER_UUID",
+        default_value = "413a9b1c-da2d-44f9-a492-58f9448b402e"
+    )]
+    pub(crate) default_user_uuid: Uuid,
 }

@@ -10,7 +10,7 @@ use uuid::Uuid;
 pub(crate) struct CompanyRepresent {
     /// Company representative office UUID
     pub(crate) uuid: Uuid,
-    /// Сompany's UUID
+    /// Company's UUID
     pub(crate) company_uuid: Uuid,
     /// Identifier of the region to which the representative office belongs
     pub(crate) region_id: i32,
@@ -30,7 +30,7 @@ pub(crate) struct CompanyRepresent {
 pub(crate) struct CompanyRepresentAndRelatedData {
     /// UUID of the company's representative office
     pub(crate) uuid: Uuid,
-    /// Сompany's UUID
+    /// Company's UUID
     pub(crate) company_uuid: Uuid,
     /// Data of the region to which the representative office belongs
     pub(crate) region: RegionTranslateList,
@@ -59,7 +59,7 @@ pub(crate) struct InsertableCompanyRepresent {
 /// Data for adding a new company representative office.
 #[derive(Debug, Deserialize, Clone, InputObject)]
 pub(crate) struct IptCompanyRepresentData {
-    /// Сompany's UUID
+    /// Company's UUID
     pub(crate) company_uuid: Uuid,
     /// Identifier of the region to which the representative office belongs
     pub(crate) region_id: i32,
@@ -100,8 +100,6 @@ impl From<&IptCompanyRepresentData> for InsertableCompanyRepresent {
             phone,
             ..
         } = company_represent_data;
-
-        // let company_uuid = "31ecc6f8-0c09-4a59-a2d5-34b5b833e59b".parse().unwrap();
 
         Self {
             uuid: Uuid::new_v4(),

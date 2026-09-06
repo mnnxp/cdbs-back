@@ -1,6 +1,7 @@
 use super::{get_vec_in_string, model::ObjectUuid};
 use crate::errors::{ServiceError, ServiceResult};
-use diesel::prelude::*;
+use diesel::sql_types::Text;
+use diesel::{sql_query, PgConnection, RunQueryDsl};
 use uuid::Uuid;
 
 pub(crate) struct Filter {
@@ -44,27 +45,32 @@ impl Filter {
 /// returns ids of found objects or an error from the database
 pub(crate) fn objects_search(
     from: &str,
+    select: &str,
     to_tsvector: &str,
     search: &str,
     filter: &Filter,
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<Uuid>> {
-    let query = format!("
-    SELECT uuid
+    let query = format!(
+        "
+    SELECT DISTINCT {select}
     FROM {from}
-    WHERE {to_tsvector} @@ websearch_to_tsquery('{search}')
+    WHERE {to_tsvector} @@ websearch_to_tsquery($1)
     {filter}
     LIMIT 1000;",
+        select = select,
         from = from,
         to_tsvector = to_tsvector,
-        search = search,
         filter = filter.get_complete(),
     );
     debug!("SQL search query: {}", query);
 
-    let temp: Vec<ObjectUuid> = diesel::sql_query(query).load(conn).map_err(|err| {
-        debug!("Failed search: {:?}", err);
-        ServiceError::InternalServerError
-    })?;
+    let temp: Vec<ObjectUuid> = sql_query(query)
+        .bind::<Text, _>(search)
+        .load(conn)
+        .map_err(|err| {
+            debug!("Failed search: {:?}", err);
+            ServiceError::InternalServerError
+        })?;
     Ok(ObjectUuid::get_uuids(&temp))
 }

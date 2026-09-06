@@ -1,9 +1,8 @@
+use crate::config::root_discussion_comment_uuid;
 use crate::models::search::order::{Paginate, Sort};
 use crate::schema::*;
-use chrono::{Local, NaiveDateTime};
+use chrono::{NaiveDateTime, Utc};
 use uuid::Uuid;
-
-use super::util::get_root_discussion_comment_uuid;
 
 #[derive(Debug, Clone)]
 pub(crate) enum DiscussionTo {
@@ -30,7 +29,7 @@ pub(crate) struct Discussion {
 
 impl Discussion {
     pub(crate) fn new() -> Self {
-        let current_time = Local::now().naive_local();
+        let current_time = Utc::now().naive_utc();
         Self {
             uuid: Uuid::new_v4(),
             last_activity_at: current_time,
@@ -59,9 +58,9 @@ pub(crate) struct DiscussionCommentList {
     pub(crate) author_uuid: Uuid,
     /// Comment content
     pub(crate) message_content: String,
-    /// Сomment editing indicator
+    /// Comment editing indicator
     pub(crate) is_edited: bool,
-    /// Сomment hiding indicator
+    /// Comment hiding indicator
     pub(crate) is_hidden: bool,
     /// Comment creation date
     pub(crate) created_at: NaiveDateTime,
@@ -76,10 +75,10 @@ impl DiscussionCommentList {
         message_content: String,
         discussion_uuid: Uuid,
     ) -> Self {
-        let current_time = Local::now().naive_local();
+        let current_time = Utc::now().naive_utc();
         let parent_comment_uuid = match parent_comment_uuid {
             Some(pcu) => pcu,
-            None => get_root_discussion_comment_uuid(),
+            None => root_discussion_comment_uuid(),
         };
 
         Self {

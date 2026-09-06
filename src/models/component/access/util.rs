@@ -124,7 +124,7 @@ pub(crate) fn check_user_access_to_component(
     Ok(matches!(check_res.first(), Some(x) if need_access_level >= *x))
 }
 
-/// Сhecking the availability of user access provided by the company
+/// Checking the availability of user access provided by the company
 pub(crate) fn check_user_access_provided_by_company(
     target_user_uuid: &Uuid,
     target_component_uuid: &Uuid,

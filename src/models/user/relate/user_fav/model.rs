@@ -39,7 +39,7 @@ impl From<IptUserFavData> for InsertableUserFav {
             user_favorite_uuid,
             user_follower_uuid,
             is_enabled: true,
-            created_at: chrono::Local::now().naive_local(),
+            created_at: chrono::Utc::now().naive_utc(),
         }
     }
 }

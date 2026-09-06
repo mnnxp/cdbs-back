@@ -1,9 +1,9 @@
+use crate::auth::{require_permission, AccessEntity, AccessOperation};
 use crate::errors::ServiceResult;
 use crate::models::relate_ref::file::model::DownloadFile;
 use crate::models::search::order::Paginate;
 use crate::models::supplier_service::{
-    access::util::check_access_service_for_user, file::repository::get_file_uuids_by_service_uuid,
-    model::ServiceFilesArg,
+    file::repository::get_file_uuids_by_service_uuid, model::ServiceFilesArg,
 };
 use diesel::prelude::*;
 use uuid::Uuid;
@@ -16,12 +16,11 @@ pub(crate) fn get_service_files(
     domain: &str,
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<DownloadFile>> {
-    let need_access_level = 2; // todo!(create enum for manage access level)
-
-    check_access_service_for_user(
+    require_permission(
         logged_user_uuid,
+        AccessEntity::Service,
         &args.service_uuid,
-        need_access_level,
+        AccessOperation::Write,
         conn,
     )?;
 

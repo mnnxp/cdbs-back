@@ -1,8 +1,8 @@
+use crate::auth::{require_permission, AccessEntity, AccessOperation};
 use crate::errors::{ServiceError, ServiceResult};
 use crate::models::component::component_modification::fileset_for_program::file::repository::get_file_uuids_by_fileset_uuid;
 use crate::models::component::service::update::change_updated_at;
 use crate::models::component::{
-    access::util::check_access_component_for_user,
     component_modification::fileset_for_program::model::DelFilesetProgramData,
     component_modification::relate::fileset_for_program::util::get_component_by_fileset,
 };
@@ -18,12 +18,12 @@ pub(crate) fn del_modification_fileset(
     data: &DelFilesetProgramData,
     conn: &mut PgConnection,
 ) -> ServiceResult<bool> {
-    let need_access_level = 1; // todo!(create enum for manage access level)
     let target_component_uuid = get_component_by_fileset(&data.fileset_uuid, conn)?;
-    check_access_component_for_user(
+    require_permission(
         logged_user_uuid,
+        AccessEntity::Component,
         &target_component_uuid,
-        need_access_level,
+        AccessOperation::Manage,
         conn,
     )?;
 

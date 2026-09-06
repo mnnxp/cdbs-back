@@ -57,7 +57,7 @@ impl CompanyMemberAndRelatedData {
             company_member_with_role.push(CompanyMemberAndRelatedData {
                 company_uuid: member.company_uuid,
                 user_uuid: member.user_uuid,
-                role: member_role.clone(),
+                company_role: member_role.clone(),
                 is_enabled: member.is_enabled,
                 created_at: member.created_at,
                 updated_at: member.updated_at,

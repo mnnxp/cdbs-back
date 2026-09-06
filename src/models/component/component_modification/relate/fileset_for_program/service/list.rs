@@ -1,5 +1,5 @@
+use crate::auth::{require_permission, AccessEntity, AccessOperation};
 use crate::errors::{ServiceError, ServiceResult};
-use crate::models::component::access::util::check_access_component_for_user;
 use crate::models::component::component_modification::fileset_for_program::model::{
     FilesetProgram, FilesetProgramArg, FilesetProgramRelatedData,
 };
@@ -21,12 +21,11 @@ pub(crate) fn get_modification_filesets(
     } = arguments;
 
     // todo!(временное решение: убрать ограничение доступа файлам из набора модификации компонента)
-    let need_access_level = 3; // todo!(create enum for manage access level)
-
-    check_access_component_for_user(
+    require_permission(
         logged_user_uuid,
+        AccessEntity::Component,
         &get_component_by_modification(modification_uuid, conn)?,
-        need_access_level,
+        AccessOperation::Read,
         conn,
     )?;
 

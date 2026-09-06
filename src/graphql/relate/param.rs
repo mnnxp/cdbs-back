@@ -1,6 +1,7 @@
 use async_graphql::{self, Context, Object};
 
 use super::attributes::IptPaginate;
+use crate::auth::token::logged::check_authorized;
 use crate::database::{get_conn, PooledConnection};
 use crate::errors::ServiceResult;
 use crate::models::relate_ref::language::get_set_language;
@@ -11,7 +12,6 @@ use crate::models::relate_ref::param::{
     service::register::create_param,
 };
 use crate::models::search::order::Paginate;
-use crate::models::user::access::logged::check_authorized;
 
 #[derive(Default)]
 pub struct ParamQuery;
@@ -24,18 +24,18 @@ impl ParamQuery {
     /// then sampling is performed by all parameters taking into account the specified language.
     async fn params(
         &self,
-        cxt: &Context<'_>,
+        ctx: &Context<'_>,
         param_ids: Option<Vec<i32>>,
         paginate: Option<IptPaginate>,
     ) -> ServiceResult<Vec<ParamTranslateList>> {
-        check_authorized(cxt)?; // authorization check
+        check_authorized(ctx)?; // authorization check
         let p = paginate
             .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
             .unwrap_or_default();
-        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(ctx)?;
         get_params(
             &param_ids.unwrap_or_default(),
-            get_set_language(cxt),
+            get_set_language(ctx),
             &p,
             conn,
         )
@@ -47,11 +47,11 @@ impl ParamMutation {
     /// Returns a ParamTranslateList structure of a new or existing parameter if an identical one is found
     async fn register_param(
         &self,
-        cxt: &Context<'_>,
+        ctx: &Context<'_>,
         args: IptParamTranslateListData,
     ) -> ServiceResult<ParamTranslateList> {
-        check_authorized(cxt)?;
-        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+        check_authorized(ctx)?;
+        let conn: &mut PooledConnection = &mut get_conn(ctx)?;
         create_param(&args, conn)
     }
 
@@ -59,11 +59,11 @@ impl ParamMutation {
     /// new parameters are not created if identical ones are found
     async fn register_params_bulk(
         &self,
-        cxt: &Context<'_>,
+        ctx: &Context<'_>,
         args: Vec<IptParamTranslateListData>,
     ) -> ServiceResult<Vec<ParamTranslateList>> {
-        check_authorized(cxt)?;
-        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+        check_authorized(ctx)?;
+        let conn: &mut PooledConnection = &mut get_conn(ctx)?;
         create_parameters(&args, conn)
     }
 }

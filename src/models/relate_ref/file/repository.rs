@@ -10,7 +10,7 @@ use crate::models::search::order::{objects_order, Paginate, Sort, TableName};
 use crate::models::user::model::ShowUserShort;
 use crate::schema::file_ref::dsl as file_ref;
 use crate::schema::presigned_url_ref::dsl as presigned_url_ref;
-use crate::storage::model::{S3Proxer, StorageAccess};
+use crate::storage::model::S3Proxer;
 use crate::storage::presigned_url::{download_presigned_url, save_presign_url};
 use diesel::prelude::*;
 use uuid::Uuid;
@@ -252,7 +252,10 @@ impl SlimFile {
     }
 
     /// Returns a string in which each byte of data is encoded using two hexadecimal digits
-    pub(crate) fn encode_sha256_hash(file_uuid: &Uuid, conn: &mut PgConnection) -> ServiceResult<String> {
+    pub(crate) fn encode_sha256_hash(
+        file_uuid: &Uuid,
+        conn: &mut PgConnection,
+    ) -> ServiceResult<String> {
         let sha256_hash = file_ref::file_ref
             .select(file_ref::sha256_hash)
             .filter(
@@ -293,13 +296,13 @@ impl SlimFile {
                 debug!("Failed get download string for file: {:?}", err);
                 ServiceError::InternalServerError
             })?;
-        let naive_local_now = chrono::Local::now().naive_local();
+        let naive_utc_now = chrono::Utc::now().naive_utc();
         let get_url_from_db = presigned_url_ref::presigned_url_ref
             .select(presigned_url_ref::presigned_url)
             .filter(
                 presigned_url_ref::file_uuid
                     .eq(&slim_file.uuid)
-                    .and(presigned_url_ref::expiration_at.gt(naive_local_now)),
+                    .and(presigned_url_ref::expiration_at.gt(naive_utc_now)),
             )
             .limit(1)
             .load::<String>(conn)
@@ -312,11 +315,11 @@ impl SlimFile {
             None => {
                 debug!("Failed get presigned_url");
                 // creates and saves (updates) download presigned url for a file in the database
-                let presigned_url = download_presigned_url(&StorageAccess::from_env(), &slim_file)?;
+                let presigned_url = download_presigned_url(&slim_file)?;
                 // save presigned url to database
                 save_presign_url(&slim_file.uuid, &presigned_url, conn)?;
                 presigned_url
-            },
+            }
         };
         // replace domain with proxy server (if necessary)
         Ok(presigned_url.proxied(domain))

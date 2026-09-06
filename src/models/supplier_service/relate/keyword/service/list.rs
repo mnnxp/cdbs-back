@@ -1,7 +1,7 @@
+use crate::auth::{require_permission, AccessEntity, AccessOperation};
 use crate::errors::{ServiceError, ServiceResult};
 use crate::models::relate_ref::keyword::model::Keyword;
 use crate::models::search::order::Paginate;
-use crate::models::supplier_service::access::util::check_access_service_for_user;
 use crate::schema::keyword_to_service::dsl as keyword_to_service;
 use diesel::prelude::*;
 use uuid::Uuid;
@@ -13,9 +13,13 @@ pub(crate) fn get_service_keywords(
     paginate: &Paginate,
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<Keyword>> {
-    let need_access_level = 3; // todo!(create enum for manage access level)
-
-    check_access_service_for_user(logged_user_uuid, service_uuid, need_access_level, conn)?;
+    require_permission(
+        logged_user_uuid,
+        AccessEntity::Service,
+        service_uuid,
+        AccessOperation::Write,
+        conn,
+    )?;
 
     Keyword::for_service_without_check(service_uuid, paginate, conn)
 }

@@ -4,7 +4,7 @@ use crate::graphql::discussion_model::IptEditCommentData;
 use crate::models::relate_ref::discussion::access::CommentCriteria;
 use crate::schema::discussion_comment_list::dsl as discussion_comment_list;
 use crate::schema::discussion_ref::dsl as discussion_ref;
-use chrono::Local;
+use chrono::Utc;
 use diesel::prelude::*;
 use uuid::Uuid;
 
@@ -20,7 +20,7 @@ pub(crate) fn edit_discussion_comment(
     if data.updated_message.is_empty() {
         return Err(get_err_msg(ErrorMessage::DataNotFound));
     }
-    if data.updated_message.len() > 5000 {
+    if data.updated_message.chars().count() > 5000 {
         return Err(get_err_msg(ErrorMessage::TextMustLess(5000)));
     }
     comment_criteria.is_comment_message_present(&data.updated_message, conn)?;
@@ -33,7 +33,7 @@ pub(crate) fn edit_discussion_comment(
         )
         .set((
             discussion_comment_list::message_content.eq(&data.updated_message),
-            discussion_comment_list::updated_at.eq(&Local::now().naive_local()),
+            discussion_comment_list::updated_at.eq(&Utc::now().naive_utc()),
         ))
         .returning(discussion_comment_list::discussion_uuid)
         .get_result::<Uuid>(conn)
@@ -51,7 +51,7 @@ pub(crate) fn change_discussion_updated_at(
     conn: &mut PgConnection,
 ) -> ServiceResult<usize> {
     diesel::update(discussion_ref::discussion_ref.filter(discussion_ref::uuid.eq(discussion_uuid)))
-        .set(discussion_ref::last_activity_at.eq(Local::now().naive_local()))
+        .set(discussion_ref::last_activity_at.eq(Utc::now().naive_utc()))
         .execute(conn)
         .map_err(|err| {
             debug!("Failed update data: {:?}", err);
@@ -65,13 +65,17 @@ pub(crate) fn del_discussion_comment(
     comment_uuid: &Uuid,
     conn: &mut PgConnection,
 ) -> ServiceResult<bool> {
-    let res = diesel::delete(discussion_comment_list::discussion_comment_list
-        .filter(discussion_comment_list::uuid.eq(comment_uuid)
-        .and(discussion_comment_list::author_uuid.eq(logged_user_uuid))))
-        .execute(conn)
-        .map_err(|err| {
-            debug!("Failed delete comment: {:?}", err);
-            ServiceError::InternalServerError
-        })?;
+    let res = diesel::delete(
+        discussion_comment_list::discussion_comment_list.filter(
+            discussion_comment_list::uuid
+                .eq(comment_uuid)
+                .and(discussion_comment_list::author_uuid.eq(logged_user_uuid)),
+        ),
+    )
+    .execute(conn)
+    .map_err(|err| {
+        debug!("Failed delete comment: {:?}", err);
+        ServiceError::InternalServerError
+    })?;
     Ok(res > 0)
 }

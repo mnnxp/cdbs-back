@@ -1,3 +1,4 @@
+use crate::auth::token::logged::check_authorized;
 use crate::database::{get_conn, PooledConnection};
 use crate::errors::ServiceResult;
 use crate::models::relate_ref::language::get_set_language;
@@ -7,7 +8,6 @@ use crate::models::relate_ref::region::{
     service::register::create_region,
 };
 use crate::models::search::order::Paginate;
-use crate::models::user::access::logged::check_authorized;
 use async_graphql::{self, Context, Object};
 
 use super::attributes::IptPaginate;
@@ -23,17 +23,17 @@ impl RegionQuery {
     /// If a filter is not specified, then all existing ones are aggregated.
     async fn regions(
         &self,
-        cxt: &Context<'_>,
+        ctx: &Context<'_>,
         region_ids: Option<Vec<i32>>,
         paginate: Option<IptPaginate>,
     ) -> ServiceResult<Vec<RegionTranslateList>> {
         let p = paginate
             .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
             .unwrap_or_default();
-        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(ctx)?;
         get_regions(
             &region_ids.unwrap_or_default(),
-            get_set_language(cxt),
+            get_set_language(ctx),
             &p,
             conn,
         )
@@ -46,12 +46,12 @@ impl RegionMutation {
     /// Returns an error with the ID specified in the region if the region already exists.
     async fn register_region(
         &self,
-        cxt: &Context<'_>,
+        ctx: &Context<'_>,
         args: IptRegionTranslateListData,
     ) -> ServiceResult<RegionTranslateList> {
-        check_authorized(cxt)?;
+        check_authorized(ctx)?;
 
-        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(ctx)?;
 
         create_region(&args, conn)
     }

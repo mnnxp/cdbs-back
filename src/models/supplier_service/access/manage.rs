@@ -1,3 +1,5 @@
+use crate::auth::access::{invalidate_access, invalidate_user_cache};
+use crate::auth::AccessEntity;
 use crate::errors::{ServiceError, ServiceResult};
 use crate::models::search::model::ExtraOptions;
 use crate::models::supplier_service::access::model::{ChangeOwnerService, ChangeTypeAccessService};
@@ -14,6 +16,12 @@ pub(crate) fn change_service_owner_user(
 ) -> ServiceResult<bool> {
     // 1. verify the user's possession of the service
     check_is_owner_with_err(&options.logged_user_uuid, &data.service_uuid, conn)?;
+    invalidate_access(
+        &data.new_owner_user_uuid,
+        AccessEntity::Service,
+        &data.service_uuid,
+    );
+    invalidate_user_cache(&options.logged_user_uuid);
 
     // 2. change the service owner
     let change_owner = diesel::update(

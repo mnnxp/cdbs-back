@@ -1,7 +1,7 @@
+use crate::auth::{require_permission, AccessEntity, AccessOperation};
 use crate::errors::ServiceResult;
 use crate::models::relate_ref::spec::model::SpecTranslateList;
 use crate::models::search::{model::ExtraOptions, order::Paginate};
-use crate::models::supplier_service::access::util::check_access_service_for_user;
 use diesel::prelude::*;
 use uuid::Uuid;
 
@@ -12,12 +12,11 @@ pub(crate) fn get_service_specs(
     paginate: &Paginate,
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<SpecTranslateList>> {
-    let need_access_level = 3; // todo!(create enum for manage access level)
-
-    check_access_service_for_user(
+    require_permission(
         &options.logged_user_uuid,
+        AccessEntity::Service,
         service_uuid,
-        need_access_level,
+        AccessOperation::Write,
         conn,
     )?;
 

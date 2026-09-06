@@ -1,5 +1,6 @@
+use crate::auth::{require_permission, AccessEntity, AccessOperation};
+use crate::errors::err_msg::{get_err_msg, ErrorMessage};
 use crate::errors::{ServiceError, ServiceResult};
-use crate::models::company::access::util::check_company_access;
 use crate::models::company::certificate::model::{
     CompanyCertificate, InsertableCompanyCertificate, IptCompanyCertificateData,
 };
@@ -9,7 +10,6 @@ use crate::models::relate_ref::file::{
     service::register::preregister_file,
 };
 use crate::schema::company_certificate_ref::dsl::*;
-use crate::storage::model::StorageAccess;
 use crate::storage::presigned_url::upload_presigned_url;
 use diesel::prelude::*;
 use uuid::Uuid;
@@ -22,13 +22,16 @@ pub(crate) fn add_certificate(
     domain: &str,
     conn: &mut PgConnection,
 ) -> ServiceResult<UploadFile> {
-    let need_access_level = 1; // todo!(create enum for manage access level)
+    // update data validation
+    if cert_data.description.chars().count() > 500 {
+        return Err(get_err_msg(ErrorMessage::TextMustLess(500)));
+    }
 
-    // check access user for company
-    check_company_access(
+    require_permission(
         logged_user_uuid,
+        AccessEntity::Company,
         &cert_data.company_uuid,
-        need_access_level,
+        AccessOperation::Manage,
         conn,
     )?;
 
@@ -65,7 +68,7 @@ pub(crate) fn add_certificate(
         company_inserted_certificate
     );
 
-    let upload_url = upload_presigned_url(&StorageAccess::from_env(), &slim_file.path_file, domain)?;
+    let upload_url = upload_presigned_url(&slim_file.path_file, domain)?;
 
     Ok(UploadFile {
         file_uuid: slim_file.uuid,

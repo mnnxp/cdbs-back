@@ -2,7 +2,7 @@ use crate::graphql::component_model::{IptComponentData, IptComponentFilesArg, Ip
 use crate::models::component::util::get_root_component_uuid;
 use crate::models::relate_ref::file::util::get_default_image;
 use crate::schema::component_ref;
-use chrono::{Local, NaiveDateTime};
+use chrono::{NaiveDateTime, Utc};
 use uuid::Uuid;
 
 #[derive(Identifiable, Deserialize, Queryable, Debug)]
@@ -93,8 +93,8 @@ impl From<&IptComponentData> for InsertableComponent {
             actual_status_id: *actual_status_id,
             is_base: *is_base,
             is_delete: false,
-            created_at: Local::now().naive_local(),
-            updated_at: Local::now().naive_local(),
+            created_at: Utc::now().naive_utc(),
+            updated_at: Utc::now().naive_utc(),
         }
     }
 }

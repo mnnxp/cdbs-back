@@ -27,7 +27,7 @@ impl TypeAccessTranslateList {
         match type_access.first() {
             Some(x) => Ok(x.clone()),
             None => {
-                debug!("Not found set lang for type_access");
+                debug!("Not found set lang for type access");
                 type_access_translate_list
                     .filter(type_access_id.eq(target_type_access_id))
                     .first::<TypeAccessTranslateList>(conn)
@@ -60,7 +60,7 @@ impl TypeAccessTranslateList {
         // if not found data for set lang
         match type_access.is_empty() {
             true => {
-                debug!("Not found set lang for type_access");
+                debug!("Not found set lang for types access");
                 type_access_translate_list
                     .filter(type_access_id.eq_any(target_types_access_ids))
                     .load::<TypeAccessTranslateList>(conn)

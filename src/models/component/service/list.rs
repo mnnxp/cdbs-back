@@ -1,9 +1,9 @@
+use crate::auth::{check_permission, AccessEntity, AccessOperation};
 use crate::errors::err_msg::{get_err_msg, ErrorMessage};
 use crate::errors::{ServiceError, ServiceResult};
 use crate::graphql::component_model::{ComponentAndRelatedData, ShowComponentShort};
 use crate::models::component::{
-    access::util::check_access_component_for_user, model::ComponentsArg,
-    repository::filter_components_uuids_by_spec, search::search_components,
+    model::ComponentsArg, repository::filter_components_uuids_by_spec, search::search_components,
 };
 use crate::models::search::model::{ExtraOptions, IptSearchArg};
 use crate::models::search::order::{objects_order, Paginate, Sort};
@@ -24,7 +24,6 @@ pub(crate) fn get_components_by_uuids(
     paginate: &Paginate,
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<ShowComponentShort>> {
-    let need_access_level = 3; // todo!(create enum for manage access level)
     let mut found_component_uuids = Vec::new();
     // gets uuids for other search attributes
     if args.favorite {
@@ -89,10 +88,11 @@ pub(crate) fn get_components_by_uuids(
     // selection of available components
     for ct_uuid in found_component_uuids {
         // check access user for select component
-        match check_access_component_for_user(
+        match check_permission(
             &options.logged_user_uuid,
+            AccessEntity::Component,
             &ct_uuid,
-            need_access_level,
+            AccessOperation::Read,
             conn,
         ) {
             Ok(true) => ct_uuids_with_check.push(ct_uuid),

@@ -1,13 +1,14 @@
-use crate::cli_args::Opt;
+use crate::auth::middleware::AuthStatus;
+use crate::auth::token::model::Token;
+use crate::config::api_point;
 use crate::database::Pool;
 use crate::graphql::{MutationRoot, QueryRoot};
-use crate::jwt::model::Token;
 use crate::models::relate_ref::language::model::SetLang;
-use actix_web::{web, HttpRequest, HttpResponse, Result};
 use actix_web::http::header::{HeaderMap, HOST, ORIGIN};
+use actix_web::{web, HttpMessage, HttpRequest, HttpResponse, Result};
 use async_graphql::{
     http::{playground_source, GraphQLPlaygroundConfig},
-    EmptySubscription, Schema, Context
+    Context, EmptySubscription, Schema,
 };
 use async_graphql_actix_web::{GraphQLRequest, GraphQLResponse};
 
@@ -31,9 +32,14 @@ pub async fn graphql(
 ) -> GraphQLResponse {
     let mut request = gql_request.into_inner();
 
+    // get JWT / api key
+    if let Some(auth_status) = req.extensions().get::<AuthStatus>() {
+        request = request.data(auth_status.clone());
+    }
+
     let headers_req = req.headers();
 
-    // get token from request
+    // get token from request (fallback)
     let token: Token = headers_req.into();
 
     // set the language for sending responses
@@ -50,11 +56,12 @@ pub async fn graphql(
     schema.execute(request).await.into()
 }
 
-pub async fn graphiql(opt: web::Data<Opt>) -> Result<HttpResponse> {
+pub async fn graphiql() -> Result<HttpResponse> {
+    let endpoint = api_point();
     Ok(HttpResponse::Ok()
         .content_type("text/html; charset=utf-8")
         .body(playground_source(
-            GraphQLPlaygroundConfig::new(&opt.api_point).subscription_endpoint(&opt.api_point),
+            GraphQLPlaygroundConfig::new(&endpoint).subscription_endpoint(&endpoint),
         )))
 }
 
@@ -75,20 +82,21 @@ impl From<&HeaderMap> for ClientDomain {
             .map(|s| {
                 // Remove protocol and port
                 s.replace("https://", "")
-                .replace("http://", "")
-                .split(':')
-                .next()
-                .unwrap_or(s)
-                .to_string()
-            }).unwrap_or_default();
+                    .replace("http://", "")
+                    .split(':')
+                    .next()
+                    .unwrap_or(s)
+                    .to_string()
+            })
+            .unwrap_or_default();
         debug!("Referer: {}", domain);
         Self { domain }
     }
 }
 
 /// Extract the client's domain from HTTP headers
-pub(crate) fn extract_client_domain(cxt: &Context<'_>) -> String {
-    match cxt.data_opt::<ClientDomain>() {
+pub(crate) fn extract_client_domain(ctx: &Context<'_>) -> String {
+    match ctx.data_opt::<ClientDomain>() {
         Some(cd) => cd.domain.clone(),
         None => "unknown".to_string(),
     }

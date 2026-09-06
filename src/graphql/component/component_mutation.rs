@@ -1,3 +1,4 @@
+use crate::auth::AuthContext;
 use crate::database::{get_conn, PooledConnection};
 use crate::errors::ServiceResult;
 use crate::graphql::component_model::{IptComponentData, IptUpdateComponentData};
@@ -36,7 +37,6 @@ use crate::models::component::{
     supplier::model::DelSuppliersComponentData,
 };
 use crate::models::relate_ref::file::model::UploadFile;
-use crate::models::user::access::logged::get_logged_user_uuid;
 
 use async_graphql::{self, Context, Object};
 use uuid::Uuid;
@@ -49,15 +49,15 @@ impl ComponentMutation {
     /// Creates a component, returns the UUID of the new component.
     async fn register_component(
         &self,
-        cxt: &Context<'_>,
+        ctx: &Context<'_>,
         args: IptComponentData,
     ) -> ServiceResult<Uuid> {
         use crate::models::component::service::register::create_component;
 
         // checking authorization and getting user uuid
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(ctx)?.user_uuid();
 
-        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(ctx)?;
 
         create_component(&logged_user_uuid, &args, conn)
     }
@@ -65,15 +65,15 @@ impl ComponentMutation {
     /// Transfers ownership of a component to another user.
     async fn transfer_component_ownership(
         &self,
-        cxt: &Context<'_>,
+        ctx: &Context<'_>,
         args: ChangeOwnerComponent,
     ) -> ServiceResult<bool> {
         use crate::models::component::access::manage::change_component_owner_user;
 
         // checking authorization and getting user uuid
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(ctx)?.user_uuid();
 
-        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(ctx)?;
 
         change_component_owner_user(&logged_user_uuid, &args, conn)
     }
@@ -81,15 +81,15 @@ impl ComponentMutation {
     /// Changes the default access to a component.
     async fn change_component_access(
         &self,
-        cxt: &Context<'_>,
+        ctx: &Context<'_>,
         args: ChangeTypeAccessComponent,
     ) -> ServiceResult<bool> {
         use crate::models::component::access::manage::change_component_type_access;
 
         // checking authorization and getting user uuid
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(ctx)?.user_uuid();
 
-        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(ctx)?;
 
         change_component_type_access(&logged_user_uuid, &args, conn)
     }
@@ -98,16 +98,16 @@ impl ComponentMutation {
     /// Returns the number of successful changes or an error if all the specified data already exists.
     async fn put_component_update(
         &self,
-        cxt: &Context<'_>,
+        ctx: &Context<'_>,
         component_uuid: Uuid,
         args: IptUpdateComponentData,
     ) -> ServiceResult<usize> {
         use crate::models::component::service::update::update_component_by_uuid;
 
         // checking authorization and getting user uuid
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(ctx)?.user_uuid();
 
-        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(ctx)?;
 
         update_component_by_uuid(&logged_user_uuid, &component_uuid, &args, conn)
     }
@@ -116,15 +116,15 @@ impl ComponentMutation {
     /// Returns the UUID of the removed component.
     async fn delete_component(
         &self,
-        cxt: &Context<'_>,
+        ctx: &Context<'_>,
         component_uuid: Uuid,
     ) -> ServiceResult<Uuid> {
         use crate::models::component::service::delete::del_component;
 
         // checking authorization and getting user uuid
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(ctx)?.user_uuid();
 
-        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(ctx)?;
 
         del_component(&logged_user_uuid, &component_uuid, conn)
     }
@@ -133,15 +133,15 @@ impl ComponentMutation {
     /// This access applies to all members of the company according to their roles.
     async fn set_company_access_component(
         &self,
-        cxt: &Context<'_>,
+        ctx: &Context<'_>,
         args: IptCompanyAccessComponentData,
     ) -> ServiceResult<bool> {
         use crate::models::component::access::company::manage::set_company_access_component;
 
         // checking authorization and getting company uuid
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(ctx)?.user_uuid();
 
-        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(ctx)?;
 
         set_company_access_component(&logged_user_uuid, &args, conn)
     }
@@ -149,15 +149,15 @@ impl ComponentMutation {
     /// Removes access to a component for a company.
     async fn delete_company_access_component(
         &self,
-        cxt: &Context<'_>,
+        ctx: &Context<'_>,
         args: DelCompanyAccessComponentData,
     ) -> ServiceResult<bool> {
         use crate::models::component::access::company::manage::del_company_access_component;
 
         // checking authorization and getting company uuid
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(ctx)?.user_uuid();
 
-        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(ctx)?;
 
         del_company_access_component(&logged_user_uuid, &args, conn)
     }
@@ -165,15 +165,15 @@ impl ComponentMutation {
     /// Sets access to a component for a user.
     async fn set_user_access_component(
         &self,
-        cxt: &Context<'_>,
+        ctx: &Context<'_>,
         args: IptUserAccessComponentData,
     ) -> ServiceResult<bool> {
         use crate::models::component::access::user::manage::set_user_access_component;
 
         // checking authorization and getting user uuid
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(ctx)?.user_uuid();
 
-        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(ctx)?;
 
         set_user_access_component(&logged_user_uuid, &args, conn)
     }
@@ -181,15 +181,15 @@ impl ComponentMutation {
     /// Removes access to a component for a user.
     async fn delete_user_access_component(
         &self,
-        cxt: &Context<'_>,
+        ctx: &Context<'_>,
         args: DelUserAccessComponentData,
     ) -> ServiceResult<bool> {
         use crate::models::component::access::user::manage::del_user_access_component;
 
         // checking authorization and getting user uuid
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(ctx)?.user_uuid();
 
-        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(ctx)?;
 
         del_user_access_component(&logged_user_uuid, &args, conn)
     }
@@ -198,14 +198,14 @@ impl ComponentMutation {
     /// Updates the values ​​of existing component parameters if the provided parameter names already exist.
     async fn put_component_params(
         &self,
-        cxt: &Context<'_>,
+        ctx: &Context<'_>,
         args: IptComponentParamsData,
     ) -> ServiceResult<usize> {
         use component_param::service::change::put_component_params;
 
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(ctx)?.user_uuid();
 
-        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(ctx)?;
 
         put_component_params(&logged_user_uuid, &args, conn)
     }
@@ -214,14 +214,14 @@ impl ComponentMutation {
     /// Returns the number of successfully removed parameters.
     async fn delete_component_params(
         &self,
-        cxt: &Context<'_>,
+        ctx: &Context<'_>,
         args: DelComponentParamData,
     ) -> ServiceResult<usize> {
         use component_param::service::delete::del_component_params;
 
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(ctx)?.user_uuid();
 
-        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(ctx)?;
 
         del_component_params(&logged_user_uuid, &args, conn)
     }
@@ -229,14 +229,14 @@ impl ComponentMutation {
     /// Adds a license to a component.
     async fn add_component_license(
         &self,
-        cxt: &Context<'_>,
+        ctx: &Context<'_>,
         args: IptComponentLicenseData,
     ) -> ServiceResult<bool> {
         use crate::models::component::license::service::add::add_component_license;
 
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(ctx)?.user_uuid();
 
-        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(ctx)?;
 
         add_component_license(&logged_user_uuid, &args, conn)
     }
@@ -244,14 +244,14 @@ impl ComponentMutation {
     /// Removes a license for a component.
     async fn delete_component_license(
         &self,
-        cxt: &Context<'_>,
+        ctx: &Context<'_>,
         args: IptComponentLicenseData,
     ) -> ServiceResult<usize> {
         use crate::models::component::license::service::delete::del_component_license;
 
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(ctx)?.user_uuid();
 
-        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(ctx)?;
 
         del_component_license(&logged_user_uuid, &args, conn)
     }
@@ -259,14 +259,14 @@ impl ComponentMutation {
     /// Adds a component connection to directory sections.
     async fn add_component_specs(
         &self,
-        cxt: &Context<'_>,
+        ctx: &Context<'_>,
         args: IptComponentSpecsData,
     ) -> ServiceResult<i32> {
         use component_spec::service::add::add_component_specs;
 
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(ctx)?.user_uuid();
 
-        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(ctx)?;
 
         add_component_specs(&logged_user_uuid, &args, conn)
     }
@@ -274,14 +274,14 @@ impl ComponentMutation {
     /// Removes a component's association with catalogs
     async fn delete_component_specs(
         &self,
-        cxt: &Context<'_>,
+        ctx: &Context<'_>,
         args: IptComponentSpecsData,
     ) -> ServiceResult<usize> {
         use component_spec::service::delete::del_component_specs;
 
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(ctx)?.user_uuid();
 
-        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(ctx)?;
 
         del_component_specs(&logged_user_uuid, &args, conn)
     }
@@ -289,14 +289,14 @@ impl ComponentMutation {
     /// Adds keywords to a component by IDs.
     async fn add_component_keywords(
         &self,
-        cxt: &Context<'_>,
+        ctx: &Context<'_>,
         args: IptComponentKeywordsData,
     ) -> ServiceResult<usize> {
         use component_keyword::service::add::add_component_keywords;
 
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(ctx)?.user_uuid();
 
-        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(ctx)?;
 
         add_component_keywords(&logged_user_uuid, &args, conn)
     }
@@ -304,14 +304,14 @@ impl ComponentMutation {
     /// Adds keywords to a component by words.
     async fn add_component_keywords_by_names(
         &self,
-        cxt: &Context<'_>,
+        ctx: &Context<'_>,
         args: IptComponentKeywordsNames,
     ) -> ServiceResult<usize> {
         use crate::models::component::keyword::service::add::add_keywords_by_names;
 
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(ctx)?.user_uuid();
 
-        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(ctx)?;
 
         add_keywords_by_names(&logged_user_uuid, &args, conn)
     }
@@ -319,14 +319,14 @@ impl ComponentMutation {
     /// Removes keywords from a component.
     async fn delete_component_keywords(
         &self,
-        cxt: &Context<'_>,
+        ctx: &Context<'_>,
         args: IptComponentKeywordsData,
     ) -> ServiceResult<usize> {
         use component_keyword::service::delete::del_component_keywords;
 
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(ctx)?.user_uuid();
 
-        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(ctx)?;
 
         del_component_keywords(&logged_user_uuid, &args, conn)
     }
@@ -335,45 +335,45 @@ impl ComponentMutation {
     /// Returns structures with a pre-signed URL for uploading a files.
     async fn upload_component_files(
         &self,
-        cxt: &Context<'_>,
+        ctx: &Context<'_>,
         args: IptComponentFilesData,
     ) -> ServiceResult<Vec<UploadFile>> {
         use component_file::service::add::add_component_files;
 
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(ctx)?.user_uuid();
 
-        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(ctx)?;
 
-        add_component_files(&logged_user_uuid, &args, &extract_client_domain(cxt), conn)
+        add_component_files(&logged_user_uuid, &args, &extract_client_domain(ctx), conn)
     }
 
     /// Updates the main image of the component.
     /// Returns a structure with a pre-signed URL for uploading an image file.
     async fn upload_component_favicon(
         &self,
-        cxt: &Context<'_>,
+        ctx: &Context<'_>,
         args: IptComponentFaviconData,
     ) -> ServiceResult<UploadFile> {
         use component_file::service::add::add_component_favicon;
 
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(ctx)?.user_uuid();
 
-        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(ctx)?;
 
-        add_component_favicon(&logged_user_uuid, &args, &extract_client_domain(cxt), conn)
+        add_component_favicon(&logged_user_uuid, &args, &extract_client_domain(ctx), conn)
     }
 
     /// Deletes a file of a component.
     async fn delete_component_file(
         &self,
-        cxt: &Context<'_>,
+        ctx: &Context<'_>,
         args: DelComponentFileData,
     ) -> ServiceResult<bool> {
         use component_file::service::delete::delete_component_file;
 
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(ctx)?.user_uuid();
 
-        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(ctx)?;
 
         delete_component_file(&logged_user_uuid, &args, conn)
     }
@@ -381,14 +381,14 @@ impl ComponentMutation {
     /// Removes suppliers a component by UUIDs.
     async fn delete_suppliers_component(
         &self,
-        cxt: &Context<'_>,
+        ctx: &Context<'_>,
         args: DelSuppliersComponentData,
     ) -> ServiceResult<usize> {
         use component_supplier::service::delete::del_suppliers_component;
 
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(ctx)?.user_uuid();
 
-        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(ctx)?;
 
         del_suppliers_component(&logged_user_uuid, &args, conn)
     }
@@ -396,14 +396,14 @@ impl ComponentMutation {
     /// Attaches a standard to a component.
     async fn add_standard_to_component(
         &self,
-        cxt: &Context<'_>,
+        ctx: &Context<'_>,
         args: IptStandardToComponentData,
     ) -> ServiceResult<bool> {
         use component_standard::service::add::add_standard_to_component;
 
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(ctx)?.user_uuid();
 
-        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(ctx)?;
 
         add_standard_to_component(&logged_user_uuid, &args, conn)
     }
@@ -411,14 +411,14 @@ impl ComponentMutation {
     /// Unpins a standard from a component.
     async fn delete_standards_component(
         &self,
-        cxt: &Context<'_>,
+        ctx: &Context<'_>,
         args: DelStandardToComponentData,
     ) -> ServiceResult<usize> {
         use component_standard::service::delete::del_standards_component;
 
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(ctx)?.user_uuid();
 
-        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(ctx)?;
 
         del_standards_component(&logged_user_uuid, &args, conn)
     }
@@ -426,14 +426,14 @@ impl ComponentMutation {
     /// Creates a new modification for a component.
     async fn register_component_modification(
         &self,
-        cxt: &Context<'_>,
+        ctx: &Context<'_>,
         args: IptComponentModificationData,
     ) -> ServiceResult<Uuid> {
         use component_modification::service::register::create_component_modification;
 
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(ctx)?.user_uuid();
 
-        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(ctx)?;
 
         create_component_modification(&logged_user_uuid, &args, conn)
     }
@@ -441,28 +441,28 @@ impl ComponentMutation {
     /// Creates modifications and their parameters for a component
     async fn register_component_modifications_bulk(
         &self,
-        cxt: &Context<'_>,
+        ctx: &Context<'_>,
         args: IptMultipleModificationsData,
     ) -> ServiceResult<Vec<Uuid>> {
         use component_modification::service::register::creation_multiple_modifications;
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
-        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+        let logged_user_uuid = AuthContext::from_graphql(ctx)?.user_uuid();
+        let conn: &mut PooledConnection = &mut get_conn(ctx)?;
         creation_multiple_modifications(&logged_user_uuid, &args, conn)
     }
 
     /// Updates modification's data of a component.
     async fn put_component_modification_update(
         &self,
-        cxt: &Context<'_>,
+        ctx: &Context<'_>,
         component_modification_uuid: Uuid,
         args: IptUpdateComponentModificationData,
     ) -> ServiceResult<usize> {
         use component_modification::service::update::update_modification_data;
 
         // checking authorization and getting user uuid
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(ctx)?.user_uuid();
 
-        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(ctx)?;
 
         update_modification_data(&logged_user_uuid, &component_modification_uuid, &args, conn)
     }
@@ -470,15 +470,15 @@ impl ComponentMutation {
     /// Removes a component modification.
     async fn delete_component_modification(
         &self,
-        cxt: &Context<'_>,
+        ctx: &Context<'_>,
         args: DelComponentModificationData,
     ) -> ServiceResult<Uuid> {
         use component_modification::service::delete::del_component_modification;
 
         // checking authorization and getting user uuid
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(ctx)?.user_uuid();
 
-        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(ctx)?;
 
         del_component_modification(&logged_user_uuid, &args, conn)
     }
@@ -487,14 +487,14 @@ impl ComponentMutation {
     /// Updates the values ​​of existing component modification parameters if the provided parameter names already exist.
     async fn put_modification_params(
         &self,
-        cxt: &Context<'_>,
+        ctx: &Context<'_>,
         args: IptModificationParamData,
     ) -> ServiceResult<usize> {
         use component_modification::param::service::change::put_modification_params;
 
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(ctx)?.user_uuid();
 
-        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(ctx)?;
 
         put_modification_params(&logged_user_uuid, &args, conn)
     }
@@ -502,14 +502,14 @@ impl ComponentMutation {
     /// Deletes parameters of a component modification.
     async fn delete_modification_params(
         &self,
-        cxt: &Context<'_>,
+        ctx: &Context<'_>,
         args: DelModificationParamData,
     ) -> ServiceResult<usize> {
         use component_modification::param::service::delete::del_modification_params;
 
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(ctx)?.user_uuid();
 
-        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(ctx)?;
 
         del_modification_params(&logged_user_uuid, &args, conn)
     }
@@ -518,29 +518,29 @@ impl ComponentMutation {
     /// Returns structures with a pre-signed URL for uploading a files.
     async fn upload_modification_files(
         &self,
-        cxt: &Context<'_>,
+        ctx: &Context<'_>,
         args: IptModificationFilesData,
     ) -> ServiceResult<Vec<UploadFile>> {
         use component_modification::file::service::add::add_modification_files;
 
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(ctx)?.user_uuid();
 
-        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(ctx)?;
 
-        add_modification_files(&logged_user_uuid, &args, &extract_client_domain(cxt), conn)
+        add_modification_files(&logged_user_uuid, &args, &extract_client_domain(ctx), conn)
     }
 
     /// Deletes a file of a component modification.
     async fn delete_modification_file(
         &self,
-        cxt: &Context<'_>,
+        ctx: &Context<'_>,
         args: DelModificationFileData,
     ) -> ServiceResult<bool> {
         use component_modification::file::service::delete::delete_modification_file;
 
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(ctx)?.user_uuid();
 
-        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(ctx)?;
 
         delete_modification_file(&logged_user_uuid, &args, conn)
     }
@@ -550,14 +550,14 @@ impl ComponentMutation {
     /// Also file sets are used to configure integrations with various CAD/CAM systems etc.
     async fn register_modification_fileset(
         &self,
-        cxt: &Context<'_>,
+        ctx: &Context<'_>,
         args: IptFilesetProgramData,
     ) -> ServiceResult<Uuid> {
         use fileset_program::service::add::create_modification_fileset;
 
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(ctx)?.user_uuid();
 
-        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(ctx)?;
 
         create_modification_fileset(&logged_user_uuid, &args, conn)
     }
@@ -565,14 +565,14 @@ impl ComponentMutation {
     /// Removes a set of files from a component modification.
     async fn delete_modification_fileset(
         &self,
-        cxt: &Context<'_>,
+        ctx: &Context<'_>,
         args: DelFilesetProgramData,
     ) -> ServiceResult<bool> {
         use fileset_program::service::delete::del_modification_fileset;
 
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(ctx)?.user_uuid();
 
-        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(ctx)?;
 
         del_modification_fileset(&logged_user_uuid, &args, conn)
     }
@@ -581,29 +581,29 @@ impl ComponentMutation {
     /// Returns structures with a pre-signed URL for uploading a files.
     async fn upload_files_to_fileset(
         &self,
-        cxt: &Context<'_>,
+        ctx: &Context<'_>,
         args: IptModificationFileFromFilesetData,
     ) -> ServiceResult<Vec<UploadFile>> {
         use component_modification::fileset_for_program::file::service::add::add_files_of_modification_set;
 
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(ctx)?.user_uuid();
 
-        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(ctx)?;
 
-        add_files_of_modification_set(&logged_user_uuid, &args, &extract_client_domain(cxt), conn)
+        add_files_of_modification_set(&logged_user_uuid, &args, &extract_client_domain(ctx), conn)
     }
 
     /// Removes files from the component modification fileset.
     async fn delete_files_from_fileset(
         &self,
-        cxt: &Context<'_>,
+        ctx: &Context<'_>,
         args: DelModificationFileFromFilesetData,
     ) -> ServiceResult<bool> {
         use component_modification::fileset_for_program::file::service::delete::del_file_from_fileset;
 
-        let logged_user_uuid = get_logged_user_uuid(cxt, true)?;
+        let logged_user_uuid = AuthContext::from_graphql(ctx)?.user_uuid();
 
-        let conn: &mut PooledConnection = &mut get_conn(cxt)?;
+        let conn: &mut PooledConnection = &mut get_conn(ctx)?;
 
         del_file_from_fileset(&logged_user_uuid, &args, conn)
     }

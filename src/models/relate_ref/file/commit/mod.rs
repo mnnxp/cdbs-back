@@ -4,6 +4,8 @@ pub(crate) mod repository;
 use crate::schema::*;
 use uuid::Uuid;
 
+const MAX_COMMIT_MSG_LEN: usize = 500;
+
 /// The commit message is unique to a particular change
 #[derive(Identifiable, Queryable, Debug)]
 #[diesel(primary_key(uuid))]
@@ -22,10 +24,12 @@ pub(crate) struct InsertableCommit {
 
 impl InsertableCommit {
     fn new(commit_msg: &str) -> Self {
-        // field size in the base 225 characters
-        let message = match commit_msg.len() > 225 {
-            true => format!("{:.*}...", 222, commit_msg),
-            false => commit_msg.to_string(),
+        // field size in the base 500 characters
+        let message = if commit_msg.chars().count() > MAX_COMMIT_MSG_LEN {
+            let truncated: String = commit_msg.chars().take(MAX_COMMIT_MSG_LEN - 3).collect();
+            format!("{}...", truncated)
+        } else {
+            commit_msg.to_string()
         };
         Self {
             uuid: Uuid::new_v4(),

@@ -1,3 +1,5 @@
+use crate::auth::access::invalidate_access;
+use crate::auth::AccessEntity;
 use crate::errors::err_msg::{get_err_msg, ErrorMessage};
 use crate::errors::{ServiceError, ServiceResult};
 use crate::models::standard::access::user::model::{
@@ -32,6 +34,8 @@ pub(crate) fn set_user_access_standard(
     // 1. проверить пользователя на владение компонентом
     check_is_owner_with_err(logged_user_uuid, &data.standard_uuid, conn)?;
 
+    invalidate_access(&data.user_uuid, AccessEntity::Standard, &data.standard_uuid);
+
     // 2. изменить или добавить доступ для указанного пользователя
     let get_access = user_access_to_standard::user_access_to_standard
         .filter(
@@ -58,7 +62,7 @@ pub(crate) fn set_user_access_standard(
         .set((
             user_access_to_standard::type_access_id.eq(data.type_access_id),
             user_access_to_standard::is_enabled.eq(true),
-            user_access_to_standard::updated_at.eq(chrono::Local::now().naive_local()),
+            user_access_to_standard::updated_at.eq(chrono::Utc::now().naive_utc()),
         ))
         .returning(user_access_to_standard::is_enabled)
         .get_result(conn)
@@ -96,6 +100,8 @@ pub(crate) fn del_user_access_standard(
 ) -> ServiceResult<bool> {
     // 1. проверить пользователя на владение компонентом
     check_is_owner_with_err(logged_user_uuid, &data.standard_uuid, conn)?;
+
+    invalidate_access(&data.user_uuid, AccessEntity::Standard, &data.standard_uuid);
 
     // 2. деактивировать доступ для указанного пользователя
     let del_access = diesel::delete(user_access_to_standard::user_access_to_standard)

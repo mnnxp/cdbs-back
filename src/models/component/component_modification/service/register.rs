@@ -1,5 +1,5 @@
+use crate::auth::{require_permission, AccessEntity, AccessOperation};
 use crate::errors::{ServiceError, ServiceResult};
-use crate::models::component::access::util::check_access_component_for_user;
 use crate::models::component::component_modification::model::{
     InsertableComponentModification, IptComponentModificationData, IptMultipleModificationsData,
 };
@@ -15,14 +15,14 @@ pub(crate) fn create_component_modification(
     data: &IptComponentModificationData,
     conn: &mut PgConnection,
 ) -> ServiceResult<Uuid> {
-    let need_access_level = 1; // todo!(create enum for manage access level)
-
-    check_access_component_for_user(
+    require_permission(
         logged_user_uuid,
+        AccessEntity::Component,
         &data.component_uuid,
-        need_access_level,
+        AccessOperation::Write,
         conn,
     )?;
+
     let mut insert_data: InsertableComponentModification = data.into();
     // update updated_at date for component
     change_updated_at(&data.component_uuid, None, conn)?;
@@ -45,12 +45,11 @@ pub(crate) fn creation_multiple_modifications(
     data: &IptMultipleModificationsData,
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<Uuid>> {
-    let need_access_level = 1; // todo!(create enum for manage access level)
-
-    check_access_component_for_user(
+    require_permission(
         logged_user_uuid,
+        AccessEntity::Component,
         &data.component_uuid,
-        need_access_level,
+        AccessOperation::Manage,
         conn,
     )?;
 

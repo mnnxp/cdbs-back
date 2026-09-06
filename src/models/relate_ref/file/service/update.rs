@@ -15,78 +15,86 @@ use crate::models::standard::access::util::check_is_owner_with_err as standard_c
 use crate::models::supplier_service::access::util::check_is_owner_with_err as service_check_is_owner_with_err;
 use crate::models::supplier_service::service::update::change_service_updated_at;
 use crate::storage::metadata::object_headers;
-use crate::storage::model::StorageAccess;
 use diesel::prelude::*;
+use futures::{stream, StreamExt};
 use uuid::Uuid;
 
-/// Устанавливает файл как успешно загруженный в хранилище.
-/// После подтверждения успешной загрузки файл будет обработан.
+/// Confirms files as successfully uploaded to storage with parallel S3 checks
 pub(crate) async fn confirm_upload(
     logged_user_uuid: &Uuid,
     file_uuids: &[Uuid],
     pool: &PgPool,
-) -> ServiceResult<usize> {
-    let mut conn = pool.get().unwrap();
+) -> ServiceResult<Vec<Uuid>> {
+    if file_uuids.is_empty() {
+        return Ok(Vec::new());
+    }
 
-    let mut confirm_file_uuids = Vec::new();
+    let mut conn = pool.get().map_err(|e| {
+        debug!("Database pool error: {:?}", e);
+        ServiceError::InternalServerError
+    })?;
 
-    // getting SlimFile data for get files paths
-    let files =
-        SlimFile::get_not_checked_by_uuids(file_uuids, logged_user_uuid, &mut conn).unwrap();
+    // Fetch file metadata from database
+    let files = SlimFile::get_not_checked_by_uuids(file_uuids, logged_user_uuid, &mut conn)
+        .map_err(|e| {
+            debug!("Failed to fetch slim files from DB: {:?}", e);
+            ServiceError::InternalServerError
+        })?;
 
     if files.is_empty() {
-        return Ok(0); // not found files for check
+        return Ok(Vec::new()); // not found files for check
     }
 
-    // getting storage access data for target user
-    let storage_access = StorageAccess::from_env();
+    // Parallel S3 headers check
+    let s3_results = stream::iter(files)
+        .map(|file_d| async move {
+            match object_headers(&file_d.path_file).await {
+                Ok(headers) => Some((file_d, headers)),
+                Err(err) => {
+                    debug!("Failed get object headers for {:?}: {:?}", file_d.uuid, err);
+                    None
+                }
+            }
+        })
+        .buffer_unordered(20) // Process up to 20 files
+        .collect::<Vec<_>>()
+        .await;
 
-    // getting data for all files in vec
-    for file_d in files {
-        let file_h = object_headers(&storage_access, &file_d.path_file)
-            .await
-            .map_err(|err| {
-                debug!("Failed get object headers: {:?}", err);
-                ServiceError::InternalServerError
-            })?;
+    // Post-processing for related files metadata
+    let mut confirmed_uuids = Vec::new();
+    for (file_d, headers) in s3_results.into_iter().flatten() {
+        let file_data = FileData {
+            content_type: headers.content_type,
+            filesize: headers.content_length,
+            is_checked: false,
+            is_hidden: false,
+        };
 
-        // update file metadata in file_ref table
-        let update_file_rows = update_file_data_by_uuid(
-            logged_user_uuid,
-            &file_d.uuid,
-            &FileData {
-                content_type: file_h.content_type,
-                filesize: file_h.content_length,
-                is_checked: false,
-                is_hidden: false,
-            },
-            true, // <- confirming upload file only by the same user who requested the upload url
-            &mut conn,
-        )?;
-
-        // there will be an error if the file does not support revisions
-        match set_hidden_flag_revisions(&file_d.uuid, &file_d.filename, &mut conn) {
-            Ok(hidden_files) => debug!("Hidden files (ok): {:?}", hidden_files),
-            Err(err) => debug!("Hidden files (err): {:?}", err),
+        if update_file_data_by_uuid(logged_user_uuid, &file_d.uuid, &file_data, true, &mut conn)
+            .is_ok()
+        {
+            confirmed_uuids.push(file_d.uuid);
         }
-        debug!("Update rows: {:?}", update_file_rows);
-        confirm_file_uuids.push(file_d.uuid);
+
+        if let Err(err) = set_hidden_flag_revisions(&file_d.uuid, &file_d.filename, &mut conn) {
+            debug!("Hidden files (err): {:?}", err);
+        }
     }
 
-    if let Some(cfu) = confirm_file_uuids.first() {
-        related_file_updated_at(
+    if let Some(first_uuid) = confirmed_uuids.first() {
+        let _ = related_file_updated_at(
             logged_user_uuid,
-            cfu,
-            Some(&confirm_file_uuids),
+            first_uuid,
+            Some(&confirmed_uuids),
             false,
             &mut conn,
-        )?;
+        );
     }
 
-    let confirm_files = confirm_file_uuids.len();
-    match confirm_files == file_uuids.len() {
-        true => Ok(confirm_files),
-        false => Err(get_err_msg(ErrorMessage::UnsuccessfulCheckData)),
+    if confirmed_uuids.len() == file_uuids.len() {
+        Ok(confirmed_uuids)
+    } else {
+        Err(get_err_msg(ErrorMessage::UnsuccessfulCheckData))
     }
 }
 
@@ -161,7 +169,7 @@ fn update_file_data_by_uuid(
             .set((
                 file_ref::is_checked.eq(new_file_data.is_checked),
                 file_ref::is_hidden.eq(new_file_data.is_hidden),
-                file_ref::updated_at.eq(chrono::Local::now().naive_local()),
+                file_ref::updated_at.eq(chrono::Utc::now().naive_utc()),
             ))
             .execute(conn)
             .map_err(|err| {

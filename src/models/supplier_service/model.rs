@@ -47,8 +47,8 @@ impl InsertableService {
             service_status_id: 1,
             region_id: ipt_data.region_id,
             is_delete: false,
-            created_at: chrono::Local::now().naive_local(),
-            updated_at: chrono::Local::now().naive_local(),
+            created_at: chrono::Utc::now().naive_utc(),
+            updated_at: chrono::Utc::now().naive_utc(),
         }
     }
 }
