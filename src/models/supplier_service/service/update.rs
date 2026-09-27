@@ -210,7 +210,7 @@ pub(crate) fn change_service_status(
         &NotificationData {
             notification: format!(
                 "Status of the UUID:{} service has been changed",
-                &args.service_uuid
+                args.service_uuid
             ),
             degree_importance: NotificationType::Info,
         },

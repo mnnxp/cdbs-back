@@ -33,7 +33,7 @@ pub(crate) fn del_service_keywords(
     change_service_updated_at(
         &data.service_uuid,
         logged_user_uuid,
-        format!("Deleted the keyword ids: {:?}", &del_keywords.keyword_ids),
+        format!("Deleted the keyword ids: {:?}", del_keywords.keyword_ids),
         conn,
     )?;
     diesel::delete(keyword_to_service::keyword_to_service)

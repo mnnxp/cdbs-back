@@ -39,7 +39,7 @@ pub(crate) fn add_service_keywords(
             change_service_updated_at(
                 &data.service_uuid,
                 logged_user_uuid,
-                format!("Added new keywords: {:?})", &keywords),
+                format!("Added new keywords: {:?})", keywords),
                 conn,
             )?;
             insert_rows_service_keywords(&keywords, conn)

@@ -38,7 +38,7 @@ pub(crate) fn delete_service_file(
     change_service_updated_at(
         &arguments.service_uuid,
         logged_user_uuid,
-        format!("Deleted the file uuid: {:?}", &arguments.file_uuid),
+        format!("Deleted the file uuid: {:?}", arguments.file_uuid),
         conn,
     )?;
     // set flag for delete file in storage
