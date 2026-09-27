@@ -29,6 +29,7 @@ pub(crate) fn add_company_member(
 
     let check_has_member = company_member_list::company_member_list
         .filter(company_member_list::user_uuid.eq(&data.user_uuid))
+        .filter(company_member_list::company_uuid.eq(&data.company_uuid))
         .limit(1)
         .execute(conn)
         .map_err(|err| {

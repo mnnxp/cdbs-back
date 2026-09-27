@@ -51,8 +51,8 @@ let testStandardUuid = "";
 // Access levels
 const ACCESS_LEVEL = {
     OWNER: 1,
-    EDIT: 1,
-    COMMENT: 2,
+    MANAGE: 1,
+    WRITE: 2,
     VIEW: 3,
     PRIVATE: 1,
     PROTECTED: 2,
@@ -752,6 +752,57 @@ describe('RBAC Tests', () => {
             );
             expect(memberExists).toBe(false);
         });
+
+        it('should allow the same user to be a member of multiple companies (regression)', async () => {
+            const companyAUuid = await createCompany(agent, adminToken, `Multi Member A ${Date.now()}`);
+            const companyBUuid = await createCompany(agent, adminToken, `Multi Member B ${Date.now()}`);
+
+            // Create a role in each company and grant Manage
+            const roleIdA = (await agent
+                .post('/graphql')
+                .set('Authorization', `Bearer ${adminToken}`)
+                .send({
+                    query: CREATE_ROLE_MUTATION,
+                    variables: { companyUuid: companyAUuid, name: 'RoleA' }
+                })).body.data.registerCompanyRole;
+
+            const roleIdB = (await agent
+                .post('/graphql')
+                .set('Authorization', `Bearer ${adminToken}`)
+                .send({
+                    query: CREATE_ROLE_MUTATION,
+                    variables: { companyUuid: companyBUuid, name: 'RoleB' }
+                })).body.data.registerCompanyRole;
+
+            const addMember = (companyUuid, roleId) => agent
+                .post('/graphql')
+                .set('Authorization', `Bearer ${adminToken}`)
+                .send({
+                    query: `
+                        mutation AddMember($companyUuid: UUID!, $userUuid: UUID!, $roleId: Int!) {
+                            addCompanyMember(args: {
+                                companyUuid: $companyUuid
+                                userUuid: $userUuid
+                                roleId: $roleId
+                            })
+                        }
+                    `,
+                    variables: { companyUuid, userUuid: otherUsernameUuid, roleId }
+                });
+
+            // Add same user to both companies
+            const { body: addA } = await addMember(companyAUuid, roleIdA);
+            expect(addA.errors).toBeUndefined();
+            expect(addA.data?.addCompanyMember).toBe(true);
+
+            const { body: addB } = await addMember(companyBUuid, roleIdB);
+            expect(addB.errors).toBeUndefined();
+            expect(addB.data?.addCompanyMember).toBe(true);
+
+            // Re-adding to the same company should fail
+            const { body: againA } = await addMember(companyAUuid, roleIdA);
+            expect(againA.errors[0].message).toContain('already member');
+        });
     });
 // ====
     describe('Non-Supplier Company Restrictions', () => {
@@ -1079,7 +1130,7 @@ describe('RBAC Tests', () => {
                     variables: {
                         componentUuid: componentUuid,
                         companyUuid: companyUuid,
-                        typeAccessId: ACCESS_LEVEL.EDIT
+                        typeAccessId: ACCESS_LEVEL.MANAGE
                     }
                 });
 
@@ -1565,8 +1616,8 @@ describe('RBAC Tests', () => {
     describe('Access Level Validation', () => {
         it('should validate access level enum values', () => {
             expect(ACCESS_LEVEL.OWNER).toBe(1);
-            expect(ACCESS_LEVEL.EDIT).toBe(1);
-            expect(ACCESS_LEVEL.COMMENT).toBe(2);
+            expect(ACCESS_LEVEL.MANAGE).toBe(1);
+            expect(ACCESS_LEVEL.WRITE).toBe(2);
             expect(ACCESS_LEVEL.VIEW).toBe(3);
         });
 
@@ -2045,6 +2096,98 @@ describe('RBAC Tests', () => {
                 variables: { componentUuid, name: 'Try by Write' }
             });
             expect(writeRes.body.errors[0].message).toBe('BadRequest: Access denied');
+        });
+
+        it('Company member: exact/lower role level vs required (regression: found == required)', async () => {
+            const regCompanyUuid = await createCompany(agent, adminToken, `Exact Level Company ${Date.now()}`);
+            expect(regCompanyUuid).toBeNonEmptyString();
+
+            // Create role and grant Manage (1) — exact required level for putCompanyUpdate
+            const { body: roleBody } = await agent
+                .post('/graphql')
+                .set('Authorization', `Bearer ${adminToken}`)
+                .send({
+                    query: CREATE_ROLE_MUTATION,
+                    variables: { companyUuid: regCompanyUuid, name: `ManageRole-${Date.now()}` }
+                });
+            const manageRoleId = roleBody.data?.registerCompanyRole;
+            expect(manageRoleId).toBeGreaterThan(0);
+
+            const addAccess = (accessTypes) => agent
+                .post('/graphql')
+                .set('Authorization', `Bearer ${adminToken}`)
+                .send({
+                    query: `
+                        mutation AddAccessToRole($roleId: Int!, $accessTypes: [Int!]!) {
+                            addAccessRole(args: { roleId: $roleId, typesAccessIds: $accessTypes })
+                        }
+                    `,
+                    variables: { roleId: manageRoleId, accessTypes }
+                });
+
+            const deleteAccess = (accessTypes) => agent
+                .post('/graphql')
+                .set('Authorization', `Bearer ${adminToken}`)
+                .send({
+                    query: `
+                        mutation DeleteAccessRole($roleId: Int!, $accessTypes: [Int!]!) {
+                            deleteAccessRole(args: { roleId: $roleId, typesAccessIds: $accessTypes })
+                        }
+                    `,
+                    variables: { roleId: manageRoleId, accessTypes }
+                });
+
+            const putCompanyUpdate = (orgname) => agent
+                .post('/graphql')
+                .set('Authorization', `Bearer ${managerToken}`)
+                .send({
+                    query: `
+                        mutation PutCompanyUpdate($companyUuid: UUID!, $orgname: String!) {
+                            putCompanyUpdate(companyUuid: $companyUuid, args: { orgname: $orgname })
+                        }
+                    `,
+                    variables: { companyUuid: regCompanyUuid, orgname }
+                });
+
+            // Grant Manage (1) and add manager as member
+            const { body: addAccessBody } = await addAccess([ACCESS_LEVEL.MANAGE]);
+            expect(addAccessBody.data?.addAccessRole).toBe(1);
+
+            const { body: addMemberBody } = await agent
+                .post('/graphql')
+                .set('Authorization', `Bearer ${adminToken}`)
+                .send({
+                    query: `
+                        mutation AddMember($companyUuid: UUID!, $userUuid: UUID!, $roleId: Int!) {
+                            addCompanyMember(args: { companyUuid: $companyUuid, userUuid: $userUuid, roleId: $roleId })
+                        }
+                    `,
+                    variables: { companyUuid: regCompanyUuid, userUuid: managerUserUuid, roleId: manageRoleId }
+                });
+            expect(addMemberBody.data?.addCompanyMember).toBe(true);
+
+            // Case 1: found == required (Manage == Manage) access granted.
+            const { body: okBody } = await putCompanyUpdate(`Updated by manager ${Date.now()}`);
+            expect(okBody.errors).toBeUndefined();
+            expect(okBody.data?.putCompanyUpdate).toBe(1);
+
+            // Case 2: downgrade role from Manage (1) to Read (3) access denied.
+            const { body: delAccessBody } = await deleteAccess([ACCESS_LEVEL.MANAGE]);
+            expect(delAccessBody.data?.deleteAccessRole).toBe(1);
+            const { body: addReadBody } = await addAccess([ACCESS_LEVEL.VIEW]);
+            expect(addReadBody.data?.addAccessRole).toBe(1);
+
+            const { body: deniedBody } = await putCompanyUpdate(`Should fail ${Date.now()}`);
+            expect(deniedBody.errors[0].message).toBe('BadRequest: Access denied');
+
+            // Case 3: upgrade role to Write (2) — still lower than required Manage (1) access denied.
+            const { body: delReadBody } = await deleteAccess([ACCESS_LEVEL.VIEW]);
+            expect(delReadBody.data?.deleteAccessRole).toBe(1);
+            const { body: addWriteBody } = await addAccess([ACCESS_LEVEL.WRITE]);
+            expect(addWriteBody.data?.addAccessRole).toBe(1);
+
+            const { body: deniedWriteBody } = await putCompanyUpdate(`Should fail ${Date.now()}`);
+            expect(deniedWriteBody.errors[0].message).toBe('BadRequest: Access denied');
         });
     });
 

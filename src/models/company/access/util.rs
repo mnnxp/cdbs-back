@@ -90,7 +90,7 @@ pub(crate) fn check_company_access(
 
     let found_type_access_id: i32 = get_type_access_id(member_role_in_company_id, conn)?;
 
-    match found_type_access_id < required_access {
+    match found_type_access_id <= required_access {
         true => Ok(true),
         false => Err(get_err_msg(ErrorMessage::AccessDenied)),
     }
