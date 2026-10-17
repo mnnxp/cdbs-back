@@ -144,6 +144,7 @@ impl ShowCompanyShort {
                 company_ref::created_at,
                 company_ref::updated_at,
             ))
+            .order(company_ref::shortname.asc())
             .limit(paginate.limit)
             .offset(paginate.offset)
             .load::<ShowCompanyShort>(conn)
@@ -159,41 +160,38 @@ impl ShowCompanyShort {
         paginate: &Paginate,
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<ShowCompanyShort>> {
-        let mut query = company_ref::company_ref.into_boxed();
-        query = match supplier {
-            true => query.filter(
-                company_ref::type_access_id
-                    .eq(3)
-                    .and(company_ref::is_supplier.eq(true))
-                    .and(company_ref::is_enabled.eq(true))
-                    .and(company_ref::is_delete.eq(false)),
-            ),
-            false => query.filter(
-                company_ref::type_access_id
-                    .eq(3)
-                    .and(company_ref::is_enabled.eq(true))
-                    .and(company_ref::is_delete.eq(false)),
-            ),
-        };
+        let mut query = company_ref::company_ref
+            .filter(company_ref::type_access_id.eq(3))
+            .filter(company_ref::is_enabled.eq(true))
+            .filter(company_ref::is_delete.eq(false))
+            .into_boxed();
 
-        let target_companies_uuids = query
-            .select(company_ref::uuid)
+        if *supplier {
+            query = query.filter(company_ref::is_supplier.eq(true));
+        }
+
+        query
+            .select((
+                company_ref::uuid,
+                company_ref::shortname,
+                company_ref::inn,
+                company_ref::description,
+                company_ref::image_file_uuid,
+                company_ref::region_id,
+                company_ref::company_type_id,
+                company_ref::type_access_id,
+                company_ref::is_supplier,
+                company_ref::created_at,
+                company_ref::updated_at,
+            ))
+            .order(company_ref::shortname.asc())
             .limit(paginate.limit)
             .offset(paginate.offset)
-            .load::<Uuid>(conn)
+            .load::<ShowCompanyShort>(conn)
             .map_err(|err| {
                 debug!("Failed get public companies: {:?}", err);
                 ServiceError::InternalServerError
-            })?;
-
-        let mut result = Vec::new();
-        for target_company_uuid in target_companies_uuids.iter() {
-            result.push(ShowCompanyShort::get_without_check_by_uuid(
-                target_company_uuid,
-                conn,
-            )?);
-        }
-        Ok(result)
+            })
     }
 }
 
