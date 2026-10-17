@@ -170,13 +170,10 @@ pub(crate) fn check_clerk_with_suitable_role(
     }
 
     let find_provided_role = company_member_list
-        .filter(
-            user_uuid.eq(target_user_uuid).and(
-                company_uuid
-                    .eq_any(target_companies_uuids)
-                    .and(role_id.eq_any(need_roles_ids)),
-            ),
-        )
+        .filter(user_uuid.eq(target_user_uuid))
+        .filter(company_uuid.eq_any(target_companies_uuids))
+        .filter(role_id.eq_any(need_roles_ids))
+        .filter(is_enabled.eq(true))
         .limit(1)
         .execute(conn)
         .map_err(|err| {
