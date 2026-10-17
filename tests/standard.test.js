@@ -1417,7 +1417,7 @@ describe('standard', () => {
     expect(standard.standardFiles[0].filename).toBe(filenameStandardFileTest);
     expect(standard.standardFiles[0].parentFileUuid).toBeNonEmptyString();
     expect(standard.standardFiles[0].ownerUser.uuid).toBe(authorizationUserFirst);
-    expect(standard.standardFiles[0].contentType).toBeNonEmptyString();
+    expect(standard.standardFiles[0].contentType).toBeEmptyString();
     done();
   });
 

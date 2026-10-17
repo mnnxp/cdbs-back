@@ -1161,7 +1161,7 @@ describe('service', () => {
     expect(service.files[0].filename).toBe(filenameServiceFileTest);
     expect(service.files[0].parentFileUuid).toBeNonEmptyString();
     expect(service.files[0].ownerUser.uuid).toBe(authorizationUserFirst);
-    expect(service.files[0].contentType).toBeNonEmptyString();
+    expect(service.files[0].contentType).toBeEmptyString();
     done();
   });
 

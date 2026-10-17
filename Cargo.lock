@@ -652,7 +652,6 @@ dependencies = [
  "num",
  "r2d2",
  "rand",
- "regex",
  "reqwest",
  "ring",
  "rusoto_core",

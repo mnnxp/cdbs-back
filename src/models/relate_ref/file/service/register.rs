@@ -30,7 +30,6 @@ pub(crate) fn preregister_file(
         object.clone(),
         filename,
         *commit_uuid,
-        conn,
     );
     // check for new revision file
     let _has_parent = parsing_old_file(&mut preliminary_file_data, conn)?;

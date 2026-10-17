@@ -50,8 +50,6 @@ sanitize-filename = "0.4.0"
 
 structopt = "0.3.26"
 
-regex = "1.7.0"
-
 ring = "0.16.20"
 sha2 = "0.10.6"
 hmac = "0.12.1"

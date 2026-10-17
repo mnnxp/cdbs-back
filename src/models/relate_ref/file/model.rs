@@ -150,7 +150,7 @@ pub(crate) struct PreliminaryFileData {
     pub(crate) object: ListObject,
     /// sanitizer filename with sanitize_filename::sanitize(&filename)
     pub(crate) filename: String,
-    /// get id for extension with find_id_ext(filename, conn)
+    /// get id for extension
     pub(crate) id_ext: i32,
     /// file comment (a new one is created if the same one is not found)
     pub(crate) commit_uuid: Uuid,
