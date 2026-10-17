@@ -828,11 +828,11 @@ describe('relate', () => {
 
       expect(body.data.searchSpecs.length).toBe(5);
       expect(body.data.searchSpecs[0].specId).toBe(5);
-      expect(body.data.searchSpecs[1].specId).toBe(8);
-      expect(body.data.searchSpecs[1].path).toBe("Threaded Fasteners/Screws and bolts/U Bolts");
+      expect(body.data.searchSpecs[1].specId).toBe(6);
       expect(body.data.searchSpecs[2].specId).toBe(7);
-      expect(body.data.searchSpecs[3].specId).toBe(9);
-      expect(body.data.searchSpecs[4].specId).toBe(6);
+      expect(body.data.searchSpecs[3].specId).toBe(8);
+      expect(body.data.searchSpecs[3].path).toBe("Threaded Fasteners/Screws and bolts/U Bolts");
+      expect(body.data.searchSpecs[4].specId).toBe(9);
     });
 
     it('should return empty array for empty search text', async () => {
