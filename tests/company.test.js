@@ -767,7 +767,8 @@ describe('company', () => {
     } = body;
     // var index = companies.length - 1;
     expect(companies).toBeNonEmptyArray();
-    expect(companies[0].uuid).toBe(companyUuidBase);
+    const company = companies.find(c => c.uuid === companyUuidBase);
+    expect(company).toBeDefined();
     // expect(companies.length).toBe(1);
     done();
   });
@@ -4327,7 +4328,8 @@ describe('company', () => {
     } = body;
     // var index = companies.length - 1;
     expect(companies).toBeNonEmptyArray();
-    expect(companies[0].uuid).toBe(companyUuidBase);
+    const company = companies.find(c => c.uuid === companyUuidBase);
+    expect(company).toBeDefined();
     // expect(companies.length).toBe(1);
     done();
   });

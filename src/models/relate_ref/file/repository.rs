@@ -1,5 +1,5 @@
 use super::commit::Commit;
-use super::util::{find_id_ext, get_default_image};
+use super::util::get_default_image;
 use crate::errors::{ServiceError, ServiceResult};
 use crate::graphql::file::ShowFileRelatedData;
 use crate::models::relate_ref::file::model::{
@@ -333,14 +333,11 @@ impl PreliminaryFileData {
         object: ListObject,
         filename: &str,
         commit_uuid: Uuid,
-        conn: &mut PgConnection,
     ) -> PreliminaryFileData {
         // set default parent
         let parent_file_uuid = get_default_image();
         // getting rid of dangerous names
         let filename = sanitize_filename::sanitize(filename);
-        // get id for extension
-        let id_ext = find_id_ext(&filename, conn);
 
         Self {
             parent_file_uuid,
@@ -348,9 +345,9 @@ impl PreliminaryFileData {
             object,
             user_uuid,
             filename,
-            id_ext,
+            id_ext: 1,
             commit_uuid,
-            content_type: "application/text".to_string(), // <-- todo!(add parse of filename)
+            content_type: String::new(),
         }
     }
 }
