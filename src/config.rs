@@ -100,3 +100,8 @@ pub(crate) fn default_image_uuid() -> Uuid {
 pub(crate) fn default_user_uuid() -> Uuid {
     get_config().default_user_uuid
 }
+
+/// Admin user UUID (allowed to edit reference tables)
+pub(crate) fn admin_user_uuid() -> Uuid {
+    get_config().admin_user_uuid
+}

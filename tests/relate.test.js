@@ -1298,4 +1298,44 @@ describe('relate', () => {
       expect(body.data.typesAccess[2].name).toBe("公开");
     });
   });
+
+  // ==============================================
+  // ADMIN ONLY
+  // ==============================================
+  it('/graphql:M register_region - BadRequest non-admin', async () => {
+    const { body } = await agent
+      .post('/graphql')
+      .set('Authorization', `Bearer ${authorizationTokenSecond}`) // simaco, не админ
+      .send({
+        query: `mutation {
+          registerRegion(args: { langId: 1, region: "Test Region ${Date.now()}" }) {
+            regionId
+            langId
+            region
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe('BadRequest: Access denied');
+    expect(body.errors[0].path[0]).toBe('registerRegion');
+  });
+
+  it('/graphql:M register_region - BadRequest anonymous', async () => {
+    const { body } = await agent
+      .post('/graphql')
+      .send({
+        query: `mutation {
+          registerRegion(args: { langId: 1, region: "Test Region ${Date.now()}" }) {
+            regionId
+            langId
+            region
+          }
+        }`,
+      })
+      .expect(HttpStatus.OK);
+    expect(body.data).toBeNull();
+    expect(body.errors[0].message).toBe('BadRequest: Token not found');
+    expect(body.errors[0].path[0]).toBe('registerRegion');
+  });
 });

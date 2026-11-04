@@ -134,4 +134,12 @@ pub struct Opt {
         default_value = "413a9b1c-da2d-44f9-a492-58f9448b402e"
     )]
     pub(crate) default_user_uuid: Uuid,
+
+    /// UUID of the admin user allowed to edit reference tables
+    #[structopt(
+        long,
+        env = "ADMIN_USER_UUID",
+        default_value = "00000000-0000-0000-0000-000000000000"
+    )]
+    pub(crate) admin_user_uuid: Uuid,
 }

@@ -1,6 +1,6 @@
 use async_graphql::{self, Context, Object};
 
-use crate::auth::token::logged::check_authorized;
+use crate::auth::{require_admin, AuthContext};
 use crate::database::{get_conn, PooledConnection};
 use crate::errors::ServiceResult;
 use crate::models::relate_ref::program::{
@@ -43,10 +43,11 @@ impl ProgramMutation {
         ctx: &Context<'_>,
         args: IptProgramData,
     ) -> ServiceResult<Program> {
-        check_authorized(ctx)?;
+        // Admin-only
+        let logged_user_uuid = AuthContext::from_graphql(ctx)?.user_uuid();
+        require_admin(&logged_user_uuid)?;
 
         let conn: &mut PooledConnection = &mut get_conn(ctx)?;
-
         create_program(&args, conn)
     }
 }

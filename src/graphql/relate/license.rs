@@ -1,5 +1,6 @@
 use super::attributes::IptPaginate;
 use crate::auth::token::logged::check_authorized;
+use crate::auth::{require_admin, AuthContext};
 use crate::database::{get_conn, PooledConnection};
 use crate::errors::ServiceResult;
 use crate::models::relate_ref::license::{
@@ -43,11 +44,11 @@ impl LicenseMutation {
         ctx: &Context<'_>,
         args: LicenseData,
     ) -> ServiceResult<License> {
-        // todo!(check owned company)
-        check_authorized(ctx)?;
+        // Admin-only
+        let logged_user_uuid = AuthContext::from_graphql(ctx)?.user_uuid();
+        require_admin(&logged_user_uuid)?;
 
         let conn: &mut PooledConnection = &mut get_conn(ctx)?;
-
         create_license(&args, conn)
     }
 }
