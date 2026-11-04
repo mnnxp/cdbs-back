@@ -2,6 +2,7 @@ use crate::auth::{require_permission, AccessEntity, AccessOperation};
 use crate::errors::{ServiceError, ServiceResult};
 use crate::graphql::component_model::{ComponentAndRelatedData, ShowComponentShort};
 use crate::models::component::{
+    access::repository::get_accessible_component_uuids,
     actual_status::model::ActualStatusTranslateList, component_fav::model::ComponentFav,
     component_type::model::ComponentTypeTranslateList, model::Component,
 };
@@ -74,21 +75,6 @@ impl ShowComponentShort {
         }
     }
 
-    pub(crate) fn get_by_uuid(
-        component_uuid: &Uuid,
-        options: &ExtraOptions,
-        conn: &mut PgConnection,
-    ) -> ServiceResult<ShowComponentShort> {
-        require_permission(
-            &options.logged_user_uuid,
-            AccessEntity::Component,
-            component_uuid,
-            AccessOperation::Read,
-            conn,
-        )?;
-        ShowComponentShort::get_without_check_by_uuid(component_uuid, options, conn)
-    }
-
     /// Gets component short data without checking access
     pub(crate) fn get_without_check_by_uuid(
         target_component_uuid: &Uuid,
@@ -149,15 +135,24 @@ impl ShowComponentShort {
         paginate: &Paginate,
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<ShowComponentShort>> {
-        let mut result: Vec<ShowComponentShort> = Vec::new();
-        // collecting data for each component
-        for ct_uuid in objects_order(component_uuids, sort, paginate, conn)? {
-            match ShowComponentShort::get_by_uuid(&ct_uuid, options, conn) {
-                Ok(value) => result.push(value),
-                Err(err) => {
-                    debug!("Failed get component short data: {:?}", err);
-                }
-            };
+        // filter by access
+        let accessible = get_accessible_component_uuids(
+            &options.logged_user_uuid,
+            AccessOperation::Read,
+            component_uuids,
+            conn,
+        )?;
+        if accessible.is_empty() {
+            return Ok(Vec::new());
+        }
+        // sort and paginate the accessible set
+        let ordered_uuids = objects_order(&accessible, sort, paginate, conn)?;
+        // hydrate (no access check, already filtered)
+        let mut result = Vec::with_capacity(ordered_uuids.len());
+        for uuid in &ordered_uuids {
+            result.push(ShowComponentShort::get_without_check_by_uuid(
+                uuid, options, conn,
+            )?);
         }
         Ok(result)
     }
