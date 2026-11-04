@@ -5,6 +5,9 @@ use crate::models::component::{
     actual_status::model::ActualStatusTranslateList, component_fav::model::ComponentFav,
     component_type::model::ComponentTypeTranslateList, model::Component,
 };
+use crate::models::relate_ref::cache::{
+    actual_status_by_id, component_type_by_id, type_access_by_id,
+};
 use crate::models::relate_ref::{
     file::model::DownloadFile, license::model::License, type_access::model::TypeAccessTranslateList,
 };
@@ -106,29 +109,8 @@ impl ShowComponentShort {
             ShowUserShort::get_without_check_by_uuid(&component.user_uuid, &options.domain, conn)
                 .expect("Error loading slim_user");
 
-        // get component type with translation
-        let type_access = TypeAccessTranslateList::get_type_access_by_id(
-            component.type_access_id,
-            options.set_lang_id,
-            conn,
-        )
-        .expect("Error loading type_access");
-
-        // get component type with translation for component
-        let component_type = ComponentTypeTranslateList::get_by_id(
-            component.component_type_id,
-            options.set_lang_id,
-            conn,
-        )
-        .expect("Error loading component_type");
-
-        // get actual status with translation for component
-        let actual_status = ActualStatusTranslateList::get_by_id(
-            component.actual_status_id,
-            options.set_lang_id,
-            conn,
-        )
-        .expect("Error loading actual_status");
+        let (type_access, component_type, actual_status) =
+            component_dictionaries(&component, options.set_lang_id)?;
 
         // check whether the object is being tracked auth user
         let is_followed = crate::models::component::component_fav::util::check_subscriber_by_uuid(
@@ -242,29 +224,8 @@ impl ComponentAndRelatedData {
             ShowUserShort::get_without_check_by_uuid(&component.user_uuid, &options.domain, conn)
                 .expect("Error loading slim_user");
 
-        // get component type with translation
-        let type_access = TypeAccessTranslateList::get_type_access_by_id(
-            component.type_access_id,
-            options.set_lang_id,
-            conn,
-        )
-        .expect("Error loading type_access");
-
-        // get component type with translation for component
-        let component_type = ComponentTypeTranslateList::get_by_id(
-            component.component_type_id,
-            options.set_lang_id,
-            conn,
-        )
-        .expect("Error loading component_type");
-
-        // get actual status with translation for component
-        let actual_status = ActualStatusTranslateList::get_by_id(
-            component.actual_status_id,
-            options.set_lang_id,
-            conn,
-        )
-        .expect("Error loading actual status");
+        let (type_access, component_type, actual_status) =
+            component_dictionaries(&component, options.set_lang_id)?;
 
         // count subscribers component
         let subscribers: i32 = ComponentFav::get_count_followers_by_uuid(&component.uuid, conn)?;
@@ -349,4 +310,21 @@ pub(crate) fn filter_components_uuids_by_spec(
             );
             ServiceError::InternalServerError
         })
+}
+
+/// Resolves a component's dictionaries (access type, component type, actual status).
+/// Cached, so no SQL after warm-up.
+pub(crate) fn component_dictionaries(
+    component: &Component,
+    set_lang_id: i32,
+) -> ServiceResult<(
+    TypeAccessTranslateList,
+    ComponentTypeTranslateList,
+    ActualStatusTranslateList,
+)> {
+    Ok((
+        type_access_by_id(component.type_access_id, set_lang_id)?,
+        component_type_by_id(component.component_type_id, set_lang_id)?,
+        actual_status_by_id(component.actual_status_id, set_lang_id)?,
+    ))
 }

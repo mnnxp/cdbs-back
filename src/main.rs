@@ -21,10 +21,12 @@ use crate::auth::token::manager::init_jwt_keys;
 use crate::config::init_config;
 use crate::database::pool::establish_connection;
 use crate::graphql::handler::build_schema;
+use crate::models::relate_ref::cache::StaticDictionaries;
 use actix_cors::Cors;
 use actix_web::http::header;
 use actix_web::middleware::{DefaultHeaders, Logger};
 use actix_web::{web::Data, App, HttpServer};
+use std::process::exit;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -43,16 +45,28 @@ async fn main() -> std::io::Result<()> {
     // Freeze application configuration globally
     if let Err(err) = init_config(opt.clone()) {
         error!("Configuration error: {}", err);
-        std::process::exit(1);
+        exit(1);
     }
 
     if let Err(err) = init_jwt_keys(&opt.jwt_private_key, &opt.jwt_public_key) {
         error!("Invalid JWT RSA keys format: {:?}", err);
-        std::process::exit(1);
+        exit(1);
     }
 
     // Database
     let pool = establish_connection();
+
+    // Load static dictionaries once, before the server starts
+    {
+        let mut conn = pool
+            .get()
+            .expect("Failed to get DB connection for dictionaries");
+        if let Err(err) = StaticDictionaries::init(&mut conn) {
+            error!("Failed to init static dictionaries: {:?}", err);
+            exit(1);
+        }
+    }
+
     let pool_data = Data::new(pool.clone());
     let schema = Data::new(build_schema(pool).await);
 

@@ -1,20 +1,19 @@
+use super::model::Standard;
+use super::standard_fav::model::StandardFav;
+use super::standard_fav::util::check_subscriber_by_uuid;
+use super::standard_status::model::StandardStatusTranslateList;
 use crate::auth::{require_permission, AccessEntity, AccessOperation};
 use crate::errors::{ServiceError, ServiceResult};
 use crate::graphql::file::ShowFileRelatedData;
 use crate::graphql::standard_model::{ShowStandardShort, StandardAndRelatedData};
 use crate::models::company::model::ShowCompanyShort;
+use crate::models::relate_ref::cache::type_access_by_id;
 use crate::models::relate_ref::{
     file::model::DownloadFile, keyword::model::Keyword, spec::model::SpecTranslateList,
-    type_access::model::TypeAccessTranslateList,
 };
 use crate::models::search::{
     model::ExtraOptions,
     order::{Paginate, Sort, TableName},
-};
-use crate::models::standard::{
-    model::Standard, standard_fav::model::StandardFav,
-    standard_fav::util::check_subscriber_by_uuid,
-    standard_status::model::StandardStatusTranslateList,
 };
 use crate::schema::standard_ref::dsl as standard_ref;
 use diesel::prelude::*;
@@ -97,7 +96,7 @@ impl ShowStandardShort {
             ShowCompanyShort::get_without_check_by_uuid(&standard.company_uuid, conn)
                 .expect("Error loading company short data");
 
-        // get standard type with translation for standard
+        // get standard status with translation for standard
         let standard_status = StandardStatusTranslateList::get_by_id(
             standard.standard_status_id,
             options.set_lang_id,
@@ -211,15 +210,10 @@ impl StandardAndRelatedData {
             ShowCompanyShort::get_without_check_by_uuid(&standard.company_uuid, conn)
                 .expect("Error loading company short data");
 
-        // get standard type with translation for standard
-        let type_access = TypeAccessTranslateList::get_type_access_by_id(
-            standard.type_access_id,
-            options.set_lang_id,
-            conn,
-        )
-        .expect("Error loading type_access");
+        // get standard access type with translation
+        let type_access = type_access_by_id(standard.type_access_id, options.set_lang_id)?;
 
-        // get standard type with translation for standard
+        // get standard status with translation for standard
         let standard_status = StandardStatusTranslateList::get_by_id(
             standard.standard_status_id,
             options.set_lang_id,

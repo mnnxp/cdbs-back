@@ -16,6 +16,7 @@ use crate::models::company::company_type::model::CompanyTypeTranslateList;
 use crate::models::company::member::model::CompanyMemberAndRelatedData;
 use crate::models::company::member::role::model::RoleMemberAndRelatedData;
 use crate::models::company::model::{CompanyAndRelatedData, ShowCompanyShort};
+use crate::models::relate_ref::cache::type_access_by_id;
 use crate::models::relate_ref::file::model::DownloadFile;
 use crate::models::relate_ref::region::model::RegionTranslateList;
 use crate::models::relate_ref::spec::model::SpecTranslateList;
@@ -141,12 +142,7 @@ impl CompanyAndRelatedData {
     /// Type of access to company profile
     async fn type_access(&self, ctx: &Context<'_>) -> ServiceResult<TypeAccessTranslateList> {
         let options = ExtraOptions::from_ctx(ctx, true)?;
-        let conn: &mut PooledConnection = &mut get_conn(ctx)?;
-        TypeAccessTranslateList::get_type_access_by_id(
-            self.type_access_id,
-            options.set_lang_id,
-            conn,
-        )
+        type_access_by_id(self.type_access_id, options.set_lang_id)
     }
 
     /// Supplier status (within the platform)
@@ -237,12 +233,7 @@ impl ShowCompanyShort {
     /// Type of access to company profile
     async fn type_access(&self, ctx: &Context<'_>) -> ServiceResult<TypeAccessTranslateList> {
         let options = ExtraOptions::from_ctx(ctx, true)?;
-        let conn: &mut PooledConnection = &mut get_conn(ctx)?;
-        TypeAccessTranslateList::get_type_access_by_id(
-            self.type_access_id,
-            options.set_lang_id,
-            conn,
-        )
+        type_access_by_id(self.type_access_id, options.set_lang_id)
     }
 
     /// Supplier status (within the platform)
