@@ -1,29 +1,22 @@
-use super::{
-    certificate::model::UserCertificateAndFile,
-    model::{
-        ShowUserAndRelatedData, ShowUserShort, SlimUser, UserAndRelatedData, UserQuery, UserShort,
-    },
-    relate::util::{count_companies_for_user, count_components_for_user, count_standards_for_user},
-    user_fav::model::UserFav,
+use super::certificate::model::UserCertificateAndFile;
+use super::model::{
+    ShowUserAndRelatedData, ShowUserShort, SlimUser, UserAndRelatedData, UserQuery, UserShort,
+};
+use super::relate::util::{
+    count_companies_for_user, count_components_for_user, count_standards_for_user,
+};
+use super::user_fav::model::UserFav;
+use super::user_fav::util::check_subscriber_by_uuid;
+use crate::auth::{require_permission, AccessEntity, AccessOperation};
+use crate::errors::{ServiceError, ServiceResult};
+use crate::models::relate_ref::cache::{program_by_id, region_by_id, type_access_by_id};
+use crate::models::relate_ref::file::model::DownloadFile;
+use crate::models::search::order::Paginate;
+use crate::models::{
+    company::company_fav::model::CompanyFav, component::component_fav::model::ComponentFav,
+    search::model::ExtraOptions, standard::standard_fav::model::StandardFav,
 };
 use crate::schema::user_ref::dsl as user_ref;
-use crate::{
-    auth::{require_permission, AccessEntity, AccessOperation},
-    models::{
-        company::company_fav::model::CompanyFav,
-        component::component_fav::model::ComponentFav,
-        relate_ref::{
-            file::model::DownloadFile, program::model::Program, region::model::RegionTranslateList,
-            type_access::model::TypeAccessTranslateList,
-        },
-        search::model::ExtraOptions,
-        standard::standard_fav::model::StandardFav,
-    },
-};
-use crate::{
-    errors::{ServiceError, ServiceResult},
-    models::search::order::Paginate,
-};
 use diesel::prelude::*;
 use uuid::Uuid;
 
@@ -250,7 +243,7 @@ impl UserAndRelatedData {
         conn: &mut PgConnection,
     ) -> ServiceResult<UserAndRelatedData> {
         // collect data for user
-        let user: UserQuery = UserQuery::get_user_by_uuid(&options.logged_user_uuid, conn)
+        let user = UserQuery::get_user_by_uuid(&options.logged_user_uuid, conn)
             .expect("Error loading user");
 
         // get image file (favicon) for user
@@ -259,29 +252,20 @@ impl UserAndRelatedData {
                 .expect("Error loading user file");
 
         // get region for user
-        let region: RegionTranslateList =
-            RegionTranslateList::get_region_by_id(user.region_id, options.set_lang_id, conn)
-                .expect("Error loading user_type");
+        let region = region_by_id(user.region_id, options.set_lang_id)?;
 
         // get program set default for user
-        let program: Program =
-            Program::get_program_by_id(user.program_id, conn).expect("Error get set program");
+        let program = program_by_id(user.program_id)?;
 
         // get type access set for user profile
-        let type_access: TypeAccessTranslateList = TypeAccessTranslateList::get_type_access_by_id(
-            user.type_access_id,
-            options.set_lang_id,
-            conn,
-        )
-        .expect("Error get set type access");
+        let type_access = type_access_by_id(user.type_access_id, options.set_lang_id)?;
 
         // count subscribers user
-        let subscribers: i32 = UserFav::get_count_followers_by_uuid(&user.uuid, conn)?;
+        let subscribers = UserFav::get_count_followers_by_uuid(&user.uuid, conn)?;
 
         // get certificates with slimfile for user
-        let certificates: Vec<UserCertificateAndFile> =
-            UserCertificateAndFile::from_user(&user.uuid, &options.domain, conn)
-                .expect("Error loading spec user with translate");
+        let certificates = UserCertificateAndFile::from_user(&user.uuid, &options.domain, conn)
+            .expect("Error loading spec user with translate");
 
         // counting companies owned by the user
         let companies_count = count_companies_for_user(&options.logged_user_uuid, conn)
@@ -296,24 +280,23 @@ impl UserAndRelatedData {
             .expect("Error get count standards_count");
 
         // counting companies in a user's favorite
-        let fav_companies_count: i32 =
+        let fav_companies_count =
             CompanyFav::get_count_by_user_uuid(&options.logged_user_uuid, conn)
                 .expect("Error get count fav_companies_count");
 
         // counting components in a user's favorite
-        let fav_components_count: i32 =
+        let fav_components_count =
             ComponentFav::get_count_by_user_uuid(&options.logged_user_uuid, conn)
                 .expect("Error get count fav_components_count");
 
         // counting standards in a user's favorite
-        let fav_standards_count: i32 =
+        let fav_standards_count =
             StandardFav::get_count_by_user_uuid(&options.logged_user_uuid, conn)
                 .expect("Error get count fav_standards_count");
 
         // counting users in a user's favorite
-        let fav_users_count: i32 =
-            UserFav::get_count_favorites_by_uuid(&options.logged_user_uuid, conn)
-                .expect("Error get count fav_users_count");
+        let fav_users_count = UserFav::get_count_favorites_by_uuid(&options.logged_user_uuid, conn)
+            .expect("Error get count fav_users_count");
 
         Ok(UserAndRelatedData {
             uuid: user.uuid,
@@ -355,8 +338,7 @@ impl ShowUserAndRelatedData {
         conn: &mut PgConnection,
     ) -> ServiceResult<ShowUserAndRelatedData> {
         // collect data for user
-        let user: UserQuery =
-            UserQuery::get_user_by_uuid(target_user_uuid, conn).expect("Error loading user");
+        let user = UserQuery::get_user_by_uuid(target_user_uuid, conn).expect("Error loading user");
 
         // get image file (favicon) for user
         let image_file =
@@ -364,29 +346,22 @@ impl ShowUserAndRelatedData {
                 .expect("Error loading user file");
 
         // get region for user
-        let region: RegionTranslateList =
-            RegionTranslateList::get_region_by_id(user.region_id, options.set_lang_id, conn)
-                .expect("Error loading user_type");
+        let region = region_by_id(user.region_id, options.set_lang_id)?;
 
         // get program set default for user
-        let program: Program =
-            Program::get_program_by_id(user.program_id, conn).expect("Error get set program");
+        let program = program_by_id(user.program_id)?;
 
         // check whether the object is being tracked auth user
-        let is_followed = crate::models::user::user_fav::util::check_subscriber_by_uuid(
-            target_user_uuid,
-            &options.logged_user_uuid,
-            conn,
-        )
-        .expect("Error get value is_followed");
+        let is_followed =
+            check_subscriber_by_uuid(target_user_uuid, &options.logged_user_uuid, conn)
+                .expect("Error get value is_followed");
 
         // count subscribers user
-        let subscribers: i32 = UserFav::get_count_followers_by_uuid(&user.uuid, conn)?;
+        let subscribers = UserFav::get_count_followers_by_uuid(&user.uuid, conn)?;
 
         // get certificates with slimfile for user
-        let certificates: Vec<UserCertificateAndFile> =
-            UserCertificateAndFile::from_user(&user.uuid, &options.domain, conn)
-                .expect("Error loading spec user with translate");
+        let certificates = UserCertificateAndFile::from_user(&user.uuid, &options.domain, conn)
+            .expect("Error loading spec user with translate");
 
         Ok(ShowUserAndRelatedData {
             uuid: user.uuid,

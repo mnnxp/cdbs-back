@@ -16,7 +16,7 @@ use crate::models::company::company_type::model::CompanyTypeTranslateList;
 use crate::models::company::member::model::CompanyMemberAndRelatedData;
 use crate::models::company::member::role::model::RoleMemberAndRelatedData;
 use crate::models::company::model::{CompanyAndRelatedData, ShowCompanyShort};
-use crate::models::relate_ref::cache::type_access_by_id;
+use crate::models::relate_ref::cache::{company_type_by_id, region_by_id, type_access_by_id};
 use crate::models::relate_ref::file::model::DownloadFile;
 use crate::models::relate_ref::region::model::RegionTranslateList;
 use crate::models::relate_ref::spec::model::SpecTranslateList;
@@ -97,8 +97,7 @@ impl CompanyAndRelatedData {
     /// Main company region
     async fn region(&self, ctx: &Context<'_>) -> ServiceResult<RegionTranslateList> {
         let options = ExtraOptions::from_ctx(ctx, true)?;
-        let conn: &mut PooledConnection = &mut get_conn(ctx)?;
-        RegionTranslateList::get_region_by_id(self.region_id, options.set_lang_id, conn)
+        region_by_id(self.region_id, options.set_lang_id)
     }
 
     /// Data on the company's representative offices
@@ -114,12 +113,7 @@ impl CompanyAndRelatedData {
     /// Type of company/society organization
     async fn company_type(&self, ctx: &Context<'_>) -> ServiceResult<CompanyTypeTranslateList> {
         let options = ExtraOptions::from_ctx(ctx, true)?;
-        let conn: &mut PooledConnection = &mut get_conn(ctx)?;
-        CompanyTypeTranslateList::get_company_type_by_id(
-            self.company_type_id,
-            options.set_lang_id,
-            conn,
-        )
+        company_type_by_id(self.company_type_id, options.set_lang_id)
     }
 
     /// List of certificates and competencies of the companies
@@ -215,19 +209,13 @@ impl ShowCompanyShort {
     /// Main region of the company's activity
     async fn region(&self, ctx: &Context<'_>) -> ServiceResult<RegionTranslateList> {
         let options = ExtraOptions::from_ctx(ctx, true)?;
-        let conn: &mut PooledConnection = &mut get_conn(ctx)?;
-        RegionTranslateList::get_region_by_id(self.region_id, options.set_lang_id, conn)
+        region_by_id(self.region_id, options.set_lang_id)
     }
 
     /// Type of company/community organization
     async fn company_type(&self, ctx: &Context<'_>) -> ServiceResult<CompanyTypeTranslateList> {
         let options = ExtraOptions::from_ctx(ctx, true)?;
-        let conn: &mut PooledConnection = &mut get_conn(ctx)?;
-        CompanyTypeTranslateList::get_company_type_by_id(
-            self.company_type_id,
-            options.set_lang_id,
-            conn,
-        )
+        company_type_by_id(self.company_type_id, options.set_lang_id)
     }
 
     /// Type of access to company profile

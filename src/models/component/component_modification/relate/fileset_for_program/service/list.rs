@@ -47,5 +47,5 @@ pub(crate) fn get_modification_filesets(
         ServiceError::InternalServerError
     })?;
 
-    FilesetProgramRelatedData::for_filesets(&filesets, conn)
+    FilesetProgramRelatedData::for_filesets(&filesets)
 }

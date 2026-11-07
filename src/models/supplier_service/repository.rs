@@ -2,12 +2,11 @@ use crate::auth::{require_permission, AccessEntity, AccessOperation};
 use crate::errors::{ServiceError, ServiceResult};
 use crate::graphql::service_model::{ServiceAndRelatedData, ShowServiceShort};
 use crate::models::company::model::ShowCompanyShort;
-use crate::models::relate_ref::region::model::RegionTranslateList;
+use crate::models::relate_ref::cache::{region_by_id, service_status_by_id};
 use crate::models::search::model::ExtraOptions;
 use crate::models::search::order::{objects_order, Paginate, Sort};
 use crate::models::supplier_service::access::repository::get_accessible_service_uuids;
 use crate::models::supplier_service::model::Service;
-use crate::models::supplier_service::service_status::model::ServiceStatusTranslateList;
 use crate::models::user::model::ShowUserShort;
 use crate::schema::service_ref::dsl as service_ref;
 use diesel::prelude::*;
@@ -87,12 +86,7 @@ impl ShowServiceShort {
                 .expect("Error loading company short data");
 
         // get service status with translation for service
-        let service_status = ServiceStatusTranslateList::get_by_id(
-            service.service_status_id,
-            options.set_lang_id,
-            conn,
-        )
-        .expect("Error loading service_status");
+        let service_status = service_status_by_id(service.service_status_id, options.set_lang_id)?;
 
         Ok(ShowServiceShort {
             uuid: service.uuid,
@@ -197,17 +191,10 @@ impl ServiceAndRelatedData {
                 .expect("Error loading company short data");
 
         // get service type with translation for service
-        let service_status = ServiceStatusTranslateList::get_by_id(
-            service.service_status_id,
-            options.set_lang_id,
-            conn,
-        )
-        .expect("Error loading service_status");
+        let service_status = service_status_by_id(service.service_status_id, options.set_lang_id)?;
 
         // get region for company
-        let region =
-            RegionTranslateList::get_region_by_id(service.region_id, options.set_lang_id, conn)
-                .expect("Error loading company_type");
+        let region = region_by_id(service.region_id, options.set_lang_id)?;
 
         Ok(ServiceAndRelatedData {
             uuid: service.uuid,
