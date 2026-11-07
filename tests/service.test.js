@@ -3318,6 +3318,129 @@ describe('service', () => {
     done();
   });
 
+  // Pagination: 10 services, 5 public + 5 private (owner baromi)
+  it('/graphql:M serviceRequest - OK for pagination (10 items)', async () => {
+    global.paginationServiceUuids = [];
+    for (let i = 0; i < 10; i++) {
+      const isPublic = i < 5;
+      const { body } = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenFirst}`)
+        .send({
+          query: `mutation {
+            serviceRequest(args: {
+              name: "Pagination Service ${i} ${Date.now()}",
+              description: "pagination test",
+              companyUuid: "${companyUuidSupplier}",
+              regionId: 1
+            })
+          }`,
+        })
+        .expect(HttpStatus.OK);
+      const uuid = body.data.serviceRequest;
+      // type_access_id is set by serviceRequest; if needed, update via knex:
+      await global.knex.raw('UPDATE service_ref SET type_access_id = ? WHERE uuid = ?', [
+        isPublic ? 3 : 1, uuid,
+      ]);
+      global.paginationServiceUuids.push(uuid);
+    }
+    expect(global.paginationServiceUuids.length).toBe(10);
+  });
+
+  it('/graphql:Q services - OK pagination no gaps (owner sees 10)', async () => {
+    const perPage = 3;
+    const seen = new Set();
+    for (let page = 1; page <= 4; page++) {
+      const { body } = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenFirst}`)
+        .send({
+          query: `query {
+            services(
+              args: { servicesUuids: ${JSON.stringify(global.paginationServiceUuids)} }
+              paginate: { currentPage: ${page}, perPage: ${perPage} }
+            ) { uuid }
+          }`,
+        })
+        .expect(HttpStatus.OK);
+      for (const s of body.data.services) seen.add(s.uuid);
+    }
+    expect(seen.size).toBe(10);
+  });
+
+  it('/graphql:Q services - OK pagination no gaps (non-owner sees 5 public)', async () => {
+    const perPage = 2;
+    const seen = new Set();
+    for (let page = 1; page <= 3; page++) {
+      const { body } = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenSecond}`)
+        .send({
+          query: `query {
+            services(
+              args: { servicesUuids: ${JSON.stringify(global.paginationServiceUuids)} }
+              paginate: { currentPage: ${page}, perPage: ${perPage} }
+            ) { uuid }
+          }`,
+        })
+        .expect(HttpStatus.OK);
+      for (const s of body.data.services) seen.add(s.uuid);
+    }
+    expect(seen.size).toBe(5);
+  });
+
+  // Sort: 2 services, SortA / SortZ
+  it('/graphql:M serviceRequest - OK sort by name (A, Z)', async () => {
+    const suffix = Date.now();
+
+    const createPublicService = async (name) => {
+      const { body } = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenFirst}`)
+        .send({
+          query: `mutation {
+            serviceRequest(args: {
+              name: "${name}",
+              description: "sort test",
+              companyUuid: "${companyUuidSupplier}",
+              regionId: 1
+            })
+          }`,
+        })
+        .expect(HttpStatus.OK);
+      const uuid = body.data.serviceRequest;
+      // serviceRequest creates a private service (type_access_id = 1);
+      // make it public so sorting is checked on both public items
+      await global.knex.raw('UPDATE service_ref SET type_access_id = 3 WHERE uuid = ?', [uuid]);
+      return uuid;
+    };
+
+    const a = await createPublicService(`SortA ${suffix}`);
+    const z = await createPublicService(`SortZ ${suffix}`);
+    global.sortServiceUuids = [a, z];
+  });
+
+  it('/graphql:Q services - OK sort by name DESC', async () => {
+    const [a, z] = global.sortServiceUuids;
+    const { body } = await agent
+      .post('/graphql')
+      .set('Authorization', `Bearer ${authorizationTokenFirst}`)
+      .send({
+        query: `query {
+          services(
+            args: { servicesUuids: ${JSON.stringify(global.sortServiceUuids)} }
+            sort: { byField: "name", asDesc: true }
+          ) { uuid name }
+        }`,
+      })
+      .expect(HttpStatus.OK);
+    const idxZ = body.data.services.findIndex(s => s.uuid === z);
+    const idxA = body.data.services.findIndex(s => s.uuid === a);
+    expect(idxZ).toBeGreaterThanOrEqual(0);
+    expect(idxA).toBeGreaterThanOrEqual(0);
+    expect(idxZ).toBeLessThan(idxA);
+  });
+
   it('/graphql:M putServiceUpdate - BadRequest not access for change company', async (done) => {
     const { body } = await agent
       .post('/graphql')

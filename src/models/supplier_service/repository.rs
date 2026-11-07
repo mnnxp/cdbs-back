@@ -5,9 +5,9 @@ use crate::models::company::model::ShowCompanyShort;
 use crate::models::relate_ref::region::model::RegionTranslateList;
 use crate::models::search::model::ExtraOptions;
 use crate::models::search::order::{objects_order, Paginate, Sort};
-use crate::models::supplier_service::{
-    model::Service, service_status::model::ServiceStatusTranslateList,
-};
+use crate::models::supplier_service::access::repository::get_accessible_service_uuids;
+use crate::models::supplier_service::model::Service;
+use crate::models::supplier_service::service_status::model::ServiceStatusTranslateList;
 use crate::models::user::model::ShowUserShort;
 use crate::schema::service_ref::dsl as service_ref;
 use diesel::prelude::*;
@@ -55,7 +55,7 @@ impl ShowServiceShort {
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<ShowServiceShort>> {
         match filter_services_uuids.is_empty() {
-            true => ShowServiceShort::get_all_public(options, paginate, conn),
+            true => ShowServiceShort::get_all_public(options, sort, paginate, conn),
             false => ShowServiceShort::get_list_by_uuids(
                 filter_services_uuids,
                 options,
@@ -66,20 +66,12 @@ impl ShowServiceShort {
         }
     }
 
-    /// Gets service short data by service_uuid with check access
-    pub(crate) fn get_by_uuid(
+    /// Gets service short data without checking access
+    pub(crate) fn get_without_check_by_uuid(
         target_service_uuid: &Uuid,
         options: &ExtraOptions,
         conn: &mut PgConnection,
     ) -> ServiceResult<ShowServiceShort> {
-        require_permission(
-            &options.logged_user_uuid,
-            AccessEntity::Service,
-            target_service_uuid,
-            AccessOperation::Read,
-            conn,
-        )?;
-
         // get target service
         let service: Service =
             Service::get_service_by_uuid(target_service_uuid, conn).expect("Error loading service");
@@ -94,7 +86,7 @@ impl ShowServiceShort {
             ShowCompanyShort::get_without_check_by_uuid(&service.company_uuid, conn)
                 .expect("Error loading company short data");
 
-        // get service type with translation for service
+        // get service status with translation for service
         let service_status = ServiceStatusTranslateList::get_by_id(
             service.service_status_id,
             options.set_lang_id,
@@ -120,15 +112,24 @@ impl ShowServiceShort {
         paginate: &Paginate,
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<ShowServiceShort>> {
-        let mut result: Vec<ShowServiceShort> = Vec::new();
-        // collecting data for each service
-        for ct_uuid in objects_order(service_uuids, sort, paginate, conn)? {
-            match ShowServiceShort::get_by_uuid(&ct_uuid, options, conn) {
-                Ok(value) => result.push(value),
-                Err(err) => {
-                    debug!("Failed get service short data: {:?}", err);
-                }
-            };
+        // filter by access (one SQL)
+        let accessible = get_accessible_service_uuids(
+            &options.logged_user_uuid,
+            AccessOperation::Read,
+            service_uuids,
+            conn,
+        )?;
+        if accessible.is_empty() {
+            return Ok(Vec::new());
+        }
+        // sort and paginate the accessible set
+        let ordered_uuids = objects_order(&accessible, sort, paginate, conn)?;
+        // hydrate (no access check, already filtered)
+        let mut result = Vec::with_capacity(ordered_uuids.len());
+        for uuid in &ordered_uuids {
+            result.push(ShowServiceShort::get_without_check_by_uuid(
+                uuid, options, conn,
+            )?);
         }
         Ok(result)
     }
@@ -136,6 +137,7 @@ impl ShowServiceShort {
     /// Gets all public services short data
     pub(crate) fn get_all_public(
         options: &ExtraOptions,
+        sort: &Sort,
         paginate: &Paginate,
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<ShowServiceShort>> {
@@ -147,21 +149,19 @@ impl ShowServiceShort {
                     .and(service_ref::is_delete.eq(false)),
             )
             .select(service_ref::uuid)
-            .limit(paginate.limit)
-            .offset(paginate.offset)
             .load::<Uuid>(conn)
             .map_err(|err| {
                 debug!("Failed get public services: {:?}", err);
                 ServiceError::InternalServerError
             })?;
 
-        // the for collect the result :)
         let mut result: Vec<ShowServiceShort> = Vec::new();
-        // collecting data for each service
-        for target_service_uuid in service_uuids.iter() {
-            let _res = ShowServiceShort::get_by_uuid(target_service_uuid, options, conn)
-                .map(|value| result.push(value))
-                .map_err(|err| debug!("Failed get service data: {:?}", err));
+        for target_service_uuid in objects_order(&service_uuids, sort, paginate, conn)? {
+            result.push(ShowServiceShort::get_without_check_by_uuid(
+                &target_service_uuid,
+                options,
+                conn,
+            )?);
         }
         Ok(result)
     }
