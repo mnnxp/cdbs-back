@@ -305,15 +305,19 @@ impl ComponentAndRelatedData {
     async fn component_standards(
         &self,
         ctx: &Context<'_>,
+        sort: Option<IptSort>,
         paginate: Option<IptPaginate>,
     ) -> Vec<ShowStandardShort> {
         let conn: &mut PooledConnection = &mut get_conn(ctx).expect("Error get conn to DB");
         let p = paginate
             .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
             .unwrap_or_default();
+        let s = sort
+            .map(|s| Sort::parsing(TableName::StandardRef, &s.by_field, s.as_desc))
+            .unwrap_or(Sort::set_by_table(TableName::StandardRef));
         let options = ExtraOptions::from_ctx(ctx, true).expect("Failed to get options");
         // collect data for component standards
-        ShowStandardShort::for_component(&self.uuid, &p, &options, conn)
+        ShowStandardShort::for_component(&self.uuid, &options, &s, &p, conn)
             .expect("Error loading standard component with relate")
     }
 

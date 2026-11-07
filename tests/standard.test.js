@@ -3311,6 +3311,129 @@ describe('standard', () => {
     done();
   });
 
+
+  it('/graphql:M registerStandard - OK for pagination (10 items, 5 public)', async () => {
+    global.paginationStandardUuids = [];
+    for (let i = 0; i < 10; i++) {
+      const { body } = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenFirst}`)
+        .send({
+          query: `mutation {
+            registerStandard(args: {
+              name: "Pagination Standard ${i} ${Date.now()}",
+              description: "pagination test",
+              publicationAt: "2021-01-01T00:00:00",
+              companyUuid: "${companyUuidSupplier}",
+              typeAccessId: ${i < 5 ? 3 : 1},
+              standardStatusId: 1
+            })
+          }`,
+        })
+        .expect(HttpStatus.OK);
+      global.paginationStandardUuids.push(body.data.registerStandard);
+    }
+    expect(global.paginationStandardUuids.length).toBe(10);
+  });
+
+  it('/graphql:Q standards - OK pagination no gaps (owner sees 10)', async () => {
+    const perPage = 3;
+    const seen = new Set();
+    for (let page = 1; page <= 4; page++) {
+      const { body } = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenFirst}`)
+        .send({
+          query: `query {
+            standards(
+              args: { standardsUuids: ${JSON.stringify(global.paginationStandardUuids)} }
+              paginate: { currentPage: ${page}, perPage: ${perPage} }
+            ) { uuid }
+          }`,
+        })
+        .expect(HttpStatus.OK);
+      for (const s of body.data.standards) seen.add(s.uuid);
+    }
+    expect(seen.size).toBe(10);   // no gaps, no duplicates
+  });
+
+  it('/graphql:Q standards - OK pagination no gaps (non-owner sees 5 public)', async () => {
+    const perPage = 2;
+    const seen = new Set();
+    for (let page = 1; page <= 3; page++) {
+      const { body } = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenSecond}`)
+        .send({
+          query: `query {
+            standards(
+              args: { standardsUuids: ${JSON.stringify(global.paginationStandardUuids)} }
+              paginate: { currentPage: ${page}, perPage: ${perPage} }
+            ) { uuid }
+          }`,
+        })
+        .expect(HttpStatus.OK);
+      for (const s of body.data.standards) seen.add(s.uuid);
+    }
+    expect(seen.size).toBe(5);   // only public accessible, no gaps
+  });
+
+  it('/graphql:M registerStandard - OK sort by name (A, Z)', async () => {
+    const suffix = Date.now();
+    const a = (await agent
+      .post('/graphql')
+      .set('Authorization', `Bearer ${authorizationTokenFirst}`)
+      .send({
+        query: `mutation {
+          registerStandard(args: {
+            name: "SortA ${suffix}",
+            description: "sort test",
+            publicationAt: "2021-01-01T00:00:00",
+            companyUuid: "${companyUuidSupplier}",
+            typeAccessId: 3,
+            standardStatusId: 1
+          })
+        }`,
+      })).body.data.registerStandard;
+    const z = (await agent
+      .post('/graphql')
+      .set('Authorization', `Bearer ${authorizationTokenFirst}`)
+      .send({
+        query: `mutation {
+          registerStandard(args: {
+            name: "SortZ ${suffix}",
+            description: "sort test",
+            publicationAt: "2021-01-01T00:00:00",
+            companyUuid: "${companyUuidSupplier}",
+            typeAccessId: 3,
+            standardStatusId: 1
+          })
+        }`,
+      })).body.data.registerStandard;
+    global.sortStandardUuids = [a, z];
+  });
+
+  it('/graphql:Q standards - OK sort by name DESC', async () => {
+    const [a, z] = global.sortStandardUuids;
+    const { body } = await agent
+      .post('/graphql')
+      .set('Authorization', `Bearer ${authorizationTokenFirst}`)
+      .send({
+        query: `query {
+          standards(
+            args: { standardsUuids: ${JSON.stringify(global.sortStandardUuids)} }
+            sort: { byField: "name", asDesc: true }
+          ) { uuid name }
+        }`,
+      })
+      .expect(HttpStatus.OK);
+    const idxZ = body.data.standards.findIndex(s => s.uuid === z);
+    const idxA = body.data.standards.findIndex(s => s.uuid === a);
+    expect(idxZ).toBeGreaterThanOrEqual(0);
+    expect(idxA).toBeGreaterThanOrEqual(0);
+    expect(idxZ).toBeLessThan(idxA);   // Z before A (DESC)
+  });
+
   it('/graphql:Q Get full data Standard - OK by company', async (done) => {
     const { body } = await agent
       .post('/graphql')

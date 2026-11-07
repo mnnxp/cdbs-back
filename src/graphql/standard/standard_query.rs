@@ -3,7 +3,7 @@ use crate::auth::AuthContext;
 use crate::database::{get_conn, PooledConnection};
 use crate::errors::ServiceResult;
 use crate::graphql::handler::extract_client_domain;
-use crate::graphql::relate::attributes::IptPaginate;
+use crate::graphql::relate::attributes::{IptPaginate, IptSort};
 use crate::graphql::standard_model::{
     IptStandardFilesArg, IptStandardsArg, ShowStandardShort, StandardAndRelatedData,
 };
@@ -12,7 +12,7 @@ use crate::models::relate_ref::{
     spec::model::SpecTranslateList,
 };
 use crate::models::search::model::ExtraOptions;
-use crate::models::search::order::Paginate;
+use crate::models::search::order::{Paginate, Sort, TableName};
 use crate::models::standard::{
     access::company::model::CompanyAccessStandardAndRelatedData,
     access::user::model::UserAccessStandardAndRelatedData,
@@ -33,18 +33,21 @@ impl StandardQuery {
         &self,
         ctx: &Context<'_>,
         args: Option<IptStandardsArg>,
+        sort: Option<IptSort>,
         paginate: Option<IptPaginate>,
     ) -> ServiceResult<Vec<ShowStandardShort>> {
         use crate::models::standard::service::list::get_standard;
 
-        // authorization check
         let options = ExtraOptions::from_ctx(ctx, false)?;
         let arguments = StandardsArg::by_arg(args);
+        let s = sort
+            .map(|s| Sort::parsing(TableName::StandardRef, &s.by_field, s.as_desc))
+            .unwrap_or(Sort::set_by_table(TableName::StandardRef));
         let p = paginate
             .map(|p| Paginate::parsing_by_page(p.current_page, p.per_page))
             .unwrap_or_default();
         let conn: &mut PooledConnection = &mut get_conn(ctx)?;
-        get_standard(&arguments, &options, &p, conn)
+        get_standard(&arguments, &options, &s, &p, conn)
     }
 
     /// Returns complete information about the standard by UUID.

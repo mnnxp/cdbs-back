@@ -1,14 +1,16 @@
 use crate::errors::{ServiceError, ServiceResult};
 use crate::graphql::standard_model::ShowStandardShort;
-use crate::models::search::{model::ExtraOptions, order::Paginate};
+use crate::models::search::model::ExtraOptions;
+use crate::models::search::order::{Paginate, Sort};
 use diesel::prelude::*;
 use uuid::Uuid;
 
 impl ShowStandardShort {
     pub(crate) fn for_component(
         target_component_uuid: &Uuid,
-        paginate: &Paginate,
         options: &ExtraOptions,
+        sort: &Sort,
+        paginate: &Paginate,
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<ShowStandardShort>> {
         use crate::schema::standard_to_component::dsl::*;
@@ -17,9 +19,6 @@ impl ShowStandardShort {
         let select_standards_uuids: Vec<Uuid> = standard_to_component
             .filter(component_uuid.eq(target_component_uuid))
             .select(standard_uuid)
-            .order(standard_uuid.asc())
-            .limit(paginate.limit)
-            .offset(paginate.offset)
             .load::<Uuid>(conn)
             .map_err(|err| {
                 debug!("Fail getting standards for the component: {:?}", err);
@@ -33,6 +32,6 @@ impl ShowStandardShort {
         }
 
         // collecting standards for component
-        ShowStandardShort::get_list_by_uuids(&select_standards_uuids, options, conn)
+        ShowStandardShort::get_list_by_uuids(&select_standards_uuids, options, sort, paginate, conn)
     }
 }

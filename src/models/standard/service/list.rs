@@ -1,7 +1,8 @@
 use crate::errors::err_msg::{get_err_msg, ErrorMessage};
 use crate::errors::{ServiceError, ServiceResult};
 use crate::graphql::standard_model::{ShowStandardShort, StandardAndRelatedData};
-use crate::models::search::{model::ExtraOptions, order::Paginate};
+use crate::models::search::model::ExtraOptions;
+use crate::models::search::order::{Paginate, Sort};
 use crate::models::standard::model::StandardsArg;
 use diesel::{prelude::*, PgConnection};
 use uuid::Uuid;
@@ -11,6 +12,7 @@ use uuid::Uuid;
 pub(crate) fn get_standard(
     arguments: &StandardsArg,
     options: &ExtraOptions,
+    sort: &Sort,
     paginate: &Paginate,
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<ShowStandardShort>> {
@@ -49,15 +51,14 @@ pub(crate) fn get_standard(
         return Ok(Vec::new());
     }
 
-    ShowStandardShort::get_standards(&target_standards_uuids, options, paginate, conn).map_err(
-        |err| {
+    ShowStandardShort::get_standards(&target_standards_uuids, options, sort, paginate, conn)
+        .map_err(|err| {
             debug!(
                 "Error loading list standards and collect short data: {:?}",
                 err
             );
             get_err_msg(ErrorMessage::AccessDenied)
-        },
-    )
+        })
 }
 
 /// Gets list with uuids standards by owner user

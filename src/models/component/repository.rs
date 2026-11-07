@@ -172,7 +172,6 @@ impl ShowComponentShort {
                     .and(component_ref::is_delete.eq(false)),
             )
             .select(component_ref::uuid)
-            .limit(1000)
             .load::<Uuid>(conn)
             .expect("Failed get public components");
         if let Some(sc_id) = spec_id {

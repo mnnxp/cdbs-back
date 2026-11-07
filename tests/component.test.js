@@ -4200,8 +4200,8 @@ describe('component', () => {
               uuid
               componentStandards (
                 paginate: {
-                  currentPage: 2
-                  perPage: 1
+                  currentPage: 1
+                  perPage: 5
                 }
               ) {
                 uuid
