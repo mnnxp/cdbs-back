@@ -72,18 +72,15 @@ impl ShowServiceShort {
         conn: &mut PgConnection,
     ) -> ServiceResult<ShowServiceShort> {
         // get target service
-        let service: Service =
-            Service::get_service_by_uuid(target_service_uuid, conn).expect("Error loading service");
+        let service: Service = Service::get_service_by_uuid(target_service_uuid, conn)?;
 
         // get data a owner user for a service
         let owner_user =
-            ShowUserShort::get_without_check_by_uuid(&service.user_uuid, &options.domain, conn)
-                .expect("Error loading slim_user");
+            ShowUserShort::get_without_check_by_uuid(&service.user_uuid, &options.domain, conn)?;
 
         // get service owner company
         let owner_company =
-            ShowCompanyShort::get_without_check_by_uuid(&service.company_uuid, conn)
-                .expect("Error loading company short data");
+            ShowCompanyShort::get_without_check_by_uuid(&service.company_uuid, conn)?;
 
         // get service status with translation for service
         let service_status = service_status_by_id(service.service_status_id, options.set_lang_id)?;
@@ -177,18 +174,15 @@ impl ServiceAndRelatedData {
         )?;
 
         // collect data for service
-        let service: Service =
-            Service::get_service_by_uuid(target_service_uuid, conn).expect("Error loading service");
+        let service: Service = Service::get_service_by_uuid(target_service_uuid, conn)?;
 
         // get data a owner user for a service
         let owner_user =
-            ShowUserShort::get_without_check_by_uuid(&service.user_uuid, &options.domain, conn)
-                .expect("Error loading slim_user");
+            ShowUserShort::get_without_check_by_uuid(&service.user_uuid, &options.domain, conn)?;
 
         // get data a owner company for a service
         let owner_company =
-            ShowCompanyShort::get_without_check_by_uuid(&service.company_uuid, conn)
-                .expect("Error loading company short data");
+            ShowCompanyShort::get_without_check_by_uuid(&service.company_uuid, conn)?;
 
         // get service type with translation for service
         let service_status = service_status_by_id(service.service_status_id, options.set_lang_id)?;

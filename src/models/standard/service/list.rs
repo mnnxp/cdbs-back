@@ -4,6 +4,8 @@ use crate::graphql::standard_model::{ShowStandardShort, StandardAndRelatedData};
 use crate::models::search::model::ExtraOptions;
 use crate::models::search::order::{Paginate, Sort};
 use crate::models::standard::model::StandardsArg;
+use crate::schema::standard_fav::dsl as standard_fav;
+use crate::schema::standard_ref::dsl as standard_ref;
 use diesel::{prelude::*, PgConnection};
 use uuid::Uuid;
 
@@ -27,12 +29,7 @@ pub(crate) fn get_standard(
     let target_standards_uuids: Vec<Uuid> = match (company_uuid, favorite) {
         // gets standards of user list with/without filter
         (Some(cy_uuid), false) => {
-            get_standards_by_user(
-                filter_standards_uuids,
-                cy_uuid, // company_uuid
-                paginate,
-                conn,
-            )?
+            get_standards_by_user(filter_standards_uuids, cy_uuid, paginate, conn)?
         }
         // gets standards of self favorite list with/without filter
         (None, true) => get_standards_followed_by_user(
@@ -69,8 +66,6 @@ fn get_standards_by_user(
     paginate: &Paginate,
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<Uuid>> {
-    use crate::schema::standard_ref::dsl as standard_ref;
-
     let mut query = standard_ref::standard_ref.into_boxed();
 
     query = match filter_standards_uuids.is_empty() {
@@ -101,8 +96,6 @@ fn get_standards_followed_by_user(
     paginate: &Paginate,
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<Uuid>> {
-    use crate::schema::standard_fav::dsl as standard_fav;
-
     let mut query = standard_fav::standard_fav.into_boxed();
 
     query = match filter_standards_uuids.is_empty() {
@@ -138,9 +131,5 @@ pub(crate) fn find_by_uuid(
     conn: &mut PgConnection,
 ) -> ServiceResult<StandardAndRelatedData> {
     // collect data for standard
-    let result: StandardAndRelatedData =
-        StandardAndRelatedData::collect_related_data(target_standard_uuid, options, paginate, conn)
-            .expect("Error loading standard and collect related data");
-    debug!("Standard data: {:#?}", result);
-    Ok(result)
+    StandardAndRelatedData::collect_related_data(target_standard_uuid, options, paginate, conn)
 }

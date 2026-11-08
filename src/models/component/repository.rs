@@ -4,6 +4,7 @@ use crate::graphql::component_model::{ComponentAndRelatedData, ShowComponentShor
 use crate::models::component::{
     access::repository::get_accessible_component_uuids,
     actual_status::model::ActualStatusTranslateList, component_fav::model::ComponentFav,
+    component_fav::util::check_subscriber_by_uuid,
     component_type::model::ComponentTypeTranslateList, model::Component,
 };
 use crate::models::relate_ref::cache::{
@@ -16,6 +17,8 @@ use crate::models::search::model::ExtraOptions;
 use crate::models::search::order::{objects_order, Paginate, Sort};
 use crate::models::user::model::ShowUserShort;
 use crate::schema::component_ref::dsl as component_ref;
+use crate::schema::spec_ref::dsl as spec_ref;
+use crate::schema::spec_to_component::dsl as spec_to_component;
 use diesel::prelude::*;
 use uuid::Uuid;
 
@@ -82,33 +85,25 @@ impl ShowComponentShort {
         conn: &mut PgConnection,
     ) -> ServiceResult<ShowComponentShort> {
         // get target component
-        let component = Component::get_component_by_uuid(target_component_uuid, conn)
-            .expect("Failed get Component data");
+        let component = Component::get_component_by_uuid(target_component_uuid, conn)?;
 
         // get image file (favicon) for component
         let image_file =
-            DownloadFile::get_by_file_uuid(&component.image_file_uuid, &options.domain, conn)
-                .expect("Error get presigned url main image");
+            DownloadFile::get_by_file_uuid(&component.image_file_uuid, &options.domain, conn)?;
 
         // get component owner
         let owner_user =
-            ShowUserShort::get_without_check_by_uuid(&component.user_uuid, &options.domain, conn)
-                .expect("Error loading slim_user");
+            ShowUserShort::get_without_check_by_uuid(&component.user_uuid, &options.domain, conn)?;
 
         let (type_access, component_type, actual_status) =
             component_dictionaries(&component, options.set_lang_id)?;
 
         // check whether the object is being tracked auth user
-        let is_followed = crate::models::component::component_fav::util::check_subscriber_by_uuid(
-            target_component_uuid,
-            &options.logged_user_uuid,
-            conn,
-        )
-        .expect("Error get is_followed");
+        let is_followed =
+            check_subscriber_by_uuid(target_component_uuid, &options.logged_user_uuid, conn)?;
 
         // get licenses for component
-        let licenses =
-            License::get_by_component_uuid(&component.uuid, conn).expect("Error loading license");
+        let licenses = License::get_by_component_uuid(&component.uuid, conn)?;
 
         Ok(ShowComponentShort {
             uuid: component.uuid,
@@ -173,7 +168,10 @@ impl ShowComponentShort {
             )
             .select(component_ref::uuid)
             .load::<Uuid>(conn)
-            .expect("Failed get public components");
+            .map_err(|err| {
+                debug!("Failed get public components: {:?}", err);
+                ServiceError::InternalServerError
+            })?;
         if let Some(sc_id) = spec_id {
             component_uuids = filter_components_uuids_by_spec(&component_uuids, sc_id, conn)?;
         }
@@ -205,18 +203,15 @@ impl ComponentAndRelatedData {
         )?;
 
         // collect data for component
-        let component = Component::get_component_by_uuid(target_component_uuid, conn)
-            .expect("Error loading component");
+        let component = Component::get_component_by_uuid(target_component_uuid, conn)?;
 
         // get image file (favicon) for component
         let image_file =
-            DownloadFile::get_by_file_uuid(&component.image_file_uuid, &options.domain, conn)
-                .expect("Error get presigned url main image");
+            DownloadFile::get_by_file_uuid(&component.image_file_uuid, &options.domain, conn)?;
 
         // get component owner
         let owner_user =
-            ShowUserShort::get_without_check_by_uuid(&component.user_uuid, &options.domain, conn)
-                .expect("Error loading slim_user");
+            ShowUserShort::get_without_check_by_uuid(&component.user_uuid, &options.domain, conn)?;
 
         let (type_access, component_type, actual_status) =
             component_dictionaries(&component, options.set_lang_id)?;
@@ -225,16 +220,11 @@ impl ComponentAndRelatedData {
         let subscribers: i32 = ComponentFav::get_count_followers_by_uuid(&component.uuid, conn)?;
 
         // check whether the object is being tracked auth user
-        let is_followed = crate::models::component::component_fav::util::check_subscriber_by_uuid(
-            target_component_uuid,
-            &options.logged_user_uuid,
-            conn,
-        )
-        .expect("Error get is_followed");
+        let is_followed =
+            check_subscriber_by_uuid(target_component_uuid, &options.logged_user_uuid, conn)?;
 
         // get licenses for component
-        let licenses =
-            License::get_by_component_uuid(&component.uuid, conn).expect("Error loading license");
+        let licenses = License::get_by_component_uuid(&component.uuid, conn)?;
 
         Ok(ComponentAndRelatedData {
             uuid: component.uuid,
@@ -263,9 +253,6 @@ pub(crate) fn filter_components_uuids_by_spec(
     spec_id: i32,
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<Uuid>> {
-    use crate::schema::spec_ref::dsl as spec_ref;
-    use crate::schema::spec_to_component::dsl as spec_to_component;
-
     // Load IDs of all descendant specs
     let mut descendant_ids = spec_ref::spec_ref
         .filter(spec_ref::path.like(format!("%.{}.%", spec_id)))

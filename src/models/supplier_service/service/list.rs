@@ -6,6 +6,7 @@ use crate::models::search::{
     order::{Paginate, Sort},
 };
 use crate::models::supplier_service::model::ServicesArg;
+use crate::schema::service_ref::dsl as service_ref;
 use diesel::{prelude::*, PgConnection};
 use uuid::Uuid;
 
@@ -49,8 +50,6 @@ fn get_services_with_filter(
     paginate: &Paginate,
     conn: &mut PgConnection,
 ) -> ServiceResult<Vec<Uuid>> {
-    use crate::schema::service_ref::dsl as service_ref;
-
     let mut query = service_ref::service_ref.into_boxed();
     query = match (
         args.filter_services_uuids.is_empty(),
@@ -102,9 +101,5 @@ pub(crate) fn find_by_uuid(
     conn: &mut PgConnection,
 ) -> ServiceResult<ServiceAndRelatedData> {
     // collect data for service
-    let result: ServiceAndRelatedData =
-        ServiceAndRelatedData::collect_related_data(target_service_uuid, options, conn)
-            .expect("Error loading service and collect related data");
-    debug!("Service data: {:#?}", result);
-    Ok(result)
+    ServiceAndRelatedData::collect_related_data(target_service_uuid, options, conn)
 }
