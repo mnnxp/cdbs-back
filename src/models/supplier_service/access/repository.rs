@@ -49,6 +49,7 @@ pub(crate) fn get_accessible_service_uuids(
                   WHERE ua.service_uuid = s.uuid
                     AND ua.user_uuid = '{user}'
                     AND ua.type_access_id <= {need_level}
+                    AND ua.is_enabled = true
               )
               OR EXISTS (
                   SELECT 1 FROM company_access_to_service ca
@@ -59,6 +60,7 @@ pub(crate) fn get_accessible_service_uuids(
                   WHERE ca.service_uuid = s.uuid
                     AND cm.user_uuid = '{user}'
                     AND cm.is_enabled = true
+                    AND ca.is_enabled = true
                     AND ra.type_access_id <= {need_level}
               )
           )
