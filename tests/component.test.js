@@ -11694,4 +11694,323 @@ describe('component', () => {
     expect(body.errors[0].path[0]).toBe('deleteComponent');
     done();
   });
+
+  // ==============================================
+  // access is_enabled: false
+  // ==============================================
+  describe('is_enabled access control', () => {
+    let ctxComponentUuid = "";
+    let ctxCompanyUuid = "";
+    let ctxRoleId = 0;
+
+    it('setup: register component (owner = user 2, private)', async () => {
+      const { body } = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenSecond}`)
+        .send({
+          query: `mutation {
+            registerComponent(args: {
+              name: "is_enabled test component"
+              description: "is_enabled test"
+              typeAccessId: ${typeAccessId1}
+              componentTypeId: ${componentTypeId}
+              actualStatusId: ${actualStatusIdComponent}
+              isBase: false
+            })
+          }`,
+        })
+        .expect(HttpStatus.OK);
+      expect(body.errors).toBeUndefined();
+      ctxComponentUuid = body.data.registerComponent;
+      expect(ctxComponentUuid).toBeNonEmptyString();
+    });
+
+    it('setup: register company (owner = user 2)', async () => {
+      const { body } = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenSecond}`)
+        .send({
+          query: `mutation {
+            registerCompany(args: {
+              orgname: "is_enabled test company ${Date.now()}"
+              shortname: "ietc${Date.now()}"
+              inn: "0000000001"
+              phone: "00000000001"
+              email: "ietc@test.local"
+              description: "is_enabled test company"
+              address: "test address"
+              siteUrl: "test.local"
+              timeZone: "Europe/Moscow"
+              regionId: 1
+              companyTypeId: 1
+              typeAccessId: ${typeAccessId1}
+            })
+          }`,
+        })
+        .expect(HttpStatus.OK);
+      expect(body.errors).toBeUndefined();
+      ctxCompanyUuid = body.data.registerCompany;
+      expect(ctxCompanyUuid).toBeNonEmptyString();
+    });
+
+    it('setup: register role in company (Read)', async () => {
+      const { body } = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenSecond}`)
+        .send({
+          query: `mutation {
+            registerCompanyRole(args: {
+              companyUuid: "${ctxCompanyUuid}"
+              langId: 1
+              name: "is_enabled test role ${Date.now()}"
+            })
+          }`,
+        })
+        .expect(HttpStatus.OK);
+      expect(body.errors).toBeUndefined();
+      ctxRoleId = body.data.registerCompanyRole;
+      expect(ctxRoleId).toBeGreaterThan(0);
+
+      const { body: addAccBody } = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenSecond}`)
+        .send({
+          query: `mutation {
+            addAccessRole(args: {
+              roleId: ${ctxRoleId}
+              typesAccessIds: ${typeAccessId3}
+            })
+          }`,
+        })
+        .expect(HttpStatus.OK);
+      expect(addAccBody.errors).toBeUndefined();
+      expect(addAccBody.data.addAccessRole).toBe(1);
+    });
+
+    it('setup: add user 1 as company member', async () => {
+      const { body } = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenSecond}`)
+        .send({
+          query: `mutation {
+            addCompanyMember(args: {
+              companyUuid: "${ctxCompanyUuid}"
+              userUuid: "${authorizationUserFirst}"
+              roleId: ${ctxRoleId}
+            })
+          }`,
+        })
+        .expect(HttpStatus.OK);
+      expect(body.errors).toBeUndefined();
+      expect(body.data.addCompanyMember).toBe(true);
+    });
+
+    it('setup: baseline — user 1 sees nothing (no access yet)', async () => {
+      const { body } = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenFirst}`)
+        .send({
+          query: `query {
+            components(args: { componentsUuids: "${ctxComponentUuid}" }) { uuid }
+          }`,
+        })
+        .expect(HttpStatus.OK);
+      expect(body.data.components).toBeEmptyArray();
+    });
+
+    it('user_access: granted — user 1 sees component', async () => {
+      const { body } = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenSecond}`)
+        .send({
+          query: SET_USER_ACCESS_COMPONENT_MUTATION,
+          variables: {
+            componentUuid: ctxComponentUuid,
+            userUuid: authorizationUserFirst,
+            typeAccessId: typeAccessId3,
+          },
+        })
+        .expect(HttpStatus.OK);
+      expect(body.errors).toBeUndefined();
+      expect(body.data.setUserAccessComponent).toBe(true);
+
+      const { body: listBody } = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenFirst}`)
+        .send({
+          query: `query {
+            components(args: { componentsUuids: "${ctxComponentUuid}" }) { uuid }
+          }`,
+        })
+        .expect(HttpStatus.OK);
+      expect(listBody.data.components.length).toBe(1);
+      expect(listBody.data.components[0].uuid).toBe(ctxComponentUuid);
+    });
+
+    it('user_access: deactivated — user 1 does not see component (list)', async () => {
+      // flush cache: set_* again, then UPDATE false
+      await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenSecond}`)
+        .send({
+          query: SET_USER_ACCESS_COMPONENT_MUTATION,
+          variables: {
+            componentUuid: ctxComponentUuid,
+            userUuid: authorizationUserFirst,
+            typeAccessId: typeAccessId3,
+          },
+        })
+        .expect(HttpStatus.OK);
+      await global.knex.raw(
+        'UPDATE user_access_to_component SET is_enabled = false WHERE component_uuid = ? AND user_uuid = ?',
+        [ctxComponentUuid, authorizationUserFirst]
+      );
+
+      const { body } = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenFirst}`)
+        .send({
+          query: `query {
+            components(args: { componentsUuids: "${ctxComponentUuid}" }) { uuid }
+          }`,
+        })
+        .expect(HttpStatus.OK);
+      expect(body.data.components).toBeEmptyArray();
+    });
+
+    it('user_access: deactivated — user 1 does not see component (single)', async () => {
+      const { body } = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenFirst}`)
+        .send({
+          query: `query {
+            component(componentUuid: "${ctxComponentUuid}") { uuid }
+          }`,
+        })
+        .expect(HttpStatus.OK);
+      expect(body.data).toBeNull();
+      expect(body.errors[0].message).toBe('BadRequest: Access denied');
+    });
+
+    it('company_access: granted — user 1 sees component (via company role)', async () => {
+      const { body } = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenSecond}`)
+        .send({
+          query: SET_COMPANY_ACCESS_COMPONENT_MUTATION,
+          variables: {
+            componentUuid: ctxComponentUuid,
+            companyUuid: ctxCompanyUuid,
+            typeAccessId: typeAccessId3,
+          },
+        })
+        .expect(HttpStatus.OK);
+      expect(body.errors).toBeUndefined();
+      expect(body.data.setCompanyAccessComponent).toBe(true);
+
+      const { body: listBody } = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenFirst}`)
+        .send({
+          query: `query {
+            components(args: { componentsUuids: "${ctxComponentUuid}" }) { uuid }
+          }`,
+        })
+        .expect(HttpStatus.OK);
+      expect(listBody.data.components.length).toBe(1);
+    });
+
+    it('company_access: deactivated — user 1 does not see component', async () => {
+      // flush cache
+      await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenSecond}`)
+        .send({
+          query: SET_COMPANY_ACCESS_COMPONENT_MUTATION,
+          variables: {
+            componentUuid: ctxComponentUuid,
+            companyUuid: ctxCompanyUuid,
+            typeAccessId: typeAccessId3,
+          },
+        })
+        .expect(HttpStatus.OK);
+      await global.knex.raw(
+        'UPDATE company_access_to_component SET is_enabled = false WHERE component_uuid = ? AND company_uuid = ?',
+        [ctxComponentUuid, ctxCompanyUuid]
+      );
+
+      const { body } = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenFirst}`)
+        .send({
+          query: `query {
+            components(args: { componentsUuids: "${ctxComponentUuid}" }) { uuid }
+          }`,
+        })
+        .expect(HttpStatus.OK);
+      expect(body.data.components).toBeEmptyArray();
+    });
+
+    it('company_member: deactivated — user 1 does not see component', async () => {
+      // restore company_access to true, but deactivate member role
+      await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenSecond}`)
+        .send({
+          query: SET_COMPANY_ACCESS_COMPONENT_MUTATION,
+          variables: {
+            componentUuid: ctxComponentUuid,
+            companyUuid: ctxCompanyUuid,
+            typeAccessId: typeAccessId3,
+          },
+        })
+        .expect(HttpStatus.OK);
+      await global.knex.raw(
+        'UPDATE company_member_list SET is_enabled = false WHERE company_uuid = ? AND user_uuid = ?',
+        [ctxCompanyUuid, authorizationUserFirst]
+      );
+      // flush cache
+      await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenSecond}`)
+        .send({
+          query: SET_COMPANY_ACCESS_COMPONENT_MUTATION,
+          variables: {
+            componentUuid: ctxComponentUuid,
+            companyUuid: ctxCompanyUuid,
+            typeAccessId: typeAccessId3,
+          },
+        })
+        .expect(HttpStatus.OK);
+
+      const { body } = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenFirst}`)
+        .send({
+          query: `query {
+            components(args: { componentsUuids: "${ctxComponentUuid}" }) { uuid }
+          }`,
+        })
+        .expect(HttpStatus.OK);
+      expect(body.data.components).toBeEmptyArray();
+    });
+
+    it('cleanup: remove test fixtures', async () => {
+      await global.knex.raw('DELETE FROM user_access_to_component WHERE component_uuid = ?', [ctxComponentUuid]);
+      await global.knex.raw('DELETE FROM company_access_to_component WHERE component_uuid = ?', [ctxComponentUuid]);
+      await global.knex.raw('DELETE FROM supplier_to_component WHERE component_uuid = ?', [ctxComponentUuid]);
+      await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenSecond}`)
+        .send({
+          query: `mutation { deleteCompany(companyUuid: "${ctxCompanyUuid}") }`,
+        });
+      await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenSecond}`)
+        .send({
+          query: `mutation { deleteComponent(componentUuid: "${ctxComponentUuid}") }`,
+        });
+    });
+  });
 });

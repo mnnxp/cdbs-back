@@ -3704,6 +3704,24 @@ describe('standard', () => {
     done();
   });
 
+  it('/graphql:M deleteAccessRole - OK remove Manage from role (prepare no-access tests)', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set('Authorization', `Bearer ${authorizationTokenFirst}`)
+      .send({
+        query: `mutation {
+          deleteAccessRole(args: {
+            roleId: ${newRoleId}
+            typesAccessIds: [1]
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK);
+    debug('/graphql deleteAccessRole (Manage) =%o', body);
+    expect(body.data.deleteAccessRole).toBe(1);
+    done();
+  });
+
   it('/graphql:M putStandardUpdate - BadRequest not access for change company', async (done) => {
     const { body } = await agent
       .post('/graphql')
@@ -3732,6 +3750,23 @@ describe('standard', () => {
       'BadRequest: Access denied'
     );
     expect(body.errors[0].path[0]).toBe('putStandardUpdate');
+    done();
+  });
+
+  it('/graphql:M addAccessRole - OK restore Manage (before OK with access test)', async (done) => {
+    const { body } = await agent
+      .post('/graphql')
+      .set('Authorization', `Bearer ${authorizationTokenFirst}`)
+      .send({
+        query: `mutation {
+          addAccessRole(args: {
+            roleId: ${newRoleId}
+            typesAccessIds: 1
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK);
+    expect([0, 1]).toContain(body.data.addAccessRole);
     done();
   });
 
@@ -4074,6 +4109,22 @@ describe('standard', () => {
     done();
   });
 
+  it('/graphql:M deleteUserAccessStandard - OK remove Manage (prepare no-access for user_access)', async () => {
+    const { body } = await agent
+      .post('/graphql')
+      .set('Authorization', `Bearer ${authorizationTokenFirst}`)
+      .send({
+        query: `mutation {
+          deleteUserAccessStandard(args: {
+            standardUuid: "${standardUuidFirst}"
+            userUuid: "${authorizationUserSecond}"
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK);
+    expect(body.data.deleteUserAccessStandard).toBe(true);
+  });
+
   it('/graphql:M putStandardUpdate - BadRequest no access', async (done) => {
     const { body } = await agent
       .post('/graphql')
@@ -4103,6 +4154,22 @@ describe('standard', () => {
     );
     expect(body.errors[0].path[0]).toBe('putStandardUpdate');
     done();
+  });
+
+  it('/graphql:M setUserAccessStandard - OK restore Manage (after no-access test)', async () => {
+    await agent
+      .post('/graphql')
+      .set('Authorization', `Bearer ${authorizationTokenFirst}`)
+      .send({
+        query: `mutation {
+          setUserAccessStandard(args: {
+            standardUuid: "${standardUuidFirst}"
+            userUuid: "${authorizationUserSecond}"
+            typeAccessId: ${typeAccessId1}
+          })
+        }`,
+      })
+      .expect(HttpStatus.OK);
   });
 
   it('/graphql:M putStandardUpdate - OK with access user', async (done) => {
@@ -4858,5 +4925,335 @@ describe('standard', () => {
     expect(standardStatuses[1].standardStatusId).toBe(3);
     expect(standardStatuses.length).toBe(2);
     done();
+  });
+
+  // ==============================================
+  // is_enabled access control
+  // ==============================================
+  describe('is_enabled access control', () => {
+    let ctxCompanyUuid = "";
+    let ctxStandardUuid = "";
+    let ctxRoleId = 0;
+
+    it('setup: register company (owner = user 2)', async () => {
+      const suffix = Date.now();
+      const { body } = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenSecond}`)
+        .send({
+          query: `mutation {
+            registerCompany(args: {
+              orgname: "is_enabled test std company ${suffix}"
+              shortname: "ietstd${suffix}"
+              inn: "${suffix}"
+              phone: "00000000002"
+              email: "ietstd${suffix}@test.local"
+              description: "is_enabled test std company"
+              address: "test address"
+              siteUrl: "test.local"
+              timeZone: "Europe/Moscow"
+              regionId: 1
+              companyTypeId: 1
+              typeAccessId: ${typeAccessId1}
+            })
+          }`,
+        })
+        .expect(HttpStatus.OK);
+      expect(body.errors).toBeUndefined();
+      ctxCompanyUuid = body.data.registerCompany;
+      expect(ctxCompanyUuid).toBeNonEmptyString();
+    });
+
+    it('setup: register standard (owner = user 2, private, company = ctxCompanyUuid)', async () => {
+      const { body } = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenSecond}`)
+        .send({
+          query: `mutation {
+            registerStandard(args: {
+              name: "is_enabled test standard ${Date.now()}"
+              description: "is_enabled test"
+              publicationAt: "2021-01-01T00:00:00"
+              companyUuid: "${ctxCompanyUuid}"
+              typeAccessId: ${typeAccessId1}
+              standardStatusId: 1
+            })
+          }`,
+        })
+        .expect(HttpStatus.OK);
+      expect(body.errors).toBeUndefined();
+      ctxStandardUuid = body.data.registerStandard;
+      expect(ctxStandardUuid).toBeNonEmptyString();
+    });
+
+    it('setup: register role in company (Read)', async () => {
+      const { body } = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenSecond}`)
+        .send({
+          query: `mutation {
+            registerCompanyRole(args: {
+              companyUuid: "${ctxCompanyUuid}"
+              langId: 1
+              name: "is_enabled std test role ${Date.now()}"
+            })
+          }`,
+        })
+        .expect(HttpStatus.OK);
+      expect(body.errors).toBeUndefined();
+      ctxRoleId = body.data.registerCompanyRole;
+      expect(ctxRoleId).toBeGreaterThan(0);
+
+      const { body: addAccBody } = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenSecond}`)
+        .send({
+          query: `mutation {
+            addAccessRole(args: {
+              roleId: ${ctxRoleId}
+              typesAccessIds: ${typeAccessId3}
+            })
+          }`,
+        })
+        .expect(HttpStatus.OK);
+      expect(addAccBody.errors).toBeUndefined();
+      expect(addAccBody.data.addAccessRole).toBe(1);
+    });
+
+    it('setup: add user 1 as company member', async () => {
+      const { body } = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenSecond}`)
+        .send({
+          query: `mutation {
+            addCompanyMember(args: {
+              companyUuid: "${ctxCompanyUuid}"
+              userUuid: "${authorizationUserFirst}"
+              roleId: ${ctxRoleId}
+            })
+          }`,
+        })
+        .expect(HttpStatus.OK);
+      expect(body.errors).toBeUndefined();
+      expect(body.data.addCompanyMember).toBe(true);
+    });
+
+    it('setup: baseline — user 1 sees nothing (no access yet)', async () => {
+      const { body } = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenFirst}`)
+        .send({
+          query: `query {
+            standards(args: { standardsUuids: "${ctxStandardUuid}" }) { uuid }
+          }`,
+        })
+        .expect(HttpStatus.OK);
+      expect(body.errors).toBeUndefined();
+      expect(body.data.standards).toBeEmptyArray();
+    });
+
+    it('user_access: granted — user 1 sees standard', async () => {
+      const { body } = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenSecond}`)
+        .send({
+          query: `mutation {
+            setUserAccessStandard(args: {
+              standardUuid: "${ctxStandardUuid}"
+              userUuid: "${authorizationUserFirst}"
+              typeAccessId: ${typeAccessId3}
+            })
+          }`,
+        })
+        .expect(HttpStatus.OK);
+      expect(body.errors).toBeUndefined();
+      expect(body.data.setUserAccessStandard).toBe(true);
+
+      const { body: listBody } = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenFirst}`)
+        .send({
+          query: `query {
+            standards(args: { standardsUuids: "${ctxStandardUuid}" }) { uuid }
+          }`,
+        })
+        .expect(HttpStatus.OK);
+      expect(listBody.data.standards.length).toBe(1);
+      expect(listBody.data.standards[0].uuid).toBe(ctxStandardUuid);
+    });
+
+    it('user_access: deactivated — user 1 does not see standard (list)', async () => {
+      // flush cache: set_* again, then UPDATE false
+      await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenSecond}`)
+        .send({
+          query: `mutation {
+            setUserAccessStandard(args: {
+              standardUuid: "${ctxStandardUuid}"
+              userUuid: "${authorizationUserFirst}"
+              typeAccessId: ${typeAccessId3}
+            })
+          }`,
+        })
+        .expect(HttpStatus.OK);
+      await global.knex.raw(
+        'UPDATE user_access_to_standard SET is_enabled = false WHERE standard_uuid = ? AND user_uuid = ?',
+        [ctxStandardUuid, authorizationUserFirst]
+      );
+
+      const { body } = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenFirst}`)
+        .send({
+          query: `query {
+            standards(args: { standardsUuids: "${ctxStandardUuid}" }) { uuid }
+          }`,
+        })
+        .expect(HttpStatus.OK);
+      expect(body.errors).toBeUndefined();
+      expect(body.data.standards).toBeEmptyArray();
+    });
+
+    it('user_access: deactivated — user 1 does not see standard (myAccessToStandard)', async () => {
+      const { body } = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenFirst}`)
+        .send({
+          query: `query {
+            myAccessToStandard(standardUuid: "${ctxStandardUuid}") { hasAccess source }
+          }`,
+        })
+        .expect(HttpStatus.OK);
+      expect(body.errors).toBeUndefined();
+      expect(body.data.myAccessToStandard.hasAccess).toBe(false);
+      expect(body.data.myAccessToStandard.source).toBe('NONE');
+    });
+
+    it('company_access: granted — user 1 sees standard (via company role)', async () => {
+      const { body } = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenSecond}`)
+        .send({
+          query: `mutation {
+            setCompanyAccessStandard(args: {
+              standardUuid: "${ctxStandardUuid}"
+              companyUuid: "${ctxCompanyUuid}"
+              typeAccessId: ${typeAccessId3}
+            })
+          }`,
+        })
+        .expect(HttpStatus.OK);
+      expect(body.errors).toBeUndefined();
+      expect(body.data.setCompanyAccessStandard).toBe(true);
+
+      const { body: listBody } = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenFirst}`)
+        .send({
+          query: `query {
+            standards(args: { standardsUuids: "${ctxStandardUuid}" }) { uuid }
+          }`,
+        })
+        .expect(HttpStatus.OK);
+      expect(listBody.data.standards.length).toBe(1);
+    });
+
+    it('company_access: deactivated — user 1 does not see standard', async () => {
+      // flush cache
+      await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenSecond}`)
+        .send({
+          query: `mutation {
+            setCompanyAccessStandard(args: {
+              standardUuid: "${ctxStandardUuid}"
+              companyUuid: "${ctxCompanyUuid}"
+              typeAccessId: ${typeAccessId3}
+            })
+          }`,
+        })
+        .expect(HttpStatus.OK);
+      await global.knex.raw(
+        'UPDATE company_access_to_standard SET is_enabled = false WHERE standard_uuid = ? AND company_uuid = ?',
+        [ctxStandardUuid, ctxCompanyUuid]
+      );
+
+      const { body } = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenFirst}`)
+        .send({
+          query: `query {
+            standards(args: { standardsUuids: "${ctxStandardUuid}" }) { uuid }
+          }`,
+        })
+        .expect(HttpStatus.OK);
+      expect(body.errors).toBeUndefined();
+      expect(body.data.standards).toBeEmptyArray();
+    });
+
+    it('company_member: deactivated — user 1 does not see standard', async () => {
+      // restore company_access to true, but deactivate member role
+      await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenSecond}`)
+        .send({
+          query: `mutation {
+            setCompanyAccessStandard(args: {
+              standardUuid: "${ctxStandardUuid}"
+              companyUuid: "${ctxCompanyUuid}"
+              typeAccessId: ${typeAccessId3}
+            })
+          }`,
+        })
+        .expect(HttpStatus.OK);
+      await global.knex.raw(
+        'UPDATE company_member_list SET is_enabled = false WHERE company_uuid = ? AND user_uuid = ?',
+        [ctxCompanyUuid, authorizationUserFirst]
+      );
+      // flush cache
+      await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenSecond}`)
+        .send({
+          query: `mutation {
+            setCompanyAccessStandard(args: {
+              standardUuid: "${ctxStandardUuid}"
+              companyUuid: "${ctxCompanyUuid}"
+              typeAccessId: ${typeAccessId3}
+            })
+          }`,
+        })
+        .expect(HttpStatus.OK);
+
+      const { body } = await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenFirst}`)
+        .send({
+          query: `query {
+            standards(args: { standardsUuids: "${ctxStandardUuid}" }) { uuid }
+          }`,
+        })
+        .expect(HttpStatus.OK);
+      expect(body.errors).toBeUndefined();
+      expect(body.data.standards).toBeEmptyArray();
+    });
+
+    it('cleanup: remove test fixtures', async () => {
+      await global.knex.raw('DELETE FROM user_access_to_standard WHERE standard_uuid = ?', [ctxStandardUuid]);
+      await global.knex.raw('DELETE FROM company_access_to_standard WHERE standard_uuid = ?', [ctxStandardUuid]);
+      await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenSecond}`)
+        .send({
+          query: `mutation { deleteStandard(standardUuid: "${ctxStandardUuid}") }`,
+        });
+      await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${authorizationTokenSecond}`)
+        .send({
+          query: `mutation { deleteCompany(companyUuid: "${ctxCompanyUuid}") }`,
+        });
+    });
   });
 });
