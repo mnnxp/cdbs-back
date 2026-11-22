@@ -1,3 +1,4 @@
+pub(crate) mod cache;
 pub(crate) mod discussion;
 pub(crate) mod extension;
 pub(crate) mod file;

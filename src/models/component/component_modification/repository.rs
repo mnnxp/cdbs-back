@@ -1,9 +1,9 @@
 use crate::errors::{ServiceError, ServiceResult};
 use crate::graphql::component_model::ComponentModificationAndRelatedData;
-use crate::models::component::actual_status::model::ActualStatusTranslateList;
 use crate::models::component::component_modification::model::{
     ComponentModification, ComponentModificationArg,
 };
+use crate::models::relate_ref::cache::actual_status_by_id;
 use crate::models::search::order::objects_order;
 use crate::schema::component_modification_list::dsl as component_modification_list;
 use diesel::prelude::*;
@@ -34,29 +34,28 @@ impl ComponentModificationAndRelatedData {
     ) -> ServiceResult<Vec<ComponentModificationAndRelatedData>> {
         let object_uuids =
             get_modification_uuids_by_component_uuid(&args.component_uuid, &args.filter, conn)?;
+        let ordered_uuids = objects_order(&object_uuids, &args.sort, &args.paginate, conn)?;
         // collect data for modifications the component
-        let mut res = Vec::new();
-        for modification_uuid in &objects_order(&object_uuids, &args.sort, &args.paginate, conn)? {
+        let mut res = Vec::with_capacity(ordered_uuids.len());
+        for modification_uuid in &ordered_uuids {
             let cm = ComponentModification::by_uuid(modification_uuid, conn)?;
-            res.push(Self::for_modification(&cm, set_lang_id, conn)?)
+            res.push(Self::for_modification(cm, set_lang_id)?)
         }
         Ok(res)
     }
 
     /// Get related data for component modification
     pub(crate) fn for_modification(
-        cm: &ComponentModification,
+        cm: ComponentModification,
         set_lang_id: i32,
-        conn: &mut PgConnection,
     ) -> ServiceResult<ComponentModificationAndRelatedData> {
-        let actual_status =
-            ActualStatusTranslateList::get_by_id(cm.actual_status_id, set_lang_id, conn)?;
+        let actual_status = actual_status_by_id(cm.actual_status_id, set_lang_id)?;
         Ok(Self {
             uuid: cm.uuid,
             component_uuid: cm.component_uuid,
             parent_modification_uuid: cm.parent_modification_uuid,
-            modification_name: cm.modification_name.clone(),
-            description: cm.description.clone(),
+            modification_name: cm.modification_name,
+            description: cm.description,
             actual_status,
             created_at: cm.created_at,
             updated_at: cm.updated_at,

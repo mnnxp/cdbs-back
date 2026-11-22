@@ -16,7 +16,7 @@ use crate::models::supplier_service::file::repository::{
     get_file_uuids_by_service_uuid, get_service_uuid_by_file_uuid,
 };
 use diesel::prelude::*;
-use regex::Regex;
+use std::path::Path;
 use uuid::Uuid;
 
 use super::model::{ListObject, PreliminaryFileData};
@@ -33,50 +33,17 @@ pub(crate) fn check_default_file(file_uuid: &Uuid) -> bool {
     &config::default_image_uuid() == file_uuid
 }
 
-/// Find extension id on table for file extension
-pub(crate) fn find_id_ext(filename: &str, conn: &mut PgConnection) -> i32 {
-    use crate::schema::extension_ref::dsl::*;
-    // debug!("Filename_str {:?}", filename);
-    let ext_str = match Regex::new(r"\.\w+$") {
-        Ok(rg) => rg.find(filename).map(|m| m.as_str()).unwrap_or_default(),
-        Err(e) => {
-            error!("Invalid regex: {}", e);
-            ""
-        }
-    };
-    // debug!("Ext_str {:?}", ext_str);
-    if ext_str.is_empty() {
-        return 1;
-    }
-    // find id extension or set not found id = 1
-    extension_ref
-        .filter(extension.eq(ext_str))
-        .select(id)
-        .first::<i32>(conn)
-        .unwrap_or(1)
-}
-
 /// Checking that the file name matches the image
 pub(crate) fn check_image_filename(filename: &str) -> ServiceResult<bool> {
-    let ext_str = Regex::new(r"\.\w+$")
-        .map_err(|_| ServiceError::InternalServerError)?
-        .find(filename)
-        .ok_or(get_err_msg(ErrorMessage::BadFilename))?
-        .as_str();
+    let ext = Path::new(filename)
+        .extension()
+        .and_then(|e| e.to_str())
+        .map(|e| e.to_lowercase())
+        .ok_or_else(|| get_err_msg(ErrorMessage::BadFilename))?;
 
     Ok(matches!(
-        ext_str.to_lowercase().as_str(),
-        ".apng"
-            | ".avif"
-            | ".gif"
-            | ".jpg"
-            | ".jpeg"
-            | ".jpe"
-            | ".jif"
-            | ".jfif"
-            | ".png"
-            | ".svg"
-            | ".webp"
+        ext.as_str(),
+        "apng" | "avif" | "gif" | "jpg" | "jpeg" | "jpe" | "jif" | "jfif" | "png" | "svg" | "webp"
     ))
 }
 

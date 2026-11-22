@@ -1,21 +1,21 @@
+use super::model::Standard;
+use super::standard_fav::model::StandardFav;
+use super::standard_fav::util::check_subscriber_by_uuid;
 use crate::auth::{require_permission, AccessEntity, AccessOperation};
 use crate::errors::{ServiceError, ServiceResult};
 use crate::graphql::file::ShowFileRelatedData;
 use crate::graphql::standard_model::{ShowStandardShort, StandardAndRelatedData};
 use crate::models::company::model::ShowCompanyShort;
+use crate::models::relate_ref::cache::{standard_status_by_id, type_access_by_id};
 use crate::models::relate_ref::{
     file::model::DownloadFile, keyword::model::Keyword, spec::model::SpecTranslateList,
-    type_access::model::TypeAccessTranslateList,
 };
+use crate::models::search::order::objects_order;
 use crate::models::search::{
     model::ExtraOptions,
     order::{Paginate, Sort, TableName},
 };
-use crate::models::standard::{
-    model::Standard, standard_fav::model::StandardFav,
-    standard_fav::util::check_subscriber_by_uuid,
-    standard_status::model::StandardStatusTranslateList,
-};
+use crate::models::standard::access::repository::get_accessible_standard_uuids;
 use crate::schema::standard_ref::dsl as standard_ref;
 use diesel::prelude::*;
 use uuid::Uuid;
@@ -60,29 +60,28 @@ impl ShowStandardShort {
     pub(crate) fn get_standards(
         filter_standards_uuids: &[Uuid],
         options: &ExtraOptions,
+        sort: &Sort,
         paginate: &Paginate,
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<ShowStandardShort>> {
         match filter_standards_uuids.is_empty() {
-            true => ShowStandardShort::get_all_public(options, paginate, conn),
-            false => ShowStandardShort::get_list_by_uuids(filter_standards_uuids, options, conn),
+            true => ShowStandardShort::get_all_public(options, sort, paginate, conn),
+            false => ShowStandardShort::get_list_by_uuids(
+                filter_standards_uuids,
+                options,
+                sort,
+                paginate,
+                conn,
+            ),
         }
     }
 
-    /// Gets standard short data by standard_uuid with check access
-    pub(crate) fn get_by_uuid(
+    /// Gets standard short data without checking access
+    pub(crate) fn get_without_check_by_uuid(
         target_standard_uuid: &Uuid,
         options: &ExtraOptions,
         conn: &mut PgConnection,
     ) -> ServiceResult<ShowStandardShort> {
-        require_permission(
-            &options.logged_user_uuid,
-            AccessEntity::Standard,
-            target_standard_uuid,
-            AccessOperation::Read,
-            conn,
-        )?;
-
         // get target standard
         let standard: Standard = Standard::get_standard_by_uuid(target_standard_uuid, conn)
             .expect("Error loading standard");
@@ -97,13 +96,9 @@ impl ShowStandardShort {
             ShowCompanyShort::get_without_check_by_uuid(&standard.company_uuid, conn)
                 .expect("Error loading company short data");
 
-        // get standard type with translation for standard
-        let standard_status = StandardStatusTranslateList::get_by_id(
-            standard.standard_status_id,
-            options.set_lang_id,
-            conn,
-        )
-        .expect("Error loading standard_status");
+        // get standard status with translation for standard
+        let standard_status =
+            standard_status_by_id(standard.standard_status_id, options.set_lang_id)?;
 
         // check whether the object is being tracked auth user
         let is_followed =
@@ -126,22 +121,35 @@ impl ShowStandardShort {
     pub(crate) fn get_list_by_uuids(
         standard_uuids: &[Uuid],
         options: &ExtraOptions,
+        sort: &Sort,
+        paginate: &Paginate,
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<ShowStandardShort>> {
-        // the for collect the result :)
-        let mut result: Vec<ShowStandardShort> = Vec::new();
-        // collecting data for each standard
-        for target_standard_uuid in standard_uuids.iter() {
-            let _res = ShowStandardShort::get_by_uuid(target_standard_uuid, options, conn)
-                .map(|value| result.push(value))
-                .map_err(|err| debug!("Failed get standard data: {:?}", err));
+        // filter by access (one SQL)
+        let accessible = get_accessible_standard_uuids(
+            &options.logged_user_uuid,
+            AccessOperation::Read,
+            standard_uuids,
+            conn,
+        )?;
+        if accessible.is_empty() {
+            return Ok(Vec::new());
+        }
+        // sort and paginate the accessible set
+        let ordered_uuids = objects_order(&accessible, sort, paginate, conn)?;
+        // hydrate (no access check, already filtered)
+        let mut result = Vec::with_capacity(ordered_uuids.len());
+        for uuid in &ordered_uuids {
+            result.push(ShowStandardShort::get_without_check_by_uuid(
+                uuid, options, conn,
+            )?);
         }
         Ok(result)
     }
 
-    /// Gets all public standards short data
     pub(crate) fn get_all_public(
         options: &ExtraOptions,
+        sort: &Sort,
         paginate: &Paginate,
         conn: &mut PgConnection,
     ) -> ServiceResult<Vec<ShowStandardShort>> {
@@ -153,21 +161,19 @@ impl ShowStandardShort {
                     .and(standard_ref::is_delete.eq(false)),
             )
             .select(standard_ref::uuid)
-            .limit(paginate.limit)
-            .offset(paginate.offset)
             .load::<Uuid>(conn)
             .map_err(|err| {
                 debug!("Failed get public standards: {:?}", err);
                 ServiceError::InternalServerError
             })?;
 
-        // the for collect the result :)
         let mut result: Vec<ShowStandardShort> = Vec::new();
-        // collecting data for each standard
-        for target_standard_uuid in standard_uuids.iter() {
-            let _res = ShowStandardShort::get_by_uuid(target_standard_uuid, options, conn)
-                .map(|value| result.push(value))
-                .map_err(|err| debug!("Failed get standard data: {:?}", err));
+        for target_standard_uuid in objects_order(&standard_uuids, sort, paginate, conn)? {
+            result.push(ShowStandardShort::get_without_check_by_uuid(
+                &target_standard_uuid,
+                options,
+                conn,
+            )?);
         }
         Ok(result)
     }
@@ -211,21 +217,12 @@ impl StandardAndRelatedData {
             ShowCompanyShort::get_without_check_by_uuid(&standard.company_uuid, conn)
                 .expect("Error loading company short data");
 
-        // get standard type with translation for standard
-        let type_access = TypeAccessTranslateList::get_type_access_by_id(
-            standard.type_access_id,
-            options.set_lang_id,
-            conn,
-        )
-        .expect("Error loading type_access");
+        // get standard access type with translation
+        let type_access = type_access_by_id(standard.type_access_id, options.set_lang_id)?;
 
-        // get standard type with translation for standard
-        let standard_status = StandardStatusTranslateList::get_by_id(
-            standard.standard_status_id,
-            options.set_lang_id,
-            conn,
-        )
-        .expect("Error loading standard_status");
+        // get standard status with translation for standard
+        let standard_status =
+            standard_status_by_id(standard.standard_status_id, options.set_lang_id)?;
 
         // count subscribers standard
         let subscribers = StandardFav::get_count_followers_by_uuid(&standard.uuid, conn)

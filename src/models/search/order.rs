@@ -98,6 +98,7 @@ pub(crate) enum TableName {
     ComponentModification,
     FileRef,
     ServiceRef,
+    StandardRef,
     ParamTranslateList,
     ParamToComponent,
     ParamToService,
@@ -121,6 +122,7 @@ impl TableName {
             Self::ComponentModification => "component_modification_list",
             Self::FileRef => "file_ref",
             Self::ServiceRef => "service_ref",
+            Self::StandardRef => "standard_ref",
             Self::ParamTranslateList => "", // table is specified in fields
             // Returns a name of a table for the relationship between two objects
             Self::ParamToComponent => "param_to_component",
@@ -238,6 +240,21 @@ impl TableColumn {
                     "name" => ("name".to_string(), DataType::Number),
                     "description" => ("description".to_string(), DataType::String),
                     "serviceStatusId" => ("service_status_id".to_string(), DataType::Number),
+                    "updatedAt" => ("updated_at".to_string(), DataType::Date),
+                    _ => ("created_at".to_string(), DataType::Date),
+                };
+                Self {
+                    table,
+                    column,
+                    data_type,
+                }
+            }
+            TableName::StandardRef => {
+                let (column, data_type) = match field {
+                    "name" => ("name".to_string(), DataType::String),
+                    "description" => ("description".to_string(), DataType::String),
+                    "publicationAt" => ("publication_at".to_string(), DataType::Date),
+                    "standardStatusId" => ("standard_status_id".to_string(), DataType::Number),
                     "updatedAt" => ("updated_at".to_string(), DataType::Date),
                     _ => ("created_at".to_string(), DataType::Date),
                 };

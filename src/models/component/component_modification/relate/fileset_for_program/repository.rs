@@ -2,7 +2,7 @@ use crate::errors::{ServiceError, ServiceResult};
 use crate::models::component::component_modification::fileset_for_program::model::{
     FilesetProgram, FilesetProgramRelatedData,
 };
-use crate::models::relate_ref::program::model::Program;
+use crate::models::relate_ref::cache::program_by_id;
 use crate::schema::fileset_for_program::dsl as fileset_for_program;
 use diesel::prelude::*;
 use uuid::Uuid;
@@ -20,13 +20,12 @@ impl FilesetProgramRelatedData {
                 debug!("Failed get fileset for program: {:?}", err);
                 ServiceError::InternalServerError
             })?;
-        FilesetProgramRelatedData::for_filesets(&filesets, conn)
+        FilesetProgramRelatedData::for_filesets(&filesets)
     }
 
     /// Get program translate data for filesets list
     pub(crate) fn for_filesets(
         filesets: &[FilesetProgram],
-        conn: &mut PgConnection,
     ) -> ServiceResult<Vec<FilesetProgramRelatedData>> {
         let mut result: Vec<FilesetProgramRelatedData> = Vec::new();
         for fset in filesets {
@@ -34,7 +33,7 @@ impl FilesetProgramRelatedData {
             result.push(FilesetProgramRelatedData {
                 uuid: fset.uuid,
                 modification_uuid: fset.modification_uuid,
-                program: Program::get_program_by_id(fset.program_id, conn)?,
+                program: program_by_id(fset.program_id)?,
             });
         }
         // sorting the list of program names alphabetically

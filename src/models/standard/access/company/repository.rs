@@ -1,5 +1,5 @@
 use crate::errors::{ServiceError, ServiceResult};
-use crate::models::relate_ref::type_access::model::TypeAccessTranslateList;
+use crate::models::relate_ref::cache::type_access_by_id;
 use crate::models::standard::access::company::model::{
     CompanyAccessStandard, CompanyAccessStandardAndRelatedData,
 };
@@ -24,11 +24,7 @@ impl CompanyAccessStandardAndRelatedData {
 
         let mut res: Vec<CompanyAccessStandardAndRelatedData> = Vec::new();
         for x in list_companies_with_access {
-            let type_access = TypeAccessTranslateList::get_type_access_by_id(
-                x.type_access_id,
-                set_lang_id,
-                conn,
-            )?;
+            let type_access = type_access_by_id(x.type_access_id, set_lang_id)?;
 
             res.push(CompanyAccessStandardAndRelatedData {
                 standard_uuid: x.standard_uuid,

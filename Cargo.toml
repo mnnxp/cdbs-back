@@ -1,10 +1,10 @@
 [package]
 name = "cdbs-back"
-version = "0.3.2"
+version = "0.3.3"
 authors = ["mnnxp <mananaxep@gmail.com>"]
 edition = "2021"
 resolver = "1"
-rust-version = "1.70.0"
+rust-version = "1.86.0"
 license = "AGPL-3.0-only"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -49,8 +49,6 @@ sanitize-filename = "0.4.0"
 # infer = "0.5.0"
 
 structopt = "0.3.26"
-
-regex = "1.7.0"
 
 ring = "0.16.20"
 sha2 = "0.10.6"

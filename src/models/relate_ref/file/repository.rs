@@ -1,5 +1,5 @@
 use super::commit::Commit;
-use super::util::{find_id_ext, get_default_image};
+use super::util::get_default_image;
 use crate::errors::{ServiceError, ServiceResult};
 use crate::graphql::file::ShowFileRelatedData;
 use crate::models::relate_ref::file::model::{
@@ -29,7 +29,7 @@ fn get_by_uuids(file_uuids: &[Uuid], conn: &mut PgConnection) -> ServiceResult<V
         .limit(1000)
         .load::<Uuid>(conn)
         .map_err(|err| {
-            debug!("Failed get files: {:?}", err);
+            debug!("Failed to get files from DB (get_by_uuids): {:?}", err);
             ServiceError::InternalServerError
         })
 }
@@ -48,7 +48,7 @@ fn get_hide_by_uuids(file_uuids: &[Uuid], conn: &mut PgConnection) -> ServiceRes
         .limit(1000)
         .load::<Uuid>(conn)
         .map_err(|err| {
-            debug!("Failed get files: {:?}", err);
+            debug!("Failed to get hidden files from DB: {:?}", err);
             ServiceError::InternalServerError
         })
 }
@@ -72,7 +72,7 @@ impl ShowFile {
             .filter(file_ref::uuid.eq(&file_uuid))
             .first::<ShowFile>(conn)
             .map_err(|err| {
-                debug!("Failed get file: {:?}", err);
+                debug!("Failed to get file (ShowFile): {:?}", err);
                 ServiceError::InternalServerError
             })
     }
@@ -163,7 +163,7 @@ impl SlimFile {
             )
             .first::<SlimFile>(conn)
             .map_err(|err| {
-                debug!("Failed get file: {:?}", err);
+                debug!("Failed to get file (SlimFile): {:?}", err);
                 ServiceError::InternalServerError
             })
     }
@@ -195,7 +195,7 @@ impl SlimFile {
             .offset(paginate.offset)
             .load::<SlimFile>(conn)
             .map_err(|err| {
-                debug!("Failed get file: {:?}", err);
+                debug!("Failed to get files by file UUIDs from DB: {:?}", err);
                 ServiceError::InternalServerError
             })
     }
@@ -229,7 +229,7 @@ impl SlimFile {
             )
             .load::<SlimFile>(conn)
             .map_err(|err| {
-                debug!("Failed get file: {:?}", err);
+                debug!("Failed to get unchecked files from DB: {:?}", err);
                 ServiceError::InternalServerError
             })
     }
@@ -245,7 +245,7 @@ impl SlimFile {
             )
             .first::<Vec<u8>>(conn)
             .map_err(|err| {
-                debug!("Failed get file hash: {:?}", err);
+                debug!("Failed to get file hash from DB (encode_hash): {:?}", err);
                 ServiceError::InternalServerError
             })?;
         Ok(hex::encode(hash))
@@ -265,7 +265,7 @@ impl SlimFile {
             )
             .first::<Vec<u8>>(conn)
             .map_err(|err| {
-                debug!("Failed get file hash: {:?}", err);
+                debug!("Failed to get file SHA256 from DB: {:?}", err);
                 ServiceError::InternalServerError
             })?;
         Ok(hex::encode(sha256_hash))
@@ -307,7 +307,7 @@ impl SlimFile {
             .limit(1)
             .load::<String>(conn)
             .map_err(|err| {
-                debug!("Failed get presigned_url: {:?}", err);
+                debug!("Failed get presigned_url from db): {:?}", err);
                 ServiceError::InternalServerError
             })?;
         let presigned_url = match get_url_from_db.into_iter().next() {
@@ -333,14 +333,11 @@ impl PreliminaryFileData {
         object: ListObject,
         filename: &str,
         commit_uuid: Uuid,
-        conn: &mut PgConnection,
     ) -> PreliminaryFileData {
         // set default parent
         let parent_file_uuid = get_default_image();
         // getting rid of dangerous names
         let filename = sanitize_filename::sanitize(filename);
-        // get id for extension
-        let id_ext = find_id_ext(&filename, conn);
 
         Self {
             parent_file_uuid,
@@ -348,9 +345,9 @@ impl PreliminaryFileData {
             object,
             user_uuid,
             filename,
-            id_ext,
+            id_ext: 1,
             commit_uuid,
-            content_type: "application/text".to_string(), // <-- todo!(add parse of filename)
+            content_type: String::new(),
         }
     }
 }
@@ -432,7 +429,7 @@ fn next_revision_uuids_by_uuid(
             .first::<Uuid>(conn)
             .optional()
             .map_err(|err| {
-                debug!("Failed get file: {:?}", err);
+                debug!("Failed to get next file revision from DB: {:?}", err);
                 ServiceError::InternalServerError
             })?;
         debug!("Result found a parent: {:?}", parent_uuid);
@@ -463,7 +460,7 @@ fn prev_revision_uuids_by_uuid(
             .first::<Uuid>(conn)
             .optional()
             .map_err(|err| {
-                debug!("Failed get file: {:?}", err);
+                debug!("Failed to get prev file revision from DB: {:?}", err);
                 ServiceError::InternalServerError
             })?;
         debug!("Result found a parent: {:?}", parent_uuid);
@@ -489,7 +486,7 @@ pub(crate) fn get_filename_hidden_rev_by_uuid(
         // .order(file_ref::filename.asc())
         .first::<String>(conn)
         .map_err(|err| {
-            debug!("Failed get file: {:?}", err);
+            debug!("Failed to get hidden rev filename from DB: {:?}", err);
             ServiceError::InternalServerError
         })
 }

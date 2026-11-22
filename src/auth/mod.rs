@@ -7,4 +7,6 @@ mod rbac;
 pub(crate) mod token;
 
 pub(crate) use context::AuthContext;
-pub(crate) use rbac::{check_permission, require_permission, AccessEntity, AccessOperation};
+pub(crate) use rbac::{
+    check_permission, require_admin, require_permission, AccessEntity, AccessOperation,
+};

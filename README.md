@@ -58,6 +58,7 @@ cargo run
 | `ROOT_DISCUSSION_COMMENT_UUID` | Root discussion comment UUID | `dd92b579-019b-48ed-a9e2-28131dbdd363` |
 | `DEFAULT_IMAGE_UUID` | Default placeholder image UUID | `bc1c2151-86d0-4656-9c9d-d016dd584297` |
 | `DEFAULT_USER_UUID` | Default user UUID (anonymous) | `413a9b1c-da2d-44f9-a492-58f9448b402e` |
+| `ADMIN_USER_UUID` | Admin user UUID (allowed to edit reference tables) | `00000000-0000-0000-0000-000000000000` |
 
 > **Note:** All environment variables can also be passed as CLI arguments. Run `cargo run -- --help` for details.
 > **Warning:** System UUIDs must match existing database values. Do not change them unless you know what you are doing.

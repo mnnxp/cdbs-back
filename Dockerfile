@@ -1,5 +1,5 @@
 # select build image
-FROM rust:1.84.1 AS build
+FROM rust:1.86.0 AS build
 
 WORKDIR /cdbs-back
 

@@ -2,8 +2,7 @@ use crate::errors::{ServiceError, ServiceResult};
 use crate::models::company::company_represent::model::{
     CompanyRepresent, CompanyRepresentAndRelatedData, CompanyRepresentsArg,
 };
-use crate::models::company::company_represent::representation_type::model::RepresentationTypeTranslateList;
-use crate::models::relate_ref::region::model::RegionTranslateList;
+use crate::models::relate_ref::cache::{region_by_id, representation_type_by_id};
 use crate::models::search::order::Paginate;
 use crate::schema::company_represent_ref::dsl as company_represent_ref;
 use diesel::prelude::*;
@@ -51,17 +50,12 @@ impl CompanyRepresentAndRelatedData {
     pub(crate) fn get_by_represent(
         represent: &CompanyRepresent,
         set_lang_id: i32,
-        conn: &mut PgConnection,
     ) -> ServiceResult<CompanyRepresentAndRelatedData> {
         // get regions for company represent
-        let region = RegionTranslateList::get_region_by_id(represent.region_id, set_lang_id, conn)?;
-
+        let region = region_by_id(represent.region_id, set_lang_id)?;
         // get represent type for company represent
-        let representation_type = RepresentationTypeTranslateList::get_by_id(
-            represent.representation_type_id,
-            set_lang_id,
-            conn,
-        )?;
+        let representation_type =
+            representation_type_by_id(represent.representation_type_id, set_lang_id)?;
 
         Ok(CompanyRepresentAndRelatedData {
             uuid: represent.uuid,
@@ -83,7 +77,7 @@ impl CompanyRepresentAndRelatedData {
     ) -> ServiceResult<Vec<CompanyRepresentAndRelatedData>> {
         let company_represents = &CompanyRepresent::get_by_company_uuid(company_uuid, conn)?;
 
-        CompanyRepresentAndRelatedData::get_by_represents(company_represents, set_lang_id, conn)
+        CompanyRepresentAndRelatedData::get_by_represents(company_represents, set_lang_id)
     }
 
     /// Gets company represents by represents uuids
@@ -95,11 +89,7 @@ impl CompanyRepresentAndRelatedData {
     ) -> ServiceResult<Vec<CompanyRepresentAndRelatedData>> {
         let company_represents = &CompanyRepresent::get_by_args(args, paginate, conn)?;
         debug!("company_represents: {:?}", company_represents);
-        CompanyRepresentAndRelatedData::get_by_represents(
-            company_represents,
-            args.set_lang_id,
-            conn,
-        )
+        CompanyRepresentAndRelatedData::get_by_represents(company_represents, args.set_lang_id)
     }
 
     /// Gets company represents by company represents
@@ -107,7 +97,6 @@ impl CompanyRepresentAndRelatedData {
     pub(crate) fn get_by_represents(
         company_represents: &[CompanyRepresent],
         set_lang_id: i32,
-        conn: &mut PgConnection,
     ) -> ServiceResult<Vec<CompanyRepresentAndRelatedData>> {
         debug!("company represent: {:?}", company_represents);
         let mut company_represent_with_data: Vec<CompanyRepresentAndRelatedData> = Vec::new();
@@ -115,7 +104,6 @@ impl CompanyRepresentAndRelatedData {
             company_represent_with_data.push(CompanyRepresentAndRelatedData::get_by_represent(
                 represent,
                 set_lang_id,
-                conn,
             )?)
         }
         debug!(

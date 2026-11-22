@@ -1,3 +1,4 @@
+use crate::config::admin_user_uuid;
 use crate::errors::err_msg::{get_err_msg, ErrorMessage};
 use crate::errors::ServiceResult;
 use crate::models::supplier_service::access::util::check_user_access_provided_by_company;
@@ -251,4 +252,14 @@ pub(crate) fn require_permission(
         return Err(get_err_msg(ErrorMessage::AccessDenied));
     }
     Ok(())
+}
+
+/// Require the logged-in user to be the configured admin
+pub(crate) fn require_admin(logged_user_uuid: &Uuid) -> ServiceResult<()> {
+    let admin = admin_user_uuid();
+    if !admin.is_nil() && *logged_user_uuid == admin {
+        Ok(())
+    } else {
+        Err(get_err_msg(ErrorMessage::AccessDenied))
+    }
 }
